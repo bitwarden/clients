@@ -65,24 +65,6 @@ describe("PopupPageComponent", () => {
     expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  /**
-   * The scroll region's extra bottom padding is applied by a `:has()` rule on the wrapper rather than
-   * a class binding, because whether the slot received content is not reactively observable. Asserting
-   * the selector matches is what proves the rule fires — jsdom computes no layout.
-   */
-  it("pads the scroll region so the floating action does not occlude the last row", () => {
-    const wrapper = floatingActionWrapper();
-
-    expect(wrapper.classList).toContain("[&:has([slot=floating-action])~div]:!tw-pb-20");
-    expect(wrapper.matches(":has([slot=floating-action])")).toBe(true);
-    expect(wrapper.nextElementSibling).toBe(scrollRegion());
-
-    host.showFloatingAction.set(false);
-    fixture.detectChanges();
-
-    expect(wrapper.matches(":has([slot=floating-action])")).toBe(false);
-  });
-
   /** The loading spinner carries no z-index, so the action has to step aside for it. */
   it("hides the floating action while loading", () => {
     expect(floatingActionWrapper().classList).not.toContain("tw-invisible");

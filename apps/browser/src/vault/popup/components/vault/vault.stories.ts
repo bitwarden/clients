@@ -458,6 +458,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         restoreFilters$: () => of({}),
         saveFilters: () => {},
+        cachedFilters: signal({}),
         selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
@@ -576,10 +577,17 @@ const buildProviders = (args: StoryArgs) => {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(false) },
     },
-    { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
+    {
+      provide: OrganizationService,
+      useValue: { hasOrganizations: () => of(false), memberOrganizations$: () => of([]) },
+    },
     {
       provide: InternalOrganizationServiceAbstraction,
-      useValue: { organizations$: () => of([]), hasOrganizations: () => of(false) },
+      useValue: {
+        organizations$: () => of([]),
+        hasOrganizations: () => of(false),
+        memberOrganizations$: () => of([]),
+      },
     },
     { provide: CollectionService, useValue: { decryptedCollections$: () => of([]) } },
     {
@@ -762,8 +770,10 @@ const buildProviders = (args: StoryArgs) => {
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
           launchWebsiteForName: "Launch __$1__",
-          // New-item dropdown / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
+          // New-item dropdown / FAB / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
           // resolve or the dropdown throws while rendering.
+          addItem: "Add item",
+          newFolder: "New folder",
           new: "New",
           add: "Add",
           typeNote: "Note",

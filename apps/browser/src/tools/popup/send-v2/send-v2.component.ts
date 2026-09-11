@@ -1,12 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, OnDestroy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, distinctUntilChanged, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
 import { VaultLoadingSkeletonComponent } from "@bitwarden/browser/vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -32,6 +34,8 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { VaultFadeInOutSkeletonComponent } from "../../../vault/popup/components/vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
+
+import { SendFabComponent } from "./send-fab/send-fab.component";
 
 /** A state of the Send list UI. */
 export const SendState = Object.freeze({
@@ -71,6 +75,7 @@ export type SendState = (typeof SendState)[keyof typeof SendState];
     SvgComponent,
     VaultFadeInOutSkeletonComponent,
     VaultLoadingSkeletonComponent,
+    SendFabComponent,
   ],
 })
 export class SendV2Component implements OnDestroy {
@@ -100,6 +105,11 @@ export class SendV2Component implements OnDestroy {
 
   protected sendsDisabled = false;
   private sendPolicyService = inject(SendPolicyService);
+
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   private readonly sendTypeTitles: Record<SendType, string> = {
     [SendType.File]: "fileSends",

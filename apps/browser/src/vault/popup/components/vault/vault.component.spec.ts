@@ -7,6 +7,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
 import {
@@ -48,6 +49,7 @@ import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
@@ -310,6 +312,10 @@ describe("VaultComponent", () => {
         },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
+        },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
         { provide: ActivatedRoute, useValue: mock<ActivatedRoute>() },
@@ -336,9 +342,16 @@ describe("VaultComponent", () => {
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         {
           provide: InternalOrganizationServiceAbstraction,
-          useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
+          useValue: {
+            organizations$: jest.fn().mockReturnValue(of([])),
+            memberOrganizations$: jest.fn().mockReturnValue(of([])),
+          },
         },
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
+        {
+          provide: CollectionService,
+          useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
