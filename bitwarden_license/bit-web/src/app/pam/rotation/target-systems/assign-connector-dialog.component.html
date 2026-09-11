@@ -6,13 +6,7 @@
 
   <div bitDialogContent>
     @if (params.options.length === 0) {
-      <p class="tw-text-muted">
-        @if (params.noneEligible) {
-          {{ "pamTargetSystemAssignConnectorNone" | i18n }}
-        } @else {
-          {{ "pamTargetSystemAssignConnectorNoOptions" | i18n }}
-        }
-      </p>
+      <p class="tw-text-muted">{{ "pamTargetSystemAssignConnectorNoOptions" | i18n }}</p>
     } @else {
       <bit-form-field>
         <bit-label>{{ "pamTargetSystemAssignConnectorLabel" | i18n }}</bit-label>
@@ -37,7 +31,7 @@
         (click)="confirm()"
         id="assign-connector-dialog_button_confirm"
       >
-        {{ "assign" | i18n }}
+        {{ "pamAccessConnectorAssignConfirm" | i18n }}
       </button>
     }
     <button
