@@ -162,6 +162,24 @@ describe("RotationJobDrawerComponent", () => {
     expect(query("drawer-attempts")).not.toBeNull();
   });
 
+  it("gives a failure with nothing to report no empty failure section", async () => {
+    await render(
+      retriedFailure({
+        statusLabelKey: "pamRotationJobStatusTimedOut",
+        startedAt: null,
+        duration: null,
+        attempts: [],
+        attemptsUniform: false,
+        causeLabelKey: null,
+        reportedReason: null,
+        syncStateLabelKey: null,
+      }),
+    );
+
+    expect(query("drawer-cause")).toBeNull();
+    expect(text()).not.toContain("pamRotationHistoryFailureHeading");
+  });
+
   it("carries no danger colour outside the badge", async () => {
     await render(retriedFailure());
 
