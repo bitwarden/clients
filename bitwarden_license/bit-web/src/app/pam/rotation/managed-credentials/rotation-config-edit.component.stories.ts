@@ -17,10 +17,12 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { QuartzSchedulePreset } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   ORGANIZATION_ID,
   id,
+  rotationConfig,
   rotationConfigDetail,
   sysId,
   targetSystem,
@@ -29,7 +31,18 @@ import { atUrl } from "../testing/story-helpers";
 
 import { RotationConfigEditComponent } from "./rotation-config-edit.component";
 
-const SAMPLE_DETAIL = rotationConfigDetail();
+/** The cron each named preset stands for, as the SDK resolves them. */
+const PRESET_CRONS: Partial<Record<QuartzSchedulePreset, string>> = {
+  [QuartzSchedulePreset.Hourly]: "0 0 * * * ?",
+  [QuartzSchedulePreset.Every6Hours]: "0 0 0/6 * * ?",
+  [QuartzSchedulePreset.Daily]: "0 0 0 * * ?",
+  [QuartzSchedulePreset.Weekly]: "0 0 0 ? * SUN",
+  [QuartzSchedulePreset.Monthly]: "0 0 0 1 * ?",
+};
+
+const SAMPLE_DETAIL = rotationConfigDetail({
+  config: rotationConfig({ scheduleCron: PRESET_CRONS[QuartzSchedulePreset.Daily] }),
+});
 
 /** An active target and a retired one, so the create picker offers exactly one of them. */
 const TARGET_SYSTEMS = [
@@ -58,6 +71,19 @@ function rotationSdkFor(systems = TARGET_SYSTEMS): Partial<RotationSdkService> {
     createConfig: () => Promise.resolve(SAMPLE_DETAIL),
     updateConfig: () => Promise.resolve(SAMPLE_DETAIL),
     deleteConfig: () => Promise.resolve(),
+    // The schedule sub-editor resolves its preset table through the SDK as it renders.
+    presetForCron: (cron) => {
+      if (cron == null || cron.trim() === "") {
+        return Promise.resolve(QuartzSchedulePreset.None);
+      }
+      const named = Object.entries(PRESET_CRONS).find(([, value]) => value === cron);
+      return Promise.resolve(
+        named ? (named[0] as QuartzSchedulePreset) : QuartzSchedulePreset.Custom,
+      );
+    },
+    cronForPreset: (preset) => Promise.resolve(PRESET_CRONS[preset] ?? null),
+    isLikelyQuartzCron: (value) =>
+      Promise.resolve([6, 7].includes(value.trim().split(/\s+/).length)),
   };
 }
 
