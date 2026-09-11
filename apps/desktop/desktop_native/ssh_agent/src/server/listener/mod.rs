@@ -38,6 +38,26 @@ pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
     Ok(vec![windows::WindowsListener::new()?])
 }
 
+/// The address SSH clients must connect to in order to reach the agent.
+///
+/// # Errors
+///
+/// Returns an error if the unix socket path cannot be determined.
+#[cfg(unix)]
+pub fn socket_address() -> Result<String> {
+    Ok(unix::get_socket_path()?.to_string_lossy().into_owned())
+}
+
+/// The address SSH clients must connect to in order to reach the agent.
+///
+/// # Errors
+///
+/// Returns an error if the named pipe path cannot be determined.
+#[cfg(windows)]
+pub fn socket_address() -> Result<String> {
+    Ok(windows::pipe_name().to_string())
+}
+
 /// Spawns an independent tokio task for each listener in `listeners`.
 ///
 /// Each task loops calling `listener.accept()` and forwards accepted connections to `tx`.

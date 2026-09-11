@@ -13,6 +13,11 @@ use crate::server::{connection::Connection, peer_info::PeerInfo};
 /// The fixed named pipe path that OpenSSH clients expect on Windows
 const PIPE_NAME: &str = r"\\.\pipe\openssh-ssh-agent";
 
+/// The named pipe SSH clients connect to.
+pub(crate) fn pipe_name() -> &'static str {
+    PIPE_NAME
+}
+
 /// Windows named pipe listener for the SSH agent server
 pub(crate) struct WindowsListener {
     inner: NamedPipeServer,

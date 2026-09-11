@@ -17,6 +17,8 @@ pub(crate) use auth_policy::AuthPolicy;
 // external exports for napi
 pub use auth_policy::{AuthRequest, ConnectionContext, SessionBindContext, SignRequest};
 use connection::{Connection, ConnectionHandler};
+// external export for napi
+pub use listener::socket_address;
 pub(crate) use listener::Listener;
 pub use protocol::{SIGNamespace, SignFlags};
 use tokio::{sync::mpsc, task::JoinHandle};
