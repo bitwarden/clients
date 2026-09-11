@@ -22,6 +22,7 @@ import {
 } from "@angular/forms";
 import { combineLatest, map, startWith, switchMap, tap } from "rxjs";
 
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -38,6 +39,7 @@ import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-ac
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import {
   SectionComponent,
   SectionHeaderComponent,
@@ -53,6 +55,7 @@ import {
   Option,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CipherViewComponent } from "@bitwarden/vault";
 
 import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
@@ -106,6 +109,14 @@ export class AuthTypeNamePipe implements PipeTransform {
     SelectModule,
     AsyncActionsModule,
     ButtonModule,
+    CipherViewComponent,
+  ],
+  providers: [
+    {
+      // This is required to make the CipherViewComponent work
+      provide: ViewPasswordHistoryService,
+      useClass: VaultViewPasswordHistoryService,
+    },
   ],
 })
 export class SendDetailsComponent implements OnInit {

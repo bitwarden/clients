@@ -37,6 +37,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   MY_VAULT,
   orgIconTile,
@@ -555,6 +556,12 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
+    },
+    {
+      // The rows' more-options menu hosts the share entry point, which asks whether the
+      // item can be shared. Stubbed so the real service is not constructed.
+      provide: ShareLinkService,
+      useValue: { cipherCanBeShared$: () => of(false) },
     },
   ];
 };

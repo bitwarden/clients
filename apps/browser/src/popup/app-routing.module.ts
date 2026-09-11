@@ -83,6 +83,7 @@ import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-p
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
+import { ShareItemComponent } from "../tools/popup/share/share-item.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit/add-edit.component";
 import { AssignCollections } from "../vault/popup/components/vault/assign-collections/assign-collections.component";
@@ -391,6 +392,13 @@ const routes: Routes = [
     component: SendCreatedComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "share-item",
+    component: ShareItemComponent,
+    canActivate: [authGuard, canAccessFeature(FeatureFlag.PM34203TemporaryItemSharing)],
+    // Above "view-cipher"
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     // Hosts the complementary Triage + Webmapper authoring tools; the `view`

@@ -26,6 +26,7 @@
           {{ "edit" | i18n }}
         </button>
       }
+      <app-share-link [cipher]="cipher" [showIcon]="false"></app-share-link>
       @if (canEdit && canViewPassword) {
         @if (canClone$ | async) {
           <a bitMenuItem (click)="clone()">

@@ -1,7 +1,16 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ClientType } from "@bitwarden/client-type";
@@ -69,18 +78,19 @@ export class ShareLinkService {
   private readonly dialogService = inject(DialogService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
-  private links = new BehaviorSubject<ShareLink[]>([]);
-
   /** Observable of all active share links. */
-  links$ = this.links.asObservable();
-
-  constructor() {
-    combineLatest([this.cipherId, this.sendService.sendViews$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([cipherId, sendViews]) => {
-        void this.getLinksForCipher(cipherId, sendViews);
-      });
-  }
+  links$ = this.cipherId.pipe(
+    switchMap((cipherId) => {
+      if (!cipherId) {
+        return of([] as ShareLink[]);
+      }
+      return this.sendService.sendViews$.pipe(
+        switchMap((sendViews) => this.getLinksForCipher(cipherId, sendViews)),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+    takeUntilDestroyed(),
+  );
 
   /**
    * Creates a new share link
@@ -150,6 +160,8 @@ export class ShareLinkService {
     }
     sharedCipherView.passwordHistory = [];
     delete sharedCipherView.key;
+    // The viewer shouldn't have to reprompt for a password
+    sharedCipherView.reprompt = CipherRepromptType.None;
 
     return sharedCipherView;
   }
@@ -159,15 +171,8 @@ export class ShareLinkService {
   }
 
   /** Recalculates active share links for a given cipher. */
-  private async getLinksForCipher(
-    cipherId: CipherId | undefined,
-    sendViews: SendView[],
-  ): Promise<void> {
+  private async getLinksForCipher(cipherId: CipherId, sendViews: SendView[]): Promise<ShareLink[]> {
     const newLinks: ShareLink[] = [];
-    if (!cipherId) {
-      this.links.next(newLinks);
-      return;
-    }
     const env = await firstValueFrom(this.environmentService.environment$);
     for (const send of sendViews) {
       if (send.type === SendType.Item && (send.data?.data?.id as any) === cipherId && send.key) {
@@ -182,12 +187,12 @@ export class ShareLinkService {
         });
       }
     }
-    this.links.next(newLinks);
+    return newLinks;
   }
 
   /** Deletes a share link by Send id. */
   async deleteLink(sendId: string): Promise<void> {
-    const link = this.links.getValue().find((l) => l.sendId === sendId);
+    const link = (await firstValueFrom(this.links$)).find((l) => l.sendId === sendId);
     if (link) {
       await this.sendSdkApiService.delete(link.sendId);
     }

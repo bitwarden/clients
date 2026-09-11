@@ -13,7 +13,9 @@
         [cipher]="cipher"
         [collections]="collections"
         [isAdminConsole]="formConfig.isAdminConsole"
-      ></app-cipher-view>
+      >
+        <app-share-button [cipher]="cipher" slot="button"></app-share-button>
+      </app-cipher-view>
     }
 
     @if (loadForm) {
