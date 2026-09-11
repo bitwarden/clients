@@ -7,6 +7,7 @@ import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-cr
 import { RotationConfigEditComponent } from "./managed-credentials/rotation-config-edit.component";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { OrgCiphersService } from "./org-ciphers.service";
+import { ROTATION_TABS } from "./rotation-links";
 import { RotationShellComponent } from "./rotation-shell.component";
 import { TargetSystemEditComponent } from "./target-systems/target-system-edit.component";
 import { TargetSystemsTabComponent } from "./target-systems/target-systems-tab.component";
@@ -23,27 +24,27 @@ export const rotationRoutes: Routes = [
   // Form pages: siblings of the shell, declared first so literal paths win over
   // the shell catch-all ("")
   {
-    path: "managed-credentials/new",
+    path: `${ROTATION_TABS.managedCredentials}/new`,
     component: RotationConfigEditComponent,
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
   {
-    path: "managed-credentials/:configId",
+    path: `${ROTATION_TABS.managedCredentials}/:configId`,
     component: RotationConfigEditComponent,
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
-    path: "target-systems/new",
+    path: `${ROTATION_TABS.targetSystems}/new`,
     component: TargetSystemEditComponent,
     data: { titleId: "pamTargetSystemCreateTitle" },
   },
   {
-    path: "target-systems/:targetSystemId",
+    path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
     component: TargetSystemEditComponent,
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {
-    path: "daemons/:daemonId",
+    path: `${ROTATION_TABS.accessConnectors}/:daemonId`,
     component: DaemonDetailComponent,
     data: { titleId: "pamDaemonDetailTitle" },
   },
@@ -52,19 +53,19 @@ export const rotationRoutes: Routes = [
     component: RotationShellComponent,
     providers: [RotationConfigsService, TargetSystemsService, DaemonsService, OrgCiphersService],
     children: [
-      { path: "", pathMatch: "full", redirectTo: "managed-credentials" },
+      { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.managedCredentials },
       {
-        path: "managed-credentials",
+        path: ROTATION_TABS.managedCredentials,
         component: ManagedCredentialsTabComponent,
         data: { titleId: "pamRotationTabManagedCredentials" },
       },
       {
-        path: "target-systems",
+        path: ROTATION_TABS.targetSystems,
         component: TargetSystemsTabComponent,
         data: { titleId: "pamRotationTabTargetSystems" },
       },
       {
-        path: "daemons",
+        path: ROTATION_TABS.accessConnectors,
         component: DaemonsTabComponent,
         data: { titleId: "pamRotationTabDaemons" },
       },
