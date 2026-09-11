@@ -51,19 +51,59 @@ describe("RotationHistoryComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  describe("sortedJobs", () => {
-    it("sorts jobs newest-first by createdAt", () => {
-      const older = rotationJob({ id: jobId("job-old"), createdAt: "2024-01-01T00:00:00Z" });
-      const newer = rotationJob({ id: jobId("job-new"), createdAt: "2024-06-01T00:00:00Z" });
+  describe("job order", () => {
+    const orderedIds = () => (component as any).jobViews().map((view: any) => view.id);
+
+    it("sorts jobs newest-first by the start the table shows", () => {
+      const older = rotationJob({
+        id: jobId("1"),
+        attempts: [rotationAttempt({ startedAt: "2024-01-01T00:00:00Z" })],
+      });
+      const newer = rotationJob({
+        id: jobId("2"),
+        attempts: [rotationAttempt({ startedAt: "2024-06-01T00:00:00Z" })],
+      });
       setup([older, newer]);
-      const sorted = (component as any).sortedJobs();
-      expect(sorted[0].id).toBe(jobId("job-new"));
-      expect(sorted[1].id).toBe(jobId("job-old"));
+      expect(orderedIds()).toEqual([jobId("2"), jobId("1")]);
+    });
+
+    it("orders by the start rather than the queue wait in front of it", () => {
+      const queuedFirst = rotationJob({
+        id: jobId("1"),
+        createdAt: "2026-01-01T10:00:00Z",
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:05:00Z" })],
+      });
+      const claimedFirst = rotationJob({
+        id: jobId("2"),
+        createdAt: "2026-01-01T10:01:00Z",
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:02:00Z" })],
+      });
+      setup([queuedFirst, claimedFirst]);
+      expect(orderedIds()).toEqual([jobId("1"), jobId("2")]);
+    });
+
+    it("places a job that never started by when it was queued", () => {
+      const started1002 = rotationJob({
+        id: jobId("1"),
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:02:00Z" })],
+      });
+      const queued1003 = rotationJob({
+        id: jobId("2"),
+        status: RotationJobStatus.Pending,
+        attempts: [],
+        createdAt: "2026-01-01T10:03:00Z",
+      });
+      const started1004 = rotationJob({
+        id: jobId("3"),
+        attempts: [rotationAttempt({ startedAt: "2026-01-01T10:04:00Z" })],
+      });
+      setup([started1002, queued1003, started1004]);
+      expect(orderedIds()).toEqual([jobId("3"), jobId("2"), jobId("1")]);
     });
 
     it("returns empty array when jobs input is empty", () => {
       setup([]);
-      expect((component as any).sortedJobs()).toHaveLength(0);
+      expect(orderedIds()).toHaveLength(0);
     });
   });
 
