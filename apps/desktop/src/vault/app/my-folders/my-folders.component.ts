@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-import { MyFoldersComponent as VaultMyFoldersComponent } from "@bitwarden/vault";
+import {
+  MyFoldersComponent as VaultMyFoldersComponent,
+  VaultOrganizationUserNotificationsComponent,
+} from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header";
 
@@ -8,9 +11,14 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
   templateUrl: "./my-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    // Desktop pages own their page padding; matches the vault page's spacing.
-    class: "tw-block tw-px-8 tw-py-6",
+    // Unpadded so the banner can span the full content width; the gutters sit on the content
+    // below it instead. Matches the vault page.
+    class: "tw-block",
   },
-  imports: [DesktopHeaderComponent, VaultMyFoldersComponent],
+  imports: [
+    DesktopHeaderComponent,
+    VaultMyFoldersComponent,
+    VaultOrganizationUserNotificationsComponent,
+  ],
 })
 export class MyFoldersComponent {}
