@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -60,15 +61,23 @@ describe("MemberDialogManagerService", () => {
     configService.getFeatureFlag.mockResolvedValue(false);
     vfo1TerminologyService.enabled.mockReturnValue(false);
 
-    service = new MemberDialogManagerService(
-      configService,
-      dialogService,
-      i18nService,
-      toastService,
-      userNamePipe,
-      deleteManagedMemberWarningService,
-      vfo1TerminologyService,
-    );
+    TestBed.configureTestingModule({
+      providers: [
+        MemberDialogManagerService,
+        { provide: ConfigService, useValue: configService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: ToastService, useValue: toastService },
+        { provide: UserNamePipe, useValue: userNamePipe },
+        {
+          provide: DeleteManagedMemberWarningService,
+          useValue: deleteManagedMemberWarningService,
+        },
+        { provide: Vfo1TerminologyService, useValue: vfo1TerminologyService },
+      ],
+    });
+
+    service = TestBed.inject(MemberDialogManagerService);
 
     // Setup mock data
     mockOrganization = {
