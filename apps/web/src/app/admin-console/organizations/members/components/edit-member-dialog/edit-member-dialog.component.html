@@ -165,6 +165,52 @@
               </div>
             </div>
           }
+          @if (externalId(); as externalIdValue) {
+            <bit-form-field>
+              <bit-label>{{ "externalId" | i18n }}</bit-label>
+              <input
+                id="edit-member_input_external-id"
+                bitInput
+                type="text"
+                readonly
+                formControlName="externalId"
+              />
+              <button
+                id="edit-member_button_copy-external-id"
+                type="button"
+                bitSuffix
+                bitIconButton="bwi-clone"
+                showToast
+                [appCopyClick]="externalIdValue"
+                [valueLabel]="'externalId' | i18n"
+                [label]="'copyValue' | i18n"
+              ></button>
+              <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          }
+          @if (ssoExternalId(); as ssoExternalIdValue) {
+            <bit-form-field>
+              <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
+              <input
+                id="edit-member_input_sso-external-id"
+                bitInput
+                type="text"
+                readonly
+                formControlName="ssoExternalId"
+              />
+              <button
+                id="edit-member_button_copy-sso-external-id"
+                type="button"
+                bitSuffix
+                bitIconButton="bwi-clone"
+                showToast
+                [appCopyClick]="ssoExternalIdValue"
+                [valueLabel]="'ssoExternalId' | i18n"
+                [label]="'copyValue' | i18n"
+              ></button>
+              <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          }
           @if (params.createdDate) {
             <div class="tw-mt-4 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2">
               <p class="tw-mb-0 tw-text-sm tw-text-muted">{{ "createdDate" | i18n }}</p>
