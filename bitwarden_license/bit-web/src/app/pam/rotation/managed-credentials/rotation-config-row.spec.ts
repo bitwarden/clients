@@ -8,11 +8,7 @@ import {
   targetSystem,
 } from "../testing/rotation-builders";
 
-import {
-  SCHEDULE_NONE_KEY,
-  buildRotationConfigRow,
-  isScheduleI18nKey,
-} from "./rotation-config-row";
+import { RotationRowStatus, buildRotationConfigRow } from "./rotation-config-row";
 
 /**
  * `buildRotationConfigRow` maps a config onto presentation: i18n keys, sortable columns, and the
@@ -67,17 +63,55 @@ describe("buildRotationConfigRow", () => {
     });
   });
 
-  describe("status label", () => {
-    it("reads active when enabled", () => {
-      expect(row({ config: { enabled: true } }).statusLabelKey).toBe(
-        "pamRotationConfigStatusActive",
-      );
+  describe("resolved status", () => {
+    it("reads active when enabled, idle, and not awaiting a manual rotation", () => {
+      const built = row({ config: { enabled: true } });
+      expect(built.status).toBe(RotationRowStatus.Active);
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigStatusActive");
+      expect(built.statusBadge.variant).toBe("success");
+      expect(built.statusBadge.icon).toBe("bwi-check-circle");
     });
 
     it("reads paused when disabled", () => {
-      expect(row({ config: { enabled: false } }).statusLabelKey).toBe(
-        "pamRotationConfigStatusPaused",
+      const built = row({ config: { enabled: false } });
+      expect(built.status).toBe(RotationRowStatus.Paused);
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigStatusPaused");
+      expect(built.statusBadge.variant).toBe("subtle");
+      expect(built.statusBadge.icon).toBe("bwi-minus-circle");
+    });
+
+    it("reads rotating while a job is in flight", () => {
+      const built = row({ config: { hasActiveJob: true } });
+      expect(built.status).toBe(RotationRowStatus.Rotating);
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigInProgress");
+      expect(built.statusBadge.variant).toBe("primary");
+      expect(built.statusBadge.icon).toBe("bwi-refresh");
+    });
+
+    it("reads manual rotation while awaiting an operator's confirmation", () => {
+      const built = row({ config: { awaitingManualRotation: true } });
+      expect(built.status).toBe(RotationRowStatus.ManualRotation);
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigManualDue");
+      expect(built.statusBadge.variant).toBe("warning");
+      expect(built.statusBadge.icon).toBe("bwi-clock");
+    });
+
+    it("prefers rotating over paused, so an in-flight job stays visible", () => {
+      expect(
+        row({ config: { enabled: false, hasActiveJob: true, awaitingManualRotation: true } })
+          .status,
+      ).toBe(RotationRowStatus.Rotating);
+    });
+
+    it("prefers paused over manual rotation, so no cycle is implied while stopped", () => {
+      expect(row({ config: { enabled: false, awaitingManualRotation: true } }).status).toBe(
+        RotationRowStatus.Paused,
       );
+    });
+
+    it("carries the badge's label key as the column's sort and filter value", () => {
+      const built = row({ config: { hasActiveJob: true } });
+      expect(built.statusLabelKey).toBe(built.statusBadge.labelKey);
     });
   });
 
@@ -85,7 +119,6 @@ describe("buildRotationConfigRow", () => {
     it("maps a named preset to its i18n key", () => {
       const built = row({ description: rotationConfigDescription({ schedulePreset: "daily" }) });
       expect(built.scheduleLabelKeyOrCron).toBe("pamRotationScheduleDaily");
-      expect(isScheduleI18nKey(built)).toBe(true);
     });
 
     it("maps no schedule to the none key", () => {
@@ -93,8 +126,7 @@ describe("buildRotationConfigRow", () => {
         config: { scheduleCron: undefined },
         description: rotationConfigDescription({ schedulePreset: "none" }),
       });
-      expect(built.scheduleLabelKeyOrCron).toBe(SCHEDULE_NONE_KEY);
-      expect(isScheduleI18nKey(built)).toBe(true);
+      expect(built.scheduleLabelKeyOrCron).toBe("pamRotationScheduleNone");
     });
 
     /** A custom expression is shown verbatim — there is no key that describes it. */
@@ -104,7 +136,6 @@ describe("buildRotationConfigRow", () => {
         description: rotationConfigDescription({ schedulePreset: "custom" }),
       });
       expect(built.scheduleLabelKeyOrCron).toBe("0 */30 * * * ?");
-      expect(isScheduleI18nKey(built)).toBe(false);
     });
   });
 

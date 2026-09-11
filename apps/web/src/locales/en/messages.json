@@ -19339,10 +19339,10 @@
     "message": "Paused"
   },
   "pamRotationConfigInProgress": {
-    "message": "Rotation in progress"
+    "message": "Rotating"
   },
   "pamRotationConfigManualDue": {
-    "message": "Manual rotation due"
+    "message": "Rotation due"
   },
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
