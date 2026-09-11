@@ -860,6 +860,90 @@ describe("TargetSystemsTabComponent", () => {
       );
     }));
 
+    it("tells the dialog the org has no active connector at all", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      daemonsService.daemons$.next([
+        accessConnector({ id: connectorId("c-disabled"), status: AccessConnectorStatus.Disabled }),
+      ]);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ options: [], noneEligible: true }),
+        }),
+      );
+    }));
+
+    it("tells the dialog the active connectors are all already on this target", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      daemonsService.daemons$.next([
+        accessConnector({
+          id: connectorId("c-assigned"),
+          status: AccessConnectorStatus.Enabled,
+          assignedTargetSystemIds: [sys.id],
+        }),
+      ]);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      // Empty options, but not empty for the same reason as above.
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ options: [], noneEligible: false }),
+        }),
+      );
+    }));
+
+    it("does not claim the org is empty when there is an option to offer", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      daemonsService.daemons$.next([
+        accessConnector({ id: connectorId("c-1"), status: AccessConnectorStatus.Enabled }),
+      ]);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining({ noneEligible: false }) }),
+      );
+    }));
+
+    it("agrees with the row menu's own blocked reason", fakeAsync(() => {
+      const sys = makeSystem({
+        id: sysId("sys-1"),
+        status: TargetSystemStatus.Active,
+        method: TargetSystemMethod.Automatic,
+      });
+      targetSystemsService.systems$.next([sys]);
+      daemonsService.daemons$.next([
+        accessConnector({ id: connectorId("c-disabled"), status: AccessConnectorStatus.Disabled }),
+      ]);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+      fixture.detectChanges();
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      const blockedKey = (
+        component as unknown as { dataSource: { data: TargetSystemRow[] } }
+      ).dataSource.data.find((row) => row.id === sys.id)?.assignConnectorsBlockedKey;
+      const passed = dialogService.open.mock.calls[0][1] as unknown as {
+        data: { noneEligible: boolean };
+      };
+
+      expect(blockedKey).toBe("pamTargetSystemAssignConnectorNone");
+      expect(passed.data.noneEligible).toBe(true);
+    }));
+
     it("holds the dialog until the connector read lands, then offers what it read", async () => {
       const sys = makeSystem({ id: sysId("sys-1") });
       daemonsService.loading$.next(true);
