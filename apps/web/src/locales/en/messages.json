@@ -1797,9 +1797,6 @@
   "launchWebsite": {
     "message": "Launch website"
   },
-  "launchWebsite": {
-    "message": "Launch website"
-  },
   "me": {
     "message": "Me"
   },
@@ -1882,9 +1879,6 @@
   },
   "clearAll": {
     "message": "Clear all"
-  },
-  "done": {
-    "message": "Done"
   },
   "filtersSelected": {
     "message": "$COUNT$ selected",
@@ -18954,9 +18948,6 @@
   "pamTargetSystemSessionTerminationYes": {
     "message": "Supported"
   },
-  "pamTargetSystemEmptyState": {
-    "message": "No target systems have been configured yet."
-  },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Not supported"
   },
@@ -19580,9 +19571,6 @@
   "pamRotationConfigTerminateSessionsHint": {
     "message": "Requires the target system to support session termination."
   },
-  "pamRotationConfigSchedule": {
-    "message": "Rotation schedule"
-  },
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotate when access ends"
   },
@@ -19594,12 +19582,6 @@
   },
   "pamRotationConfigCreated": {
     "message": "Managed credential created."
-  },
-  "pamRotationConfigSettingsUpdated": {
-    "message": "Rotation settings saved."
-  },
-  "pamRotationConfigAccountUpdated": {
-    "message": "Account settings saved."
   },
   "pamRotationConfigSaved": {
     "message": "Managed credential saved."
@@ -19805,7 +19787,7 @@
     "message": "Rotation config deleted"
   },
   "pamAuditKindRotationOffered": {
-    "message": "Rotation offered to daemon"
+    "message": "Rotation offered to access connector"
   },
   "pamAuditKindRotationDispatched": {
     "message": "Rotation dispatched"
@@ -19837,35 +19819,14 @@
   "pamAuditKindManualRotationRecorded": {
     "message": "Manual rotation recorded"
   },
-  "pamAuditKindDaemonRegistered": {
-    "message": "Daemon registered"
-  },
-  "pamAuditKindDaemonRevoked": {
-    "message": "Daemon revoked"
-  },
-  "pamAuditKindDaemonDisabled": {
-    "message": "Daemon disabled"
-  },
-  "pamAuditKindDaemonEnabled": {
-    "message": "Daemon enabled"
-  },
-  "pamAuditKindDaemonDeleted": {
-    "message": "Daemon deleted"
-  },
-  "pamAuditKindDaemonAssigned": {
-    "message": "Daemon assigned to target"
-  },
-  "pamAuditKindDaemonUnassigned": {
-    "message": "Daemon unassigned from target"
-  },
   "pamAuditKindTargetRegistered": {
     "message": "Target system registered"
   },
   "pamAuditKindTargetDisabled": {
-    "message": "Target system disabled"
+    "message": "Target system deactivated"
   },
   "pamAuditKindTargetEnabled": {
-    "message": "Target system enabled"
+    "message": "Target system activated"
   },
   "pamAuditKindTargetRenamed": {
     "message": "Target system renamed"
