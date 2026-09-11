@@ -370,7 +370,14 @@ describe("RotationHistoryComponent", () => {
       );
       expect(view.startedAt).toBeNull();
       expect(view.duration).toBeNull();
-      expect(view.running).toBe(true);
+    });
+
+    it("does not call a job still waiting in the queue running", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({ status: RotationJobStatus.Pending, attempts: [] }),
+      );
+      expect(view.running).toBe(false);
     });
 
     it("has no duration while an attempt is still running", () => {
