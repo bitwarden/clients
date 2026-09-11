@@ -1,4 +1,7 @@
-<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
+<popup-page
+  [hideOverflow]="showSkeletonsLoaders$ | async"
+  [collapseAboveScrollArea]="vfo1Enabled()"
+>
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown
@@ -55,7 +58,10 @@
     </ng-container>
   }
 
-  <!-- Show search & filters outside of the scroll area of the page -->
+  <!--
+    Sits outside the scroll area of the page. With vfo1 enabled this region collapses as the
+    user scrolls down, alongside the title bar and the table's own search/filter toolbar.
+  -->
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {
       <bit-callout

@@ -13,7 +13,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { filter, switchMap, fromEvent, startWith, map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { IconModule, ScrollLayoutHostDirective, ScrollLayoutService } from "@bitwarden/components";
+import {
+  CollapseOnScrollDirective,
+  IconModule,
+  ScrollLayoutHostDirective,
+  ScrollLayoutService,
+} from "@bitwarden/components";
 
 @Component({
   selector: "popup-page",
@@ -21,7 +26,7 @@ import { IconModule, ScrollLayoutHostDirective, ScrollLayoutService } from "@bit
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },
-  imports: [CommonModule, IconModule, ScrollLayoutHostDirective],
+  imports: [CommonModule, IconModule, ScrollLayoutHostDirective, CollapseOnScrollDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupPageComponent {
@@ -35,6 +40,12 @@ export class PopupPageComponent {
 
   /** Hides any overflow within the page content */
   readonly hideOverflow = input(false, { transform: booleanAttribute });
+
+  /**
+   * Collapse the `above-scroll-area` region while the user scrolls down, giving its height
+   * back to the page content. Requires a `bitScrollCollapseSource` on whatever scrolls.
+   */
+  readonly collapseAboveScrollArea = input(false, { transform: booleanAttribute });
 
   protected readonly scrolled = signal(false);
 

@@ -1,6 +1,6 @@
 import { computed, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -31,6 +31,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  CalloutModule,
   CompactModeService,
   DialogService,
   I18nMockService,
@@ -46,6 +47,9 @@ import {
 } from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
+import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -233,6 +237,8 @@ type StoryArgs = {
   };
   /** Sections rendered collapsed. Defaults to all expanded. */
   collapsedSections?: VaultSection[];
+  /** VFO1Foundation flag. Off by default, matching the other flags in this stub. */
+  vfo1Enabled?: boolean;
 };
 
 // Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
@@ -386,6 +392,9 @@ const buildProviders = (args: StoryArgs) => {
           if (flag === FeatureFlag.PM31039ItemActionInExtension) {
             return of(args.simplifiedItemActionEnabled ?? true);
           }
+          if (flag === FeatureFlag.VFO1Foundation) {
+            return of(args.vfo1Enabled ?? false);
+          }
           return of(false);
         },
       },
@@ -400,6 +409,10 @@ const buildProviders = (args: StoryArgs) => {
         new I18nMockService({
           search: "Search",
           searchResults: "Search results",
+          // `popup-page` / `popup-header` chrome, for the stories that render the full page.
+          // `back` and `vault` are already defined below for the filter chips.
+          loading: "Loading",
+          appLogoLabel: "Bitwarden",
           resetSearch: "Reset search",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
@@ -557,6 +570,8 @@ const buildProviders = (args: StoryArgs) => {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
     },
+    // `popup-header`'s back button, for the stories that render the full page chrome.
+    { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve(true) } },
   ];
 };
 
@@ -584,6 +599,94 @@ export const Default: Story = {
   ],
   render: () => ({
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
+  }),
+};
+
+/**
+ * The table inside the real page chrome, mirroring `vault.component.html` with the VFO1 flag on:
+ * a `popup-page` with a `popup-header`, a callout in `above-scroll-area`, and the table filling the
+ * scroll region.
+ *
+ * Scroll the item list: the title bar, the `above-scroll-area` callout, and the table's own
+ * search/filter toolbar collapse together, and come back as soon as you scroll up. The app bar stays
+ * pinned. The table owns the scrolling, which is why it carries `bitScrollCollapseSource` — the page
+ * region around it never overflows.
+ */
+export const VaultPage: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        autoFillCiphers: AUTOFILL_CIPHERS,
+        favoriteCiphers: FAVORITE_CIPHERS,
+        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+        loading: false,
+        vfo1Enabled: true,
+      }),
+    }),
+    moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent, CalloutModule] }),
+  ],
+  render: () => ({
+    // The popup's own viewport height, so there is genuinely more list than fits.
+    template: /* HTML */ `
+      <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 600px">
+        <popup-page [collapseAboveScrollArea]="true">
+          <popup-header slot="header" pageTitle="Vault"></popup-header>
+          <ng-container slot="above-scroll-area">
+            <bit-callout title="Unlock advanced security" [icon]="null">
+              Get stronger protection with Bitwarden Premium.
+            </bit-callout>
+          </ng-container>
+          <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+            <app-vault-popup-list-table></app-vault-popup-list-table>
+          </div>
+        </popup-page>
+      </div>
+    `,
+  }),
+};
+
+/**
+ * The CL-1318 geometry: a list that scrolls, but by less than the chrome would hand back if it
+ * collapsed. Collapsing here would give the viewport more height than there was overflow, the
+ * browser would clamp the offset back to the top, that would read as scrolling up, and the chrome
+ * would reopen — leaving the page stuck at the top with the chrome flickering.
+ *
+ * So nothing should collapse. Scroll the list down: it moves, and the title bar and the
+ * search/filter toolbar both stay put. {@link VaultPage} is the same page with enough items to
+ * afford the collapse.
+ *
+ * The floor comes from `scrollDirection`'s `minScrollable`, summed across the registered regions by
+ * `ScrollCollapseService`. The short viewport is what puts this story on the blocked side of it —
+ * one section header plus seven rows against a shorter popup.
+ */
+export const VaultPageShortScroll: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        // One section only, so the content height is easy to reason about.
+        autoFillCiphers: [],
+        favoriteCiphers: [],
+        filteredCiphers: ALL_ITEM_CIPHERS,
+        loading: false,
+        vfo1Enabled: true,
+      }),
+    }),
+    moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent] }),
+  ],
+  render: () => ({
+    // Deliberately shorter than `VaultPage`, to land the overflow under the chrome height.
+    template: /* HTML */ `
+      <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 520px">
+        <popup-page [collapseAboveScrollArea]="true">
+          <popup-header slot="header" pageTitle="Vault"></popup-header>
+          <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+            <app-vault-popup-list-table></app-vault-popup-list-table>
+          </div>
+        </popup-page>
+      </div>
+    `,
   }),
 };
 

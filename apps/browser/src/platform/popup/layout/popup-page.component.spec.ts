@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nMockService } from "@bitwarden/components";
+import { CollapseOnScrollDirective, I18nMockService } from "@bitwarden/components";
 
 import { PopupPageComponent } from "./popup-page.component";
 
 @Component({
   template: `
-    <popup-page [loading]="loading()">
+    <popup-page [loading]="loading()" [collapseAboveScrollArea]="collapse()">
+      <span slot="above-scroll-area" data-testid="above-scroll-area">Search</span>
       <span data-testid="content">Page content</span>
       @if (showFloatingAction()) {
         <button slot="floating-action" type="button" data-testid="floating-action">Add</button>
@@ -21,6 +23,7 @@ import { PopupPageComponent } from "./popup-page.component";
 class TestHostComponent {
   readonly loading = signal(false);
   readonly showFloatingAction = signal(true);
+  readonly collapse = signal(true);
 }
 
 describe("PopupPageComponent", () => {
@@ -29,6 +32,8 @@ describe("PopupPageComponent", () => {
 
   const scrollRegion = (): HTMLElement =>
     fixture.nativeElement.querySelector("[data-testid=popup-layout-scroll-region]");
+  /** The element `popup-page` hands to `bitCollapseOnScroll`, which publishes `data-state`. */
+  const collapsingRegion = (): HTMLElement => fixture.nativeElement.querySelector("[data-state]");
   const floatingAction = (): HTMLElement | null =>
     fixture.nativeElement.querySelector("[data-testid=floating-action]");
   /** The positioning wrapper `popup-page` puts around the projected action. */
@@ -49,6 +54,30 @@ describe("PopupPageComponent", () => {
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  describe("above-scroll-area", () => {
+    it("hands the region to the collapse directive when opted in", () => {
+      // Expanded until something scrolls; the directive owns the collapse itself.
+      expect(collapsingRegion().dataset.state).toBe("expanded");
+    });
+
+    it("forwards the opt-out to the collapse directive", () => {
+      host.collapse.set(false);
+      fixture.detectChanges();
+
+      const directive = fixture.debugElement
+        .query(By.directive(CollapseOnScrollDirective))
+        .injector.get(CollapseOnScrollDirective);
+
+      expect(directive.bitCollapseOnScroll()).toBe(false);
+    });
+
+    it("keeps the projected content inside the collapsing row", () => {
+      const content = fixture.nativeElement.querySelector("[data-testid=above-scroll-area]");
+
+      expect(collapsingRegion().contains(content)).toBe(true);
+    });
   });
 
   it("projects content into the floating action slot", () => {

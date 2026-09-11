@@ -5,6 +5,7 @@ import {
   ElementRef,
   booleanAttribute,
   computed,
+  effect,
   inject,
   input,
   linkedSignal,
@@ -22,8 +23,8 @@ import {
   ButtonType,
   FunctionReturningAwaitable,
   IconButtonModule,
-  ScrollLayoutService,
-  scrollDirection,
+  ScrollCollapseService,
+  settledHeight,
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -47,7 +48,7 @@ import { PopupPageComponent } from "./popup-page.component";
 })
 export class PopupHeaderComponent {
   private readonly popupRouterCacheService = inject(PopupRouterCacheService);
-  private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly scrollCollapse = inject(ScrollCollapseService);
 
   /**
    * TODO: remove with the VFO1Foundation flag.
@@ -105,13 +106,38 @@ export class PopupHeaderComponent {
   private readonly titleBar = viewChild<ElementRef<HTMLElement>>("titleBar");
 
   /**
+   * The bar's height as chrome, which gates every region's collapse on this page. Never less than
+   * its expanded height, since the bar animates for 200ms and collapses to just its border.
+   * Re-measured after each transition, because the height moves with compact mode and with a title
+   * that wraps.
+   */
+  private readonly height = settledHeight(
+    this.titleBar,
+    computed(() => !this.titleBarHidden()),
+  );
+
+  constructor() {
+    // Counted only while the bar can actually collapse — otherwise it would inflate the chrome
+    // height for the regions that can.
+    effect((onCleanup) => {
+      if (!this.vfo1Enabled() || this.hideTitleBar()) {
+        return;
+      }
+
+      this.scrollCollapse.register(this.height);
+      onCleanup(() => this.scrollCollapse.unregister(this.height));
+    });
+  }
+
+  /**
    * The popup viewport is short, so the title bar gets out of the way while the user reads down the
    * page. The app bar stays pinned.
+   *
+   * The direction comes from `ScrollCollapseService` rather than a local `scrollDirection`, so every
+   * region collapsing on this page shares one decision. Each collapse gives its height back to the
+   * scroller, so per-region signals would fight each other.
    */
-  private readonly scrollDirection = scrollDirection(this.scrollLayout.scrollableRef, {
-    // Measured live because the height moves with compact mode and with a title that wraps
-    minScrollable: () => this.titleBar()?.nativeElement.offsetHeight ?? 0,
-  });
+  private readonly scrollDirection = this.scrollCollapse.direction;
 
   /**
    * TODO: remove with the VFO1Foundation flag. Grows a border under an `alt` bar once the page
