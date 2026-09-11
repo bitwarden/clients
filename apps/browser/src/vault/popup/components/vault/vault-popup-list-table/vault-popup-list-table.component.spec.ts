@@ -179,8 +179,20 @@ describe("VaultPopupListTableComponent", () => {
   /** A personal vault plus one organization — the account the scoped empty states are read against. */
   const PERSONAL_AND_ORG_VAULTS: VaultsNavViewModel = {
     vaults: [
-      { id: "test-user-id", label: "My vault", icon: "bwi-user", type: VaultNavItemType.Personal },
-      { id: "org-1", label: "Acme", icon: "bwi-business", type: VaultNavItemType.Organization },
+      {
+        id: "test-user-id",
+        label: "My vault",
+        icon: "bwi-user",
+        type: VaultNavItemType.Personal,
+        enabled: true,
+      },
+      {
+        id: "org-1",
+        label: "Acme",
+        icon: "bwi-business",
+        type: VaultNavItemType.Organization,
+        enabled: true,
+      },
     ],
     organizationDataOwnership: false,
   };
