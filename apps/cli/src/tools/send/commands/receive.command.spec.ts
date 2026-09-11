@@ -407,6 +407,109 @@ describe("SendReceiveCommand", () => {
           undefined,
         );
       });
+
+      it("should block a download url that isn't https and never call saveAttachmentToFile", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "http://example.com/download",
+        } as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("security check");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+      });
+
+      it("should block a download url that targets a restricted host and never call saveAttachmentToFile", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "https://169.254.169.254/download",
+        } as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("security check");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not block a download url on the same origin as the trusted api, even over http", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "http://bw.internal/download",
+        } as any);
+        encryptService.decryptFileData.mockResolvedValue(new ArrayBuffer(1024) as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        // A self-hosted server whose download url shares the api's own (non-https, private) origin.
+        const response = await (command as any).accessSendWithToken(
+          mockToken,
+          new Uint8Array(32),
+          "http://bw.internal/api",
+          {},
+        );
+
+        expect(response.success).toBe(true);
+        expect(saveAttachmentToFileSpy).toHaveBeenCalled();
+      });
     });
 
     describe("Invalid Send ID", () => {
