@@ -766,10 +766,22 @@
     "message": "Restart your terminal for the change to take effect."
   },
   "sshAgentSetupWindowsDesc": {
-    "message": "Your SSH clients will use your Bitwarden vault automatically. There is nothing to configure."
+    "message": "Your SSH clients will use your Bitwarden vault automatically."
   },
   "sshAgentSetupWindowsService": {
     "message": "The built-in Windows OpenSSH Authentication Agent service must be disabled."
+  },
+  "sshAgentSetupUnixApplyDesc": {
+    "message": "Applying automatically adds the line to the end of your ~/.bashrc, ~/.zshrc and fish configuration files."
+  },
+  "sshAgentSetupApplyAutomatically": {
+    "message": "Apply automatically"
+  },
+  "sshAgentSetupApplied": {
+    "message": "SSH agent configuration applied"
+  },
+  "sshAgentSetupApplyFailed": {
+    "message": "Could not apply the SSH agent configuration"
   },
   "sshAgentSocketPath": {
     "message": "SSH agent socket path"

@@ -11,6 +11,8 @@ export const SSH_AGENT_IPC_CHANNELS = {
   INIT: "sshagent.init",
   IS_LOADED: "sshagent.isloaded",
   GET_SOCKET_ADDRESS: "sshagent.getsocketaddress",
+  IS_CONFIGURED: "sshagent.isconfigured",
+  APPLY_CONFIGURATION: "sshagent.applyconfiguration",
   STOP: "sshagent.stop",
   REPLACE: "sshagent.replace",
   SIGN_REQUEST: "sshagent.signrequest",
