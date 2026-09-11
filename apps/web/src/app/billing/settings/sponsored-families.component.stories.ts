@@ -13,6 +13,7 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -21,6 +22,7 @@ import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { HeaderModule } from "../../layouts/header/header.module";
+import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
 import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
 
 import { SponsoredFamiliesComponent } from "./sponsored-families.component";
@@ -45,6 +47,7 @@ const mockSyncService: Partial<SyncService> = {
   getLastSync: () => Promise.resolve(new Date()),
 } as unknown as Partial<SyncService>;
 const mockToastService = { showToast: () => {} };
+const mockGovModeService = { isGovMode$: () => of(false), globalIsGovMode$: of(false) };
 const mockApiService: Partial<ApiService> = {};
 const mockFreeFamiliesPolicyService = { showFreeFamilies$: of(true) };
 const mockBillingAccountProfileStateService = { hasPremiumFromAnySource$: () => of(false) };
@@ -81,6 +84,8 @@ export default {
         { provide: LockService, useValue: mockLockService },
         { provide: AvatarService, useValue: mockAvatarService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: GovModeService, useValue: mockGovModeService },
+        ProductSwitcherService,
       ],
     }),
     applicationConfig({

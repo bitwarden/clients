@@ -19,6 +19,7 @@ import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -138,6 +139,13 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
   }
 }
 
+class MockGovModeService implements Partial<GovModeService> {
+  globalIsGovMode$: Observable<boolean> = of(false);
+  isGovMode$(): Observable<boolean> {
+    return of(false);
+  }
+}
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -206,6 +214,7 @@ export default {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
         },
+        { provide: GovModeService, useClass: MockGovModeService },
         ProductSwitcherService,
         {
           provide: I18nService,

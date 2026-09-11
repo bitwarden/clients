@@ -18,6 +18,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -44,6 +45,7 @@ import {
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
+import { clientIsGovMode$ } from "@bitwarden/web-vault/app/platform/gov-mode";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
@@ -79,6 +81,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   protected organizationWarningsService = inject(OrganizationWarningsService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private govModeService = inject(GovModeService);
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -259,12 +262,17 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       ),
     );
 
-    const addAction = !singleOrgPolicy
-      ? {
-          text: this.vfo1TerminologyService.enabled() ? "newVault" : "newOrganization",
-          route: "/create-organization",
-        }
-      : undefined;
+    const isGovMode = await firstValueFrom(
+      clientIsGovMode$(this.accountService, this.govModeService),
+    );
+
+    const addAction =
+      !singleOrgPolicy && !isGovMode
+        ? {
+            text: this.vfo1TerminologyService.enabled() ? "newVault" : "newOrganization",
+            route: "/create-organization",
+          }
+        : undefined;
 
     const orgFilterSection: VaultFilterSection = {
       data$: this.vaultFilterService.organizationTree$,
