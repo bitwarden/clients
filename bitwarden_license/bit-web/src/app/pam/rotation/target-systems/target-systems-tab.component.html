@@ -1,106 +1,240 @@
-@if (!loading()) {
-  @if (dataSource.data.length > 0 || searchControl.value) {
-    <div class="tw-mb-4">
-      <bit-search
-        class="tw-max-w-md"
-        [placeholder]="'pamTargetSystemSearch' | i18n"
-        [formControl]="searchControl"
-      ></bit-search>
+<pam-rotation-loading-announcer
+  [loading]="loading()"
+  [failed]="loadError() != null"
+  loadedKey="pamTargetSystemsLoaded"
+/>
+
+@if (loadError()) {
+  <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
+} @else if (loadingVisible()) {
+  <div aria-hidden="true" data-testid="target-systems-loading">
+    <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
+      @if (showSkeleton()) {
+        <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
+        <bit-skeleton class="tw-h-10 tw-w-28"></bit-skeleton>
+        <bit-skeleton class="tw-h-10 tw-w-28"></bit-skeleton>
+        <bit-skeleton class="tw-h-10 tw-w-24"></bit-skeleton>
+      }
     </div>
 
-    <bit-table [dataSource]="dataSource">
+    <bit-table>
       <ng-container header>
         <tr>
-          <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
+          <th bitCell>{{ "name" | i18n }}</th>
           <th bitCell>{{ "pamTargetSystemMethodColumn" | i18n }}</th>
-          <th bitCell>{{ "pamTargetSystemKindColumn" | i18n }}</th>
+          <th bitCell>{{ "pamTargetSystemTypeColumn" | i18n }}</th>
           <th bitCell>{{ "status" | i18n }}</th>
           <th bitCell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</th>
           <th bitCell class="tw-w-0"></th>
         </tr>
       </ng-container>
-      <ng-template body let-rows$>
-        <tr bitRow *ngFor="let r of rows$ | async">
-          <td bitCell>
-            <button
-              type="button"
-              bitLink
-              linkType="primary"
-              class="tw-font-bold"
-              (click)="openEdit(r.system)"
-            >
-              {{ r.name }}
-            </button>
-          </td>
-          <td bitCell>
-            <span bitBadge variant="subtle">{{ r.methodLabel }}</span>
-          </td>
-          <td bitCell>
-            @if (r.kindLabel) {
-              {{ r.kindLabel }}
-            } @else {
-              <span class="tw-text-muted">—</span>
-            }
-          </td>
-          <td bitCell>
-            @if (r.active) {
-              <span bitBadge variant="success">{{ r.statusLabel }}</span>
-            } @else {
-              <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
-            }
-          </td>
-          <td bitCell>
-            @if (r.system.supportsSessionTermination) {
-              <span bitBadge variant="primary">{{
-                "pamTargetSystemSessionTerminationYes" | i18n
-              }}</span>
-            }
-          </td>
-          <td bitCell>
-            <button
-              type="button"
-              bitIconButton="bwi-ellipsis-h"
-              [bitMenuTriggerFor]="rowMenu"
-              label="{{ 'options' | i18n }}"
-            ></button>
-            <bit-menu #rowMenu>
-              <button type="button" bitMenuItem (click)="openEdit(r.system)">
-                <bit-icon name="bwi-pencil-square" class="tw-text-muted"></bit-icon>
-                {{ "edit" | i18n }}
-              </button>
-              @if (r.active) {
-                <button type="button" bitMenuItem (click)="disable(r.system)">
-                  <bit-icon name="bwi-circle" class="tw-text-muted"></bit-icon>
-                  {{ "pamTargetSystemDisable" | i18n }}
-                </button>
-              } @else {
-                <button type="button" bitMenuItem (click)="enable(r.system)">
-                  <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
-                  {{ "pamTargetSystemEnable" | i18n }}
-                </button>
-              }
-              <button type="button" bitMenuItem (click)="confirmDelete(r.system)">
-                <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
-                <span class="tw-text-danger">{{ "delete" | i18n }}</span>
-              </button>
-            </bit-menu>
-          </td>
-        </tr>
-        @if (dataSource.filteredData.length === 0) {
-          <tr bitRow>
-            <td bitCell colspan="6" class="tw-py-6 tw-text-center tw-text-muted">
-              {{ "pamTargetSystemNoResults" | i18n }}
-            </td>
-          </tr>
+      <ng-template body>
+        @if (showSkeleton()) {
+          @for (skeletonRow of skeletonRows; track skeletonRow) {
+            <tr bitRow>
+              <td bitCell><bit-skeleton-text class="tw-w-40"></bit-skeleton-text></td>
+              <td bitCell>
+                <bit-skeleton class="tw-h-6 tw-w-20" edgeShape="circle"></bit-skeleton>
+              </td>
+              <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+              <td bitCell>
+                <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
+              </td>
+              <td bitCell>
+                <bit-skeleton class="tw-h-6 tw-w-12" edgeShape="circle"></bit-skeleton>
+              </td>
+              <td bitCell></td>
+            </tr>
+          }
         }
       </ng-template>
     </bit-table>
-  } @else {
-    <pam-target-systems-empty-state
-      (create)="openCreate()"
-      (useTemplate)="openFromTemplate($event)"
-    />
-  }
+  </div>
+} @else if (dataSource.data.length > 0 || searchControl.value) {
+  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+    <bit-search
+      class="tw-grow tw-max-w-md"
+      [placeholder]="'pamTargetSystemSearch' | i18n"
+      [formControl]="searchControl"
+    ></bit-search>
+    @if (methodOptions().length > 0) {
+      <bit-filter-menu
+        #methodFilter
+        key="method"
+        [placeholderText]="'pamTargetSystemMethodColumn' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of methodOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+    @if (kindOptions().length > 0) {
+      <bit-filter-menu
+        #kindFilter
+        key="kind"
+        [placeholderText]="'pamTargetSystemTypeColumn' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of kindOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+    @if (statusOptions().length > 0) {
+      <bit-filter-menu
+        #statusFilter
+        key="status"
+        [placeholderText]="'status' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of statusOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+  </div>
+
+  <bit-table [dataSource]="dataSource">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
+        <th bitCell>{{ "pamTargetSystemMethodColumn" | i18n }}</th>
+        <th bitCell>{{ "pamTargetSystemTypeColumn" | i18n }}</th>
+        <th bitCell>{{ "status" | i18n }}</th>
+        <th bitCell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</th>
+        <th bitCell class="tw-w-0"></th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr bitRow *ngFor="let r of rows$ | async">
+        <td bitCell>
+          <button type="button" bitLink linkType="primary" (click)="openEdit(r.system)">
+            {{ r.name }}
+          </button>
+        </td>
+        <td bitCell>
+          <span bitBadge variant="subtle">{{ r.methodLabel }}</span>
+        </td>
+        <td bitCell>
+          @if (r.kindLabel) {
+            {{ r.kindLabel }}
+          } @else {
+            <span class="tw-text-muted">&mdash;</span>
+          }
+        </td>
+        <td bitCell>
+          @if (r.active) {
+            <span bitBadge variant="success">{{ r.statusLabel }}</span>
+          } @else {
+            <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
+          }
+        </td>
+        <td bitCell>
+          @if (r.system.supportsSessionTermination) {
+            <span bitBadge variant="primary">{{
+              "pamTargetSystemSessionTerminationYes" | i18n
+            }}</span>
+          } @else {
+            <span class="tw-text-muted">{{ "pamTargetSystemSessionTerminationNo" | i18n }}</span>
+          }
+        </td>
+        <td bitCell>
+          <button
+            type="button"
+            bitIconButton="bwi-ellipsis-h"
+            [bitMenuTriggerFor]="rowMenu"
+            label="{{ 'options' | i18n }}"
+          ></button>
+          <bit-menu #rowMenu>
+            <button type="button" bitMenuItem (click)="openEdit(r.system)">
+              <bit-icon name="bwi-pencil-square" class="tw-text-muted"></bit-icon>
+              {{ "pamTargetSystemEditTarget" | i18n }}
+            </button>
+            @if (r.canAddManagedCredential) {
+              <button
+                type="button"
+                bitMenuItem
+                (click)="openCreateManagedCredential(r.system)"
+                id="target-systems-tab_button_add-managed-credential-{{ r.id }}"
+              >
+                <bit-icon name="bwi-key" class="tw-text-muted"></bit-icon>
+                {{ "pamRotationConfigCreateTitle" | i18n }}
+              </button>
+            }
+            @if (r.canAssignConnectors) {
+              @if (r.assignConnectorsBlockedKey; as blockedKey) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.aria-disabled]="true"
+                  [bitTooltip]="blockedKey | i18n"
+                  [addTooltipToDescribedby]="true"
+                  (click)="$event.stopPropagation()"
+                  id="target-systems-tab_button_assign-connectors-locked-{{ r.id }}"
+                >
+                  <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamTargetSystemAssignConnectors" | i18n }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [disabled]="isRowBusy(r.system.id)"
+                  (click)="openAssignConnectorDialog(r.system)"
+                  id="target-systems-tab_button_assign-connectors-{{ r.id }}"
+                >
+                  <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamTargetSystemAssignConnectors" | i18n }}
+                </button>
+              }
+            }
+            @if (r.active) {
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.system.id)"
+                (click)="disable(r.system)"
+              >
+                <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamTargetSystemDeactivate" | i18n }}
+              </button>
+            } @else {
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.system.id)"
+                (click)="enable(r.system)"
+              >
+                <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamTargetSystemActivate" | i18n }}
+              </button>
+            }
+            <bit-menu-divider />
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.system.id)"
+              (click)="confirmDelete(r.system)"
+            >
+              <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
+              <span class="tw-text-danger">{{ "pamTargetSystemDeleteTarget" | i18n }}</span>
+            </button>
+          </bit-menu>
+        </td>
+      </tr>
+      @if (dataSource.filteredData.length === 0) {
+        <tr bitRow>
+          <td bitCell colspan="6" class="tw-py-6 tw-text-center tw-text-muted">
+            {{ "pamTargetSystemNoFilterResults" | i18n }}
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </bit-table>
 } @else {
-  <bit-spinner />
+  <pam-target-systems-empty-state
+    (create)="openCreate()"
+    (useTemplate)="openFromTemplate($event)"
+  />
 }
