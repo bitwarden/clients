@@ -94,7 +94,7 @@ export function accessConnector(overrides: Partial<AccessConnector> = {}): Acces
   return {
     id: ACCESS_CONNECTOR_ID,
     organizationId: ORGANIZATION_ID,
-    name: "Rotation daemon 1",
+    name: "Access connector 1",
     status: "enabled" as AccessConnectorStatus,
     isConnected: true,
     lastHeartbeatAt: TIMESTAMP,
@@ -216,4 +216,9 @@ export function configId(label: string): RotationConfigId {
 /** A branded {@link RotationJobId} from a label. */
 export function jobId(label: string): RotationJobId {
   return asUuid<RotationJobId>(id(label));
+}
+
+/** A branded {@link RotationAttemptId} from a label. */
+export function attemptId(label: string): RotationAttemptId {
+  return asUuid<RotationAttemptId>(id(label));
 }
