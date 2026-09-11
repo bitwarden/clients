@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // Backing task for the "Desktop: Start and debug" compound: runs the isolated debug
+      // pipeline (webpack watchers + Electron) so the attach configurations have something
+      // to attach to.
+      "label": "desktop: debug start",
+      "type": "npm",
+      "script": "debug:desktop",
+      "path": "",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": {
+        "owner": "desktop-debug",
+        // The pipeline's own output is already readable in the terminal; nothing here should
+        // land in the Problems panel, so the pattern is deliberately inert.
+        "pattern": [{ "regexp": "^$", "file": 1, "location": 2, "message": 3 }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Building OSS Desktop App.*",
+          // Electron's main process prints this once --inspect=5858 is listening, which is
+          // exactly when the debuggers can attach.
+          "endsPattern": ".*Debugger listening on ws.*"
+        }
+      }
+    }
+  ]
+}

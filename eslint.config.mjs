@@ -753,6 +753,7 @@ export default tseslint.config(
       "**/dist/",
       "**/coverage/",
       ".angular/",
+      ".debug/",
       "storybook-static/",
 
       "**/node_modules/",
