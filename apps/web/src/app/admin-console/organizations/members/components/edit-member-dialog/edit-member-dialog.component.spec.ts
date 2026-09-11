@@ -753,9 +753,17 @@ describe("EditMemberDialogComponent", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
       fixture.detectChanges();
 
-      const text = fixture.nativeElement.textContent as string;
-      expect(text).toContain("1308a41a-5c5b-46d3-9573-abad9b0608dc");
-      expect(text).toContain("member@example.com");
+      const externalIdInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        "#edit-member_input_external-id",
+      );
+      const ssoExternalIdInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        "#edit-member_input_sso-external-id",
+      );
+
+      expect(externalIdInput.value).toBe("1308a41a-5c5b-46d3-9573-abad9b0608dc");
+      expect(externalIdInput.readOnly).toBe(true);
+      expect(ssoExternalIdInput.value).toBe("member@example.com");
+      expect(ssoExternalIdInput.readOnly).toBe(true);
     });
 
     it("hides both fields when the member has neither ID", async () => {
