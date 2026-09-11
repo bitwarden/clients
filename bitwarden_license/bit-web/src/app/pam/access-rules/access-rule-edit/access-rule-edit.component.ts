@@ -71,6 +71,7 @@ import {
   NO_DURATION_CAP,
   snapToNearestAccessRuleDuration,
 } from "../..";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -131,6 +132,7 @@ export class AccessRuleEditComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
   private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
   private readonly dialogService = inject(DialogService);
@@ -246,16 +248,63 @@ export class AccessRuleEditComponent {
   private readonly unknownConditions = signal<AccessCondition[]>([]);
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
-  protected readonly collectionsLoading = signal(true);
+  private readonly allCollectionsLoading = signal(true);
 
-  protected readonly collectionOptions = computed<SelectItemView[]>(() =>
-    this.allCollections().map((c) => ({
-      id: c.id,
-      listName: c.name,
-      labelName: c.name,
-      icon: "bwi-collection-shared",
-    })),
+  /**
+   * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a choice
+   * the server would reject with `CollectionsGoverned` (`helpers/access-rule-error.ts`). Mirrors
+   * `AccessRuleWriteValidator.ValidateCollectionsAsync`, which rejects on `Collection.AccessRuleId`
+   * regardless of the owning rule's `enabled` flag — so a disabled rule's collections are excluded
+   * here too, unlike `rulesGoverningCollection`'s enabled-only filter for the collection callout,
+   * which answers what is enforced today rather than what the server will reject. This rule's own
+   * collections are never excluded, matching the server's `existingRuleId` exemption.
+   *
+   * `undefined` until the read settles. `rules$` resolves to `[]` on a failed read, so this then
+   * excludes nothing and the server's `CollectionsGoverned` rejection remains the backstop.
+   */
+  private readonly governedCollectionIds = toSignal(
+    this.governedCollections
+      .rules$(this.organizationId)
+      .pipe(
+        map(
+          (rules) =>
+            new Set(
+              rules
+                .filter((rule) => rule.id !== this.accessRuleId)
+                .flatMap((rule) => rule.collections.map(uuidAsString)),
+            ),
+        ),
+      ),
   );
+
+  protected readonly collectionsLoading = computed(
+    () => this.allCollectionsLoading() || this.governedCollectionIds() === undefined,
+  );
+
+  /**
+   * A signal rather than a direct `formGroup.controls.collections.value` read inside
+   * `collectionOptions`: a `FormControl` getter isn't a signal, so `computed()` wouldn't re-run on
+   * a selection change and a deselected-but-governed collection would stay in the picker.
+   */
+  private readonly selectedCollectionIds = toSignal(
+    this.formGroup.controls.collections.valueChanges.pipe(
+      map((value) => new Set(value.map((c) => c.id))),
+    ),
+    { initialValue: new Set<string>() },
+  );
+
+  /**
+   * Never excludes a collection the form's `collections` control already holds: dropping one
+   * here would silently remove it from the rule on the next save rather than merely hiding it
+   * from new selection.
+   */
+  protected readonly collectionOptions = computed<SelectItemView[]>(() => {
+    const governed = this.governedCollectionIds();
+    const selectedIds = this.selectedCollectionIds();
+    return this.allCollections()
+      .filter((c) => selectedIds.has(c.id) || !governed?.has(c.id))
+      .map((c) => this.toCollectionOption(c));
+  });
 
   constructor() {
     // `bit-callout` isn't a live region and renders above Save; without moving focus a failed
@@ -347,6 +396,15 @@ export class AccessRuleEditComponent {
     });
   }
 
+  private toCollectionOption(c: { id: string; name: string }): SelectItemView {
+    return {
+      id: c.id,
+      listName: c.name,
+      labelName: c.name,
+      icon: "bwi-collection-shared",
+    };
+  }
+
   private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
       const userId = await firstValueFrom(this.activeUserId$);
@@ -355,10 +413,15 @@ export class AccessRuleEditComponent {
       );
       this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
 
-      // Map the rule's stored collection IDs onto the now-loaded options so the
-      // chips render with real names rather than raw UUIDs.
+      // Unfiltered: the collections control is still empty here, so `collectionOptions`' "already
+      // selected" exemption doesn't cover this rule's own ids yet. Filtering would drop a
+      // collection another rule record also lists (stale data, a lost race on the server's
+      // exclusivity check), silently losing it from the rule on the next save.
       const optionsById = new Map(
-        this.collectionOptions().map((c): [string, SelectItemView] => [c.id, c]),
+        this.allCollections().map((c): [string, SelectItemView] => [
+          c.id,
+          this.toCollectionOption(c),
+        ]),
       );
       const selected = (rule?.collections ?? [])
         .map((id) => optionsById.get(uuidAsString(id)))
@@ -373,7 +436,7 @@ export class AccessRuleEditComponent {
         message: this.i18nService.t("pamAccessRuleCollectionsLoadError"),
       });
     } finally {
-      this.collectionsLoading.set(false);
+      this.allCollectionsLoading.set(false);
     }
   }
 
@@ -474,6 +537,9 @@ export class AccessRuleEditComponent {
           message: this.i18nService.t("pamAccessRuleCreated"),
         });
       }
+      // The write changed which collections are governed; drop the cached read so the next
+      // consumer doesn't serve up to CACHE_TTL_MS of stale state.
+      this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
       const outcome = classifyAccessRuleError(e);
@@ -544,6 +610,8 @@ export class AccessRuleEditComponent {
         variant: "success",
         message: this.i18nService.t("pamAccessRuleDeleted"),
       });
+      // Freed this rule's collections; see the matching comment in submit().
+      this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
       this.toastService.showToast({
