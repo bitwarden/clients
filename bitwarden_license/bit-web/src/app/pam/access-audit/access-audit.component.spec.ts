@@ -222,7 +222,7 @@ describe("AccessAuditComponent", () => {
 
   /**
    * Stubs the trail as a single page with nothing to resume from, which is what most of these tests
-   * want: the read is paged now, but only the paging tests below care where a page ends.
+   * want: the read is paged, but only the paging tests below care where a page ends.
    */
   const returnsTrail = (
     events: AccessAuditEventResponse[],
@@ -235,7 +235,7 @@ describe("AccessAuditComponent", () => {
   ) =>
     auditApiService.listAccessAuditTrail.mockResolvedValueOnce({ data: events, continuationToken });
 
-  /** The filter the trail was last read with — every chip is a query parameter on it now. */
+  /** The filter the trail was last read with — every chip is a query parameter on it. */
   const lastFilter = (): AuditTrailFilter => {
     const calls = auditApiService.listAccessAuditTrail.mock.calls;
     return calls[calls.length - 1][1] as AuditTrailFilter;
@@ -277,7 +277,10 @@ describe("AccessAuditComponent", () => {
    * Selects a chip's option through the `FilterControl` contract; `bit-filter-menu` owns its own
    * selection rather than a form control.
    */
-  const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
+  const selectFilter = (
+    chip: "kind" | "actor" | "requester" | "item" | "timePeriod",
+    value: unknown,
+  ) => {
     fixture.detectChanges();
     component()[`${chip}Chip`]().setValue(value);
     fixture.detectChanges();
@@ -1766,7 +1769,7 @@ describe("AccessAuditComponent", () => {
       );
     });
 
-    // The detail column dropped from the table must still appear in the exported file.
+    // Detail is not one of the table's columns, but it must still appear in the exported file.
     it("still exports the detail the column gave up", async () => {
       await render([event({ Detail: "Incident closed early." })]);
 
