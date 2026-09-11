@@ -919,10 +919,10 @@ describe("VaultPopupListTableComponent", () => {
   });
 
   describe("itemHeight", () => {
-    it("returns 59 in normal mode", () => {
+    it("returns 60 in normal mode", () => {
       compactModeEnabled$.next(false);
       fixture.detectChanges();
-      expect(component["itemHeight"]()).toBe(59);
+      expect(component["itemHeight"]()).toBe(60);
     });
 
     it("returns 53 in compact mode", () => {
