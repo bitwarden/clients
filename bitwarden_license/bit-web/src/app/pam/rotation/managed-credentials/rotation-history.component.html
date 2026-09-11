@@ -63,7 +63,7 @@
               scope="row"
               class="tw-whitespace-nowrap tw-text-start tw-text-sm tw-font-normal"
             >
-              {{ job.createdAt | date: "short" }}
+              {{ job.startedAt | date: "short" }}
             </th>
 
             @if (showCredential()) {
@@ -89,8 +89,7 @@
               id="rotation-history_button_details-{{ job.id }}"
               [attr.aria-label]="
                 (job.statusLabelKey | i18n) +
-                ' ' +
-                (job.createdAt | date: 'medium') +
+                (job.startedAt ? ' ' + (job.startedAt | date: 'medium') : '') +
                 (job.sessionTerminationFailed
                   ? ' ' + ('pamRotationSessionTerminationTermFailed' | i18n)
                   : '')
