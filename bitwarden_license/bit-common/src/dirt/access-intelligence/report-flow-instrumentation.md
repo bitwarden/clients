@@ -54,8 +54,8 @@ cannot start until it finishes.
 | `Save: encryption payload built` | Converting the report view into the encryption payload, cloning references | `memberCount`, `applicationCount`                              |
 | `Save: report serialized`        | Serializing the report payload to JSON with its version envelope           | `charCount`                                                    |
 | `Save: report encoded`           | Encoding the serialized report to bytes                                    | `byteSize`                                                     |
-| `Save: summary serialized`       | Serializing the summary with its version envelope                          | `byteSize`                                                     |
-| `Save: applications serialized`  | Serializing the application settings with their version envelope           | `byteSize`                                                     |
+| `Save: summary serialized`       | Serializing the summary with its version envelope                          | `charCount`                                                    |
+| `Save: applications serialized`  | Serializing the application settings with their version envelope           | `charCount`                                                    |
 | `Save: artifacts encrypted`      | All five concurrent encryption operations                                  | `reportByteSize`, `summaryCharCount`, `applicationsCharCount`  |
 | `Save: report row created`       | The request that creates the report record and returns an upload URL       | `passwordCount`, `memberCount`, `applicationCount`, `byteSize` |
 | `Save: report file uploaded`     | Uploading the encrypted report file                                        | `byteSize`                                                     |
@@ -104,7 +104,7 @@ contributes none. `passwordCount` is normally the larger and is never a cipher c
 | Property                | Measures                                           | Unit       |
 | ----------------------- | -------------------------------------------------- | ---------- |
 | `byteSize`              | The artifact the step just produced or transferred | bytes      |
-| `charCount`             | The serialized report string                       | characters |
+| `charCount`             | The string the step just serialized                | characters |
 | `reportByteSize`        | The encrypted report file buffer                   | bytes      |
 | `summaryCharCount`      | The encrypted summary `EncString`                  | characters |
 | `applicationsCharCount` | The encrypted applications `EncString`             | characters |
@@ -113,14 +113,15 @@ The suffix carries the unit, so it tells you whether two numbers can be compared
 always a true byte length. A `charCount` is a string length, and where that string is base64 it runs
 roughly 4/3 of the bytes it encodes, plus envelope overhead.
 
-The split exists because the two encryption paths return different things. `encryptFileData` returns
-a buffer, so the report has a real byte size. `encryptString` returns an `EncString` holding the
-serialized `2.<iv>|<data>|<mac>` form, where a character count is the only length available without
-re-encoding.
+Every serialize step reports characters, because that is the length a serialized string already
+has. Producing a byte count instead would mean encoding the result, and the encode would land inside
+the window the step reports. See
+[A step never measures its own instrumentation](#a-step-never-measures-its-own-instrumentation).
 
-One consequence is worth expecting: the summary is reported twice on different scales, as bytes at
-`Save: summary serialized` and as characters at `Save: artifacts encrypted`. Those are the plaintext
-and the encrypted envelope, not one value measured two ways.
+The encrypted artifacts are mixed for a different reason: the two encryption paths return different
+things. `encryptFileData` returns a buffer, so the report has a real byte size. `encryptString`
+returns an `EncString` holding the serialized `2.<iv>|<data>|<mac>` form, where a character count is
+the only length available without re-encoding.
 
 ## Conventions
 
@@ -168,15 +169,21 @@ The console line is not equally durable. Whether it appears depends on the level
 at, and a debug level line is dropped outside a development build. Where a hosted run has to be
 captured, record a performance trace rather than relying on console output.
 
-#### The report is sized at encode, not at serialize
+#### A step never measures its own instrumentation
 
-`Save: report serialized` carries `charCount` rather than a byte size. Running a `TextEncoder` over
-the serialized report purely to measure it would allocate a second copy of the largest artifact in
-the flow, which is the memory behavior under investigation. The real byte size arrives one step
-later at `Save: report encoded`, which encodes that same string as part of the existing work.
+A property expression is evaluated before `measureStep` is called, so any work done to produce a
+number lands inside the window that number is attached to. A step must therefore report values it
+can read, not values it has to compute.
 
-The summary and application artifacts are encoded to measure them, because they are small. The
-report is not, and is never encoded twice.
+This is why no serialize step reports bytes. Encoding a serialized string purely to size it is an
+O(n) pass that exists only for the measurement, and timing it as part of serialization would inflate
+the step by an amount that grows with the artifact. `charCount` is already available on the string at
+no cost.
+
+The report's real byte size still arrives, one step later at `Save: report encoded`, because that
+step encodes as part of the existing work and reads `byteLength` off the result. Sizing the report at
+serialize would also have allocated a second copy of the largest artifact in the flow, which is the
+memory behavior under investigation.
 
 This applies to the file storage path only. With that flag off the report is encrypted inline as a
 single string instead, and that path carries no instrumentation at all, so nothing measures or

@@ -286,7 +286,10 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             ];
             const measureStep = flowTimer(this.logService);
 
-            // Sized at the encode step below; measuring bytes here would allocate a second copy.
+            // Every serialize step reports charCount. The properties array is evaluated before
+            // measureStep stops the window, so encoding here purely to report bytes would time
+            // that throwaway pass as part of the step. The report's real byte size arrives at the
+            // encode step below, which encodes as part of the existing work.
             const serializedReport = this.reportVersioningService.serialize(reportData);
             measureStep("Save: report serialized", [
               ...counts,
@@ -302,14 +305,14 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             const serializedSummary = this.summaryVersioningService.serialize(summaryData);
             measureStep("Save: summary serialized", [
               ...counts,
-              ["byteSize", new TextEncoder().encode(serializedSummary).byteLength],
+              ["charCount", serializedSummary.length],
             ]);
 
             const serializedApplications =
               this.applicationVersioningService.serialize(applicationData);
             measureStep("Save: applications serialized", [
               ...counts,
-              ["byteSize", new TextEncoder().encode(serializedApplications).byteLength],
+              ["charCount", serializedApplications.length],
             ]);
 
             return forkJoin({
