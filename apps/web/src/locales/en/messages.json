@@ -18943,9 +18943,6 @@
   "pamTargetSystemKindColumn": {
     "message": "Kind"
   },
-  "pamTargetSystemTypeColumn": {
-    "message": "Type"
-  },
   "pamTargetSystemSessionTerminationColumn": {
     "message": "Session termination"
   },
