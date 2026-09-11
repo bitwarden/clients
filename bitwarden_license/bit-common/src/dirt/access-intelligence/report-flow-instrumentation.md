@@ -48,9 +48,9 @@ probably was one, and the presence of save entries under it is how to tell.
 | Measurement                                | What it covers                                                                                               | Properties                                                                          |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
 | `Generate: password reuse detected`        | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                         |
+| `Generate: ciphers mapped to members`      | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
 | `Generate: health checks complete`         | Per cipher weak password scoring and the breach lookup fan out together, bounded by the concurrency limit    | `itemCount`, `concurrencyLimit`                                                     |
 | `Generate: health and reuse combined`      | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                         |
-| `Generate: ciphers mapped to members`      | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
 | `Generate: applications grouped`           | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                      |
 | `Generate: previous metadata carried over` | Building the report view, then merging the previous report's per application settings into it                | `applicationCount`, `previousApplicationCount`                                      |
 | `Generate: summary recomputed`             | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
@@ -58,6 +58,12 @@ probably was one, and the presence of save entries under it is how to tell.
 Reuse detection is measured despite producing no network traffic because it is a full pass over
 every cipher that allocates a map keyed by password, and because the combine step downstream
 cannot start until it finishes.
+
+The order above is emission order, which is not the order the code reads in. Reuse detection and the
+member mapping are both synchronous: they run while the health-and-mapping `forkJoin` is being
+constructed, and so record before the lookup fan out they appear to run alongside. The mapping in
+particular is one long synchronous block, which is why it lands second rather than concurrently with
+the health checks.
 
 ### Save
 
@@ -102,7 +108,7 @@ tells you which one you are reading.
 | `applicationCount`         | Application records in the report, one per URI grouping                   |
 | `previousApplicationCount` | Application settings the previous report supplied                         |
 | `collectionCount`          | Collections returned for the organization, with access details            |
-| `groupCount`               | Group membership records returned for the organization                    |
+| `groupCount`               | Groups with at least one member, derived from the member response         |
 | `concurrencyLimit`         | Breach lookups allowed in flight at once. A source constant, not measured |
 
 Three of these count members, and they narrow in that order:
@@ -125,6 +131,10 @@ contributes none. `passwordCount` is normally the larger and is never a cipher c
 matched to the new report by application name, so any whose application no longer appears is
 dropped, and the number kept is bounded by `applicationCount` on the same step. The two together
 show how much of the previous report still applies.
+
+`groupCount` is the one count with no `Load:` step to check it against, because groups are never
+fetched. They arrive inside the member response and are inverted from member to group, so a group
+nobody belongs to is not represented and the number is not the organization's group total.
 
 #### Sizes
 
