@@ -66,6 +66,62 @@ Two marks anchor the flow: `[AccessReportFlow]: page open` and `[AccessReportFlo
 They carry the same bracketed prefix as the measurements, so one console filter of
 `[AccessReportFlow]` captures the whole flow.
 
+### Properties
+
+Several of these quantities are close enough to be mistaken for each other, so the name is what
+distinguishes them. Look one up here before comparing two measurements.
+
+Every count below means the same quantity at every step that carries it, so a count can be read
+straight down the track. The sizes are the exception: `byteSize` is scoped to whichever artifact its
+step produced or transferred, and is only meaningful alongside that step's name.
+
+#### Counts
+
+| Property            | Counts                                                                    |
+| ------------------- | ------------------------------------------------------------------------- |
+| `itemCount`         | Ciphers                                                                   |
+| `passwordCount`     | Cipher references, summed across applications                             |
+| `orgMemberCount`    | Members the organization returned                                         |
+| `mappedMemberCount` | Members resolving to at least one cipher                                  |
+| `memberCount`       | Members in the report's member registry                                   |
+| `applicationCount`  | Application records in the report, one per URI grouping                   |
+| `collectionCount`   | Collections returned for the organization, with access details            |
+| `groupCount`        | Group membership records returned for the organization                    |
+| `concurrencyLimit`  | Breach lookups allowed in flight at once. A source constant, not measured |
+
+Three of these count members, and they narrow in that order:
+`memberCount` ≤ `mappedMemberCount` ≤ `orgMemberCount`. Resolution drops members with no collection
+or group path to any cipher, and the registry drops any remaining id absent from the organization's
+member set. A wide gap is expected in an organization with narrow collection access, and is not
+data loss.
+
+`itemCount` and `passwordCount` are both about ciphers but are not the same number. Applications are
+grouped by URI, so a cipher on three URIs contributes three references and a cipher with no URI
+contributes none. `passwordCount` is normally the larger and is never a cipher count.
+
+#### Sizes
+
+| Property                | Measures                                           | Unit       |
+| ----------------------- | -------------------------------------------------- | ---------- |
+| `byteSize`              | The artifact the step just produced or transferred | bytes      |
+| `charCount`             | The serialized report string                       | characters |
+| `reportByteSize`        | The encrypted report file buffer                   | bytes      |
+| `summaryCharCount`      | The encrypted summary `EncString`                  | characters |
+| `applicationsCharCount` | The encrypted applications `EncString`             | characters |
+
+The suffix carries the unit, so it tells you whether two numbers can be compared. A `byteSize` is
+always a true byte length. A `charCount` is a string length, and where that string is base64 it runs
+roughly 4/3 of the bytes it encodes, plus envelope overhead.
+
+The split exists because the two encryption paths return different things. `encryptFileData` returns
+a buffer, so the report has a real byte size. `encryptString` returns an `EncString` holding the
+serialized `2.<iv>|<data>|<mac>` form, where a character count is the only length available without
+re-encoding.
+
+One consequence is worth expecting: the summary is reported twice on different scales, as bytes at
+`Save: summary serialized` and as characters at `Save: artifacts encrypted`. Those are the plaintext
+and the encrypted envelope, not one value measured two ways.
+
 ## Conventions
 
 Measurements go through `LogService.measure`, which wraps `performance.measure`. Two helpers in
@@ -111,35 +167,6 @@ whatever level the log line uses and whether or not the line is written at all.
 The console line is not equally durable. Whether it appears depends on the level `measure` writes
 at, and a debug level line is dropped outside a development build. Where a hosted run has to be
 captured, record a performance trace rather than relying on console output.
-
-#### `itemCount` and `passwordCount` are different quantities
-
-`itemCount` is always a cipher count, and it means the same thing at every step that carries it, so
-the column can be read straight down the track.
-
-`passwordCount` is the summary aggregate, built by summing `cipherRefs` per application. Ciphers are
-grouped into applications by URI, so a cipher with three URIs contributes three and a cipher with no
-URI contributes none. It is normally the larger of the two and is not a cipher count.
-
-`Generate: summary recomputed` carries both, because that step is where the second quantity comes
-from and the pair is what makes the relationship legible. `Save: report row created` carries only
-`passwordCount`: it reports the aggregate the request actually sends, and no cipher count is in scope
-there.
-
-#### `byteSize` and `charCount` are not interchangeable
-
-A property is named `byteSize` only where the value is a true byte length, and `charCount` where it
-is a length in characters. The two differ by roughly 4/3 plus envelope overhead wherever base64 is
-involved, so the suffix is what tells you whether two numbers can be compared.
-
-`Save: artifacts encrypted` carries one of each for this reason. `encryptFileData` returns a buffer,
-so the report is a real `reportByteSize`. The summary and application artifacts go through
-`encryptString`, whose `EncString` holds the serialized `2.<iv>|<data>|<mac>` form, so the only
-length available without re-encoding is a character count.
-
-This means the summary appears twice on different scales: as true bytes at `Save: summary
-serialized`, then as characters at `Save: artifacts encrypted`. That is the plaintext and the
-ciphertext envelope, not one value measured two ways.
 
 #### The report is sized at encode, not at serialize
 
@@ -210,5 +237,5 @@ measurements. This gap closes when the inline path is removed.
 ---
 
 **Document Version:** 1.0
-**Last Updated:** 2026-09-10
+**Last Updated:** 2026-09-11
 **Maintainer:** DIRT Team
