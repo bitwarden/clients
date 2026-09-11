@@ -1062,6 +1062,18 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
     expect(component.assignedConnectorRows().map((r) => r.staged)).toEqual([null]);
   });
 
+  it("lists a connector whose stored assignment id differs from the route id only in case", async () => {
+    const assigned = accessConnector({
+      id: connectorId("c-assigned"),
+      name: "Prod connector",
+      assignedTargetSystemIds: [asUuid<TargetSystemId>(uuidAsString(SYSTEM_ID).toUpperCase())],
+    });
+    await setup([assigned]);
+
+    expect(component.assignedConnectorRows().map((r) => r.connector.id)).toEqual([assigned.id]);
+    expect(component.connectorOptions()).toEqual([]);
+  });
+
   it("derives no rows when nothing is assigned, and offers what is free", async () => {
     const free = accessConnector({ id: connectorId("c-free") });
     await setup([free]);
