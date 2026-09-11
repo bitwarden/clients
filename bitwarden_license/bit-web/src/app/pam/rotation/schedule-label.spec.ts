@@ -3,7 +3,7 @@ import { resolveScheduleLabel } from "./schedule-label";
 
 /**
  * The Schedule column used to print the raw expression whenever the SDK called a schedule Custom,
- * so `0 0 3 * * ?`, what the interval builder emits for "every 1 day at 03:00", reached an
+ * so `0 0 3 * * ?` — what the interval builder emits for "every 1 day at 03:00" — reached an
  * operator as Quartz. Every expression the builder can compose has a sentence here, and anything
  * left over says "Custom" while keeping the expression for a tooltip.
  */
@@ -33,7 +33,7 @@ describe("resolveScheduleLabel", () => {
         "pamRotationScheduleDaily",
       );
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 0 0 * * ?").key).toBe(
-        "pamRotationScheduleColumnEveryDayUtc",
+        "pamRotationScheduleColumnEveryDay",
       );
     });
   });
@@ -42,7 +42,7 @@ describe("resolveScheduleLabel", () => {
   describe("interval expressions", () => {
     it("labels a one-day interval with its time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 0 3 * * ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryDayUtc",
+        key: "pamRotationScheduleColumnEveryDay",
         placeholders: ["03:00"],
         rawCron: null,
       });
@@ -50,7 +50,7 @@ describe("resolveScheduleLabel", () => {
 
     it("labels a multi-day interval with its count and time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 0 2 1/7 * ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryNDaysUtc",
+        key: "pamRotationScheduleColumnEveryNDays",
         placeholders: ["7", "02:00"],
         rawCron: null,
       });
@@ -58,7 +58,7 @@ describe("resolveScheduleLabel", () => {
 
     it("labels a one-month interval with its time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 30 6 1 * ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryMonthUtc",
+        key: "pamRotationScheduleColumnEveryMonth",
         placeholders: ["06:30"],
         rawCron: null,
       });
@@ -66,7 +66,7 @@ describe("resolveScheduleLabel", () => {
 
     it("labels a multi-month interval with its count and time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 15 23 1 1/3 ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryNMonthsUtc",
+        key: "pamRotationScheduleColumnEveryNMonths",
         placeholders: ["3", "23:15"],
         rawCron: null,
       });
@@ -89,7 +89,7 @@ describe("resolveScheduleLabel", () => {
 
     it("reads an expression with surrounding whitespace", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "  0 0 3 * * ?  ").key).toBe(
-        "pamRotationScheduleColumnEveryDayUtc",
+        "pamRotationScheduleColumnEveryDay",
       );
     });
   });
@@ -119,7 +119,7 @@ describe("resolveScheduleLabel", () => {
 
   /**
    * A Custom preset with no expression rendered an empty `<code></code>` in the column, and an
-   * `undefined` one, how a config with no schedule arrives from the server, reached
+   * `undefined` one — how a config with no schedule arrives from the server — reached
    * `I18nService.t("")`. Nothing runs without an expression, so all three are no schedule.
    */
   describe("a Custom preset with no expression", () => {
