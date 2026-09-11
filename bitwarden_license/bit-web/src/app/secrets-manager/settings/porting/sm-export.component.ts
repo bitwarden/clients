@@ -5,6 +5,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
   getOrganizationById,
   OrganizationService,
@@ -16,7 +17,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { openUserVerificationPrompt } from "@bitwarden/web-vault/app/auth/shared/components/user-verification";
 
 import { SecretsManagerPortingApiService } from "../services/sm-porting-api.service";
 import { SecretsManagerPortingService } from "../services/sm-porting.service";
@@ -120,19 +120,20 @@ export class SecretsManagerExportComponent implements OnInit, OnDestroy {
     });
   }
 
-  private verifyUser() {
-    const ref = openUserVerificationPrompt(this.dialogService, {
-      data: {
-        confirmDescription: "exportSecretsWarningDesc",
-        confirmButtonText: "exportVerb",
-        modalTitle: "confirmSecretsExport",
+  private async verifyUser(): Promise<boolean> {
+    const result = await UserVerificationDialogComponent.open(this.dialogService, {
+      title: "confirmSecretsExport",
+      bodyText: "exportSecretsWarningDesc",
+      confirmButtonOptions: {
+        text: "exportVerb",
+        type: "primary",
       },
     });
 
-    if (ref == null) {
-      return;
+    if (result.userAction === "cancel") {
+      return false;
     }
 
-    return firstValueFrom(ref.closed);
+    return result.verificationSuccess;
   }
 }
