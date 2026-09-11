@@ -1,9 +1,16 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { ChangeDetectionStrategy, Component, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Router, convertToParamMap, provideRouter } from "@angular/router";
+import {
+  ActivatedRoute,
+  Router,
+  Routes,
+  convertToParamMap,
+  provideRouter,
+} from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,7 +25,9 @@ import type {
   TargetSystem,
 } from "../rotation";
 import { QuartzSchedulePreset } from "../rotation";
+import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationSdkService } from "../rotation-sdk.service";
+import { rotationRoutes } from "../rotation.routes";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   CIPHER_ID,
@@ -927,6 +936,85 @@ describe("RotationConfigEditComponent — tabs", () => {
       "rotation",
       "managed-credentials",
     ]);
+  });
+});
+
+/**
+ * The two tab links the page renders are only as good as the route table behind them, and that
+ * table is a sibling of the shell rather than part of it, so nothing the page renders would catch
+ * a missing `:tab` layer. Resolved against the real table, with its pages stubbed out.
+ */
+describe("RotationConfigEditComponent — tab routes", () => {
+  @Component({
+    template: "",
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class StubComponent {}
+
+  // Route-level providers and guards go with the pages they belong to, so what is left under test
+  // is the path vocabulary.
+  const pathsOnly = (config: Routes): Routes =>
+    config.map((route) => ({
+      ...route,
+      providers: undefined,
+      canDeactivate: undefined,
+      ...(route.component ? { component: StubComponent } : {}),
+      ...(route.children ? { children: pathsOnly(route.children) } : {}),
+    }));
+
+  const CONFIG_ID = String(configId("cfg-1"));
+  const ROTATION_URL = `/organizations/${ORG_ID}/pam/rotation`;
+
+  /** The link the page builds for one of its tabs, as an absolute router link. */
+  const tabLink = (...rest: string[]) =>
+    rotationLink(ORG_ID, ROTATION_TABS.managedCredentials, CONFIG_ID, ...rest);
+
+  const tabUrl = (tab: string) =>
+    `${ROTATION_URL}/${ROTATION_TABS.managedCredentials}/${CONFIG_ID}/${tab}`;
+
+  let router: Router;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          {
+            path: "organizations/:organizationId/pam/rotation",
+            children: pathsOnly(rotationRoutes),
+          },
+        ]),
+      ],
+    });
+    router = TestBed.inject(Router);
+    await RouterTestingHarness.create();
+  });
+
+  it("resolves the Configuration tab link", async () => {
+    expect(await router.navigate(tabLink("configuration"))).toBe(true);
+    expect(router.url).toBe(tabUrl("configuration"));
+  });
+
+  it("resolves the History tab link", async () => {
+    expect(await router.navigate(tabLink("history"))).toBe(true);
+    expect(router.url).toBe(tabUrl("history"));
+  });
+
+  it("sends an edit URL with no tab segment to Configuration", async () => {
+    await router.navigate(tabLink());
+
+    expect(router.url).toBe(tabUrl("configuration"));
+  });
+
+  /** An unknown segment is the page's to interpret, as `activeTab` does, rather than a dead URL. */
+  it("resolves a tab segment the page does not know", async () => {
+    expect(await router.navigate(tabLink("nonsense"))).toBe(true);
+  });
+
+  it("leaves the create page on its own literal path", async () => {
+    await router.navigate(rotationLink(ORG_ID, ROTATION_TABS.managedCredentials, "new"));
+
+    expect(router.url).toBe(`${ROTATION_URL}/${ROTATION_TABS.managedCredentials}/new`);
   });
 });
 
