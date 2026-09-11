@@ -34,7 +34,6 @@ export type RotationConfigDescription = {
 };
 
 export abstract class RotationSdkService {
-
   /** Lists the organization's access connectors. */
   abstract listConnectors(organizationId: OrganizationId): Promise<AccessConnector[]>;
 
