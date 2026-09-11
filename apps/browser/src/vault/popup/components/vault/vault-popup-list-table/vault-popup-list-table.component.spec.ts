@@ -39,6 +39,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -230,6 +231,9 @@ describe("VaultPopupListTableComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: { hasPremiumFromAnySource$: () => of(true) },
         },
+        // The rows' more-options menu hosts the share entry point, which asks whether the
+        // item can be shared. Stubbed so the real service is not constructed.
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
       ],
     }).compileComponents();
 

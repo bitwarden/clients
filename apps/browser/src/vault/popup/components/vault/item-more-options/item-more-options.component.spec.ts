@@ -20,6 +20,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -61,6 +62,10 @@ describe("ItemMoreOptionsComponent", () => {
   const domainSettingsService = {
     resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
     getUrlEquivalentDomains: jest.fn().mockReturnValue(of(new Set<string>())),
+  };
+
+  const shareLinkService = {
+    cipherCanBeShared$: jest.fn().mockReturnValue(of(false)),
   };
 
   const baseCipher = {
@@ -115,6 +120,10 @@ describe("ItemMoreOptionsComponent", () => {
         {
           provide: VaultPopupItemsService,
           useValue: mock<VaultPopupItemsService>({}),
+        },
+        {
+          provide: ShareLinkService,
+          useValue: shareLinkService,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

@@ -1,0 +1,37 @@
+<popup-page>
+  <popup-header
+    slot="header"
+    [pageTitle]="'share' | i18n"
+    showBackButton
+    [backAction]="onBackClick.bind(this)"
+  ></popup-header>
+
+  @if (cipher(); as c) {
+    <app-share-item-form [cipher]="c"></app-share-item-form>
+  }
+
+  <popup-footer slot="footer">
+    <button
+      bitButton
+      type="button"
+      slot="end"
+      id="share-item_button_cancel"
+      buttonType="secondary"
+      (click)="onBackClick()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      slot="end"
+      id="share-item_button_copy-link"
+      buttonType="primary"
+      (click)="createAndCopyLink()"
+      [disabled]="shareItemForm()?.form?.invalid"
+      startIcon="bwi-share-link"
+    >
+      {{ "copyLink" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>
