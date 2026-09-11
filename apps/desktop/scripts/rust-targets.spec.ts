@@ -9,6 +9,7 @@ import {
   crossCompilationPlan,
   cargoBuildCommand,
   cargoTargetArg,
+  isCrossPlatform,
   rustTargetsFor,
 } from "./rust-targets.mts";
 
@@ -83,6 +84,14 @@ describe("library naming", () => {
     expect(builtLibraryName("process_isolation", "x86_64-pc-windows-msvc")).toBe(
       "process_isolation.dll",
     );
+  });
+});
+
+describe("isCrossPlatform", () => {
+  it("counts a different platform, but not a different architecture", () => {
+    expect(isCrossPlatform("darwin", "x86_64-pc-windows-msvc")).toBe(true);
+    expect(isCrossPlatform("darwin", "x86_64-apple-darwin")).toBe(false);
+    expect(isCrossPlatform("linux", "aarch64-unknown-linux-gnu")).toBe(false);
   });
 });
 
