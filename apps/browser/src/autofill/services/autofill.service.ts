@@ -949,10 +949,14 @@ export default class AutofillService implements AutofillServiceInterface {
     // Targeting rules match on the frame's hostname alone and say nothing about
     // whether this cipher belongs there. Run the same origin check the heuristic
     // path uses so the confirm prompt still fires on cross-origin frames.
-    // Password generation is excluded: no stored credential is at risk, and the
-    // transient cipher's empty URI would trigger the prompt on every cross-origin
-    // frame with copy that references a saved login that doesn't exist yet.
-    if (isLoginCipher && !isPasswordGeneration) {
+    // The transient cipher from `buildLoginCipherView` (no id, empty URI) is the
+    // only case skipped: nothing stored is at risk, and `matchesUri` would flag
+    // every cross-origin frame with copy referencing a nonexistent saved login.
+    // The guard keys on `cipher.id` rather than `inlineMenuFillType` because a
+    // saved cipher can be selected while a targeted newPassword field is focused,
+    // and that path still needs the check.
+    const isGeneratedPasswordCipher = isPasswordGeneration && !cipher.id;
+    if (isLoginCipher && !isGeneratedPasswordCipher) {
       fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
     }
 
