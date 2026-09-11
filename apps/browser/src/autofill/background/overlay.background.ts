@@ -146,6 +146,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly requestGeneratedPassword$ = new Subject<GenerateRequest>();
   private readonly clearGeneratedPassword$ = new Subject<void>();
   private credential$ = new BehaviorSubject<string>("");
+  private pendingGeneratedCredential: Promise<string> | null = null;
   private credentialPipelineSubscription: Subscription | undefined;
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
@@ -1858,6 +1859,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    if (
+      overlayElement === AutofillOverlayElement.List &&
+      this.awaitingGeneratedPassword() &&
+      // Auth check last to avoid incurring cost every invocation
+      (await this.getAuthStatus()) === AuthenticationStatus.Unlocked
+    ) {
+      try {
+        await this.requestGeneratedCredential(PasswordGenerateRequestSource.InlineMenuInit);
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+
     this.cancelInlineMenuFadeInAndPositionUpdate();
 
     await BrowserApi.tabSendMessage(
@@ -2236,17 +2250,60 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Identifies if the focused field is waiting for a generated password or not
+   */
+  private awaitingGeneratedPassword() {
+    if (this.credential$.value) {
+      return false;
+    }
+
+    return (
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
+      (this.shouldShowInlineMenuAccountCreation() &&
+        this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password))
+    );
+  }
+
+  /**
+   * Requests a generated password and resolves with it once the credential pipeline
+   * emits.
+   *
+   * @param source - Identifies the caller requesting the password
+   * @param refreshPassword - Requests a new password rather than joining an in-flight request
+   */
+  private requestGeneratedCredential(
+    source: PasswordGenerateRequestSource,
+    refreshPassword: boolean = false,
+  ) {
+    if (!refreshPassword && this.pendingGeneratedCredential !== null) {
+      return this.pendingGeneratedCredential;
+    }
+
+    const pendingCredential = this.waitForNextCredential();
+    this.pendingGeneratedCredential = pendingCredential;
+    this.requestGeneratedPassword$.next({ source, type: Type.password });
+
+    const clearPendingCredential = () => {
+      if (this.pendingGeneratedCredential === pendingCredential) {
+        this.pendingGeneratedCredential = null;
+      }
+    };
+    void pendingCredential.then(clearPendingCredential, clearPendingCredential);
+
+    return pendingCredential;
+  }
+
+  /**
    * Updates the generated password in the inline menu list.
    *
    * @param refreshPassword - Identifies whether the generated password should be refreshed
    */
   private async updateGeneratedPassword(refreshPassword: boolean = false) {
     if (!this.credential$.value || refreshPassword) {
-      this.requestGeneratedPassword$.next({
-        source: PasswordGenerateRequestSource.InlineMenu,
-        type: Type.password,
-      });
-      const generatedPassword = await this.waitForNextCredential();
+      const generatedPassword = await this.requestGeneratedCredential(
+        PasswordGenerateRequestSource.InlineMenu,
+        refreshPassword,
+      );
       this.postMessageToPort(this.inlineMenuListPort, {
         command: "updateAutofillInlineMenuGeneratedPassword",
         generatedPassword,
@@ -3490,9 +3547,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
 
+    const focusedFieldOnConnect = this.focusedFieldData;
     const authStatus = await this.getAuthStatus();
     const showInlineMenuAccountCreation = this.shouldShowInlineMenuAccountCreation();
-    const showInlineMenuPasswordGenerator = await this.shouldInitInlineMenuPasswordGenerator(
+    const showInlineMenuPasswordGenerator = this.shouldShowInlineMenuPasswordGenerator(
       authStatus,
       isInlineMenuListPort,
       showInlineMenuAccountCreation,
@@ -3509,6 +3567,29 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
     );
     const extensionOrigin = iframeUrl ? new URL(iframeUrl).origin : null;
+    const [showAnimations, theme, ciphers, useLitComponents] = await Promise.all([
+      firstValueFrom(this.autofillService.enableInlineMenuAnimation$),
+      firstValueFrom(this.themeStateService.selectedTheme$),
+      isInlineMenuListPort ? this.getInlineMenuCipherData() : null,
+      isInlineMenuListPort ? firstValueFrom(this.useLitInlineMenuComponents$) : undefined,
+    ]);
+
+    // A newer port has superseded this one while the data above was gathered. That port
+    // carries its own initialization, and this one is torn down when it disconnects.
+    if (!this.isCurrentInlineMenuPort(port)) {
+      return;
+    }
+
+    // The focused field changed while the data above was gathered, so initializing and
+    // positioning this port would render the menu against a field that is no longer
+    // focused. The element is appended before its port connects, so abandoning the port
+    // here would leave an uninitialized iframe that nothing re-appends; it is torn down
+    // instead, which lets the next focus rebuild it.
+    if (focusedFieldOnConnect && !this.focusedFieldMatchesConnectedField(focusedFieldOnConnect)) {
+      this.tearDownUninitializedInlineMenuPort(port);
+
+      return;
+    }
 
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
@@ -3517,10 +3598,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
       styleSheetUrl,
-      showAnimations: await firstValueFrom(this.autofillService.enableInlineMenuAnimation$),
-      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
+      showAnimations,
+      theme,
       translations: this.getInlineMenuTranslations(),
-      ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
+      ciphers,
       portKey: this.portKeyForTab[port.sender.tab.id],
       portName: isInlineMenuListPort
         ? AutofillOverlayPort.ListMessageConnector
@@ -3532,11 +3613,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
-      useLitComponents: isInlineMenuListPort
-        ? await firstValueFrom(this.useLitInlineMenuComponents$)
-        : undefined,
+      useLitComponents,
     });
-    if (port.sender) {
+    if (showInlineMenuPasswordGenerator && !this.credential$.value) {
+      this.generateInlineMenuPasswordForPort(port).catch((error) => this.logService.error(error));
+    }
+
+    if (port.sender && this.isCurrentInlineMenuPort(port)) {
       this.updateInlineMenuPosition(
         port.sender,
         isInlineMenuListPort ? AutofillOverlayElement.List : AutofillOverlayElement.Button,
@@ -3615,7 +3698,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param isInlineMenuListPort - Identifies if the port is for the inline menu list
    * @param showInlineMenuAccountCreation - Identifies if the inline menu account creation should be shown
    */
-  private async shouldInitInlineMenuPasswordGenerator(
+  private shouldShowInlineMenuPasswordGenerator(
     authStatus: AuthenticationStatus,
     isInlineMenuListPort: boolean,
     showInlineMenuAccountCreation: boolean,
@@ -3624,33 +3707,99 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
-    const focusFieldShouldShowPasswordGenerator =
+    return (
       this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
       (showInlineMenuAccountCreation &&
-        this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password));
-    if (!focusFieldShouldShowPasswordGenerator) {
+        this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password))
+    );
+  }
+
+  /**
+   * Identifies whether the port is still the active inline menu port for its element. A
+   * port that has disconnected or been superseded by a newer connection is not current.
+   *
+   * @param port - The port to check against the stored inline menu ports
+   */
+  private isCurrentInlineMenuPort(port: chrome.runtime.Port) {
+    if (port.name === AutofillOverlayPort.List) {
+      return port === this.inlineMenuListPort;
+    }
+
+    if (port.name === AutofillOverlayPort.Button) {
+      return port === this.inlineMenuButtonPort;
+    }
+
+    return false;
+  }
+
+  /**
+   * Tears down an inline menu port that will not be initialized. Disconnecting a port
+   * from this end does not fire this end's `onDisconnect` listener, so the stored port
+   * state is reset through the disconnect handler directly. The reset visibility status
+   * is what allows the content script to append the element again on the next focus.
+   *
+   * @param port - The port that will not be initialized
+   */
+  private tearDownUninitializedInlineMenuPort(port: chrome.runtime.Port) {
+    port.disconnect();
+    this.handlePortOnDisconnect(port);
+
+    // The disconnect handler reports the list element for both port names, so the
+    // button's visibility status is reset here to keep it appendable again.
+    if (port.name === AutofillOverlayPort.Button) {
+      this.isInlineMenuButtonVisible = false;
+    }
+  }
+
+  /**
+   * Identifies whether the currently focused field is the same field that was focused
+   * when an inline menu port connected.
+   *
+   * @param connectedField - The field data captured when the port connected
+   */
+  private focusedFieldMatchesConnectedField(connectedField: FocusedFieldData) {
+    if (!this.focusedFieldData) {
       return false;
     }
 
+    return (
+      this.focusedFieldData.tabId === connectedField.tabId &&
+      this.focusedFieldData.frameId === connectedField.frameId &&
+      this.focusedFieldData.focusedFieldOpid === connectedField.focusedFieldOpid
+    );
+  }
+
+  /**
+   * Requests a generated password for a newly connected inline menu list and forwards
+   * it to the list once it is available.
+   *
+   * @param port - The inline menu list port awaiting a generated password
+   */
+  private async generateInlineMenuPasswordForPort(port: chrome.runtime.Port) {
     const { capabilities } = await firstValueFrom(
       this.generatorService.preferredAlgorithm$("password", {
         account$: this.accountService.activeAccount$.pipe(filter((a): a is Account => a !== null)),
       }),
     );
 
-    if (!this.credential$.value && capabilities.autogenerate) {
-      this.requestGeneratedPassword$.next({
-        source: PasswordGenerateRequestSource.InlineMenuInit,
-        type: Type.password,
-      });
-      try {
-        await this.waitForNextCredential();
-      } catch (e) {
-        this.logService.error(e);
-      }
+    if (!capabilities.autogenerate || this.credential$.value) {
+      return;
     }
 
-    return true;
+    const generatedPassword = await this.requestGeneratedCredential(
+      PasswordGenerateRequestSource.InlineMenuInit,
+    );
+
+    // The list can be torn down or replaced while generation is in flight; only the
+    // port that is still the active list should receive the generated password.
+    if (!this.isCurrentInlineMenuPort(port)) {
+      return;
+    }
+
+    this.postMessageToPort(port, {
+      command: "updateAutofillInlineMenuGeneratedPassword",
+      generatedPassword,
+    });
   }
 
   /**
