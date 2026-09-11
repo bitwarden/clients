@@ -230,6 +230,18 @@ describe("VaultBatchBarService", () => {
       expect(service.selectedCiphers()[0]).toBe(cipherItem.cipher);
     });
 
+    it("selectedCiphers excludes partial (PAM-gated) ciphers so no bulk action can modify them", () => {
+      const normalItem = makeCipherItem();
+      const partialItem = makeCipherItem({
+        id: "partial" as unknown as CipherId,
+        partial: true,
+      });
+
+      service.selection.select(normalItem, partialItem);
+
+      expect(service.selectedCiphers()).toEqual([normalItem.cipher]);
+    });
+
     it("selectedCollections returns only items with a collection", () => {
       const cipherItem = makeCipherItem();
       const collectionItem = makeCollectionItem();
@@ -919,6 +931,20 @@ describe("VaultBatchBarService", () => {
       expect(mockBulkDeleteDialogOpen).toHaveBeenCalled();
       expect(mockToastService.showToast).not.toHaveBeenCalledWith(
         expect.objectContaining({ message: "missingPermissions" }),
+      );
+    });
+
+    it("excludes partial (PAM-gated) ciphers from the delete", async () => {
+      service.selection.select(
+        makeCipherItem({ id: "normal" as unknown as CipherId }),
+        makeCipherItem({ id: "partial" as unknown as CipherId, partial: true }),
+      );
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ cipherIds: ["normal"] }),
       );
     });
 
