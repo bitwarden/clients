@@ -451,8 +451,22 @@ export class RotationConfigEditComponent {
     this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
   }
 
-  /** Confirm before unsaved input is thrown away. */
+  /**
+   * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A tab switch is not
+   * an exit: the route keeps the guard off a `:tab` change, and the reused component keeps the
+   * input.
+   *
+   * While the page is still loading there is nothing to discard: `savedValue` is only filled by
+   * `markSaved()` once `initialize()` settles, so until then it holds no snapshot to compare
+   * against and every exit would be prompted. `initialize()` clears `loading` and marks saved back
+   * to back in the same `finally`, so no window is left where one is done and the other is not.
+   */
   async confirmDiscard(): Promise<boolean> {
+    if (this.loading()) {
+      return true;
+    }
+
     if (JSON.stringify(this.liveForm().getRawValue()) === this.savedValue()) {
       return true;
     }
