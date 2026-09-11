@@ -53,7 +53,7 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
    * name renders as an ordinary link.
    */
   private readonly decryptionFailureUi = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.CollectionBulkDecryptWithFailures),
+    this.configService.getFeatureFlag$(FeatureFlag.CollectionsDecryptListFailures),
     { initialValue: false },
   );
 

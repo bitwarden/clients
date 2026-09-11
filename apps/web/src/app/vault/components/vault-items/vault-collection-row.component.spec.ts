@@ -61,7 +61,7 @@ describe("VaultCollectionRowComponent", () => {
           useValue: {
             // Only the failure treatment is enabled here; every other flag stays off.
             getFeatureFlag$: jest.fn((flag: FeatureFlag) =>
-              of(flag === FeatureFlag.CollectionBulkDecryptWithFailures),
+              of(flag === FeatureFlag.CollectionsDecryptListFailures),
             ),
           },
         },

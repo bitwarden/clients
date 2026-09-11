@@ -108,13 +108,13 @@ describe("DefaultCollectionEncryptionService", () => {
     service = new DefaultCollectionEncryptionService(sdkService, logService, configService);
   });
 
-  describe("when CollectionBulkDecryptWithFailures is enabled", () => {
+  describe("when CollectionsDecryptListFailures is enabled", () => {
     beforeEach(() => {
       (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
     });
 
     describe("decryptMany", () => {
-      it("checks the CollectionBulkDecryptWithFailures feature flag", async () => {
+      it("checks the CollectionsDecryptListFailures feature flag", async () => {
         mockDecryptListWithFailures.mockReturnValue({
           successes: [makeSdkCollectionView()],
           failures: [],
@@ -123,7 +123,7 @@ describe("DefaultCollectionEncryptionService", () => {
         await firstValueFrom(service.decryptMany([makeCollection()], userId));
 
         expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-          FeatureFlag.CollectionBulkDecryptWithFailures,
+          FeatureFlag.CollectionsDecryptListFailures,
         );
       });
 
@@ -325,7 +325,7 @@ describe("DefaultCollectionEncryptionService", () => {
     });
   });
 
-  describe("when CollectionBulkDecryptWithFailures is disabled", () => {
+  describe("when CollectionsDecryptListFailures is disabled", () => {
     beforeEach(() => {
       (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
     });

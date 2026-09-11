@@ -292,7 +292,7 @@ export class CollectionDialogComponent implements OnInit {
    * same flag as the SDK path that produces the failures, so the feature rolls out as one unit.
    */
   private readonly decryptionFailureUi$ = this.configService.getFeatureFlag$(
-    FeatureFlag.CollectionBulkDecryptWithFailures,
+    FeatureFlag.CollectionsDecryptListFailures,
   );
 
   /**

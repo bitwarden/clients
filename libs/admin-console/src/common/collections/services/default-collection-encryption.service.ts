@@ -36,7 +36,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       return of([]);
     }
 
-    return this.configService.getFeatureFlag$(FeatureFlag.CollectionBulkDecryptWithFailures).pipe(
+    return this.configService.getFeatureFlag$(FeatureFlag.CollectionsDecryptListFailures).pipe(
       distinctUntilChanged(),
       switchMap((bulkDecryptEnabled) =>
         bulkDecryptEnabled
@@ -93,7 +93,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
    * that fail to decrypt are still returned to the caller as a placeholder view (`name` replaced
    * by the decrypt-error placeholder, `decryptionFailure` set) rather than being dropped, so the
    * item remains visible instead of silently disappearing from the vault. Gated behind
-   * {@link FeatureFlag.CollectionBulkDecryptWithFailures} until the SDK bindings have rolled out
+   * {@link FeatureFlag.CollectionsDecryptListFailures} until the SDK bindings have rolled out
    * everywhere this service is used.
    */
   private decryptManyV2(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
