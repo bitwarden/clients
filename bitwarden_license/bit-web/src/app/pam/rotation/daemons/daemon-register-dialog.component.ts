@@ -34,9 +34,10 @@ export type DaemonRegisterDialogResult = { registered: true } | undefined;
 /**
  * Name-entry dialog for registering a new rotation daemon.
  *
- * On successful submit: calls {@link DaemonRegistrationService.register} to derive the key and
- * POST to the server, closes itself, then opens {@link DaemonTokenDialogComponent} to show the
- * one-time token.
+ * On successful submit:
+ * 1. Calls {@link DaemonRegistrationService.register} to derive the key + POST to the server.
+ * 2. Closes itself, awaiting the promise {@link DialogRef.close} returns.
+ * 3. Opens {@link DaemonTokenDialogComponent} to show the one-time token.
  *
  * `DaemonRegistrationService` is provided in this component's `providers`, so it only lives
  * while the dialog is open.
@@ -79,8 +80,7 @@ export class DaemonRegisterDialogComponent {
       // The SDK derives the key material, calls the server, and assembles the one-time token.
       const { token } = await this.rotationSdk.registerConnector(this.params.organizationId, name);
 
-      // Close the register dialog first, then open the token dialog.
-      void this.dialogRef.close({ registered: true });
+      await this.dialogRef.close({ registered: true });
 
       // Show the operator-entered name (not the daemon's GUID) as the dialog subtitle.
       DaemonTokenDialogComponent.open(this.dialogService, {
