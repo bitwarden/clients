@@ -19831,6 +19831,9 @@
   "pamRotationAttemptInProgress": {
     "message": "In progress"
   },
+  "pamRotationAttemptStarted": {
+    "message": "Started"
+  },
   "pamRotationSyncStateTargetUnchanged": {
     "message": "Target unchanged"
   },
@@ -19854,6 +19857,12 @@
   },
   "pamRotationSessionTerminationUnknown": {
     "message": "Unknown"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Duration"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Result"
   },
   "pamAuditKindRotationConfigCreated": {
     "message": "Rotation config created"
