@@ -1,0 +1,47 @@
+@if (entries().length) {
+  <div class="tw-flex tw-items-center tw-gap-2">
+    @let current = selected();
+    @if (current) {
+      <bit-icon-tile
+        [icon]="current.tile.icon"
+        [variant]="current.tile.variant ?? 'primary'"
+        [color]="current.tile.color"
+        [emphasis]="current.tile.emphasis ?? 'subtle'"
+        size="xs"
+      ></bit-icon-tile>
+      <h1 bitTypography="h5" class="!tw-mb-0 tw-text-main">
+        {{ current.label }}
+      </h1>
+    }
+    <button
+      type="button"
+      bitIconButton="bwi-angle-down"
+      size="xsmall"
+      [label]="'switchVault' | i18n"
+      [bitMenuTriggerFor]="vaultOptions"
+      data-testid="vault-switcher"
+    ></button>
+  </div>
+  <bit-menu #vaultOptions>
+    @for (entry of entries(); track entry.id) {
+      <button type="button" bitMenuItem (click)="select(entry.id)">
+        <bit-icon
+          name="bwi-check"
+          slot="start"
+          class="tw-w-4"
+          data-testid="vault-switcher-check"
+          [class.tw-invisible]="entry.id !== selectedId()"
+        ></bit-icon>
+        <bit-icon-tile
+          [icon]="entry.tile.icon"
+          [variant]="entry.tile.variant ?? 'primary'"
+          [color]="entry.tile.color"
+          [emphasis]="entry.tile.emphasis ?? 'subtle'"
+          size="xs"
+          class="tw-mr-2"
+        ></bit-icon-tile>
+        {{ entry.label }}
+      </button>
+    }
+  </bit-menu>
+}

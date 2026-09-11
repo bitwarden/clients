@@ -1,5 +1,5 @@
-import { NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { NgModule, inject } from "@angular/core";
+import { Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -20,9 +20,9 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
-  TwoFactorTimeoutIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  ExpiredIcon,
+  EmailCodeSentIcon,
+  SecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
@@ -53,6 +53,7 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -62,6 +63,7 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
@@ -160,7 +162,7 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
           titleId: "logInWithPasskey",
           pageTitle: {
             key: "logInWithPasskey",
@@ -374,7 +376,7 @@ const routes: Routes = [
         path: AuthWebRoute.SignUpLinkExpired,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "expiredLink",
           },
@@ -469,7 +471,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "authenticationTimeout",
           },
@@ -508,7 +510,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailCodeSentIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },
@@ -730,6 +732,7 @@ const routes: Routes = [
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
+        canActivate: [addPlanRedirectGuard],
         data: { titleId: "newOrganization" } satisfies RouteDataProperties,
       },
       {
@@ -794,6 +797,17 @@ const routes: Routes = [
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
           },
+          {
+            path: "export",
+            loadComponent: () =>
+              import("./tools/vault-export/export-web.component").then(
+                (mod) => mod.ExportWebComponent,
+              ),
+            canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation)],
+            data: {
+              titleId: "exportNoun",
+            } satisfies RouteDataProperties,
+          },
         ],
       },
       {
@@ -815,6 +829,7 @@ const routes: Routes = [
               import("./tools/vault-export/export-web.component").then(
                 (mod) => mod.ExportWebComponent,
               ),
+            canActivate: [vfo1ConditionalRedirect],
             data: {
               titleId: "exportNoun",
             } satisfies RouteDataProperties,
@@ -839,6 +854,14 @@ const routes: Routes = [
       import("./admin-console/organizations/organization.module").then((m) => m.OrganizationModule),
   },
 ];
+
+function vfo1ConditionalRedirect() {
+  const configService = inject(ConfigService);
+  const router = inject(Router);
+  return configService
+    .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+    .pipe(map((isEnabled) => (isEnabled ? router.parseUrl("/settings/export") : true)));
+}
 
 @NgModule({
   imports: [

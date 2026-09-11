@@ -172,12 +172,12 @@ apps/desktop/src/autofill                             @bitwarden/team-desktop-na
 apps/desktop/desktop_native/autotype                  @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
 libs/common/src/desktop-native                        @bitwarden/team-desktop-native-dev
+libs/angular/src/desktop-native                       @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
-apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/napi/src/sshagent.rs               @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
-apps/desktop/desktop_native/napi/src/sshagent_v2.rs            @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/services/ssh-agent.service.ts        @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/services/ssh-agent.service.spec.ts   @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/main/main-ssh-agent.service.ts       @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
@@ -288,4 +288,5 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .claude/                           @bitwarden/team-ai-sme
 .github/workflows/respond.yml      @bitwarden/team-ai-sme
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.github/workflows/sdlc-sdk-update-evaluate.yml  @bitwarden/team-ai-sme @bitwarden/team-platform-dev
 .mcp.json                          @bitwarden/team-ai-sme

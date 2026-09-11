@@ -12,6 +12,7 @@ import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-ac
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -36,6 +37,7 @@ export class DefaultSendFormService implements SendFormService {
   private sendService = inject(SendService);
   private i18nService = inject(I18nService);
   private sendPolicyService = inject(SendPolicyService);
+  private sendDecryptionService = inject(SendDecryptionService);
 
   private _sendForm = this.formBuilder.group<SendForm>({});
   readonly sendForm = signal(this._sendForm).asReadonly();
@@ -52,7 +54,7 @@ export class DefaultSendFormService implements SendFormService {
 
   async decryptSend(send: Send): Promise<SendView> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await send.decrypt(userId);
+    return this.sendDecryptionService.decryptSend(send, userId);
   }
 
   registerChildForm<K extends keyof SendForm>(
@@ -124,15 +126,17 @@ export class DefaultSendFormService implements SendFormService {
 
     try {
       const plaintextPassword = this._updatedSendView().password;
-      const sendData = await this.sendService.encrypt(
+      // Hand over the plaintext view and let the API service encrypt: both paths generate their
+      // own send key and encrypt in-process, but the legacy path does so in this TypeScript code
+      // (SendService.encrypt), while the SDK path does it inside the SDK's own WASM boundary,
+      // where this code never sees the key or the ciphertext-generation step.
+      // Forward the plaintext password (null when preserving an existing password) so the SDK
+      // path can derive the send password over that same key; the legacy path ignores it.
+      const newSend = await this.sendApiService.saveView(
         this._updatedSendView(),
         this.file,
         plaintextPassword,
-        null,
       );
-      // Forward the plaintext (null when preserving an existing password) so the SDK path can
-      // derive the send password over the key it generates; the legacy path ignores it.
-      const newSend = await this.sendApiService.save(sendData, plaintextPassword);
       const sendView = await this.decryptSend(newSend);
       this._originalSendView.set(null);
       this._updatedSendView.set(null);

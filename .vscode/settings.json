@@ -60,5 +60,6 @@
   "rust-analyzer.linkedProjects": ["apps/desktop/desktop_native/Cargo.toml"],
   "eslint.useFlatConfig": true,
   "tailwindCSS.experimental.classRegex": ["[\"'`]([^\"'`\\n]*tw-[^\"'`\\n]*)[\"'`]"],
-  "js/ts.tsdk.path": "node_modules/typescript/lib"
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true
 }

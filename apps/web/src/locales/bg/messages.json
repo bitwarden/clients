@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Споделени папки"
   },
+  "sharedFoldersInParent": {
+    "message": "Споделени папки в $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ споделени папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ споделена папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "още $COUNT$ споделени папки над този бутон",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "още 1 споделена папка над този бутон",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Моята папка"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Добавете папки към елементите, за да ги филтрирате тук."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Добавете записи в споделена папка, за да филтрирате тук."
   },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Моите елементи"
   },
+  "myItemsV2": {
+    "message": "Моите елементи"
+  },
   "myVault": {
     "message": "Моят трезор"
   },
@@ -1858,6 +1906,42 @@
   },
   "noMatchingItems": {
     "message": "Няма съвпадащи елементи"
+  },
+  "noFiltersMatch": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 резултат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ резултата",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Изчистване на търсенето"
   },
   "deselectAll": {
     "message": "Отмяна на избора"
@@ -2479,11 +2563,80 @@
   "noItemsInTrashDesc": {
     "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
   },
+  "noItemsInTrashDescription": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни."
+  },
   "noItemsInVault": {
     "message": "Няма елементи в трезора"
   },
+  "noItemsInMyVault": {
+    "message": "Няма елементи в Моя трезор"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Няма елементи в Моите елементи"
+  },
+  "noItemsInVaults": {
+    "message": "Трезорите Ви са празни"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Няма елементи отговарящи на „$SEARCH_TERM$“",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Трезорът може да пази не само паролите Ви. Тум можете да съхранявате сигурно данни за вписване, идентификационни данни, карти и бележки."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавете елементи в тази споделена папка, а след това дайте достъп на други членове на $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Моите елементи“ е Вашето лично място за съхраняване на записи, които въпреки че остават притежание на „$VAULT_NAME$“, не са видими за други хора.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Нямате никакви папки."
+  },
+  "emptyFoldersDescription": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
+  },
+  "emptyVaultsDescription": {
+    "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
   },
   "emptyFavorites": {
     "message": "Все още нямате любими неща"
@@ -2533,6 +2686,9 @@
   },
   "addPlan": {
     "message": "Добавяне на план"
+  },
+  "addPlanDesc": {
+    "message": "Можете да създадете нов споделен трезор с още 1 човек безплатно. Ако искате да съхранявате, управлявате и споделяте записи с повече хора, първо ще трябва да добавите нов план. Само имайте предвид, че някои варианти може да изискват промяна на платежния план."
   },
   "noOrganizationsList": {
     "message": "Не сте член на никоя организация. Организациите позволяват да споделяте записи с други потребители по защитен начин."
@@ -3737,15 +3893,15 @@
   "restrictedItemTypePolicy": {
     "message": "Премахване на елемента за карти"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Да не се разрешава на членовете да създават картови елементи. Съществуващите карти ще бъдат премахнати автоматично."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Да не се разрешава на членовете да съхраняват данни за разплащателни карти в трезорите си. Когато тази политика е включена, запазените карти ще бъдат автоматично скрити."
   },
   "restrictedItemTypePolicyDescVfo1": {
     "message": "Да не се разрешава на членовете да съхраняват данни за разплащателни карти. Когато тази политика е включена, запазените карти ще бъдат автоматично скрити.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
+  },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Не позволявайте на членовете да създават и съхраняват карти. Съществуващите карти ще бъдат скрити."
   },
   "restrictCardTypeImport": {
     "message": "Картовите елементи не могат да бъдат внесени"
@@ -4112,8 +4268,11 @@
   "passkeyLoginFound": {
     "message": "Акаунти, които поддържат секретни ключове"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "В трезора Ви има $COUNT$ запис(а), които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Чудесни новини! Открихме "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ запис(а) за вписване",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4121,26 +4280,17 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "В трезорите Ви има $COUNT$ запис(а), които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " в трезора Ви, които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " в трезорите Ви, които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "В трезора Ви няма акаунти, които поддържат секретни ключове, но все още нямат настроени такива."
   },
   "instructions": {
     "message": "Инструкции"
-  },
-  "passwordlessLogin": {
-    "message": "Вписване без парола"
-  },
-  "multifactorAuthentication": {
-    "message": "Многостъпково удостоверяване"
   },
   "exposedPasswordsReport": {
     "message": "Доклад за разкрити пароли"
@@ -4912,6 +5062,9 @@
   },
   "chooseYourPlan": {
     "message": "Избор на план"
+  },
+  "choosePlan": {
+    "message": "Изберете план"
   },
   "users": {
     "message": "Потребители"
@@ -6793,7 +6946,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Поканата не може да бъде приета. Помолете администратора на организацията да ви прати нова връзка."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Поканата не може да бъде приета"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7348,6 +7501,57 @@
   "deactivateLink": {
     "message": "Деактивиране на връзката"
   },
+  "requireAdminConfirmation": {
+    "message": "Изискване на одобрение от администратор"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "Администратор трябва ръчно да одобри новите членове, преди те да бъдат добавени към трезора на организацията."
+  },
+  "setYourAllowedDomains": {
+    "message": "Задайте разрешените домейни"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Добавете разрешените домейни за е-пощи (например acme.com), така че само потребителите с е-пощи от тях да могат да използват тази връзка за покана. Можете да промените този списък по всяко време."
+  },
+  "adjustTheLink": {
+    "message": "Промяна на връзката"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Вашите нужди се променят, и връзката може да се промени с тях. <strong>Създайте наново</strong> връзката, за да изключите старата и да получите нова."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Вашите нужди се променят, и връзката може да се промени с тях."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Създайте наново</strong> връзката, за да изключите старата и да получите нова."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Изискване на потвърждение от администратор</strong> за одобряване на новите членове, преди те да могат да се присъединят към организацията."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Споделете връзката където желаете"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Копирайте връзката на местата, където екипът Ви ще я намери — в документът с първи стъпки, в канал в Slack за нови попълнения, документи в Notion или шаблон за е-поща."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "Преглед на ръководството за първи стъпки с Битуорден"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ от $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Завършване"
+  },
   "inviteByLinkDesc": {
     "message": "Поканете членове в организацията си чрез връзка. Ако все още не е определена роля, те ще бъдат добавени като обикновени потребители."
   },
@@ -7368,6 +7572,21 @@
         "example": "Acme Inc"
       }
     }
+  },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Проверете е-пощата си, за да завършите присъединяването към $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Тази организация не може да приема нови членове в момента. Свържете се с администратора си за помощ."
+  },
+  "inviteSentToEmail": {
+    "message": "Поканата е изпратена по е-поща"
   },
   "acceptPolicies": {
     "message": "Чрез тази отметка вие се съгласявате със следните:"
@@ -7638,24 +7857,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Изискване от членовете да настроят двустепенно удостоверяване. Тази политика няма да бъде прилагана към собствениците и администраторите."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Членовете на организацията без двустепенно удостоверяване за личните си абонаменти ще бъдат отстранени от организацията. Те ще бъдат уведомени за това по електронната поща."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Включването на тази политика ще отнеме достъпа на потребителите, които не са включили двустепенното удостоверяване за акаунтите си. Засегнатите потребители ще получат известие по е-поща."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Вие сте член на поне една организация, която изисква двустепенно удостоверяване и за личния абонамент. Ако изключите двустепенното удостоверяване, ще бъдете отстранени от тези организации."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Задаване на минимална сила на генератора на пароли."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Изберете набор от минимални изисквания за всички пароли, които се генерират от членовете."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Задайте изисквания за генератора на пароли.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Задайте минимални изисквания за всички пароли, които се генерират от членовете."
   },
   "generatedPassword": {
     "message": "Генерирана парола"
@@ -7708,7 +7920,7 @@
   "minimumNumberOfWords": {
     "message": "Минимален брой думи"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Тип парола",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7912,12 +8124,8 @@
   "singleOrgDesc": {
     "message": "Потребителите да не може да са членове на друга организация."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Ограничаване на членовете да не могат да се присъединяват към други организации. Тази политика е задължителна за организации, които са включили настройката за проверка на домейна."
-  },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Ограничаване не членовете да не могат да се присъединяват към други споделени трезори или такива на организации.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Членовете не могат да се присъединяват към трезори на други организации."
   },
   "singleOrgPolicyDescV2": {
     "message": "Членовете на тази организация не могат да се присъединяват към други организации. Ако има текущи членове, които принадлежат и към други организации, техният достъп ще бъде преустановен, когато тази политика бъде включена. Тази политика няма да се прилага за собственици и администратори."
@@ -7939,16 +8147,9 @@
     "message": "Изискване на еднократно удостоверяване",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Изискване към членовете да ползват еднократно удостоверяване.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Изискване към членовете да ползват еднократно удостоверяване. Тази политика няма да бъде прилагана към собствениците и администраторите.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
-  },
-  "requireSsoPolicyDesc": {
-    "message": "Изискване на потребителите да ползват еднократна идентификация."
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Изискване към членовете да се вписват чрез еднократно удостоверяване.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Изискване на еднократно удостоверяване (SSO)"
@@ -7959,15 +8160,19 @@
   "prerequisite": {
     "message": "Предпоставкa"
   },
-  "requireSsoPolicyReq": {
-    "message": "За да включите тази политика, първо трябва ръчно да включите политиката за еднократна идентификация."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Трябва да включите политиката за единствена организация, преди да можете да включите тази."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "Трябва да включите политиката за членство в единствена организация, преди да можете да включите тази.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Трябва да включите политиката за единствена организация, преди да можете да включите тази."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Трябва да включите политиката за членство в единствена организация, преди да можете да включите тази.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Политиката за единствена организация не е включена."
@@ -8362,9 +8567,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "Всички данни на членовете ще се притежават и управляват от организацията. Това не включва администраторите и собствениците. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Изискване към членовете да запазват записите си в организацията, чрез премахване на техния собствен раздел „Моят трезор“.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "Всички данни на членовете ще бъдат притежание на и ще се управляват от организацията."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Научете повече относно централизираната собственост",
@@ -8379,9 +8583,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Можете лесно да прехвърляте елементи при премахване и наследяване на потребители, така че да няма пролуки в достъпа."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Можете да дадете на всеки потребител негово собствено място, наречено „Моите елементи“, където всеки да съхранява свои лични данни за вписване."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Изискване от потребителите да прехвърлят данните си"
   },
@@ -8390,9 +8591,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Научете повече относно прехвърлянето"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Подканяне на потребителите да прехвърлят данните от личните си трезори към организацията"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "От членовете ще бъде изискано да прехвърлят данните си в организацията, или да напуснат. Ако напуснат, достъпът им ще бъде отнет, но и може да бъде възстановен по всяко време."
@@ -8605,12 +8803,11 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Настройка по подразбиране за авт. попълване за работен плот"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Включете автоматичното попълване за работен плот по подразбиране за всички членове. Всеки от тях ще може поотделно да изключи автоматичното попълване ръчно от настолното приложение.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Включване на авт. попълване за работен плот за членовете. Те ще могат да го изключат ръчно в настолното приложение."
+  },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Включете автоматичното попълване за работен плот за членовете."
   },
   "disableSend": {
     "message": "Без изпращане"
@@ -8660,10 +8857,6 @@
     "message": "Управление на Изпращането",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Управление на Изпращанията и споделянето",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Управлявайте настройките си за създаване и редактиране на Изпращания, включително и възможността да ги премахвате.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8672,9 +8865,9 @@
     "message": "Управлявайте това как членовете ползват Изпращанията. Тази политика ще се прилага за всички Изпращания създадени след включването ѝ. Не засяга администратори и собственици.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Задаване на опциите за настройка на Изпращанията.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Управлявайте как членовете използват Изпращанията.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Настройки за изпращането",
@@ -8694,9 +8887,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Стандартно засичане на съвпадения на адреси"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Определя кога данните за вписване да се предлагат за автоматично попълване. Тази политика не засяга администраторите и собствениците."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Задаване на стандартния начин за търсене на съвпадения в адресите, за всички елементи създадени от членовете.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8900,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Моля, изберете вариант за засичане на съвпаденията на адреси.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Включване на асистираното попълване",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Включване на асистирането попълване за всички членове. Тази функционалност използва предварително подготвени, конкретни инструкции за определени уеб сайтове, за да подобри точността на автоматичното попълване за уеб сайтове, за които е известно, че това е по-трудно."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Персонализирани правила за автоматичното попълване"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "По подразбиране, асистираното попълване използва подготвения набор от правила на Битуорден. Въведете адрес тук, ако искате да ги замените със свои собствени."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Въведете правилен адрес",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Редактирана политика № $ID$.",
@@ -8725,6 +8932,9 @@
   },
   "estimatedTax": {
     "message": "Приблизителен данък"
+  },
+  "subtotal": {
+    "message": "Междинна сума"
   },
   "custom": {
     "message": "По избор"
@@ -9114,9 +9324,8 @@
   "accountRecoveryPolicy": {
     "message": "Управление на възстановяването на профили"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Разрешаване на администраторите да нулират главните пароли на членовете.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Разрешете на администраторите да помагат на членовете във възстановяването на достъпа до акаунтите им."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
@@ -9493,9 +9702,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Автоматично вписване чрез еднократно удостоверяване"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Възползвайте се от сигурността и удобството на еднократното удостоверяване дори и за неуправлявани приложения. Когато потребителите пуснат приложение от Вашия доставчик на самоличности, данните им за вписване ще бъдат автоматично попълнени и изпратени, с едно щракване и по безопасен път от доставчика на самоличност до приложението."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Когато потребителите стартират приложение от Вашия доставчик на идентификационни данни, данните им за вписване ще бъдат автоматично попълнени и изпратени — създавайки сигурен и лесен начин за вписване с едно щракване."
   },
@@ -9518,9 +9724,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Задайте максимално време на давност на сесиите за достъп за всички членове, без собствениците."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Задаване на максимално време за достъп до трезора за членовете.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Задайте максимално време за сесиите на членовете."
   },
   "maximumAllowedTimeout": {
     "message": "Максимално допустимо време на достъп"
@@ -9631,9 +9836,6 @@
   "disableExport": {
     "message": "Премахване на изнесеното"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Да не се разрешава на членовете да изнасят данните от собствените си трезори."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Да не се разрешава на членовете да изнасят данните от собствените си трезори. Тази политика няма да бъде прилагана към собствениците и администраторите."
   },
@@ -9651,18 +9853,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Една или повече от настройките на организацията Ви не позволяват да изнасяте личния си трезор."
   },
-  "activateAutofillPolicy": {
-    "message": "Включване на автоматичното попълване"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Включване на автоматичното попълване при зареждане на страница"
   },
   "activateAutofillPolicyDescription": {
     "message": "Включване на автоматичното попълване при зареждане на страница в браузърното разширение на всички текущи и бъдещи членове."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Автоматично попълване на данните за вписване в уеб сайтове и приложения.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Включете автоматичното попълване при зареждане на страница в браузърното разширение за всички членове."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Включване на автоматичното попълване при зареждане на страница в добавката за браузъра, за всички текущи и нови членове. Имайте предвид, че злонамерени и други съмнителни уеб сайтове могат"
@@ -10331,9 +10529,6 @@
   "billingHistory": {
     "message": "История на плащанията"
   },
-  "backToReports": {
-    "message": "Обратно към докладите"
-  },
   "organizationPicker": {
     "message": "Избор на организация"
   },
@@ -10434,6 +10629,10 @@
   "random": {
     "message": "Произволно",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Име на уеб сайт",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Произволна дума"
@@ -10892,6 +11091,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Остават само още $COUNT$ места. Премахнете някоя е-поща, или надградете плана си.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11515,6 +11723,9 @@
   "noSharedFoldersAdded": {
     "message": "Няма добавени споделени папки"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
+  },
   "noMembersAdded": {
     "message": "Няма добавени членове"
   },
@@ -11722,35 +11933,8 @@
   "switchProducts": {
     "message": "Превключване на продуктите"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Безплатните организации могат да имат не повече от $SEATCOUNT$ членове. Надградете до платен план, ако искате да имате повече членове.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Безплатните организации могат да имат не повече от $SEATCOUNT$ членове. Свържете се със собственика на организацията си, ако смятате, че планът трябва да бъде надграден.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Началните екипни планове могат да имат не повече от $SEATCOUNT$ членове. Надградете плана си, за да можете да поканите още хора.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Стартовите екипни планове може да имат не повече от $SEATCOUNT$ членове. Свържете се със собственика на организацията си, ако искате да надградите плана си и да каните повече членове.",
+  "seatLimitReachedContactOwner": {
+    "message": "Достигнат е максималният брой потребители — $SEATCOUNT$. Свържете се със собственика на организацията си, за да надгради плана.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13086,14 +13270,14 @@
   "unexpectedErrorSend": {
     "message": "Възникна неочаквана грешка при зареждането на това изпращане. Опитайте отново по-късно."
   },
-  "seatLimitReached": {
-    "message": "Достигнат е максималният брой потребители"
-  },
-  "contactYourProvider": {
-    "message": "Свържете се с доставчика си, за да закупи допълнителни места."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Достигнат е максималният брой потребители. Свържете се с доставчика си, за да закупи допълнителни места."
+  "seatLimitReachedContactProvider": {
+    "message": "Достигнат е максималният брой потребители — $SEATCOUNT$. Свържете се с доставчика си, за да закупи допълнителни места.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Достъпът до колекцията е ограничен"
@@ -14134,6 +14318,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Възползвайте се от Управлението на тайни"
+  },
   "secureYourInfrastructure": {
     "message": "Подсигурете инфраструктурата си"
   },
@@ -14478,24 +14665,6 @@
   },
   "includeSsoAuthenticationMessage": {
     "message": "Еднократно удостоверяване"
-  },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Семейните организации могат да имат не повече от $SEATCOUNT$ членове. Надградете до платен план, ако искате да имате повече членове.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Семейните организации могат да имат не повече от $SEATCOUNT$ членове. Свържете се със собственика на организацията си, ако смятате, че планът трябва да бъде надграден.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
   },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Семейните организации могат да имат не повече от $SEATCOUNT$ членове. Надградете до платен план, ако искате да възстановите достъпа на този член.",
@@ -14848,15 +15017,15 @@
     "message": "Премахване на спонсорирания Семеен план",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Да не се разрешава на членовете да се възползват от Семейния план чрез тази организация."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Да не се разрешава на членовете да се възползват от Семейния план чрез спонсориране от тази организация."
   },
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Премахване на възможността членовете да се възползват от безплатен Семеен план.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Да не се разрешава на членовете да се възползват от Семейния план чрез спонсориране от тази организация."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Въведете кода от описанието на трансакцията в страницата за плащанията на организацията, за да потвърдите банковата сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
@@ -15308,8 +15477,8 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Премахнете отключването чрез ПИН"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Членовете няма да имат право да отключват акаунтите си чрез ПИН код."
@@ -15698,8 +15867,20 @@
   "providersubCanceledmessage": {
     "message": "Ако искате да се абонирате отново, свържете се с поддръжката на Битуорден."
   },
+  "showAll": {
+    "message": "Показване на всички"
+  },
   "showMore": {
     "message": "Показване на повече"
+  },
+  "showMoreCount": {
+    "message": "Показване на още $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Показване на по-малко"
@@ -15745,16 +15926,21 @@
   "checkInputFormat": {
     "message": "Проверете въведеното за грешки."
   },
-  "exampleTaxIdFormat": {
-    "message": "Примерен формат за $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Примерен формат на идентификатора за данъчни цели: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Разпознат формат: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16145,9 @@
   "upgradeNow": {
     "message": "Надграждане сега"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Възползвайте се от допълнителна сигурност в Интернет чрез платената версия на Битуорден."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Чрез попълването на този формуляр ще създадете нова Семейна организация. Можете да надградите безплатната си организация от Администраторската конзола."
   },
@@ -16010,9 +16199,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Блокиране на създаването на акаунти за присвоени домейни"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Предотвратяване на създаването на потребителски акаунти извън Вашата организация чрез адреси на е-поща от присвоени домейни."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Забраняване на създаването на акаунти от присвоени домейни.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16209,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Да не се позволява на членовете да използват Вашия присвоен домейн, за да създават акаунти за Битуорден извън трезора на Вашата организация.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Трябва да има присвоен домейн преди активирането на тази политика."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Преди да включите тази политика, трябва да присвоите домейн."
@@ -16147,6 +16330,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Потвърждаване на целостта на папките"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Потвърждаване на целостта на прикачените файлове"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ елемент(а) има(т) прикачени файлове със стар метод на шифроване. Отворете елемент по-долу и идете в раздела за Прикачените файлове, за да поправите това.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Възстановяване и диагностика на данните"
@@ -16483,6 +16678,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Приложени кредити за абонамент"
   },
   "enterpriseMembership": {
     "message": "Членство в план за големи организации"
@@ -16952,6 +17150,9 @@
   },
   "singleOrgPrerequisite": {
     "message": "Политиката за единствена организация трябва да бъде включена преди активирането на тази политика."
+  },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "Политиката за членство в единствена организация трябва да бъде включена преди активирането на тази политика."
   },
   "enableBanner": {
     "message": "Включване на изображението"
@@ -17471,6 +17672,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Вход"
+  },
+  "orgNameVault": {
+    "message": "Трезор на $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

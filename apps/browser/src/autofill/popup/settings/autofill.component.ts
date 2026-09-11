@@ -322,7 +322,11 @@ export class AutofillComponent implements OnInit {
 
     /** Additional options form */
 
-    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+    // Seed from the resolved state so the checkbox reflects effective behavior
+    // — a pristine member whose org enables the fill assist policy sees "on"
+    const enableFillAssist = await firstValueFrom(
+      this.domainSettingsService.resolvedEnableFillAssist$,
+    );
 
     this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
       emitEvent: false,

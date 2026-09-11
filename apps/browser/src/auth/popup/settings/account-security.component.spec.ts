@@ -377,7 +377,6 @@ describe("AccountSecurityComponent", () => {
           false,
           mockUserId,
         );
-        expect(biometricStateService.setFingerprintValidated).toHaveBeenCalledWith(false);
       });
     });
 

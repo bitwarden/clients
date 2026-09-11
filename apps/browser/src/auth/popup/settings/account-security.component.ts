@@ -433,7 +433,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
-      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 

@@ -9,6 +9,10 @@
     "message": "Bitwarden — управител на пароли",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden — управител на пароли — бета",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "У дома, на работа или на път – Битуорден защитава всички Ваши пароли, секретни ключове и лична информация",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Добавете папки към елементите, за да ги филтрирате тук."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Добавете записи в споделена папка, за да филтрирате тук."
+  },
   "editItemWithName": {
     "message": "Редактиране на елемент – $NAME$",
     "placeholders": {
@@ -546,6 +553,45 @@
   },
   "noItemsInVault": {
     "message": "Няма елементи в трезора"
+  },
+  "noItemsInMyVault": {
+    "message": "Няма елементи в Моя трезор"
+  },
+  "emptyMyItems": {
+    "message": "Няма елементи в Моите елементи"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Трезорите Ви са празни"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Няма елементи отговарящи на „$SEARCH_TERM$“",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Дължина"
@@ -750,6 +796,15 @@
   },
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
+  },
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Сайт"
@@ -1406,17 +1461,29 @@
   "additionalOptions": {
     "message": "Допълнителни настройки"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "Автоматичното попълване използва асистираното попълване на тази страница."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Включване на асистираното попълване"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "Асистираното попълване подобрява точността на автоматичното попълване в поддържаните уеб сайтове, чрез използване на определени правила. Никакви данни не се събират или съхраняват, когато използвате тази функционалност."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Относно асистираното попълване"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Разрешаване на уеб сайтовете да изключват полета от автоматичното попълване"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Пропускане на полетата, които са отбелязани от уеб сайтовете с атрибута `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Разрешаване на уеб сайтовете да добавят полета към автоматичното попълване"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Използване на елементите „span“, които са отбелязани от уеб сайтовете с атрибута `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
@@ -1469,6 +1536,9 @@
   "importVerb": {
     "message": "Внасяне",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Внасяне на елементи"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -2737,6 +2807,42 @@
   "noMatchingItems": {
     "message": "Няма съвпадащи елементи"
   },
+  "noFiltersMatch": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 резултат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ резултата",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Изчистване на търсенето"
+  },
   "selected": {
     "message": "Избрано"
   },
@@ -3182,12 +3288,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Няма намерен идентификатор за опресняване или ключове за ППИ. Опитайте да се отпишете и да се впишете отново."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Потвърждаване на синхронизацията на самостоятелното приложение"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Уверете се, че самостоятелното приложение показва следния идентификатор:"
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Интеграцията с браузър е изключена"
@@ -5939,6 +6039,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
+  "noSharedFoldersAdded": {
+    "message": "Няма добавени споделени папки"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
+  },
   "moreOptionsLabel": {
     "message": "Още опции, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -6813,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
   },
+  "noItemsInTrashDescription": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни."
+  },
   "trashWarning": {
     "message": "Елементите, които са били в кошчето за повече от 30 дни, ще бъдат изтривани автоматично"
   },
@@ -7020,9 +7129,6 @@
   "compactMode": {
     "message": "Компактен режим"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "extensionWidth": {
     "message": "Ширина на разширението"
   },
@@ -7080,12 +7186,6 @@
       }
     }
   },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Моля, обновете самостоятелното приложение"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
-  },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
   },
@@ -7106,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "Трезорът може да пази не само паролите Ви. Съхранявайте защитени данни за вход, идентификационни данни, карти и бележки."
+  },
+  "emptyVaultsDescription": {
+    "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавете елементи в тази споделена папка, а след това дайте достъп на други членове на $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Моите елементи“ е Вашето лично място за съхраняване на записи, които въпреки че остават притежание на „$VAULT_NAME$“, не са видими за други хора.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Нямате никакви папки."
+  },
+  "emptyFoldersDescription": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
   },
   "introCarouselLabel": {
     "message": "Добре дошли в Битуорден"
@@ -7274,6 +7401,15 @@
   },
   "showMore": {
     "message": "Показване на повече"
+  },
+  "showMoreCount": {
+    "message": "Показване на още $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Показване на по-малко"
@@ -7889,9 +8025,32 @@
     "message": "Открити рискове",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Надградете, за да прегледате паролите"
+  },
   "categoryHealthy": {
     "message": "Няма нуждаещи се от внимание елементи",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Сканиране на трезора Ви",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Проверява се за разкрити, слаби и преизползвани пароли.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "В процес на работа",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Нещо се обърка",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Сканирането на трезора Ви не завърши поради неочаквана грешка.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Разобличени пароли"
@@ -7911,8 +8070,8 @@
   "reusedPasswordsDescription": {
     "message": "Тези записи имате преизползвани пароли. Създайте уникална парола за всеки акаунт, за да не може някой да получи достъп до няколко Ваши акаунта с една разкрита парола."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Изтриването на този елемент го премахва от трезора, но не премахва риска. За да защитите акаунта си, първо сменете паролата му."
+  "deleteAtRiskItemDesc": {
+    "message": "Първо се уверете, че сте сменили паролата си. Изтриването само премахва записа от трезора, но не отстранява риска."
   },
   "passwordHasAdditionalRisks": {
     "message": "Тази парола има допълнителни рискове:"
@@ -7942,5 +8101,20 @@
   },
   "youreAllSet": {
     "message": "Всичко е готово!"
+  },
+  "permissions": {
+    "message": "Права"
+  },
+  "viewItems": {
+    "message": "Преглед на елементите"
+  },
+  "viewItemsHidePass": {
+    "message": "Преглед на елементите, със скрити пароли"
+  },
+  "editItems": {
+    "message": "Редактиране на елементите"
+  },
+  "editItemsHidePass": {
+    "message": "Редактиране на елементите, със скрити пароли"
   }
 }

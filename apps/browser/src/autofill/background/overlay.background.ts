@@ -1502,13 +1502,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
-    if (!result.didAutofill) {
-      return;
+    // A no-fill (or a fill with no TOTP target) doesn't imply no TOTP: some sites hide the TOTP
+    // input so the fill script can't target it. Still resolve + copy when the user explicitly
+    // chose a TOTP-bearing cipher.
+    const totpCode =
+      result.didAutofill && result.totp
+        ? result.totp
+        : await this.autofillService.getTotpCopyCode(cipher);
+    if (totpCode) {
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    if (result.totp) {
-      this.platformUtilsService.copyToClipboard(result.totp);
+    if (!result.didAutofill) {
+      return;
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);

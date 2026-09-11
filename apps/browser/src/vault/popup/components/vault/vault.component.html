@@ -1,5 +1,13 @@
 <popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
-  <popup-header slot="header" [pageTitle]="'vault' | i18n">
+  <popup-header slot="header" [pageTitle]="pageTitle()">
+    @if (vfo1Enabled()) {
+      <app-vault-switcher slot="title-start" [scope]="vaultScope()"></app-vault-switcher>
+    }
+    @if (vfo1Enabled()) {
+      <span slot="title-end" class="tw-text-sm" data-testid="vault-item-count">
+        {{ "itemCount" | i18n: (cipherCount$ | async) ?? 0 }}
+      </span>
+    }
     <ng-container slot="end">
       <app-new-item-dropdown
         [initialValues]="newItemItemValues$ | async"
@@ -11,7 +19,9 @@
     </ng-container>
   </popup-header>
 
-  @if (vaultState === VaultStateEnum.Empty) {
+  <!-- When vfo1 is enabled, the table (mounted below regardless of vaultState) owns this case
+       itself via EmptyVaultComponent — this hand-rolled block is legacy-path only. -->
+  @if (!vfo1Enabled() && vaultState === VaultStateEnum.Empty) {
     <vault-fade-in-out>
       <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
         <bit-status-lockup>
@@ -40,6 +50,17 @@
 
   @if (vaultState !== VaultStateEnum.Empty) {
     <fill-assist-active-banner slot="full-width-notice"></fill-assist-active-banner>
+  }
+
+  @if (vfo1Enabled() && vaultState !== VaultStateEnum.Empty) {
+    <ng-container slot="full-width-notice">
+      <vault-at-risk-password-callout></vault-at-risk-password-callout>
+      <vault-organization-user-notifications></vault-organization-user-notifications>
+    </ng-container>
+  } @else if (vfo1Enabled()) {
+    <ng-container slot="full-width-notice">
+      <vault-organization-user-notifications></vault-organization-user-notifications>
+    </ng-container>
   }
 
   <!-- Show search & filters outside of the scroll area of the page -->
@@ -80,16 +101,19 @@
         </button>
       </bit-callout>
     }
-    @if (vaultState === VaultStateEnum.Empty) {
+    @if (vaultState === VaultStateEnum.Empty && !vfo1Enabled()) {
       <vault-organization-user-notifications
         class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
       ></vault-organization-user-notifications>
     } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
-      <vault-at-risk-password-callout></vault-at-risk-password-callout>
-      <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
-      ></vault-organization-user-notifications>
+      <!-- When vfo1 is enabled these are rendered in the full-width-notice slot instead -->
+      @if (!vfo1Enabled()) {
+        <vault-at-risk-password-callout></vault-at-risk-password-callout>
+        <vault-organization-user-notifications
+          class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+        ></vault-organization-user-notifications>
+      }
 
       @if (showHasItemsVaultSpotlight$ | async) {
         <div class="tw-mb-4">
@@ -106,13 +130,29 @@
           </bit-callout>
         </div>
       }
-      <app-vault-header></app-vault-header>
+      <!-- The table supplies its own search/filter toolbar, so it replaces this header. -->
+      @if (!vfo1Enabled()) {
+        <app-vault-header></app-vault-header>
+      }
     }
   </ng-container>
 
-  @if (vaultState !== VaultStateEnum.Empty) {
+  <!--
+    Always mounted once vfo1 is enabled — including the whole-account-empty case, which it now
+    owns itself via EmptyVaultComponent in its own empty slot (see vault-popup-list-table.component.html).
+    Staying mounted in the no-results/deactivated-org states also keeps the table's own search
+    input and filter chips clearable — unmounting would remove the only way to clear whatever
+    produced the state.
+  -->
+  @if (vfo1Enabled()) {
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+      <app-vault-popup-list-table></app-vault-popup-list-table>
+    </div>
+  }
+
+  @if (!vfo1Enabled() && vaultState !== VaultStateEnum.Empty) {
     @if (vaultState === VaultStateEnum.NoResults) {
-      <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
+      <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
         <bit-status-lockup>
           <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
           <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
@@ -170,7 +210,8 @@
     }
   }
 
-  @if (showSkeletonsLoaders$ | async) {
+  <!-- The table renders its own skeleton rows via `bit-table-v2 [loading]`. -->
+  @if (!vfo1Enabled() && (showSkeletonsLoaders$ | async)) {
     <vault-fade-in-out-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
     </vault-fade-in-out-skeleton>

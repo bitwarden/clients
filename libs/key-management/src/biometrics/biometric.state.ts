@@ -4,8 +4,6 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString } from "@bitwarden/legacy-crypto";
 
 /**
  * Indicates whether the user elected to store a biometric key to unlock their vault.
@@ -16,22 +14,6 @@ export const BIOMETRIC_UNLOCK_ENABLED = new UserKeyDefinition<boolean>(
   {
     deserializer: (obj: any) => obj,
     clearOn: [],
-  },
-);
-
-/**
- * If the user has elected to require a password on first unlock of an application instance, this key will store the
- * encrypted client key half used to unlock the vault.
- *
- * For operating systems without application-level key storage, this key half is concatenated with a signature
- * provided by the OS and used to encrypt the biometric key prior to storage.
- */
-export const ENCRYPTED_CLIENT_KEY_HALF = new UserKeyDefinition<EncryptedString>(
-  BIOMETRIC_SETTINGS_DISK,
-  "clientKeyHalf",
-  {
-    deserializer: (obj) => obj,
-    clearOn: ["logout"],
   },
 );
 
@@ -56,17 +38,6 @@ export const PROMPT_AUTOMATICALLY = new UserKeyDefinition<boolean>(
   {
     deserializer: (obj) => obj,
     clearOn: [],
-  },
-);
-
-/**
- * Stores whether or not IPC handshake has been validated this session.
- */
-export const FINGERPRINT_VALIDATED = new KeyDefinition<boolean>(
-  BIOMETRIC_SETTINGS_DISK,
-  "fingerprintValidated",
-  {
-    deserializer: (obj) => obj,
   },
 );
 

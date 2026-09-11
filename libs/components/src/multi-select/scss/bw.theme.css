@@ -298,19 +298,15 @@
     color 250ms;
   font-weight: 500;
 }
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
   background-color: var(--color-bg-brand-softer);
-}
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
   color: var(--color-fg-heading);
 }
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected .ng-option-label,
-.ng-dropdown-panel
-  .ng-dropdown-panel-items
-  .ng-option.ng-option-selected.ng-option-marked
-  .ng-option-label {
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected .ng-option-label {
   font-weight: 500;
+}
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
+  background-color: var(--color-bg-brand-soft);
 }
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
   background-color: var(--color-bg-brand-softer);
@@ -337,6 +333,9 @@
   padding-right: 0;
 }
 
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option + .ng-option {
+  margin-top: 4px;
+}
 [dir="rtl"] .ng-dropdown-panel {
   direction: rtl;
   text-align: right;

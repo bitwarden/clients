@@ -5,6 +5,7 @@ import { action } from "storybook/actions";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -25,6 +26,7 @@ import { SearchService as DefaultSearchService } from "@bitwarden/common/vault/s
 import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
 
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
 import {
@@ -35,8 +37,8 @@ import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
 
 const organizations = [
-  { id: "org-1", name: "Acme corporation" },
-  { id: "org-2", name: "Contoso" },
+  { id: "org-1", name: "Acme corporation", enabled: true },
+  { id: "org-2", name: "Contoso", enabled: true },
 ] as Organization[];
 
 /**
@@ -368,7 +370,8 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
  */
 type StoryProps = {
   ciphers: CipherView[];
-  organizationId?: OrganizationId;
+  scopedOrganizationId?: OrganizationId;
+  orgRequiresDataOwnership: boolean;
   loading: boolean;
   rowActions: VaultItemsTableRowAction<CipherView>[];
   folders: FolderView[];
@@ -378,12 +381,20 @@ type StoryProps = {
   initialFilterValues?: Partial<VaultItemsTableFilters>;
   heading?: string;
   itemAction: (item: CipherView) => void;
+  /** Relayed to the empty state untouched — see {@link Empty} and its siblings. */
+  scope?: VaultScope;
+  organizationName?: string;
+  hasMultipleVaults: boolean;
+  sharedFolderName?: string;
 };
 
 /**
  * One template for every story: it binds all of the table's optional inputs unconditionally and
  * leaves the defaults to {@link baseProps}, so a story only ever overrides `args`. The heading is
  * how a host titles the page when its side nav has scoped the vault — see {@link ScopedToMyVault}.
+ *
+ * `empty-add-item` stands in for whatever "Add item" control a real host projects there (`vault-
+ * new-cipher-menu` in the apps) — a plain button is enough to show the slot is filled.
  */
 const template = `
   @if (heading) {
@@ -392,7 +403,8 @@ const template = `
   <div style="display:flex; min-height: 600px;">
     <vault-items-table
       [ciphers]="ciphers"
-      [organizationId]="organizationId"
+      [scopedOrganizationId]="scopedOrganizationId"
+      [orgRequiresDataOwnership]="orgRequiresDataOwnership"
       [loading]="loading"
       [rowActions]="rowActions"
       [folders]="folders"
@@ -401,7 +413,14 @@ const template = `
       [copyPresentation]="copyPresentation"
       [initialFilterValues]="initialFilterValues"
       [itemAction]="itemAction"
+      [scope]="scope"
+      [organizationName]="organizationName"
+      [hasMultipleVaults]="hasMultipleVaults"
+      [sharedFolderName]="sharedFolderName"
     >
+      <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+        Add item
+      </button>
       <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
         Import
       </button>
@@ -415,12 +434,14 @@ const template = `
 const baseProps: StoryProps = {
   ciphers,
   loading: false,
+  orgRequiresDataOwnership: false,
   rowActions,
   folders,
   collections,
   organizations,
   copyPresentation: DEFAULT_COPY_PRESENTATION,
   itemAction: () => {},
+  hasMultipleVaults: false,
 };
 
 export default {
@@ -450,7 +471,9 @@ export default {
               foldersFilterTooltip: "Add folders to items to filter them here.",
               noneFolder: "No folder",
               noSharedFolder: "No shared folder",
-              filterByName: (name) => `Filter by ${name}`,
+              // Chip group overflow, for the membership columns
+              showMore: "Show more",
+              showMoreCount: (count) => `Show ${count} more`,
               itemCount: (count) => `${count} items`,
               filter: "Filter",
               filters: "Filters",
@@ -481,14 +504,26 @@ export default {
               // Premium-gated row actions
               upgrade: "Upgrade",
               upgradeToPremium: "Upgrade to premium",
-              // Empty states
+              // Empty states — bit-table-v2's own built-in fallback, unused while the table always
+              // projects vault-empty-vault into the "empty" slot, but harmless to keep around.
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
-              clearFiltersOrTryAnother: "Clear filters or try another search term",
-              noItemsInVault: "No items in the vault",
-              clear: "Clear",
-              emptyVaultDescription:
-                "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.",
+              clearSearch: "Clear search",
+              noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+              noItemsMatchSelectedFilters: "No items match selected filters",
+              noItemsInMyVault: "No items in My vault",
+              noItemsInVaults: "Your vaults are empty",
+              noItemsInOrganizationVault: (name) => `No items in ${name}`,
+              noItemsInSharedFolder: (name) => `No items in ${name}`,
+              emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+              emptySharedFolderDescription: (name) =>
+                `Add items to this shared folder, then give access to other ${name} members.`,
+              noItemsInTrash: "No items in trash",
+              noItemsInTrashDescription:
+                "Items you delete will appear here and be permanently deleted after 30 days.",
+              noItemsInArchive: "No items in archive",
+              noItemsInArchiveDesc:
+                "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
               // Copy quick actions
               copyUsername: "Copy username",
               copyPassword: "Copy password",
@@ -507,11 +542,26 @@ export default {
               copyFieldCipherName: (field, name) => `Copy ${field}, ${name}`,
               noValuesToCopy: "No values to copy",
               valueCopied: (value) => `${value} copied`,
+              sharedFolderFilterTooltip: "Add items to a shared folder to filter here.",
+              clear: "clear",
+              copy: "copy",
+              noDetailsToCopy: "No details to copy",
+              importItems: "Import items",
+              noVerificationCode: "No verification code",
+              noNumber: "No number",
+              noSecurityCode: "No security code",
+              emptyMyItems: "No items in My items",
+              emptyMyItemsDescription:
+                "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
         {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
+        },
+        {
+          provide: AvatarService,
+          useValue: { getUserAvatarColor$: () => of("#175ddc") },
         },
         // The real search service, so the search box behaves here exactly as it does in a client —
         // including `>`-prefixed lunr queries. It's built directly rather than injected so it can
@@ -571,12 +621,60 @@ export const Loading: Story = {
 };
 
 /**
- * An empty `ciphers` array. The copy invites the user to add their first item, which is why this
- * state is worth distinguishing from [Filtered To Zero](#filtered-to-zero) — there, the fix is to
- * clear a filter rather than to add anything.
+ * An empty `ciphers` array, scoped to the personal vault via `scope`. The copy invites the
+ * user to add their first item, which is why this state is worth distinguishing from
+ * [Filtered To Zero](#filtered-to-zero) — there, the fix is to clear a filter rather than to add
+ * anything.
+ *
+ * `scope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`
+ * are what a host relays from its own vault-scope resolution — the table has no notion of scope
+ * itself, so an empty `ciphers` array with none of them set renders no empty state at all. See
+ * [Empty Organization Vault](#empty-organization-vault),
+ * [Empty Multiple Vaults](#empty-multiple-vaults),
+ * [Empty Shared Folder](#empty-shared-folder),
+ * [Empty Trash](#empty-trash), and
+ * [Empty Archive](#empty-archive) for the other variants.
  */
 export const Empty: Story = {
-  args: { ciphers: [] },
+  args: { ciphers: [], scope: { type: VaultScopeType.MyVault } },
+};
+
+/** The same empty vault, scoped to a single organization instead of the personal vault. */
+export const EmptyOrganizationVault: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+  },
+};
+
+/** The same empty vault, with none of the account's vaults holding an item. */
+export const EmptyMultipleVaults: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.AllItems }, hasMultipleVaults: true },
+};
+
+/**
+ * A shared folder the current organization scope has drilled into, with nothing in it yet. Takes
+ * priority over [Empty Organization Vault](#empty-organization-vault) when both are set, since it
+ * is the more specific destination.
+ */
+export const EmptySharedFolder: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+    sharedFolderName: "Engineering",
+  },
+};
+
+/** The trash, with no deleted items in it. */
+export const EmptyTrash: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.Trash } },
+};
+
+/** The archive, with no archived items in it. */
+export const EmptyArchive: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.Archive } },
 };
 
 /**
@@ -584,9 +682,9 @@ export const Empty: Story = {
  * `search` key here, the same way the story below seeds a chip — clear the search box to bring the
  * rows back.
  *
- * The empty state offers no Clear all button: clearing the chips wouldn't bring the rows back while
- * the search term still excludes them. Compare
- * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where it does.
+ * The empty state offers Clear search rather than Clear all: clearing the chips wouldn't bring the
+ * rows back while the search term still excludes them. Compare
+ * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where Clear all does.
  */
 export const FilteredToZero: Story = {
   args: { initialFilterValues: { search: "no-such-item" } },
@@ -652,34 +750,37 @@ export const ManyFilterOptions: Story = {
 };
 
 /**
- * Scoping the table to one vault takes nothing but a narrower `ciphers` — the table works the rest
- * out from the rows, and `organizations` can stay bound.
+ * Scoping the table to one vault takes nothing but a narrower `ciphers` and an empty
+ * `organizations` array — the table works the rest out from those two inputs.
  *
- * With every row in the individual vault, the Vault chip and column drop out, and so do Shared
- * folders, since an individually-owned item can't belong to one. Render the page heading yourself:
- * once the Vault column is gone, it's what tells the user where they are.
+ * With no organizations provided, the Vault chip and column drop out, and so do Shared folders,
+ * since an individually-owned item can't belong to one. Render the page heading yourself: once the
+ * Vault column is gone, it's what tells the user where they are.
  */
 export const ScopedToMyVault: Story = {
   args: {
     heading: "My vault",
     ciphers: ciphers.filter((cipher) => !cipher.organizationId),
+    organizations: [],
+    collections: [],
   },
 };
 
 /**
- * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault). Shared
- * folders stays useful here, since the rows still spread across that organization's collections.
+ * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault).
+ * Shared folders stays useful here, since the rows still spread across that organization's
+ * collections.
  *
- * This story also binds `organizationId`, which is what an admin-console caller adds so the search
- * service scopes its lunr index to that organization. Note that it changes nothing you can see:
- * narrowing `ciphers` is what dropped the Vault chip and column, and it would have dropped them
- * just the same with `organizationId` left unset.
+ * Passing only the scoped organization drops the Vault chip and column: a single org with no
+ * personal-vault option (suppressed by `scopedOrganizationId`) leaves nothing to distinguish
+ * between. `scopedOrganizationId` also scopes the search service's lunr index to this org.
  */
 export const ScopedToOrganizationVault: Story = {
   args: {
     heading: "Acme corporation's vault",
     ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
-    organizationId: "org-1" as OrganizationId,
+    organizations: [organizations[0]],
+    scopedOrganizationId: "org-1" as OrganizationId,
   },
 };
 

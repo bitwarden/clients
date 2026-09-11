@@ -7,10 +7,10 @@ import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-cons
 
 export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   name = "freeFamiliesSponsorshipPolicyTitleV2";
-  nameVfo1 = "freeFamiliesSponsorshipTitleVfo1";
+  nameVfo1 = "freeFamiliesSponsorshipPolicyTitleV2Vfo1";
   drawerNameVfo1 = "freeFamiliesSponsorshipPolicyTitleV2Vfo1";
   description = "freeFamiliesSponsorshipPolicyDescV2";
-  descriptionVfo1 = "freeFamiliesSponsorshipDescVfo1";
+  descriptionVfo1 = "freeFamiliesSponsorshipDescV2Vfo1";
   type = PolicyType.FreeFamiliesSponsorship;
   category = PolicyCategory.VaultManagement;
   priority = 60;

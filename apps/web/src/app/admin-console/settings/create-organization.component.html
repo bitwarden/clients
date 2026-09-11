@@ -1,7 +1,7 @@
 <app-header></app-header>
 
 <bit-container>
-  <p>{{ "newOrganizationDesc" | i18n }}</p>
+  <p>{{ "newOrganizationDesc" | vfo1I18n: "addPlanDesc" }}</p>
   <app-organization-plans
     [enableSecretsManagerByDefault]="secretsManager"
     [initialPlan]="plan"

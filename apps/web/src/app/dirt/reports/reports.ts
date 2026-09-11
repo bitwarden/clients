@@ -1,10 +1,10 @@
 import {
-  BiometricFingerprint,
+  TwoFactorAuthWebAuthnIcon,
   NoCredentialsIcon,
   ReportBreach,
   ReportExposedPasswords,
   ReportUnsecuredWebsites,
-  TwoFactorAuthSecurityKeyFailedIcon,
+  SecurityKeyWarningIcon,
   UnlockedIcon,
   UserLockIcon,
 } from "@bitwarden/assets/svg";
@@ -55,7 +55,7 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "inactive2faReport",
     description: "inactive2faReportDesc",
     route: "inactive-two-factor-report",
-    icon: TwoFactorAuthSecurityKeyFailedIcon,
+    icon: SecurityKeyWarningIcon,
   },
   [ReportType.DataBreach]: {
     title: "dataBreachReport",
@@ -73,6 +73,6 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "passkeyLoginReport",
     description: "passkeyLoginReportMenuDesc",
     route: "passkey-report",
-    icon: BiometricFingerprint,
+    icon: TwoFactorAuthWebAuthnIcon,
   },
 };
