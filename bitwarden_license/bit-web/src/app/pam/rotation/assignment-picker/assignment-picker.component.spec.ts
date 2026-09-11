@@ -206,6 +206,33 @@ describe("AssignmentPickerComponent", () => {
       expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
     });
 
+    it("keeps an option picked while the assign was in flight", async () => {
+      let release: (assigned: readonly string[]) => void = () => {};
+      host.assign = jest.fn(
+        () =>
+          new Promise<readonly string[]>((resolve) => {
+            release = resolve;
+          }),
+      );
+      const picker = await render();
+      picker.pendingSelection.set([option("opt-1", "Prod Entra")]);
+      fixture.detectChanges();
+
+      el<HTMLElement>("#host_button_assign")?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The multi-select stays live while the call is out.
+      picker.pendingSelection.set([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+
+      release(["opt-1"]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(host.assign).toHaveBeenCalledWith([option("opt-1", "Prod Entra")]);
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+    });
+
     it("does not assign an empty selection, and says so without taking focus away", async () => {
       const picker = await render();
 
