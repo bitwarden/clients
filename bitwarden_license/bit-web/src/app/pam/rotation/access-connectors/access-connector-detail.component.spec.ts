@@ -1,6 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -12,7 +13,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  SelectItemView,
+  ToastService,
+  TooltipDirective,
+} from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
@@ -940,6 +946,28 @@ describe("AccessConnectorDetailComponent", () => {
       await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(hintText()).toContain("pamAccessConnectorTargetSystemsLoadError");
+    });
+
+    it("leaves a staged-inactive connector to Assign's tooltip, and drops the hint", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      const tooltip = fixture.debugElement
+        .query(By.css("#access-connector-detail_button_assign"))
+        .injector.get(TooltipDirective);
+
+      expect(hintText()).toBeUndefined();
+      expect(tooltip.tooltipContent()).toBe("pamAccessConnectorAssignTargetDisabled");
+      expect(tooltip.addTooltipToDescribedby()).toBe(true);
+    });
+
+    it("keeps the Active checkbox's own hint, which says what deactivating releases", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
+
+      const status = (fixture.nativeElement as HTMLElement).querySelector("bit-form-control")!;
+
+      expect(status.textContent).toContain("pamAccessConnectorActiveHint");
     });
   });
 
