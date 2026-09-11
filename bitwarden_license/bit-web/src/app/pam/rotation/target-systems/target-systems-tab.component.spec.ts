@@ -342,6 +342,7 @@ describe("TargetSystemsTabComponent", () => {
       disable: (s: TargetSystem) => Promise<void>;
       enable: (s: TargetSystem) => Promise<void>;
       confirmDelete: (s: TargetSystem) => Promise<void>;
+      openAssignConnectorDialog: (s: TargetSystem) => Promise<void>;
       isRowBusy: (rowId: TargetSystemId) => boolean;
     };
 
@@ -396,6 +397,46 @@ describe("TargetSystemsTabComponent", () => {
 
       await comp.enable(sys);
       expect(targetSystemsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
+
+    it("holds the row busy while an assignment is in flight", async () => {
+      const pending = deferred();
+      const connector = accessConnector({
+        id: connectorId("c-1"),
+        status: AccessConnectorStatus.Enabled,
+      });
+      daemonsService.daemons$.next([connector]);
+      daemonsService.assign.mockReturnValue(pending.promise);
+      dialogService.open.mockReturnValue({ closed: of(connectorId("c-1")) } as any);
+      const sys = makeSystem();
+      const comp = guarded();
+
+      const first = comp.openAssignConnectorDialog(sys);
+      expect(comp.isRowBusy(sys.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(comp.isRowBusy(sys.id)).toBe(false);
+    });
+
+    it("does not dispatch a second assignment while the first is unsettled", async () => {
+      const pending = deferred();
+      const connector = accessConnector({
+        id: connectorId("c-1"),
+        status: AccessConnectorStatus.Enabled,
+      });
+      daemonsService.daemons$.next([connector]);
+      daemonsService.assign.mockReturnValue(pending.promise);
+      dialogService.open.mockReturnValue({ closed: of(connectorId("c-1")) } as any);
+      const sys = makeSystem();
+      const comp = guarded();
+
+      const first = comp.openAssignConnectorDialog(sys);
+      const second = comp.openAssignConnectorDialog(sys);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.assign).toHaveBeenCalledTimes(1);
     });
 
     it("allows a second action on a different row while one is in flight", async () => {
@@ -818,6 +859,54 @@ describe("TargetSystemsTabComponent", () => {
         }),
       );
     }));
+
+    it("holds the dialog until the connector read lands, then offers what it read", async () => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      daemonsService.loading$.next(true);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      await Promise.resolve();
+
+      // An empty list here is not evidence of anything, and the dialog would have read it as
+      // every connector already being assigned.
+      expect(dialogService.open).not.toHaveBeenCalled();
+
+      const connector = accessConnector({
+        id: connectorId("c-late"),
+        status: AccessConnectorStatus.Enabled,
+      });
+      daemonsService.daemons$.next([connector]);
+      daemonsService.loading$.next(false);
+      await call;
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ options: [connector] }),
+        }),
+      );
+    });
+
+    it("states the failure instead of opening when the read lands as an error", async () => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      daemonsService.loading$.next(true);
+
+      const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      await Promise.resolve();
+
+      daemonsService.loadError$.next(new Error("boom"));
+      daemonsService.loading$.next(false);
+      await call;
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: "error",
+          message: "pamTargetSystemConnectorAssignmentsLoadError",
+        }),
+      );
+    });
   });
 
   describe("loading skeleton", () => {
