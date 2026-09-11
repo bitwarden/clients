@@ -147,6 +147,11 @@ module.exports.buildConfig = function buildConfig(params) {
       chunks: ["connectors/redirect", "styles"],
     }),
     new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "src/connectors/sso-launch.html"),
+      filename: "sso-launch-connector.html",
+      chunks: ["connectors/sso-launch", "styles"],
+    }),
+    new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/connectors/duo-redirect.html"),
       filename: "duo-redirect-connector.html",
       chunks: ["connectors/duo-redirect", "styles"],
@@ -392,6 +397,7 @@ module.exports.buildConfig = function buildConfig(params) {
         "src/connectors/webauthn-fallback.ts",
       ),
       "connectors/sso": path.resolve(__dirname, "src/connectors/sso.ts"),
+      "connectors/sso-launch": path.resolve(__dirname, "src/connectors/sso-launch.ts"),
       "connectors/duo-redirect": path.resolve(__dirname, "src/connectors/duo-redirect.ts"),
       "connectors/redirect": path.resolve(__dirname, "src/connectors/redirect.ts"),
       "connectors/platform/proxy-cookie-redirect": path.resolve(
