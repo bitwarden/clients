@@ -478,7 +478,7 @@ export class DaemonDetailComponent {
         this.daemon.set(daemon);
         this.resetForm();
         if (daemon.jobs.length > 0) {
-          await this.loadCredentialNames();
+          void this.loadCredentialNames();
         }
       }
     } finally {
@@ -495,7 +495,17 @@ export class DaemonDetailComponent {
     this.formGroup.markAsPristine();
   }
 
-  /** Resolve the names of the managed credentials this connector's jobs rotated. */
+  /**
+   * Resolve the names of the managed credentials this connector's jobs rotated.
+   *
+   * Only worth the org-wide config and cipher reads when there is history to label, and a failure
+   * costs the History tab its Credential names rather than the page: the table falls back to the
+   * rotation config id, which still tells an operator which credential to look up.
+   *
+   * Left to settle on its own rather than awaited, for the same reason: the names land in a signal
+   * the Credential column reads, and the column already renders without them, so the Configuration
+   * tab does not spend its first paint waiting on a decrypt of every cipher in the organization.
+   */
   private async loadCredentialNames(): Promise<void> {
     try {
       const [configs] = await Promise.all([
