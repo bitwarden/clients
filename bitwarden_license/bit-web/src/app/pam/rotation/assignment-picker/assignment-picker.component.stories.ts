@@ -28,7 +28,7 @@ interface ConnectorRow extends AssignmentPickerRow {
 
 const TARGET_COLUMNS: AssignmentPickerColumn[] = [
   { headerKey: "pamAccessConnectorAssignTargetLabel" },
-  { headerKey: "pamTargetSystemKindColumn" },
+  { headerKey: "pamTargetSystemTypeColumn" },
 ];
 
 const CONNECTOR_COLUMNS: AssignmentPickerColumn[] = [
@@ -57,8 +57,8 @@ const TARGET_OPTIONS: SelectItemView[] = [
 ];
 
 const TARGET_ROWS: TargetRow[] = [
-  { id: "ts-1", label: "Prod Entra (Entra ID)", kindKey: "pamTargetSystemKindEntra" },
-  { id: "ts-2", label: "Prod MSSQL (SQL Server)", kindKey: "pamTargetSystemKindMssql" },
+  { id: "ts-1", label: "Prod Entra (Entra ID)", kindKey: "pamTargetSystemTypeEntra" },
+  { id: "ts-2", label: "Prod MSSQL (SQL Server)", kindKey: "pamTargetSystemTypeMssql" },
 ];
 
 const CONNECTOR_OPTIONS: SelectItemView[] = [
