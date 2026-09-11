@@ -70,12 +70,6 @@
     "dist:mac:masdev": "npm run build && npm run pack:mac:masdev",
     "dist:win": "npm run build && npm run pack:win",
     "dist:win:ci": "npm run build && npm run pack:win:ci",
-    "publish:lin": "npm run build && npm run clean:dist && electron-builder --linux --x64 -p always",
-    "publish:mac": "npm run build && npm run clean:dist && electron-builder --mac -p always",
-    "publish:mac:mas": "npm run dist:mac:mas && npm run upload:mas",
-    "publish:win": "npm run build && npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p always",
-    "publish:win:dev": "npm run build:dev && npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p always",
-    "upload:mas": "xcrun altool --upload-app --type osx --file \"$(find ./dist/mas-universal/Bitwarden*.pkg)\" --apiKey $APP_STORE_CONNECT_AUTH_KEY --apiIssuer $APP_STORE_CONNECT_TEAM_ISSUER",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll"
