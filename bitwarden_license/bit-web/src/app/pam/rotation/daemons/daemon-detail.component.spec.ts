@@ -236,9 +236,9 @@ describe("DaemonDetailComponent", () => {
         id: String(sysId("ts-1")),
         targetSystemId: sysId("ts-1"),
         name: "Prod Entra",
-        qualifierKey: "pamTargetSystemKindEntra",
-        qualified: "Prod Entra (pamTargetSystemKindEntra)",
-        label: "Prod Entra (pamTargetSystemKindEntra)",
+        qualifierKey: "pamTargetSystemTypeEntra",
+        qualified: "Prod Entra (pamTargetSystemTypeEntra)",
+        label: "Prod Entra (pamTargetSystemTypeEntra)",
         pending: null,
       },
     ]);
@@ -253,8 +253,8 @@ describe("DaemonDetailComponent", () => {
     const comp = await createComponent();
 
     expect(comp.assignments().map((a) => a.qualified)).toEqual([
-      "Prod Entra (pamTargetSystemKindEntra)",
-      "Prod Entra (pamTargetSystemKindCustomScript)",
+      "Prod Entra (pamTargetSystemTypeEntra)",
+      "Prod Entra (pamTargetSystemTypeCustomScript)",
     ]);
   });
 
@@ -267,8 +267,8 @@ describe("DaemonDetailComponent", () => {
     expect(comp.assignOptions()).toEqual([
       {
         id: String(sysId("ts-2")),
-        listName: "Prod MSSQL (pamTargetSystemKindMssql)",
-        labelName: "Prod MSSQL (pamTargetSystemKindMssql)",
+        listName: "Prod MSSQL (pamTargetSystemTypeMssql)",
+        labelName: "Prod MSSQL (pamTargetSystemTypeMssql)",
       },
     ]);
   });
@@ -755,7 +755,7 @@ describe("DaemonDetailComponent", () => {
       const kinds = Array.from(
         fixture.nativeElement.querySelectorAll("tbody tr td:nth-child(2)"),
       ).map((cell) => (cell as HTMLElement).textContent?.trim());
-      expect(kinds).toEqual(["pamTargetSystemKindEntra", "pamTargetSystemKindCustomScript"]);
+      expect(kinds).toEqual(["pamTargetSystemTypeEntra", "pamTargetSystemTypeCustomScript"]);
     });
 
     it("shows the empty row when nothing is assigned", async () => {
