@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -14,27 +22,55 @@ import {
   AsyncActionsModule,
   BadgeModule,
   ButtonModule,
+  ChipActionComponent,
   DialogService,
+  FILTER_CONTROL,
+  FilterMenuModule,
   IconButtonModule,
   IconModule,
   LinkModule,
   MenuModule,
+  PopoverModule,
   SearchModule,
-  SpinnerComponent,
+  SkeletonComponent,
+  SkeletonTextComponent,
   StatusLockupComponent,
   SvgComponent,
   TableDataSource,
   TableModule,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnector, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
+import {
+  accessConnectorDeactivateConfirmOptions,
+  accessConnectorDeleteConfirmOptions,
+} from "../../helpers/access-connector-confirm";
+import { assignableTargetSystems } from "../assignable";
+import { filterOptions } from "../filter-options";
+import { AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
+import { RotationLoadErrorComponent } from "../rotation-load-error.component";
+import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
+import { RowBusyTracker } from "../row-busy-tracker";
+import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { accessConnectorConnectionLabelKey } from "./access-connector-label";
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 import { DaemonRegisterDialogComponent } from "./daemon-register-dialog.component";
 import { DaemonRow, DaemonsService } from "./daemons.service";
+
+/**
+ * A {@link DaemonRow} with the row menu's own state added.
+ */
+export type DaemonTabRow = DaemonRow & {
+  /**
+   * Why no target system can be assigned to this connector right now, as the i18n key the menu
+   * item's tooltip states, or null when one can.
+   */
+  readonly assignTargetsBlockedKey: string | null;
+};
 
 @Component({
   selector: "app-daemons-tab",
@@ -46,22 +82,26 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
     AsyncActionsModule,
     BadgeModule,
     ButtonModule,
+    ChipActionComponent,
+    FilterMenuModule,
     IconButtonModule,
     IconModule,
     LinkModule,
     MenuModule,
+    PopoverModule,
     SearchModule,
-    SpinnerComponent,
+    SkeletonComponent,
+    SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    TooltipDirective,
+    RotationLoadErrorComponent,
+    RotationLoadingAnnouncerComponent,
     I18nPipe,
   ],
 })
 export class DaemonsTabComponent {
-  /** Exposed for template comparisons (status badge variant). */
-  protected readonly DaemonStatus = DaemonStatus;
-
   protected readonly noItemsIcon = NoResults;
 
   private readonly route = inject(ActivatedRoute);
@@ -73,27 +113,87 @@ export class DaemonsTabComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly loading = toSignal(this.daemonsService.loading$, { initialValue: true });
-  private readonly rows = toSignal(this.daemonsService.rows$, { initialValue: [] as DaemonRow[] });
+  protected readonly loadError = toSignal(this.daemonsService.loadError$, { initialValue: null });
+
+  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
+  protected readonly showSkeleton = showSkeletonWhile(this.loading);
+
+  /**
+   * Whether the loading branch is on screen.
+   */
+  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
+
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
+
+  private readonly serviceRows = toSignal(this.daemonsService.rows$, {
+    initialValue: [] as DaemonRow[],
+  });
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
     initialValue: [] as TargetSystem[],
   });
+  private readonly targetSystemsLoading = toSignal(this.targetSystemsService.loading$, {
+    initialValue: true,
+  });
+  private readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {
+    initialValue: null,
+  });
 
-  protected readonly dataSource = new TableDataSource<DaemonRow>();
+  /**
+   * Whether the target-system list has actually been read.
+   */
+  private readonly targetSystemsKnown = computed(
+    () => !this.targetSystemsLoading() && this.targetSystemsLoadError() == null,
+  );
+
+  private readonly rows = computed<DaemonTabRow[]>(() => {
+    const eligible = this.automaticSystems();
+    const known = this.targetSystemsKnown();
+    return this.serviceRows().map((row) => ({
+      ...row,
+      assignTargetsBlockedKey: this.assignTargetsBlockedKey(row, eligible, known),
+    }));
+  });
+
+  protected readonly dataSource = new TableDataSource<DaemonTabRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
+
+  /** Status/connection toolbar chips. */
+  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
+  private readonly connectionFilterChip = viewChild("connectionFilter", { read: FILTER_CONTROL });
+
+  protected readonly statusOptions = computed(() =>
+    filterOptions(
+      this.rows().map(
+        (row) => [row.statusLabelKey, this.i18nService.t(row.statusLabelKey)] as const,
+      ),
+    ),
+  );
+
+  protected readonly connectionOptions = computed(() =>
+    filterOptions(
+      this.rows().map(
+        (row) =>
+          [
+            row.isConnected,
+            this.i18nService.t(accessConnectorConnectionLabelKey(row.isConnected)),
+          ] as const,
+      ),
+    ),
+  );
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p["organizationId"] as OrganizationId)),
     { requireSync: true },
   );
 
+  private readonly busyRows = new RowBusyTracker<AccessConnectorId>();
+
+  protected readonly isRowBusy = this.busyRows.isBusy;
+
   constructor() {
     effect(() => {
-      const organizationId = this.organizationId();
-      void this.daemonsService.load(organizationId);
-      // Assignment badges and assign-dialog options join against the target-systems map; loads
-      // it too, in case this tab is visited first.
-      void this.targetSystemsService.load(organizationId);
+      void this.loadAll(this.organizationId());
     });
 
     effect(() => {
@@ -102,15 +202,63 @@ export class DaemonsTabComponent {
 
     effect(() => {
       const text = this.searchText().trim().toLowerCase();
-      this.dataSource.filter = (row) => !text || row.name.toLowerCase().includes(text);
+      const status = this.statusFilterChip()?.value() as string | null | undefined;
+      const connected = this.connectionFilterChip()?.value() as boolean | null | undefined;
+
+      this.dataSource.filter = (row) => {
+        if (text !== "" && !row.name.toLowerCase().includes(text)) {
+          return false;
+        }
+        if (status != null && row.statusLabelKey !== status) {
+          return false;
+        }
+        if (connected != null && row.isConnected !== connected) {
+          return false;
+        }
+        return true;
+      };
     });
   }
 
   protected readonly totalRows = computed(() => this.rows().length);
 
+  private assignTargetsBlockedKey(
+    row: DaemonRow,
+    eligible: readonly TargetSystem[],
+    targetSystemsKnown: boolean,
+  ): string | null {
+    if (!row.canAssign) {
+      return "pamAccessConnectorAssignTargetDisabled";
+    }
+    if (!targetSystemsKnown) {
+      return null;
+    }
+    if (eligible.length === 0) {
+      return "pamAccessConnectorAssignNoTargetSystems";
+    }
+    return assignableTargetSystems(row.daemon.assignedTargetSystemIds, eligible).length === 0
+      ? "pamAccessConnectorAssignNoOptions"
+      : null;
+  }
+
+  private async loadAll(organizationId: OrganizationId): Promise<void> {
+    await Promise.all([
+      this.daemonsService.load(organizationId),
+      this.targetSystemsService.load(organizationId),
+    ]);
+  }
+
+  /** Whether the operator has asked for a retry, which decides where focus lands on a re-render. */
+  protected readonly retried = signal(false);
+
+  protected readonly retryLoad = (): Promise<void> => {
+    this.retried.set(true);
+    return this.loadAll(this.organizationId());
+  };
+
   /** Navigate to the daemon detail page (sibling of the shell). */
   protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>
-    this.router.navigate(["..", "daemons", row.id], { relativeTo: this.route });
+    this.router.navigate(["..", "access-connectors", row.id], { relativeTo: this.route });
 
   /**
    * Open the daemon registration dialog and refresh the shared list on success.
@@ -126,114 +274,111 @@ export class DaemonsTabComponent {
       await this.daemonsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonRegistered"),
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
       });
     }
   };
 
-  protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
-    const assigned = new Set(row.daemon.assignedTargetSystemIds);
-    const options = this.automaticSystems().filter((s) => !assigned.has(s.id));
+  protected readonly openAssignDialog = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      const activeSystems = this.automaticSystems();
+      const options = assignableTargetSystems(row.daemon.assignedTargetSystemIds, activeSystems);
 
-    const ref = AssignTargetDialogComponent.open(this.dialogService, {
-      data: { daemon: row.daemon, options },
+      const ref = AssignTargetDialogComponent.open(this.dialogService, {
+        data: { daemon: row.daemon, options, noActiveAutomaticSystems: activeSystems.length === 0 },
+      });
+      const targetSystemId = await ref.closed.toPromise();
+      if (!targetSystemId) {
+        return;
+      }
+      try {
+        await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamAccessConnectorAssigned"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    const targetSystemId = await ref.closed.toPromise();
-    if (!targetSystemId) {
-      return;
-    }
-    try {
-      await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonAssigned"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  protected readonly unassign = async (
-    daemon: AccessConnector,
+  protected readonly unassign = (
+    row: DaemonRow,
     targetSystemId: string,
     targetName: string,
-  ): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonUnassignConfirmTitle" },
-      content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
-      acceptButtonText: { key: "remove" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
+  ): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamAccessConnectorUnassignConfirmTitle" },
+        content: { key: "pamAccessConnectorUnassignConfirmContent", placeholders: [targetName] },
+        acceptButtonText: { key: "remove" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.daemonsService.unassign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamAccessConnectorUnassigned"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.daemonsService.unassign(daemon, asUuid<TargetSystemId>(targetSystemId));
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonUnassigned"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  protected readonly disable = async (row: DaemonRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDisableConfirmTitle" },
-      content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
-      acceptButtonText: { key: "pamDaemonDisable" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
+  protected readonly disable = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessConnectorDeactivateConfirmOptions(row.name),
+      );
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.daemonsService.setEnabled(row.daemon, false);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamAccessConnectorDeactivated"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.daemonsService.setEnabled(row.daemon, false);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonDisabled"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  protected readonly enable = async (row: DaemonRow): Promise<void> => {
-    try {
-      await this.daemonsService.setEnabled(row.daemon, true);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonEnabled"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  protected readonly confirmDelete = async (row: DaemonRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDeleteConfirmTitle" },
-      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "danger",
+  protected readonly enable = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      try {
+        await this.daemonsService.setEnabled(row.daemon, true);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamAccessConnectorActivated"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.daemonsService.delete(row.daemon);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonDeleted"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+
+  protected readonly confirmDelete = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessConnectorDeleteConfirmOptions(row.name),
+      );
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.daemonsService.delete(row.daemon);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamAccessConnectorDeleted"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   private showError(e: unknown): void {
     const message =
