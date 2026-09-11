@@ -35,17 +35,8 @@ fn enumerate() -> windows::core::Result<Vec<RunningPackagedApp>> {
         if aumid.is_empty() {
             continue;
         }
-        // Empty display names are treated as absent so they never surface as a blank name.
-        let display_name = app
-            .DisplayInfo()
-            .and_then(|d| d.DisplayName())
-            .map(|s| s.to_string())
-            .ok()
-            .filter(|s| !s.is_empty());
-
         out.push(RunningPackagedApp {
             aumid,
-            display_name,
             pids: pids_of(&info),
         });
     }

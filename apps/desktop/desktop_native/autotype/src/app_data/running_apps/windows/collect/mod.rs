@@ -48,13 +48,10 @@ pub(super) struct RawWindow {
     visible: bool,
 }
 
-/// One running packaged app from [`packaged_source`]: identity (AUMID), friendly name, and the
-/// PIDs of its processes (used to merge with window-derived entries). `display_name` is `None`
-/// when the shell reports no (or an empty) name.
+/// A running packaged app from [`packaged_source`].
 pub(super) struct RunningPackagedApp {
     aumid: String,
-    display_name: Option<String>,
-    pids: Vec<u32>,
+    pids: Vec<u32>, // PIDs of the app's processes
 }
 
 /// Build the raw list of running apps (Source A ∪ Source B), deduped and identity-resolved.
@@ -127,7 +124,11 @@ fn merge_packaged(
 ) {
     for app in packaged {
         let aumid_key = app.aumid.to_ascii_lowercase();
-        let registered = registry.contains_key(&aumid_key);
+
+        // Use name from the AppsFolder registry — the same that Source A resolves against.
+        let reg = registry.get(&aumid_key);
+        let registered = reg.is_some();
+        let registry_name = reg.and_then(|r| r.display_name.clone());
 
         // Merge by PID into an existing window-derived entry, if any.
         let matched = by_key
@@ -138,7 +139,7 @@ fn merge_packaged(
         if let Some(k) = matched {
             if let Some(c) = by_key.get_mut(&k) {
                 if c.display_name.is_none() {
-                    c.display_name = app.display_name.clone();
+                    c.display_name = registry_name;
                 }
                 c.registered |= registered;
             }
@@ -164,7 +165,7 @@ fn merge_packaged(
                 pid,
                 filename,
                 exe_path,
-                display_name: app.display_name,
+                display_name: registry_name,
                 has_window: false,
                 registered,
             },
@@ -174,12 +175,15 @@ fn merge_packaged(
 
 /// Compute `(display_name, dedupe_key, registered)` for a window.
 ///
-/// If the window's AUMID **resolves** in the AppsFolder registry, use that registration: a
-/// stable key (the AUMID) so distinct apps — including distinct PWAs like Netflix — stay
-/// separate, plus the registry's real display name. No browser special-casing: a regular
-/// browser window resolves to the browser's own registration, a PWA window to its own.
-/// Otherwise fall back to the exe's version-info product name (then exe path, then file name),
-/// and mark it unregistered.
+/// If the window's AUMID resolves in the AppsFolder registry, we use that registration.
+/// The AUMID is a unique key.
+///
+/// Otherwise mark it unregistered and fall back to the exe's version-info product name — as the
+/// `display name`. It will be `None` if the exe has no version resource.
+///
+/// The **dedupe key** falls back further, to the exe path and then the
+/// file name, this is so two distinct unregistered exes with the same file name (e.g. `tool.exe` in
+/// different directories) don't collapse into one entry.
 ///
 /// The `aumid:{key}` key format is a shared contract: [`merge_packaged`] builds the same key so a
 /// windowless packaged app dedupes against its window-derived entry.
@@ -277,10 +281,9 @@ mod tests {
         }
     }
 
-    fn packaged(aumid: &str, display: &str, pids: Vec<u32>) -> RunningPackagedApp {
+    fn packaged(aumid: &str, pids: Vec<u32>) -> RunningPackagedApp {
         RunningPackagedApp {
             aumid: aumid.to_string(),
-            display_name: (!display.is_empty()).then(|| display.to_string()),
             pids,
         }
     }
@@ -407,13 +410,14 @@ mod tests {
         by_key.insert("aumid:teams.app".to_string(), window_entry(500));
 
         merge_packaged(
-            vec![packaged("Teams.App", "Microsoft Teams", vec![500])],
-            &registry(&[("teams.app", "")]),
+            vec![packaged("Teams.App", vec![500])],
+            &registry(&[("teams.app", "Microsoft Teams")]),
             &mut by_key,
         );
 
         assert_eq!(by_key.len(), 1);
         let c = by_key.get("aumid:teams.app").expect("entry");
+        // Name is enriched from the AppsFolder registry, not the packaged app.
         assert_eq!(c.display_name.as_deref(), Some("Microsoft Teams"));
         assert!(c.registered);
     }
@@ -423,8 +427,8 @@ mod tests {
         let mut by_key = HashMap::new();
 
         merge_packaged(
-            vec![packaged("Copilot.App", "Copilot", vec![777])],
-            &registry(&[("copilot.app", "")]),
+            vec![packaged("Copilot.App", vec![777])],
+            &registry(&[("copilot.app", "Copilot")]),
             &mut by_key,
         );
 
@@ -432,6 +436,7 @@ mod tests {
         let c = by_key.get("aumid:copilot.app").expect("entry");
         assert!(!c.has_window);
         assert!(c.registered);
+        // Windowless entry is named from the AppsFolder registry.
         assert_eq!(c.display_name.as_deref(), Some("Copilot"));
         // `exe_path` resolves via the real `process_image_path` for this pid; not asserted since
         // an arbitrary pid's path is nondeterministic (the merge policy is what matters here).
@@ -441,11 +446,14 @@ mod tests {
     fn merge_tags_unregistered_when_absent_from_registry() {
         let mut by_key = HashMap::new();
         merge_packaged(
-            vec![packaged("Unknown.App", "Unknown", vec![888])],
+            vec![packaged("Unknown.App", vec![888])],
             &registry(&[]),
             &mut by_key,
         );
 
-        assert!(!by_key.get("aumid:unknown.app").expect("entry").registered);
+        let c = by_key.get("aumid:unknown.app").expect("entry");
+        assert!(!c.registered);
+        // No registry entry → no authoritative name.
+        assert_eq!(c.display_name, None);
     }
 }

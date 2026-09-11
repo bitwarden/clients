@@ -30,10 +30,12 @@ trait FilterStep: Sync {
 /// threaded in through [`FilterCtx`].
 static PIPELINE: &[&dyn FilterStep] = &[
     &ExcludeUnlabeled,
+    &ExcludePathless,
     &ExcludeSelf,
     &ExcludeSystemPaths,
     &ExcludeShellSurface,
     &ExcludeUnregisteredBackground,
+    &ExcludeAmbiguousHost,
     &ExcludeBackgroundNoise,
 ];
 
@@ -64,17 +66,35 @@ pub(super) fn apply(candidates: Vec<RunningApp>) -> Vec<RunningApp> {
     kept
 }
 
-/// Drop candidates with no usable label. An app we can't name isn't a pairable target and would
-/// otherwise surface as a blank row — e.g. a windowless packaged app whose WinRT display name is
-/// absent and whose process path can't be resolved, or a window whose AUMID/product/exe all fail
-/// to resolve. Enforced here (policy) since collection stays inclusive.
+/// Drop candidates with no *resolved* display name. `display_name` is `Some` only when we obtained
+/// a trusted name — from the AppsFolder registry (registered apps) or the exe's version info; it is
+/// `None` for an unregistered window/exe with no version resource. We deliberately do **not** fall
+/// back to the raw file name here: `AppData.display_name` is both shown to the user and used to
+/// match a paired app during verification, and a file name is neither a friendly label nor a
+/// reliable unique identity. Enforced here (policy) since collection stays inclusive.
 struct ExcludeUnlabeled;
 impl FilterStep for ExcludeUnlabeled {
     fn name(&self) -> &'static str {
         "exclude-unlabeled"
     }
     fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
-        !c.name().trim().is_empty()
+        c.display_name
+            .as_deref()
+            .is_some_and(|n| !n.trim().is_empty())
+    }
+}
+
+/// Drop candidates whose executable path couldn't be resolved (e.g. a protected process). A
+/// pairable app must have a concrete path: `AppData.path` is required, and the `(display_name,
+/// path)` pair is what the verification flow matches against — a pathless entry can't be matched
+/// deterministically. Enforced here (policy) since collection stays inclusive.
+struct ExcludePathless;
+impl FilterStep for ExcludePathless {
+    fn name(&self) -> &'static str {
+        "exclude-pathless"
+    }
+    fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
+        c.exe_path.is_some()
     }
 }
 
@@ -155,6 +175,37 @@ impl FilterStep for ExcludeBackgroundNoise {
             "windowspackagemanagerserver.exe", // WinGet COM server (WingetMessageOnlyWindow)
         ];
         !name_matches(&c.filename, BACKGROUND_NOISE)
+    }
+}
+
+/// Drop apps launched by a known *multiplexing host* (Java/interpreter/script/COM hosts and the
+/// browser PWA proxy stubs) **unless** the window carried a registered AUMID that uniquely
+/// identifies it. Without that AUMID, the host's fallback name (version-info/filename) is shared by
+/// every app it launches — e.g. two Java apps both show as "Java" under `javaw.exe` — so the
+/// identity is non-unique.
+struct ExcludeAmbiguousHost;
+impl FilterStep for ExcludeAmbiguousHost {
+    fn name(&self) -> &'static str {
+        "exclude-ambiguous-host"
+    }
+    fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
+        const AMBIGUOUS_HOSTS: &[&str] = &[
+            "javaw.exe",
+            "java.exe",
+            "pythonw.exe",
+            "python.exe",
+            "wscript.exe",
+            "cscript.exe",
+            "mshta.exe",
+            "rundll32.exe",
+            "dllhost.exe",
+            "mmc.exe",
+            "msedge_proxy.exe",
+            "chrome_proxy.exe",
+        ];
+        // `registered` is true when the app has a registered AUMID and thus can be uniquely
+        // identified, even if it's a PWA that has a browser stub.
+        c.registered || !name_matches(&c.filename, AMBIGUOUS_HOSTS)
     }
 }
 
@@ -259,6 +310,18 @@ mod tests {
         let ctx = FilterCtx { self_pid: 0 };
         assert!(!step.keep(&app(1, "Explorer.EXE", None, true, false), &ctx));
         assert!(step.keep(&app(1, "chrome.exe", None, true, false), &ctx));
+    }
+
+    #[test]
+    fn exclude_ambiguous_host_drops_only_unregistered_host_apps() {
+        let step = ExcludeAmbiguousHost;
+        let ctx = FilterCtx { self_pid: 0 };
+        // Unregistered app on a multiplexing host → non-unique identity → drop.
+        assert!(!step.keep(&app(1, "javaw.exe", None, true, false), &ctx));
+        // Registered (AUMID-identified) on the same host, e.g. a PWA → uniquely known → keep.
+        assert!(step.keep(&app(1, "javaw.exe", None, true, true), &ctx));
+        // Unregistered non-host app (unique exe) → permissive keep.
+        assert!(step.keep(&app(1, "slack.exe", None, true, false), &ctx));
     }
 
     #[test]
