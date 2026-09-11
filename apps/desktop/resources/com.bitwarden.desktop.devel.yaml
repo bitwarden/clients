@@ -29,6 +29,7 @@ finish-args:
   - --device=all
 
   # SSH agent setup writes the SSH_AUTH_SOCK export line to the shell profiles
+  - --filesystem=home/.profile
   - --filesystem=home/.bashrc
   - --filesystem=home/.zshrc
   - --filesystem=home/.config/fish/config.fish

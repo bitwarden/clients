@@ -24,6 +24,7 @@
 	<true/>
 	<key>com.apple.security.temporary-exception.files.home-relative-path.read-write</key>
 	<array>
+		<string>/.profile</string>
 		<string>/.bashrc</string>
 		<string>/.zshrc</string>
 		<string>/.config/fish/config.fish</string>

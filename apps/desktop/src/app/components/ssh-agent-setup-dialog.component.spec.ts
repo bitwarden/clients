@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 
@@ -14,6 +15,7 @@ describe("SshAgentSetupDialogComponent", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const i18nService = mock<I18nService>();
   const toastService = mock<ToastService>();
+  const logService = mock<LogService>();
   const dialogRef = mock<DialogRef>();
 
   let originalIpc: any;
@@ -32,6 +34,7 @@ describe("SshAgentSetupDialogComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
+        { provide: LogService, useValue: logService },
       ],
     }).compileComponents();
 

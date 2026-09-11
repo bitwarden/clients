@@ -20,6 +20,7 @@ const SOCKET_PATH_PLACEHOLDER: &str = "{socket_path}";
 ///
 /// e.g. `~/.zshrc` receives `export SSH_AUTH_SOCK="/home/user/.bitwarden-ssh-agent.sock"`
 const PROFILES: &[(&str, &str)] = &[
+    (".profile", "export SSH_AUTH_SOCK=\"{socket_path}\""),
     (".bashrc", "export SSH_AUTH_SOCK=\"{socket_path}\""),
     (".zshrc", "export SSH_AUTH_SOCK=\"{socket_path}\""),
     (
@@ -29,9 +30,6 @@ const PROFILES: &[(&str, &str)] = &[
 ];
 
 /// Whether every shell profile already points `SSH_AUTH_SOCK` at the agent.
-///
-/// The profiles rather than the current environment are the signal: a
-/// desktop-launcher-started app does not inherit the user's shell environment.
 ///
 /// # Errors
 ///
@@ -57,6 +55,11 @@ fn apply_to_home(home: &Path, socket_path: &str) -> Result<()> {
     for (profile, template) in PROFILES {
         let path = home.join(profile);
 
+        if !profile_applicable(&path) {
+            debug!(?path, "shell not set up on this machine, skipping");
+            continue;
+        }
+
         if profile_configured(&path, socket_path)? {
             debug!(?path, "profile already configured, skipping");
             continue;
@@ -74,12 +77,25 @@ fn apply_to_home(home: &Path, socket_path: &str) -> Result<()> {
 
 fn all_profiles_configured(home: &Path, socket_path: &str) -> Result<bool> {
     for (profile, _) in PROFILES {
-        if !profile_configured(&home.join(profile), socket_path)? {
+        let path = home.join(profile);
+
+        if profile_applicable(&path) && !profile_configured(&path, socket_path)? {
             return Ok(false);
         }
     }
 
     Ok(true)
+}
+
+/// A profile is only written when its parent directory already exists.
+///
+/// `~/.profile`, `~/.bashrc` and `~/.zshrc` sit directly in the home directory and
+/// are therefore always applicable, while `~/.config/fish/config.fish` is skipped on machines
+/// without fish. Creating the directory could fail under sandboxing, and the
+/// resulting error would leave `is_configured` permanently `false` even though the
+/// shells the user actually runs are configured.
+fn profile_applicable(path: &Path) -> bool {
+    path.parent().is_some_and(Path::is_dir)
 }
 
 /// A profile counts as configured when it mentions the socket path, regardless of
@@ -157,6 +173,13 @@ mod tests {
         fn read(&self, profile: &str) -> String {
             fs::read_to_string(self.0.join(profile)).unwrap()
         }
+
+        /// Marks fish as installed by creating the directory its config lives in.
+        fn with_fish(self) -> Self {
+            fs::create_dir_all(self.0.join(".config/fish")).unwrap();
+
+            self
+        }
     }
 
     impl Drop for TempHome {
@@ -167,12 +190,16 @@ mod tests {
 
     #[test]
     fn apply_creates_missing_profiles() {
-        let home = TempHome::new();
+        let home = TempHome::new().with_fish();
 
         apply_to_home(home.path(), SOCKET_PATH).unwrap();
 
         assert_eq!(
             home.read(".zshrc"),
+            format!("\n{MARKER_COMMENT}\nexport SSH_AUTH_SOCK=\"{SOCKET_PATH}\"\n")
+        );
+        assert_eq!(
+            home.read(".profile"),
             format!("\n{MARKER_COMMENT}\nexport SSH_AUTH_SOCK=\"{SOCKET_PATH}\"\n")
         );
         assert!(home
@@ -208,7 +235,7 @@ mod tests {
 
     #[test]
     fn profiles_configured_only_once_all_contain_the_path() {
-        let home = TempHome::new();
+        let home = TempHome::new().with_fish();
 
         assert!(!all_profiles_configured(home.path(), SOCKET_PATH).unwrap());
 
@@ -216,6 +243,18 @@ mod tests {
         assert!(!all_profiles_configured(home.path(), SOCKET_PATH).unwrap());
 
         apply_to_home(home.path(), SOCKET_PATH).unwrap();
+        assert!(all_profiles_configured(home.path(), SOCKET_PATH).unwrap());
+    }
+
+    /// Without fish installed, applying must still report configured afterwards —
+    /// otherwise the setup dialog would re-open forever.
+    #[test]
+    fn missing_fish_does_not_block_configuration() {
+        let home = TempHome::new();
+
+        apply_to_home(home.path(), SOCKET_PATH).unwrap();
+
+        assert!(!home.path().join(".config/fish").exists());
         assert!(all_profiles_configured(home.path(), SOCKET_PATH).unwrap());
     }
 }

@@ -4,7 +4,7 @@
 //! `\\.\pipe\openssh-ssh-agent` named pipe, so the only thing standing between
 //! them and Bitwarden is the built-in `ssh-agent` service owning that pipe.
 
-use std::{os::windows::process::CommandExt, process::Command};
+use std::{os::windows::process::CommandExt, path::PathBuf, process::Command};
 
 use anyhow::{anyhow, Result};
 use tracing::info;
@@ -19,16 +19,34 @@ const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 /// Exit code the query script uses to report a running service.
 const EXIT_SERVICE_RUNNING: i32 = 1;
 
+/// Exit code the elevating script uses when the elevated child never started.
+const EXIT_ELEVATION_FAILED: i32 = 1;
+
+/// Location of `powershell.exe` below the Windows directory.
+const POWERSHELL_RELATIVE_PATH: &str = r"System32\WindowsPowerShell\v1.0\powershell.exe";
+
+/// PowerShell expression evaluating to the full path of `powershell.exe`.
+const POWERSHELL_PATH: &str =
+    r"(Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe')";
+
+/// Fallback used when `SystemRoot` is not set in the environment.
+const DEFAULT_WINDOWS_DIR: &str = r"C:\Windows";
+
 /// Reports whether the built-in service is out of the way.
 ///
 /// # Errors
 ///
 /// Returns an error if the query helper cannot be run or reports an unexpected result.
 pub fn is_configured() -> Result<bool> {
-    // The exit code carries the answer; `Status -eq 'Running'` compares a .NET enum,
-    // so it is not affected by the system language.
+    // The exit code carries the answer; `Status` and `StartType` are .NET enums,
+    // so the comparisons are not affected by the system language.
+    //
+    // A stopped service that is still allowed to start counts as not configured:
+    // it would grab the named pipe again at the next boot.
     let status = run_powershell(&format!(
-        "if ((Get-Service {SSH_AGENT_SERVICE} -ErrorAction SilentlyContinue).Status -eq 'Running') \
+        "$service = Get-Service {SSH_AGENT_SERVICE} -ErrorAction SilentlyContinue; \
+         if ($null -ne $service -and \
+         ($service.Status -eq 'Running' -or $service.StartType -ne 'Disabled')) \
          {{ exit {EXIT_SERVICE_RUNNING} }} else {{ exit 0 }}"
     ))?;
 
@@ -58,9 +76,15 @@ pub fn apply_configuration() -> Result<()> {
          Set-Service {SSH_AGENT_SERVICE} -StartupType Disabled -ErrorAction Stop"
     );
 
+    // `Start-Process` is given the full path so the elevated child cannot be
+    // hijacked by a `powershell.exe` planted earlier on the user's PATH.
+    // A declined UAC prompt is made deterministic: `-ErrorAction Stop` turns it into
+    // a terminating error, and the null check covers a non-terminating failure that
+    // would otherwise leave `exit $null` reporting success.
     let status = run_powershell(&format!(
-        "$process = Start-Process powershell -Verb RunAs -Wait -PassThru -WindowStyle Hidden \
-         -ArgumentList '-NoProfile','-Command','{elevated_script}'; exit $process.ExitCode"
+        "$process = Start-Process {POWERSHELL_PATH} -Verb RunAs -Wait -PassThru -WindowStyle Hidden \
+         -ErrorAction Stop -ArgumentList '-NoProfile','-Command','{elevated_script}'; \
+         if ($null -eq $process) {{ exit {EXIT_ELEVATION_FAILED} }} else {{ exit $process.ExitCode }}"
     ))?;
 
     if status != Some(0) {
@@ -74,8 +98,11 @@ pub fn apply_configuration() -> Result<()> {
     Ok(())
 }
 
+/// Runs a script with the system `powershell.exe` rather than the first one on PATH.
 fn run_powershell(script: &str) -> Result<Option<i32>> {
-    let output = Command::new("powershell.exe")
+    let windows_dir = std::env::var("SystemRoot").unwrap_or_else(|_| DEFAULT_WINDOWS_DIR.into());
+
+    let output = Command::new(PathBuf::from(windows_dir).join(POWERSHELL_RELATIVE_PATH))
         .args(["-NoProfile", "-NonInteractive", "-Command", script])
         .creation_flags(CREATE_NO_WINDOW)
         .output()

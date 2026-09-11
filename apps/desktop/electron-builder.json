@@ -293,7 +293,12 @@
         "dot-shell-profiles": {
           "interface": "personal-files",
           "read": [],
-          "write": ["$HOME/.bashrc", "$HOME/.zshrc", "$HOME/.config/fish/config.fish"]
+          "write": [
+            "$HOME/.profile",
+            "$HOME/.bashrc",
+            "$HOME/.zshrc",
+            "$HOME/.config/fish/config.fish"
+          ]
         }
       },
       {

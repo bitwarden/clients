@@ -112,20 +112,20 @@ pub mod sshagent {
         ssh_agent::socket_address().map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
-    /// Whether SSH clients on this machine already reach the Bitwarden agent.
+    /// Whether the Bitwarden agent is expected to work.
+    /// This is defined by `SSH_AUTH_SOCK` being configured on unix or the
+    /// openssh service being disabled on windows.
     #[napi]
     pub async fn is_configured() -> napi::Result<bool> {
         run_blocking(ssh_agent::is_configured).await
     }
 
-    /// Configures the machine so that SSH clients reach the Bitwarden agent.
+    /// Appliy the Bitwarden agent configuration to the system.
     #[napi]
     pub async fn apply_configuration() -> napi::Result<()> {
         run_blocking(ssh_agent::apply_configuration).await
     }
 
-    /// Setup inspects the filesystem and, on Windows, waits for a UAC prompt, so it
-    /// must stay off the main thread.
     async fn run_blocking<T: Send + 'static>(
         operation: impl FnOnce() -> anyhow::Result<T> + Send + 'static,
     ) -> napi::Result<T> {

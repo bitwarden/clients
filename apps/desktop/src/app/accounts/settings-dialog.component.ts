@@ -281,8 +281,6 @@ export class SettingsDialogComponent implements OnInit {
         });
     }
 
-    await this.refreshSshAgentConfigured();
-
     this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
 
     this.userHasPinSet.set(await this.pinService.isPinSet(this.currentUserId()));
@@ -325,6 +323,9 @@ export class SettingsDialogComponent implements OnInit {
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
+
+    // Kept off the critical render path: it shells out on Windows.
+    await this.refreshSshAgentConfigured();
 
     if (this.isWindows) {
       this.billingAccountProfileStateService
@@ -656,8 +657,22 @@ export class SettingsDialogComponent implements OnInit {
     await this.refreshSshAgentConfigured();
   }
 
+  /**
+   * The native check reads shell profiles / queries a Windows service, so it is
+   * fallible. A failure must not take the rest of the dialog down with it; falling
+   * back to "not configured" only means the setup link stays visible.
+   */
   private async refreshSshAgentConfigured() {
-    this.sshAgentConfigured.set(await ipc.autofill.sshAgent.isConfigured());
+    if (!this.showSshAgentSetupDialog()) {
+      return;
+    }
+
+    try {
+      this.sshAgentConfigured.set(await ipc.autofill.sshAgent.isConfigured());
+    } catch (e) {
+      this.logService.error("Could not determine SSH agent configuration state", e);
+      this.sshAgentConfigured.set(false);
+    }
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {

@@ -772,7 +772,7 @@
     "message": "The built-in Windows OpenSSH Authentication Agent service must be disabled."
   },
   "sshAgentSetupUnixApplyDesc": {
-    "message": "Applying automatically adds the line to the end of your ~/.bashrc, ~/.zshrc and fish configuration files."
+    "message": "Applying automatically adds the line to the end of your ~/.profile, ~/.bashrc, ~/.zshrc and fish configuration files."
   },
   "sshAgentSetupApplyAutomatically": {
     "message": "Apply automatically"
