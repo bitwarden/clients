@@ -25,10 +25,6 @@ const EXIT_ELEVATION_FAILED: i32 = 1;
 /// Location of `powershell.exe` below the Windows directory.
 const POWERSHELL_RELATIVE_PATH: &str = r"System32\WindowsPowerShell\v1.0\powershell.exe";
 
-/// PowerShell expression evaluating to the full path of `powershell.exe`.
-const POWERSHELL_PATH: &str =
-    r"(Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe')";
-
 /// Fallback used when `SystemRoot` is not set in the environment.
 const DEFAULT_WINDOWS_DIR: &str = r"C:\Windows";
 
@@ -76,13 +72,13 @@ pub fn apply_configuration() -> Result<()> {
          Set-Service {SSH_AGENT_SERVICE} -StartupType Disabled -ErrorAction Stop"
     );
 
-    // `Start-Process` is given the full path so the elevated child cannot be
-    // hijacked by a `powershell.exe` planted earlier on the user's PATH.
+    let powershell = format!(r"(Join-Path $env:SystemRoot '{POWERSHELL_RELATIVE_PATH}')");
+
     // A declined UAC prompt is made deterministic: `-ErrorAction Stop` turns it into
     // a terminating error, and the null check covers a non-terminating failure that
     // would otherwise leave `exit $null` reporting success.
     let status = run_powershell(&format!(
-        "$process = Start-Process {POWERSHELL_PATH} -Verb RunAs -Wait -PassThru -WindowStyle Hidden \
+        "$process = Start-Process {powershell} -Verb RunAs -Wait -PassThru -WindowStyle Hidden \
          -ErrorAction Stop -ArgumentList '-NoProfile','-Command','{elevated_script}'; \
          if ($null -eq $process) {{ exit {EXIT_ELEVATION_FAILED} }} else {{ exit $process.ExitCode }}"
     ))?;

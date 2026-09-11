@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 /// Written above the generated line so users can recognize and remove it.
 const MARKER_COMMENT: &str = "# Bitwarden SSH agent";
@@ -44,14 +44,19 @@ pub fn is_configured() -> Result<bool> {
 /// # Errors
 ///
 /// Returns an error if the socket path or the home directory cannot be determined,
-/// or if a profile cannot be read or written.
+/// or if not a single profile could be configured.
 pub fn apply_configuration() -> Result<()> {
     let socket_path = crate::socket_address()?;
 
     apply_to_home(&home_dir()?, &socket_path)
 }
 
+/// Every profile is attempted before reporting: one unwritable file (an immutable
+/// `~/.zshrc` in a managed home, a sandbox denial) must not stop the profiles after
+/// it from being configured.
 fn apply_to_home(home: &Path, socket_path: &str) -> Result<()> {
+    let mut failed = false;
+
     for (profile, template) in PROFILES {
         let path = home.join(profile);
 
@@ -60,17 +65,31 @@ fn apply_to_home(home: &Path, socket_path: &str) -> Result<()> {
             continue;
         }
 
-        if profile_configured(&path, socket_path)? {
-            debug!(?path, "profile already configured, skipping");
-            continue;
+        if let Err(e) = apply_to_profile(&path, template, socket_path) {
+            warn!(?path, error = %e, "could not configure profile");
+            failed = true;
         }
-
-        append_line(
-            &path,
-            &template.replace(SOCKET_PATH_PLACEHOLDER, socket_path),
-        )?;
-        info!(?path, "appended SSH_AUTH_SOCK to profile");
     }
+
+    if failed {
+        return Err(anyhow!("Could not configure every shell profile"));
+    }
+
+    Ok(())
+}
+
+fn apply_to_profile(path: &Path, template: &str, socket_path: &str) -> Result<()> {
+    if profile_configured(path, socket_path)? {
+        debug!(?path, "profile already configured, skipping");
+
+        return Ok(());
+    }
+
+    append_line(
+        path,
+        &template.replace(SOCKET_PATH_PLACEHOLDER, socket_path),
+    )?;
+    info!(?path, "appended SSH_AUTH_SOCK to profile");
 
     Ok(())
 }
@@ -90,10 +109,9 @@ fn all_profiles_configured(home: &Path, socket_path: &str) -> Result<bool> {
 /// A profile is only written when its parent directory already exists.
 ///
 /// `~/.profile`, `~/.bashrc` and `~/.zshrc` sit directly in the home directory and
-/// are therefore always applicable, while `~/.config/fish/config.fish` is skipped on machines
-/// without fish. Creating the directory could fail under sandboxing, and the
-/// resulting error would leave `is_configured` permanently `false` even though the
-/// shells the user actually runs are configured.
+/// are therefore always applicable, while `~/.config/fish/config.fish` is skipped
+/// on machines without fish — the sandbox grants cover the file, not the creation
+/// of its parent directory.
 fn profile_applicable(path: &Path) -> bool {
     path.parent().is_some_and(Path::is_dir)
 }
@@ -113,11 +131,6 @@ fn profile_configured(path: &Path, socket_path: &str) -> Result<bool> {
 
 /// Appends at the very end of the file so it overrides anything set earlier.
 fn append_line(path: &Path, line: &str) -> Result<()> {
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)
-            .map_err(|e| anyhow!("Could not create {}: {e}", parent.display()))?;
-    }
-
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
@@ -144,9 +157,17 @@ fn home_dir() -> Result<PathBuf> {
 
 #[cfg(test)]
 mod tests {
+    use std::os::unix::fs::PermissionsExt;
+
     use rand::{distr::Alphanumeric, Rng};
 
     use super::*;
+
+    /// `r-x------`: readable and traversable, but nothing can be written into it.
+    const READ_EXECUTE_ONLY: u32 = 0o500;
+
+    /// `rwx------`, the mode the temporary home is created with.
+    const OWNER_ALL: u32 = 0o700;
 
     const SOCKET_PATH: &str = "/home/test/.bitwarden-ssh-agent.sock";
 
@@ -244,6 +265,49 @@ mod tests {
 
         apply_to_home(home.path(), SOCKET_PATH).unwrap();
         assert!(all_profiles_configured(home.path(), SOCKET_PATH).unwrap());
+    }
+
+    /// The failure is reported, but only after the profiles that can be written
+    /// have been: aborting the loop would leave later profiles untouched even on a
+    /// retry, because the same profile fails first every time.
+    #[test]
+    fn unwritable_profile_does_not_stop_the_others() {
+        let home = TempHome::new();
+        let unwritable = home.path().join(".profile");
+        fs::write(&unwritable, "").unwrap();
+        set_readonly(&unwritable);
+
+        let result = apply_to_home(home.path(), SOCKET_PATH);
+
+        assert!(result.is_err());
+        assert!(home.read(".profile").is_empty());
+        assert!(home.read(".bashrc").contains(SOCKET_PATH));
+        assert!(home.read(".zshrc").contains(SOCKET_PATH));
+    }
+
+    #[test]
+    fn apply_fails_when_no_profile_can_be_written() {
+        let home = TempHome::new();
+        set_readonly(home.path());
+
+        let result = apply_to_home(home.path(), SOCKET_PATH);
+
+        // Restored so the temporary directory can be cleaned up on drop.
+        set_writable(home.path());
+
+        assert!(result.is_err());
+    }
+
+    fn set_readonly(path: &Path) {
+        let mut permissions = fs::metadata(path).unwrap().permissions();
+        permissions.set_mode(READ_EXECUTE_ONLY);
+        fs::set_permissions(path, permissions).unwrap();
+    }
+
+    fn set_writable(path: &Path) {
+        let mut permissions = fs::metadata(path).unwrap().permissions();
+        permissions.set_mode(OWNER_ALL);
+        fs::set_permissions(path, permissions).unwrap();
     }
 
     /// Without fish installed, applying must still report configured afterwards —
