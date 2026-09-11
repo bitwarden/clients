@@ -74,8 +74,6 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
-    // Secrets Manager seats mirror PM: plan-price copy on the org purchase surfaces, "members" on
-    // the subscription page. Tier-agnostic (SM is Teams/Enterprise only).
     ["sm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "secretsManagerPlanPrice"],
     [
       "sm-seat",
