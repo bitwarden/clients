@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "У сховищі немає записів"
   },
+  "noItemsInMyVault": {
+    "message": "У моєму сховищі немає записів"
+  },
+  "emptyMyItems": {
+    "message": "У моїх записах немає записів"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Немає записів у $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Немає записів у $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Ваші сховища порожні"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Немає записів за вибраними фільтрами"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Немає записів, що відповідають \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Довжина"
   },
@@ -1498,6 +1537,9 @@
     "message": "Імпортувати",
     "description": "The verb form of the word Import"
   },
+  "importItems": {
+    "message": "Імпортувати записи"
+  },
   "fileFormat": {
     "message": "Формат файлу"
   },
@@ -1589,7 +1631,7 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
+    "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Власність запису передається організації, до якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення."
   },
   "learnMore": {
     "message": "Докладніше"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 результат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ результатів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Жоден фільтр не відповідає запиту “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Очистити пошук"
@@ -5203,19 +5269,19 @@
     "message": "У комп'ютерній програмі SafeInCloud відкрийте меню \"Файл\" → \"Експортувати\" → \"Як XML\" і збережіть файл XML."
   },
   "importPadlockInstructions": {
-    "message": "У настільній програмі Padlock натисніть на іконку «гамбургера» у верхньому лівому куті, перейдіть до \"Налаштування\" → натисніть кнопку \"Експорт\" і збережіть файл \"у форматі CSV\"."
+    "message": "У комп'ютерній програмі Padlock натисніть піктограму меню у верхньому лівому куті, відкрийте \"Налаштування\" → натисніть кнопку \"Експорт\" і збережіть файл \"як CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "У настільній програмі KeePass 2 перейдіть до меню \"Файл\" → \"Експорт\" і виберіть опцію \"KeePass XML (2.x)\"."
+    "message": "У комп'ютерній програмі KeePass 2 відкрийте меню \"Файл\" → \"Експорт\" і виберіть опцію \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "У настільній програмі Universal Password Manager перейдіть до розділу \"База даних\" → \"Експорт\" і збережіть файл у форматі CSV."
+    "message": "У комп'ютерній програмі Universal Password Manager відкрийте \"База даних\" → \"Експорт\" і збережіть файл CSV."
   },
   "importSaferpassInstructions": {
-    "message": "У розширенні для браузера SaferPass натисніть на іконку «гамбургера» у верхньому лівому куті та перейдіть до розділу \"Налаштування\". Натисніть кнопку \"Експортувати облікові записи\", щоб зберегти файл у форматі CSV."
+    "message": "У розширенні для браузера SaferPass натисніть піктограму меню у верхньому лівому куті та відкрийте \"Налаштування\". Натисніть кнопку \"Експортувати облікові записи\", щоб зберегти файл CSV."
   },
   "importMeldiumInstructions": {
-    "message": "У вебсховищі Meldium перейдіть до розділу \"Налаштування\". Знайдіть функцію \"Експорт даних\" і натисніть \"Показати мої дані\", щоб зберегти файл у форматі CSV."
+    "message": "У вебсховищі Meldium відкрийте \"Налаштування\". Знайдіть функцію \"Експорт даних\" і натисніть \"Показати мої дані\", щоб зберегти файл CSV."
   },
   "importPassworddragonInstructions": {
     "message": "У настільній програмі Password Dragon перейдіть до меню \"Файл\" → \"Експорт\" → \"У XML\". У діалоговому вікні, що з’явиться, виберіть \"Усі рядки\" та встановіть прапорці біля всіх полів. Натисніть кнопку \"Експорт\" і збережіть XML-файл."
@@ -5977,7 +6043,7 @@
     "message": "Спільних тек не додано"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Додайте спільну теку, щоб безпечно ділитися елементами сховища з іншими учасниками."
+    "message": "Додайте спільну теку, щоб безпечно ділитися записами сховища з іншими учасниками."
   },
   "moreOptionsLabel": {
     "message": "Інші можливості, $ITEMNAME$",
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів"
   },
+  "noItemsInTrashDescription": {
+    "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів."
+  },
   "trashWarning": {
     "message": "Записи, що знаходяться в смітнику понад 30 днів, автоматично видалятимуться"
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки."
+  },
+  "emptyVaultsDescription": {
+    "message": "Додайте записи входу, посвідчення, картки, а також інші елементи, щоб розпочати роботу."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Додайте записи до цього спільного сховища, а потім надайте доступ іншим учасникам $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "\"Мої записи\" – це ваш приватний простір для зберігання записів, якими володітиме $VAULT_NAME$, але їх не бачитимуть інші учасники.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "У вас немає тек."
+  },
+  "emptyFoldersDescription": {
+    "message": "Використовуйте теки для впорядкування записів. Вони доступні тільки вам – ніхто інший їх не побачить і не зможе використати."
   },
   "introCarouselLabel": {
     "message": "Вітаємо в Bitwarden"
@@ -7975,7 +8071,7 @@
     "message": "Для цих облікових записів використовується однаковий пароль. Створіть унікальний пароль для кожного облікового запису, щоб ніхто не зміг отримати доступ до кількох облікових записів за допомогою одного пароля."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Обов’язково спочатку змініть свій пароль. Видалення лише прибирає цей елемент із вашого сховища, але не усуває ризик."
+    "message": "Обов'язково спершу змініть свій пароль. Видаливши цей запис зі сховища ви не усунете ризик."
   },
   "passwordHasAdditionalRisks": {
     "message": "Цей пароль має додаткові ризики:"
