@@ -34,7 +34,11 @@
           />
         </bit-nav-item>
       } @else {
-        <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
+        <!-- See `coachmarkTourRunning` for why the tour expands this for its whole run. -->
+        <bit-nav-group
+          [text]="vault.label"
+          [open]="nav.organizationDataOwnership || coachmarkExpands(vault)"
+        >
           @let vaultTile = tile(vault);
           <bit-icon-tile
             [icon]="vaultTile.icon"
@@ -68,6 +72,11 @@
             [text]="'sharedFolders' | i18n"
             [route]="sharedFoldersRoute(vault)"
             [queryParamsHandling]="queryParamsHandling(sharedFoldersRoute(vault))"
+            [bitPopoverAnchorFor]="coachmarkPopover()"
+            [popoverOpen]="coachmarkTargets(vault)"
+            [position]="coachmarkPosition()"
+            [closeOnBackdropClick]="false"
+            [spotlight]="!!coachmarkPopover()"
           ></bit-nav-item>
         </bit-nav-group>
       }
