@@ -129,7 +129,6 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const requiredPlugins = [
     new webpack.SourceMapDevToolPlugin({
-      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
       filename: "[file].map",
     }),
     new webpack.DefinePlugin({
@@ -335,7 +334,6 @@ module.exports.buildConfig = function buildConfig(params) {
       minimize: ENV !== "development",
       minimizer: [
         new TerserPlugin({
-          exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
           terserOptions: {
             // Replicate Angular CLI behaviour
             compress: {
