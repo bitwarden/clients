@@ -6,6 +6,23 @@ describe("discardConfirmOptions", () => {
       discardConfirmOptions({ editing: false, createTitleKey: "pamTargetSystemDiscardTitle" }),
     ).toEqual({
       title: { key: "pamTargetSystemDiscardTitle" },
+      content: { key: "pamDiscardContent" },
+      acceptButtonText: { key: "pamDiscardConfirm" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
+  });
+
+  it("lets a surface override the body and the confirm button", () => {
+    expect(
+      discardConfirmOptions({
+        editing: false,
+        createTitleKey: "pamTargetSystemDiscardTitle",
+        createContentKey: "pamAccessRuleDiscardContent",
+        createConfirmKey: "pamAccessRuleDiscardConfirm",
+      }),
+    ).toEqual({
+      title: { key: "pamTargetSystemDiscardTitle" },
       content: { key: "pamAccessRuleDiscardContent" },
       acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
       cancelButtonText: { key: "cancel" },
