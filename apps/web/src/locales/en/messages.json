@@ -18922,6 +18922,20 @@
   "pamTargetSystemKindCustomScript": {
     "message": "Custom script"
   },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Active"
   },
