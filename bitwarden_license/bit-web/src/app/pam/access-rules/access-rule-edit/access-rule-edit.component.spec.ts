@@ -976,8 +976,8 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           title: { key: "pamAccessRuleDiscardTitle" },
-          content: { key: "pamAccessRuleDiscardContent" },
-          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          content: { key: "pamDiscardContent" },
+          acceptButtonText: { key: "pamDiscardConfirm" },
           cancelButtonText: { key: "cancel" },
           type: "warning",
         }),
