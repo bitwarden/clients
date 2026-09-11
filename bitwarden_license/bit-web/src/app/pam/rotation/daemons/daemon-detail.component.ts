@@ -301,13 +301,11 @@ export class DaemonDetailComponent {
   };
 
   constructor() {
-    this.formGroup.controls.active.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((active) => {
-        if (!active) {
-          this.dropStagedAssignmentAdditions();
-        }
-      });
+    this.formGroup.controls.active.valueChanges.pipe(takeUntilDestroyed()).subscribe((active) => {
+      if (!active) {
+        this.dropStagedAssignmentAdditions();
+      }
+    });
     void this.initialize();
   }
 
