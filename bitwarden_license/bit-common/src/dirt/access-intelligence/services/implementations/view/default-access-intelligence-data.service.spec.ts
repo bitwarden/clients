@@ -242,6 +242,14 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
     });
 
+    it("requests default collections so My Items ciphers can be attributed to a member", async () => {
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      // Without the second argument the server returns only shared collections, leaving
+      // ciphers in a member's "My Items" collection with no collection access to resolve.
+      expect(apiService.getManyCollectionsWithAccessDetails).toHaveBeenCalledWith(orgId, true);
+    });
+
     it("requests member items when refreshing an existing report", async () => {
       await firstValueFrom(service.refreshReport$(orgId));
 

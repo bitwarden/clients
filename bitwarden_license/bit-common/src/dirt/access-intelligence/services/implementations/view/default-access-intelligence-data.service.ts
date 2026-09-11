@@ -461,7 +461,9 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           includeGroups: true,
         }),
       ),
-      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)),
+      // Default collections must be included, or a cipher whose only collection is a
+      // member's "My Items" resolves to no members.
+      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId, true)),
     });
   }
 
