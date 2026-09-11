@@ -835,8 +835,8 @@ describe("TargetSystemEditComponent — discard guard", () => {
 
   const CREATE_DIALOG = {
     title: { key: "pamTargetSystemDiscardTitle" },
-    content: { key: "pamAccessRuleDiscardContent" },
-    acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+    content: { key: "pamDiscardContent" },
+    acceptButtonText: { key: "pamDiscardConfirm" },
     cancelButtonText: { key: "cancel" },
     type: "warning",
   };
