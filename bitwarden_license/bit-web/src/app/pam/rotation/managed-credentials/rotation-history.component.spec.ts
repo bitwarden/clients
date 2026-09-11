@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
@@ -292,13 +293,44 @@ describe("RotationHistoryComponent", () => {
       expect(view.attempts[1].divergentFailureReason).toBeNull();
     });
 
-    it("measures the job from creation to the last attempt that ended", () => {
+    it("starts the job at its first attempt rather than when it was queued", () => {
+      setup([]);
+      expect((component as any).toJobView(failingJob()).startedAt).toBe("2026-01-01T00:00:10Z");
+      expect((component as any).toJobView(failingJob()).createdAt).toBe("2026-01-01T00:00:00Z");
+    });
+
+    it("takes the earliest start, not the first attempt the server listed", () => {
+      setup([]);
+      const job = failingJob();
+      (job.attempts[0] as any).startedAt = "2026-01-01T00:00:50Z";
+      expect((component as any).toJobView(job).startedAt).toBe("2026-01-01T00:00:40Z");
+    });
+
+    it("measures the job from its first attempt to the last one that ended", () => {
       setup([]);
       expect((component as any).toJobView(failingJob()).duration).toEqual({
         hours: 0,
         minutes: 0,
-        seconds: 55,
+        seconds: 45,
       });
+    });
+
+    it("keeps the wait in the queue out of the job's span", () => {
+      setup([]);
+      const view = (component as any).toJobView(failingJob());
+      expect(view.duration).not.toEqual({ hours: 0, minutes: 0, seconds: 55 });
+      expect(view.duration.seconds).toBe(45);
+      expect(Date.parse(view.startedAt) - Date.parse(view.createdAt)).toBe(10_000);
+    });
+
+    it("has no start and no span for a job that has not attempted anything", () => {
+      setup([]);
+      const view = (component as any).toJobView(
+        rotationJob({ status: RotationJobStatus.Pending, attempts: [] }),
+      );
+      expect(view.startedAt).toBeNull();
+      expect(view.duration).toBeNull();
+      expect(view.running).toBe(true);
     });
 
     it("has no duration while an attempt is still running", () => {
@@ -418,6 +450,9 @@ describe("RotationHistoryComponent rendering", () => {
   };
 
   const CONNECTION_REFUSED = "target_unreachable: error kind: ConnectionRefused";
+
+  /** A job queued at this instant and never claimed, so nothing about it ever started. */
+  const QUEUED_AT = "2026-03-04T09:15:00Z";
 
   let dialogService: MockProxy<DialogService>;
 
@@ -554,11 +589,47 @@ describe("RotationHistoryComponent rendering", () => {
     expect(rowHeader.nativeElement.textContent.trim()).not.toBe("");
   });
 
+  describe("the started column", () => {
+    const rendered = (iso: string, format: string) => new DatePipe("en-US").transform(iso, format)!;
+
+    it("reports when the job ran, not when it was queued", () => {
+      const fixture = render([retriedFailure()]);
+
+      const rowHeader = jobRows(fixture)[0].query(By.css("th")).nativeElement;
+      expect(rowHeader.textContent.trim()).toBe(rendered("2026-01-01T00:01:00Z", "short"));
+      expect(rowHeader.textContent.trim()).not.toBe(rendered("2026-01-01T00:00:00Z", "short"));
+    });
+
+    it("stays empty rather than dating a job that never started", () => {
+      const fixture = render([
+        rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT }),
+      ]);
+
+      expect(jobRows(fixture)).toHaveLength(1);
+      expect(jobRows(fixture)[0].query(By.css("th")).nativeElement.textContent.trim()).toBe("");
+      expect(fixture.nativeElement.textContent).not.toContain(rendered(QUEUED_AT, "short"));
+    });
+
+    it("names the row by its start, and by its outcome alone when it has none", () => {
+      const started = render([retriedFailure()]);
+      expect(resultCell(started).nativeElement.getAttribute("aria-label")).toContain(
+        rendered("2026-01-01T00:01:00Z", "medium"),
+      );
+
+      const queued = render([
+        rotationJob({ status: RotationJobStatus.Pending, attempts: [], createdAt: QUEUED_AT }),
+      ]);
+      expect(resultCell(queued).nativeElement.getAttribute("aria-label")).toBe(
+        "pamRotationJobStatusPending",
+      );
+    });
+  });
+
   it("shows the job duration rather than a second raw timestamp", () => {
     const fixture = render([retriedFailure()]);
 
     expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
-      "pamRotationDurationMinutes 5 16",
+      "pamRotationDurationMinutes 4 16",
     );
   });
 
