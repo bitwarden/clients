@@ -57,7 +57,7 @@ describe("DaemonsTabComponent", () => {
     } as unknown as jest.Mocked<DaemonsService>;
 
     targetSystemsService = {
-      activeAutomaticSystems$: of([] as TargetSystem[]),
+      automaticSystems$: of([] as TargetSystem[]),
       load: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<TargetSystemsService>;
 
