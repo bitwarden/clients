@@ -244,7 +244,11 @@ describe("TargetSystemsTabComponent", () => {
     }));
 
     it("confirms with a danger dialog naming the target system and the reversible alternative", fakeAsync(() => {
-      const sys = makeSystem({ id: sysId("sys-1"), name: "Prod Entra" });
+      const sys = makeSystem({
+        id: sysId("sys-1"),
+        name: "Prod Entra",
+        status: TargetSystemStatus.Active,
+      });
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       void (component as unknown as DeleteComp).confirmDelete(sys);
@@ -255,6 +259,74 @@ describe("TargetSystemsTabComponent", () => {
           type: "danger",
           content: {
             key: "pamTargetSystemDeleteContentDeactivateInstead",
+            placeholders: ["Prod Entra"],
+          },
+        }),
+      );
+    }));
+
+    it("does not offer deactivation as the alternative for a disabled target system", fakeAsync(() => {
+      const sys = makeSystem({
+        id: sysId("sys-1"),
+        name: "Prod Entra",
+        status: TargetSystemStatus.Disabled,
+      });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "danger",
+          content: {
+            key: "pamTargetSystemDeleteContent",
+            placeholders: ["Prod Entra"],
+          },
+        }),
+      );
+    }));
+
+    it("does not offer deactivation as the alternative for a target system of unknown status", fakeAsync(() => {
+      const sys = makeSystem({
+        id: sysId("sys-1"),
+        name: "Prod Entra",
+        status: TargetSystemStatus.Unknown,
+      });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: {
+            key: "pamTargetSystemDeleteContent",
+            placeholders: ["Prod Entra"],
+          },
+        }),
+      );
+    }));
+
+    it("still names the connector assignments for an inactive target system", fakeAsync(() => {
+      const sys = makeSystem({
+        id: sysId("sys-1"),
+        name: "Prod Entra",
+        status: TargetSystemStatus.Disabled,
+      });
+      daemonsService.daemons$.next([
+        accessConnector({ id: connectorId("c-1"), assignedTargetSystemIds: [sys.id] }),
+      ]);
+      fixture.detectChanges();
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: {
+            key: "pamTargetSystemDeleteAssignedConnectorsContent",
             placeholders: ["Prod Entra"],
           },
         }),
@@ -282,8 +354,12 @@ describe("TargetSystemsTabComponent", () => {
       );
     }));
 
-    it("keeps the plain copy when the connector read cannot say either way", fakeAsync(() => {
-      const sys = makeSystem({ id: sysId("sys-1"), name: "Prod Entra" });
+    it("keeps the deactivate-instead copy when the connector read cannot say either way", fakeAsync(() => {
+      const sys = makeSystem({
+        id: sysId("sys-1"),
+        name: "Prod Entra",
+        status: TargetSystemStatus.Active,
+      });
       daemonsService.loadError$.next(new Error("boom"));
       fixture.detectChanges();
       dialogService.openSimpleDialog.mockResolvedValue(true);
