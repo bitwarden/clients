@@ -539,11 +539,35 @@ describe("ManagedCredentialsTabComponent", () => {
       );
     });
 
-    it("shows one badge, not three, when every flag is set at once", () => {
-      expectOnlyBadge(
+    it("resolves to one status, not three, when every flag is set at once", () => {
+      const rendered = badges(
         statusCell(makeRow({ enabled: false, hasActiveJob: true, awaitingManualRotation: true })),
+      );
+      expect(rendered[0].textContent!.trim()).toBe("pamRotationConfigInProgress");
+      expect(rendered[0].querySelector(".bwi-refresh")).not.toBeNull();
+      expect(rendered.map((el) => el.textContent!.trim())).not.toContain(
+        "pamRotationConfigManualDue",
+      );
+    });
+
+    /**
+     * Pausing is not gated on an in-flight job, so this state is reachable. The resolved status
+     * gives the job precedence, and the pause would otherwise leave no mark on the row.
+     */
+    it("keeps the pause visible alongside the rotating badge", () => {
+      const rendered = badges(statusCell(makeRow({ enabled: false, hasActiveJob: true })));
+      expect(rendered.map((el) => el.textContent!.trim())).toEqual([
         "pamRotationConfigInProgress",
-        "bwi-refresh",
+        "pamRotationConfigStatusPaused",
+      ]);
+      expect(rendered[1].querySelector(".bwi-minus-circle")).not.toBeNull();
+    });
+
+    it("does not repeat the pause when the status badge already says paused", () => {
+      expectOnlyBadge(
+        statusCell(makeRow({ enabled: false })),
+        "pamRotationConfigStatusPaused",
+        "bwi-minus-circle",
       );
     });
   });
