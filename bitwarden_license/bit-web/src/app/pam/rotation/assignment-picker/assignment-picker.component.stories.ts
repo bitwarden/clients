@@ -42,7 +42,6 @@ const TARGET_HINTS: AssignmentPickerHints = {
   allAssigned: "pamAccessConnectorAssignNoOptions",
   noneEligible: "pamAccessConnectorAssignNoTargetSystems",
   loadError: "pamAccessConnectorTargetSystemsLoadError",
-  disabled: "pamAccessConnectorAssignTargetDisabled",
 };
 
 const CONNECTOR_HINTS: AssignmentPickerHints = {
@@ -50,7 +49,6 @@ const CONNECTOR_HINTS: AssignmentPickerHints = {
   allAssigned: "pamTargetSystemAssignConnectorNoOptions",
   noneEligible: "pamTargetSystemAssignConnectorNone",
   loadError: "pamTargetSystemConnectorAssignmentsLoadError",
-  disabled: "pamTargetSystemAssignConnectorInactive",
 };
 
 const TARGET_OPTIONS: SelectItemView[] = [
@@ -210,7 +208,7 @@ export const LoadFailed: Story = {
   args: { options: [], loadError: true },
 };
 
-/** The record cannot take assignments at all. */
+/** The record cannot take assignments at all; Assign carries the reason, the hint does not. */
 export const Blocked: Story = {
   args: {
     disabled: true,

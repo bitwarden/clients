@@ -31,7 +31,9 @@
           {{ assignLabelKey() | i18n }}
         </button>
       </div>
-      <bit-hint>{{ hintKey() | i18n }}</bit-hint>
+      @if (hintKey(); as key) {
+        <bit-hint>{{ key | i18n }}</bit-hint>
+      }
     </bit-form-field>
 
     @if (showGoToLink()) {

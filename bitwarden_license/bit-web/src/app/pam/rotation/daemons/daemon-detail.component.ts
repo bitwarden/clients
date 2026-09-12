@@ -297,7 +297,6 @@ export class DaemonDetailComponent {
     allAssigned: "pamAccessConnectorAssignNoOptions",
     noneEligible: "pamAccessConnectorAssignNoTargetSystems",
     loadError: "pamAccessConnectorTargetSystemsLoadError",
-    disabled: "pamAccessConnectorAssignTargetDisabled",
   };
 
   constructor() {
