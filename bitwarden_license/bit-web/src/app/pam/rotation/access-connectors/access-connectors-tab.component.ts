@@ -157,9 +157,10 @@ export class AccessConnectorsTabComponent {
   private readonly rows = computed<AccessConnectorTabRow[]>(() => {
     const eligible = this.automaticSystems();
     const known = this.targetSystemsKnown();
+    const unavailable = this.targetSystemsUnavailable();
     return this.serviceRows().map((row) => ({
       ...row,
-      assignTargetsBlockedKey: this.assignTargetsBlockedKey(row, eligible, known),
+      assignTargetsBlockedKey: this.assignTargetsBlockedKey(row, eligible, known, unavailable),
     }));
   });
 
@@ -216,13 +217,25 @@ export class AccessConnectorsTabComponent {
 
   protected readonly totalRows = computed(() => this.rows().length);
 
+  /**
+   * Why this connector can take no target-system assignment, as the i18n key the menu item's
+   * tooltip states, or null when it can.
+   *
+   * A failed read is stated here rather than only on the click, mirroring the target-systems tab's
+   * `assignConnectorsBlockedKey`: the item is live while the read is in flight, so
+   * {@link openAssignDialog}'s toast covers only the click that arrives before the failure does.
+   */
   private assignTargetsBlockedKey(
     row: AccessConnectorRow,
     eligible: readonly TargetSystemView[],
     targetSystemsKnown: boolean,
+    targetSystemsUnavailable: boolean,
   ): string | null {
     if (!row.canAssign) {
       return "pamAccessConnectorAssignTargetDisabled";
+    }
+    if (targetSystemsUnavailable) {
+      return "pamAccessConnectorTargetSystemsLoadError";
     }
     if (!targetSystemsKnown) {
       return null;

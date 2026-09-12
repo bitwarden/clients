@@ -89,10 +89,10 @@
               id="rotation-history_button_details-{{ job.id }}"
               [attr.aria-label]="
                 (job.statusLabelKey | i18n) +
-                (job.startedAt ? ' ' + (job.startedAt | date: 'medium') : '') +
-                (job.sessionTerminationFailed
-                  ? ' ' + ('pamRotationSessionTerminationTermFailed' | i18n)
-                  : '')
+                (job.startedAt ? ' ' + (job.startedAt | date: 'medium') : '')
+              "
+              [attr.aria-describedby]="
+                job.sessionTerminationFailed ? 'rotation-history_note_term-failed-' + job.id : null
               "
               (keydown.enter)="openJob(job, resultCell)"
               (keydown.space)="openJob(job, resultCell); $event.preventDefault()"
@@ -103,7 +103,10 @@
                 job.statusLabelKey | i18n
               }}</span>
               @if (job.sessionTerminationFailed) {
-                <p class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-warning">
+                <p
+                  class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-warning"
+                  id="rotation-history_note_term-failed-{{ job.id }}"
+                >
                   {{ "pamRotationSessionTerminationTermFailed" | i18n }}
                 </p>
               }
