@@ -13,6 +13,7 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { OrgCiphersService } from "../org-ciphers.service";
+import { QuartzSchedulePreset } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   id,
@@ -65,10 +66,11 @@ const ROWS: RotationConfigRow[] = [
       targetSystemId: sysId("1"),
       targetSystemName: "Prod Entra",
       enabled: true,
+      scheduleCron: "0 0 0 * * ?",
     }),
     undefined,
     "Prod DB service account",
-    rotationConfigDescription(),
+    rotationConfigDescription({ schedulePreset: QuartzSchedulePreset.Daily }),
   ),
   buildRotationConfigRow(
     rotationConfig({
@@ -76,10 +78,12 @@ const ROWS: RotationConfigRow[] = [
       targetSystemId: sysId("2"),
       targetSystemName: "Staging AD",
       enabled: false,
+      scheduleCron: "0 0 3 1/7 * ?",
     }),
     undefined,
     "Staging admin login",
     rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.Custom,
       actions: rotationConfigActions({
         canRotateNow: false,
         canPause: false,
@@ -94,10 +98,12 @@ const ROWS: RotationConfigRow[] = [
       targetSystemName: "Prod Entra",
       enabled: true,
       hasActiveJob: true,
+      scheduleCron: "0 0 9 ? * MON-FRI",
     }),
     undefined,
     "CI pipeline token",
     rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.Custom,
       actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
     }),
   ),
@@ -113,6 +119,7 @@ const ROWS: RotationConfigRow[] = [
     undefined,
     "Mainframe operator",
     rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.None,
       actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
     }),
   ),

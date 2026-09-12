@@ -26,6 +26,19 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { QuartzSchedulePreset } from "./rotation";
 import { RotationSdkService } from "./rotation-sdk.service";
+import {
+  clockField,
+  MAX_HOUR,
+  MAX_INTERVAL_COUNT,
+  MAX_MINUTE,
+  parseIntervalCron,
+  ScheduleIntervalUnit,
+  TIME_OF_DAY,
+  timeOfDay,
+} from "./schedule-label";
+
+/** The interval builder's unit, part of this control's public surface. */
+export { ScheduleIntervalUnit } from "./schedule-label";
 
 /** The interval builder's mode value. */
 export const SCHEDULE_INTERVAL_MODE = "interval" as const;
@@ -33,51 +46,10 @@ export const SCHEDULE_INTERVAL_MODE = "interval" as const;
 /** What the schedule select can hold: any SDK preset, or the interval builder. */
 export type ScheduleMode = QuartzSchedulePreset | typeof SCHEDULE_INTERVAL_MODE;
 
-/** The units the interval builder can step. Quartz steps day-of-month and month; not weeks. */
-export const ScheduleIntervalUnit = Object.freeze({
-  Days: "days",
-  Months: "months",
-} as const);
-export type ScheduleIntervalUnit = (typeof ScheduleIntervalUnit)[keyof typeof ScheduleIntervalUnit];
-
-/** Quartz day-of-month is 1-31 and month is 1-12; `1/N` beyond those is rejected. */
-const MAX_INTERVAL_COUNT: Readonly<Record<ScheduleIntervalUnit, number>> = Object.freeze({
-  [ScheduleIntervalUnit.Days]: 31,
-  [ScheduleIntervalUnit.Months]: 12,
-});
-
-const MAX_HOUR = 23;
-const MAX_MINUTE = 59;
-
-/** `<input type="time">` emits "HH:MM"; seconds are accepted and dropped. */
-const TIME_OF_DAY = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
-
 /** Rejects a fractional count. */
 function wholeNumber(message: string): ValidatorFn {
   return ({ value }) =>
     value == null || Number.isInteger(value) ? null : { notWholeNumber: { message } };
-}
-
-/** A bare or zero-padded cron clock field, or `null` when it is not a number within `max`. */
-function clockField(field: string, max: number): number | null {
-  if (!/^\d{1,2}$/.test(field)) {
-    return null;
-  }
-  const value = Number(field);
-  return value <= max ? value : null;
-}
-
-/** The step `N` a `*` or `1/N` cron field carries, or `null` when it is neither or out of range. */
-function intervalStep(field: string, unit: ScheduleIntervalUnit): number | null {
-  if (field === "*") {
-    return 1;
-  }
-  const match = /^1\/(\d{1,2})$/.exec(field);
-  if (match == null) {
-    return null;
-  }
-  const step = Number(match[1]);
-  return step >= 1 && step <= MAX_INTERVAL_COUNT[unit] ? step : null;
 }
 
 /** Preset → the key of the sentence describing what it does. */
@@ -108,11 +80,6 @@ interface ScheduleEcho {
   key: string;
   p1?: string | number;
   p2?: string | number;
-}
-
-/** A clock reading as `<input type="time">` and the SDK's presets both spell it: zero-padded. */
-function timeOfDay(hh: number, mm: number): string {
-  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
 /**
@@ -284,7 +251,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       return;
     }
 
-    const interval = value == null ? null : this.parseIntervalCron(value);
+    const interval = value == null ? null : parseIntervalCron(value);
     if (interval != null) {
       this.presetControl.setValue(SCHEDULE_INTERVAL_MODE, { emitEvent: false });
       this.resetCustom();
@@ -463,38 +430,5 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return unit === ScheduleIntervalUnit.Months
       ? `0 ${mm} ${hh} 1 ${step} ?`
       : `0 ${mm} ${hh} ${step} * ?`;
-  }
-
-  /** The builder's controls for an expression it could have produced, or `null`. */
-  private parseIntervalCron(
-    cron: string,
-  ): { count: number; unit: ScheduleIntervalUnit; time: string } | null {
-    const fields = cron.trim().split(/\s+/);
-    if (fields.length !== 6) {
-      return null;
-    }
-    const [second, minute, hour, dom, month, dow] = fields;
-    if (second !== "0" || dow !== "?") {
-      return null;
-    }
-    const hh = clockField(hour, MAX_HOUR);
-    const mm = clockField(minute, MAX_MINUTE);
-    if (hh == null || mm == null) {
-      return null;
-    }
-    const time = timeOfDay(hh, mm);
-
-    if (month === "*") {
-      if (dom === "1") {
-        return { count: 1, unit: ScheduleIntervalUnit.Months, time };
-      }
-      const count = intervalStep(dom, ScheduleIntervalUnit.Days);
-      return count == null ? null : { count, unit: ScheduleIntervalUnit.Days, time };
-    }
-    if (dom !== "1") {
-      return null;
-    }
-    const count = intervalStep(month, ScheduleIntervalUnit.Months);
-    return count == null || count === 1 ? null : { count, unit: ScheduleIntervalUnit.Months, time };
   }
 }

@@ -189,7 +189,9 @@ describe("buildRotationConfigRow", () => {
     });
 
     it("does not flag an enabled config that is mid-rotation", () => {
-      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(false);
+      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(
+        false,
+      );
     });
 
     it("does not flag a steady-state active config", () => {
@@ -199,10 +201,19 @@ describe("buildRotationConfigRow", () => {
     });
   });
 
+  /**
+   * The row carries a resolved label rather than a string that was sometimes a message key and
+   * sometimes a raw cron expression; {@link resolveScheduleLabel} owns the resolution, so these
+   * assert what the row hands the column.
+   */
   describe("schedule label", () => {
     it("maps a named preset to its i18n key", () => {
       const built = row({ description: rotationConfigDescription({ schedulePreset: "daily" }) });
-      expect(built.scheduleLabelKeyOrCron).toBe("pamRotationScheduleDaily");
+      expect(built.scheduleLabel).toEqual({
+        key: "pamRotationScheduleDaily",
+        placeholders: [],
+        rawCron: null,
+      });
     });
 
     it("maps no schedule to the none key", () => {
@@ -210,17 +221,60 @@ describe("buildRotationConfigRow", () => {
         config: { scheduleCron: undefined },
         description: rotationConfigDescription({ schedulePreset: "none" }),
       });
-      expect(built.scheduleLabelKeyOrCron).toBe("pamRotationScheduleNone");
+      expect(built.scheduleLabel.key).toBe("pamRotationScheduleNone");
     });
 
-    /** A custom expression is shown verbatim — there is no key that describes it. */
-    it("shows a custom expression as its raw cron", () => {
+    /**
+     * The column printed `0 0 3 * * ?` in monospace here, which is the expression the schedule
+     * input's own interval builder emits for "every 1 day at 03:00".
+     */
+    it("spells out an interval the schedule input could have built, rather than its cron", () => {
       const built = row({
-        config: { scheduleCron: "0 */30 * * * ?" },
+        config: { scheduleCron: "0 0 3 * * ?" },
         description: rotationConfigDescription({ schedulePreset: "custom" }),
       });
-      expect(built.scheduleLabelKeyOrCron).toBe("0 */30 * * * ?");
+      expect(built.scheduleLabel).toEqual({
+        key: "pamRotationScheduleColumnEveryDay",
+        placeholders: ["03:00"],
+        rawCron: null,
+      });
     });
+
+    /** A hand-written expression reads as Custom, and travels on for the cell's tooltip. */
+    it("keeps a hand-written expression beside the Custom label", () => {
+      const built = row({
+        config: { scheduleCron: "0 0 9 ? * MON-FRI" },
+        description: rotationConfigDescription({ schedulePreset: "custom" }),
+      });
+      expect(built.scheduleLabel).toEqual({
+        key: "pamRotationScheduleCustom",
+        placeholders: [],
+        rawCron: "0 0 9 ? * MON-FRI",
+      });
+    });
+
+    /**
+     * A custom preset with nothing to be custom about used to resolve to `""`, which reached the
+     * column as an empty `<code>` and the i18n service as an empty key. Both spellings of absent
+     * are covered: the server omits the field, and the schedule input clears it to null.
+     */
+    it.each([
+      ["the server omitted the field", undefined],
+      ["the schedule input cleared it", null],
+    ] as const)(
+      "reads a custom preset with no expression as no schedule when %s",
+      (_case, cron) => {
+        const built = row({
+          config: { scheduleCron: cron },
+          description: rotationConfigDescription({ schedulePreset: "custom" }),
+        });
+        expect(built.scheduleLabel).toEqual({
+          key: "pamRotationScheduleNone",
+          placeholders: [],
+          rawCron: null,
+        });
+      },
+    );
   });
 
   describe("date columns", () => {
