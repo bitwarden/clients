@@ -661,9 +661,9 @@ describe("ManagedCredentialsTabComponent", () => {
       sortByStatus();
 
       expect(renderedStatuses()).toEqual([
-        "pamRotationConfigInProgress",
+        "pamRotationConfigRotatingBadge",
         "pamRotationConfigStatusPaused",
-        "pamRotationConfigManualDue",
+        "pamRotationConfigRotationDueBadge",
         "pamRotationConfigStatusActive",
       ]);
     });
@@ -675,9 +675,9 @@ describe("ManagedCredentialsTabComponent", () => {
 
       expect(renderedStatuses()).toEqual([
         "pamRotationConfigStatusActive",
-        "pamRotationConfigManualDue",
+        "pamRotationConfigRotationDueBadge",
         "pamRotationConfigStatusPaused",
-        "pamRotationConfigInProgress",
+        "pamRotationConfigRotatingBadge",
       ]);
     });
   });
