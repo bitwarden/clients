@@ -9,6 +9,7 @@ export const VAULT_FILTER_KEYS = Object.freeze({
   type: "type",
   favorites: "favorites",
   vault: "vault",
+  myItems: "myItems",
   sharedFolder: "sharedFolder",
   folder: "folder",
   search: "search",
@@ -26,6 +27,8 @@ export type VaultItemsTableFilters = {
   favorites?: boolean;
   /** Organization ids, or {@link MY_VAULT}. Multi-select: a cipher matches any selected value. */
   vault?: string[];
+  /** Whether the cipher belongs to the organization's "My items" collection. */
+  myItems?: boolean;
   /** Collection ids. Multi-select: a cipher matches any selected collection. */
   sharedFolder?: string[];
   /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */

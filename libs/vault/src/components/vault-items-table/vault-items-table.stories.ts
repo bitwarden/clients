@@ -386,6 +386,7 @@ type StoryProps = {
   organizationName?: string;
   hasMultipleVaults: boolean;
   sharedFolderName?: string;
+  defaultCollectionId?: string;
 };
 
 /**
@@ -417,6 +418,7 @@ const template = `
       [organizationName]="organizationName"
       [hasMultipleVaults]="hasMultipleVaults"
       [sharedFolderName]="sharedFolderName"
+      [defaultCollectionId]="defaultCollectionId"
     >
       <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
         Add item
@@ -466,6 +468,8 @@ export default {
               favoritesFilterTooltip: "Mark items as favorites to filter them here.",
               vault: "Vault",
               myVault: "My vault",
+              myItemsV2: "My items",
+              myItemsFilterTooltip: "Add items to My items to filter them here.",
               sharedFolders: "Shared folders",
               myFolders: "My folders",
               foldersFilterTooltip: "Add folders to items to filter them here.",
@@ -781,6 +785,18 @@ export const ScopedToOrganizationVault: Story = {
     ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
     organizations: [organizations[0]],
     scopedOrganizationId: "org-1" as OrganizationId,
+  },
+};
+
+export const MyItemsChip: Story = {
+  args: {
+    heading: "Acme corporation's vault",
+    ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
+    organizations: [organizations[0]],
+    scopedOrganizationId: "org-1" as OrganizationId,
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    orgRequiresDataOwnership: true,
+    defaultCollectionId: "col-1",
   },
 };
 
