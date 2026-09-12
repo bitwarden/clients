@@ -370,4 +370,20 @@ describe("RotationJobDrawerComponent", () => {
       "pamRotationAttemptInProgress",
     );
   });
+
+  it("states nothing for a job that failed before any attempt ran", async () => {
+    await render(
+      retriedFailure({
+        statusLabelKey: "pamRotationJobStatusTimedOut",
+        startedAt: null,
+        duration: null,
+        running: false,
+        attempts: [],
+        attemptsUniform: false,
+      }),
+    );
+
+    expect(query("drawer-duration")).toBeNull();
+    expect(text()).not.toContain("pamRotationHistoryDurationLabel");
+  });
 });

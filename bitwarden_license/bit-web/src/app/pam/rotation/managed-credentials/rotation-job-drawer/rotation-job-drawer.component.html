@@ -40,18 +40,20 @@
         <dd class="tw-m-0" data-testid="drawer-source">{{ job.sourceLabelKey | i18n }}</dd>
       </div>
 
-      <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">
-          {{ "pamRotationHistoryDurationLabel" | i18n }}
-        </dt>
-        <dd class="tw-m-0" data-testid="drawer-duration">
-          @if (job.duration) {
-            <pam-rotation-duration [parts]="job.duration" />
-          } @else {
-            <span class="tw-text-muted">{{ "pamRotationAttemptInProgress" | i18n }}</span>
-          }
-        </dd>
-      </div>
+      @if (job.duration || job.running) {
+        <div>
+          <dt class="tw-text-sm tw-font-bold tw-text-muted">
+            {{ "pamRotationHistoryDurationLabel" | i18n }}
+          </dt>
+          <dd class="tw-m-0" data-testid="drawer-duration">
+            @if (job.duration) {
+              <pam-rotation-duration [parts]="job.duration" />
+            } @else {
+              <span class="tw-text-muted">{{ "pamRotationAttemptInProgress" | i18n }}</span>
+            }
+          </dd>
+        </div>
+      }
     </dl>
 
     @if (job.sessionTerminationLabelKey) {
