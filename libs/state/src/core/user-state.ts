@@ -17,6 +17,10 @@ export interface UserState<T> {
 
 export const activeMarker: unique symbol = Symbol("active");
 
+/**
+ * @deprecated ActiveUserState is deprecated. Use SingleUserState instead.
+ * See [state README](../../README.md#should-i-use-activeuserstate) for details.
+ */
 export interface ActiveUserState<T> extends UserState<T> {
   readonly [activeMarker]: true;
 
