@@ -114,12 +114,12 @@ const PRESET_LABEL_KEYS: Readonly<Record<QuartzSchedulePreset, string>> = Object
 const INTERVAL_COLUMN_KEYS: Readonly<Record<ScheduleIntervalUnit, { one: string; many: string }>> =
   Object.freeze({
     [ScheduleIntervalUnit.Days]: {
-      one: "pamRotationScheduleColumnEveryDay",
-      many: "pamRotationScheduleColumnEveryNDays",
+      one: "pamRotationScheduleColumnEveryDayUtc",
+      many: "pamRotationScheduleColumnEveryNDaysUtc",
     },
     [ScheduleIntervalUnit.Months]: {
-      one: "pamRotationScheduleColumnEveryMonth",
-      many: "pamRotationScheduleColumnEveryNMonths",
+      one: "pamRotationScheduleColumnEveryMonthUtc",
+      many: "pamRotationScheduleColumnEveryNMonthsUtc",
     },
   });
 

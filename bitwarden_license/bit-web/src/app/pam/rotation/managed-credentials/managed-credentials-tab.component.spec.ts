@@ -603,13 +603,13 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("spells out an interval with its time of day instead of its expression", () => {
       const cell = cellFor("0 0 3 * * ?", QuartzSchedulePreset.Custom);
-      expect(cell.textContent!.trim()).toBe("pamRotationScheduleColumnEveryDay:03:00");
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleColumnEveryDayUtc:03:00");
       expect(cell.textContent).not.toContain("0 0 3 * * ?");
     });
 
     it("spells out a multi-day interval with its count and time of day", () => {
       const cell = cellFor("0 0 2 1/7 * ?", QuartzSchedulePreset.Custom);
-      expect(cell.textContent!.trim()).toBe("pamRotationScheduleColumnEveryNDays:7:02:00");
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleColumnEveryNDaysUtc:7:02:00");
     });
 
     it("labels a hand-written expression Custom and keeps it in the cell's tooltip", () => {

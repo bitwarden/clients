@@ -33,7 +33,7 @@ describe("resolveScheduleLabel", () => {
         "pamRotationScheduleDaily",
       );
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 0 0 * * ?").key).toBe(
-        "pamRotationScheduleColumnEveryDay",
+        "pamRotationScheduleColumnEveryDayUtc",
       );
     });
   });
@@ -42,7 +42,7 @@ describe("resolveScheduleLabel", () => {
   describe("interval expressions", () => {
     it("labels a one-day interval with its time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 0 3 * * ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryDay",
+        key: "pamRotationScheduleColumnEveryDayUtc",
         placeholders: ["03:00"],
         rawCron: null,
       });
@@ -50,7 +50,7 @@ describe("resolveScheduleLabel", () => {
 
     it("labels a multi-day interval with its count and time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 0 2 1/7 * ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryNDays",
+        key: "pamRotationScheduleColumnEveryNDaysUtc",
         placeholders: ["7", "02:00"],
         rawCron: null,
       });
@@ -58,7 +58,7 @@ describe("resolveScheduleLabel", () => {
 
     it("labels a one-month interval with its time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 30 6 1 * ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryMonth",
+        key: "pamRotationScheduleColumnEveryMonthUtc",
         placeholders: ["06:30"],
         rawCron: null,
       });
@@ -66,7 +66,7 @@ describe("resolveScheduleLabel", () => {
 
     it("labels a multi-month interval with its count and time of day", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "0 15 23 1 1/3 ?")).toEqual({
-        key: "pamRotationScheduleColumnEveryNMonths",
+        key: "pamRotationScheduleColumnEveryNMonthsUtc",
         placeholders: ["3", "23:15"],
         rawCron: null,
       });
@@ -89,7 +89,7 @@ describe("resolveScheduleLabel", () => {
 
     it("reads an expression with surrounding whitespace", () => {
       expect(resolveScheduleLabel(QuartzSchedulePreset.Custom, "  0 0 3 * * ?  ").key).toBe(
-        "pamRotationScheduleColumnEveryDay",
+        "pamRotationScheduleColumnEveryDayUtc",
       );
     });
   });

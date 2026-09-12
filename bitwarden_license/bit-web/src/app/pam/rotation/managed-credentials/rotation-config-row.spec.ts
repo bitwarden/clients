@@ -234,7 +234,7 @@ describe("buildRotationConfigRow", () => {
         description: rotationConfigDescription({ schedulePreset: "custom" }),
       });
       expect(built.scheduleLabel).toEqual({
-        key: "pamRotationScheduleColumnEveryDay",
+        key: "pamRotationScheduleColumnEveryDayUtc",
         placeholders: ["03:00"],
         rawCron: null,
       });
