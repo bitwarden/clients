@@ -83,7 +83,7 @@ describe("DefaultSyncService", () => {
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
   let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
-  let sendsClient: { fetch: jest.Mock };
+  let sendsClient: { fetch: jest.Mock; retry_pending_deletions: jest.Mock };
 
   let sut: DefaultSyncService;
 
@@ -117,7 +117,10 @@ describe("DefaultSyncService", () => {
     configService = mock();
     sdkService = mock();
     cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
-    sendsClient = { fetch: jest.fn() };
+    sendsClient = {
+      fetch: jest.fn(),
+      retry_pending_deletions: jest.fn().mockResolvedValue(undefined),
+    };
     sdkService.userClient$.mockReturnValue(
       of({
         take: () => ({
@@ -864,6 +867,38 @@ describe("DefaultSyncService", () => {
           },
           user1,
         );
+      });
+    });
+
+    describe("retry pending send deletions", () => {
+      it("retries pending send deletions when the flag is on", async () => {
+        configService.getFeatureFlag.mockImplementation((flag) =>
+          Promise.resolve(flag === FeatureFlag.Pm30110SdkSendsApi),
+        );
+
+        await sut.fullSync(true);
+
+        expect(sendsClient.retry_pending_deletions).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not retry pending send deletions when the flag is off", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+
+        await sut.fullSync(true);
+
+        expect(sendsClient.retry_pending_deletions).not.toHaveBeenCalled();
+      });
+
+      it("completes the sync and logs the error when retrying pending send deletions rejects", async () => {
+        configService.getFeatureFlag.mockImplementation((flag) =>
+          Promise.resolve(flag === FeatureFlag.Pm30110SdkSendsApi),
+        );
+        const error = new Error("still offline");
+        sendsClient.retry_pending_deletions.mockRejectedValue(error);
+
+        await expect(sut.fullSync(true)).resolves.toBe(true);
+
+        expect(logService.error).toHaveBeenCalledWith(expect.any(String), error);
       });
     });
   });
