@@ -148,11 +148,21 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Emit FetchingMembers before parallel data load begins
     this._reportProgress.next(ReportProgress.FetchingMembers);
 
+    const startedAt = performance.now();
+    const elapsedMs = () => Math.round(performance.now() - startedAt);
+    let loadedAtMs = 0;
+    let generatedAtMs = 0;
+
     return forkJoin({
       previousReport: this._report.pipe(take(1)),
       orgData: this.loadOrganizationData$(orgId),
     }).pipe(
       switchMap(({ previousReport, orgData }) => {
+        loadedAtMs = elapsedMs();
+        this.logService.debug(
+          `[Cipher Health Perf] load org data done: ${loadedAtMs}ms (ciphers=${orgData.ciphers.length})`,
+        );
+
         const previousApps = previousReport?.applications ?? [];
         // Transform API users to members, collection access, group memberships
         const { members, collectionAccess, groupMemberships } = this.transformOrganizationUserData(
@@ -186,6 +196,11 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           .pipe(
             // Store ciphers for icon display and emit GeneratingReport after generation completes
             tap(() => {
+              generatedAtMs = elapsedMs();
+              this.logService.debug(
+                `[Cipher Health Perf] generate report done: ${generatedAtMs - loadedAtMs}ms (elapsed ${generatedAtMs}ms)`,
+              );
+
               this._ciphers.next(orgData.ciphers);
               this._reportProgress.next(ReportProgress.GeneratingReport);
             }),
@@ -200,11 +215,18 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
                   generatedReport.contentEncryptionKey = contentEncryptionKey;
                   return generatedReport;
                 }),
+                tap(() =>
+                  this.logService.debug(
+                    `[Cipher Health Perf] save report done: ${elapsedMs() - generatedAtMs}ms (elapsed ${elapsedMs()}ms)`,
+                  ),
+                ),
               );
             }),
           );
       }),
       tap((savedReport) => {
+        this.logService.debug(`[Cipher Health Perf] TOTAL report generation: ${elapsedMs()}ms`);
+
         this._report.next(savedReport);
         this._reportProgress.next(ReportProgress.Complete);
         this._loading.next(false);
@@ -215,6 +237,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
       }),
       map(() => undefined as void),
       catchError((error: unknown) => {
+        this.logService.debug(`[Cipher Health Perf] FAILED after ${elapsedMs()}ms`);
         this.logService.error(
           "[DefaultAccessIntelligenceDataService] Report generation failed",
           error,
