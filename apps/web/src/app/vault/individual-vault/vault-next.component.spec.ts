@@ -1,3 +1,9 @@
+// jest.mock is hoisted before imports, allowing openCollectionDialog to be intercepted.
+jest.mock("../../admin-console/organizations/shared/components/collection-dialog", () => ({
+  ...jest.requireActual("../../admin-console/organizations/shared/components/collection-dialog"),
+  openCollectionDialog: jest.fn(),
+}));
+
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
@@ -7,7 +13,10 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionDetailsResponse,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,6 +30,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
   CipherRowMenuHandlers,
@@ -38,6 +48,11 @@ import {
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
+import {
+  CollectionDialogAction,
+  CollectionDialogResult,
+  openCollectionDialog,
+} from "../../admin-console/organizations/shared/components/collection-dialog";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
 import { VaultNextComponent } from "./vault-next.component";
@@ -57,7 +72,9 @@ describe("VaultNextComponent", () => {
   let itemActions: MockProxy<WebVaultItemActionsService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let collectionService: MockProxy<CollectionService>;
   let addItemDialogOpen: jest.SpyInstance;
+  let addEditFolderDialogOpen: jest.SpyInstance;
 
   let ciphers$: Subject<CipherView[] | null>;
   let folders$: BehaviorSubject<FolderView[]>;
@@ -92,7 +109,18 @@ describe("VaultNextComponent", () => {
       name: id,
     });
 
-  const buildOrganization = (id: OrganizationId, name: string) => ({ id, name }) as Organization;
+  const buildOrganization = (
+    id: OrganizationId,
+    name: string,
+    overrides: Partial<Organization> = {},
+  ) =>
+    ({
+      id,
+      name,
+      canCreateNewCollections: false,
+      isProviderUser: false,
+      ...overrides,
+    }) as Organization;
 
   const personalNavItem: VaultNavItemViewModel = {
     id: userId,
@@ -186,12 +214,15 @@ describe("VaultNextComponent", () => {
     const folderService = mock<FolderService>();
     folderService.folderViews$.mockReturnValue(folders$);
 
-    const collectionService = mock<CollectionService>();
+    collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(collections$);
 
     // Needed only by the projected toolbar button's i18n pipe.
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
+    // Used by `Utils.getSortFunction` to sort `addCollection`'s eligible organizations — the mock
+    // otherwise deep-mocks this into a truthy object whose `compare` isn't callable.
+    i18nService.collator = undefined;
 
     const organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(organizations$);
@@ -205,9 +236,24 @@ describe("VaultNextComponent", () => {
       value: showQuickCopyActions$,
     });
 
+    // `jest.spyOn` returns the existing mock (rather than a fresh one) once a static method is
+    // already spied, so its call history survives across tests unless cleared explicitly here.
     addItemDialogOpen = jest
       .spyOn(AddItemDialogComponent, "open")
+      .mockClear()
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+
+    addEditFolderDialogOpen = jest
+      .spyOn(AddEditFolderDialogComponent, "open")
+      .mockClear()
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+
+    // Same reasoning as above: the `jest.mock` factory creates `openCollectionDialog`'s jest.fn()
+    // once for the whole file, so it needs an explicit reset each test too.
+    jest
+      .mocked(openCollectionDialog)
+      .mockReset()
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<CollectionDialogResult>);
 
     await TestBed.configureTestingModule({
       imports: [VaultNextComponent],
@@ -745,7 +791,7 @@ describe("VaultNextComponent", () => {
         closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
       } as unknown as DialogRef<never>);
 
-      await component().openAddItemDialog();
+      await component().openAddItemDialog("toolbar");
 
       expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
         organizationId: undefined,
@@ -754,7 +800,7 @@ describe("VaultNextComponent", () => {
     });
 
     it("does nothing if the picker dialog is dismissed without a selection", async () => {
-      await component().openAddItemDialog();
+      await component().openAddItemDialog("toolbar");
 
       expect(itemActions.add).not.toHaveBeenCalled();
     });
@@ -776,7 +822,7 @@ describe("VaultNextComponent", () => {
         closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
       } as unknown as DialogRef<never>);
 
-      await component().openAddItemDialog();
+      await component().openAddItemDialog("toolbar");
 
       expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
         organizationId,
@@ -795,6 +841,223 @@ describe("VaultNextComponent", () => {
         organizationId: undefined,
         collectionId: undefined,
       });
+    });
+
+    it("only offers cipher creation when the picker opens from the empty state", async () => {
+      await component().openAddItemDialog("empty");
+
+      expect(addItemDialogOpen.mock.calls.at(-1)![1]).toEqual({
+        canCreateCipher: true,
+        canCreateSshKey: true,
+        canCreateFolder: false,
+        canCreateCollection: false,
+      });
+    });
+
+    it("also offers folder and shared folder creation when the picker opens from the toolbar", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      fixture.detectChanges();
+
+      await component().openAddItemDialog("toolbar");
+
+      expect(addItemDialogOpen.mock.calls.at(-1)![1]).toEqual({
+        canCreateCipher: true,
+        canCreateSshKey: true,
+        canCreateFolder: true,
+        canCreateCollection: true,
+      });
+    });
+
+    it("opens the add/edit folder dialog when Folder is picked from the picker dialog", async () => {
+      addItemDialogOpen.mockReturnValue({
+        closed: of({ result: AddItemDialogResult.Folder }),
+      } as unknown as DialogRef<never>);
+
+      await component().openAddItemDialog("toolbar");
+
+      expect(addEditFolderDialogOpen).toHaveBeenCalled();
+    });
+
+    it("opens the collection dialog when Shared folder is picked from the picker dialog", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      addItemDialogOpen.mockReturnValue({
+        closed: of({ result: AddItemDialogResult.Collection }),
+      } as unknown as DialogRef<never>);
+
+      await component().openAddItemDialog("toolbar");
+
+      expect(openCollectionDialog).toHaveBeenCalled();
+    });
+  });
+
+  describe("canCreateCollections", () => {
+    it("is false when there are no organizations", () => {
+      expect(component().canCreateCollections()).toBeFalsy();
+    });
+
+    it("is false when no organization allows creating collections", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: false }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is true when an organization allows creating collections", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component().canCreateCollections()).toBe(true);
+    });
+
+    it("is false when the only organization allowing collection creation is a provider user", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", {
+          canCreateNewCollections: true,
+          isProviderUser: true,
+        }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is true for an organization vault scoped to an eligible organization", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(organizationId);
+
+      expect(component().canCreateCollections()).toBe(true);
+    });
+
+    it("is false for the personal vault even when an organization is eligible", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is false for trash even when an organization is eligible", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(TRASH_ROUTE);
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is false for the archive even when an organization is eligible", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(ARCHIVE_ROUTE);
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+  });
+
+  describe("addFolder", () => {
+    it("opens the add/edit folder dialog", () => {
+      component().addFolder();
+
+      expect(addEditFolderDialogOpen).toHaveBeenCalled();
+    });
+  });
+
+  describe("addCollection", () => {
+    it("does nothing when no organization allows creating collections", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: false }),
+      ]);
+      fixture.detectChanges();
+
+      await component().addCollection();
+
+      expect(openCollectionDialog).not.toHaveBeenCalled();
+    });
+
+    it("defaults the organization to the scoped organization when it can create collections", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+        buildOrganization(otherOrganizationId, "Smith family", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(otherOrganizationId);
+
+      await component().addCollection();
+
+      expect(jest.mocked(openCollectionDialog).mock.calls.at(-1)![1].data).toMatchObject({
+        organizationId: otherOrganizationId,
+      });
+    });
+
+    it("falls back to the first eligible organization when the scoped organization can't create collections", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+        buildOrganization(otherOrganizationId, "Smith family", { canCreateNewCollections: false }),
+      ]);
+      scopeTo(otherOrganizationId);
+
+      await component().addCollection();
+
+      expect(jest.mocked(openCollectionDialog).mock.calls.at(-1)![1].data).toMatchObject({
+        organizationId,
+      });
+    });
+
+    it("passes the scoped shared folder as the parent collection", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(organizationId, engineeringId);
+
+      await component().addCollection();
+
+      expect(jest.mocked(openCollectionDialog).mock.calls.at(-1)![1].data).toMatchObject({
+        parentCollectionId: engineeringId,
+      });
+    });
+
+    it("upserts the saved collection into CollectionService", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      fixture.detectChanges();
+      const savedCollection = {
+        id: "new-collection-id",
+        organizationId,
+        name: "Engineering",
+      } as CollectionDetailsResponse;
+      jest.mocked(openCollectionDialog).mockReturnValue({
+        closed: of({ action: CollectionDialogAction.Saved, collection: savedCollection }),
+      } as unknown as DialogRef<CollectionDialogResult>);
+
+      await component().addCollection();
+
+      expect(collectionService.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "new-collection-id", organizationId, name: "Engineering" }),
+        userId,
+      );
+    });
+
+    it("does not upsert when the dialog is dismissed without saving", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      fixture.detectChanges();
+
+      await component().addCollection();
+
+      expect(collectionService.upsert).not.toHaveBeenCalled();
     });
   });
 });
