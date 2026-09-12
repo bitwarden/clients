@@ -191,18 +191,25 @@ export class NativeMessagingMain {
       case "darwin": {
         const nmhs = this.getDarwinNMHS();
         for (const [key, browserDirectory] of Object.entries(nmhs)) {
-          if (existsSync(browserDirectory)) {
+          if (
+            this.getDarwinDetectPaths(key, browserDirectory).some((directory) =>
+              existsSync(directory),
+            )
+          ) {
             const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
             const manifestPath = path.join(nmhsPath, "com.8bit.bitwarden.json");
 
-            let manifest: any = await this.generateChromeJson(binaryPath);
-            if (key === "Firefox" || key === "Zen") {
-              // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nmhsPath, { recursive: true });
-              manifest = await this.generateFirefoxJson(binaryPath);
-            }
+            try {
+              let manifest: any = await this.generateChromeJson(binaryPath);
+              if (key === "Firefox" || key === "Zen") {
+                await fs.mkdir(nmhsPath, { recursive: true });
+                manifest = await this.generateFirefoxJson(binaryPath);
+              }
 
-            await this.writeManifest(manifestPath, manifest);
+              await this.writeManifest(manifestPath, manifest);
+            } catch (e) {
+              this.logService.error(`Unable to install the ${key} manifest in ${nmhsPath}: ${e}`);
+            }
           } else {
             this.logService.warning(`${key} not found, skipping.`);
           }
@@ -414,6 +421,14 @@ export class NativeMessagingMain {
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
     };
     /* eslint-enable no-useless-escape */
+  }
+
+  private getDarwinDetectPaths(browser: string, browserDirectory: string): string[] {
+    if (browser === "Firefox") {
+      return [`${this.homedir()}/Library/Application Support/Firefox/`, browserDirectory];
+    }
+
+    return [browserDirectory];
   }
 
   private getLinuxNMHS() {
