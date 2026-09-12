@@ -41,6 +41,10 @@ describe("HealthScanningComponent", () => {
     expect(fixture.nativeElement.querySelector("bit-progress-bar")).not.toBeNull();
   });
 
+  it("renders the progress bar at the 16px Figma size", () => {
+    expect(fixture.nativeElement.querySelector("bit-progress-bar[size='md']")).not.toBeNull();
+  });
+
   it("advances the indicator while the scan runs", () => {
     const width = () =>
       parseFloat(fixture.nativeElement.querySelector('[role="progressbar"]').style.width) || 0;
