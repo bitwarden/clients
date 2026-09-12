@@ -416,6 +416,47 @@ describe("SettingsDialogComponent", () => {
         return [textContent];
       }
     });
+
+    describe("linux desktop", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.LinuxDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsDialogComponent);
+        component = fixture.componentInstance;
+      });
+
+      afterEach(() => {
+        platformUtilsService.getDevice.mockReset();
+      });
+
+      it("displays require MP on app restart checkbox when the user has a master password", async () => {
+        userVerificationService.hasMasterPassword.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(
+          fixture.debugElement.query(
+            By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+          ),
+        ).not.toBeNull();
+      });
+
+      it("does not display require MP/PIN on app restart checkbox without a master password or PIN", async () => {
+        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(
+          fixture.debugElement.query(
+            By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+          ),
+        ).toBeNull();
+      });
+    });
   });
 
   describe("updatePinHandler", () => {
@@ -612,6 +653,55 @@ describe("SettingsDialogComponent", () => {
             expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
           },
         );
+      });
+
+      describe("on linux", () => {
+        beforeEach(() => {
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
+        });
+
+        const setUpUserWithoutMasterPassword = async () => {
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await component.ngOnInit();
+          (component as any).isWindows = false;
+          (component as any).isLinux = true;
+          (component as any).form.value.requireMasterPasswordOnAppRestart = true;
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).supportsBiometric.set(true);
+          (component as any).form.value.biometric = true;
+        };
+
+        it("enrolls a persistent key once the user accepts the security warning", async () => {
+          dialogService.openSimpleDialog.mockResolvedValue(true);
+          await setUpUserWithoutMasterPassword();
+
+          await (component as any).updatePinHandler(false);
+
+          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+            title: { key: "warningCapitalized" },
+            content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
+            type: "warning",
+          });
+          expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
+          expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
+        });
+
+        it("still removes the PIN when the user declines the security warning", async () => {
+          dialogService.openSimpleDialog.mockResolvedValue(false);
+          await setUpUserWithoutMasterPassword();
+
+          await (component as any).updatePinHandler(false);
+
+          expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+          // The PIN removal the user asked for still happens; they simply have to log in
+          // again after an app restart.
+          expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
+        });
       });
     });
   });
@@ -852,6 +942,73 @@ describe("SettingsDialogComponent", () => {
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
+      describe("linux test cases", () => {
+        beforeEach(() => {
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
+          (component as any).isWindows = false;
+          (component as any).isLinux = true;
+
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+        });
+
+        it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart once the security warning is accepted", async () => {
+          dialogService.openSimpleDialog.mockResolvedValue(true);
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).userHasPinSet.set(false);
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+            title: { key: "warningCapitalized" },
+            content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
+            type: "warning",
+          });
+          expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            false,
+          );
+        });
+
+        it("when the user doesn't have a master password or a PIN set, does not persist the key if the security warning is declined", async () => {
+          dialogService.openSimpleDialog.mockResolvedValue(false);
+          (component as any).userHasMasterPassword.set(false);
+          (component as any).userHasPinSet.set(false);
+          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+          // Biometrics still unlock the vault while the app is running; only unlocking after
+          // an app restart stays unavailable.
+          expect((component as any).form.controls.biometric.value).toBe(true);
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            true,
+          );
+        });
+
+        it("when the user has a master password, requires it on app restart by default", async () => {
+          (component as any).userHasMasterPassword.set(true);
+          (component as any).userHasPinSet.set(false);
+
+          await (component as any).updateBiometricHandler(true);
+
+          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+            true,
+          );
+        });
+      });
+
       it.each([
         BiometricsStatus.UnlockNeeded,
         BiometricsStatus.HardwareUnavailable,
@@ -952,6 +1109,44 @@ describe("SettingsDialogComponent", () => {
         expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
           false,
         );
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when updating to false on linux", () => {
+      beforeEach(() => {
+        (component as any).isLinux = true;
+      });
+
+      it("enrolls a persistent key once the user accepts the security warning", async () => {
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+          title: { key: "warningCapitalized" },
+          content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
+          type: "warning",
+        });
+        expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+          false,
+        );
+      });
+
+      it("keeps the setting enabled when the user declines the security warning", async () => {
+        dialogService.openSimpleDialog.mockResolvedValue(false);
+
+        await component.ngOnInit();
+        await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+        expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+        expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(true);
       });
     });
   });

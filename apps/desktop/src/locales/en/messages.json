@@ -2795,6 +2795,9 @@
   "requireMasterPasswordOnAppRestart": {
     "message": "Require master password on app restart"
   },
+  "allowSystemAuthOnAppRestartWarningDesc": {
+    "message": "When master password or PIN is not required on app restart, any application on your computer may unlock Bitwarden."
+  },
   "deleteAccount": {
     "message": "Delete account"
   },

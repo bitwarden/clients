@@ -418,9 +418,9 @@ export class SettingsDialogComponent implements OnInit {
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      // On Windows if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
+      // On Windows and Linux if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
       if (
-        this.isWindows &&
+        (this.isWindows || this.isLinux) &&
         this.supportsBiometric() &&
         this.form.value.requireMasterPasswordOnAppRestart &&
         this.form.value.biometric &&
@@ -477,8 +477,8 @@ export class SettingsDialogComponent implements OnInit {
     }
 
     await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
-    if (this.isWindows) {
-      // Recommended settings for Windows Hello
+    if (this.isWindows || this.isLinux) {
+      // Recommended settings for Windows Hello and Linux system authentication
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
@@ -489,10 +489,6 @@ export class SettingsDialogComponent implements OnInit {
       } else {
         this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
       }
-    } else if (this.isLinux) {
-      // Similar to Windows
-      this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
@@ -523,20 +519,42 @@ export class SettingsDialogComponent implements OnInit {
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
       await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
-    } else {
-      // Allow biometric unlock on app restart
-      await this.enrollPersistentBiometricIfNeeded(userId);
+    } else if (!(await this.enrollPersistentBiometricIfNeeded(userId))) {
+      // Nothing was persisted, so a master password or PIN is still required on app restart.
+      this.form.controls.requireMasterPasswordOnAppRestart.setValue(true, { emitEvent: false });
     }
   }
 
-  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
-    if (!(await this.biometricsService.hasPersistentKey(userId))) {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      await this.biometricsService.enrollPersistent(userId, userKey);
-      this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
-        emitEvent: false,
-      });
+  /**
+   * Persists the user key so biometrics alone can unlock the vault after an app restart.
+   *
+   * On Linux the persisted key is protected only by the OS Secret Service, which any
+   * un-sandboxed process running as the user can read, so this asks for informed consent
+   * first. Returns false when the user declines and nothing was persisted.
+   */
+  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<boolean> {
+    if (await this.biometricsService.hasPersistentKey(userId)) {
+      return true;
     }
+
+    if (this.isLinux && !(await this.confirmSystemAuthOnAppRestart())) {
+      return false;
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    await this.biometricsService.enrollPersistent(userId, userKey);
+    this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
+      emitEvent: false,
+    });
+    return true;
+  }
+
+  private async confirmSystemAuthOnAppRestart(): Promise<boolean> {
+    return await this.dialogService.openSimpleDialog({
+      title: { key: "warningCapitalized" },
+      content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
+      type: "warning",
+    });
   }
 
   protected async updateAutoPromptBiometrics() {
