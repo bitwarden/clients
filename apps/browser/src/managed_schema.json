@@ -13,7 +13,11 @@
         "identity": { "type": "string" },
         "icons": { "type": "string" },
         "notifications": { "type": "string" },
-        "events": { "type": "string" }
+        "events": { "type": "string" },
+        "ssoOnly": {
+          "type": "boolean",
+          "description": "When true, the login screen for this environment offers only single sign-on"
+        }
       }
     }
   }

@@ -1515,6 +1515,9 @@
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
+  "onlyAllowSingleSignOn": {
+    "message": "Only allow single sign-on"
+  },
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Your organization requires single sign-on."
   },

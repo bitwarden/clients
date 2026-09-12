@@ -111,6 +111,13 @@ export abstract class EnvironmentService {
   abstract cloudWebVaultUrl$: Observable<string>;
 
   /**
+   * Whether the self-hosted environment has opted in to offering only single sign-on on the login
+   * screen. Stored alongside the global environment state, so it is readable before login and is
+   * reset whenever the environment region changes.
+   */
+  abstract ssoOnly$: Observable<boolean>;
+
+  /**
    * Retrieve all the available regions for environment selectors.
    *
    * This currently relies on compile time provided constants, and will not change at runtime.
@@ -123,6 +130,12 @@ export abstract class EnvironmentService {
    * Set the global environment.
    */
   abstract setEnvironment(region: Region, urls?: Urls): Promise<Urls>;
+
+  /**
+   * Set the self-hosted "only allow single sign-on" flag, merging it onto the current global
+   * environment state. Call after {@link setEnvironment} so the flag lands on the fresh state.
+   */
+  abstract setSsoOnly(ssoOnly: boolean): Promise<void>;
 
   /**
    * Seed the environment state for a given user based on the global environment.
