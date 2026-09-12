@@ -22,8 +22,10 @@ import { RotationSdkService } from "../rotation-sdk.service";
 import {
   ORGANIZATION_ID,
   id,
+  jobId,
   rotationConfig,
   rotationConfigDetail,
+  rotationJob,
   sysId,
   targetSystem,
 } from "../testing/rotation-builders";
@@ -42,6 +44,7 @@ const PRESET_CRONS: Partial<Record<QuartzSchedulePreset, string>> = {
 
 const SAMPLE_DETAIL = rotationConfigDetail({
   config: rotationConfig({ scheduleCron: PRESET_CRONS[QuartzSchedulePreset.Daily] }),
+  jobs: [rotationJob(), rotationJob({ id: jobId("j-2") })],
 });
 
 /** An active target and a retired one, so the create picker offers exactly one of them. */
