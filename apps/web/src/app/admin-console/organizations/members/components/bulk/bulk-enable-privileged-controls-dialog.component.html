@@ -1,0 +1,49 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>{{ "activatePrivilegedControls" | i18n }}</span>
+  <span bitDialogContent>
+    <p>{{ "bulkEnablePrivilegedControlsDescription" | i18n }}</p>
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "member" | i18n }}</th>
+          <th bitCell>{{ "role" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (u of users(); track u.id) {
+          <tr bitRow>
+            <td bitCell>
+              <div class="tw-flex tw-items-center">
+                <bit-avatar
+                  [text]="u | userName"
+                  [id]="u | avatarId"
+                  [color]="u.avatarColor"
+                  class="tw-mr-3"
+                />
+                <div class="tw-flex tw-flex-col">
+                  <div>
+                    {{ u | userName }}
+                  </div>
+                  @if (u.name) {
+                    <div class="tw-text-sm tw-text-muted">
+                      {{ u.email }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>{{ u.type | userType }}</td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  </span>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" [bitAction]="submit">
+      {{ "activateAccess" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

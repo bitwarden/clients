@@ -19,7 +19,6 @@ import { InitiationPath, PlanType, ProductTierType } from "@bitwarden/common/bil
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,7 +28,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { DiscountTypes } from "@bitwarden/pricing";
 import {
   AccountBillingClient,
@@ -1069,6 +1068,24 @@ describe("OrganizationPlansComponent", () => {
 
       // Should not create organization if payment method validation fails
       expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
+    });
+
+    it("shows a localized error toast when the server rejects an unresolvable tax ID", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockRejectedValue(
+        new ErrorResponse({ Message: "billingTaxIdTypeInferenceError" }, 400),
+      );
+
+      await expect(component.submit()).resolves.not.toThrow();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "billingTaxIdTypeInferenceError",
+      });
     });
 
     it("should block submission when single org policy applies", async () => {

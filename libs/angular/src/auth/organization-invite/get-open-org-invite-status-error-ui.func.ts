@@ -1,4 +1,4 @@
-import { AccountWarning, ReportBreach, TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
+import { AccountWarning, ReportBreach, ExpiredIcon } from "@bitwarden/assets/svg";
 import { OpenOrgInviteStatusError } from "@bitwarden/common/auth/organization-invite";
 
 import { AuthRoute } from "../constants";
@@ -29,8 +29,8 @@ export function getOpenOrgInviteStatusErrorUi(
     case "not-found":
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
-          pageIcon: TwoFactorTimeoutIcon,
+          pageTitle: { key: "cannotAcceptInvitation" },
+          pageIcon: ExpiredIcon,
         },
         bodyMessageI18nKey: "openOrgInviteLinkNoLongerValid",
         button,
@@ -38,11 +38,11 @@ export function getOpenOrgInviteStatusErrorUi(
     case "plan-not-supported":
       // link-not-found and plan-not-supported share the same body-copy key: the user
       // cannot tell them apart and there's no distinct remediation. Icon still uses the
-      // default here (rather than TwoFactorTimeoutIcon) because plan-not-supported is a
+      // default here (rather than ExpiredIcon) because plan-not-supported is a
       // distinct semantic condition even if the copy overlaps.
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: AccountWarning,
         },
         bodyMessageI18nKey: "openOrgInviteLinkNoLongerValid",
@@ -51,7 +51,7 @@ export function getOpenOrgInviteStatusErrorUi(
     case "no-seats":
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: AccountWarning,
         },
         bodyMessageI18nKey: "openOrgInviteNoSeatsMessage",
@@ -60,7 +60,7 @@ export function getOpenOrgInviteStatusErrorUi(
     case "unexpected":
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: ReportBreach,
         },
         bodyMessageI18nKey: "openOrgInviteStatusUnexpectedErrorMessage",

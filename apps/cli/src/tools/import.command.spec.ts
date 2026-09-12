@@ -7,7 +7,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
+  CredentialKind,
   Importer,
+  ImportOption,
   ImportRecordError,
   ImportRecordErrorReason,
   ImportResult,
@@ -47,6 +49,18 @@ describe("ImportCommand", () => {
     collections: 0,
   });
 
+  const kdbxOption = (): ImportOption => ({
+    id: "keepasskdbx",
+    name: "KeePass (kdbx)",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["kdbx"],
+    pasteFormats: [],
+    hasDirectImporter: false,
+    loaders: [],
+    sdk: { fileTypes: ["kdbx"], credentialKind: CredentialKind.passwordWithKeyFile },
+  });
+
   beforeEach(() => {
     importService = mock<ImportServiceAbstraction>();
     organizationService = mock<OrganizationService>();
@@ -64,8 +78,9 @@ describe("ImportCommand", () => {
     );
 
     // KDBX is an SDK importer requiring a password + optional key file.
-    importService.isSdkImporter.mockImplementation((format) => format === "keepasskdbx");
-    importService.credentialKindFor.mockReturnValue("passwordWithKeyFile");
+    importService.getImportOption.mockImplementation((id) =>
+      id === "keepasskdbx" ? kdbxOption() : undefined,
+    );
     importService.sdkErrorMessageKey.mockReturnValue(undefined);
     importService.importWithSdk.mockResolvedValue(summary());
 

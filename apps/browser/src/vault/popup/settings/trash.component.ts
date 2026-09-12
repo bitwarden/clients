@@ -1,9 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EmptyTrash } from "@bitwarden/assets/svg";
-import { CalloutModule, NoItemsModule } from "@bitwarden/components";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { CalloutModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
+import { EmptyVaultComponent, VaultScope, VaultScopeType } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -22,14 +26,25 @@ import { TrashListItemsContainerComponent } from "./trash-list-items-container/t
     PopOutComponent,
     TrashListItemsContainerComponent,
     CalloutModule,
-    NoItemsModule,
+    EmptyVaultComponent,
+    StatusLockupComponent,
+    SvgComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrashComponent {
   protected readonly deletedCiphers$ = this.vaultPopupItemsService.deletedCiphers$;
 
+  /** Legacy (flag-off) empty-trash icon — see {@link vfo1Enabled}. */
   protected readonly emptyTrashIcon = EmptyTrash;
+
+  protected readonly trashScope: VaultScope = { type: VaultScopeType.Trash };
+
+  /** When enabled, the empty-trash state renders via the shared `EmptyVaultComponent`. */
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   constructor(private readonly vaultPopupItemsService: VaultPopupItemsService) {}
 }

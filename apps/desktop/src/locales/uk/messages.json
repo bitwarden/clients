@@ -2,17 +2,36 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Фільтри"
   },
   "allItems": {
     "message": "Усі записи"
   },
+  "allVaultItems": {
+    "message": "Усі записи сховища"
+  },
+  "myItemsV2": {
+    "message": "Мої записи"
+  },
+  "vaults": {
+    "message": "Сховища"
+  },
+  "tools": {
+    "message": "Інструменти"
+  },
+  "manage": {
+    "message": "Керувати"
+  },
   "favorites": {
     "message": "Обране"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Додайте записи до обраного, щоб фільтрувати їх тут."
   },
   "unfavorite": {
     "message": "Вилучити з обраного"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Спільні теки"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ спільних тек",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ спільна тека",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Моя тека"
   },
@@ -120,13 +181,16 @@
     "message": "Мої теки"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Додайте теки до записів, щоб фільтрувати їх тут."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Додайте записи до спільної теки, щоб фільтрувати їх тут."
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Додати спільну теку"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Нова спільна тека"
   },
   "searchSharedFolder": {
     "message": "Search shared folder"
@@ -144,7 +208,7 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Видалити спільну теку"
   },
   "deleteSharedFoldersCount": {
     "message": "Delete $COUNT$ shared folders",
@@ -196,7 +260,7 @@
     "message": "З поверненням"
   },
   "moveToOrgDesc": {
-    "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
+    "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Власність запису передається організації, до якої він переміщується. Ви більше не володітимете безпосередньо цим записом після переміщення."
   },
   "attachments": {
     "message": "Вкладення"
@@ -253,127 +317,127 @@
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Додати запис",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Додати картку",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Додати посвідчення",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Додати нотатку",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Додати захищену нотатку",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Додати ключ SSH",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Додати банківський рахунок",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Додати ліцензію",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Додати паспорт",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Новий запис",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Нова картка",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Нове посвідчення",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Нова нотатка",
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Нова захищена нотатка",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Новий ключ SSH",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Новий банківський рахунок",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Нова ліцензія",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Новий паспорт",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Редагування запису",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Редагування картки",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Редагування посвідчення",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Редагування нотатки",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Редагування захищеної нотатки",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Редагування запису",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Редагування картки",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Редагування посвідчення",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Редагування нотатки",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Редагування ключа SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Редагування банківського рахунка",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Редагування ліцензії",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Редагування паспорта",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -433,19 +497,19 @@
     "message": "Текст для поширення"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Новий текст",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Новий файл",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Редагування тексту",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Редагування файлу",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -453,27 +517,27 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Перегляд запису",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Перегляд картки",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Перегляд посвідчення",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Перегляд нотатки",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Створити",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "Додати збірку"
   },
   "new": {
     "message": "Новий",
@@ -492,14 +556,14 @@
     "message": "Парольна фраза"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "пробіл",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
     "message": "Редагування"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Редагувати запис - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -525,27 +589,18 @@
   "launch": {
     "message": "Перейти"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Відкрити вебсайт"
   },
   "copyValue": {
     "message": "Копіювати значення",
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Копіювати вебсайт"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Копіювати $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -594,40 +649,40 @@
     "message": "Номер паспорта"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Стать"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Копіювати стать"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Місце народження"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Копіювати місце народження"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Національність"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Копіювати національність"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "Копіювати країну випуску"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Тип паспорта"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Копіювати тип паспорта"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Копіювати національний ідентифікаційний номер"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Національний ідентифікаційний номер"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "Копіювати установу випуску"
   },
   "licenseNumber": {
     "message": "Номер ліцензії"
@@ -832,7 +887,7 @@
     "message": "Тип"
   },
   "items": {
-    "message": "Items"
+    "message": "Записи"
   },
   "firstName": {
     "message": "Ім'я"
@@ -905,10 +960,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "Програма (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "Програма (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -924,16 +979,16 @@
     "message": "Додати вебсайт"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Додати вебсайт або програму"
   },
   "app": {
-    "message": "App"
+    "message": "Програма"
   },
   "deleteWebsite": {
     "message": "Видалити вебсайт"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Видалити $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -945,7 +1000,7 @@
     "message": "Власник"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Спільна тека $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -954,7 +1009,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Збірка $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -963,7 +1018,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "Моя тека $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -972,7 +1027,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Тека $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -981,7 +1036,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Власник $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -990,7 +1045,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Сховище $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1005,7 +1060,7 @@
     "message": "Редагувати поле"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Редагувати $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1038,7 +1093,7 @@
     "message": "Використовуйте пов'язане поле у разі виникнення проблем з автозаповненням для певного вебсайту."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "Введіть HTML-ідентифікатор поля, назву, мітку або заповнювач."
   },
   "folder": {
     "message": "Тека"
@@ -1139,7 +1194,7 @@
     "message": "Видалити вкладення"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Видалити вкладення $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1148,7 +1203,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "Завантажити $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1181,6 +1236,24 @@
   "editFolder": {
     "message": "Редагування"
   },
+  "editFolderNamed": {
+    "message": "Редагувати $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Видалити $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Генерувати новий"
   },
@@ -1203,28 +1276,14 @@
   "copyVerificationCodeTotp": {
     "message": "Копіювати код підтвердження (TOTP)"
   },
-  "copyFieldCipherName": {
-    "message": "Копіювати $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Копіювати закритий ключ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Копіювати відкритий ключ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Копіювати відбиток"
   },
   "length": {
     "message": "Довжина"
@@ -1361,7 +1420,7 @@
     "message": "Файл"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Фото"
   },
   "selectFile": {
     "message": "Оберіть файл"
@@ -1378,11 +1437,41 @@
   "addedFolder": {
     "message": "Теку додано"
   },
+  "folderEdited": {
+    "message": "Теку відредаговано"
+  },
+  "enterAName": {
+    "message": "Введіть назву."
+  },
   "deleteFolderConfirmation": {
     "message": "Ви дійсно хочете видалити цю теку?"
   },
   "deletedFolder": {
     "message": "Теку видалено"
+  },
+  "foldersDeleted": {
+    "message": "Теки видалено"
+  },
+  "deleteFoldersCount": {
+    "message": "Delete $COUNT$ folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
   },
   "loginOrCreateNewAccount": {
     "message": "Для доступу до сховища увійдіть в обліковий запис, або створіть новий."
@@ -1403,7 +1492,7 @@
     "message": "Увійти"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in to Bitwarden"
+    "message": "Увійти в Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Введіть код, надісланий вам електронною поштою"
@@ -1570,7 +1659,7 @@
     "message": "Немає записів."
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "Значення не введено",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
@@ -1735,7 +1824,7 @@
     "message": "URL-адреса сервера піктограм"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL-адреса сервера відправлень"
   },
   "environmentSaved": {
     "message": "URL-адреси середовища збережено"
@@ -1768,25 +1857,25 @@
     "message": "Нові рекомендовані налаштування шифрування покращать безпеку вашого облікового запису. Щоб оновити їх, введіть свій головний пароль."
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Також оновити ключ шифрування мого облікового запису"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Наслідки оновлення ключа шифрування"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "У вашому сховищі є старі вкладені файли, які необхідно виправити перед тим, як оновлювати ключ шифрування облікового запису."
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Оновити ключ шифрування"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Ви справді хочете оновити ключ шифрування облікового запису?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте. Збій під час виходу й повторного входу (коли завантажується ваш новий ключ шифрування) може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутись із затримкою."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Будь-які збережені експорти, обмежені обліковим записом, стануть недійсними."
   },
   "confirmIdentityToContinue": {
     "message": "Щоб продовжити, підтвердьте свої облікові дані"
@@ -1873,7 +1962,7 @@
     "message": "Змінити головний пароль"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Змінити головний пароль"
   },
   "continueToWebApp": {
     "message": "Продовжити у вебпрограмі?"
@@ -2025,20 +2114,10 @@
     "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+    "message": "Показати дії швидкого копіювання у сховищі"
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Немає даних для копіювання"
   },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
@@ -2151,16 +2230,6 @@
   "noSecurityCode": {
     "message": "No security code"
   },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Копіювати ім'я користувача"
   },
@@ -2179,9 +2248,6 @@
     "message": "Копіювати код безпеки",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "номер картки"
-  },
   "premiumMembership": {
     "message": "Передплата Premium"
   },
@@ -2191,62 +2257,14 @@
   "premiumManageAlert": {
     "message": "Ви можете керувати передплатою у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
-  "premiumRefresh": {
-    "message": "Оновити стан передплати"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Зараз у вас немає передплати Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Передплатіть Premium і отримайте:"
-  },
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ зашифрованого сховища для вкладених файлів.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
-  },
-  "premiumSignUpTotp": {
-    "message": "Генератор кодів підтвердження TOTP (2FA) для записів у вашому сховищі."
-  },
-  "premiumSignUpSupport": {
-    "message": "Пріоритетну технічну підтримку."
-  },
-  "premiumSignUpFuture": {
-    "message": "Усі майбутні функції Premium. Їх буде більше!"
   },
   "premiumPurchase": {
     "message": "Придбати Premium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Ви можете придбати Premium у налаштуваннях облікового запису вебпрограми Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Ви користуєтеся передплатою Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Дякуємо за підтримку Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Лише $PRICE$ / рік!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "місяць"
@@ -2335,7 +2353,7 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Рядків на сторінці"
   },
   "rowsPerPageOption": {
     "message": "$COUNT$ rows per page",
@@ -2359,7 +2377,7 @@
     "message": "All"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Очистити все"
   },
   "done": {
     "message": "Виконано"
@@ -2377,10 +2395,10 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Попередня сторінка"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Наступна сторінка"
   },
   "goToPage": {
     "message": "Go to page"
@@ -2397,6 +2415,42 @@
   "noMatchingItems": {
     "message": "No matching items"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "selected": {
     "message": "Selected"
   },
@@ -2405,10 +2459,10 @@
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Масові дії"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "Вибрані записи: $COUNT$. Панель масових дій тепер доступна в нижній частині екрану. Натисніть $SHORTCUTBINDING$, щоб перемкнути фокус на панель масових дій.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2421,10 +2475,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Вибір очищено"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Додаткові дії"
   },
   "zoomIn": {
     "message": "Збільшити"
@@ -2544,10 +2598,10 @@
     "description": "Default URI match detection for auto-fill."
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Показати виявлення збігів"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Приховати виявлення збігів"
   },
   "toggleOptions": {
     "message": "Перемкнути налаштування"
@@ -2563,7 +2617,7 @@
     "message": "Вийти"
   },
   "show": {
-    "message": "Show",
+    "message": "Показати",
     "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
@@ -2638,7 +2692,7 @@
     "message": "Політика принаймні однієї організації не дозволяє вам імпортувати записи карток до сховища."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
   "warning": {
     "message": "ПОПЕРЕДЖЕННЯ",
@@ -2648,7 +2702,7 @@
     "message": "Підтвердити експорт сховища"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Ваші експортовані дані сховища незашифровані. Не зберігайте і не надсилайте їх незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть їх."
   },
   "encExportKeyWarningDesc": {
     "message": "Цей експорт шифрує ваші дані за допомогою ключа шифрування облікового запису. Якщо ви коли-небудь оновите ключ шифрування облікового запису, необхідно виконати експорт знову, оскільки не зможете розшифрувати цей файл експорту."
@@ -2677,14 +2731,14 @@
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
   },
   "weak": {
-    "message": "Слабкий",
+    "message": "Ненадійний",
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
-    "message": "Слабкий головний пароль"
+    "message": "Ненадійний головний пароль"
   },
   "weakMasterPasswordDesc": {
-    "message": "Обраний вами головний пароль є слабким. Для належного захисту свого облікового запису Bitwarden, вам слід використовувати надійний головний пароль (або парольну фразу). Ви впевнені, що хочете використати цей пароль?"
+    "message": "Ваш головний пароль ненадійний. Для належного захисту свого облікового запису Bitwarden використовуйте надійний головний пароль (або парольну фразу). Ви дійсно хочете використати цей пароль?"
   },
   "pin": {
     "message": "PIN-код",
@@ -2800,10 +2854,10 @@
     "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
   },
   "installLater": {
-    "message": "Install later"
+    "message": "Встановити пізніше"
   },
   "continueWithInstall": {
-    "message": "Continue with install"
+    "message": "Продовжити встановлення"
   },
   "clone": {
     "message": "Клонувати"
@@ -2862,37 +2916,37 @@
     "message": "Архівований запис відновлено"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Архівовані записи відновлено"
   },
   "restoredItem": {
     "message": "Запис відновлено"
   },
   "restoredItems": {
-    "message": "Items restored"
+    "message": "Записи відновлено"
   },
   "permanentlyDelete": {
     "message": "Остаточно видалити"
   },
   "permanentlyDeletedItems": {
-    "message": "Items permanently deleted"
+    "message": "Записи остаточно видалено"
   },
   "deletedItems": {
-    "message": "Items sent to trash"
+    "message": "Записи переміщено до смітника"
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "Збірки видалено"
   },
   "collectionDeleted": {
-    "message": "Collection deleted"
+    "message": "Збірку видалено"
   },
   "collectionsDeleted": {
-    "message": "Collections deleted"
+    "message": "Збірки видалено"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Запис переміщено"
   },
   "movedItems": {
-    "message": "Items moved"
+    "message": "Записи переміщено"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме автентифікацію після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
@@ -2942,7 +2996,7 @@
     "message": "Скопіюйте ключ автентифікації (TOTP)"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Копіювати нотатки"
   },
   "totpHelperTitle": {
     "message": "Спростіть двоетапну перевірку"
@@ -3034,10 +3088,10 @@
     "message": "Ваш новий головний пароль не задовольняє вимоги політики."
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Одна або декілька політик організації вимагають дотримання таких вимог для головного пароля:"
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "Отримувати оновлення від Bitwarden електронною поштою."
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -3106,7 +3160,7 @@
     "message": "Новий пароль повинен відрізнятися від поточного."
   },
   "hint": {
-    "message": "Hint"
+    "message": "Підказка"
   },
   "hintEqualsPassword": {
     "message": "Підказка повинна відрізнятися від пароля."
@@ -3230,7 +3284,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Створити відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3311,7 +3365,7 @@
     "message": "Очікується взаємодія з ключем безпеки..."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Приховати мою адресу е-пошти від отримувачів."
   },
   "sendOptionsPolicyInEffect": {
     "message": "На параметри відправлень впливають одна чи декілька політик організації."
@@ -3347,7 +3401,7 @@
     "message": "Ваш головний пароль нещодавно був змінений адміністратором організації. Щоб отримати доступ до сховища, вам необхідно оновити його зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+    "message": "Ваш головний пароль не відповідає щонайменше одній політиці вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "changePasswordWarning": {
     "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
@@ -3550,10 +3604,10 @@
     "message": "Налаштування"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Інші варіанти"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Параметри для $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3616,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Немає спільної теки"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Фільтрувати за $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3583,10 +3637,10 @@
     "message": "Експортування сховища організації"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "Експортуються лише записи вашого індивідуального сховища."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "Експортуються лише записи, пов'язані зі сховищем $ORGANIZATION$. Записи індивідуальних сховищ не включаються.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3787,7 +3841,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Недійсний токен API для $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3797,7 +3851,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3811,7 +3865,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3821,7 +3875,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3885,11 +3939,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Додати префікс вебсайту",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Використання домену поточного вебсайту як префіксу для згенерованої адреси електронної пошти",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -3903,7 +3957,7 @@
     "message": "Ключ API"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Необхідна передплата Premium"
   },
   "organizationIsDisabled": {
     "message": "Організацію призупинено"
@@ -4114,10 +4168,10 @@
     "message": "Пароль знайдено у витоку даних. Використовуйте унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати викритий пароль?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Слабкий і викритий головний пароль"
+    "message": "Ненадійний і викритий головний пароль"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
+    "message": "Виявлено ненадійний пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
   },
   "checkForBreaches": {
     "message": "Перевірити відомі витоки даних для цього пароля"
@@ -4226,37 +4280,37 @@
     "message": "Довірений пристрій"
   },
   "device": {
-    "message": "Device"
+    "message": "Пристрій"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Пристрої"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Що таке пристрій?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Пристрій – це унікальне встановлення програми Bitwarden, де ви увійшли в систему. Перевстановлення, очищення даних програми або очищення файлів cookie може призвести до того, що пристрій з'являтиметься кілька разів."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "Вхід у ваш обліковий запис виконано на пристроях, зазначених нижче."
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Стан входу в систему"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Нещодавно активний"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Сьогодні"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Минулі 7 днів"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Минулі 14 днів"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Минулі 30 днів"
   },
   "recentlyActiveOver30Days": {
     "message": "Over 30 days ago"
@@ -4527,7 +4581,7 @@
     "message": "Membership"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "driverLicense": {
     "message": "Driver's license"
@@ -4536,7 +4590,7 @@
     "message": "Identity card"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Свідоцтво про народження"
   },
   "databaseCredentials": {
     "message": "Database credentials"
@@ -4545,7 +4599,7 @@
     "message": "Server credentials"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Ліцензія ПЗ"
   },
   "healthInsurance": {
     "message": "Health insurance"
@@ -4684,6 +4738,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "See detailed $NAME$ instructions in our",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Help Center"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "The process is exactly the same as importing from Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+  },
+  "importAviraInstructions": {
+    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+  },
+  "importBlurInstructions": {
+    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+  },
+  "importPadlockInstructions": {
+    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+  },
+  "importUpmInstructions": {
+    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+  },
+  "importSaferpassInstructions": {
+    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+  },
+  "importMeldiumInstructions": {
+    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+  },
+  "importPwsafeInstructions": {
+    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+  },
+  "importMsecureInstructions": {
+    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+  },
+  "importTruekeyInstructions": {
+    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+  },
+  "importClipperzInstructions": {
+    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+  },
+  "importRoboformInstructions": {
+    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+  },
+  "importPassboltInstructions": {
+    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+  },
+  "importAscendoInstructions": {
+    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+  },
+  "importZohoInstructions": {
+    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+  },
+  "importPasskeepInstructions": {
+    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script to your desktop as",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open terminal and run",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "and then",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Then upload the resulting",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "file here to Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+  },
+  "importPasspackInstructions": {
+    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+  },
+  "importFsecureInstructions": {
+    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+  },
+  "importKasperskyInstructions": {
+    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "confirmVaultImport": {
     "message": "Підтвердити імпорт сховища"
   },
@@ -4798,10 +5053,6 @@
   "browserProfile": {
     "message": "Профіль браузера"
   },
-  "seeDetailedInstructions": {
-    "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "Імпортувати безпосередньо з LastPass"
   },
@@ -4914,7 +5165,7 @@
     "message": "Are you sure you want to leave? Your admin approval request will be canceled."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Скасувати запит"
   },
   "keeperMFARequired": {
     "message": "Необхідно пройти двофакторну автентифікацію Keeper"
@@ -5050,7 +5301,7 @@
     "message": "Download then share the diagnostic report with"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Підтримка Bitwarden",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
@@ -5267,10 +5518,17 @@
     "message": "Змінити адресу е-пошти"
   },
   "passkeyLogin": {
-    "message": "Увійти з ключем доступу?"
+    "message": "Увійти з ключем доступу?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "Зберегти ключ доступ?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "Зберегти як новий запис"
@@ -5282,7 +5540,11 @@
     "message": "Немає відповідних записів для цього сайту"
   },
   "overwritePasskey": {
-    "message": "Перезаписати ключ доступу?"
+    "message": "Перезаписати ключ доступу?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "Не вдалося зберегти ключ доступу"
@@ -5676,6 +5938,15 @@
   "showMore": {
     "message": "Розгорнути"
   },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Згорнути"
   },
@@ -6029,11 +6300,80 @@
   "noItemsInTrashDesc": {
     "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "У сховищі немає записів"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "У вас немає обраних записів"
@@ -6046,6 +6386,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Скиньте фільтри або спробуйте іншу умову пошуку"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "sendPasswordHelperText": {
     "message": "Користувачі мають ввести пароль для перегляду цього відправлення",
@@ -6105,13 +6451,13 @@
     "message": "More"
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Введіть місяць."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Введіть день."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Введіть рік."
   },
   "sendTypes": {
     "message": "Send types",
@@ -6161,7 +6507,7 @@
     "message": "Branch/institution number"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT-код"
   },
   "iban": {
     "message": "IBAN"
@@ -6258,10 +6604,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Перегляд тексту"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Перегляд файлу"
   },
   "sendCreated": {
     "message": "Send created",
@@ -6320,16 +6666,16 @@
     "message": "License details"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Дата народження"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "Місяць народження"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "День народження"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "Рік народження"
   },
   "issuingCountry": {
     "message": "Issuing country"
@@ -6371,7 +6717,7 @@
     }
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Додати до теки"
   },
   "deleteCollection": {
     "message": "Delete collection"
@@ -6395,7 +6741,7 @@
     "message": "Items cannot have multiple attachments with the same file name"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Нове сповіщення",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -6403,5 +6749,104 @@
         "example": "Login"
       }
     }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

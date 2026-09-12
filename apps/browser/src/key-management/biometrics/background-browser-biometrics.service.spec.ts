@@ -29,10 +29,10 @@ describe("background browser biometrics service tests", function () {
       () => nativeMessagingBackground,
       () => mockConfigService,
       logService,
-      keyService,
+      () => keyService,
       biometricStateService,
       messagingService,
-      vaultTimeoutSettingsService,
+      () => vaultTimeoutSettingsService,
       () => null as any,
     );
   });

@@ -6,10 +6,11 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -20,8 +21,6 @@ import { SdkLoadService } from "../../platform/abstractions/sdk/sdk-load.service
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 

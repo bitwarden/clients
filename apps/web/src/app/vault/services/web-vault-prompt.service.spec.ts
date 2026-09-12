@@ -16,7 +16,8 @@ import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
-  MultiStepPolicyEditDialogComponent,
+  AutoConfirmPolicy,
+  MultiStepPolicyEditModalComponent,
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
@@ -149,7 +150,7 @@ describe("WebVaultPromptService", () => {
       } as unknown as DialogRef<PolicyEditDialogResult>;
 
       const openSpy = jest
-        .spyOn(MultiStepPolicyEditDialogComponent, "open")
+        .spyOn(MultiStepPolicyEditModalComponent, "open")
         .mockReturnValue(dialogRefMock);
 
       void service.conditionallyPromptUser();
@@ -164,6 +165,7 @@ describe("WebVaultPromptService", () => {
       });
 
       const passedPolicy = openSpy.mock.calls[0][1].data.policy;
+      expect(passedPolicy).toBeInstanceOf(AutoConfirmPolicy);
       expect(passedPolicy.firstTimeDialog).toBe(true);
 
       dialogClosedSubject.next(null);
@@ -185,7 +187,7 @@ describe("WebVaultPromptService", () => {
       } as Organization;
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -205,7 +207,7 @@ describe("WebVaultPromptService", () => {
       } as Organization;
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -221,7 +223,7 @@ describe("WebVaultPromptService", () => {
       policies$.mockReturnValueOnce(of([]));
       organizations$.mockReturnValueOnce(of([]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -243,7 +245,7 @@ describe("WebVaultPromptService", () => {
 
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 

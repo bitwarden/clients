@@ -35,8 +35,14 @@
           </bit-item>
         }
       </bit-item-group>
+    } @else if (vfo1Enabled()) {
+      <bit-status-lockup class="tw-h-full tw-flex tw-items-center">
+        <ng-container slot="title">{{ "youHaveNoFolders" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "emptyFoldersDescription" | i18n }}</ng-container>
+      </bit-status-lockup>
     } @else {
-      <bit-no-items [icon]="NoFoldersIcon" class="tw-h-full tw-flex tw-items-center">
+      <bit-status-lockup class="tw-h-full tw-flex tw-items-center">
+        <bit-svg slot="graphic" [content]="NoFoldersIcon"></bit-svg>
         <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
         <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
         <button
@@ -50,7 +56,7 @@
         >
           {{ "newFolder" | i18n }}
         </button>
-      </bit-no-items>
+      </bit-status-lockup>
     }
   }
 </popup-page>

@@ -4,6 +4,7 @@ import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../../vault/models/data/folder.data";
 import { Folder } from "../../../vault/models/domain/folder";
+import { FolderBulkDeleteRequest } from "../../../vault/models/request/folder-bulk-delete.request";
 import { FolderRequest } from "../../../vault/models/request/folder.request";
 import { FolderResponse } from "../../../vault/models/response/folder.response";
 
@@ -32,6 +33,11 @@ export class FolderApiService implements FolderApiServiceAbstraction {
   async delete(id: string, userId: UserId): Promise<any> {
     await this.deleteFolder(id);
     await this.folderService.delete(id, userId);
+  }
+
+  async deleteMany(ids: string[], userId: UserId): Promise<any> {
+    await this.apiService.send("DELETE", "/folders", new FolderBulkDeleteRequest(ids), true, false);
+    await this.folderService.delete(ids, userId);
   }
 
   async deleteAll(userId: UserId): Promise<void> {

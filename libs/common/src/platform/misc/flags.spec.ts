@@ -5,8 +5,8 @@ describe("flagEnabled", () => {
     process.env.FLAGS = JSON.stringify({});
   });
 
-  it("returns true by default", () => {
-    expect(flagEnabled<any>("nonExistentFlag")).toBe(true);
+  it("returns false by default", () => {
+    expect(flagEnabled<any>("nonExistentFlag")).toBe(false);
   });
 
   it("returns true if enabled", () => {

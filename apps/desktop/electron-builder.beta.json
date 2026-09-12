@@ -15,6 +15,7 @@
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
   "beforePack": "scripts/before-pack.js",
+  "appxManifestCreated": "scripts/appx-manifest-created.js",
   "files": [
     "!node_modules/@bitwarden/desktop-napi/scripts",
     "!node_modules/@bitwarden/desktop-napi/src",
@@ -70,6 +71,7 @@
       "CFBundleDevelopmentRegion": "en"
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "icon": "icon.beta.icns",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
@@ -92,7 +94,7 @@
     "artifactName": "Bitwarden-${version}-${arch}-mac.${ext}"
   },
   "dmg": {
-    "icon": "dmg.icns",
+    "icon": "dmg.beta.icns",
     "background": "resources/background.png",
     "sign": false,
     "contents": [
@@ -116,6 +118,7 @@
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
+    "icon": "icon.beta.ico",
     "target": ["portable", "nsis-web", "appx"],
     "signExts": [".dll", ".node"],
     "signtoolOptions": {
@@ -161,7 +164,9 @@
   },
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
-    "backgroundColor": "#175DDC",
+    "backgroundColor": "#FDC700",
+    "customExtensionsPath": "../custom-appx-extensions.beta.xml",
+    "minVersion": "10.0.14393.0",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",

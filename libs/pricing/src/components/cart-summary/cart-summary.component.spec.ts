@@ -77,6 +77,8 @@ describe("CartSummaryComponent", () => {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":
@@ -212,6 +214,34 @@ describe("CartSummaryComponent", () => {
       expect(additionalSA).toContain("2 Additional machine accounts");
       expect(additionalSA).toContain("$6.00");
       expect(additionalSA).toContain("$12.00"); // 2 * $6
+    });
+
+    it("should render a secrets manager section without a seats line", () => {
+      // A preview whose SM section carries no seat line (mid-cycle SM removal) still renders
+      // its remaining lines instead of an empty, invalid seats row.
+      const cartWithoutSmSeats: Cart = {
+        ...mockCart,
+        secretsManager: {
+          additionalServiceAccounts: {
+            quantity: 2,
+            translationKey: "additionalServiceAccountsV2",
+            cost: 6,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithoutSmSeats);
+      fixture.detectChanges();
+
+      const smSection = fixture.debugElement.query(By.css('[id="secrets-manager"]'));
+      const seatsLine = fixture.debugElement.query(By.css('[id="secrets-manager-members"]'));
+      const additionalSA = fixture.debugElement.query(By.css('[id="additional-service-accounts"]'))
+        .nativeElement.textContent;
+      const total = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      expect(smSection).toBeTruthy();
+      expect(seatsLine).toBeNull();
+      expect(additionalSA).toContain("2 Additional machine accounts");
+      expect(total.nativeElement.textContent).toContain("$291.60"); // 250 + 20 + 12 + 9.6
     });
 
     it("should display correct tax and total", () => {
@@ -423,6 +453,72 @@ describe("CartSummaryComponent", () => {
       expect(discountSection).toBeFalsy();
     });
 
+    it("should not display the subtotal row when no cart-level discounts are present", () => {
+      // Arrange / Act
+      const subtotalSection = fixture.debugElement.query(
+        By.css('[data-testid="subtotal-section"]'),
+      );
+
+      // Assert
+      expect(subtotalSection).toBeFalsy();
+    });
+
+    it("should not display the subtotal row when only item-level discounts are present", () => {
+      // Arrange
+      const cartWithLineDiscount: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithLineDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const subtotalSection = fixture.debugElement.query(
+        By.css('[data-testid="subtotal-section"]'),
+      );
+
+      // Assert
+      expect(subtotalSection).toBeFalsy();
+    });
+
+    it("should display the subtotal row when a cart-level discount is present", () => {
+      // Arrange
+      const cartWithDiscount: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const subtotalSection = fixture.debugElement.query(
+        By.css('[data-testid="subtotal-section"]'),
+      );
+      const subtotalAmount = fixture.debugElement.query(By.css('[data-testid="subtotal-amount"]'));
+
+      // Assert
+      expect(subtotalSection).toBeTruthy();
+      expect(subtotalSection.nativeElement.textContent).toContain("Subtotal");
+      // Subtotal = 250 + 20 + 90 + 12 = 372 (extended prices before any discounts)
+      expect(subtotalAmount.nativeElement.textContent).toContain("$372.00");
+    });
+
     it("should display percent-off discount correctly", () => {
       // Arrange
       const cartWithDiscount: Cart = {
@@ -600,10 +696,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
       };
@@ -631,10 +729,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 0.25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 0.25,
+              },
+            ],
           },
         },
       };
@@ -663,10 +763,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.AmountOff,
-              value: 15,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.AmountOff,
+                value: 15,
+              },
+            ],
           },
         },
       };
@@ -685,6 +787,67 @@ describe("CartSummaryComponent", () => {
       expect(amount.nativeElement.textContent).toContain("-$15.00");
     });
 
+    it("should prefer a server-supplied amount over the derived value for item-level discounts", () => {
+      // Arrange — amount $30 is deliberately offset from the derived 25% of $250 = $62.50 so
+      // the assertion can only pass via the server-supplied value.
+      const cartWithAuthoritativeItemDiscount: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+                amount: 30,
+              },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithAuthoritativeItemDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const amount = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount-amount"]'),
+      );
+
+      // Assert
+      expect(amount.nativeElement.textContent).toContain("-$30.00");
+    });
+
+    it("should hide the item-level row for an authoritative amount of zero rather than deriving one", () => {
+      // Zero distinguishes `??` from `||`: under `||` this would render the derived -$62.50.
+      const cartWithZeroAmountItemDiscount: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+                amount: 0,
+              },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithZeroAmountItemDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountRow = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount"]'),
+      );
+
+      // Assert
+      expect(discountRow).toBeFalsy();
+    });
+
     it("should apply item-level discount to total calculation", () => {
       // Arrange
       const cartWithItemDiscount: Cart = {
@@ -693,10 +856,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
       };
@@ -723,10 +888,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
         discounts: [
@@ -764,6 +931,39 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
 
+    it("should indent item-level discount labels beneath the line item they apply to", () => {
+      // Arrange — a discount on every line item so all four label variants render
+      const discount = { type: DiscountTypes.PercentOff, value: 25 };
+      const cartWithDiscountsOnAllLines: Cart = {
+        ...mockCart,
+        passwordManager: {
+          seats: { ...mockCart.passwordManager.seats, discounts: [discount] },
+          additionalStorage: {
+            ...mockCart.passwordManager.additionalStorage!,
+            discounts: [discount],
+          },
+        },
+        secretsManager: {
+          seats: { ...mockCart.secretsManager!.seats, discounts: [discount] },
+          additionalServiceAccounts: {
+            ...mockCart.secretsManager!.additionalServiceAccounts!,
+            discounts: [discount],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscountsOnAllLines);
+      fixture.detectChanges();
+
+      // Act
+      const labels = fixture.debugElement.queryAll(By.css('[data-testid$="-discount-label"]'));
+
+      // Assert
+      expect(labels).toHaveLength(4);
+      for (const label of labels) {
+        expect(label.nativeElement.classList.contains("tw-pl-4")).toBe(true);
+      }
+    });
+
     it("should not display item-level discount section when no item discount is present", () => {
       // Arrange / Act
       const discountRow = fixture.debugElement.query(
@@ -772,6 +972,104 @@ describe("CartSummaryComponent", () => {
 
       // Assert
       expect(discountRow).toBeFalsy();
+    });
+
+    it("should prefer a server-supplied amount over the derived value for cart-level discounts", () => {
+      // Arrange — the shape the adapter ships: an authoritative applied amount on the discount
+      // AND an authoritative invoice total on the cart. Both are deliberately offset from the
+      // client-derived figures (amount $30 vs. the derived 10% of $372 = $37.20; total $351.55
+      // vs. the computed 372 - 30 + 9.60 = $351.60) so each assertion can only pass via the
+      // server-supplied value.
+      const cartWithAuthoritativeDiscount: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+            amount: 30,
+          },
+        ],
+        total: 351.55,
+      };
+      fixture.componentRef.setInput("cart", cartWithAuthoritativeDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const cartDiscountAmount = fixture.debugElement.query(
+        By.css('[data-testid="discount-amount"]'),
+      );
+
+      // Assert — the server amount renders, not the derived $37.20
+      expect(cartDiscountAmount.nativeElement.textContent).toContain("-$30.00");
+
+      // The authoritative total renders, not the computed $351.60
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      expect(bottomTotal.nativeElement.textContent).toContain("$351.55");
+    });
+
+    it("should hide the row for an authoritative amount of zero rather than deriving one", () => {
+      // Zero is the only value that distinguishes `??` from `||`: under `||` this discount
+      // would fall back to the derived 10% of $372 and render -$37.20.
+      const cartWithZeroAmountDiscount: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+            amount: 0,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithZeroAmountDiscount);
+      fixture.detectChanges();
+
+      const discountRow = fixture.debugElement.query(By.css('[data-testid="discount-section"]'));
+
+      expect(discountRow).toBeFalsy();
+    });
+
+    it("should render an authoritative total of zero rather than computing one", () => {
+      // A 100%-off cart: under `||` the zero total would lose to the computed 372 + 9.60.
+      const freeCart: Cart = {
+        ...mockCart,
+        total: 0,
+      };
+      fixture.componentRef.setInput("cart", freeCart);
+      fixture.detectChanges();
+
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      expect(bottomTotal.nativeElement.textContent).toContain("$0.00");
+    });
+
+    it("should cascade a derived discount against the subtotal net of a preceding authoritative amount", () => {
+      // Pins the mixed authoritative/derived case the calculateDiscountLineItems doc describes
+      // as out-of-contract but unenforced: the derived 10% is measured against 372 - 30 = 342,
+      // not the full 372 — so a contract violation degrades deterministically.
+      const mixedDiscountCart: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+            amount: 30,
+          },
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", mixedDiscountCart);
+      fixture.detectChanges();
+
+      const discountAmounts = fixture.debugElement.queryAll(
+        By.css('[data-testid="discount-amount"]'),
+      );
+
+      expect(discountAmounts).toHaveLength(2);
+      expect(discountAmounts[0].nativeElement.textContent).toContain("-$30.00");
+      expect(discountAmounts[1].nativeElement.textContent).toContain("-$34.20");
     });
   });
 
@@ -1047,6 +1345,8 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":

@@ -6,7 +6,7 @@ import { I18nMockService } from "@bitwarden/components";
 import { AtRiskGaugeComponent } from "./at-risk-gauge.component";
 
 export default {
-  title: "Browser/DIRT/At-Risk Gauge",
+  title: "Browser/DIRT/Health/At-Risk Gauge",
   component: AtRiskGaugeComponent,
   decorators: [
     moduleMetadata({

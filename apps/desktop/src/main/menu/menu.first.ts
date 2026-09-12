@@ -3,7 +3,7 @@ import { BrowserWindow, dialog, MenuItem, MenuItemConstructorOptions } from "ele
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isSnapStore, isWindowsStore } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { MenuAccount } from "./menu.updater";

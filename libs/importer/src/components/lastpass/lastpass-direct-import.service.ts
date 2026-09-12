@@ -5,7 +5,6 @@ import * as oauth from "oauth4webapi";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -13,6 +12,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { ClientInfo, Vault } from "../../importers/lastpass/access";

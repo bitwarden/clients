@@ -9,7 +9,7 @@ export class CartItemResponse extends BaseResponse implements CartItem {
   translationKey: string;
   quantity: number;
   cost: number;
-  discount?: Discount;
+  discounts?: Discount[];
 
   constructor(response: any) {
     super(response);
@@ -17,9 +17,13 @@ export class CartItemResponse extends BaseResponse implements CartItem {
     this.translationKey = this.getResponseProperty("TranslationKey");
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
+    // The legacy API sends a single discount. Wrap it in a one-element array so flag-OFF carts
+    // render under the array shape the shared template now expects. Deliberately passed through
+    // raw, exactly as before, so this introduces no new parse or throw path.
+    // TODO(PM-40422): remove with the legacy BitwardenSubscription response chain.
     const discount = this.getResponseProperty("Discount");
     if (discount) {
-      this.discount = discount;
+      this.discounts = [discount];
     }
   }
 }

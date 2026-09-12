@@ -9,7 +9,7 @@ import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { getOpenOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
+import { ExpiredIcon } from "@bitwarden/assets/svg";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
@@ -332,7 +332,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private showSealedOpenOrgInviteDecryptionFailed(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: { key: "registrationSealedOpenOrgInviteDecryptionFailedTitle" },
-      pageIcon: TwoFactorTimeoutIcon, // TODO: discuss clarity of this icon + consider renaming it
+      pageIcon: ExpiredIcon, // TODO: discuss clarity of this icon + consider renaming it
     });
     this.errorMessageI18nKey.set("registrationSealedOpenOrgInviteDecryptionFailedMessage");
     this.errorButton.set({
@@ -384,26 +384,25 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   }
 
   private async initOrgInviteFlowIfPresent(): Promise<boolean> {
-    this.masterPasswordPolicyOptions =
-      await this.registrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite();
-
-    const orgName = await this.registrationFinishService.getOrgNameFromOrgInvite();
-    if (orgName) {
-      // Org invite exists
-      // Set the page title and subtitle appropriately
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: {
-          key: "joinOrganizationName",
-          placeholders: [orgName],
-        },
-        pageSubtitle: {
-          key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-        },
-      });
-      return true;
+    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+    if (orgInvite == null) {
+      return false;
     }
 
-    return false;
+    this.masterPasswordPolicyOptions =
+      (await this.organizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)) ??
+      null;
+
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: {
+        key: "joinOrganizationName",
+        placeholders: [orgInvite.organizationName],
+      },
+      pageSubtitle: {
+        key: "finishJoiningThisOrganizationBySettingAMasterPassword",
+      },
+    });
+    return true;
   }
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {

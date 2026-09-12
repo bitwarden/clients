@@ -1,0 +1,21 @@
+<bit-breadcrumbs>
+  <bit-breadcrumb [route]="orgRootCrumbRoute()">
+    <bit-icon-tile
+      slot="start"
+      [icon]="orgTile()?.icon"
+      [variant]="orgTile()?.variant ?? 'primary'"
+      [emphasis]="orgTile()?.emphasis ?? 'subtle'"
+      aria-hidden="true"
+    />
+    {{ orgNavItem()?.label }}
+  </bit-breadcrumb>
+  @for (crumb of trailCrumbs(); track crumb.key) {
+    <bit-breadcrumb
+      [icon]="crumb.icon"
+      [route]="crumb.route"
+      [queryParamsHandling]="crumb.queryParamsHandling"
+    >
+      {{ crumb.label }}
+    </bit-breadcrumb>
+  }
+</bit-breadcrumbs>

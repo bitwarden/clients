@@ -16,6 +16,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
@@ -28,6 +29,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -81,6 +83,12 @@ export type NativeWindowObject = {
    * RP ID of the request.
    */
   rpId: string;
+
+  /**
+   * User handle for the credential. Absent for discoverable credential
+   * requests, which don't contain a userHandle.
+   */
+  userHandle?: number[];
 };
 
 /**
@@ -118,6 +126,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private desktopSettingsService: DesktopSettingsService,
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
+    private domainSettingsService: DomainSettingsService,
   ) {}
   private currentSession: any;
 
@@ -149,6 +158,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       nativeWindowObject,
       this.userVerificationService,
       this.passwordRepromptService,
+      this.domainSettingsService,
     );
 
     this.currentSession = session;
@@ -168,6 +178,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private windowObject: NativeWindowObject,
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
+    private domainSettingsService: DomainSettingsService,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -179,7 +190,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * already verifies the user, so the OS is not asked to do it a second time.
    */
   private vaultUnlockedDuringCeremony: boolean = false;
-  private rpId = new BehaviorSubject<string | null>(null);
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
@@ -189,7 +199,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     take(1),
   );
 
-  private chosenCipherSubject = new Subject<CipherView | undefined>();
+  private chosenCipherSubject = new Subject<CipherViewLike | undefined>();
 
   /**
    * Whether this ceremony took over the app window to show UI. Some ceremonies
@@ -199,42 +209,41 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private uiShown = false;
 
   // Method implementation
-  async pickCredential({
-    cipherIds,
-    userVerification,
-    assumeUserPresence,
-    masterPasswordRepromptRequired,
-  }: PickCredentialParams): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
-    this.logService.debug("pickCredential desktop function", {
-      cipherIds,
-      userVerification,
-      assumeUserPresence,
-      masterPasswordRepromptRequired,
-    });
+  async pickCredential(
+    params: PickCredentialParams,
+  ): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
+    this.logService.debug("pickCredential desktop function", params);
 
     try {
-      // Check if we can return the credential without user interaction
-      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
-        this.logService.debug(
-          "shortcut - Assuming user presence and returning cipherId",
-          cipherIds[0],
+      const abortSignal = this.abortController.signal;
+      if (abortSignal.aborted) {
+        this.logService.warning(
+          "[DesktopFido2UserInterfaceSession]",
+          "Request was cancelled before a credential was selected",
         );
-        return { cipherId: cipherIds[0], userVerified: userVerification };
+        return { cipherId: undefined, userVerified: false };
+      }
+
+      // Check if we can return the credential without user interaction
+      const response = await this.tryWithoutUserInteraction(params, {
+        signal: abortSignal,
+      });
+      if (response) {
+        return response;
       }
 
       this.logService.debug("Could not shortcut, showing UI");
 
       // make the cipherIds available to the UI.
-      this.availableCipherIdsSubject.next(cipherIds);
+      this.availableCipherIdsSubject.next(params.cipherIds);
 
       await this.showUi("/fido2-assertion", this.windowObject.windowXy, false);
 
       // TODO: Extend this to the deadline indicated by the timeout on the WebAuthn request.
       const chosenCipherTimeout = AbortSignal.timeout(60 * 1000);
       const chosenCipher = await this.waitForUiChosenCipher({
-        signal: AbortSignal.any([this.abortController.signal, chosenCipherTimeout]),
+        signal: AbortSignal.any([abortSignal, chosenCipherTimeout]),
       });
-
       this.logService.debug("Received chosen cipher", chosenCipher?.id);
 
       if (!chosenCipher) {
@@ -245,12 +254,12 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       const userVerified = await this.verifyUser(
         "assertion",
         username,
-        userVerification,
+        params.userVerification,
         chosenCipher,
-        { signal: this.abortController.signal },
+        { signal: abortSignal },
       );
 
-      return { cipherId: chosenCipher.id, userVerified };
+      return { cipherId: chosenCipher.id?.toString(), userVerified };
     } catch (error) {
       throw this.mapUserVerificationCancellation(error);
     } finally {
@@ -259,20 +268,126 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     }
   }
 
-  async getRpId(): Promise<string> {
-    return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
+  get rpId(): string {
+    return this.windowObject.rpId;
   }
 
-  confirmChosenCipher(cipher?: CipherView): void {
+  get userHandle(): number[] | undefined {
+    return this.windowObject.userHandle;
+  }
+
+  confirmChosenCipher(cipher?: CipherViewLike): void {
     this.chosenCipherSubject.next(cipher);
     this.chosenCipherSubject.complete();
+  }
+
+  /**
+   * Attempts to satisfy user verification without prompting the Bitwarden
+   * app UI. OS user verification dialogs still may appear.
+   *
+   * @param params Parameters for the assertion flow.
+   * @param options Includes a signal to cancel the UI flow.
+   * @returns The selected cipherId and user verification result, or `undefined` if UI was required.
+   */
+  private async tryWithoutUserInteraction(
+    params: PickCredentialParams,
+    { signal }: { signal: AbortSignal },
+  ): Promise<{ cipherId: string; userVerified: boolean } | undefined> {
+    signal.throwIfAborted();
+
+    const canRetrieveSilently =
+      params.cipherIds.length === 1 && !params.masterPasswordRepromptRequired;
+    if (!canRetrieveSilently) {
+      return undefined;
+    }
+
+    const selectedCipherId = params.cipherIds[0];
+    const needsUserVerification = params.userVerification;
+
+    if (needsUserVerification) {
+      // retrieve the cipher from the active account
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      if (!activeUserId) {
+        return;
+      }
+      const cipherView = await firstValueFrom(
+        this.cipherService.cipherListViews$(activeUserId).pipe(
+          map((ciphers) => {
+            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate);
+          }),
+          throwOnAbort(signal),
+        ),
+      );
+
+      if (!cipherView) {
+        this.logService.warning(
+          "[DesktopFido2UserInterfaceSession]",
+          `Could not find an active cipher for ID: ${selectedCipherId}`,
+        );
+        return undefined;
+      }
+
+      // Reprompts require showing Bitwarden UI, so stop if we detect that.
+      if (cipherView.reprompt !== CipherRepromptType.None) {
+        return undefined;
+      }
+
+      const username = fido2UserNameFromCipher(cipherView);
+
+      // Prompt the user to verify themselves. An OS user verification dialog
+      // may be shown, or if the user unlocked their vault during the ceremony,
+      // this should succeed without further prompts.
+      try {
+        const userVerified = await this.verifyUser(
+          "assertion",
+          username,
+          params.userVerification,
+          cipherView,
+          { signal },
+        );
+        const response = { cipherId: selectedCipherId, userVerified };
+        this.logService.debug(
+          "[DesktopFido2UserInterfaceSession]",
+          "tryWithoutUserInteraction() succeeded",
+          response,
+        );
+        return response;
+      } catch (error) {
+        // A dismissed prompt or a cipher we refuse to use ends the ceremony
+        // outright; only a recoverable failure falls back to the picker.
+        if (error instanceof UserVerificationCanceled || error instanceof Fido2AuthenticatorError) {
+          throw error;
+        }
+        // Fall back to showing the picker, which offers the user another way
+        // through the ceremony.
+        this.logService.debug(
+          "[DesktopFido2UserInterfaceSession]",
+          "Failed to prompt for user verification without showing UI",
+          error,
+        );
+        return undefined;
+      }
+    } else if (params.assumeUserPresence) {
+      // If user verification is not required by the RP, and the user did some
+      // selection in the OS dialog, we use that interaction as satisfying user
+      // presence, and continue with UV = false.
+      this.logService.debug(
+        "[DesktopFido2UserInterfaceSession]",
+        "shortcut - Assuming user presence and returning cipherId",
+        selectedCipherId,
+      );
+      return { cipherId: selectedCipherId, userVerified: false };
+    }
   }
 
   private async waitForUiChosenCipher({
     signal,
   }: {
     signal: AbortSignal;
-  }): Promise<CipherView | undefined> {
+  }): Promise<CipherViewLike | undefined> {
     try {
       signal.throwIfAborted();
       return await firstValueFrom(this.chosenCipherSubject.pipe(throwOnAbort(signal)));
@@ -335,7 +450,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userHandle,
     userVerification: needsUserVerification,
     rpId,
-  }: NewCredentialParams): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
+  }: NewCredentialParams): Promise<{
+    cipherId: string | undefined;
+    userVerified: boolean;
+  }> {
     this.logService.debug(
       "confirmNewCredential",
       credentialName,
@@ -344,18 +462,25 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       needsUserVerification,
       rpId,
     );
-    this.rpId.next(rpId);
 
     const abortSignal = this.abortController.signal;
     try {
-      await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
+      abortSignal.throwIfAborted();
 
-      // Wait for the UI to wrap up
-      const confirmation = await this.waitForUiNewCredentialConfirmation({
-        signal: abortSignal,
-      });
-      if (!confirmation) {
-        return { cipherId: undefined, userVerified: false };
+      // The picker only exists to let the user add this passkey to an existing
+      // login (or overwrite one). When nothing matches, there's no such choice
+      // to make and the OS has already confirmed the user's intent to create the
+      // passkey, so skip our UI and go straight to verification and creation.
+      if ((await this.getMatchingLogins()).length > 0) {
+        await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
+
+        // Wait for the UI to wrap up
+        const confirmation = await this.waitForUiNewCredentialConfirmation({
+          signal: abortSignal,
+        });
+        if (!confirmation) {
+          return { cipherId: undefined, userVerified: false };
+        }
       }
 
       // Confirming in our own UI establishes user presence, so we only verify
@@ -403,6 +528,51 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // Make sure to clean up so the app is never stuck in modal mode
       await this.hideUi();
     }
+  }
+
+  /**
+   * The logins this passkey could be added to: Login ciphers that match the
+   * relying party — by URI or by an existing passkey's rpId — and that don't
+   * already hold a passkey for this user handle. This is the single source of
+   * truth for both the creation picker's list and the decision (in
+   * {@link confirmNewCredential}) to skip that picker, so the two never
+   * disagree. Computed once per ceremony and cached.
+   */
+  getMatchingLogins(): Promise<CipherView[]> {
+    return (this.matchingLogins ??= this.computeMatchingLogins());
+  }
+  private matchingLogins?: Promise<CipherView[]>;
+
+  private async computeMatchingLogins(): Promise<CipherView[]> {
+    const rpId = this.windowObject.rpId;
+    const userHandleBytes = this.windowObject.userHandle;
+    if (!userHandleBytes) {
+      return [];
+    }
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(userHandleBytes));
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
+    if (!activeUserId) {
+      return [];
+    }
+
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(rpId),
+    );
+    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+
+    return ciphers.filter(
+      (cipher) =>
+        cipher != null &&
+        cipher.type === CipherType.Login &&
+        (cipher.login?.matchesUri(rpId, equivalentDomains) ||
+          cipher.login?.fido2Credentials?.some((cred) => cred.rpId === rpId)) &&
+        Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
+        !cipher.deletedDate,
+    );
   }
 
   /**
@@ -597,6 +767,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     cipher: CipherViewLike | undefined,
     { signal }: { signal: AbortSignal },
   ): Promise<boolean> {
+    signal.throwIfAborted();
+
     const repromptType = cipher?.reprompt ?? CipherRepromptType.None;
     switch (repromptType) {
       case CipherRepromptType.None:

@@ -13,6 +13,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
   viewChild,
   viewChildren,
 } from "@angular/core";
@@ -27,10 +28,14 @@ import { MenuDividerComponent } from "../menu/menu-divider.component";
 import { MenuItemComponent } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
-import { measureWidth, revealForMeasurement } from "../overflow-list/measure";
-import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
-import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
-import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
+import {
+  OverflowItemDirective,
+  OverflowListDirective,
+  OverflowTriggerDirective,
+  measureWidth,
+  observedWidth,
+  revealForMeasurement,
+} from "../overflow-list";
 import { BitTableV2Component } from "../table/v2/table-v2.component";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
@@ -120,8 +125,8 @@ export class BulkActionsBarComponent {
    */
   protected readonly initialBarWidth = signal(0);
 
-  /** Wrapper's live `clientWidth` — fed into both the compact threshold and `overflowContainerWidth`. */
-  private readonly wrapperWidth = signal(0);
+  /** Wrapper's live width — fed into both the compact threshold and `overflowContainerWidth`. */
+  private readonly wrapperWidth = observedWidth(() => this.wrapper());
 
   /**
    * Width of the bar's non-overflow shell (count display + clear button + bar
@@ -187,7 +192,21 @@ export class BulkActionsBarComponent {
 
   constructor() {
     const injector = inject(Injector);
-    this.initResizeObserver();
+
+    // Compact engages when the wrapper is narrower than the bar's intrinsic width.
+    // `initialBarWidth` is read untracked: it's a snapshot threshold, and tracking it
+    // would re-evaluate compact on every remeasure — and since intrinsic width itself
+    // depends on density (button padding follows `compact`), that closes a flip loop.
+    // Both zero guards mean "not measured yet"; `measureIntrinsicWidth` sets the
+    // initial state itself.
+    effect(() => {
+      const width = this.wrapperWidth();
+      const intrinsic = untracked(this.initialBarWidth);
+      if (width === 0 || intrinsic === 0) {
+        return;
+      }
+      this.compact.set(width < intrinsic + COMPACT_THRESHOLD_BUFFER_PX);
+    });
 
     // Remeasure whenever the projected action set changes. Gated on
     // `overflowList.ready()` so this function's forced-label DOM mutation
@@ -299,28 +318,6 @@ export class BulkActionsBarComponent {
 
   protected onToolbarKeydown(event: KeyboardEvent): void {
     this.keyManager()?.onKeydown(event);
-  }
-
-  private initResizeObserver(): void {
-    afterNextRender(() => {
-      const wrapperEl = this.wrapper().nativeElement;
-      // Prime the signal so dependent computed signals (compact threshold,
-      // container width) have a real value before the first RO dispatch.
-      this.wrapperWidth.set(wrapperEl.clientWidth);
-
-      const observer = new ResizeObserver(() => {
-        const width = wrapperEl.clientWidth;
-        this.wrapperWidth.set(width);
-        // Wait for a real threshold from `measureIntrinsicWidth`; flipping early
-        // would have the directive cache widths at the wrong density.
-        if (this.initialBarWidth() === 0) {
-          return;
-        }
-        this.compact.set(width < this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX);
-      });
-      observer.observe(wrapperEl);
-      this.destroyRef.onDestroy(() => observer.disconnect());
-    });
   }
 
   /**

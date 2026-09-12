@@ -7,8 +7,8 @@ import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
 
 const sshAgent = {
-  init: async (useV2: boolean) => {
-    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT, { useV2 });
+  init: async () => {
+    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT);
   },
   replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
     ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
@@ -17,14 +17,6 @@ const sshAgent = {
   },
   listRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE, { requestId, accepted });
-  },
-  // V1, delete with PM-30758
-  lock: async () => {
-    return await ipcRenderer.invoke("sshagent.lock");
-  },
-  // V1, delete with PM-30758
-  clearKeys: async () => {
-    return await ipcRenderer.invoke("sshagent.clearkeys");
   },
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);

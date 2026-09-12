@@ -59,6 +59,24 @@
   }
 </ng-template>
 
+<ng-template #dataRowTpl let-row let-cells="cells">
+  @if (isList()) {
+    <bit-item
+      class="[--bit-card-gap:0.375rem] bit-compact:[--bit-card-gap:0px]"
+      [class]="listInset()"
+      [style.height]="listCardHeight()"
+    >
+      <bit-row>
+        <ng-container *ngTemplateOutlet="cells; context: { $implicit: row }"></ng-container>
+      </bit-row>
+    </bit-item>
+  } @else {
+    <bit-row>
+      <ng-container *ngTemplateOutlet="cells; context: { $implicit: row }"></ng-container>
+    </bit-row>
+  }
+</ng-template>
+
 <!--
   One render item — a group header or a data row — shared by the virtualized and
   non-virtualized bodies so grouped rendering is identical in both. `forceHeight`
@@ -72,7 +90,7 @@
       (`aria-colspan`), so it's valid structure inside `role="table"` rather than a
       bare element. The collapse affordance carries `aria-expanded`.
     -->
-    <div role="row">
+    <div role="row" [class]="listInset()">
       @if (item.group.collapsible()) {
         <button
           type="button"
@@ -84,8 +102,8 @@
           (click)="item.group.toggle()"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-          <!-- Count only on top-level group headers. -->
-          @if (item.level === 0) {
+          <!-- Count only on non-empty top-level group headers. -->
+          @if (item.level === 0 && item.count > 0) {
             <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
           }
           <bit-icon
@@ -102,16 +120,35 @@
           [style.height.px]="forceHeight ? headerHeight(item.level) : null"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-          @if (item.level === 0) {
+          @if (item.level === 0 && item.count > 0) {
             <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
           }
         </div>
       }
     </div>
+  } @else if (item.kind === "groupDescription") {
+    <!--
+      Virtualized, the cell takes the fixed height the scroll strategy allocated and clamps
+      the text to the two lines that height covers; otherwise it grows to content. The
+      tooltip reaches whatever the clamp cut off — the text itself stays in the
+      accessibility tree either way.
+    -->
+    <div role="row" [class]="listInset()">
+      <div
+        role="cell"
+        [attr.aria-colspan]="columnCount()"
+        class="tw-px-1 tw-pb-2 tw-text-sm tw-text-fg-body-subtle"
+        [class.tw-line-clamp-2]="forceHeight"
+        [style.height.px]="forceHeight ? groupDescriptionHeight : null"
+        [bitTooltip]="item.group.description()"
+      >
+        {{ item.group.description() }}
+      </div>
+    </div>
   } @else {
-    <bit-row>
-      <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: item.row }"></ng-container>
-    </bit-row>
+    <ng-container
+      *ngTemplateOutlet="dataRowTpl; context: { $implicit: item.row, cells: bodyCells }"
+    ></ng-container>
   }
 </ng-template>
 
@@ -160,7 +197,7 @@
       <bit-header-row
         data-hide-scrollbar
         class="tw-overflow-x-auto tw-overscroll-x-none"
-        [class.tw-sr-only]="presentation() === 'list'"
+        [class.tw-sr-only]="isList()"
         [(bitSyncScrollLeft)]="horizontalScroll"
       >
         <ng-container *ngTemplateOutlet="headerCells"></ng-container>
@@ -168,22 +205,23 @@
 
       @if (loading()) {
         @for (i of skeletonRows(); track i) {
-          <bit-row>
-            <ng-container *ngTemplateOutlet="loadingCells"></ng-container>
-          </bit-row>
+          <ng-container
+            *ngTemplateOutlet="dataRowTpl; context: { cells: loadingCells }"
+          ></ng-container>
         }
       } @else if (isEmpty()) {
         <!--
           Empty state: no rows render (no data, or all filtered out). Projects
-          `[slot=empty]`; falls back to a default `<bit-no-items>`.
+          `[slot=empty]`; falls back to a default `<bit-status-lockup>`.
         -->
-        <div class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base">
+        <div [class]="listInset()">
           <ng-content select="[slot=empty]">
-            <bit-no-items>
+            <bit-status-lockup>
+              <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
               <span slot="title">{{
                 (noMatches() ? "noMatchingItems" : "nothingToShow") | i18n
               }}</span>
-            </bit-no-items>
+            </bit-status-lockup>
           </ng-content>
         </div>
       } @else if (isVirtualized()) {
@@ -195,7 +233,9 @@
           at `height` rows), or `flex-1` to fill the host in `fill` mode.
         -->
         <cdk-virtual-scroll-viewport
+          #scrollBody
           class="tw-overscroll-x-none"
+          (scroll)="onBodyScroll($event)"
           [style.height]="isFill() ? null : viewportHeight()"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
@@ -222,16 +262,21 @@
           rows when ungrouped); headers size to content here.
         -->
         <div
+          #scrollBody
           class="tw-overflow-auto tw-overscroll-x-none"
+          (scroll)="onBodyScroll($event)"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
         >
-          @for (item of renderItems(); track trackRenderItem($index, item)) {
-            <ng-container
-              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
-            ></ng-container>
-          }
+          <!-- Sizes to the scrolled content, so row borders and fills span the full row width. -->
+          <div class="tw-w-fit tw-min-w-full">
+            @for (item of renderItems(); track trackRenderItem($index, item)) {
+              <ng-container
+                *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
+              ></ng-container>
+            }
+          </div>
         </div>
       }
     } @else {

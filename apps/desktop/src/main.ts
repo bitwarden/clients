@@ -51,12 +51,14 @@ import { MainBiometricsService } from "./key-management/biometrics/main-biometri
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
+import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
@@ -71,7 +73,6 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
-import { isMacAppStore } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -384,7 +385,10 @@ export class Main {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
-        await this.trayMain.init("Bitwarden", [
+        const trayName = this.i18nService.t(
+          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
+        );
+        await this.trayMain.init(trayName, [
           {
             label: this.i18nService.t("lockVault"),
             enabled: false,

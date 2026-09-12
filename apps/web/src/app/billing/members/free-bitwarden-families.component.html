@@ -104,14 +104,15 @@
         <hr class="tw-mt-0" />
       </ng-container>
     } @else if (!loading()) {
-      <bit-no-items>
+      <bit-status-lockup>
+        <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
         <div slot="title">
           {{ "noSponsoredFamiliesMessage" | vfo1I18n: "noSponsoredFamiliesMessageV2" }}
         </div>
-        <p slot="description" bitTypography="body2">
+        <div slot="description">
           {{ "noSponsoredFamiliesDetails" | vfo1I18n: "noSponsoredFamiliesDetailsV2" }}
-        </p>
-      </bit-no-items>
+        </div>
+      </bit-status-lockup>
     }
 
     @if (!loading() && sponsoredFamilies.length > 0) {

@@ -2,14 +2,20 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { EMPTY, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherRowMenuService, VaultBatchBarService } from "@bitwarden/vault";
+import {
+  CipherRowMenuService,
+  VaultBatchBarService,
+  VaultCopyButtonsService,
+} from "@bitwarden/vault";
 
 import { VaultListTableComponent } from "./vault-list-table.component";
 
@@ -34,9 +40,14 @@ describe("VaultListTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultListTableComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: CipherRowMenuService, useValue: { getRowActions: mockGetRowActions } },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: of(false) },
+        },
         ...extraProviders,
       ],
     })
@@ -56,22 +67,6 @@ describe("VaultListTableComponent", () => {
     await setup();
   });
 
-  describe("initialFilterValues", () => {
-    it("returns an empty object when initialSearchText is not set", () => {
-      expect(component["initialFilterValues"]()).toEqual({});
-    });
-
-    it("returns an empty object when initialSearchText is an empty string", () => {
-      fixture.componentRef.setInput("initialSearchText", "");
-      expect(component["initialFilterValues"]()).toEqual({});
-    });
-
-    it("returns a search entry when initialSearchText has a value", () => {
-      fixture.componentRef.setInput("initialSearchText", "amazon");
-      expect(component["initialFilterValues"]()).toEqual({ search: "amazon" });
-    });
-  });
-
   describe("itemAction", () => {
     it("emits a viewCipher event for any cipher", () => {
       const cipher = cipherView();
@@ -82,15 +77,43 @@ describe("VaultListTableComponent", () => {
     });
   });
 
+  describe("copyPresentation", () => {
+    // The outer `beforeEach` already stood a component up, so these cases have to tear the module
+    // down before re-configuring it with their own setting value.
+    const setupWith = async (settingEnabled: boolean) => {
+      TestBed.resetTestingModule();
+      await setup([
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: of(settingEnabled) },
+        },
+      ]);
+    };
+
+    it("expands the copy actions when the setting is on", async () => {
+      await setupWith(true);
+
+      expect(component["copyPresentation"]()).toBe("expanded");
+    });
+
+    it("stays collapsed when the setting is off", async () => {
+      await setupWith(false);
+
+      expect(component["copyPresentation"]()).toBe("collapsed");
+    });
+  });
+
   describe("rowActions", () => {
-    it("passes the collections input to CipherRowMenuService.getRowActions", () => {
-      const col = { id: "col-1" } as CollectionView;
-      fixture.componentRef.setInput("collections", [col]);
+    it("passes the unscoped allCollections input to CipherRowMenuService.getRowActions", () => {
+      const scoped = { id: "col-1" } as CollectionView;
+      const unscoped = { id: "col-2" } as CollectionView;
+      fixture.componentRef.setInput("collections", [scoped]);
+      fixture.componentRef.setInput("allCollections", [scoped, unscoped]);
 
       component["rowActions"]();
 
       expect(mockGetRowActions).toHaveBeenCalledWith(
-        [col],
+        [scoped, unscoped],
         expect.objectContaining({
           edit: expect.any(Function),
           clone: expect.any(Function),
@@ -115,7 +138,7 @@ describe("VaultListTableComponent", () => {
       await setup([
         {
           provide: VaultBatchBarService,
-          useValue: { selection: mockSelection },
+          useValue: { selection: mockSelection, cleared$: EMPTY },
         },
       ]);
     });
@@ -168,6 +191,21 @@ describe("VaultListTableComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.css("vault-new-cipher-menu"))).toBeNull();
+    });
+  });
+
+  describe("import button", () => {
+    it("emits onImport when clicked", () => {
+      const emit = jest.fn();
+      component.onImport.subscribe(emit);
+      fixture.componentRef.setInput("showAddCipherBtn", true);
+      fixture.detectChanges();
+
+      fixture.debugElement
+        .query(By.css("#vault-list-table_button_import"))
+        .triggerEventHandler("click", {});
+
+      expect(emit).toHaveBeenCalled();
     });
   });
 });
