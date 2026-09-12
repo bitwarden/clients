@@ -18957,6 +18957,9 @@
   "pamTargetSystemEmptyState": {
     "message": "No target systems have been configured yet."
   },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Not supported"
+  },
   "pamNoTargetSystemsYetTitle": {
     "message": "No target systems yet"
   },
@@ -18975,32 +18978,26 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
   },
-  "pamTargetSystemTemplateCustomScriptSummary": {
-    "message": "Bitwarden automatically rotates the credential by running your script on a registered daemon."
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
   },
   "pamTargetSystemNoResults": {
     "message": "No target systems match your search."
   },
-  "pamTargetSystemDisable": {
-    "message": "Disable"
+  "pamTargetSystemNoFilterResults": {
+    "message": "No target systems match your filters."
   },
-  "pamTargetSystemEnable": {
-    "message": "Enable"
+  "pamTargetSystemEditTarget": {
+    "message": "Edit target system"
   },
-  "pamTargetSystemDisableTitle": {
-    "message": "Disable target system?"
+  "pamTargetSystemDeactivate": {
+    "message": "Deactivate"
   },
-  "pamTargetSystemDisableContent": {
-    "message": "Disabling this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  "pamTargetSystemActivate": {
+    "message": "Activate"
   },
-  "pamTargetSystemDisableConfirm": {
-    "message": "Disable"
-  },
-  "pamTargetSystemDisableSuccess": {
-    "message": "Target system disabled."
-  },
-  "pamTargetSystemEnableSuccess": {
-    "message": "Target system enabled."
+  "pamTargetSystemDeleteTarget": {
+    "message": "Delete target system"
   },
   "pamTargetSystemAssignConnectors": {
     "message": "Assign access connectors"
@@ -19023,11 +19020,35 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
   },
+  "pamTargetSystemDeactivateTitle": {
+    "message": "Deactivate target system?"
+  },
+  "pamTargetSystemDeactivateContent": {
+    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Target system deactivated."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Target system activated."
+  },
   "pamTargetSystemDeleteTitle": {
     "message": "Delete target system?"
   },
   "pamTargetSystemDeleteContent": {
     "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteContentDeactivateInstead": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -19070,8 +19091,8 @@
   "pamTargetSystemStatusActive": {
     "message": "Active"
   },
-  "pamTargetSystemStatusDisabled": {
-    "message": "Disabled"
+  "pamTargetSystemStatusInactive": {
+    "message": "Inactive"
   },
   "pamTargetSystemGeneralInfoHeading": {
     "message": "General information"
@@ -19237,6 +19258,9 @@
   },
   "pamAccessConnectorAssignmentsEmpty": {
     "message": "No target systems assigned."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Access connector assigned."
   },
   "pamAccessConnectorUnassign": {
     "message": "Remove $NAME$",
@@ -19854,5 +19878,14 @@
   },
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "The access connectors for this target system could not be loaded."
+  },
+  "pamTargetSystemDeleteAssignedConnectorsContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
   }
 }
