@@ -45,15 +45,15 @@ probably was one, and the presence of save entries under it is how to tell.
 
 ### Generate
 
-| Measurement                                | What it covers                                                                                               | Properties                                                                          |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `Generate: password reuse detected`        | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                         |
-| `Generate: ciphers mapped to members`      | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
-| `Generate: health checks complete`         | Per cipher weak password scoring and the breach lookup fan out together, bounded by the concurrency limit    | `itemCount`, `concurrencyLimit`                                                     |
-| `Generate: health and reuse combined`      | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                         |
-| `Generate: applications grouped`           | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                      |
-| `Generate: previous metadata carried over` | Building the report view, then merging the previous report's per application settings into it                | `applicationCount`, `previousApplicationCount`                                      |
-| `Generate: summary recomputed`             | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
+| Measurement                                              | What it covers                                                                                               | Properties                                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `Generate: reused password check complete`               | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                         |
+| `Generate: ciphers mapped to members`                    | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
+| `Generate: password strength and breach checks complete` | Per cipher weak password scoring and the breach lookup fan out together, bounded by the concurrency limit    | `itemCount`, `concurrencyLimit`                                                     |
+| `Generate: health and reuse combined`                    | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                         |
+| `Generate: applications grouped`                         | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                      |
+| `Generate: previous metadata carried over`               | Building the report view, then merging the previous report's per application settings into it                | `applicationCount`, `previousApplicationCount`                                      |
+| `Generate: summary recomputed`                           | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
 
 Reuse detection is measured despite producing no network traffic because it is a full pass over
 every cipher that allocates a map keyed by password, and because the combine step downstream
@@ -117,8 +117,9 @@ or group path to any cipher, and the registry drops any remaining id absent from
 member set. A wide gap is expected in an organization with narrow collection access, and is not
 data loss.
 
-`itemCount` narrows the same way. The three health steps — password reuse, health checks, and the
-combine — run on health-eligible ciphers only: logins with a non-empty password, not deleted, and
+`itemCount` narrows the same way. The three health steps — the reused password check, the strength
+and breach checks, and the combine — run on health-eligible ciphers only: logins with a non-empty
+password, not deleted, and
 viewable by the administrator. Every other step counts the full organization set, which is why the
 number drops at the health steps and recovers afterwards. Dividing a health step's duration by its
 own `itemCount` gives a per cipher cost for that step; dividing by the organization total does not.
@@ -298,10 +299,19 @@ save returns as soon as the upload resolves, and no read path checks the validat
 [Why the cipher fetch name carries two variables](#why-the-cipher-fetch-name-carries-two-variables).
 
 **Weak password scoring and breach lookups are not split.** Both run per cipher inside one
-concurrency bounded fan out, so `Generate: health checks complete` gives their combined cost and
-nothing attributes it between them. Splitting would mean either restructuring the fan out into two
-passes or emitting one entry per cipher, and the local scoring is a plausible hot spot in its own
-right, so this is the first gap to close if that step dominates.
+concurrency bounded fan out, so `Generate: password strength and breach checks complete` gives their
+combined cost and nothing attributes it between them.
+
+Both obvious ways to split it cost more than the gap. Scoring runs inside the `mergeMap` project
+function, so it happens only as a concurrency slot frees up, filling main thread time that would
+otherwise be spent waiting on a lookup. Hoisting it into its own pass up front makes each half
+separately measurable but serializes two things that currently overlap, turning the step's cost into
+scoring plus lookups rather than roughly the larger of the two. Accumulating scoring time in place
+preserves the overlap, but `performance.now()` is coarsened to between 100µs and 1ms depending on
+the browser, so per cipher deltas quantize and the total is biased low by an unknown amount.
+
+Scoring is a plausible hot spot in its own right, so this stays worth closing, but it needs a
+measurement that neither reshapes the work nor depends on sub-tick resolution.
 
 **A page open that migrates legacy blobs is not separable from one that does not.** Both emit
 `Load: page initialized`, but the migrating run also performs a full save inside that window.

@@ -37,7 +37,6 @@ export class DefaultCipherHealthService extends CipherHealthService {
     // Detect password reuse across all ciphers
     const reuseMap$ = this.detectPasswordReuse(validCiphers);
 
-    // Check each cipher's health (weak password + HIBP exposure)
     // Measured as a batch; per-cipher entries would swamp the performance panel.
     const healthChecks$ = from(validCiphers).pipe(
       // Limit concurrent HIBP calls to avoid rate limiting
@@ -46,10 +45,14 @@ export class DefaultCipherHealthService extends CipherHealthService {
         this.MAX_CONCURRENT_HIBP_CALLS,
       ),
       toArray(),
-      measureFlowStep(this.logService, "Generate: health checks complete", (results) => [
-        ["itemCount", results.length],
-        ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
-      ]),
+      measureFlowStep(
+        this.logService,
+        "Generate: password strength and breach checks complete",
+        (results) => [
+          ["itemCount", results.length],
+          ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
+        ],
+      ),
     );
 
     // Combine reuse detection with individual health checks
@@ -125,7 +128,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
       }
     });
 
-    measureStep("Generate: password reuse detected", [["itemCount", ciphers.length]]);
+    measureStep("Generate: reused password check complete", [["itemCount", ciphers.length]]);
 
     return of(reuseMap);
   }
