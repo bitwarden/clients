@@ -4,8 +4,11 @@
 import { inject, Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { InvoicePreviewResponse } from "@bitwarden/common/billing/models/response/invoice-preview.response";
 import type { PlanTier } from "@bitwarden/pricing";
+
+import type { BillingAddress } from "../payment/types";
 
 /**
  * Request shapes are owned by the per-screen tickets that consume each route. They are kept
@@ -16,10 +19,9 @@ export type PremiumPurchasePreviewRequest = {
   additionalStorage: number;
 };
 
-// TODO(PM-40223): finalize the premium organization upgrade request shape.
 export type PremiumOrgUpgradePreviewRequest = {
-  planTier: PlanTier;
-  cadence: string;
+  targetProductTierType: ProductTierType;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
 // TODO(PM-40222 / PM-40231): finalize the shared organization purchase request shape.
@@ -77,7 +79,7 @@ export class InvoicePreviewClient {
   ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
-      "/account/billing/subscriptions/premium/upgrade/invoice/preview",
+      "/account/billing/subscription/premium/upgrade/invoice/preview",
       request,
       true,
       true,
