@@ -9,15 +9,40 @@ import { ServiceContainer } from "./service-container/service-container";
 
 async function main() {
   const serviceContainer = new ServiceContainer();
-  await serviceContainer.init();
+  let disposed = false;
+  const dispose = () => {
+    if (disposed) {
+      return;
+    }
 
-  await registerOssPrograms(serviceContainer);
+    disposed = true;
+    serviceContainer.dispose();
+  };
 
-  // ServeProgram is registered separately so it can be overridden by bit-cli
-  const serveConfigurator = new OssServeConfigurator(serviceContainer);
-  new ServeProgram(serviceContainer, serveConfigurator).register();
+  // Some existing command guards call process.exit(), which does not unwind
+  // through finally. Ensure Desktop IPC is also closed on those paths.
+  process.once("exit", dispose);
 
-  program.parse(process.argv);
+  try {
+    await serviceContainer.init();
+
+    await registerOssPrograms(serviceContainer);
+
+    // ServeProgram is registered separately so it can be overridden by bit-cli
+    const serveConfigurator = new OssServeConfigurator(serviceContainer);
+    new ServeProgram(serviceContainer, serveConfigurator).register();
+
+    await program.parseAsync(process.argv);
+  } finally {
+    process.removeListener("exit", dispose);
+    try {
+      // Awaited on this path so a lock or unlock this command just shared reaches the desktop
+      // app. `dispose` still runs afterwards, and is what the process.exit() paths rely on.
+      await serviceContainer.disposeAndFlush();
+    } finally {
+      dispose();
+    }
+  }
 }
 
 // Node does not support top-level await statements until ES2022, esnext, etc which we don't use yet
