@@ -2,6 +2,11 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, RouterOutlet, provideRouter } from "@angular/router";
 
+import {
+  TARGET_SYSTEM_QUERY_PARAM,
+  THEN_MANAGED_CREDENTIAL,
+  THEN_QUERY_PARAM,
+} from "./create-flow";
 import { ORGANIZATION_ID } from "./testing/rotation-builders";
 
 @Component({
@@ -59,17 +64,21 @@ describe("rotation create-flow relative navigation", () => {
   it("reaches the target-system create page from the credential create page", async () => {
     const route = await activatedRouteFor(`${base}/managed-credentials/new`);
 
-    expect(urlFor(route.parent!, ["target-systems", "new"], { then: "managed-credential" })).toBe(
-      `${base}/target-systems/new?then=managed-credential`,
-    );
+    expect(
+      urlFor(route.parent!, ["target-systems", "new"], {
+        [THEN_QUERY_PARAM]: THEN_MANAGED_CREDENTIAL,
+      }),
+    ).toBe(`${base}/target-systems/new?then=managed-credential`);
   });
 
   it("reaches the credential create page from the target-system create page", async () => {
     const route = await activatedRouteFor(`${base}/target-systems/new`);
 
-    expect(urlFor(route.parent!, ["managed-credentials", "new"], { targetSystemId: "ts-1" })).toBe(
-      `${base}/managed-credentials/new?targetSystemId=ts-1`,
-    );
+    expect(
+      urlFor(route.parent!, ["managed-credentials", "new"], {
+        [TARGET_SYSTEM_QUERY_PARAM]: "ts-1",
+      }),
+    ).toBe(`${base}/managed-credentials/new?targetSystemId=ts-1`);
   });
 
   it("does not climb past a two-segment route with a second ..", async () => {
@@ -88,16 +97,20 @@ describe("rotation create-flow relative navigation", () => {
   it("reaches the target-system create page from the managed-credentials tab", async () => {
     const route = await activatedRouteFor(`${base}/managed-credentials`);
 
-    expect(urlFor(route, ["..", "target-systems", "new"], { then: "managed-credential" })).toBe(
-      `${base}/target-systems/new?then=managed-credential`,
-    );
+    expect(
+      urlFor(route, ["..", "target-systems", "new"], {
+        [THEN_QUERY_PARAM]: THEN_MANAGED_CREDENTIAL,
+      }),
+    ).toBe(`${base}/target-systems/new?then=managed-credential`);
   });
 
   it("reaches the credential create page from the target-systems tab", async () => {
     const route = await activatedRouteFor(`${base}/target-systems`);
 
-    expect(urlFor(route, ["..", "managed-credentials", "new"], { targetSystemId: "ts-1" })).toBe(
-      `${base}/managed-credentials/new?targetSystemId=ts-1`,
-    );
+    expect(
+      urlFor(route, ["..", "managed-credentials", "new"], {
+        [TARGET_SYSTEM_QUERY_PARAM]: "ts-1",
+      }),
+    ).toBe(`${base}/managed-credentials/new?targetSystemId=ts-1`);
   });
 });
