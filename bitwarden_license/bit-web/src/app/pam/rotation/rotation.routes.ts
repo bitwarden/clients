@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 
-import { DaemonDetailComponent } from "./daemons/daemon-detail.component";
+import { DaemonDetailComponent, daemonDetailDiscardGuard } from "./daemons/daemon-detail.component";
 import { DaemonsTabComponent } from "./daemons/daemons-tab.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
@@ -45,7 +45,13 @@ export const rotationRoutes: Routes = [
   },
   {
     path: `${ROTATION_TABS.accessConnectors}/:daemonId`,
+    pathMatch: "full",
+    redirectTo: `${ROTATION_TABS.accessConnectors}/:daemonId/configuration`,
+  },
+  {
+    path: `${ROTATION_TABS.accessConnectors}/:daemonId/:tab`,
     component: DaemonDetailComponent,
+    canDeactivate: [daemonDetailDiscardGuard],
     data: { titleId: "pamDaemonDetailTitle" },
   },
   {
