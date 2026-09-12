@@ -113,6 +113,12 @@ describe("RotationJobDrawerComponent", () => {
     return fixture.debugElement.query(By.css(`[data-testid='${testId}']`));
   }
 
+  /** How many times the whole drawer renders `phrase`. */
+  function timesSaid(phrase: string): number {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
+    return text.split(phrase).length - 1;
+  }
+
   it("names the outcome on a badge rather than in prose", async () => {
     await render(retriedFailure());
 
@@ -232,14 +238,33 @@ describe("RotationJobDrawerComponent", () => {
       );
     });
 
-    it("shows in progress for an attempt that has not ended", async () => {
+    it("leaves the job's own duration the one place the drawer says a rotation is running", async () => {
       await render(
         retriedFailure({
+          duration: null,
+          running: true,
           attempts: [attempt(1, { duration: null, running: true })],
         }),
       );
 
-      expect(attemptRows()[0].nativeElement.textContent).toContain("pamRotationAttemptInProgress");
+      expect(query("drawer-duration").nativeElement.textContent).toContain(
+        "pamRotationAttemptInProgress",
+      );
+      expect(timesSaid("pamRotationAttemptInProgress")).toBe(1);
+    });
+
+    it("leaves a running attempt its start time and an empty duration", async () => {
+      await render(
+        retriedFailure({
+          duration: null,
+          running: true,
+          attempts: [attempt(1, { duration: null, running: true })],
+        }),
+      );
+
+      const cells = attemptRows()[0].queryAll(By.css("td"));
+      expect(cells[0].nativeElement.textContent.trim()).not.toBe("");
+      expect(cells[1].nativeElement.textContent.trim()).toBe("");
     });
 
     it("leaves the duration blank for a finished attempt with no measurable span", async () => {

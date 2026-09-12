@@ -581,6 +581,15 @@ describe("DaemonsTabComponent", () => {
       )!;
     }
 
+    /** The reason key the row menu's assign item states, as the component resolved it. */
+    function blockedKey(): string | null {
+      return (
+        fixture.componentInstance as unknown as {
+          rows: () => { assignTargetsBlockedKey: string | null }[];
+        }
+      ).rows()[0].assignTargetsBlockedKey;
+    }
+
     afterEach(() => {
       rows$.next([]);
     });
@@ -613,19 +622,21 @@ describe("DaemonsTabComponent", () => {
     });
 
     it("names the two empty cases apart, since they are different sentences to an admin", async () => {
-      function blockedKey(): string | null {
-        return (
-          fixture.componentInstance as unknown as {
-            rows: () => { assignTargetsBlockedKey: string | null }[];
-          }
-        ).rows()[0].assignTargetsBlockedKey;
-      }
-
       await openRowMenu(assignRow(true), []);
       expect(blockedKey()).toBe("pamAccessConnectorAssignNoTargetSystems");
 
       await openRowMenu(assignRow(true, [eligibleSystem.id]));
       expect(blockedKey()).toBe("pamAccessConnectorAssignNoOptions");
+    });
+
+    it("states a failed target-system read on the item, as the target-systems tab does", async () => {
+      targetSystemsLoadError$.next(new Error("boom"));
+      const item = await openRowMenu(assignRow(true), []);
+
+      expect(item.getAttribute("aria-disabled")).toBe("true");
+      expect(item.hasAttribute("disabled")).toBe(false);
+      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      expect(blockedKey()).toBe("pamAccessConnectorTargetSystemsLoadError");
     });
 
     it("leaves the assign item live while the target-system list is still being read", async () => {
