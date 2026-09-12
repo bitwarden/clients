@@ -528,7 +528,11 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
     "pending",
   );
 
-  /** The setup steps this target still needs, in order; empty when set up or not yet known. */
+  /**
+   * The setup steps this target still needs, in order; empty when set up or not yet known. A step
+   * the admin cannot take is not outstanding: with no active connector in the org the picker's own
+   * hint is the one place that says so.
+   */
   protected readonly outstandingSetupSteps = computed<readonly string[]>(() => {
     const credentials = this.managedCredentials();
     if (!this.editing || !this.isActive() || credentials === "pending") {
@@ -539,6 +543,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
     if (
       this.canAssignConnectors() &&
       !this.connectorsUnavailable() &&
+      !this.noConnectorsEligible() &&
       this.effectiveAssignedIds().size === 0
     ) {
       steps.push("pamTargetSystemSetupGuidanceAutomaticConnector");
