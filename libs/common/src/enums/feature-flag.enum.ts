@@ -41,6 +41,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   WindowsNativeCredentialSync = "windows-native-credential-sync",
   SSHecdsa = "ssh-ecdsa",
+  SSHAgentSetupDialog = "ssh-agent-setup-dialog",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -161,6 +162,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
+  [FeatureFlag.SSHAgentSetupDialog]: FALSE,
 
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
