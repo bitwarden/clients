@@ -53,7 +53,7 @@ const CONNECTORS = [
     id: connectorId("c-2"),
     name: "Disconnected connector",
     isConnected: false,
-    assignedTargetSystemIds: [ASSIGNED_SYSTEM.id],
+    assignedTargetSystemIds: [ASSIGNED_SYSTEM.id, SATURATED_SYSTEM.id],
   }),
   accessConnector({
     id: connectorId("c-3"),
@@ -62,7 +62,11 @@ const CONNECTORS = [
     isConnected: false,
     assignedTargetSystemIds: [SATURATED_SYSTEM.id],
   }),
-  accessConnector({ id: connectorId("c-4"), name: "Spare connector" }),
+  accessConnector({
+    id: connectorId("c-4"),
+    name: "Spare connector",
+    assignedTargetSystemIds: [SATURATED_SYSTEM.id],
+  }),
 ];
 
 /**
