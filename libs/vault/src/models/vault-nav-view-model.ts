@@ -28,6 +28,8 @@ export interface VaultNavItemViewModel {
   type: VaultNavItemType;
   /** The org's default user collection ("My items"); set only on org items under data ownership. */
   defaultUserCollectionId?: CollectionId;
+  /** False when the organization is suspended */
+  enabled: boolean;
 }
 
 export interface VaultsNavViewModel {

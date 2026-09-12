@@ -22,7 +22,7 @@ export interface SeatLimitResult {
 
 export type SeatLimitAction = "invite" | "restore";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class BillingConstraintService {
   constructor(
     private i18nService: I18nService,
