@@ -6892,6 +6892,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Click here to add a payment method."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
+  },
   "joinOrganization": {
     "message": "Join organization"
   },
