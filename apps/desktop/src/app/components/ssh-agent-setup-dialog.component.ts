@@ -2,13 +2,16 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   DIALOG_DATA,
+  AsyncActionsModule,
   ButtonModule,
   CalloutModule,
   CenterPositionStrategy,
   DialogModule,
+  DialogRef,
   DialogService,
   IconButtonModule,
   ToastService,
@@ -25,14 +28,23 @@ export type SshAgentSetupDialogData = {
 @Component({
   templateUrl: "ssh-agent-setup-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [I18nPipe, ButtonModule, CalloutModule, DialogModule, IconButtonModule],
+  imports: [
+    I18nPipe,
+    AsyncActionsModule,
+    ButtonModule,
+    CalloutModule,
+    DialogModule,
+    IconButtonModule,
+  ],
 })
 export class SshAgentSetupDialogComponent {
   protected readonly data = inject<SshAgentSetupDialogData>(DIALOG_DATA);
 
+  private readonly dialogRef = inject(DialogRef);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
 
   // Windows clients find the agent on the well-known OpenSSH named pipe, so there is
   // nothing to export there; every other platform needs SSH_AUTH_SOCK pointed at us.
@@ -56,6 +68,31 @@ export class SshAgentSetupDialogComponent {
       message: this.i18nService.t("valueCopied", this.i18nService.t("sshAgentSocketPath")),
     });
   }
+
+  /**
+   * Configures the machine for the user: appends the export line to the shell
+   * profiles on unix, disables the built-in OpenSSH agent service on Windows.
+   */
+  protected readonly applyAutomatically = async () => {
+    try {
+      await ipc.autofill.sshAgent.applyConfiguration();
+    } catch (e) {
+      this.logService.error("Could not configure the SSH agent", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: undefined,
+        message: this.i18nService.t("sshAgentSetupApplyFailed"),
+      });
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: undefined,
+      message: this.i18nService.t("sshAgentSetupApplied"),
+    });
+    await this.dialogRef.close();
+  };
 
   protected launchHelp() {
     this.platformUtilsService.launchUri(SSH_AGENT_HELP_URI);

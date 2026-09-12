@@ -153,6 +153,8 @@ export class SettingsDialogComponent implements OnInit {
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
+  /** Whether SSH clients on this machine already reach the agent. */
+  protected readonly sshAgentConfigured = signal(false);
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -321,6 +323,9 @@ export class SettingsDialogComponent implements OnInit {
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
+
+    // Kept off the critical render path: it shells out on Windows.
+    await this.refreshSshAgentConfigured();
 
     if (this.isWindows) {
       this.billingAccountProfileStateService
@@ -634,13 +639,40 @@ export class SettingsDialogComponent implements OnInit {
       return;
     }
 
+    // Machines that already reach the agent need no instructions.
+    await this.refreshSshAgentConfigured();
+    if (this.sshAgentConfigured()) {
+      return;
+    }
+
     await this.openSshAgentSetupDialog();
   }
 
   protected async openSshAgentSetupDialog() {
     const socketAddress = await ipc.autofill.sshAgent.getSocketAddress();
+    const dialogRef = SshAgentSetupDialogComponent.open(this.dialogService, { socketAddress });
 
-    SshAgentSetupDialogComponent.open(this.dialogService, { socketAddress });
+    // The dialog can configure the machine itself, so re-check once it is gone.
+    await firstValueFrom(dialogRef.closed);
+    await this.refreshSshAgentConfigured();
+  }
+
+  /**
+   * The native check reads shell profiles / queries a Windows service, so it is
+   * fallible. A failure must not take the rest of the dialog down with it; falling
+   * back to "not configured" only means the setup link stays visible.
+   */
+  private async refreshSshAgentConfigured() {
+    if (!this.showSshAgentSetupDialog()) {
+      return;
+    }
+
+    try {
+      this.sshAgentConfigured.set(await ipc.autofill.sshAgent.isConfigured());
+    } catch (e) {
+      this.logService.error("Could not determine SSH agent configuration state", e);
+      this.sshAgentConfigured.set(false);
+    }
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
