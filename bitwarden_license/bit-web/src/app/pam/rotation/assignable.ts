@@ -14,14 +14,14 @@ export function assignableConnectors(
 }
 
 /**
- * The access connectors that can be assigned to any target system at all, before any particular
- * target's own assignments are taken off.
+ * The access connectors that are in a position to be assigned to any target system at all: the
+ * enabled ones, before any particular target's own assignments are taken off.
  *
  * {@link assignableConnectors} is this set minus one target's existing assignments, so an empty
  * result here is the stronger statement: the org has no connector to give.
  */
 export function eligibleConnectors(connectors: readonly AccessConnector[]): AccessConnector[] {
-  return [...connectors];
+  return connectors.filter((connector) => connector.status === AccessConnectorStatus.Enabled);
 }
 
 /**
