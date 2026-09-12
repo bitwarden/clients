@@ -448,11 +448,13 @@ export class RotationConfigEditComponent {
    * Leave for the target-system create page, marked so that page returns here with the target it
    * creates already selected instead of landing on the target-systems list.
    */
-  protected readonly createTargetSystem = (): Promise<boolean> =>
-    this.router.navigate(["target-systems", "new"], {
+  protected readonly createTargetSystem = (): Promise<boolean> => {
+    this.markSaved();
+    return this.router.navigate(["target-systems", "new"], {
       relativeTo: this.route.parent,
       queryParams: { [THEN_QUERY_PARAM]: THEN_MANAGED_CREDENTIAL },
     });
+  };
 
   private liveForm(): AbstractControl {
     return this.editing ? this.editForm : this.createForm;
