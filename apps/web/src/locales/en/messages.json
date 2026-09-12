@@ -18892,6 +18892,21 @@
   "pamTargetSystemEnableSuccess": {
     "message": "Target system enabled."
   },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Assign access connectors"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "All active access connectors are already assigned to this target system."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Access connectors can only be assigned to target systems set to automatic rotation."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Only active access connectors can be assigned to this target system."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
+  },
   "pamTargetSystemDeleteTitle": {
     "message": "Delete target system?"
   },
@@ -19188,11 +19203,56 @@
   "pamTargetSystemDiscardTitle": {
     "message": "Discard target system"
   },
+  "pamAccessConnectorConnection": {
+    "message": "Connection"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Assigned targets"
+  },
   "pamAccessConnectorConnected": {
     "message": "Connected"
   },
   "pamAccessConnectorDisconnected": {
     "message": "Disconnected"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Target systems can only be assigned while the access connector is active."
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Target system"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Assign target systems"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Only target systems set to automatic rotation can be assigned."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "All automatic target systems are already assigned to this access connector."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "There are no automatic target systems to assign. Create one on the Target systems tab."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Go to Target systems"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Couldn't load target systems. Refresh the page to try again."
+  },
+  "pamAccessConnectorAssignConfirm": {
+    "message": "Assign"
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "No target systems assigned."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Remove $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
   },
   "pamAccessConnectorDeactivate": {
     "message": "Deactivate"
@@ -19672,5 +19732,14 @@
   },
   "pamAuditKindTargetPolicyUpdated": {
     "message": "Target password policy updated"
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Assigned access connectors"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "No access connectors are assigned to this target system."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "The access connectors for this target system could not be loaded."
   }
 }
