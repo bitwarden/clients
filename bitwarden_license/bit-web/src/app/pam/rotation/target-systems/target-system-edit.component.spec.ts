@@ -1425,6 +1425,22 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       expect(rotationSdk.deleteTargetSystem).not.toHaveBeenCalled();
     });
 
+    it("does not offer to deactivate a target that is already inactive", async () => {
+      await setup([], { status: TargetSystemStatus.Disabled });
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      await component.deleteSystem();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            key: "pamTargetSystemDeleteContent",
+          }),
+        }),
+      );
+      expect(rotationSdk.deleteTargetSystem).not.toHaveBeenCalled();
+    });
+
     it("stays on the page and surfaces the refusal when the server rejects the delete", async () => {
       await setup([]);
       dialogService.openSimpleDialog.mockResolvedValue(true);
