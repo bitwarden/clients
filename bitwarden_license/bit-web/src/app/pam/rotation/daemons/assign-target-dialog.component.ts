@@ -19,8 +19,8 @@ export type AssignTargetDialogParams = {
   /** The daemon being assigned a target system. */
   daemon: AccessConnector;
   /**
-   * The set of active+automatic target systems that are NOT already assigned to
-   * this daemon. Callers (the tab component) compute this from
+   * The set of automatic target systems that are NOT already assigned to this daemon,
+   * including disabled ones. Callers (the tab component) compute this from
    * `automaticSystems$` filtered against `daemon.assignedTargetSystemIds`.
    */
   options: TargetSystem[];
@@ -32,7 +32,7 @@ export type AssignTargetDialogParams = {
 export type AssignTargetDialogResult = string | undefined;
 
 /**
- * Simple select-and-confirm dialog for assigning an active automatic target
+ * Simple select-and-confirm dialog for assigning an automatic target
  * system to a daemon.
  */
 @Component({
