@@ -3,7 +3,11 @@ import type { Context, Next } from "koa";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { buildOriginProtectionMiddleware, buildServeAllowedHosts } from "./serve.command";
+import {
+  buildOriginProtectionMiddleware,
+  buildServeAllowedHosts,
+  isSocketTransport,
+} from "./serve.command";
 
 describe("buildOriginProtectionMiddleware", () => {
   const logService = mock<LogService>();
@@ -155,4 +159,20 @@ describe("buildServeAllowedHosts", () => {
     expect(hosts.has("127.0.0.1")).toBe(false);
     expect(hosts.has("[::1]")).toBe(false);
   });
+});
+
+describe("isSocketTransport", () => {
+  it.each(["unix:///tmp/bw.sock", "fd+listening://3", "fd+connected://4"])(
+    "recognizes socket transport %s",
+    (hostname) => {
+      expect(isSocketTransport(hostname)).toBe(true);
+    },
+  );
+
+  it.each(["localhost", "all", "unix.example", "0.0.0.0"])(
+    "does not treat %s as a socket transport",
+    (hostname) => {
+      expect(isSocketTransport(hostname)).toBe(false);
+    },
+  );
 });
