@@ -721,6 +721,11 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(button.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
     }
 
+    /** The i18n key the row menu's disabled Rotate now item states as its reason. */
+    function rotateNowBlockedKey(row: RotationConfigRow): string {
+      return component.rotateNowBlockedKey(row);
+    }
+
     it("offers edit, rotate now, pause and remove on an active credential", () => {
       openRowMenu(makeRow());
 
@@ -792,6 +797,37 @@ describe("ManagedCredentialsTabComponent", () => {
       expectExplained(item("managed-credentials-tab_button_delete-locked_"));
     });
 
+    it("leaves the rotating badge the only place the row says a job is running", () => {
+      const row = makeRow(
+        { hasActiveJob: true },
+        rotationConfigDescription({
+          actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
+        }),
+      );
+      openRowMenu(row);
+
+      expectExplained(item("managed-credentials-tab_button_rotate-now-locked_"));
+      expect(rotateNowBlockedKey(row)).toBe("pamRotationConfigRotateNowDisabledActiveJob");
+      expect(row.statusBadge.labelKey).toBe("pamRotationConfigInProgress");
+    });
+
+    it("blames the pause when a paused credential cannot rotate now", () => {
+      const row = makeRow(
+        { enabled: false },
+        rotationConfigDescription({
+          actions: rotationConfigActions({
+            canRotateNow: false,
+            canPause: false,
+            canResume: true,
+          }),
+        }),
+      );
+      openRowMenu(row);
+
+      expectExplained(item("managed-credentials-tab_button_rotate-now-locked_"));
+      expect(rotateNowBlockedKey(row)).toBe("pamRotationConfigRotateNowDisabledPaused");
+    });
+
     it("explains an unavailable mark as rotated", () => {
       openRowMenu(
         makeRow(
@@ -814,6 +850,16 @@ describe("ManagedCredentialsTabComponent", () => {
       );
 
       expectExplained(item("managed-credentials-tab_button_rotate-now-locked_"));
+    });
+
+    it("blames the target system when nothing else explains a blocked rotate now", () => {
+      const row = makeRow(
+        {},
+        rotationConfigDescription({ actions: rotationConfigActions({ canRotateNow: false }) }),
+      );
+      openRowMenu(row);
+
+      expect(rotateNowBlockedKey(row)).toBe("pamRotationConfigRotateNowDisabledTargetInactive");
     });
 
     it("keeps the locked delete item focusable and described", () => {

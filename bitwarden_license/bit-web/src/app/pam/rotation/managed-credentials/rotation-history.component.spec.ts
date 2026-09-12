@@ -730,12 +730,15 @@ describe("RotationHistoryComponent rendering", () => {
       }),
     ]);
 
-    expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
+    const row = jobRows(fixture)[0].nativeElement as HTMLElement;
+    const cell = resultCell(fixture).nativeElement as HTMLElement;
+
+    expect(row.textContent!.split("pamRotationSessionTerminationTermFailed").length - 1).toBe(1);
+    expect(cell.getAttribute("aria-label")).not.toContain(
       "pamRotationSessionTerminationTermFailed",
     );
-    expect(resultCell(fixture).nativeElement.getAttribute("aria-label")).toContain(
-      "pamRotationSessionTerminationTermFailed",
-    );
+    const note = cell.querySelector(`#${cell.getAttribute("aria-describedby")}`)!;
+    expect(note.textContent).toContain("pamRotationSessionTerminationTermFailed");
   });
 
   it("leaves an ordinary session termination to the drawer", () => {
@@ -753,6 +756,7 @@ describe("RotationHistoryComponent rendering", () => {
     expect(fixture.nativeElement.textContent).not.toContain(
       "pamRotationSessionTerminationTerminated",
     );
+    expect(resultCell(fixture).nativeElement.getAttribute("aria-describedby")).toBeNull();
   });
 
   describe("the credential column", () => {
