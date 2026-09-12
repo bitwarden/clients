@@ -11,7 +11,7 @@ import { WindowMain } from "../window.main";
 import { IMenubarMenu } from "./menubar";
 
 export class WindowMenu implements IMenubarMenu {
-  readonly id: string;
+  readonly id: string = "windowMenu";
 
   get label(): string {
     return this.localize("window");
