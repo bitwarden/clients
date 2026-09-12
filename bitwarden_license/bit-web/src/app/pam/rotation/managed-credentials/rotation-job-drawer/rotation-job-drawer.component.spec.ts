@@ -27,7 +27,6 @@ function attempt(ordinal: number, overrides: Partial<AttemptView> = {}): Attempt
     ordinal,
     startedAt: `2026-01-01T00:0${ordinal}:00Z`,
     duration: { hours: 0, minutes: 0, seconds: 16 },
-    running: false,
     statusLabelKey: "pamRotationAttemptStatusErrored",
     divergentFailureReason: null,
     ...overrides,
@@ -243,7 +242,7 @@ describe("RotationJobDrawerComponent", () => {
         retriedFailure({
           duration: null,
           running: true,
-          attempts: [attempt(1, { duration: null, running: true })],
+          attempts: [attempt(1, { duration: null })],
         }),
       );
 
@@ -258,7 +257,7 @@ describe("RotationJobDrawerComponent", () => {
         retriedFailure({
           duration: null,
           running: true,
-          attempts: [attempt(1, { duration: null, running: true })],
+          attempts: [attempt(1, { duration: null })],
         }),
       );
 
@@ -273,7 +272,6 @@ describe("RotationJobDrawerComponent", () => {
           attempts: [
             attempt(1, {
               duration: null,
-              running: false,
               statusLabelKey: "pamRotationAttemptStatusAbandoned",
             }),
           ],
