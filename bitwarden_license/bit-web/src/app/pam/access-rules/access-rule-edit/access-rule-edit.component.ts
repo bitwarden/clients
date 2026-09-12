@@ -71,6 +71,7 @@ import {
   NO_DURATION_CAP,
   snapToNearestAccessRuleDuration,
 } from "../..";
+import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -495,22 +496,9 @@ export class AccessRuleEditComponent {
       return true;
     }
 
-    // Creating abandons the rule itself; editing only loses the edits — different copy for each.
-    const copy = this.editing
-      ? {
-          title: { key: "discardEditsTitle" },
-          content: { key: "discardEditsConfirmation" },
-          acceptButtonText: { key: "discardEdits" },
-          cancelButtonText: { key: "keepEditing" },
-        }
-      : {
-          title: { key: "pamAccessRuleDiscardTitle" },
-          content: { key: "pamAccessRuleDiscardContent" },
-          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
-          cancelButtonText: { key: "cancel" },
-        };
-
-    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+    return await this.dialogService.openSimpleDialog(
+      discardConfirmOptions({ editing: this.editing, createTitleKey: "pamAccessRuleDiscardTitle" }),
+    );
   }
 
   protected readonly cancel = async (): Promise<void> => {
