@@ -4,9 +4,10 @@ import { BehaviorSubject } from "rxjs";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
-import { DaemonStatus } from "../rotation";
+import { AccessConnectorStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsService } from "./daemons.service";
@@ -17,7 +18,7 @@ function makeDaemon(overrides: Partial<AccessConnector> = {}): AccessConnector {
   return {
     id: connectorId("daemon-1"),
     name: "My Daemon",
-    status: DaemonStatus.Enabled,
+    status: AccessConnectorStatus.Enabled,
     isConnected: true,
     assignedTargetSystemIds: [],
     ...overrides,
@@ -33,9 +34,11 @@ describe("DaemonsService", () => {
   let rotationSdk: jest.Mocked<RotationSdkService>;
   let targetSystemsService: jest.Mocked<TargetSystemsService>;
   let systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystem>>;
+  let targetSystemsLoadError$: BehaviorSubject<unknown | null>;
 
   beforeEach(() => {
     systemById$ = new BehaviorSubject<Map<TargetSystemId, TargetSystem>>(new Map());
+    targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
     rotationSdk = {
       listConnectors: jest.fn().mockResolvedValue([]),
@@ -48,6 +51,7 @@ describe("DaemonsService", () => {
 
     targetSystemsService = {
       systemById$: systemById$.asObservable(),
+      loadError$: targetSystemsLoadError$.asObservable(),
     } as unknown as jest.Mocked<TargetSystemsService>;
 
     TestBed.configureTestingModule({
@@ -78,6 +82,67 @@ describe("DaemonsService", () => {
       const loading = await firstValue(service.loading$);
       expect(loading).toBe(false);
     });
+
+    it("records the failure and clears loading when the API throws", async () => {
+      const failure = new Error("network fail");
+      rotationSdk.listConnectors.mockRejectedValue(failure);
+
+      await expect(service.load(orgId)).resolves.toBeUndefined();
+
+      expect(await firstValue(service.loading$)).toBe(false);
+      expect(await firstValue(service.loadError$)).toBe(failure);
+    });
+
+    it("clears a previous failure at the start of the next load", async () => {
+      rotationSdk.listConnectors.mockRejectedValueOnce(new Error("network fail"));
+      await service.load(orgId);
+      rotationSdk.listConnectors.mockResolvedValue([makeDaemon()]);
+
+      await service.load(orgId);
+
+      expect(await firstValue(service.loadError$)).toBeNull();
+    });
+
+    it("does not latch a concurrent load's failure over a later success", async () => {
+      rotationSdk.listConnectors
+        .mockRejectedValueOnce(new Error("network fail"))
+        .mockResolvedValueOnce([makeDaemon()]);
+
+      const failing = service.load(orgId);
+      const succeeding = service.load(orgId);
+      await Promise.all([failing, succeeding]);
+
+      expect(await firstValue(service.rows$)).toHaveLength(1);
+      expect(await firstValue(service.loadError$)).toBeNull();
+    });
+
+    it("does not let a superseded load's failure land over the current load's success", async () => {
+      const gate = deferred();
+      rotationSdk.listConnectors
+        .mockImplementationOnce(async () => {
+          await gate.promise;
+          throw new Error("network fail");
+        })
+        .mockResolvedValueOnce([makeDaemon()]);
+
+      const superseded = service.load(orgId);
+      await service.load(orgId);
+      gate.settle();
+      await superseded;
+
+      expect(await firstValue(service.rows$)).toHaveLength(1);
+      expect(await firstValue(service.loadError$)).toBeNull();
+      expect(await firstValue(service.loading$)).toBe(false);
+    });
+
+    it("reports a target-systems failure even when the daemon list loads", async () => {
+      const failure = new Error("target systems fail");
+
+      await service.load(orgId);
+      targetSystemsLoadError$.next(failure);
+
+      expect(await firstValue(service.loadError$)).toBe(failure);
+    });
   });
 
   describe("rows$ projection", () => {
@@ -104,7 +169,9 @@ describe("DaemonsService", () => {
     });
 
     it("sets enabled and canAssign true for enabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Enabled })]);
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ status: AccessConnectorStatus.Enabled }),
+      ]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
       expect(rows[0].enabled).toBe(true);
@@ -112,31 +179,37 @@ describe("DaemonsService", () => {
     });
 
     it("sets enabled and canAssign false for disabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Disabled })]);
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ status: AccessConnectorStatus.Disabled }),
+      ]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
       expect(rows[0].enabled).toBe(false);
       expect(rows[0].canAssign).toBe(false);
     });
 
-    it("uses pamDaemonStatusEnabled key for enabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Enabled })]);
+    it("uses pamAccessConnectorStatusActive key for enabled connectors", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ status: AccessConnectorStatus.Enabled }),
+      ]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusEnabled");
+      expect(rows[0].statusLabelKey).toBe("pamAccessConnectorStatusActive");
     });
 
-    it("uses pamDaemonStatusDisabled key for disabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Disabled })]);
+    it("uses pamAccessConnectorStatusInactive key for disabled connectors", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ status: AccessConnectorStatus.Disabled }),
+      ]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusDisabled");
+      expect(rows[0].statusLabelKey).toBe("pamAccessConnectorStatusInactive");
     });
   });
 
   describe("setEnabled", () => {
     it("disables via the API and patches status", async () => {
-      const daemon = makeDaemon({ status: DaemonStatus.Enabled });
+      const daemon = makeDaemon({ status: AccessConnectorStatus.Enabled });
       rotationSdk.listConnectors.mockResolvedValue([daemon]);
       await service.load(orgId);
 
@@ -148,7 +221,7 @@ describe("DaemonsService", () => {
     });
 
     it("enables via the API and patches status", async () => {
-      const daemon = makeDaemon({ status: DaemonStatus.Disabled });
+      const daemon = makeDaemon({ status: AccessConnectorStatus.Disabled });
       rotationSdk.listConnectors.mockResolvedValue([daemon]);
       await service.load(orgId);
 
@@ -160,7 +233,7 @@ describe("DaemonsService", () => {
     });
 
     it("rolls back on API failure", async () => {
-      const daemon = makeDaemon({ status: DaemonStatus.Enabled });
+      const daemon = makeDaemon({ status: AccessConnectorStatus.Enabled });
       rotationSdk.listConnectors.mockResolvedValue([daemon]);
       rotationSdk.disableConnector.mockRejectedValue(new Error("fail"));
       await service.load(orgId);
