@@ -117,6 +117,7 @@ export const BITWARDEN_ICONS = [
   "bwi-paperclip",
   "bwi-passkey",
   "bwi-passport",
+  "bwi-pause-circle",
   "bwi-paypal",
   "bwi-pencil",
   "bwi-pencil-square",
