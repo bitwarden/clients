@@ -1,11 +1,13 @@
-name: CLI Bug Report
-description: File a bug report
-labels: [bug, cli]
+name: Browser Extension Beta Bug Report
+description: File a bug report for a Browser Extension beta build
+labels: [bug, browser, beta]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this bug report for the browser extension **beta** build!
+
+        Please only use this template if you are running a beta version of the Bitwarden browser extension. For stable-release bugs, use the "Browser Extension Bug Report" instead.
 
         Please do not submit feature requests. The [Community Forums](https://community.bitwarden.com) has a section for submitting, voting for, and discussing product feature requests.
   - type: textarea
@@ -35,6 +37,11 @@ body:
     validations:
       required: true
   - type: textarea
+    id: regression
+    attributes:
+      label: Regression
+      description: Did this work in the current stable release? If so, which version last worked?
+  - type: textarea
     id: screenshots
     attributes:
       label: Screenshots or Videos
@@ -62,22 +69,31 @@ body:
       label: Operating System Version
       description: What version of the operating system(s) are you seeing the problem on?
   - type: dropdown
-    id: shell
+    id: browsers
     attributes:
-      label: Shell
-      description: What shell(s) are you seeing the problem on?
+      label: Web Browser
+      description: What browser(s) are you seeing the problem on?
       multiple: true
       options:
-        - Bash
-        - Zsh
-        - PowerShell
+        - Chrome
+        - Safari
+        - Microsoft Edge
+        - Firefox
+        - Opera
+        - Brave
+        - Vivaldi
     validations:
       required: true
   - type: input
+    id: browser-version
+    attributes:
+      label: Browser Version
+      description: What version of the browser(s) are you seeing the problem on?
+  - type: textarea
     id: version
     attributes:
-      label: Build Version
-      description: What version of our software are you running? (run `bw --version`)
+      label: Environment Versions
+      description: Copy from "Settings" → "About" → "About Bitwarden" in the extension. Should include the beta extension version and server environment.
     validations:
       required: true
   - type: checkboxes
