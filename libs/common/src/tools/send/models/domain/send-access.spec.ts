@@ -20,6 +20,7 @@ describe("SendAccess", () => {
         text: "encText",
         hidden: true,
       },
+      data: null,
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       creatorIdentifier: "creatorIdentifier",
     } as SendAccessResponse;
@@ -79,6 +80,7 @@ describe("SendAccess", () => {
       name: "name",
       text: {},
       file: expect.anything(),
+      data: expect.anything(),
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       creatorIdentifier: "creatorIdentifier",
     });
