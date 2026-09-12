@@ -109,9 +109,95 @@ describe("buildRotationConfigRow", () => {
       );
     });
 
-    it("carries the badge's label key as the column's sort and filter value", () => {
+    it("carries the badge's label key as the status filter's value", () => {
       const built = row({ config: { hasActiveJob: true } });
       expect(built.statusLabelKey).toBe(built.statusBadge.labelKey);
+    });
+  });
+
+  /**
+   * The column used to sort on `statusLabelKey`, which ordered rows by the spelling of an i18n
+   * identifier: "pamRotationConfigInProgress" ahead of "pamRotationConfigStatusActive" for no
+   * reason a reader of the rendered labels could see.
+   */
+  describe("status sort order", () => {
+    const orderOf = (config: Partial<RotationConfig>) => row({ config }).statusSortOrder;
+
+    it("ranks the statuses by resolveRotationStatus's precedence", () => {
+      expect(orderOf({ hasActiveJob: true })).toBe(1);
+      expect(orderOf({ enabled: false })).toBe(2);
+      expect(orderOf({ awaitingManualRotation: true })).toBe(3);
+      expect(orderOf({ enabled: true })).toBe(4);
+    });
+
+    it("sorts ascending from the most attention-worthy status to the steady state", () => {
+      const rows = [
+        row({ config: { enabled: true } }),
+        row({ config: { awaitingManualRotation: true } }),
+        row({ config: { hasActiveJob: true } }),
+        row({ config: { enabled: false } }),
+      ];
+
+      const sorted = [...rows].sort((a, b) => a.statusSortOrder - b.statusSortOrder);
+
+      expect(sorted.map((r) => r.status)).toEqual([
+        RotationRowStatus.Rotating,
+        RotationRowStatus.Paused,
+        RotationRowStatus.ManualRotation,
+        RotationRowStatus.Active,
+      ]);
+    });
+
+    it("gives each status a distinct rank, so no two collapse together", () => {
+      const orders = [
+        orderOf({ hasActiveJob: true }),
+        orderOf({ enabled: false }),
+        orderOf({ awaitingManualRotation: true }),
+        orderOf({ enabled: true }),
+      ];
+      expect(new Set(orders).size).toBe(4);
+    });
+
+    it("takes the rank from the resolved status, not from the pause a rotating row also carries", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: true } });
+      expect(built.pausedWhileRotating).toBe(true);
+      expect(built.statusSortOrder).toBe(orderOf({ hasActiveJob: true }));
+    });
+  });
+
+  /**
+   * Only removal is gated on an in-flight job, so a config can be paused and mid-rotation at once.
+   * The status badge shows the rotation; this flag is what keeps the pause visible.
+   */
+  describe("paused while rotating", () => {
+    it("flags a paused config whose claimed job is still running", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: true } });
+      expect(built.status).toBe(RotationRowStatus.Rotating);
+      expect(built.pausedWhileRotating).toBe(true);
+    });
+
+    it("leaves the status column's sort and filter value on the resolved status", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: true } });
+      expect(built.statusLabelKey).toBe("pamRotationConfigInProgress");
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigInProgress");
+    });
+
+    it("does not flag a paused config with no job in flight, whose badge already says paused", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: false } });
+      expect(built.status).toBe(RotationRowStatus.Paused);
+      expect(built.pausedWhileRotating).toBe(false);
+    });
+
+    it("does not flag an enabled config that is mid-rotation", () => {
+      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(
+        false,
+      );
+    });
+
+    it("does not flag a steady-state active config", () => {
+      expect(row({ config: { enabled: true, hasActiveJob: false } }).pausedWhileRotating).toBe(
+        false,
+      );
     });
   });
 

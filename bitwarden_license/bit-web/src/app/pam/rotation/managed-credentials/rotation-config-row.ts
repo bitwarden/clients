@@ -5,8 +5,11 @@ import { RotationConfigDescription } from "../rotation-sdk.service";
 import { targetSystemMethodLabelKey } from "../target-systems/target-system-label";
 
 /**
- * The single status a managed credential row shows. Mutually exclusive: a row renders one badge,
- * never a stack of them.
+ * The single status a managed credential row resolves to. Mutually exclusive: one status wins, and
+ * it is the only one the status column sorts and the status filter matches on.
+ *
+ * A row may still carry a companion pause marker alongside the status badge; see
+ * {@link RotationConfigRow.pausedWhileRotating}.
  */
 export const RotationRowStatus = Object.freeze({
   Active: "active",
@@ -22,6 +25,15 @@ export type RotationStatusBadge = {
   labelKey: string;
   variant: BadgeVariant;
   icon: BitwardenIcon;
+  /**
+   * Where this status sits when the Status column is sorted, ascending.
+   *
+   * The order is {@link resolveRotationStatus}'s own precedence, so the column reads from the
+   * status most in need of an admin's attention down to the steady state. Sorting on the label
+   * key instead would order by the spelling of an i18n identifier, and sorting on the rendered
+   * label would put the column in a different order in every locale.
+   */
+  sortOrder: number;
 };
 
 const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusBadge>>> =
@@ -31,24 +43,28 @@ const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusB
       labelKey: "pamRotationConfigStatusActive",
       variant: "success",
       icon: "bwi-check-circle",
+      sortOrder: 4,
     },
     [RotationRowStatus.Paused]: {
       status: RotationRowStatus.Paused,
       labelKey: "pamRotationConfigStatusPaused",
       variant: "subtle",
       icon: "bwi-minus-circle",
+      sortOrder: 2,
     },
     [RotationRowStatus.Rotating]: {
       status: RotationRowStatus.Rotating,
       labelKey: "pamRotationConfigRotatingBadge",
       variant: "primary",
       icon: "bwi-refresh",
+      sortOrder: 1,
     },
     [RotationRowStatus.ManualRotation]: {
       status: RotationRowStatus.ManualRotation,
       labelKey: "pamRotationConfigRotationDueBadge",
       variant: "warning",
       icon: "bwi-clock",
+      sortOrder: 3,
     },
   } as const);
 
@@ -98,6 +114,21 @@ export type RotationConfigRow = {
   statusBadge: RotationStatusBadge;
   /** i18n label key of {@link statusBadge}. */
   statusLabelKey: string;
+  /**
+   * {@link RotationStatusBadge.sortOrder} of {@link statusBadge}, the property the Status column
+   * sorts on. A field of its own because {@link statusLabelKey} is what the status filter chip
+   * matches against and must keep meaning the badge's i18n key.
+   */
+  statusSortOrder: number;
+  /**
+   * Whether the row is paused while a claimed job is still running, the one case where the single
+   * status badge cannot show the pause: {@link resolveRotationStatus} gives the in-flight job
+   * precedence, so the row would otherwise read as merely rotating.
+   *
+   * Kept apart from {@link status}, {@link statusBadge} and {@link statusLabelKey} so the status
+   * column's sort and the status filter still see exactly the four resolved statuses.
+   */
+  pausedWhileRotating: boolean;
   /**
    * For preset crons: the i18n key for the preset label (e.g. `"pamRotationScheduleDaily"`).
    * For a custom cron: the raw cron string itself (displayed verbatim).
@@ -161,6 +192,8 @@ export function buildRotationConfigRow(
     status,
     statusBadge,
     statusLabelKey: statusBadge.labelKey,
+    statusSortOrder: statusBadge.sortOrder,
+    pausedWhileRotating: !config.enabled && status === RotationRowStatus.Rotating,
     scheduleLabelKeyOrCron,
     rotateOnAccessEnd: config.rotateOnAccessEnd,
     lastRotationAtMs: Number.isNaN(lastRotationAtMs) ? null : lastRotationAtMs,
