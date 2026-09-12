@@ -50,7 +50,13 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { TabsModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  TabsModule,
+  CenterPositionStrategy,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
@@ -64,6 +70,7 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { SshAgentSetupDialogComponent } from "../components/ssh-agent-setup-dialog.component";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 import { SettingsDialogComponent } from "./settings-dialog.component";
@@ -111,6 +118,8 @@ describe("SettingsDialogComponent", () => {
 
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
+  const TEST_SSH_SOCKET_ADDRESS = "/home/test/.bitwarden-ssh-agent.sock";
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -118,6 +127,11 @@ describe("SettingsDialogComponent", () => {
     (global as any).ipc = {
       auth: {
         loginRequest: jest.fn(),
+      },
+      autofill: {
+        sshAgent: {
+          getSocketAddress: jest.fn().mockResolvedValue(TEST_SSH_SOCKET_ADDRESS),
+        },
       },
       platform: {
         isDev: false,
@@ -128,6 +142,8 @@ describe("SettingsDialogComponent", () => {
         },
       },
     };
+
+    dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
 
     i18nService.supportedTranslationLocales = [];
     i18nService.t.mockImplementation((key: string) => key);
@@ -1086,6 +1102,57 @@ describe("SettingsDialogComponent", () => {
       expect(autofillSettingsServiceAbstraction.setClearClipboardDelay).toHaveBeenLastCalledWith(
         ClearClipboardDelay.ThirtySeconds,
       );
+    });
+  });
+
+  describe("saveSshAgent", () => {
+    /**
+     * `showSshAgentSetupDialog` is a `toSignal()` initialized at class level, so the feature
+     * flag mock must be in place before the component is constructed.
+     */
+    function createComponentWithFlag(enabled: boolean) {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.SSHAgentSetupDialog ? enabled : false),
+      );
+
+      fixture = TestBed.createComponent(SettingsDialogComponent);
+      component = fixture.componentInstance;
+    }
+
+    it("opens the setup dialog with the agent socket address when enabling", async () => {
+      createComponentWithFlag(true);
+      await component.ngOnInit();
+      component["form"].controls.enableSshAgent.setValue(true, { emitEvent: false });
+
+      await component["saveSshAgent"]();
+
+      expect(desktopSettingsService.setSshAgentEnabled).toHaveBeenLastCalledWith(true);
+      expect(dialogService.open).toHaveBeenCalledWith(SshAgentSetupDialogComponent, {
+        data: { socketAddress: TEST_SSH_SOCKET_ADDRESS },
+        positionStrategy: expect.any(CenterPositionStrategy),
+      });
+    });
+
+    it("does not open the setup dialog when the feature flag is off", async () => {
+      createComponentWithFlag(false);
+      await component.ngOnInit();
+      component["form"].controls.enableSshAgent.setValue(true, { emitEvent: false });
+
+      await component["saveSshAgent"]();
+
+      expect(desktopSettingsService.setSshAgentEnabled).toHaveBeenLastCalledWith(true);
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
+    it("does not open the setup dialog when disabling", async () => {
+      createComponentWithFlag(true);
+      await component.ngOnInit();
+      component["form"].controls.enableSshAgent.setValue(false, { emitEvent: false });
+
+      await component["saveSshAgent"]();
+
+      expect(desktopSettingsService.setSshAgentEnabled).toHaveBeenLastCalledWith(false);
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 
