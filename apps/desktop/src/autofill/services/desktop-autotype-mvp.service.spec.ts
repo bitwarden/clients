@@ -8,6 +8,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
@@ -42,7 +43,8 @@ describe("DesktopAutotypeMvpService", () => {
   let activeAccountSubject: BehaviorSubject<any>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let hasPremiumSubject: BehaviorSubject<boolean>;
-  let featureFlagSubject: BehaviorSubject<boolean>;
+  let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
+  let gaFeatureFlagSubject: BehaviorSubject<boolean>;
   let autotypeDefaultPolicySubject: BehaviorSubject<boolean>;
   let cipherViewsSubject: BehaviorSubject<any[]>;
 
@@ -55,7 +57,8 @@ describe("DesktopAutotypeMvpService", () => {
       AuthenticationStatus.Unlocked,
     );
     hasPremiumSubject = new BehaviorSubject<boolean>(true);
-    featureFlagSubject = new BehaviorSubject<boolean>(true);
+    mvpFeatureFlagSubject = new BehaviorSubject<boolean>(true);
+    gaFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     autotypeDefaultPolicySubject = new BehaviorSubject<boolean>(false);
     cipherViewsSubject = new BehaviorSubject<any[]>([]);
 
@@ -113,7 +116,12 @@ describe("DesktopAutotypeMvpService", () => {
 
     // Mock ConfigService
     mockConfigService = {
-      getFeatureFlag$: jest.fn().mockReturnValue(featureFlagSubject.asObservable()),
+      getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) => {
+        if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+          return gaFeatureFlagSubject.asObservable();
+        }
+        return mvpFeatureFlagSubject.asObservable();
+      }),
     } as any;
 
     // Mock PlatformUtilsService
@@ -219,6 +227,21 @@ describe("DesktopAutotypeMvpService", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalled();
+    });
+
+    it("should not toggle autotype on when both the MVP and GA feature flags are enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Both flags on resolves to `Off`, so the MVP hotkey must not be armed
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.autotypeMvp.toggle).not.toHaveBeenCalledWith(true);
     });
 
     it("should enable autotype when policy is true and user setting is null", async () => {
