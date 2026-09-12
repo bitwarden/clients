@@ -329,6 +329,8 @@ describe("AssignmentPickerComponent", () => {
       host.disabled = true;
       host.options = [];
       await render();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       const select = el("#host_multi-select_options");
 
