@@ -434,6 +434,20 @@ describe("RotationHistoryComponent", () => {
       ).toEqual([1, 2]);
     });
 
+    it("numbers a reordered page by start rather than by position, in step with the cause", () => {
+      setup([]);
+      const job = failingJob();
+      (job.attempts[0] as any).startedAt = "2026-01-01T00:00:50Z";
+      (job.attempts[0] as any).id = attemptId("later");
+      (job.attempts[1] as any).id = attemptId("earlier");
+      const view = (component as any).toJobView(job);
+      expect(view.attempts.map((a: any) => a.id)).toEqual([
+        attemptId("earlier"),
+        attemptId("later"),
+      ]);
+      expect(view.attempts.map((a: any) => a.ordinal)).toEqual([1, 2]);
+    });
+
     it("reports the sync state on a failed job only", () => {
       setup([]);
       expect((component as any).toJobView(failingJob()).syncStateLabelKey).toBe(
@@ -874,6 +888,34 @@ describe("RotationHistoryComponent rendering", () => {
 
       closed.next(undefined);
       expect(document.activeElement).toBe(cell);
+    });
+
+    it("leaves focus alone when opening a row supersedes a still-open drawer", async () => {
+      const fixture = render([
+        rotationJob({ id: jobId("1"), createdAt: "2026-01-01T00:00:00Z" }),
+        rotationJob({ id: jobId("2"), createdAt: "2026-02-01T00:00:00Z" }),
+      ]);
+      const closedA = new Subject<unknown>();
+      const closedB = new Subject<unknown>();
+      dialogService.openDrawer
+        .mockResolvedValueOnce({ closed: closedA } as any)
+        .mockResolvedValueOnce({ closed: closedB } as any);
+
+      const cellA = resultCell(fixture, 0).nativeElement as HTMLElement;
+      const cellB = resultCell(fixture, 1).nativeElement as HTMLElement;
+
+      cellA.click();
+      await settle(fixture);
+
+      // DialogService.openDrawer closes the current drawer before the new one opens, so B's open
+      // fires A's close before B's own promise settles.
+      cellB.click();
+      closedA.next(undefined);
+      expect(document.activeElement).not.toBe(cellA);
+
+      await settle(fixture);
+      closedB.next(undefined);
+      expect(document.activeElement).toBe(cellB);
     });
 
     it("stands Source, Duration and Attempts down while the pane is beside the table", async () => {
