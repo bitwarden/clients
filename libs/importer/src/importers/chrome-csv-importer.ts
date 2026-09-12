@@ -4,11 +4,24 @@ import { BaseImporter } from "./base-importer";
 import { Importer } from "./importer";
 
 export class ChromeCsvImporter extends BaseImporter implements Importer {
-  private androidPatternRegex = new RegExp("^android:\\/\\/.*(?<=@)(.*)(?=\\/)");
+  // Extracts the package name from an android:// URI of the form
+  // android://[base64]@[package.name]/  using plain string ops (no regex)
+  // to avoid polynomial backtracking on adversarial input.
+  private extractAndroidPackageName(url: string): string | null {
+    if (!url?.startsWith("android://")) {
+      return null;
+    }
+    const atIdx = url.indexOf("@");
+    if (atIdx === -1) {
+      return null;
+    }
+    const slashIdx = url.indexOf("/", atIdx + 1);
+    return slashIdx === -1 ? url.slice(atIdx + 1) : url.slice(atIdx + 1, slashIdx);
+  }
 
   private normalizeAndroidUrl(url: string): string {
-    const match = url?.match(this.androidPatternRegex);
-    return match ? `androidapp://${match[1]}` : url;
+    const packageName = this.extractAndroidPackageName(url);
+    return packageName != null ? `androidapp://${packageName}` : url;
   }
 
   parse(data: string): Promise<ImportResult> {
@@ -24,8 +37,11 @@ export class ChromeCsvImporter extends BaseImporter implements Importer {
       const normalizedUri = this.normalizeAndroidUrl(value.url);
 
       let name = value.name;
-      if (!name && this.androidPatternRegex.test(value.url)) {
-        name = value.url.match(this.androidPatternRegex)[1];
+      if (!name) {
+        const packageName = this.extractAndroidPackageName(value.url);
+        if (packageName != null) {
+          name = packageName;
+        }
       }
       cipher.name = this.getValueOrDefault(name, "--");
       cipher.login.username = this.getValueOrDefault(value.username);
