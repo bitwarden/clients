@@ -39,7 +39,12 @@ export function targetSystemMethodLabelKey(method: TargetSystemMethod): string |
   return METHOD_LABEL_KEYS[method] ?? null;
 }
 
-/** The i18n key for the detail that distinguishes a target system from a same-named sibling. */
+/**
+ * The i18n key for the detail that distinguishes a target system from a same-named sibling of a
+ * different kind or method. Two same-named siblings that also share a kind (or share a method,
+ * for manual ones) still produce the same qualifier: this function only sees one system, so a
+ * caller that needs a guaranteed-unique label should key off {@link TargetSystemLabel.id} instead.
+ */
 export function targetSystemQualifierKey(
   system: Pick<TargetSystem, "kind" | "method">,
 ): string | null {
