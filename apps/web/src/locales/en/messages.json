@@ -19559,6 +19559,9 @@
   "pamRotationTabDaemons": {
     "message": "Daemons"
   },
+  "pamRotationTabAccessConnectors": {
+    "message": "Access connectors"
+  },
   "pamAccessConnectorsLoaded": {
     "message": "Access connectors loaded"
   },
