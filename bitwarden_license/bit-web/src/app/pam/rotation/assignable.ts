@@ -9,7 +9,9 @@ export function assignableConnectors(
   connectors: readonly AccessConnector[],
 ): AccessConnector[] {
   return connectors.filter(
-    (connector) => !connector.assignedTargetSystemIds.includes(targetSystemId),
+    (connector) =>
+      connector.status === AccessConnectorStatus.Enabled &&
+      !connector.assignedTargetSystemIds.includes(targetSystemId),
   );
 }
 
