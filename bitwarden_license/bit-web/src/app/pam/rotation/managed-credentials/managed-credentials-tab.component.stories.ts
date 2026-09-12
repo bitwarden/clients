@@ -16,6 +16,7 @@ import { OrgCiphersService } from "../org-ciphers.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   id,
+  configId,
   sysId,
   ORGANIZATION_ID,
   rotationConfig,
@@ -61,6 +62,7 @@ const COLLECTIONS: CollectionAdminView[] = [
 const ROWS: RotationConfigRow[] = [
   buildRotationConfigRow(
     rotationConfig({
+      id: configId("1"),
       cipherId: CIPHER_PROD,
       targetSystemId: sysId("1"),
       targetSystemName: "Prod Entra",
@@ -72,6 +74,7 @@ const ROWS: RotationConfigRow[] = [
   ),
   buildRotationConfigRow(
     rotationConfig({
+      id: configId("2"),
       cipherId: CIPHER_STAGING,
       targetSystemId: sysId("2"),
       targetSystemName: "Staging AD",
@@ -89,6 +92,7 @@ const ROWS: RotationConfigRow[] = [
   ),
   buildRotationConfigRow(
     rotationConfig({
+      id: configId("3"),
       cipherId: CIPHER_CI,
       targetSystemId: sysId("1"),
       targetSystemName: "Prod Entra",
@@ -103,6 +107,7 @@ const ROWS: RotationConfigRow[] = [
   ),
   buildRotationConfigRow(
     rotationConfig({
+      id: configId("4"),
       cipherId: CIPHER_MAINFRAME,
       targetSystemId: sysId("2"),
       targetSystemName: "Staging AD",
