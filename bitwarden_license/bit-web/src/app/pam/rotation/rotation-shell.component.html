@@ -35,7 +35,7 @@
           [bitAction]="registerDaemon"
           id="rotation-shell_button_new-daemon"
         >
-          {{ "pamDaemonNew" | i18n }}
+          {{ "pamAccessConnectorNew" | i18n }}
         </button>
       }
     }
@@ -45,7 +45,9 @@
       "pamRotationTabManagedCredentials" | i18n
     }}</bit-tab-link>
     <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
-    <bit-tab-link route="access-connectors">{{ "pamRotationTabDaemons" | i18n }}</bit-tab-link>
+    <bit-tab-link route="access-connectors">{{
+      "pamRotationTabAccessConnectors" | i18n
+    }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>
 
