@@ -777,9 +777,10 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Whether the loaded system is currently in service. Gates the connector picker and the
-   * outstanding-setup hint. Only read from the edit branch, which renders after
-   * {@link loadSystem} has resolved, so the unloaded case never reaches the template.
+   * Whether the loaded system is currently in service. Read by the outstanding-setup hint and
+   * the delete confirmation's wording; the connector picker follows the method alone, active or
+   * not. Only read from the edit branch, which renders after {@link loadSystem} has resolved, so
+   * the unloaded case never reaches the template.
    */
   protected readonly isActive = computed(
     () => this.existing()?.status === TargetSystemStatus.Active,
@@ -847,7 +848,9 @@ export class TargetSystemEditComponent {
         key:
           this.assignedConnectors().length > 0
             ? "pamTargetSystemDeleteAssignedConnectorsContent"
-            : "pamTargetSystemDeleteContentDeactivateInstead",
+            : this.isActive()
+              ? "pamTargetSystemDeleteContentDeactivateInstead"
+              : "pamTargetSystemDeleteContent",
         placeholders: [system.name],
       },
       acceptButtonText: { key: "delete" },
