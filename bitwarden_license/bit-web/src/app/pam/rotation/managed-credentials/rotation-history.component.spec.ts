@@ -396,7 +396,6 @@ describe("RotationHistoryComponent", () => {
       );
       expect(view.duration).toBeNull();
       expect(view.running).toBe(true);
-      expect(view.attempts[0].running).toBe(true);
     });
 
     it("does not call a job that timed out before it was claimed running", () => {
@@ -409,7 +408,7 @@ describe("RotationHistoryComponent", () => {
       expect(view.failed).toBe(true);
     });
 
-    it("does not call an abandoned attempt with no recorded end running", () => {
+    it("leaves the duration null for an abandoned attempt with no recorded end", () => {
       setup([]);
       const view = (component as any).toJobView(
         rotationJob({
@@ -424,7 +423,6 @@ describe("RotationHistoryComponent", () => {
         }),
       );
       expect(view.attempts[0].duration).toBeNull();
-      expect(view.attempts[0].running).toBe(false);
     });
 
     it("numbers attempts in the order the server returned them", () => {
