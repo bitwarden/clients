@@ -91,7 +91,7 @@ describe("RotationShellComponent", () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
     expect(text).toContain("pamRotationTabManagedCredentials");
     expect(text).toContain("pamRotationTabTargetSystems");
-    expect(text).toContain("pamRotationTabDaemons");
+    expect(text).toContain("pamRotationTabAccessConnectors");
   });
 
   it("calls load on RotationConfigsService with the organization id on init", async () => {
