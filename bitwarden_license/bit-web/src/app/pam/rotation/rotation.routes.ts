@@ -67,7 +67,7 @@ export const rotationRoutes: Routes = [
       {
         path: ROTATION_TABS.accessConnectors,
         component: DaemonsTabComponent,
-        data: { titleId: "pamRotationTabDaemons" },
+        data: { titleId: "pamRotationTabAccessConnectors" },
       },
     ],
   },
