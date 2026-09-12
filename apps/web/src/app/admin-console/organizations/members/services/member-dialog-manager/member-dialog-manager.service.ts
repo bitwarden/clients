@@ -7,8 +7,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
@@ -32,7 +30,6 @@ import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-r
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
-import { openUserAddEditDialog } from "../../components/member-dialog";
 import {
   MemberDialogResult,
   MemberDialogTab,
@@ -42,7 +39,6 @@ import { BulkActionResult } from "../member-actions/member-actions.types";
 
 @Injectable({ providedIn: "root" })
 export class MemberDialogManagerService {
-  private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private i18nService = inject(I18nService);
   private toastService = inject(ToastService);
@@ -56,31 +52,13 @@ export class MemberDialogManagerService {
     allUsers: OrganizationUserView[],
     showCoachMarks: boolean = false,
   ): Promise<MemberDialogResult> {
-    const generateInviteLink = await this.configService.getFeatureFlag(
-      FeatureFlag.GenerateInviteLink,
-    );
-
-    if (generateInviteLink) {
-      const dialog = InviteMembersDialogComponent.open(this.dialogService, {
-        data: {
-          organizationId: organization.id,
-          allOrganizationUsers: allUsers,
-          occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
-          isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-          showCoachMarks,
-        },
-      });
-      const result = await lastValueFrom(dialog.closed);
-      return result ?? MemberDialogResult.Canceled;
-    }
-
-    const dialog = openUserAddEditDialog(this.dialogService, {
+    const dialog = InviteMembersDialogComponent.open(this.dialogService, {
       data: {
-        kind: "Add",
         organizationId: organization.id,
         allOrganizationUsers: allUsers,
         occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
+        showCoachMarks,
       },
     });
 
