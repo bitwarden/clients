@@ -216,7 +216,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     merge(
       this.intervalCountControl.valueChanges,
       this.intervalTimeControl.valueChanges,
-      this.intervalUnitControl.valueChanges.pipe(tap((unit) => this.applyCountBounds(unit))),
+      this.intervalUnitControl.valueChanges.pipe(tap((unit) => this.applyCountBounds(unit, true))),
     )
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
@@ -260,6 +260,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     // An empty field is "no schedule", not a malformed one — see validate().
     this.cronShapeValid = raw === "" || (await this.rotationSdk.isLikelyQuartzCron(raw));
     this.customControl.updateValueAndValidity({ emitEvent: false });
+    this.customControl.setErrors(this.customControl.errors);
     this.onValidatorChange();
     this.cdr.markForCheck();
   }
@@ -422,9 +423,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     ];
   }
 
-  private applyCountBounds(unit: ScheduleIntervalUnit): void {
+  private applyCountBounds(unit: ScheduleIntervalUnit, emitEvent = false): void {
     this.intervalCountControl.setValidators(this.countValidators(unit));
-    this.intervalCountControl.updateValueAndValidity({ emitEvent: false });
+    this.intervalCountControl.updateValueAndValidity({ emitEvent });
+    if (emitEvent && this.intervalCountControl.invalid) {
+      this.intervalCountControl.markAsTouched();
+    }
   }
 
   /** The builder's parts, or `null` when they cannot make an expression. */
