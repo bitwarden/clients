@@ -94,370 +94,374 @@
 }
 
 .bwi-accessibility:before {
-  content: "\f179";
+  content: "\f17a";
 }
 
 .bwi-add:before {
-  content: "\f177";
-}
-
-.bwi-add-circle:before {
   content: "\f178";
 }
 
+.bwi-add-circle:before {
+  content: "\f179";
+}
+
 .bwi-admin-console:before {
-  content: "\f176";
+  content: "\f177";
 }
 
 .bwi-angle-down:before {
-  content: "\f175";
+  content: "\f176";
 }
 
 .bwi-angle-left:before {
-  content: "\f174";
+  content: "\f175";
 }
 
 .bwi-angle-right:before {
-  content: "\f173";
+  content: "\f174";
 }
 
 .bwi-angle-up:before {
-  content: "\f171";
-}
-
-.bwi-angle-up-down:before {
   content: "\f172";
 }
 
+.bwi-angle-up-down:before {
+  content: "\f173";
+}
+
 .bwi-archive:before {
-  content: "\f170";
+  content: "\f171";
 }
 
 .bwi-arrow-down:before {
-  content: "\f16f";
+  content: "\f170";
 }
 
 .bwi-arrow-filled-down:before {
-  content: "\f16e";
+  content: "\f16f";
 }
 
 .bwi-arrow-filled-left:before {
-  content: "\f16d";
+  content: "\f16e";
 }
 
 .bwi-arrow-filled-right:before {
-  content: "\f16c";
+  content: "\f16d";
 }
 
 .bwi-arrow-filled-up:before {
-  content: "\f16b";
+  content: "\f16c";
 }
 
 .bwi-arrow-left:before {
-  content: "\f16a";
+  content: "\f16b";
 }
 
 .bwi-arrow-right:before {
-  content: "\f169";
+  content: "\f16a";
 }
 
 .bwi-arrow-up:before {
-  content: "\f168";
+  content: "\f169";
 }
 
 .bwi-attach:before {
-  content: "\f167";
+  content: "\f168";
 }
 
 .bwi-autofill:before {
-  content: "\f166";
+  content: "\f167";
 }
 
 .bwi-bank:before {
-  content: "\f165";
+  content: "\f166";
 }
 
 .bwi-bitcoin:before {
-  content: "\f164";
+  content: "\f165";
 }
 
 .bwi-bitwarden-shield:before {
-  content: "\f163";
+  content: "\f164";
 }
 
 .bwi-browser:before {
-  content: "\f162";
+  content: "\f163";
 }
 
 .bwi-bug:before {
-  content: "\f161";
+  content: "\f162";
 }
 
 .bwi-business:before {
-  content: "\f160";
+  content: "\f161";
 }
 
 .bwi-camera:before {
-  content: "\f15f";
+  content: "\f160";
 }
 
 .bwi-check:before {
-  content: "\f15d";
-}
-
-.bwi-check-circle:before {
   content: "\f15e";
 }
 
+.bwi-check-circle:before {
+  content: "\f15f";
+}
+
 .bwi-circle:before {
-  content: "\f15c";
+  content: "\f15d";
 }
 
 .bwi-clear:before {
-  content: "\f15b";
+  content: "\f15c";
 }
 
 .bwi-clock:before {
-  content: "\f15a";
+  content: "\f15b";
 }
 
 .bwi-close:before {
-  content: "\f159";
+  content: "\f15a";
 }
 
 .bwi-collapse-nav:before {
-  content: "\f158";
+  content: "\f159";
 }
 
 .bwi-collection:before {
-  content: "\f156";
-}
-
-.bwi-collection-shared:before {
   content: "\f157";
 }
 
+.bwi-collection-shared:before {
+  content: "\f158";
+}
+
 .bwi-copy:before {
-  content: "\f155";
+  content: "\f156";
 }
 
 .bwi-credit-card:before {
-  content: "\f154";
+  content: "\f155";
 }
 
 .bwi-dashboard:before {
-  content: "\f153";
+  content: "\f154";
 }
 
 .bwi-delete:before {
-  content: "\f152";
+  content: "\f153";
 }
 
 .bwi-desktop:before {
-  content: "\f150";
-}
-
-.bwi-desktop-user:before {
   content: "\f151";
 }
 
+.bwi-desktop-user:before {
+  content: "\f152";
+}
+
 .bwi-diamond:before {
-  content: "\f14f";
+  content: "\f150";
 }
 
 .bwi-dollar:before {
-  content: "\f14e";
+  content: "\f14f";
 }
 
 .bwi-download:before {
-  content: "\f14d";
+  content: "\f14e";
 }
 
 .bwi-drag:before {
-  content: "\f14c";
+  content: "\f14d";
 }
 
 .bwi-duplicate:before {
-  content: "\f14b";
+  content: "\f14c";
 }
 
 .bwi-edit:before {
-  content: "\f149";
-}
-
-.bwi-edit-alt:before {
   content: "\f14a";
 }
 
+.bwi-edit-alt:before {
+  content: "\f14b";
+}
+
 .bwi-encrypted:before {
-  content: "\f148";
+  content: "\f149";
 }
 
 .bwi-error:before {
-  content: "\f147";
+  content: "\f148";
 }
 
 .bwi-expand-nav:before {
-  content: "\f146";
+  content: "\f147";
 }
 
 .bwi-extension:before {
-  content: "\f145";
+  content: "\f146";
 }
 
 .bwi-external-link:before {
-  content: "\f144";
+  content: "\f145";
 }
 
 .bwi-family:before {
-  content: "\f143";
+  content: "\f144";
 }
 
 .bwi-file:before {
-  content: "\f141";
-}
-
-.bwi-file-text:before {
   content: "\f142";
 }
 
+.bwi-file-text:before {
+  content: "\f143";
+}
+
 .bwi-filter:before {
-  content: "\f140";
+  content: "\f141";
 }
 
 .bwi-folder:before {
-  content: "\f13f";
+  content: "\f140";
 }
 
 .bwi-generate:before {
-  content: "\f13e";
+  content: "\f13f";
 }
 
 .bwi-gift:before {
-  content: "\f13d";
+  content: "\f13e";
 }
 
 .bwi-grid:before {
-  content: "\f13c";
+  content: "\f13d";
 }
 
 .bwi-groups:before {
-  content: "\f13b";
+  content: "\f13c";
 }
 
 .bwi-handshake:before {
-  content: "\f13a";
+  content: "\f13b";
 }
 
 .bwi-hashtag:before {
-  content: "\f139";
+  content: "\f13a";
 }
 
 .bwi-help:before {
-  content: "\f138";
+  content: "\f139";
 }
 
 .bwi-identity:before {
-  content: "\f137";
+  content: "\f138";
 }
 
 .bwi-info:before {
-  content: "\f136";
+  content: "\f137";
 }
 
 .bwi-key:before {
-  content: "\f135";
+  content: "\f136";
 }
 
 .bwi-list:before {
-  content: "\f133";
-}
-
-.bwi-list-alt:before {
   content: "\f134";
 }
 
+.bwi-list-alt:before {
+  content: "\f135";
+}
+
 .bwi-loading:before {
-  content: "\f132";
+  content: "\f133";
 }
 
 .bwi-lock:before {
-  content: "\f130";
-}
-
-.bwi-lock-filled:before {
   content: "\f131";
 }
 
+.bwi-lock-filled:before {
+  content: "\f132";
+}
+
 .bwi-login:before {
-  content: "\f12f";
+  content: "\f130";
 }
 
 .bwi-mail:before {
-  content: "\f12e";
+  content: "\f12f";
 }
 
 .bwi-mobile:before {
-  content: "\f12d";
+  content: "\f12e";
 }
 
 .bwi-more-horizontal:before {
-  content: "\f12c";
+  content: "\f12d";
 }
 
 .bwi-more-vertical:before {
-  content: "\f12b";
+  content: "\f12c";
 }
 
 .bwi-msp:before {
-  content: "\f12a";
+  content: "\f12b";
 }
 
 .bwi-new-window:before {
-  content: "\f129";
+  content: "\f12a";
 }
 
 .bwi-note:before {
-  content: "\f128";
+  content: "\f129";
 }
 
 .bwi-notifications:before {
-  content: "\f127";
+  content: "\f128";
 }
 
 .bwi-numbered-list:before {
-  content: "\f126";
+  content: "\f127";
 }
 
 .bwi-palette:before {
-  content: "\f125";
+  content: "\f126";
 }
 
 .bwi-passkey:before {
-  content: "\f124";
+  content: "\f125";
 }
 
 .bwi-passport:before {
-  content: "\f123";
+  content: "\f124";
 }
 
 .bwi-paypal:before {
-  content: "\f122";
+  content: "\f123";
 }
 
 .bwi-pin:before {
-  content: "\f121";
+  content: "\f122";
 }
 
 .bwi-receipt:before {
-  content: "\f120";
+  content: "\f121";
 }
 
 .bwi-redo:before {
-  content: "\f11f";
+  content: "\f120";
 }
 
 .bwi-refresh:before {
+  content: "\f11f";
+}
+
+.bwi-resume:before {
   content: "\f11e";
 }
 
@@ -578,15 +582,15 @@
 }
 
 .bwi-bell:before {
-  content: "\f127";
+  content: "\f128";
 }
 
 .bwi-billing:before {
-  content: "\f120";
+  content: "\f121";
 }
 
 .bwi-brush:before {
-  content: "\f125";
+  content: "\f126";
 }
 
 .bwi-cli:before {
@@ -594,7 +598,7 @@
 }
 
 .bwi-clone:before {
-  content: "\f155";
+  content: "\f156";
 }
 
 .bwi-cog:before {
@@ -606,23 +610,23 @@
 }
 
 .bwi-down-solid:before {
-  content: "\f16e";
+  content: "\f16f";
 }
 
 .bwi-drag-and-drop:before {
-  content: "\f14c";
+  content: "\f14d";
 }
 
 .bwi-ellipsis-h:before {
-  content: "\f12c";
+  content: "\f12d";
 }
 
 .bwi-ellipsis-v:before {
-  content: "\f12b";
+  content: "\f12c";
 }
 
 .bwi-envelope:before {
-  content: "\f12e";
+  content: "\f12f";
 }
 
 .bwi-exclamation-triangle:before {
@@ -638,15 +642,15 @@
 }
 
 .bwi-files:before {
-  content: "\f14b";
+  content: "\f14c";
 }
 
 .bwi-globe:before {
-  content: "\f12f";
+  content: "\f130";
 }
 
 .bwi-id-card:before {
-  content: "\f137";
+  content: "\f138";
 }
 
 .bwi-import:before {
@@ -654,15 +658,15 @@
 }
 
 .bwi-info-circle:before {
-  content: "\f136";
+  content: "\f137";
 }
 
 .bwi-lock-encrypted:before {
-  content: "\f148";
+  content: "\f149";
 }
 
 .bwi-lock-f:before {
-  content: "\f131";
+  content: "\f132";
 }
 
 .bwi-minus-circle:before {
@@ -670,51 +674,51 @@
 }
 
 .bwi-paperclip:before {
-  content: "\f167";
+  content: "\f168";
 }
 
 .bwi-pencil:before {
-  content: "\f14a";
+  content: "\f14b";
 }
 
 .bwi-pencil-square:before {
-  content: "\f149";
+  content: "\f14a";
 }
 
 .bwi-plus:before {
-  content: "\f177";
-}
-
-.bwi-plus-circle:before {
   content: "\f178";
 }
 
+.bwi-plus-circle:before {
+  content: "\f179";
+}
+
 .bwi-popout:before {
-  content: "\f129";
+  content: "\f12a";
 }
 
 .bwi-premium:before {
-  content: "\f14f";
+  content: "\f150";
 }
 
 .bwi-provider:before {
-  content: "\f13a";
+  content: "\f13b";
 }
 
 .bwi-puzzle:before {
-  content: "\f145";
+  content: "\f146";
 }
 
 .bwi-question-circle:before {
-  content: "\f138";
+  content: "\f139";
 }
 
 .bwi-shield:before {
-  content: "\f163";
+  content: "\f164";
 }
 
 .bwi-spinner:before {
-  content: "\f132";
+  content: "\f133";
 }
 
 .bwi-star-f:before {
@@ -722,29 +726,29 @@
 }
 
 .bwi-sticky-note:before {
-  content: "\f128";
+  content: "\f129";
 }
 
 .bwi-trash:before {
-  content: "\f152";
+  content: "\f153";
 }
 
 .bwi-universal-access:before {
-  content: "\f179";
+  content: "\f17a";
 }
 
 .bwi-up-down-btn:before {
-  content: "\f172";
+  content: "\f173";
 }
 
 .bwi-up-solid:before {
-  content: "\f16b";
+  content: "\f16c";
 }
 
 .bwi-user-monitor:before {
-  content: "\f151";
+  content: "\f152";
 }
 
 .bwi-users:before {
-  content: "\f13b";
+  content: "\f13c";
 }
