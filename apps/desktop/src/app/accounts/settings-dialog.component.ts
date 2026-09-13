@@ -266,8 +266,6 @@ export class SettingsDialogComponent implements OnInit {
   async ngOnInit() {
     // Autotype is for Windows initially
     if (this.isWindows) {
-      // This control is wired to DesktopAutotypeMvpService, so it must only show when MVP
-      // is the active implementation — not merely "some" autotype implementation.
       autotypeFeatureFlagState$(this.configService)
         .pipe(
           map((state) => state === AutotypeFeatureFlagState.Mvp),
