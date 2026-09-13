@@ -120,7 +120,10 @@ describe("DesktopAutotypeMvpService", () => {
         if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
           return gaFeatureFlagSubject.asObservable();
         }
-        return mvpFeatureFlagSubject.asObservable();
+        if (flag === FeatureFlag.WindowsDesktopAutotype) {
+          return mvpFeatureFlagSubject.asObservable();
+        }
+        throw new Error(`Unexpected feature flag requested in test: ${flag}`);
       }),
     } as any;
 
@@ -240,6 +243,21 @@ describe("DesktopAutotypeMvpService", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       // Both flags on resolves to `Off`, so the MVP hotkey must not be armed
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.autotypeMvp.toggle).not.toHaveBeenCalledWith(true);
+    });
+
+    it("should not toggle autotype on when only the GA feature flag is enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(true);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // GA-only resolves to `Ga`, not `Mvp` — the MVP hotkey must stay off
       expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(false);
       expect(global.ipc.autofill.autotypeMvp.toggle).not.toHaveBeenCalledWith(true);
     });
