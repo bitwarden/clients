@@ -132,6 +132,15 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       expect(policyStatus).toBe(true);
     });
 
+    it("should emit true when autotype policy is enabled and the resolved state is Ga", async () => {
+      // The policy gates on `!== Off`, so it applies under any available Autotype
+      // implementation, not just Mvp (which the other tests cover by default).
+      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
+      mockPolicyAppliesSubject.next(true);
+      const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(policyStatus).toBe(true);
+    });
+
     it("should emit null when autotype policy is disabled", async () => {
       mockPolicyAppliesSubject.next(false);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));

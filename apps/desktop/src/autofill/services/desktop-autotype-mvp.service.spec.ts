@@ -229,7 +229,7 @@ describe("DesktopAutotypeMvpService", () => {
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(true);
     });
 
     it("should not toggle autotype on when both the MVP and GA feature flags are enabled", async () => {

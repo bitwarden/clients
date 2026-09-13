@@ -317,6 +317,22 @@ describe("AutofillOptionsComponent", () => {
       expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
     });
 
+    it("is false when device is Windows Desktop and only the MVP feature flag is enabled", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
+
+      mvpFeatureFlagSubject.next(true);
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
+    });
+
     it("is true when device is Windows Desktop and windows-desktop-autotype-ga feature flag is on", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>

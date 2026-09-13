@@ -980,9 +980,15 @@ describe("SettingsDialogComponent", () => {
 
     describe("flag-driven visibility on windows", () => {
       function mockAutotypeFlags(mvpEnabled: boolean, gaEnabled: boolean) {
-        configService.getFeatureFlag$.mockImplementation((flag) =>
-          of(flag === FeatureFlag.WindowsDesktopAutotypeGA ? gaEnabled : mvpEnabled),
-        );
+        configService.getFeatureFlag$.mockImplementation((flag) => {
+          if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+            return of(gaEnabled);
+          }
+          if (flag === FeatureFlag.WindowsDesktopAutotype) {
+            return of(mvpEnabled);
+          }
+          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+        });
       }
 
       beforeEach(() => {
