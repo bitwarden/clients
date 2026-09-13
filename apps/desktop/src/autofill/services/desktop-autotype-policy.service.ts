@@ -8,7 +8,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
+import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
+import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable({ providedIn: "root" })
@@ -21,16 +22,17 @@ export class DesktopAutotypeDefaultSettingPolicy {
   ) {}
 
   /**
-   * Emits the autotype policy enabled status when account is unlocked and the
-   * Autotype implementation is feature-flagged on.
+   * Emits the autotype policy enabled status when the account is unlocked and the resolved
+   * Autotype feature flag state is anything other than `AutotypeFeatureFlagState.Off`.
    * - true: autotype policy applies to the user (enabled and the user is not exempt, e.g. an Owner)
-   * - null: no autotype policy applies to the user's organization, or the user is exempt from it
+   * - null: the resolved Autotype feature flag state is `AutotypeFeatureFlagState.Off`, no autotype
+   *   policy applies to the user's organization, or the user is exempt from it
    */
-  readonly autotypeDefaultSetting$: Observable<boolean | null> = autotypeFeatureFlagEnabled$(
+  readonly autotypeDefaultSetting$: Observable<boolean | null> = autotypeFeatureFlagState$(
     this.configService,
   ).pipe(
-    switchMap((autotypeFeatureEnabled) => {
-      if (!autotypeFeatureEnabled) {
+    switchMap((autotypeFeatureFlagState) => {
+      if (autotypeFeatureFlagState === AutotypeFeatureFlagState.Off) {
         return of(null);
       }
 

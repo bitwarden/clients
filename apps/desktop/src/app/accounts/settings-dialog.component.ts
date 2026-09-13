@@ -20,7 +20,8 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ClearClipboardDelaySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
+import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
+import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -265,8 +266,11 @@ export class SettingsDialogComponent implements OnInit {
   async ngOnInit() {
     // Autotype is for Windows initially
     if (this.isWindows) {
-      autotypeFeatureFlagEnabled$(this.configService)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+      autotypeFeatureFlagState$(this.configService)
+        .pipe(
+          map((state) => state === AutotypeFeatureFlagState.Mvp),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe((enabled) => {
           this.showEnableAutotype.set(enabled);
         });

@@ -979,6 +979,18 @@ describe("SettingsDialogComponent", () => {
     });
 
     describe("flag-driven visibility on windows", () => {
+      function mockAutotypeFlags(mvpEnabled: boolean, gaEnabled: boolean) {
+        configService.getFeatureFlag$.mockImplementation((flag) => {
+          if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+            return of(gaEnabled);
+          }
+          if (flag === FeatureFlag.WindowsDesktopAutotype) {
+            return of(mvpEnabled);
+          }
+          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+        });
+      }
+
       beforeEach(() => {
         // `isWindows` is captured in the constructor, so the device must be set before
         // the component is created.
@@ -988,9 +1000,8 @@ describe("SettingsDialogComponent", () => {
         component = fixture.componentInstance;
       });
 
-      it("shows the enable autotype control when the feature flag is enabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
-
+      it("shows the enable autotype control when the MVP flag is enabled", async () => {
+        mockAutotypeFlags(true, false);
         await component.ngOnInit();
         fixture.detectChanges();
 
@@ -1009,6 +1020,22 @@ describe("SettingsDialogComponent", () => {
         expect(
           fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
         ).toBeNull();
+      });
+
+      it("hides the enable autotype control when only the GA flag is enabled", async () => {
+        mockAutotypeFlags(false, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+      });
+
+      it("hides the enable autotype control when both the MVP and GA flags are enabled", async () => {
+        mockAutotypeFlags(true, true);
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
       });
     });
   });

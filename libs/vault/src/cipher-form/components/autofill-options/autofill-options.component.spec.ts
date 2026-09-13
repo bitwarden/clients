@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,7 +39,8 @@ describe("AutofillOptionsComponent", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let configService: MockProxy<ConfigService>;
-  let featureFlagSubject: BehaviorSubject<boolean>;
+  let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
+  let gaFeatureFlagSubject: BehaviorSubject<boolean>;
   const getInitialCipherView = jest.fn((): any => null);
   const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
@@ -48,7 +50,8 @@ describe("AutofillOptionsComponent", () => {
     cipherFormContainer.formStatusChange$ = formStatusChange$.asObservable();
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
-    featureFlagSubject = new BehaviorSubject<boolean>(false);
+    mvpFeatureFlagSubject = new BehaviorSubject<boolean>(false);
+    gaFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     configService = mock<ConfigService>();
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.resolvedDefaultUriMatchStrategy$ = new BehaviorSubject(null);
@@ -302,7 +305,27 @@ describe("AutofillOptionsComponent", () => {
 
     it("is false when device type is Windows Desktop but windows-desktop-autotype-ga feature flag is off", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
+    });
+
+    it("is false when device is Windows Desktop and only the MVP feature flag is enabled", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
+
+      mvpFeatureFlagSubject.next(true);
 
       const localFixture = TestBed.createComponent(AutofillOptionsComponent);
       localFixture.detectChanges();
@@ -312,14 +335,35 @@ describe("AutofillOptionsComponent", () => {
 
     it("is true when device is Windows Desktop and windows-desktop-autotype-ga feature flag is on", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
 
-      featureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
 
       const localFixture = TestBed.createComponent(AutofillOptionsComponent);
       localFixture.detectChanges();
 
       expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(true);
+    });
+
+    it("is false when device is Windows Desktop and both the MVP and GA feature flags are enabled (fail closed)", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
+
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
     });
   });
 
@@ -340,9 +384,13 @@ describe("AutofillOptionsComponent", () => {
 
     it("renders an 'Add website or app' dropdown button with 'Website' and 'App' options when showAddAppDropdown is true", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
 
-      featureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
 
       const localFixture = TestBed.createComponent(AutofillOptionsComponent);
       localFixture.detectChanges();
@@ -370,8 +418,12 @@ describe("AutofillOptionsComponent", () => {
 
     it("clicking 'App' menu item calls addUri with the desktopapp:// prefix", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
-      featureFlagSubject.next(true);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? gaFeatureFlagSubject
+          : mvpFeatureFlagSubject,
+      );
+      gaFeatureFlagSubject.next(true);
 
       const localFixture = TestBed.createComponent(AutofillOptionsComponent);
       const localComponent = localFixture.componentInstance;
