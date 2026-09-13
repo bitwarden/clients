@@ -439,7 +439,6 @@ export class TargetSystemEditComponent {
     default: "pamTargetSystemAssignConnectorSelectHint",
     noneEligible: "pamTargetSystemAssignConnectorNone",
     loadError: "pamTargetSystemConnectorAssignmentsLoadError",
-    disabled: "pamTargetSystemAssignConnectorManual",
   };
 
   protected readonly connectorsRoute = rotationLink(
