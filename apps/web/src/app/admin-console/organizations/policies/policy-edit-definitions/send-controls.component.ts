@@ -56,7 +56,8 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
   name = "manageSendV2";
   nameVfo1 = "manageSendAndShareVfo1";
   description = "sendControlsPolicyDescV5";
-  descriptionVfo1 = "sendControlsPolicyDescVfo1";
+  descriptionVfo1 = "sendControlsPolicyDescListVfo1";
+  drawerDescriptionVfo1 = "sendControlsPolicyDescV5";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
