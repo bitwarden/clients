@@ -6,6 +6,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
 
 import { CipherHealthView } from "../../../../access-intelligence/models";
 
@@ -15,11 +16,13 @@ describe("DefaultCipherHealthService", () => {
   let service: DefaultCipherHealthService;
   let auditService: MockProxy<AuditService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     auditService = mock<AuditService>();
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
-    service = new DefaultCipherHealthService(auditService, passwordStrengthService);
+    logService = mock<LogService>();
+    service = new DefaultCipherHealthService(auditService, passwordStrengthService, logService);
   });
 
   // Helper to create mock ciphers
@@ -41,6 +44,18 @@ describe("DefaultCipherHealthService", () => {
   };
 
   describe("checkSingleCipherHealth", () => {
+    it("should propagate an exposure check failure to the caller", async () => {
+      // Diverges from checkCipherHealth deliberately: a single caller can react to the failure,
+      // where a batch caller would lose every other result.
+      const cipher = createMockCipher({ password: "unreachable" });
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as ZXCVBNResult);
+      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+
+      await expect(firstValueFrom(service.checkSingleCipherHealth(cipher))).rejects.toThrow(
+        "network down",
+      );
+    });
+
     it("should detect weak passwords and provide UI helper methods", (done) => {
       const cipher = createMockCipher({ password: "password123" });
       passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 1 } as ZXCVBNResult);
@@ -225,7 +240,153 @@ describe("DefaultCipherHealthService", () => {
       });
     });
 
-    it("should limit concurrent HIBP calls", async () => {
+    it("should look up each distinct password once rather than each cipher", async () => {
+      // Reuse is the premise of the report, so lookups track distinct passwords. Every request
+      // also costs a CORS preflight, making each one saved worth two round trips.
+      const ciphers = [
+        createMockCipher({ id: "1", password: "shared" }),
+        createMockCipher({ id: "2", password: "shared" }),
+        createMockCipher({ id: "3", password: "shared" }),
+        createMockCipher({ id: "4", password: "unique" }),
+      ];
+
+      await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(auditService.passwordLeaked).toHaveBeenCalledTimes(2);
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("shared");
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("unique");
+    });
+
+    it("should apply one lookup result to every cipher sharing the password", async () => {
+      const ciphers = [
+        createMockCipher({ id: "1", password: "shared" }),
+        createMockCipher({ id: "2", password: "shared" }),
+        createMockCipher({ id: "3", password: "unique" }),
+      ];
+
+      auditService.passwordLeaked.mockImplementation((password: string) =>
+        Promise.resolve(password === "shared" ? 42 : 0),
+      );
+
+      const healthMap = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(healthMap.size).toBe(3);
+      expect(healthMap.get("1")?.exposedCount).toBe(42);
+      expect(healthMap.get("2")?.exposedCount).toBe(42);
+      expect(healthMap.get("1")?.hasExposedPassword).toBe(true);
+      expect(healthMap.get("3")?.exposedCount).toBe(0);
+      expect(healthMap.get("3")?.hasExposedPassword).toBe(false);
+    });
+
+    it("should score strength as each lookup resolves, not after the whole batch", async () => {
+      // zxcvbn is synchronous and costs about a millisecond per cipher. Scoring the whole vault
+      // after the last lookup returns lands as one visible freeze; scoring per group fills the gaps
+      // between network responses instead.
+      const ciphers = [
+        createMockCipher({ id: "1", password: "fast" }),
+        createMockCipher({ id: "2", password: "slow" }),
+      ];
+
+      let releaseSlowLookup: (count: number) => void = () => {};
+      const slowLookup = new Promise<number>((resolve) => {
+        releaseSlowLookup = resolve;
+      });
+      auditService.passwordLeaked.mockImplementation((password: string) =>
+        password === "slow" ? slowLookup : Promise.resolve(0),
+      );
+
+      const scored: string[] = [];
+      passwordStrengthService.getPasswordStrength.mockImplementation((password: string) => {
+        scored.push(password);
+        return { score: 3 } as ZXCVBNResult;
+      });
+
+      const healthMap = firstValueFrom(service.checkCipherHealth(ciphers));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(scored).toEqual(["fast"]);
+
+      releaseSlowLookup(0);
+      await healthMap;
+
+      expect(scored).toEqual(["fast", "slow"]);
+    });
+
+    it("should complete the batch when an exposure check fails", async () => {
+      // A single rejection used to cancel the whole fan-out, discarding every lookup that had
+      // already succeeded and failing report generation outright.
+      const ciphers = [
+        createMockCipher({ id: "1", password: "first" }),
+        createMockCipher({ id: "2", password: "unreachable" }),
+        createMockCipher({ id: "3", password: "third" }),
+      ];
+
+      auditService.passwordLeaked.mockImplementation((password: string) =>
+        password === "unreachable" ? Promise.reject(new Error("network down")) : Promise.resolve(7),
+      );
+
+      const healthMap = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(healthMap.size).toBe(3);
+      expect(healthMap.get("1")?.exposedCount).toBe(7);
+      expect(healthMap.get("3")?.exposedCount).toBe(7);
+
+      const failed = healthMap.get("2");
+      expect(failed?.hasExposedPassword).toBe(false);
+      expect(failed?.exposedCount).toBe(0);
+    });
+
+    it("should keep the strength result for a cipher whose exposure check fails", async () => {
+      const ciphers = [createMockCipher({ id: "1", password: "unreachable" })];
+
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 1 } as ZXCVBNResult);
+      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+
+      const healthMap = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(healthMap.get("1")?.hasWeakPassword).toBe(true);
+      expect(healthMap.get("1")?.weakPasswordScore).toBe(1);
+    });
+
+    it("should log once with a count rather than per failed lookup", async () => {
+      const ciphers = Array.from({ length: 3 }, (_, i) =>
+        createMockCipher({ id: `${i}`, password: `unreachable${i}` }),
+      );
+
+      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+
+      await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(logService.warning).toHaveBeenCalledTimes(1);
+      expect(logService.warning).toHaveBeenCalledWith(expect.stringContaining("3 of 3"));
+    });
+
+    it("should report the cipher count a failed lookup affects, not the lookup count", async () => {
+      // One shared password is one lookup, but the failure degrades every cipher holding it.
+      const ciphers = Array.from({ length: 4 }, (_, i) =>
+        createMockCipher({ id: `${i}`, password: "shared" }),
+      );
+
+      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+
+      await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(logService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("1 of 1 exposure lookups failed, affecting 4 ciphers"),
+      );
+    });
+
+    it("should not log when every exposure check succeeds", async () => {
+      const ciphers = [createMockCipher({ id: "1", password: "reachable" })];
+
+      await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(logService.warning).not.toHaveBeenCalled();
+    });
+
+    it("should not impose its own concurrency limit", async () => {
+      // AuditService owns the only limiter on this path. A second one here would shadow it, and
+      // whichever was tighter would silently win, so this service hands off every lookup at once.
       const ciphers = Array.from({ length: 20 }, (_, i) =>
         createMockCipher({ id: `${i}`, password: `password${i}` }),
       );
@@ -247,7 +408,7 @@ describe("DefaultCipherHealthService", () => {
 
       await firstValueFrom(service.checkCipherHealth(ciphers));
 
-      expect(maxConcurrent).toBeLessThanOrEqual(5);
+      expect(maxConcurrent).toBe(ciphers.length);
     });
 
     it("should filter out invalid ciphers", (done) => {
