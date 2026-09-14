@@ -19515,5 +19515,14 @@
   },
   "pamAuditKindTargetPolicyUpdated": {
     "message": "Target password policy updated"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Target system deleted"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Target system"
+  },
+  "pamAuditDaemon": {
+    "message": "Daemon"
   }
 }
