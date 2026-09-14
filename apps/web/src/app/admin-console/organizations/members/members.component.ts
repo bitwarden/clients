@@ -381,7 +381,7 @@ export class MembersComponent {
   async edit(
     user: OrganizationUserView,
     organization: Organization,
-    initialTab: MemberDialogTab = MemberDialogTab.Role,
+    initialTab: MemberDialogTab = MemberDialogTab.Details,
   ) {
     const billingMetadata = await firstValueFrom(this.billingMetadata$);
 

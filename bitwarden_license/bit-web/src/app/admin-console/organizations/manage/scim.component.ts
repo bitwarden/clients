@@ -1,9 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
-import { UntypedFormBuilder, FormControl } from "@angular/forms";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  Signal,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, map, of, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
@@ -11,71 +19,138 @@ import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-c
 import { OrganizationConnectionRequest } from "@bitwarden/common/admin-console/models/request/organization-connection.request";
 import { ScimConfigRequest } from "@bitwarden/common/admin-console/models/request/scim-config.request";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  A11yTitleDirective,
+  AriaDisableDirective,
+  BaseCardDirective,
+  BitActionDirective,
+  BitIconButtonComponent,
+  CalloutComponent,
+  CardComponent,
+  DialogService,
+  FormControlCardComponent,
+  FormFieldModule,
+  LinkComponent,
+  PopoverModule,
+  SpinnerComponent,
+  SwitchComponent,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { WebHeaderComponent } from "@bitwarden/web-vault/app/layouts/header/web-header.component";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
 import { ScimBannerService } from "./scim-banner.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+let nextId = 0;
+
 @Component({
   selector: "app-org-manage-scim",
   templateUrl: "scim.component.html",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    WebHeaderComponent,
+    ReactiveFormsModule,
+    A11yTitleDirective,
+    BaseCardDirective,
+    CalloutComponent,
+    CardComponent,
+    TypographyModule,
+    LinkComponent,
+    AriaDisableDirective,
+    SwitchComponent,
+    FormControlCardComponent,
+    FormFieldModule,
+    PopoverModule,
+    BitIconButtonComponent,
+    BitActionDirective,
+    I18nPipe,
+    SpinnerComponent,
+  ],
 })
-export class ScimComponent implements OnInit {
-  loading = true;
-  organizationId: string;
-  existingConnectionId: string;
-  enabled = new FormControl(false);
-  showScimSettings = false;
-  showScimKey = false;
-  private cachedApiKey: string | undefined;
+export class ScimComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly apiService = inject(ApiService);
+  private readonly configService = inject(ConfigService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly i18nService = inject(I18nService);
+  private readonly environmentService = inject(EnvironmentService);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly scimBannerService = inject(ScimBannerService);
 
-  protected bannerSeen$: Observable<boolean>;
+  protected readonly loading = signal(true);
+  protected readonly showScimSettings = signal(false);
+  protected readonly showScimKey = signal(false);
+  protected readonly stagedStatusEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.StagedStatus),
+    { initialValue: false },
+  );
 
-  formData = this.formBuilder.group({
+  protected readonly descriptionId = `scim-description-${nextId++}`;
+  protected readonly labelId = `scim-label-${nextId++}`;
+  protected readonly switchId = `scim-switch-${nextId++}`;
+  protected readonly switchInputId = `${this.switchId}-input`;
+  private readonly switchRef = viewChild.required<SwitchComponent>("enabledSwitch");
+
+  protected readonly enabled = new FormControl(false);
+  protected readonly inviteUsersAfterProvisioning = new FormControl(true);
+  protected readonly formData = new FormGroup({
     endpointUrl: new FormControl(""),
     clientSecret: new FormControl(""),
   });
 
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private route: ActivatedRoute,
-    private apiService: ApiService,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private environmentService: EnvironmentService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
-    private bannerService: ScimBannerService,
-  ) {}
+  private readonly bannerSeen: Signal<boolean>;
+  protected readonly showProvisioningBanner: Signal<boolean>;
 
-  async ngOnInit() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      this.organizationId = params.organizationId;
-      this.bannerSeen$ = this.bannerService.bannerSeen$(this.organizationId as OrganizationId);
-      await this.load();
+  private readonly organizationId: Signal<OrganizationId>;
+  private readonly existingConnectionId = signal<string | undefined>(undefined);
+  private readonly cachedApiKey = signal<string | undefined>(undefined);
+
+  constructor() {
+    this.organizationId = toSignal(this.route.params.pipe(map((params) => params.organizationId)));
+
+    this.bannerSeen = toSignal(
+      toObservable(this.organizationId).pipe(
+        switchMap((orgId) => (orgId ? this.scimBannerService.bannerSeen$(orgId) : of(false))),
+      ),
+      { initialValue: false },
+    );
+
+    this.showProvisioningBanner = computed(() => !this.showScimSettings() && !this.bannerSeen());
+
+    effect(() => {
+      if (this.organizationId()) {
+        void this.load();
+      }
+    });
+
+    effect(() => {
+      this.switchRef().ariaDescribedBy.set(this.descriptionId);
+      this.switchRef().ariaLabelledBy.set(this.labelId);
+      this.switchRef().size.set("large");
     });
   }
 
   async load() {
     const connection = await this.apiService.getOrganizationConnection(
-      this.organizationId,
+      this.organizationId(),
       OrganizationConnectionType.Scim,
       ScimConfigApi,
     );
     await this.setConnectionFormValues(connection);
   }
 
-  loadApiKey = async () => {
-    if (this.showScimKey) {
-      this.showScimKey = false;
+  protected readonly loadApiKey = async () => {
+    if (this.showScimKey()) {
+      this.showScimKey.set(false);
       this.formData.patchValue({ clientSecret: "••••••••••••••••" });
       return;
     }
@@ -86,126 +161,135 @@ export class ScimComponent implements OnInit {
         endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: apiKey,
       });
-      this.showScimKey = true;
+      this.showScimKey.set(true);
     }
   };
 
-  copyScimUrl = async () => {
+  protected readonly copyScimUrl = async () => {
     this.platformUtilsService.copyToClipboard(await this.getScimEndpointUrl());
     this.toastService.showToast({
       message: this.i18nService.t("valueCopied", this.i18nService.t("scimUrl")),
       variant: "success",
-      title: null,
     });
   };
 
-  copyScimKey = async () => {
+  protected readonly copyScimKey = async () => {
     const apiKey = await this.getOrFetchApiKey("copyScimKey");
     if (apiKey) {
       this.platformUtilsService.copyToClipboard(apiKey);
       this.toastService.showToast({
         message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
         variant: "success",
-        title: null,
       });
     }
   };
 
-  rotateScimKey = async () => {
+  protected readonly rotateScimKey = async () => {
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
-      organizationId: this.organizationId,
+      organizationId: this.organizationId(),
       titleKey: "rotateScimKey",
       isRotation: true,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
     if (result?.apiKey) {
-      this.cachedApiKey = result.apiKey;
+      this.cachedApiKey.set(result.apiKey);
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: result.apiKey,
       });
-      this.showScimKey = true;
+      this.showScimKey.set(true);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("scimApiKeyRotated"),
       });
     }
   };
 
-  submit = async () => {
-    if (this.enabled.value === true && !this.showScimSettings) {
-      await this.bannerService.markBannerSeen(this.organizationId as OrganizationId);
+  protected readonly submit = async () => {
+    if (this.enabled.value === true && !this.showScimSettings()) {
+      await this.scimBannerService.markBannerSeen(this.organizationId());
     }
 
     const request = new OrganizationConnectionRequest(
-      this.organizationId,
+      this.organizationId(),
       OrganizationConnectionType.Scim,
       true,
-      new ScimConfigRequest(this.enabled.value),
+      new ScimConfigRequest(
+        this.enabled.value ?? false,
+        undefined,
+        this.inviteUsersAfterProvisioning.value ?? true,
+      ),
     );
     let response: OrganizationConnectionResponse<ScimConfigApi>;
 
-    if (this.existingConnectionId == null) {
+    const connectionId = this.existingConnectionId();
+    if (connectionId == null) {
       response = await this.apiService.createOrganizationConnection(request, ScimConfigApi);
     } else {
       response = await this.apiService.updateOrganizationConnection(
         request,
         ScimConfigApi,
-        this.existingConnectionId,
+        connectionId,
       );
     }
 
     await this.setConnectionFormValues(response);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("scimSettingsSaved"),
     });
   };
 
-  async getScimEndpointUrl() {
+  private async getScimEndpointUrl() {
     const env = await firstValueFrom(this.environmentService.environment$);
-    return env.getScimUrl() + "/" + this.organizationId;
+    return env.getScimUrl() + "/" + this.organizationId();
   }
 
   private async getOrFetchApiKey(titleKey: string): Promise<string | undefined> {
-    if (this.cachedApiKey) {
-      return this.cachedApiKey;
+    if (this.cachedApiKey()) {
+      return this.cachedApiKey();
     }
 
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
-      organizationId: this.organizationId,
+      organizationId: this.organizationId(),
       titleKey,
       isRotation: false,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
     if (result?.apiKey) {
-      this.cachedApiKey = result.apiKey;
+      this.cachedApiKey.set(result.apiKey);
       return result.apiKey;
     }
 
-    return undefined;
+    return;
   }
 
   private async setConnectionFormValues(connection: OrganizationConnectionResponse<ScimConfigApi>) {
-    this.existingConnectionId = connection?.id;
-    this.cachedApiKey = undefined;
-    this.showScimKey = false;
+    this.existingConnectionId.set(connection?.id);
+    this.cachedApiKey.set(undefined);
+    this.showScimKey.set(false);
+    // New connections (no saved config yet) default to staged (toggle off) only when the staged
+    // status feature is enabled; otherwise they keep the legacy "invite" default. Existing
+    // connections keep their stored value; a missing flag on an existing connection is treated as
+    // invite (on) for backwards compatibility with connections created before this setting existed.
+    const config = connection?.config;
+    this.inviteUsersAfterProvisioning.setValue(
+      config == null ? !this.stagedStatusEnabled() : (config.inviteUsersAfterProvisioning ?? true),
+    );
     if (connection !== null && connection.config?.enabled) {
-      await this.bannerService.markBannerSeen(this.organizationId as OrganizationId);
-      this.showScimSettings = true;
+      await this.scimBannerService.markBannerSeen(this.organizationId());
+      this.showScimSettings.set(true);
       this.enabled.setValue(true);
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: "••••••••••••••••",
       });
     } else {
-      this.showScimSettings = false;
+      this.showScimSettings.set(false);
       this.enabled.setValue(false);
     }
-    this.loading = false;
+    this.loading.set(false);
   }
 }

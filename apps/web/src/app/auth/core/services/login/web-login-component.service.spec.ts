@@ -7,22 +7,16 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import {
   DirectOrganizationInvite,
   OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
@@ -49,9 +43,6 @@ describe("WebLoginComponentService", () => {
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  const mockUserId = Utils.newGuid() as UserId;
-  let accountService: FakeAccountService;
-  let configService: MockProxy<ConfigService>;
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
   let router: MockProxy<Router>;
@@ -66,8 +57,6 @@ describe("WebLoginComponentService", () => {
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     platformUtilsService = mock<PlatformUtilsService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
-    accountService = mockAccountServiceWith(mockUserId);
-    configService = mock<ConfigService>();
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
     router = mock<Router>();
@@ -85,8 +74,6 @@ describe("WebLoginComponentService", () => {
         { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
-        { provide: AccountService, useValue: accountService },
-        { provide: ConfigService, useValue: configService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: router },
@@ -202,27 +189,12 @@ describe("WebLoginComponentService", () => {
         organizationName: "Acme Corp",
       });
 
-      it("returns undefined when the GenerateInviteLink flag is off", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.GenerateInviteLink)
-          .mockResolvedValue(false);
-
-        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
-
-        expect(result).toBeUndefined();
-        expect(organizationInviteService.getOrgPoliciesForInvite).not.toHaveBeenCalled();
-      });
-
-      it("returns PasswordPolicies when flag is on", async () => {
+      it("returns PasswordPolicies", async () => {
         const policies: Policy[] = [new Policy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.GenerateInviteLink)
-          .mockResolvedValue(true);
         organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,

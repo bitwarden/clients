@@ -411,8 +411,6 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       Router,
-      AccountService,
-      ConfigService,
       ToastService,
       I18nServiceAbstraction,
     ],

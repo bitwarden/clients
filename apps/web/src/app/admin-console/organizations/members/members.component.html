@@ -384,7 +384,7 @@
               @if (showUserManagementControls()) {
                 <td
                   bitCell
-                  (click)="edit(u, organization, memberTab.Role)"
+                  (click)="edit(u, organization, memberTab.Details)"
                   class="tw-cursor-pointer tw-text-sm tw-text-muted"
                 >
                   {{ u.type | userType }}
@@ -456,7 +456,7 @@
                       <button
                         type="button"
                         bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Details)"
                       >
                         <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
                       </button>

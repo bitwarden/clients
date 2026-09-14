@@ -395,8 +395,7 @@ the email-verification round-trip.
 1. Unauthed user hits `/join/:orgId/:code?key=<key>` → `unauthedHandler`
    fetches status, stashes the open invite, routes to `/signup`.
 2. On registration-start, `RegistrationStartComponent.submit` calls its
-   private `buildOpenOrgInviteRequestIfPresent(email)` (gated on
-   `FeatureFlag.GenerateInviteLink`), which delegates to
+   private `buildOpenOrgInviteRequestIfPresent(email)`, which delegates to
    `OrganizationInviteService.sealOpenOrgInvite`. If a stashed open invite
    exists, the SDK seals `{ organizationId, inviteLinkCode, inviteKey }`
    into a `SealedOpenOrgInvite` blob, and `OrganizationInviteService`
