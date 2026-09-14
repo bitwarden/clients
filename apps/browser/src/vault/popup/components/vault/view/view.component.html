@@ -23,7 +23,12 @@
           {{ "autofillVerb" | i18n }}
         </button>
       }
-      <app-share-button [cipher]="cipher" class="tw-mt-4" slot="button"></app-share-button>
+      <app-share-button
+        [cipher]="cipher"
+        class="tw-mt-4"
+        slot="button"
+        [skipPasswordPrompt]="true"
+      ></app-share-button>
     </app-cipher-view>
   }
 

@@ -7,7 +7,7 @@ import { combineLatest, of, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { ButtonModule, IconModule } from "@bitwarden/components";
+import { AsyncActionsModule, ButtonModule, IconModule } from "@bitwarden/components";
 import { ShareItemFormComponent } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -27,6 +27,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     I18nPipe,
     ShareItemFormComponent,
     IconModule,
+    AsyncActionsModule,
   ],
 })
 export class ShareItemComponent {
@@ -51,12 +52,12 @@ export class ShareItemComponent {
   );
   protected readonly shareItemForm = viewChild(ShareItemFormComponent);
 
-  protected async createAndCopyLink(): Promise<void> {
+  protected readonly createAndCopyLink = async () => {
     const copySuccessful = await this.shareItemForm()?.createAndCopyLink();
     if (copySuccessful) {
       this.onBackClick();
     }
-  }
+  };
 
   protected onBackClick(): void {
     this.location.back();
