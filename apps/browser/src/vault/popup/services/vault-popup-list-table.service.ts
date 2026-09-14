@@ -20,6 +20,7 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
   CipherViewLike,
@@ -114,6 +115,26 @@ export class VaultPopupListTableService {
    */
   readonly hasItems$: Observable<boolean> = this.vaultPopupItemsService.emptyVault$.pipe(
     map((empty) => !empty),
+  );
+
+  /**
+   * Whether to show the tip that prompts the user to save a login for the current site. The tip
+   * stands in for the autofill section's rows, so it only applies when nothing narrows the list,
+   * the current context allows autofill (e.g. not a popout), and no login is suggested. A non-login
+   * suggestion (a card or an identity) still leaves the tip on, because the site has no login to
+   * fill.
+   */
+  readonly showEmptyAutofillTip$: Observable<boolean> = combineLatest([
+    this.vaultPopupItemsService.hasFilterApplied$,
+    this.vaultPopupItemsService.autoFillCiphers$,
+    this.vaultPopupAutofillService.autofillAllowed$,
+  ]).pipe(
+    map(
+      ([hasFilter, ciphers, autofillAllowed]) =>
+        !hasFilter &&
+        autofillAllowed &&
+        !ciphers.some((cipher) => CipherViewLikeUtils.getType(cipher) === CipherType.Login),
+    ),
   );
 
   /**
