@@ -17365,9 +17365,6 @@
   "copy": {
     "message": "Copy"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamDiscardContent": {
     "message": "The details you entered won't be saved."
   },
