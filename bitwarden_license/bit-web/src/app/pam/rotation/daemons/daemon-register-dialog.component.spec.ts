@@ -43,7 +43,7 @@ describe("DaemonRegisterDialogComponent", () => {
     name: "Good Daemon",
     status: "enabled",
     creationDate: "2026-01-01T00:00:00Z",
-    token: "0.daemon.api-id.secret:keyb64",
+    token: "0.access-connector.api-id.secret:keyb64",
   };
 
   beforeEach(async () => {
