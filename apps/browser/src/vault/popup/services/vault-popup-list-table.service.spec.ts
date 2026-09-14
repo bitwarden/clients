@@ -43,6 +43,8 @@ describe("VaultPopupListTableService", () => {
   const searchText$ = new BehaviorSubject<string>("");
   const emptyVault$ = new BehaviorSubject<boolean>(false);
   const loading$ = new BehaviorSubject<boolean>(false);
+  const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
+  const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const applyFilter = jest.fn();
 
   // Inputs to the per-row action policy (feature flag, blocklist, click-to-autofill setting).
@@ -71,6 +73,8 @@ describe("VaultPopupListTableService", () => {
     searchText$.next("");
     emptyVault$.next(false);
     loading$.next(false);
+    hasFilterApplied$.next(false);
+    autofillAllowed$.next(true);
     simplifiedItemActionEnabled$.next(false);
     currentTabIsOnBlocklist$.next(false);
     clickItemsToAutofillVaultView$.next(true);
@@ -80,6 +84,7 @@ describe("VaultPopupListTableService", () => {
     cipherService = mock<CipherService>();
     vaultPopupAutofillService = mock<VaultPopupAutofillService>();
     vaultPopupAutofillService.currentTabIsOnBlocklist$ = currentTabIsOnBlocklist$.asObservable();
+    vaultPopupAutofillService.autofillAllowed$ = autofillAllowed$.asObservable();
     passwordRepromptService = mock<PasswordRepromptService>();
     router = mock<Router>();
 
@@ -108,6 +113,7 @@ describe("VaultPopupListTableService", () => {
             hasSearchText$: hasSearchText$.asObservable(),
             searchText$: searchText$.asObservable(),
             emptyVault$: emptyVault$.asObservable(),
+            hasFilterApplied$: hasFilterApplied$.asObservable(),
             applyFilter,
           },
         },
@@ -562,6 +568,38 @@ describe("VaultPopupListTableService", () => {
 
       emptyVault$.next(false);
       expect(await firstValueFrom(service.hasItems$)).toBe(true);
+    });
+  });
+
+  describe("showEmptyAutofillTip$", () => {
+    it("shows the tip when no filter is applied, autofill is allowed, and no login is suggested", async () => {
+      autoFillCiphers$.next([]);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(true);
+    });
+
+    it("shows the tip when only non-login items are suggested", async () => {
+      autoFillCiphers$.next([makeCipher({ type: CipherType.Card })]);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(true);
+    });
+
+    it("hides the tip when a login is suggested", async () => {
+      autoFillCiphers$.next([makeCipher({ type: CipherType.Login })]);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(false);
+    });
+
+    it("hides the tip when a filter is applied", async () => {
+      hasFilterApplied$.next(true);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(false);
+    });
+
+    it("hides the tip when autofill is not allowed", async () => {
+      autofillAllowed$.next(false);
+
+      expect(await firstValueFrom(service.showEmptyAutofillTip$)).toBe(false);
     });
   });
 
