@@ -438,6 +438,23 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private sortItems = (a: SelectItemView, b: SelectItemView) =>
     this.i18nService.collator.compare(a.labelName, b.labelName);
 
+  /**
+   * The name to show for a collection in the picker.
+   *
+   * A collection whose name failed to decrypt has no usable name, so every such entry would
+   * otherwise render as the same decrypt-error placeholder and be impossible to tell apart —
+   * picking the wrong one shares the item with the wrong members. These entries are still offered
+   * rather than hidden, because a cipher already assigned to one must stay assigned and the
+   * selection is written back wholesale on save, so the label is disambiguated with a short prefix
+   * of the collection ID instead. Repairing the name (which re-encrypts the collection) is done
+   * from the collection's row, not from here.
+   */
+  private collectionItemName(collection: CollectionView): string {
+    return collection.decryptionFailure
+      ? this.i18nService.t("cannotDecryptCollectionNameWithId", collection.id.slice(0, 8))
+      : collection.name;
+  }
+
   private async handleOrganizationCiphers(organizationId: OrganizationId) {
     // If no ciphers are editable, cancel the operation
     if (this.editableItemCount == 0) {
@@ -477,8 +494,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         ),
         id: c.id,
-        labelName: c.name,
-        listName: c.name,
+        labelName: this.collectionItemName(c),
+        listName: this.collectionItemName(c),
       }));
 
     // Select assigned collections for a single cipher.
@@ -490,8 +507,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         {
           icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
           id: this.params.activeCollection.id,
-          labelName: this.params.activeCollection.name,
-          listName: this.params.activeCollection.name,
+          labelName: this.collectionItemName(this.params.activeCollection),
+          listName: this.collectionItemName(this.params.activeCollection),
         },
       ]);
     }
@@ -585,8 +602,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
             c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
           ),
           id: c.id,
-          labelName: c.name,
-          listName: c.name,
+          labelName: this.collectionItemName(c),
+          listName: this.collectionItemName(c),
         }));
       });
   }

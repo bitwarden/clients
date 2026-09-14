@@ -166,6 +166,81 @@ describe("AssignCollectionsComponent", () => {
     });
   });
 
+  describe("collections that failed to decrypt", () => {
+    // Mirrors what CollectionView.fromFailedDecryption produces: an unusable placeholder name that
+    // is identical across every failed collection, with readOnly/manage carried over from the
+    // source so the collection stays editable. The real placeholder is DECRYPT_ERROR, but it lives
+    // in the restricted @bitwarden/legacy-crypto module and the label is driven by
+    // `decryptionFailure` rather than by this value, so a stand-in is used here.
+    const placeholderName = "[error: cannot decrypt]";
+
+    function failedCollection(id: string) {
+      const collection = new CollectionView({
+        id: id as CollectionId,
+        organizationId: "org-id" as OrganizationId,
+        name: placeholderName,
+      });
+      collection.readOnly = false;
+      collection.manage = true;
+      collection.assigned = true;
+      collection.type = CollectionTypes.SharedCollection;
+      collection.decryptionFailure = true;
+      return collection;
+    }
+
+    const failed1 = failedCollection("aaaaaaaa-1111-1111-1111-111111111111");
+    const failed2 = failedCollection("bbbbbbbb-2222-2222-2222-222222222222");
+
+    it("labels each undecryptable collection distinctly so they can be told apart", async () => {
+      component.params = {
+        ...component.params,
+        availableCollections: [failed1, failed2],
+      };
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const labels = component["availableCollections"].map((c) => c.labelName);
+
+      expect(labels).toEqual([
+        "cannotDecryptCollectionNameWithId aaaaaaaa",
+        "cannotDecryptCollectionNameWithId bbbbbbbb",
+      ]);
+      // The regression being guarded: both entries previously rendered as the same placeholder.
+      expect(new Set(labels).size).toBe(2);
+      expect(labels).not.toContain(placeholderName);
+    });
+
+    it("still offers undecryptable collections so existing assignments are not stripped", async () => {
+      component.params = {
+        ...component.params,
+        availableCollections: [failed1, editCollection],
+      };
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component["availableCollections"].map((c) => c.id)).toEqual([
+        failed1.id,
+        editCollection.id,
+      ]);
+    });
+
+    it("leaves names untouched for collections that decrypted successfully", async () => {
+      component.params = {
+        ...component.params,
+        availableCollections: [editCollection],
+      };
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component["availableCollections"].map((c) => c.labelName)).toEqual([
+        editCollection.name,
+      ]);
+    });
+  });
+
   describe("default collections", () => {
     const cipher1 = new CipherView();
     cipher1.id = "cipher-id-1";
