@@ -1,0 +1,7 @@
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg -- third-party vendor brand mark(s), fixed brand colors rather than theme illustration tokens */
+
+import { svg } from "../svg";
+
+export const ImportButtercupIcon = svg`
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g clip-path="url(#import-buttercup-clip)"><mask id="import-buttercup-mask" width="22" height="24" x="1" y="0" maskUnits="userSpaceOnUse" style="mask-type:luminance"><path fill="#fff" d="M23 0H1v24h22z"/></mask><g mask="url(#import-buttercup-mask)"><path fill="#24b5aa" d="M15.487 2.767c1.337 1.605 1.378 2.332 1.41 3.297l.11 3.397c2.753.656 4.91 2.664 5.624 4.896.878 2.74.162 5.503-1.86 7.373-1.376 1.272-3.11 2.21-5.056 2.22 0 0-9.216.03-10.016.05-2.641.065-3.775-1.71-4.351-3.148-.362-.898-.353-1.79-.348-2.804l.078-11.546C1.104 2.63 4.778.04 8.62 0c2.759-.03 5.531 1.16 6.868 2.766"/><path fill="#fdfdfd" d="m12.956 9.254-7.296.083c-1.127.013-1.994-.928-2.042-1.964-.12-2.57 1.86-4.549 4.46-4.785 1.186-.108 2.403-.028 3.466.416 1.848.774 2.666 2.337 2.83 4.225.076.865-.127 2.012-1.418 2.028z"/><path fill="#f8fcfb" d="M8.172 13.747c.546-.316 1.268-.32 1.938.134.431.291.714 1.138.38 1.698l-.518.865H9.97v.004l-.003-.003c-.465.778.109 1.868-.403 2.693-2.26.332-.62-1.58-1.897-3.463-.458-.678-.2-1.519.505-1.928"/></g></g><defs><clipPath id="import-buttercup-clip"><path fill="#fff" d="M1 0h22v24H1z"/></clipPath></defs></svg>
+`;

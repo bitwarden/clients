@@ -1,0 +1,7 @@
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg -- third-party vendor brand mark(s), fixed brand colors rather than theme illustration tokens */
+
+import { svg } from "../svg";
+
+export const ImportChromeIcon = svg`
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g clip-path="url(#import-chrome-clip)"><mask id="import-chrome-mask" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:luminance"><path fill="#fff" d="M24 0H0v24h24z"/></mask><g mask="url(#import-chrome-mask)"><mask id="import-chrome-mask-2" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:luminance"><path fill="#fff" d="M24 0H0v24h24z"/></mask><g mask="url(#import-chrome-mask-2)"><path fill="#db4437" d="m1.88 5.587 5.395 9.183 4.743-8.206h10.695a12 12 0 0 0-4.18-4.642A12 12 0 0 0 1.88 5.587"/><path fill="#ffcd40" d="m16.763 14.762-5.278 9.218q.264.011.532.012a12 12 0 0 0 5.864-1.532 12 12 0 0 0 4.363-4.2 11.96 11.96 0 0 0 .433-11.703h-10.66z"/><path fill="#0b9d58" d="M1.882 5.592A11.955 11.955 0 0 0 5.557 22.13a12 12 0 0 0 5.926 1.856l5.25-9.218H7.241z"/><path fill="#f1f1f1" d="M12.018 17.497a5.474 5.474 0 0 0 5.478-5.47 5.474 5.474 0 0 0-5.478-5.47 5.474 5.474 0 0 0-5.478 5.47 5.474 5.474 0 0 0 5.478 5.47"/><path fill="#4285f4" d="M12.018 16.408a4.38 4.38 0 0 0 4.382-4.376 4.38 4.38 0 0 0-4.382-4.376 4.38 4.38 0 0 0-4.383 4.376 4.38 4.38 0 0 0 4.383 4.376"/></g></g></g><defs><clipPath id="import-chrome-clip"><path fill="#fff" d="M0 0h24v24H0z"/></clipPath></defs></svg>
+`;
