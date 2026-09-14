@@ -55,11 +55,12 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
-import { VaultScope } from "../../models/vault-scope";
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import {
   idString,
   matchesFavorite,
   matchesFolder,
+  matchesMyItems,
   matchesSharedFolder,
   matchesType,
   matchesVault,
@@ -284,7 +285,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The organization the current vault scope names — relayed to the empty state untouched. */
   readonly organizationName = input<string>();
 
-  /** The default collection ID the current vault scope has drilled into — relayed to the empty state untouched. */
+  /** The organization's "My items" collection id — also what the My items chip filters against. */
   readonly defaultCollectionId = input<string>();
 
   /** Whether the account has more than one vault — relayed to the empty state untouched. */
@@ -417,6 +418,24 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** Tooltip for the disabled My folders chip — see {@link favoritesDisabledTooltip}. */
   protected readonly foldersDisabledTooltip = computed(() =>
     this.noFolders() ? this.i18nService.t("foldersFilterTooltip") : "",
+  );
+
+  protected readonly showMyItems = computed(() => {
+    const scope = this.scope();
+    return (
+      scope?.type === VaultScopeType.Organization &&
+      scope.collectionId == null &&
+      this.defaultCollectionId() != null
+    );
+  });
+
+  protected readonly noMyItems = computed(
+    () =>
+      !this.ciphers().some((cipher) => matchesMyItems(cipher, true, this.defaultCollectionId())),
+  );
+
+  protected readonly myItemsDisabledTooltip = computed(() =>
+    this.noMyItems() ? this.i18nService.t("myItemsFilterTooltip") : "",
   );
 
   /**
@@ -740,6 +759,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     matchesType(cipher, values.type) &&
     matchesFavorite(cipher, values.favorites) &&
     matchesVault(cipher, values.vault) &&
+    matchesMyItems(cipher, values.myItems, this.defaultCollectionId()) &&
     matchesSharedFolder(cipher, values.sharedFolder) &&
     matchesFolder(cipher, values.folder);
 

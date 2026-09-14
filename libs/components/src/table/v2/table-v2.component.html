@@ -233,6 +233,7 @@
           at `height` rows), or `flex-1` to fill the host in `fill` mode.
         -->
         <cdk-virtual-scroll-viewport
+          #scrollBody
           class="tw-overscroll-x-none"
           (scroll)="onBodyScroll($event)"
           [style.height]="isFill() ? null : viewportHeight()"
@@ -261,6 +262,7 @@
           rows when ungrouped); headers size to content here.
         -->
         <div
+          #scrollBody
           class="tw-overflow-auto tw-overscroll-x-none"
           (scroll)="onBodyScroll($event)"
           [class.tw-flex-1]="isFill()"

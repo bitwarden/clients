@@ -57,6 +57,16 @@
       </bit-filter-menu>
     }
 
+    @if (showMyItems()) {
+      <bit-filter-toggle
+        [key]="filterKeys.myItems"
+        [label]="'myItemsV2' | i18n"
+        icon="bwi-user"
+        [disabled]="noMyItems()"
+        [disabledTooltip]="myItemsDisabledTooltip()"
+      ></bit-filter-toggle>
+    }
+
     @if (showSharedFolders()) {
       <bit-filter-menu
         [key]="filterKeys.sharedFolder"
