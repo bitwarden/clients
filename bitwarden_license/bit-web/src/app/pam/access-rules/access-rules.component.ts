@@ -1,6 +1,13 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -16,9 +23,10 @@ import {
   BulkActionsBarComponent,
   ButtonModule,
   CheckboxModule,
-  ChipFilterComponent,
-  ChipFilterOption,
   DialogService,
+  FILTER_CONTROL,
+  FilterMenuComponent,
+  FilterOptionComponent,
   IconButtonModule,
   IconModule,
   LinkModule,
@@ -46,6 +54,7 @@ import {
   copyRuleName,
   resolveCollectionNames,
   rulesChangingEnabled,
+  selectedFilterStrings,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -70,7 +79,8 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     BulkActionsBarComponent,
     ButtonModule,
     CheckboxModule,
-    ChipFilterComponent,
+    FilterMenuComponent,
+    FilterOptionComponent,
     HeaderModule,
     IconButtonModule,
     IconModule,
@@ -116,36 +126,37 @@ export class AccessRulesComponent {
   });
 
   // --- Toolbar filters ---
+  // `bit-filter-menu` isn't a `ControlValueAccessor`, so only `search` is a form control; the
+  // status/collection chips own their selection and are read through the `FilterControl` contract.
   protected readonly filterForm = new FormGroup({
     search: new FormControl("", { nonNullable: true }),
-    status: new FormControl<AccessRuleStatusFilter | null>(null),
-    collection: new FormControl<string | null>(null),
   });
 
-  private readonly filterInputs = toSignal(
-    this.filterForm.valueChanges.pipe(
-      startWith(null),
-      map(() => this.filterForm.getRawValue()),
-    ),
+  private readonly searchTerm = toSignal(
+    this.filterForm.controls.search.valueChanges.pipe(startWith("")),
     { requireSync: true },
   );
 
-  protected readonly statusOptions: ChipFilterOption<AccessRuleStatusFilter>[] = [
-    {
-      label: this.i18nService.t("pamAccessRuleActive"),
-      value: "enabled",
-      icon: "bwi-check-circle",
-    },
-    {
-      label: this.i18nService.t("pamAccessRuleInactive"),
-      value: "disabled",
-      icon: "bwi-subtract-circle",
-    },
+  private readonly statusFilter = viewChild("statusFilter", { read: FILTER_CONTROL });
+  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
+
+  private readonly filterInputs = computed(() => {
+    const status = this.statusFilter()?.value();
+    return {
+      text: this.searchTerm().trim().toLowerCase(),
+      status: (typeof status === "string" ? status : null) as AccessRuleStatusFilter | null,
+      collectionIds: selectedFilterStrings(this.collectionFilter()?.value()),
+    };
+  });
+
+  protected readonly statusOptions: { label: string; value: AccessRuleStatusFilter }[] = [
+    { label: this.i18nService.t("pamAccessRuleActive"), value: "enabled" },
+    { label: this.i18nService.t("pamAccessRuleInactive"), value: "disabled" },
   ];
 
-  protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly collectionOptions = computed<{ label: string; value: string }[]>(() =>
     this.collections()
-      .map((c) => ({ label: c.name, value: c.id, icon: "bwi-collection-shared" as const }))
+      .map((c) => ({ label: c.name, value: c.id }))
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
@@ -184,14 +195,13 @@ export class AccessRulesComponent {
 
     // Recompute the combined filter whenever any toolbar control changes.
     effect(() => {
-      const { search, status, collection } = this.filterInputs();
-      const text = search.trim().toLowerCase();
+      const { text, status, collectionIds } = this.filterInputs();
       this.dataSource.filter = (rule) => {
-        const collectionIds = rule.collections.map(uuidAsString);
+        const ruleCollectionIds = rule.collections.map(uuidAsString);
         return accessRuleMatchesFilter(
-          { name: rule.name, enabled: rule.enabled, collections: collectionIds },
-          resolveCollectionNames(collectionIds, this.collections()),
-          { text, status, collectionId: collection },
+          { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
+          resolveCollectionNames(ruleCollectionIds, this.collections()),
+          { text, status, collectionIds },
         );
       };
     });
