@@ -1,0 +1,7 @@
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg -- third-party vendor brand mark(s), fixed brand colors rather than theme illustration tokens */
+
+import { svg } from "../svg";
+
+export const ImportClipperzIcon = svg`
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="url(#import-clipperz-gradient)" d="m9.196 8.87-6.224-3.1-1.871 5.293 6.413 2.602-3.785 5.242 4.452 3.095 3.31-5.221 4.373 5.234 4.267-3.274-3.682-5.066 6.15-2.222-1.91-5.106-6.103 2.666-.066-6.929H9.096z"/><path fill="url(#import-clipperz-gradient-2)" d="M9.742 9.726 3.467 6.588l-1.539 3.92L8.5 13.216l-3.933 5.452 3.575 2.484 3.452-5.563 4.32 5.388 3.704-2.315-3.943-5.438 6.412-2.161-1.48-4.247-6.504 2.861.023-7.224H9.769z"/><path fill="#fe9100" d="M17.084 20.225C16.882 14.195 11.93 9.37 5.852 9.37c-1.316 0-2.578.227-3.752.642l-.192.488 6.571 2.709-3.933 5.451 3.575 2.485 3.452-5.564 4.32 5.388z"/><defs><linearGradient id="import-clipperz-gradient" x1="1.101" x2="22.598" y1="12.049" y2="12.049" gradientUnits="userSpaceOnUse"><stop stop-color="#b25e04"/><stop offset=".16" stop-color="#bb6e1a"/><stop offset=".5" stop-color="#d39854"/><stop offset=".98" stop-color="#fadbb1"/><stop offset="1" stop-color="#fddfb6"/></linearGradient><linearGradient id="import-clipperz-gradient-2" x1="1.928" x2="22.086" y1="11.803" y2="11.803" gradientUnits="userSpaceOnUse"><stop stop-color="#fef1e1"/><stop offset="1" stop-color="#fec66d"/></linearGradient></defs></svg>
+`;
