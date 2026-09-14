@@ -1,0 +1,87 @@
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ReactiveFormsModule, Validators, FormBuilder } from "@angular/forms";
+
+import {
+  ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  SelectModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { AccessConnector, TargetSystem } from "../rotation";
+
+export type AssignConnectorDialogParams = {
+  /** The target system being assigned an access connector. */
+  targetSystem: TargetSystem;
+  /**
+   * The set of enabled access connectors that are NOT already assigned to this
+   * target system.
+   */
+  options: AccessConnector[];
+  /**
+   * Whether the organization has no enabled access connector at all, as opposed to having them
+   * all assigned to this target system already.
+   *
+   * Both states reach the dialog as an empty `options`, and they read very differently: one asks
+   * the operator to register or activate a connector, the other tells them there is nothing left
+   * to add. Optional, and false when omitted, so a caller that cannot yet tell the two apart keeps
+   * the all-assigned reading rather than asserting the stronger claim.
+   */
+  noneEligible?: boolean;
+};
+
+/**
+ * Closed with the selected `accessConnectorId` on confirm, or `undefined` on dismiss.
+ */
+export type AssignConnectorDialogResult = string | undefined;
+
+/** Simple select-and-confirm dialog for assigning an enabled access connector to a target system. */
+@Component({
+  selector: "app-assign-connector-dialog",
+  templateUrl: "./assign-connector-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    FormFieldModule,
+    SelectModule,
+    I18nPipe,
+  ],
+})
+export class AssignConnectorDialogComponent {
+  protected readonly params = inject<AssignConnectorDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<AssignConnectorDialogResult>>(DialogRef);
+  private readonly fb = inject(FormBuilder);
+
+  protected readonly form = this.fb.nonNullable.group({
+    accessConnectorId: ["", [Validators.required]],
+  });
+
+  protected confirm(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+    void this.dialogRef.close(this.form.controls.accessConnectorId.value);
+  }
+
+  protected cancel(): void {
+    void this.dialogRef.close(undefined);
+  }
+
+  static open(
+    dialogService: DialogService,
+    config: DialogConfig<AssignConnectorDialogParams>,
+  ): DialogRef<AssignConnectorDialogResult> {
+    return dialogService.open<AssignConnectorDialogResult, AssignConnectorDialogParams>(
+      AssignConnectorDialogComponent,
+      config,
+    );
+  }
+}
