@@ -8,6 +8,7 @@ import {
   inject,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
@@ -32,6 +33,8 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterMenuModule,
   StatusLockupComponent,
   SvgComponent,
   SkeletonComponent,
@@ -39,7 +42,6 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
-  ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -71,11 +73,11 @@ const announcementHoldMs = 2000;
  * Managed (decided requests for collections the caller manages, the only ones they can undo a
  * decision on).
  *
- * Opens on All so the reader is never shown an empty table behind an unpressed toggle;
+ * Opens on All so the reader is never shown an empty table behind an unset chip;
  * `managedIds` is the per-row authority, so a row the caller both raised and manages appears
  * once, keeping the richer copy.
  *
- * A caller with no approval privilege has no managed rows, no Actions column, and no toggle.
+ * A caller with no approval privilege has no managed rows, no Actions column, and no chip.
  */
 @Component({
   selector: "pam-history-tab",
@@ -87,13 +89,13 @@ const announcementHoldMs = 2000;
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
+    FilterMenuModule,
     IconComponent,
     StatusLockupComponent,
     SvgComponent,
     SkeletonComponent,
     SkeletonTextComponent,
     TableModule,
-    ToggleGroupModule,
     TypographyModule,
     I18nPipe,
     DurationShortPipe,
@@ -119,8 +121,12 @@ export class HistoryTabComponent {
     initialValue: false,
   });
 
-  /** The filter the viewer picked from the toggle. */
-  private readonly selectedScope = signal<HistoryScope>(HistoryScope.All);
+  /**
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip owns its selection and is read
+   * through its `FILTER_CONTROL` contract rather than a form control. There is no filter host for
+   * it to register with, so this `viewChild` is the whole of the plumbing.
+   */
+  private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -228,12 +234,19 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Falls back to All, synchronously, if the toggle disappears while filtered; the choice is
-   * forgotten, so a returning toggle can't silently re-narrow the table.
+   * One source of truth for the scope — the shape the sibling access-audit page uses for its
+   * chips.
+   *
+   * Falls back to All, synchronously, if the chip disappears while filtered. The template's `@if`
+   * destroys the chip whenever {@link canSwitchScope} goes false, so a chip that returns starts
+   * unset: a stale pick can't silently re-narrow the table, and nothing has to forget it.
    */
-  protected readonly scope = computed<HistoryScope>(() =>
-    this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
-  );
+  protected readonly scope = computed<HistoryScope>(() => {
+    const value = this.scopeChip()?.value();
+    return this.canSwitchScope() && (value === HistoryScope.Mine || value === HistoryScope.Managed)
+      ? value
+      : HistoryScope.All;
+  });
 
   /**
    * Both sources in one list, de-duplicated by request id and re-sorted on the shared key. A row
@@ -318,15 +331,6 @@ export class HistoryTabComponent {
       const handle = setTimeout(() => this.skeletonShown.set(false), announcementHoldMs);
       onCleanup(() => clearTimeout(handle));
     });
-    effect(() => {
-      if (!this.canSwitchScope()) {
-        this.selectedScope.set(HistoryScope.All);
-      }
-    });
-  }
-
-  protected selectScope(scope: HistoryScope): void {
-    this.selectedScope.set(scope);
   }
 
   /** The decrypted cipher for a row, undefined when absent from the caller's vault. */
