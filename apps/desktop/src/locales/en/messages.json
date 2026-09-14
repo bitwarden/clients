@@ -6918,5 +6918,12 @@
         "example": "Test Login"
       }
     }
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
   }
 }
