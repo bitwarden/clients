@@ -101,6 +101,16 @@ type PickerApi = {
   canSelect: () => boolean;
 };
 
+/**
+ * The two ways bit-multi-select reports a selection: it notifies its value accessor on every
+ * change, including a chip dismissed with the dropdown shut, and announces a confirmed pick only
+ * when the dropdown closes — and not at all when the closing selection is empty.
+ */
+type ControlApi = {
+  onChange(items: SelectItemView[]): void;
+  onDropdownClosed(): void;
+};
+
 describe("AssignmentPickerComponent", () => {
   let fixture: ComponentFixture<AssignmentPickerHostComponent>;
   let host: AssignmentPickerHostComponent;
@@ -115,6 +125,12 @@ describe("AssignmentPickerComponent", () => {
 
   function el<T extends HTMLElement>(selector: string): T | null {
     return (fixture.nativeElement as HTMLElement).querySelector<T>(selector);
+  }
+
+  /** The multi-select the picker owns, driven through the contract it reports selections on. */
+  function control(): ControlApi {
+    return fixture.debugElement.query(By.css("bit-multi-select"))
+      .componentInstance as unknown as ControlApi;
   }
 
   /** Assign's own tooltip. */
@@ -180,6 +196,61 @@ describe("AssignmentPickerComponent", () => {
       // The caller's two columns plus the options column the picker appends.
       expect(empty?.getAttribute("colspan")).toBe("3");
       expect(el("#host_button_unassign-row-1")).toBeNull();
+    });
+  });
+
+  describe("the pending selection", () => {
+    it("takes the pick the control confirms when its dropdown closes", async () => {
+      const picker = await render();
+
+      control().onChange([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      control().onDropdownClosed();
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([
+        option("opt-1", "Prod Entra"),
+        option("opt-2", "Staging"),
+      ]);
+      expect(picker.canAssign()).toBe(true);
+    });
+
+    it("drops an option the control reports gone, such as a dismissed chip", async () => {
+      const picker = await render();
+      control().onChange([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      control().onDropdownClosed();
+      fixture.detectChanges();
+
+      control().onChange([option("opt-2", "Staging")]);
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+    });
+
+    it("disarms Assign once the last chip is dismissed, which the control never confirms", async () => {
+      const picker = await render();
+      control().onChange([option("opt-1", "Prod Entra")]);
+      control().onDropdownClosed();
+      fixture.detectChanges();
+
+      control().onChange([]);
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([]);
+      expect(picker.canAssign()).toBe(false);
+
+      await click("#host_button_assign");
+
+      expect(host.assign).not.toHaveBeenCalled();
+    });
+
+    it("leaves an unconfirmed pick unarmed, so an abandoned dropdown assigns nothing", async () => {
+      const picker = await render();
+
+      control().onChange([option("opt-1", "Prod Entra")]);
+      fixture.detectChanges();
+
+      expect(picker.pendingSelection()).toEqual([]);
+      expect(picker.canAssign()).toBe(false);
     });
   });
 
