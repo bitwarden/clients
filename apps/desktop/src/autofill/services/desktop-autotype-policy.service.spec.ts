@@ -93,8 +93,8 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     });
 
     it("should emit null when the resolved feature flag state is neither Mvp nor Ga", async () => {
-      // autotypeFeatureFlagState$ fails closed to Off when both the MVP and GA flags are
-      // on, so an applying policy must still be gated off in that state.
+      // autotypeFeatureFlagState$ defaults to Off when both the MVP and GA flags are on,
+      // so the policy should not apply (be null)
       mockPolicyAppliesSubject.next(true);
       featureFlagSubject.next(AutotypeFeatureFlagState.Off);
 

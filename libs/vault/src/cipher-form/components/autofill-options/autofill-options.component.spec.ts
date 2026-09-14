@@ -349,7 +349,7 @@ describe("AutofillOptionsComponent", () => {
       expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(true);
     });
 
-    it("is false when device is Windows Desktop and both the MVP and GA feature flags are enabled (fail closed)", () => {
+    it("is false when device is Windows Desktop and both the MVP and GA feature flags are enabled", () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
         flag === FeatureFlag.WindowsDesktopAutotypeGA
