@@ -34,11 +34,20 @@
     removed) below md so the chips stay instantiated to back the dialog and the
     small-screen active-filter chips below.
   -->
-  <div bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
+  <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
-    @if (appliedCount()) {
+    <!--
+      Gated on `hasFilters`, then hidden by class rather than `@if`: entering the DOM on
+      selection would change the overflow list's item set, which drops its cached widths
+      and flashes the row fully expanded before the next measurement lands. `tw-hidden`
+      survives the directive's measurement reveal (it only clears inline `display`), so
+      this measures 0px and the item set holds. The outer `@if` keeps a search-only
+      toolbar's row free of element children, so `empty:tw-hidden` still collapses it.
+    -->
+    @if (hasFilters()) {
       <button
         bitOverflowItem
+        [class.tw-hidden]="!appliedCount()"
         id="bit-table-toolbar_button_clear-all"
         bitButton
         buttonType="subtleGhost"
@@ -66,7 +75,7 @@
     on click. Rendered only when there's at least one (no empty row, no item count).
   -->
   @if (collapsed() && activeFilters().length) {
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-5 tw-py-3">
+    <div [class]="activeFilterRowClasses()">
       @for (filter of activeFilters(); track filter.key()) {
         <bit-chip
           [label]="appliedLabel(filter)"

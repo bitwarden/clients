@@ -133,6 +133,10 @@ describe("AutofillService", () => {
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
 
+    // fillAssistPolicy$ (feeding resolvedEnableFillAssist$) subscribes to
+    // policyService.policiesByType$; default the mock to an empty stream.
+    policyService.policiesByType$.mockReturnValue(of([]));
+
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
@@ -1136,6 +1140,78 @@ describe("AutofillService", () => {
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
       expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toEqual({ didAutofill: true });
+    });
+  });
+
+  describe("getTotpCopyCode", () => {
+    let cipher: CipherView;
+
+    beforeEach(() => {
+      cipher = mock<CipherView>({ type: CipherType.Login });
+      cipher.login.totp = "totp-seed";
+      cipher.organizationUseTotp = false;
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(true));
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
+      totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
+    });
+
+    it("returns the computed TOTP code when premium and auto-copy setting are on", async () => {
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBe("123456");
+      expect(totpService.getCode$).toHaveBeenCalledWith("totp-seed");
+    });
+
+    it("returns undefined when the cipher is not a Login", async () => {
+      cipher.type = CipherType.Identity;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when the cipher has no TOTP seed", async () => {
+      cipher.login.totp = undefined;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when auto-copy TOTP is disabled", async () => {
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined for a non-premium user whose cipher's organization does not use TOTP", async () => {
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      cipher.organizationUseTotp = false;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns the code for a non-premium user when the organization uses TOTP", async () => {
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      cipher.organizationUseTotp = true;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBe("123456");
     });
   });
 

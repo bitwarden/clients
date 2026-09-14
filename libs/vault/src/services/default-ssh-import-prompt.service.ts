@@ -48,11 +48,7 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
       if (error.variant === "PasswordRequired" || error.variant === "WrongPassword") {
         isPasswordProtectedSshKey = true;
       } else {
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(error.variant)),
-        });
+        this.reportImportFailure(error.variant);
         return null;
       }
     }
@@ -70,11 +66,7 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
         } catch (e) {
           const error = e as SshKeyImportError;
           if (error.variant !== "WrongPassword") {
-            this.toastService.showToast({
-              variant: "error",
-              title: "",
-              message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(error.variant)),
-            });
+            this.reportImportFailure(error.variant);
             return null;
           }
         }
@@ -87,14 +79,10 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
     if (isEcdsaKey) {
       const ecdsaEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHecdsa);
       if (!ecdsaEnabled) {
-        this.logService.error("ECDSA SSH key import blocked: SSHecdsa feature flag is not enabled");
-
-        const variant = "UnsupportedKeyType";
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(variant)),
-        });
+        this.reportImportFailure(
+          "UnsupportedKeyType",
+          "ECDSA key type is disabled by the SSHecdsa feature flag",
+        );
 
         return null;
       }
@@ -113,6 +101,21 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
         keyFingerprint: parsedKey!.fingerprint,
       }),
     );
+  }
+
+  /**
+   * Logs the failure to the app log and shows the matching localized toast.
+   *
+   * Only the variant and an optional non-sensitive reason are logged — never the key itself.
+   */
+  private reportImportFailure(variant: string, reason?: string) {
+    this.logService.error(`SSH key import failed: ${reason ?? variant}`);
+
+    this.toastService.showToast({
+      variant: "error",
+      title: "",
+      message: this.i18nService.t(this.sshImportErrorVariantToI18nKey(variant)),
+    });
   }
 
   private sshImportErrorVariantToI18nKey(variant: string): string {

@@ -13,7 +13,10 @@ export type SharedDevFlags = {
   configRetrievalIntervalMs: number;
   showRiskInsightsDebug: boolean;
   fillAssistDevTools: boolean;
+  useBitwardenAutofillAttributes: boolean;
   testPhishingUrls: string[];
+  /** Nested settings object standing in for a device-management profile the host cannot supply. */
+  managedSettingsDevSource?: Record<string, unknown>;
 };
 
 function getFlags<T>(envFlags: string | T): T {

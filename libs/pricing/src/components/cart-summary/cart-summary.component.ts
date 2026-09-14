@@ -15,7 +15,7 @@ import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Cart, CartItem } from "../../types/cart";
-import { Discount, getAmount, getLabel } from "../../types/discount";
+import { CartDiscount, getAmount, getLabel } from "../../types/discount";
 import { DiscountBadgeComponent } from "../discount-badge/discount-badge.component";
 
 /**
@@ -65,29 +65,69 @@ export class CartSummaryComponent {
   });
 
   /**
-   * Calculates the discount amount for the Password Manager seats item.
-   * Currently, only PM seats support item-level discounts (PM-33349).
-   * If other cart items gain discount support, add corresponding signals and update total().
+   * Maps a line item's discounts to labeled rows.
+   *
+   * Each discount is applied against that line's extended price (quantity × cost). Unlike the
+   * cart-wide discount loop, per-line discounts deliberately do NOT cascade against a running
+   * subtotal — every entry is measured from the same base. Server-supplied amounts are
+   * authoritative when present; otherwise the amount is derived from the discount type and value.
+   *
+   * The template tracks these rows by `$index`, not label: labels are not unique, because two
+   * unlabeled discounts of the same type and value derive the identical display label.
    */
-  readonly passwordManagerSeatsDiscountAmount = computed<number>(() => {
-    const {
-      passwordManager: { seats },
-    } = this.cart();
-    return this.getItemDiscountAmount(seats);
-  });
+  private lineDiscountRows(item: CartItem | undefined): Array<{ label: string; amount: number }> {
+    if (!item?.discounts?.length) {
+      return [];
+    }
+
+    const extendedPrice = item.quantity * item.cost;
+    return item.discounts.map((discount) => ({
+      label: getLabel(this.i18nService, discount),
+      amount: discount.amount ?? getAmount(discount, extendedPrice),
+    }));
+  }
 
   /**
-   * Gets the discount label for the Password Manager seats item
+   * Discount rows for the Password Manager seats line
    */
-  readonly passwordManagerSeatsDiscountLabel = computed<string>(() => {
-    const {
-      passwordManager: { seats },
-    } = this.cart();
-    if (!seats.discount) {
-      return "";
-    }
-    return getLabel(this.i18nService, seats.discount);
-  });
+  readonly passwordManagerSeatsDiscountRows = computed(() =>
+    this.lineDiscountRows(this.cart().passwordManager.seats),
+  );
+
+  /**
+   * Discount rows for the additional storage line
+   */
+  readonly additionalStorageDiscountRows = computed(() =>
+    this.lineDiscountRows(this.cart().passwordManager.additionalStorage),
+  );
+
+  /**
+   * Discount rows for the Secrets Manager seats line
+   */
+  readonly secretsManagerSeatsDiscountRows = computed(() =>
+    this.lineDiscountRows(this.cart().secretsManager?.seats),
+  );
+
+  /**
+   * Discount rows for the additional service accounts line
+   */
+  readonly additionalServiceAccountsDiscountRows = computed(() =>
+    this.lineDiscountRows(this.cart().secretsManager?.additionalServiceAccounts),
+  );
+
+  /**
+   * Sums every per-line discount across all four line items
+   */
+  private readonly lineDiscountTotal = computed<number>(() =>
+    [
+      this.passwordManagerSeatsDiscountRows(),
+      this.additionalStorageDiscountRows(),
+      this.secretsManagerSeatsDiscountRows(),
+      this.additionalServiceAccountsDiscountRows(),
+    ]
+      .flat()
+      .reduce((sum, row) => sum + row.amount, 0),
+  );
 
   /**
    * Calculates total for additional storage
@@ -106,11 +146,11 @@ export class CartSummaryComponent {
    * Calculates total for Secrets Manager seats
    */
   readonly secretsManagerSeatsTotal = computed<number>(() => {
-    const { secretsManager } = this.cart();
-    if (!secretsManager) {
+    const seats = this.cart().secretsManager?.seats;
+    if (!seats) {
       return 0;
     }
-    return secretsManager.seats.quantity * secretsManager.seats.cost;
+    return seats.quantity * seats.cost;
   });
 
   /**
@@ -156,12 +196,12 @@ export class CartSummaryComponent {
    * a $100 subtotal yield $10 off (subtotal → $90), then $9 off (subtotal → $81).
    */
   private calculateDiscountLineItems(
-    discounts: Discount[],
+    discounts: CartDiscount[],
     subtotal: number,
   ): Array<{ label: string; amount: number }> {
     let runningSubtotal = subtotal;
     return discounts.map((discount) => {
-      const amount = getAmount(discount, runningSubtotal);
+      const amount = discount.amount ?? getAmount(discount, runningSubtotal);
       runningSubtotal -= amount;
       return { label: getLabel(this.i18nService, discount), amount };
     });
@@ -186,6 +226,15 @@ export class CartSummaryComponent {
   );
 
   /**
+   * Whether any cart-level discount row will render. The Subtotal row and the grouped
+   * summary layout (subtotal → discounts → tax between dividers) appear only in this case;
+   * without cart-level discounts the summary keeps its original per-row dividers.
+   */
+  readonly hasCartDiscounts = computed<boolean>(() =>
+    this.discountLineItems().some((item) => item.amount > 0),
+  );
+
+  /**
    * Calculates the credit amount from the cart credit
    */
   readonly creditAmount = computed<number>(() => {
@@ -197,16 +246,24 @@ export class CartSummaryComponent {
   });
 
   /**
-   * Calculates the total of all line items including discount and tax
+   * Calculates the total of all line items including discounts, credit and tax
    */
-  readonly total = computed<number>(
+  private readonly computedTotal = computed<number>(
     () =>
       this.subtotal() -
       this.discountAmount() -
-      this.passwordManagerSeatsDiscountAmount() -
+      this.lineDiscountTotal() -
       this.creditAmount() +
       this.estimatedTax(),
   );
+
+  /**
+   * The cart total, preferring the authoritative invoice total when the cart carries one.
+   *
+   * Uses `??` rather than `||` so an authoritative total of 0 (for example, a 100%-off
+   * coupon) wins instead of falling back to the computed value.
+   */
+  readonly total = computed<number>(() => this.cart().total ?? this.computedTotal());
 
   /**
    * Observable of computed total value
@@ -228,12 +285,5 @@ export class CartSummaryComponent {
    */
   toggleExpanded(): void {
     this.isExpanded.update((value: boolean) => !value);
-  }
-
-  private getItemDiscountAmount(item: CartItem): number {
-    if (!item.discount) {
-      return 0;
-    }
-    return getAmount(item.discount, item.quantity * item.cost);
   }
 }

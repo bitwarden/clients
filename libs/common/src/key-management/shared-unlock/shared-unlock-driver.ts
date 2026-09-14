@@ -1,8 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
@@ -20,45 +18,28 @@ function fromSdkUserId(userId: UserId): TSUserId {
 }
 
 /**
- * A driver that exposes client capabilities (lock/unlock, user enumeration, etc.) to the SDK's
- * shared unlock leader/follower.
+ * A driver that exposes client capabilities (lock/unlock, user enumeration, etc.) to this device's
+ * shared unlock peer.
  */
 export class JsSharedUnlockDriver implements SharedUnlockDriver {
   constructor(
     private accountService: AccountService,
     private lockService: LockService,
     private unlockService: UnlockService,
-    private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private environmentService: EnvironmentService,
-    private isEnabled: (userId: TSUserId) => Promise<boolean>,
-    private onExternalUnlock?: (userId: TSUserId) => void,
   ) {}
 
   async lock_user(user_id: UserId): Promise<void> {
-    if (!(await this.isEnabled(fromSdkUserId(user_id)))) {
-      return;
-    }
-
     await this.lockService.lock(fromSdkUserId(user_id), LockSource.SharedUnlock);
   }
 
   async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
-    if (!(await this.isEnabled(fromSdkUserId(user_id)))) {
-      return;
-    }
-
-    await this.unlockService.unlockWithDecryptedUserKey(
+    await this.unlockService.unlockFromSharedUnlock(
       fromSdkUserId(user_id),
       SymmetricCryptoKey.fromSdk(user_key) as UserKey,
     );
-    this.onExternalUnlock?.(fromSdkUserId(user_id));
-  }
-
-  async get_user_key(user_id: UserId): Promise<SymmetricKey | undefined> {
-    const typedUserId = fromSdkUserId(user_id);
-    return (await firstValueFrom(this.keyService.userKey$(typedUserId)))?.toSdk();
   }
 
   async list_users(): Promise<UserId[]> {
