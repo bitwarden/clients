@@ -1,6 +1,7 @@
 import {
   TwoFactorAuthWebAuthnIcon,
   NoCredentialsIcon,
+  RegistrationUserAddIcon,
   ReportBreach,
   ReportExposedPasswords,
   ReportUnsecuredWebsites,
@@ -22,6 +23,7 @@ export enum ReportType {
   DataBreach = "dataBreach",
   MemberAccessReport = "memberAccessReport",
   PasskeyLogin = "passkeyLogin",
+  MemberAdoptionReport = "memberAdoptionReport",
 }
 
 type ReportWithoutVariant = Omit<ReportEntry, "variant">;
@@ -74,5 +76,11 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     description: "passkeyLoginReportMenuDesc",
     route: "passkey-report",
     icon: TwoFactorAuthWebAuthnIcon,
+  },
+  [ReportType.MemberAdoptionReport]: {
+    title: "memberAdoptionReport",
+    description: "memberAdoptionReportDesc",
+    route: "member-adoption-report",
+    icon: RegistrationUserAddIcon,
   },
 };
