@@ -60,7 +60,7 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.DomainVerification]: "domainVerification",
   [EventSystemUser.PublicApi]: "publicApi",
   [EventSystemUser.BitwardenPortal]: "system",
-  [EventSystemUser.Pam]: "pam",
+  [EventSystemUser.Pam]: "privilegedControls",
 };
 
 @Component({
