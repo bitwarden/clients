@@ -11,7 +11,7 @@ describe("accessRuleMatchesFilter", () => {
   const filter = (overrides: Partial<AccessRuleFilter> = {}): AccessRuleFilter => ({
     text: "",
     status: null,
-    collectionId: null,
+    collectionIds: [],
     ...overrides,
   });
 
@@ -39,16 +39,33 @@ describe("accessRuleMatchesFilter", () => {
       accessRuleMatchesFilter(
         rule({ collections: ["col-1"] }),
         [],
-        filter({ collectionId: "col-2" }),
+        filter({ collectionIds: ["col-2"] }),
       ),
     ).toBe(false);
     expect(
       accessRuleMatchesFilter(
         rule({ collections: ["col-2"] }),
         [],
-        filter({ collectionId: "col-2" }),
+        filter({ collectionIds: ["col-2"] }),
       ),
     ).toBe(true);
+  });
+
+  it("matches a rule carrying any of several selected collections", () => {
+    expect(
+      accessRuleMatchesFilter(
+        rule({ collections: ["col-3"] }),
+        [],
+        filter({ collectionIds: ["col-2", "col-3"] }),
+      ),
+    ).toBe(true);
+    expect(
+      accessRuleMatchesFilter(
+        rule({ collections: ["col-1"] }),
+        [],
+        filter({ collectionIds: ["col-2", "col-3"] }),
+      ),
+    ).toBe(false);
   });
 
   it("matches search text against the rule name", () => {
