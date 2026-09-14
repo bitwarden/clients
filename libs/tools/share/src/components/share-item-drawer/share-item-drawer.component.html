@@ -1,0 +1,28 @@
+<bit-dialog [title]="'share' | i18n" dialogSize="large">
+  <ng-container bitDialogContent>
+    <app-share-item-form [cipher]="data.cipher"></app-share-item-form>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      type="button"
+      id="share-item-drawer_button_copy-link"
+      buttonType="primary"
+      (click)="createAndCopyLink()"
+      [disabled]="shareItemForm()?.form?.invalid"
+      startIcon="bwi-share-link"
+    >
+      {{ "copyLink" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      id="share-item-drawer_button_cancel"
+      buttonType="secondary"
+      bitDialogClose
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

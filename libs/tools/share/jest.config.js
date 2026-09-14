@@ -1,10 +1,31 @@
-module.exports = {
-  displayName: "tools-share",
-  preset: "../../../jest.preset.js",
-  testEnvironment: "node",
-  transform: {
-    "^.+\\.[tj]s$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.spec.json" }],
+const { pathsToModuleNameMapper } = require("ts-jest");
+
+const { compilerOptions } = require("../../../tsconfig.base");
+
+const { createCjsPreset } = require("jest-preset-angular/presets");
+
+// FIXME: Should use the shared config! This will require a bit of reorganization
+// of how this and all other tools libraries in libs/ are structured
+const presetConfig = createCjsPreset({
+  tsconfig: "<rootDir>/tsconfig.spec.json",
+  astTransformers: {
+    before: ["<rootDir>/../../shared/es2020-transformer.ts"],
   },
-  moduleFileExtensions: ["ts", "js", "html"],
-  coverageDirectory: "../../../coverage/libs/tools/share",
+  diagnostics: {
+    ignoreCodes: ["TS151001"],
+  },
+});
+
+/** @type {import('jest').Config} */
+module.exports = {
+  ...presetConfig,
+  displayName: "tools/share tests",
+  // oauth4webapi is ESM-only; allow jest-preset-angular's transformer to compile it.
+  transformIgnorePatterns: [
+    "node_modules/(?!(.*\\.mjs$|@angular/common/locales/.*\\.js$|oauth4webapi/.*))",
+  ],
+  setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
+    prefix: "<rootDir>/../../../",
+  }),
 };
