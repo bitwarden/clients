@@ -62,6 +62,17 @@
       </bit-filter-menu>
     }
 
+    @if (showMyItems()) {
+      <bit-filter-toggle
+        [key]="filterKeys.myItems"
+        [label]="'myItemsV2' | i18n"
+        icon="bwi-user"
+        [disabled]="noMyItems()"
+        [bitTooltip]="myItemsDisabledTooltip()"
+        [style.pointer-events]="'auto'"
+      ></bit-filter-toggle>
+    }
+
     <!--
       The pointer-events override below overrides `BaseChipDirective`'s own
       `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
