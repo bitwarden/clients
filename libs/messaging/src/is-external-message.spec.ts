@@ -1,11 +1,10 @@
-import { isExternalMessage, stampAsExternal } from "./is-external-message";
+import { isExternalMessage, tagExternalMessage } from "./is-external-message";
 
 type Tamper = (message: Record<PropertyKey, unknown>, key: symbol) => void;
 
 /**
- * Recovers the stamped key the way in-realm code would, rather than importing it. Selects by
- * description because an ingested message can carry other stamps — `stampWebExtSender` applies
- * one ahead of this on every chrome runtime message.
+ * Recovers the tag key the way in-realm code would, rather than importing it. Selects by
+ * description because an ingested message can carry other symbol keys.
  */
 const recoverKey = (message: object) => {
   const key = Object.getOwnPropertySymbols(message).find(
@@ -13,22 +12,22 @@ const recoverKey = (message: object) => {
   );
 
   if (key === undefined) {
-    throw new Error("no external-source stamp found on the message");
+    throw new Error("no external-source tag found on the message");
   }
 
   return key;
 };
 
 describe("is-external-message", () => {
-  describe("stampAsExternal", () => {
+  describe("tagExternalMessage", () => {
     it("returns the same message instance", () => {
       const message = { command: "test" };
 
-      expect(stampAsExternal(message)).toBe(message);
+      expect(tagExternalMessage(message)).toBe(message);
     });
 
     it("reads back as external", () => {
-      expect(isExternalMessage(stampAsExternal({ command: "test" }))).toBe(true);
+      expect(isExternalMessage(tagExternalMessage({ command: "test" }))).toBe(true);
     });
 
     it.each<[string, Tamper]>([
@@ -45,33 +44,33 @@ describe("is-external-message", () => {
           delete message[key];
         },
       ],
-    ])("stamps a key that cannot be %s", (_shape, tamper) => {
-      const message: Record<PropertyKey, unknown> = stampAsExternal({ command: "test" });
+    ])("tags with a key that cannot be %s", (_shape, tamper) => {
+      const message: Record<PropertyKey, unknown> = tagExternalMessage({ command: "test" });
 
       expect(() => tamper(message, recoverKey(message))).toThrow();
       expect(isExternalMessage(message)).toBe(true);
     });
 
-    it("is a no-op when the same message is stamped twice", () => {
-      // Deliberately unlike `stampWebExtSender`, which throws on a second stamp: this runs
+    it("is a no-op when the same message is tagged twice", () => {
+      // Deliberately unlike `stampWebExtSender`, which throws when applied twice: this runs
       // inside a `map` on a shared ingest stream, so a throw would tear the stream down.
-      const message = stampAsExternal({ command: "test" });
+      const message = tagExternalMessage({ command: "test" });
 
-      expect(stampAsExternal(message)).toBe(message);
+      expect(tagExternalMessage(message)).toBe(message);
       expect(isExternalMessage(message)).toBe(true);
     });
 
     it.each([
       ["an object spread", (message: object) => ({ ...message })],
       ["Object.assign", (message: object) => Object.assign({}, message)],
-    ])("keeps the stamp across %s", (_how, copy) => {
-      // An absent stamp is indistinguishable from a message that never crossed a context
+    ])("keeps the tag across %s", (_how, copy) => {
+      // An absent tag is indistinguishable from a message that never crossed a context
       // boundary, so a copy must not read as internal.
-      expect(isExternalMessage(copy(stampAsExternal({ command: "test" })))).toBe(true);
+      expect(isExternalMessage(copy(tagExternalMessage({ command: "test" })))).toBe(true);
     });
 
-    it("does not carry the stamp's hardening to a copy", () => {
-      const copy: Record<PropertyKey, unknown> = { ...stampAsExternal({ command: "test" }) };
+    it("does not carry the tag's hardening to a copy", () => {
+      const copy: Record<PropertyKey, unknown> = { ...tagExternalMessage({ command: "test" }) };
 
       expect(() => {
         delete copy[recoverKey(copy)];
@@ -88,21 +87,21 @@ describe("is-external-message", () => {
     ])("throws for %s", (_shape, value) => {
       // The ingest boundary owns this precondition. Note a primitive is a narrower contract
       // than the `Object.assign` this replaced, which boxed and silently succeeded.
-      expect(() => stampAsExternal(value as Record<PropertyKey, unknown>)).toThrow(TypeError);
+      expect(() => tagExternalMessage(value as Record<PropertyKey, unknown>)).toThrow(TypeError);
     });
 
     it.each([
       ["structuredClone", structuredClone],
       ["a JSON round-trip", (message: object) => JSON.parse(JSON.stringify(message))],
-    ])("loses the stamp across %s", (_how, serialize) => {
+    ])("loses the tag across %s", (_how, serialize) => {
       // Symbols do not survive serialization, so a message that re-enters the application
-      // must be stamped again at the boundary it arrives on.
-      expect(isExternalMessage(serialize(stampAsExternal({ command: "test" })))).toBe(false);
+      // must be tagged again at the boundary it arrives on.
+      expect(isExternalMessage(serialize(tagExternalMessage({ command: "test" })))).toBe(false);
     });
   });
 
   describe("isExternalMessage", () => {
-    it("returns false for a message that was never stamped", () => {
+    it("returns false for a message that was never tagged", () => {
       expect(isExternalMessage({ command: "test" })).toBe(false);
     });
 
@@ -120,12 +119,12 @@ describe("is-external-message", () => {
       expect(isExternalMessage(spoofed)).toBe(false);
     });
 
-    it("returns true for a stamped message carrying a contradictory body property", () => {
-      expect(isExternalMessage(stampAsExternal({ externalSource: false }))).toBe(true);
+    it("returns true for a tagged message carrying a contradictory body property", () => {
+      expect(isExternalMessage(tagExternalMessage({ externalSource: false }))).toBe(true);
     });
 
-    it("requires the stamped value to be exactly true", () => {
-      const key = recoverKey(stampAsExternal({ command: "observed" }));
+    it("requires the tagged value to be exactly true", () => {
+      const key = recoverKey(tagExternalMessage({ command: "observed" }));
 
       expect(isExternalMessage({ [key]: "true" })).toBe(false);
     });
@@ -133,29 +132,29 @@ describe("is-external-message", () => {
     it.each([
       ["an array", [] as unknown[]],
       ["a function", () => "not a message"],
-    ])("returns false for %s carrying a stamp", (_shape, value) => {
-      // Both can physically hold the stamp, but neither is ever a message. Rejecting them
+    ])("returns false for %s carrying a tag", (_shape, value) => {
+      // Both can physically hold the tag, but neither is ever a message. Rejecting them
       // keeps the record narrowing on a `true` result exact.
-      stampAsExternal(value as unknown as Record<PropertyKey, unknown>);
+      tagExternalMessage(value as unknown as Record<PropertyKey, unknown>);
 
       expect(isExternalMessage(value)).toBe(false);
     });
 
     it("narrows an unknown value to a record", () => {
-      const message: unknown = stampAsExternal({ command: "test" });
+      const message: unknown = tagExternalMessage({ command: "test" });
 
       if (!isExternalMessage(message)) {
-        throw new Error("expected the stamped message to read as external");
+        throw new Error("expected the tagged message to read as external");
       }
 
       // Compiles only because the guard narrowed `unknown` to a record.
       expect(message.command).toBe("test");
     });
 
-    it("cannot tell a genuine stamp from one minted with a recovered key", () => {
-      // Non-configurability stops a stamp being stripped, not forged. In-realm code that has
-      // observed a stamped message can reuse the key, so `true` is not proof of provenance.
-      const key = recoverKey(stampAsExternal({ command: "observed" }));
+    it("cannot tell a genuine tag from one minted with a recovered key", () => {
+      // Hardening the descriptor resists tampering in place. It does not prevent forgery:
+      // code that has observed a tagged message can reuse the key on an object of its own.
+      const key = recoverKey(tagExternalMessage({ command: "observed" }));
 
       expect(isExternalMessage({ [key]: true })).toBe(true);
     });

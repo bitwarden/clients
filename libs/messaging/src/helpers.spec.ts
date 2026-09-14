@@ -31,8 +31,8 @@ describe("helpers", () => {
     });
 
     it("emits the same message instance it ingested", async () => {
-      // Stamping a copy would leave the ingested object untagged, and would silently drop
-      // non-enumerable stamps applied further upstream, such as the authoritative sender.
+      // Tagging a copy would leave the ingested object untagged, and would silently drop
+      // non-enumerable tags applied upstream, such as the authoritative sender.
       const message: Message<Record<string, unknown>> = { command: "test" };
 
       const tagged = await firstValueFrom(of(message).pipe(tagAsExternal()));
