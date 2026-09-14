@@ -6,8 +6,7 @@ import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 
 /**
  * Centralizes the `(reference, planTier, flowContext) -> i18n key` fan-out that each cart surface
- * used to hardcode. Every key returned here already exists in the web client's `messages.json`,
- * with the sole exception of `appliedSubscriptionCredits`, added alongside this helper.
+ * used to hardcode. Keys returned here live in the consuming app's `messages.json`.
  *
  * The mapping is deliberately PARTIAL. Some combinations are legal to the type system but cannot
  * occur in practice — an organization checkout never sells the "premium" tier, for example. Rather
@@ -56,7 +55,7 @@ export const getCartItemTranslationKey = (
 };
 
 /**
- * Password Manager seats are the only reference whose copy varies by surface and tier.
+ * Password Manager seat copy varies by both surface and tier, so it gets its own resolver.
  */
 const getPasswordManagerSeatTranslationKey = (
   planTier: PlanTier,
