@@ -75,7 +75,7 @@
     on click. Rendered only when there's at least one (no empty row, no item count).
   -->
   @if (collapsed() && activeFilters().length) {
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-5 tw-py-3">
+    <div [class]="activeFilterRowClasses()">
       @for (filter of activeFilters(); track filter.key()) {
         <bit-chip
           [label]="appliedLabel(filter)"

@@ -1521,18 +1521,7 @@ describe("DefaultOrganizationInviteService", () => {
         inviteKey: "invite-key",
       });
 
-      it("returns null and skips SDK/state writes when the feature flag is off", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-
-        const result = await sut.sealOpenOrgInvite("user@example.com", validInvite());
-
-        expect(result).toBeNull();
-        expect(registrationClient.seal_open_org_invite_data).not.toHaveBeenCalled();
-        expect(await readRecord()).toBeNull();
-      });
-
-      it("returns the sealedData when the flag is on and persists the paired secret keyed by email", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+      it("returns the sealedData and persists the paired secret keyed by email", async () => {
         registrationClient.seal_open_org_invite_data.mockReturnValue({
           sealedData: "sealed-blob",
           highEntropySecret: "hes-abc",

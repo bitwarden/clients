@@ -7,7 +7,13 @@ import { switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { IconTileComponent, IconTileOptions, NavigationModule } from "@bitwarden/components";
+import {
+  A11yTitleDirective,
+  IconModule,
+  IconTileComponent,
+  IconTileOptions,
+  NavigationModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ALL_ITEMS_ICON_TILE, navIconTile } from "../../models/vault-icon-tile";
@@ -31,7 +37,14 @@ import { VaultNavService } from "../../services/vault-nav.service";
   selector: "vault-nav-section",
   templateUrl: "./vault-nav-section.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, I18nPipe, NavigationModule, IconTileComponent],
+  imports: [
+    NgTemplateOutlet,
+    I18nPipe,
+    NavigationModule,
+    IconTileComponent,
+    IconModule,
+    A11yTitleDirective,
+  ],
 })
 export class VaultNavSectionComponent {
   protected readonly VaultNavItemType = VaultNavItemType;
