@@ -7,6 +7,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
 import {
@@ -352,6 +353,10 @@ describe("VaultComponent", () => {
         },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: { cachedFilters: jest.fn().mockReturnValue({}) },
+        },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
@@ -378,9 +383,16 @@ describe("VaultComponent", () => {
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         {
           provide: InternalOrganizationServiceAbstraction,
-          useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
+          useValue: {
+            organizations$: jest.fn().mockReturnValue(of([])),
+            memberOrganizations$: jest.fn().mockReturnValue(of([])),
+          },
         },
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
+        {
+          provide: CollectionService,
+          useValue: { decryptedCollections$: jest.fn().mockReturnValue(of([])) },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

@@ -90,16 +90,18 @@ export class VaultPopupListTableFiltersService {
     filter((userId): userId is UserId => userId !== null),
   );
 
-  private readonly cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
+  private readonly _cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
     key: "vault-table-filters",
     initialValue: {},
     deserializer: (v) => v,
     persistNavigation: true,
   });
 
+  readonly cachedFilters = this._cachedFilters.asReadonly();
+
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
-    const filters = this.cachedFilters();
+    const filters = this._cachedFilters();
     return !!(
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
@@ -162,7 +164,7 @@ export class VaultPopupListTableFiltersService {
 
   /** Clears all persisted filter state. Called when the active account changes. */
   private clearFilters(): void {
-    this.cachedFilters.set({});
+    this._cachedFilters.set({});
     this.selectedOrganizations.set([]);
   }
 
@@ -176,7 +178,7 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }): void {
-    this.cachedFilters.set({
+    this._cachedFilters.set({
       organizationIds: values.organization ?? [],
       collectionIds: values.collection ?? [],
       folderIds: values.folder ?? [],
@@ -190,7 +192,7 @@ export class VaultPopupListTableFiltersService {
    * span vaults.
    */
   clearVaultScopedFilters(): void {
-    this.cachedFilters.set({
+    this._cachedFilters.set({
       organizationIds: [],
       collectionIds: [],
       folderIds: [],
@@ -214,7 +216,7 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }> {
-    const state = this.cachedFilters();
+    const state = this._cachedFilters();
     return combineLatest([
       this.organizations$,
       this.collections$,

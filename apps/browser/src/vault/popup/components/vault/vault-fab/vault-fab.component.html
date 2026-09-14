@@ -1,0 +1,31 @@
+@if (useNewItemTypes()) {
+  <!-- Button content is set via `label` input -->
+  <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+  <button
+    type="button"
+    [vaultFab]="'bwi-plus'"
+    [label]="'addItem' | i18n"
+    (click)="navigateToNewItemPage()"
+  ></button>
+} @else {
+  <!-- Button content is set via `label` input -->
+  <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+  <button
+    type="button"
+    [vaultFab]="'bwi-plus'"
+    [label]="'addItem' | i18n"
+    [bitMenuTriggerFor]="itemOptions"
+  ></button>
+  <bit-menu #itemOptions>
+    @for (menuItem of cipherMenuItems(); track menuItem.type) {
+      <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(menuItem.type)">
+        <bit-icon [name]="menuItem.icon" slot="start" />
+        {{ menuItem.labelKey | i18n }}
+      </a>
+    }
+    <button type="button" bitMenuItem (click)="openFolderDialog()" slot="footer">
+      <bit-icon name="bwi-folder" slot="start" />
+      {{ "newFolder" | i18n }}
+    </button>
+  </bit-menu>
+}
