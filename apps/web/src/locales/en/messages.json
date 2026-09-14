@@ -17560,6 +17560,15 @@
   "pamAccessRuleErrorCollectionsGoverned": {
     "message": "Another access rule already covers one of these collections. Select different collections."
   },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
   "pamAccessRuleErrorCollectionsMissing": {
     "message": "One of the collections you selected no longer exists. Select a different collection."
   },
