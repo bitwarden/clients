@@ -277,6 +277,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             // An alias is an email-forwarding address; map it to a login with the
             // alias address as the username so the item (and its data) is preserved.
             cipher.login.username = this.getValueOrDefault(item.aliasEmail);
+            this.processExtraFields(cipher, item.data.extraFields);
             break;
           }
           case "sshKey": {
