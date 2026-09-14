@@ -25,7 +25,6 @@
     [sharedFolderName]="sharedFolderName()"
     [defaultCollectionId]="defaultCollectionId()"
     [hasMultipleVaults]="hasMultipleVaults()"
-    (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu

@@ -1691,6 +1691,32 @@ export const SelectableSubset: Story = {
   },
 };
 
+/** `max` bounds the selection — capped to 3 of 5 rows here. See the docs page. */
+export const SelectableCapped: Story = {
+  render: () => {
+    const table = defineTable<DemoRow>(basicData);
+    return {
+      props: { table, selection: { multiple: true, max: 3 } },
+      template: `
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Other</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      `,
+    };
+  },
+};
+
 /**
  * When no rows render (in column-def mode) — empty data, or a filter that
  * excluded everything — the table shows a default `<bit-status-lockup>`. Project
