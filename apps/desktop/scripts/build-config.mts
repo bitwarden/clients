@@ -84,7 +84,9 @@ export interface BuildConfig {
    * An ordered list of `BuildTask.targetName`s to execute.
    */
   targets: string[];
-  features: {};
+  features: {
+    autofillExtension: boolean;
+  };
   dependencies: Record<string, { path: string }>;
   derived: {
     appId: string;
@@ -92,6 +94,10 @@ export interface BuildConfig {
     macos?: {
       ARCHS: "arm64" | "x86_64" | "arm64 x86_64";
       appProvisioningProfile: string;
+      autofillExtensionAppId: string;
+      /** Name of provisioning profile for Autofill Extension. Multiple may be
+       * specified to build for multiple package formats. */
+      autofillExtensionProvisioningProfile: string;
       ipcAppGroup: string;
       libraryIdentifier: "macos-arm64" | "macos-x86_64" | "macos-arm64_x86_64";
     };
