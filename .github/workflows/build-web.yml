@@ -142,6 +142,12 @@ jobs:
             npm_command: build:bit:usqa2
             git_metadata: true
             description: Web vault for the US QA2 cloud
+          - artifact_name: cloud-uat
+            license_type: "commercial"
+            image_name: web-uat-cloud
+            npm_command: build:bit:uat
+            git_metadata: true
+            description: Web vault for the UAT cloud
           - artifact_name: ee
             license_type: "commercial"
             image_name: web-ee
