@@ -79,6 +79,8 @@ export class AuditExportService {
       itemName: row.cipherName ?? "",
       collectionName: row.collectionName ?? "",
       ruleName: row.ruleName ?? "",
+      targetSystemName: row.targetSystemName ?? "",
+      daemonName: row.daemonName ?? "",
       grantedDuration:
         row.duration == null
           ? ""

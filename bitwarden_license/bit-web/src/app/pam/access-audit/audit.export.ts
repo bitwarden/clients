@@ -21,6 +21,10 @@ export type AuditExport = {
   itemName: string;
   collectionName: string;
   ruleName: string;
+  /** The target system named by a rotation or target administration event. Empty on every other kind. */
+  targetSystemName: string;
+  /** The daemon named by a rotation or daemon administration event. Empty on every other kind. */
+  daemonName: string;
   /** The length of the granted access window, localized as the Duration cell localizes it. */
   grantedDuration: string;
   /**
