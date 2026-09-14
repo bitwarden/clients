@@ -8,6 +8,7 @@ import { OrgCiphersService } from "../org-ciphers.service";
 import type { RotationConfig, TargetSystemId, TargetSystemStatus, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { deferred } from "../testing/deferred";
 import {
   CIPHER_ID,
   ORGANIZATION_ID,
@@ -40,6 +41,7 @@ describe("RotationConfigsService", () => {
     load: jest.Mock;
     systems$: BehaviorSubject<TargetSystem[]>;
     loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
   };
   let orgCiphersService: {
     cipherNameById$: BehaviorSubject<Map<CipherId, string>>;
@@ -74,6 +76,7 @@ describe("RotationConfigsService", () => {
       load: jest.fn().mockResolvedValue(undefined),
       systems$: new BehaviorSubject([target]),
       loading$: new BehaviorSubject(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
     };
 
     orgCiphersService = {
@@ -101,6 +104,67 @@ describe("RotationConfigsService", () => {
     expect(rotationSdk.listConfigs).toHaveBeenCalledWith(ORG_ID);
     expect(targetSystemsService.load).toHaveBeenCalledWith(ORG_ID);
     expect(orgCiphersService.load).toHaveBeenCalledWith(ORG_ID);
+  });
+
+  it("records the failure and clears loading when listConfigs throws", async () => {
+    const failure = new Error("network fail");
+    rotationSdk.listConfigs.mockRejectedValue(failure);
+
+    await expect(service.load(ORG_ID)).resolves.toBeUndefined();
+
+    expect(await firstValueFrom(service.loading$)).toBe(false);
+    expect(await firstValueFrom(service.loadError$)).toBe(failure);
+  });
+
+  it("clears a previous failure at the start of the next load", async () => {
+    rotationSdk.listConfigs.mockRejectedValueOnce(new Error("network fail"));
+    await service.load(ORG_ID);
+
+    await service.load(ORG_ID);
+
+    expect(await firstValueFrom(service.loadError$)).toBeNull();
+  });
+
+  it("does not latch a concurrent load's failure over a later success", async () => {
+    rotationSdk.listConfigs
+      .mockRejectedValueOnce(new Error("network fail"))
+      .mockResolvedValueOnce([rotationConfig()]);
+
+    const failing = service.load(ORG_ID);
+    const succeeding = service.load(ORG_ID);
+    await Promise.all([failing, succeeding]);
+
+    expect(await firstValueFrom(service.configs$)).toHaveLength(1);
+    expect(await firstValueFrom(service.loadError$)).toBeNull();
+  });
+
+  it("does not let a superseded load's success clear the current load's failure", async () => {
+    const gate = deferred();
+    const failure = new Error("network fail");
+    rotationSdk.listConfigs
+      .mockImplementationOnce(async () => {
+        await gate.promise;
+        return [rotationConfig()];
+      })
+      .mockRejectedValueOnce(failure);
+
+    const superseded = service.load(ORG_ID);
+    await service.load(ORG_ID);
+    gate.settle();
+    await superseded;
+
+    expect(await firstValueFrom(service.configs$)).toHaveLength(0);
+    expect(await firstValueFrom(service.loadError$)).toBe(failure);
+    expect(await firstValueFrom(service.loading$)).toBe(false);
+  });
+
+  it("reports a target-systems failure as its own load error", async () => {
+    const failure = new Error("target systems unavailable");
+    targetSystemsService.loadError$.next(failure);
+
+    await service.load(ORG_ID);
+
+    expect(await firstValueFrom(service.loadError$)).toBe(failure);
   });
 
   it("exposes loaded configs via configs$", async () => {
