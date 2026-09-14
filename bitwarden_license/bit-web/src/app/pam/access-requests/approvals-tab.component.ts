@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -23,9 +24,11 @@ import {
   AccordionGroupComponent,
   BadgeComponent,
   ButtonModule,
-  ChipFilterComponent,
-  ChipFilterOption,
   DialogService,
+  FILTER_CONTROL,
+  FilterControl,
+  FilterMenuComponent,
+  FilterOptionComponent,
   StatusLockupComponent,
   SvgComponent,
   SearchModule,
@@ -52,6 +55,9 @@ import { DurationShortPipe } from "../date/duration-short.pipe";
 /** The fields the toolbar filters against, carried by both sections' row models. */
 type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
 
+/** An option offered by a `bit-filter-menu` chip. */
+type FilterOption = { label: string; value: string };
+
 /**
  * "Approvals" tab: requests awaiting the caller's decision, oldest first, plus the access
  * already running on the collections they manage.
@@ -74,8 +80,9 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
     AccordionGroupComponent,
     BadgeComponent,
     ButtonModule,
-    ChipFilterComponent,
     DurationShortPipe,
+    FilterMenuComponent,
+    FilterOptionComponent,
     IconComponent,
     StatusLockupComponent,
     SvgComponent,
@@ -130,16 +137,25 @@ export class ApprovalsTabComponent {
   private readonly loadError = toSignal(this.inbox.loadError$, { initialValue: null });
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-  protected readonly collectionControl = new FormControl<string | null>(null);
-  protected readonly requesterControl = new FormControl<string | null>(null);
 
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-  private readonly collectionFilter = toSignal(this.collectionControl.valueChanges, {
-    initialValue: null,
-  });
-  private readonly requesterFilter = toSignal(this.requesterControl.valueChanges, {
-    initialValue: null,
-  });
+
+  /**
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chips own their selection and are
+   * read through the {@link FilterControl} contract rather than a `FormControl`.
+   */
+  private readonly collectionFilterMenu = viewChild("collectionFilter", { read: FILTER_CONTROL });
+  private readonly requesterFilterMenu = viewChild("requesterFilter", { read: FILTER_CONTROL });
+  private readonly collectionFilter = computed(() =>
+    this.selectedValue(this.collectionFilterMenu()),
+  );
+  private readonly requesterFilter = computed(() => this.selectedValue(this.requesterFilterMenu()));
+
+  /** A single-select chip's selection, or undefined for no selection. */
+  private selectedValue(chip: FilterControl | undefined): string | undefined {
+    const value = chip?.value();
+    return typeof value === "string" ? value : undefined;
+  }
 
   private readonly allRows = toSignal(this.inbox.inboxRows$, { initialValue: [] as ApprovalRow[] });
 
@@ -177,12 +193,12 @@ export class ApprovalsTabComponent {
   ]);
 
   /** Every distinct collection present on the tab, for the Collection filter. */
-  protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly collectionOptions = computed<FilterOption[]>(() =>
     distinctOptions(this.filterableRows().map((row) => row.collectionName)),
   );
 
   /** Every distinct requester present on the tab, for the Requester filter. */
-  protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly requesterOptions = computed<FilterOption[]>(() =>
     distinctOptions(this.filterableRows().map((row) => row.requester)),
   );
 
@@ -402,7 +418,7 @@ function sameRows(a: readonly ManagedLeaseRow[], b: readonly ManagedLeaseRow[]):
 }
 
 /** Deduped, locale-sorted chip options from a list of possibly-blank labels. */
-function distinctOptions(labels: Array<string | null>): ChipFilterOption<string>[] {
+function distinctOptions(labels: Array<string | null>): FilterOption[] {
   const distinct = new Set(labels.filter((label): label is string => !!label));
   return [...distinct].sort((a, b) => a.localeCompare(b)).map((label) => ({ value: label, label }));
 }

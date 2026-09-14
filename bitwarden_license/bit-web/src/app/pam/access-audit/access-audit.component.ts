@@ -60,6 +60,7 @@ import {
   AuditRow,
   AuditTimePeriod,
   UNBOUNDED_AUDIT_RANGE,
+  UNEMITTED_AUDIT_KINDS,
   auditKindLabelKey,
   auditPresetRange,
   auditRangeEnd,
@@ -297,12 +298,14 @@ export class AccessAuditComponent implements OnInit {
   protected readonly customRangeApplied = computed(() => this.appliedPeriod() === "custom");
 
   /**
-   * The Event chip's options: the whole event vocabulary, not just the kinds the loaded page happens to hold.
+   * The Event chip's options: every kind an action can emit, not just the ones the loaded page happens to hold.
+   * The kinds nothing emits are left out — selecting one could only ever return nothing.
    *
    * Values are the wire vocabulary, sent to the server as-is.
    */
   protected readonly kindOptions = computed<AuditChipOption[]>(() =>
     Object.values(AccessAuditEventKind)
+      .filter((kind) => !UNEMITTED_AUDIT_KINDS.has(kind))
       .map((kind) => ({ label: this.i18nService.t(auditKindLabelKey(kind)), value: kind }))
       .sort(byLabel),
   );
