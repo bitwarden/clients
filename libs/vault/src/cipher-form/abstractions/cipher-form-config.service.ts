@@ -84,6 +84,14 @@ type BaseCipherFormConfig = {
   originalCipher?: Cipher;
 
   /**
+   * True when {@link originalCipher} is a PAM-gated cipher revealed under an active lease, not
+   * the partial copy local state holds. Saving must take a different SDK path, since the
+   * regular one rebuilds password history from state a gated cipher lacks. Stamped by the
+   * vault item dialog when it swaps the full cipher in.
+   */
+  leaseGated?: boolean;
+
+  /**
    * Optional initial values for the form when opening the cipher form.
    * Useful when creating a new cipher in a filtered view or modifying a cipher with values from another source (e.g. the notification bar in Browser)
    */

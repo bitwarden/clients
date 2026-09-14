@@ -5,7 +5,12 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
-import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
+import { AccessAuditComponent } from "./access-audit/access-audit.component";
+import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
+import {
+  AccessRuleEditComponent,
+  accessRuleEditDiscardGuard,
+} from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 
 const routes: Routes = [
@@ -17,6 +22,24 @@ const routes: Routes = [
         path: "",
         pathMatch: "full",
         redirectTo: "access-rules",
+      },
+      {
+        path: "audit",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
+        component: AccessAuditComponent,
+        // Route-provided (not root): resolves cipher/collection names from local vault state,
+        // same as "My access".
+        providers: [AccessNameResolverService],
+        data: { titleId: "pamAuditLog" },
+      },
+      {
+        path: "rotation",
+        canActivate: [
+          canAccessFeature(FeatureFlag.PamRotation),
+          organizationPermissionsGuard((org) => org.canManageAccessRules),
+        ],
+        data: { titleId: "pamRotationTitle" },
+        loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
       },
       {
         path: "access-rules",
@@ -31,11 +54,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
+            canDeactivate: [accessRuleEditDiscardGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
+            canDeactivate: [accessRuleEditDiscardGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],

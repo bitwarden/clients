@@ -555,7 +555,13 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.updateWithServer(cipherView, userId);
 
-      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(cipherView, userId, undefined, undefined);
+      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(
+        cipherView,
+        userId,
+        undefined,
+        undefined,
+        undefined,
+      );
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
@@ -588,6 +594,7 @@ describe("Cipher Service", () => {
         userId,
         originalCipherView,
         true,
+        undefined,
       );
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
@@ -710,8 +717,8 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
-      // Only the non-partial cipher is re-encrypted; rotating a partial would clobber the
-      // server-suppressed fields with the blanks the client holds.
+      // Only the non-partial cipher is re-encrypted; rotating a partial would clobber suppressed
+      // fields with blanks.
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
         normal,
@@ -854,8 +861,7 @@ describe("Cipher Service", () => {
       partial.id = "partial" as CipherId;
       partial.partial = true;
 
-      // Drive the shared full-view source directly. The `PM22134SdkCipherListView` flag defaults
-      // to false in this suite, so `cipherListViewsWithPartials$` falls back to this source too.
+      // Drives the shared full-view source directly; `PM22134SdkCipherListView` defaults false here.
       (cipherService as any).cipherViewsWithPartials$ = jest
         .fn()
         .mockReturnValue(of([normal, partial]));
@@ -1176,8 +1182,7 @@ describe("Cipher Service", () => {
     const normal_id = "44444444-4444-4444-4444-444444444444";
 
     it("passes gated ciphers through the SDK like any other cipher", async () => {
-      // The SDK now decrypts restricted ciphers itself (into a `partial` view), so the
-      // service no longer partitions them out or hand-decrypts them.
+      // The SDK decrypts restricted ciphers itself, into a `partial` view.
       const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
       gatedCipher.partialData = '{"Name":"enc-name"}';
       const normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
@@ -1711,6 +1716,64 @@ describe("Cipher Service", () => {
         true,
         true,
       );
+    });
+
+    it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+
+      // A gated row as the server sends it: secrets suppressed, a `PartialData` envelope in
+      // their place.
+      jest.spyOn(apiService, "send").mockResolvedValue({
+        data: [
+          {
+            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+            organizationId: testOrgId,
+            type: CipherType.Login,
+            revisionDate: "2022-01-31T12:00:00.000Z",
+            partialData: '{"name":"EncryptedString"}',
+          },
+        ],
+      });
+
+      const partialView = new CipherView();
+      partialView.name = "AWS Root Account";
+      partialView.partial = true;
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[partialView], []]);
+
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledTimes(1);
+      const [ciphers] = cipherEncryptionService.decryptManyLegacy.mock.calls[0];
+      expect(ciphers).toHaveLength(1);
+      expect(ciphers[0].partialData).toBe('{"name":"EncryptedString"}');
+      expect(result).toEqual([partialView]);
+    });
+
+    it("keeps ungated rows on the legacy org-key decrypt, never touching the SDK path", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+
+      jest.spyOn(apiService, "send").mockResolvedValue({
+        data: [
+          {
+            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+            organizationId: testOrgId,
+            type: CipherType.Login,
+            revisionDate: "2022-01-31T12:00:00.000Z",
+            name: "EncryptedString",
+          },
+        ],
+      });
+      const legacyView = new CipherView();
+      legacyView.name = "Legacy decrypted";
+      const legacyDecrypt = jest.spyOn(Cipher.prototype, "decrypt").mockResolvedValue(legacyView);
+
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+
+      expect(legacyDecrypt).toHaveBeenCalledTimes(1);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result).toEqual([legacyView]);
+
+      legacyDecrypt.mockRestore();
     });
 
     it("should use SDK to list assigned organization ciphers when feature flag is enabled", async () => {

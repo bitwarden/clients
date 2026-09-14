@@ -57,6 +57,7 @@ describe("DefaultCipherSdkService", () => {
       create: jest.fn(),
       edit: jest.fn(),
       edit_partial: jest.fn(),
+      edit_gated: jest.fn(),
       delete: jest.fn().mockResolvedValue(undefined),
       delete_many: jest.fn().mockResolvedValue(undefined),
       soft_delete: jest.fn().mockResolvedValue(undefined),
@@ -309,6 +310,84 @@ describe("DefaultCipherSdkService", () => {
 
       expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
       expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should route a lease-gated edit to edit_gated with the supplied full original", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Gated Cipher";
+      cipherView.organizationId = orgId;
+      cipherView.edit = true;
+
+      // The full original the caller revealed under the lease — local state only ever holds the
+      // partial copy, which is why `edit` cannot be used here.
+      const originalCipherView = new CipherView();
+      originalCipherView.id = cipherId;
+      originalCipherView.type = CipherType.Login;
+      originalCipherView.name = "Gated Cipher";
+      originalCipherView.organizationId = orgId;
+
+      const mockSdkCipherView = cipherView.toSdkCipherView();
+      mockCiphersSdk.edit_gated.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.updateWithServer(
+        cipherView,
+        userId,
+        originalCipherView,
+        false,
+        true,
+      );
+
+      expect(mockCiphersSdk.edit_gated).toHaveBeenCalledWith(
+        expect.objectContaining({ id: expect.anything(), name: cipherView.name }),
+        expect.objectContaining({ id: expect.anything() }),
+      );
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should throw rather than fall back to edit when a lease-gated save has no original", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Gated Cipher";
+      cipherView.organizationId = orgId;
+      cipherView.edit = true;
+
+      await expect(
+        cipherSdkService.updateWithServer(cipherView, userId, undefined, false, true),
+      ).rejects.toThrow("Editing a lease-gated cipher requires the original cipher view");
+
+      // Falling through to `edit` would send the partial copy's blanks to the server.
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.edit_gated).not.toHaveBeenCalled();
+    });
+
+    it("should still use edit_partial for a lease-gated cipher the user cannot edit", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Gated View-Only Cipher";
+      cipherView.organizationId = orgId;
+      cipherView.edit = false;
+      cipherView.favorite = true;
+
+      const mockSdkCipherView = cipherView.toSdkCipherView();
+      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.updateWithServer(
+        cipherView,
+        userId,
+        new CipherView(),
+        false,
+        true,
+      );
+
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
+      expect(mockCiphersSdk.edit_gated).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
     });
 

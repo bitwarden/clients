@@ -2,8 +2,7 @@ import { CipherType } from "../../enums";
 
 import { CipherResponse } from "./cipher.response";
 
-// Encrypted (EncString) placeholders — the SDK decrypts the envelope later; here we only
-// assert that the raw gating envelope is carried through untouched.
+// Encrypted (EncString) placeholders; the SDK decrypts the envelope later.
 const ENC_NAME = "2.name==|name==|name==";
 const ENC_URI = "2.uri==|uri==|uri==";
 
@@ -11,8 +10,8 @@ function gatedResponse(partial: Record<string, unknown>, type: CipherType = Ciph
   return new CipherResponse({
     Id: "cipher-1",
     Type: type,
-    // Sensitive top-level fields are absent on a gated row; the server ships a reduced
-    // (encrypted) envelope inside PartialData instead.
+    // Sensitive top-level fields are absent on a gated row; PartialData carries the reduced
+    // envelope.
     PartialData: JSON.stringify(partial),
   });
 }
@@ -27,8 +26,7 @@ describe("CipherResponse PAM partial data", () => {
   });
 
   it("does not lift name or login onto the response — the SDK decrypts the envelope", () => {
-    // The client no longer parses the envelope; it hands the raw blob to the SDK, which
-    // owns the field allowlist and produces the partial decrypted view.
+    // The client hands the raw blob to the SDK, which owns the field allowlist.
     const response = gatedResponse({ Name: ENC_NAME, Uris: [{ Uri: ENC_URI }] });
 
     expect(response.name).not.toBe(ENC_NAME);
@@ -54,8 +52,8 @@ describe("CipherResponse PAM partial data", () => {
       PartialData: "{not json",
     });
 
-    // A malformed envelope must not un-gate the row — the marker survives untouched; the
-    // SDK fails closed and renders a nameless partial view.
+    // A malformed envelope must not un-gate the row; the SDK fails closed with a nameless
+    // partial view.
     expect(response.partialData).toBe("{not json");
   });
 

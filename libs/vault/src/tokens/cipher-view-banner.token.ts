@@ -3,14 +3,11 @@ import { Type } from "@angular/core";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /**
- * Optional banner rendered at the top of the cipher view. Hosts that surface a
- * privileged-access feature (currently the web vault) provide the banner component
- * class through this token; platforms without it (browser, desktop, emergency access)
- * leave it unprovided, so the cipher view injects `null` and renders nothing.
+ * Optional banner rendered directly below the cipher view's item details. A host that surfaces
+ * a privileged-access feature provides the banner component class through this token;
+ * platforms without it leave it unprovided, so the cipher view renders nothing.
  *
- * The token holds the component CLASS — `cipher-view` renders it with
- * `NgComponentOutlet`, passing the `cipher` (a `CipherView`, `partial` when the server
- * gated it) as a single input — so `libs/vault` needs no dependency on the feature
- * library that implements the banner.
+ * The token holds the component CLASS, rendered via `NgComponentOutlet` with `cipher` as its
+ * one input, so `libs/vault` needs no dependency on the feature library.
  */
 export const CIPHER_VIEW_BANNER = new SafeInjectionToken<Type<unknown>>("CipherViewBanner");

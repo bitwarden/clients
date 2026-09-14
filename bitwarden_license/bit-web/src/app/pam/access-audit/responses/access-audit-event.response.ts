@@ -1,0 +1,132 @@
+import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+
+/**
+ * The governance vocabulary for an audit event's kind. Must stay in lockstep with the server's
+ * `AccessAuditEventKindNames`, which is the wire contract for both the reported `kind` and the `kind` filter — a
+ * name missing here renders as "Unknown event" (see {@link auditKindLabelKey}).
+ */
+export const AccessAuditEventKind = Object.freeze({
+  RequestSubmitted: "requestSubmitted",
+  RequestApproved: "requestApproved",
+  RequestDenied: "requestDenied",
+  RequestCancelled: "requestCancelled",
+  RequestExpiredUnanswered: "requestExpiredUnanswered",
+  RequestExpiredUnactivated: "requestExpiredUnactivated",
+  LeaseActivated: "leaseActivated",
+  LeaseActivationRejected: "leaseActivationRejected",
+  LeaseExtended: "leaseExtended",
+  LeaseRevoked: "leaseRevoked",
+  LeaseExpired: "leaseExpired",
+  CredentialAccessed: "credentialAccessed",
+  CredentialAccessDenied: "credentialAccessDenied",
+  RuleCreated: "ruleCreated",
+  RuleUpdated: "ruleUpdated",
+  RuleDeleted: "ruleDeleted",
+  LeasingKillSwitchTriggered: "leasingKillSwitchTriggered",
+  LeasingFreezeEnabled: "leasingFreezeEnabled",
+  LeasingFreezeLifted: "leasingFreezeLifted",
+  RotationConfigCreated: "rotationConfigCreated",
+  RotationSettingsUpdated: "rotationSettingsUpdated",
+  RotationAccountUpdated: "rotationAccountUpdated",
+  RotationPaused: "rotationPaused",
+  RotationResumed: "rotationResumed",
+  RotationConfigDeleted: "rotationConfigDeleted",
+  RotationOffered: "rotationOffered",
+  RotationDispatched: "rotationDispatched",
+  RotationSucceeded: "rotationSucceeded",
+  RotationAttemptFailed: "rotationAttemptFailed",
+  RotationFailed: "rotationFailed",
+  RotationJobReleased: "rotationJobReleased",
+  RotationJobTimedOut: "rotationJobTimedOut",
+  RotationCipherWriteRejected: "rotationCipherWriteRejected",
+  RotationReportRejected: "rotationReportRejected",
+  ManualRotationDue: "manualRotationDue",
+  ManualRotationRecorded: "manualRotationRecorded",
+  DaemonRegistered: "daemonRegistered",
+  DaemonRevoked: "daemonRevoked",
+  DaemonDisabled: "daemonDisabled",
+  DaemonEnabled: "daemonEnabled",
+  DaemonDeleted: "daemonDeleted",
+  DaemonAssignedToTarget: "daemonAssignedToTarget",
+  DaemonUnassignedFromTarget: "daemonUnassignedFromTarget",
+  TargetSystemRegistered: "targetSystemRegistered",
+  TargetSystemDisabled: "targetSystemDisabled",
+  TargetSystemEnabled: "targetSystemEnabled",
+  TargetSystemRenamed: "targetSystemRenamed",
+  TargetSystemPolicyUpdated: "targetSystemPolicyUpdated",
+  TargetSystemDeleted: "targetSystemDeleted",
+} as const);
+export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
+
+/**
+ * One row of the PAM access-audit trail, as the governance client renders it. Read from the
+ * dedicated audit store, where each event was written self-contained (names snapshotted at
+ * write time).
+ *
+ * `kind` carries the outcome; `actorId` is who performed it (null for automated, per
+ * `automated`). Subject ids/names populate according to the kind.
+ */
+export class AccessAuditEventResponse extends BaseResponse {
+  kind: AccessAuditEventKind;
+  occurredAt: string;
+  organizationId: string;
+  /** Who performed the event; null for a system / automatic event. */
+  actorId: string | null;
+  /** The owner of the subject request or lease. */
+  requesterId: string | null;
+  collectionId: string | null;
+  cipherId: string | null;
+  requestId: string | null;
+  leaseId: string | null;
+  ruleId: string | null;
+  /** An approver comment or a revoke reason, when the source carried one. */
+  detail: string | null;
+  leaseNotBefore: string | null;
+  leaseNotAfter: string | null;
+  actorName: string | null;
+  actorEmail: string | null;
+  requesterName: string | null;
+  requesterEmail: string | null;
+  /** Encrypted — decrypt before display. */
+  cipherName: string | null;
+  /** Encrypted — decrypt before display. */
+  collectionName: string | null;
+  /** The access rule's name — plaintext org configuration (not vault data), for rule administration events. */
+  ruleName: string | null;
+  /** The target system's name — plaintext org configuration, for rotation and target administration events. */
+  targetSystemName: string | null;
+  /** The daemon's name — plaintext org configuration, for rotation and daemon administration events. */
+  daemonName: string | null;
+  /** True when there's no human actor — a system / automatic event. */
+  automated: boolean;
+  /** True when the action's outcome never landed — only the write-ahead attempt, an in-doubt entry. */
+  incomplete: boolean;
+
+  constructor(response: unknown) {
+    super(response);
+    this.kind = this.getResponseProperty("Kind");
+    this.occurredAt = this.getResponseProperty("OccurredAt");
+    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.actorId = this.getResponseProperty("ActorId") ?? null;
+    this.requesterId = this.getResponseProperty("RequesterId") ?? null;
+    this.collectionId = this.getResponseProperty("CollectionId") ?? null;
+    this.cipherId = this.getResponseProperty("CipherId") ?? null;
+    this.requestId = this.getResponseProperty("RequestId") ?? null;
+    this.leaseId = this.getResponseProperty("LeaseId") ?? null;
+    this.ruleId = this.getResponseProperty("RuleId") ?? null;
+    this.detail = this.getResponseProperty("Detail") ?? null;
+    this.leaseNotBefore = this.getResponseProperty("LeaseNotBefore") ?? null;
+    this.leaseNotAfter = this.getResponseProperty("LeaseNotAfter") ?? null;
+    this.actorName = this.getResponseProperty("ActorName") ?? null;
+    this.actorEmail = this.getResponseProperty("ActorEmail") ?? null;
+    this.requesterName = this.getResponseProperty("RequesterName") ?? null;
+    this.requesterEmail = this.getResponseProperty("RequesterEmail") ?? null;
+    this.cipherName = this.getResponseProperty("CipherName") ?? null;
+    this.collectionName = this.getResponseProperty("CollectionName") ?? null;
+    this.ruleName = this.getResponseProperty("RuleName") ?? null;
+    this.targetSystemName = this.getResponseProperty("TargetSystemName") ?? null;
+    this.daemonName = this.getResponseProperty("DaemonName") ?? null;
+    this.automated = this.getResponseProperty("Automated");
+    this.incomplete = this.getResponseProperty("Incomplete") ?? false;
+  }
+}

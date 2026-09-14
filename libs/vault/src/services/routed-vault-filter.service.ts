@@ -56,6 +56,7 @@ export class RoutedVaultFilterService implements OnDestroy {
           organizationIdParamType:
             params.get("organizationId") != undefined ? ("path" as const) : ("query" as const),
           type,
+          controlledAccess: queryParams.get("controlledAccess") ?? undefined,
         };
       }),
       takeUntil(this.onDestroy),
@@ -93,6 +94,7 @@ export class RoutedVaultFilterService implements OnDestroy {
           ? { vaultId: organizationId, organizationId: null }
           : { organizationId, vaultId: null }),
         type: filter.type ?? null,
+        controlledAccess: filter.controlledAccess ?? null,
       },
       queryParamsHandling: "merge",
       state: {

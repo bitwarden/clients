@@ -187,6 +187,9 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
+      // Always absent: `SendItem` is the SDK's send-an-item payload, with no field here for
+      // it — a Send is text or file. Spelled out, not omitted, since the SDK declares `data`
+      // as required-but-nullable.
       data: undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,

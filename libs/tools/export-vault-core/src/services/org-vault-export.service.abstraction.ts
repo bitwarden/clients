@@ -17,4 +17,12 @@ export abstract class OrganizationVaultExportServiceAbstraction {
     format: ExportFormat,
     onlyManagedCollections: boolean,
   ) => Promise<ExportedVaultAsString>;
+  /**
+   * Number of PAM-gated ("partial") ciphers a managed-collections export would omit.
+   * Zero when nothing would be left out.
+   */
+  abstract getManagedExportGatedItemCount: (
+    userId: UserId,
+    organizationId: OrganizationId,
+  ) => Promise<number>;
 }

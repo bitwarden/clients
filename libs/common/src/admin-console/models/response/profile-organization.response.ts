@@ -23,6 +23,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -88,6 +89,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
     this.usePam = this.getResponseProperty("UsePam") ?? false;
+    this.accessPam = this.getResponseProperty("AccessPam") ?? false;
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
     this.useAutomaticUserConfirmation = this.getResponseProperty("UseAutomaticUserConfirmation");
     this.selfHost = this.getResponseProperty("SelfHost");

@@ -28,6 +28,7 @@ export class OrganizationData {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -99,6 +100,7 @@ export class OrganizationData {
     this.useSecretsManager = response.useSecretsManager;
     this.usePasswordManager = response.usePasswordManager;
     this.usePam = response.usePam;
+    this.accessPam = response.accessPam;
     this.useActivateAutofillPolicy = response.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = response.useAutomaticUserConfirmation;
     this.selfHost = response.selfHost;

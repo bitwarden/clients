@@ -1,5 +1,3 @@
-import type { AccessRuleView } from "../abstractions/access-rule";
-
 /** Toolbar status filter for the access rules table. */
 export type AccessRuleStatusFilter = "enabled" | "disabled";
 
@@ -8,34 +6,9 @@ export type AccessRuleFilter = {
   /** Lower-cased, trimmed text matched against the rule name + collection names. */
   text: string;
   status: AccessRuleStatusFilter | null;
-  collectionId: string | null;
+  /** A rule matches if it carries any of these; empty means no collection filtering. */
+  collectionIds: string[];
 };
-
-/**
- * A rule's lease window in seconds: `defaultSeconds` alone, or paired with a
- * distinct `maxSeconds` cap for a `default–max` range. Rendered via
- * {@link DurationShortPipe} in the `access-rules` view — kept as raw seconds
- * here rather than a formatted string so that view controls locale/units.
- */
-export type AccessRuleWindow = {
-  defaultSeconds: number;
-  maxSeconds: number | null;
-};
-
-/** A rule's lease window, or null when it has no default duration. */
-export function accessRuleWindow(
-  rule: Pick<AccessRuleView, "defaultLeaseDurationSeconds" | "maxLeaseDurationSeconds">,
-): AccessRuleWindow | null {
-  const def = rule.defaultLeaseDurationSeconds;
-  if (def == null) {
-    return null;
-  }
-  const max = rule.maxLeaseDurationSeconds;
-  return {
-    defaultSeconds: def,
-    maxSeconds: max != null && max !== def ? max : null,
-  };
-}
 
 /**
  * Whether a rule passes the table's combined toolbar filter. `collectionNames`
@@ -60,7 +33,10 @@ export function accessRuleMatchesFilter(
   if (filter.status === "disabled" && rule.enabled) {
     return false;
   }
-  if (filter.collectionId != null && !rule.collections.includes(filter.collectionId)) {
+  if (
+    filter.collectionIds.length > 0 &&
+    !filter.collectionIds.some((id) => rule.collections.includes(id))
+  ) {
     return false;
   }
   if (filter.text.length > 0) {

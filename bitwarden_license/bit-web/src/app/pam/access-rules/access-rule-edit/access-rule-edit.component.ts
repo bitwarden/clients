@@ -1,24 +1,40 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  AutofocusDirective,
+  BadgeModule,
   BreadcrumbsModule,
   ButtonModule,
+  CalloutModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   HeaderComponent,
+  LinkModule,
   MultiSelectModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -29,16 +45,24 @@ import {
   TypographyModule,
   ContainerComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   AccessRuleId,
   AccessRuleView,
   AccessCondition,
+  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_DURATION_PRESETS,
-  accessRuleErrorMessage,
+  ACCESS_RULE_NAME_MAX_LENGTH,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
   accessRuleToFormValue,
   AccessRuleSdkService,
+  AccessRuleErrorField,
+  AccessRuleErrorOutcome,
+  classifyAccessRuleError,
+  conflictingCollectionIds,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
   EXTENSION_DURATION_OPTIONS,
   formValueToRequest,
@@ -46,8 +70,11 @@ import {
   isIpAllowlist,
   isKnownAccessCondition,
   NO_DURATION_CAP,
+  resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "../..";
+import { discardConfirmOptions } from "../../helpers/discard-confirm";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -59,16 +86,15 @@ import {
   cidrRowControl,
   IpAllowlistEditorComponent,
 } from "./ip-allowlist/ip-allowlist-editor.component";
-
-const NAME_MAX_LENGTH = 256;
+import { RuleBypassableCiphersCalloutComponent } from "./rule-bypassable-ciphers-callout/rule-bypassable-ciphers-callout.component";
 
 /**
- * Routed page for creating or editing a PAM access rule. Edit mode is entered via the
- * `accessRuleId` route param and fetches the rule with {@link AccessRuleSdkService.getAccessRule}
- * so the page works on deep-link/refresh; create mode reads an optional `template` query
- * param to prefill from a starter template. Groups the form into card sections
- * (General info / Access duration / Optional conditions) per the design; on save it
- * routes back to the access-rules list.
+ * Routed page for creating or editing a PAM access rule. Edit mode fetches the rule via
+ * `accessRuleId` (route param) through {@link AccessRuleSdkService.getAccessRule}; create mode
+ * reads an optional `template` query param to prefill.
+ *
+ * Groups the form into card sections per the design; on save, routes back to the access-rules
+ * list.
  */
 @Component({
   templateUrl: "./access-rule-edit.component.html",
@@ -77,14 +103,19 @@ const NAME_MAX_LENGTH = 256;
     CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
+    AutofocusDirective,
+    BadgeModule,
     BreadcrumbsModule,
     ButtonModule,
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     FormFieldModule,
     HeaderComponent,
     IpAllowlistEditorComponent,
+    LinkModule,
     MultiSelectModule,
+    RouterLink,
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
@@ -92,6 +123,7 @@ const NAME_MAX_LENGTH = 256;
     TypographyModule,
     I18nPipe,
     ContainerComponent,
+    RuleBypassableCiphersCalloutComponent,
   ],
 })
 export class AccessRuleEditComponent {
@@ -103,11 +135,23 @@ export class AccessRuleEditComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
+  private readonly dialogService = inject(DialogService);
 
-  private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  // Protected, not private: the bypassable-ciphers callout takes both as inputs.
+  protected readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
+  protected readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
+  /**
+   * Set by the list's "Make a copy": the rule was just created from another one and its name
+   * still carries the "(copy)" suffix, so the admin's first act is almost certainly to rename it.
+   * Drives the name field's autofocus-and-select; presence is the signal, the value is not read.
+   */
+  protected readonly renaming = this.route.snapshot.queryParams.renaming != null;
 
   protected readonly editing = this.accessRuleId != null;
   protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
@@ -117,13 +161,59 @@ export class AccessRuleEditComponent {
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
-  protected readonly titleText = computed(() =>
-    this.i18nService.t(this.editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle"),
+
+  /**
+   * The inline save-failure callout; null while there is nothing to report. Never toasted, so the
+   * notice persists alongside entered values. Retry shows only for a `generic` outcome — a mapped
+   * failure needs a change first, or resubmitting fails identically.
+   */
+  protected readonly saveError = signal<AccessRuleErrorOutcome | null>(null);
+
+  protected readonly saveErrorMessage = computed(() => {
+    const error = this.saveError();
+    return error == null
+      ? null
+      : this.i18nService.t(
+          error.kind === "mapped" ? error.messageKey : "pamAccessRuleSaveErrorGeneric",
+        );
+  });
+
+  private readonly saveErrorCallout = viewChild("saveErrorCallout", {
+    read: ElementRef<HTMLElement>,
+  });
+
+  private readonly pageTypeKey = this.editing
+    ? "pamAccessRuleEditTitle"
+    : "pamAccessRuleCreateTitle";
+
+  /**
+   * The page heading. Edit mode shows the rule's own name, per the design; it falls back to
+   * the page-type label until the rule has loaded. Create mode keeps the page-type label,
+   * since there is no name yet and a blank heading would be worse.
+   */
+  protected readonly titleText = computed(
+    () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
+  );
+
+  protected readonly eventLogRoute = ["/organizations", this.organizationId, "pam", "audit"];
+
+  /**
+   * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
+   * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
+   * without it the PAM audit route's own guard bounces the admin straight back out.
+   */
+  protected readonly canAccessEventLogs = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId),
+      map((organization) => organization?.canAccessEventLogs ?? false),
+    ),
+    { initialValue: false },
   );
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
-    name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
-    description: [""],
+    name: ["", [Validators.required, Validators.maxLength(ACCESS_RULE_NAME_MAX_LENGTH)]],
+    description: ["", [Validators.maxLength(ACCESS_RULE_DESCRIPTION_MAX_LENGTH)]],
     collections: [[] as SelectItemView[], [Validators.required]],
     defaultLeaseDurationSeconds: [
       snapToNearestAccessRuleDuration(undefined),
@@ -161,18 +251,73 @@ export class AccessRuleEditComponent {
   private readonly unknownConditions = signal<AccessCondition[]>([]);
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
-  protected readonly collectionsLoading = signal(true);
+  private readonly allCollectionsLoading = signal(true);
 
-  protected readonly collectionOptions = computed<SelectItemView[]>(() =>
-    this.allCollections().map((c) => ({
-      id: c.id,
-      listName: c.name,
-      labelName: c.name,
-      icon: "bwi-collection-shared",
-    })),
+  /**
+   * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a choice
+   * the server would reject with `CollectionsGoverned` (`helpers/access-rule-error.ts`). Mirrors
+   * `AccessRuleWriteValidator.ValidateCollectionsAsync`, which rejects on `Collection.AccessRuleId`
+   * regardless of the owning rule's `enabled` flag — so a disabled rule's collections are excluded
+   * here too, unlike `rulesGoverningCollection`'s enabled-only filter for the collection callout,
+   * which answers what is enforced today rather than what the server will reject. This rule's own
+   * collections are never excluded, matching the server's `existingRuleId` exemption.
+   *
+   * `undefined` until the read settles. `rules$` resolves to `[]` on a failed read, so this then
+   * excludes nothing and the server's `CollectionsGoverned` rejection remains the backstop.
+   */
+  private readonly governedCollectionIds = toSignal(
+    this.governedCollections
+      .rules$(this.organizationId)
+      .pipe(
+        map(
+          (rules) =>
+            new Set(
+              rules
+                .filter((rule) => rule.id !== this.accessRuleId)
+                .flatMap((rule) => rule.collections.map(uuidAsString)),
+            ),
+        ),
+      ),
   );
 
+  protected readonly collectionsLoading = computed(
+    () => this.allCollectionsLoading() || this.governedCollectionIds() === undefined,
+  );
+
+  /**
+   * A signal rather than a direct `formGroup.controls.collections.value` read inside
+   * `collectionOptions`: a `FormControl` getter isn't a signal, so `computed()` wouldn't re-run on
+   * a selection change and a deselected-but-governed collection would stay in the picker.
+   */
+  private readonly selectedCollectionIds = toSignal(
+    this.formGroup.controls.collections.valueChanges.pipe(
+      map((value) => new Set(value.map((c) => c.id))),
+    ),
+    { initialValue: new Set<string>() },
+  );
+
+  /**
+   * Never excludes a collection the form's `collections` control already holds: dropping one
+   * here would silently remove it from the rule on the next save rather than merely hiding it
+   * from new selection.
+   */
+  protected readonly collectionOptions = computed<SelectItemView[]>(() => {
+    const governed = this.governedCollectionIds();
+    const selectedIds = this.selectedCollectionIds();
+    return this.allCollections()
+      .filter((c) => selectedIds.has(c.id) || !governed?.has(c.id))
+      .map((c) => this.toCollectionOption(c));
+  });
+
   constructor() {
+    // `bit-callout` isn't a live region and renders above Save; without moving focus a failed
+    // save goes unnoticed.
+    effect(() => {
+      if (this.saveError() == null) {
+        return;
+      }
+      this.saveErrorCallout()?.nativeElement.focus();
+    });
     this.coupleDurationBounds();
     this.coupleIpAllowlistEnabled();
     void this.initialize();
@@ -180,11 +325,11 @@ export class AccessRuleEditComponent {
 
   private async initialize(): Promise<void> {
     try {
-      const rule = this.editing ? await this.loadRule() : null;
-      if (this.editing && rule == null) {
-        return; // loadRule already toasted + navigated away
-      }
-      if (rule != null) {
+      if (this.editing) {
+        const rule = await this.loadRule();
+        if (rule == null) {
+          return; // loadRule already toasted + navigated away
+        }
         this.existing.set(rule);
         this.applyRule(rule);
       } else {
@@ -201,16 +346,34 @@ export class AccessRuleEditComponent {
 
   /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
   private async loadRule(): Promise<AccessRuleView | null> {
+    // `accessRuleId` is only a *claimed* id until checked; `uuidAsString` unwraps the brand for
+    // `isGuid`.
+    if (!isGuid(uuidAsString(this.accessRuleId!))) {
+      return await this.ruleNotFound();
+    }
     try {
       return await this.pamApi.getAccessRule(this.organizationId, this.accessRuleId!);
     } catch (e) {
-      const message = isAccessRuleNotFound(e)
-        ? this.i18nService.t("pamAccessRuleNotFound")
-        : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleNotFound"));
-      this.toastService.showToast({ variant: "error", message });
+      if (isAccessRuleNotFound(e)) {
+        return await this.ruleNotFound();
+      }
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
       await this.navigateToList();
       return null;
     }
+  }
+
+  /** Toast and route back to the list for an id that does not resolve to a rule, malformed or not. */
+  private async ruleNotFound(): Promise<null> {
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t("pamAccessRuleNotFound"),
+    });
+    await this.navigateToList();
+    return null;
   }
 
   private applyRule(rule: AccessRuleView): void {
@@ -236,18 +399,32 @@ export class AccessRuleEditComponent {
     });
   }
 
+  private toCollectionOption(c: { id: string; name: string }): SelectItemView {
+    return {
+      id: c.id,
+      listName: c.name,
+      labelName: c.name,
+      icon: "bwi-collection-shared",
+    };
+  }
+
   private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const userId = await firstValueFrom(this.activeUserId$);
       const collections = await firstValueFrom(
         this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
       );
       this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
 
-      // Map the rule's stored collection IDs onto the now-loaded options so the
-      // chips render with real names rather than raw UUIDs.
+      // Unfiltered: the collections control is still empty here, so `collectionOptions`' "already
+      // selected" exemption doesn't cover this rule's own ids yet. Filtering would drop a
+      // collection another rule record also lists (stale data, a lost race on the server's
+      // exclusivity check), silently losing it from the rule on the next save.
       const optionsById = new Map(
-        this.collectionOptions().map((c): [string, SelectItemView] => [c.id, c]),
+        this.allCollections().map((c): [string, SelectItemView] => [
+          c.id,
+          this.toCollectionOption(c),
+        ]),
       );
       const selected = (rule?.collections ?? [])
         .map((id) => optionsById.get(uuidAsString(id)))
@@ -262,7 +439,7 @@ export class AccessRuleEditComponent {
         message: this.i18nService.t("pamAccessRuleCollectionsLoadError"),
       });
     } finally {
-      this.collectionsLoading.set(false);
+      this.allCollectionsLoading.set(false);
     }
   }
 
@@ -327,7 +504,53 @@ export class AccessRuleEditComponent {
     array.updateValueAndValidity({ emitEvent: false });
   }
 
+  /**
+   * Report a rejected save that names a specific field on that field, where the fix is, rather than
+   * in the callout above the form. The error is set directly rather than through a validator so it
+   * clears the moment the admin edits the control — the next `updateValueAndValidity` recomputes
+   * from the validators alone.
+   */
+  private showFieldSaveError(field: AccessRuleErrorField, message: string): void {
+    const control = this.formGroup.controls[field];
+    control.setErrors({ serverError: { message } });
+    control.markAsTouched();
+  }
+
+  /**
+   * The copy for a rejected save, naming the collections at fault: the server reports only that
+   * one exists, leaving the admin to find it by removing collections one at a time (PM-43430).
+   */
+  private async fieldSaveErrorMessage(messageKey: string): Promise<string> {
+    if (messageKey !== "pamAccessRuleErrorCollectionsGoverned") {
+      return this.i18nService.t(messageKey);
+    }
+
+    const names = await this.conflictingCollectionNames();
+    return names.length === 0
+      ? this.i18nService.t(messageKey)
+      : this.i18nService.t("pamAccessRuleErrorCollectionsGovernedNamed", names.join(", "));
+  }
+
+  /**
+   * Read fresh, since a conflict may have appeared after this page loaded. Empty on a failed read
+   * or one that disagrees with the server, which leaves the unnamed copy in place.
+   */
+  private async conflictingCollectionNames(): Promise<string[]> {
+    try {
+      const rules = await this.pamApi.listAccessRules(this.organizationId);
+      const conflicting = conflictingCollectionIds(
+        rules,
+        this.formGroup.controls.collections.value.map((c) => c.id),
+        this.existing()?.id,
+      );
+      return resolveCollectionNames(conflicting, this.allCollections());
+    } catch {
+      return [];
+    }
+  }
+
   protected readonly submit = async (): Promise<void> => {
+    this.saveError.set(null);
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -350,17 +573,87 @@ export class AccessRuleEditComponent {
           message: this.i18nService.t("pamAccessRuleCreated"),
         });
       }
+      // The write changed which collections are governed; drop the cached read so the next
+      // consumer doesn't serve up to CACHE_TTL_MS of stale state.
+      this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
-      const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
-      this.toastService.showToast({ variant: "error", message });
+      const outcome = classifyAccessRuleError(e);
+      if (outcome.kind === "mapped" && outcome.field != null) {
+        this.showFieldSaveError(
+          outcome.field,
+          await this.fieldSaveErrorMessage(outcome.messageKey),
+        );
+        return;
+      }
+      this.saveError.set(outcome);
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateToList();
+  /**
+   * Confirm before unsaved edits are thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A pristine form
+   * has nothing to lose, so it skips the dialog rather than asking about an empty page.
+   */
+  async confirmDiscard(): Promise<boolean> {
+    if (!this.formGroup.dirty) {
+      return true;
+    }
+
+    return await this.dialogService.openSimpleDialog(
+      discardConfirmOptions({ editing: this.editing, createTitleKey: "pamAccessRuleDiscardTitle" }),
+    );
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateToList();
+  };
+
+  /**
+   * Delete the rule under edit, after confirmation. Edit mode only — there is nothing
+   * to delete before the rule exists on the server.
+   */
+  protected readonly remove = async (): Promise<void> => {
+    const existing = this.existing();
+    if (existing == null) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(existing.name),
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.pamApi.deleteAccessRule(this.organizationId, existing.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamAccessRuleDeleted"),
+      });
+      // Freed this rule's collections; see the matching comment in submit().
+      this.governedCollections.invalidate(this.organizationId);
+      await this.navigateToList();
+    } catch (e) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
+    }
+  };
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {
+    // An exit the admin already agreed to; the CanDeactivate guard must not ask a second time.
+    this.formGroup.markAsPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 }
+
+export const accessRuleEditDiscardGuard: CanDeactivateFn<AccessRuleEditComponent> = (component) =>
+  component.confirmDiscard();

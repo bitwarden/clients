@@ -353,6 +353,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = cloneCollection(
           new CollectionView({ ...c, name: c.name }),
         ) as CollectionFilter;
+        // `new CollectionView(...)` copies only id/organizationId/name, resetting
+        // `hasEnabledAccessRule` to `false`; the indicator must carry it over explicitly.
+        collectionCopy.hasEnabledAccessRule = c.hasEnabledAccessRule;
         collectionCopy.icon = this.vfo1TerminologyService.iconClass(
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         );
