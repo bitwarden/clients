@@ -8,6 +8,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  A11yTitleDirective,
+  IconModule,
   IconTileComponent,
   IconTileOptions,
   NavigationModule,
@@ -38,7 +40,15 @@ import { VaultNavService } from "../../services/vault-nav.service";
   selector: "vault-nav-section",
   templateUrl: "./vault-nav-section.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, I18nPipe, NavigationModule, IconTileComponent, PopoverModule],
+  imports: [
+    NgTemplateOutlet,
+    I18nPipe,
+    NavigationModule,
+    IconTileComponent,
+    IconModule,
+    A11yTitleDirective,
+    PopoverModule,
+  ],
 })
 export class VaultNavSectionComponent {
   protected readonly VaultNavItemType = VaultNavItemType;

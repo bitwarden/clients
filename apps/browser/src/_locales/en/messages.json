@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "There are no folders to list."
   },
+  "noFoldersFilter": {
+    "message": "No folders"
+  },
   "helpFeedback": {
     "message": "Help & feedback"
   },
@@ -5820,6 +5823,9 @@
   },
   "switchAccounts": {
     "message": "Switch accounts"
+  },
+  "switchVault": {
+    "message": "Switch vault"
   },
   "switchToAccount": {
     "message": "Switch to account"

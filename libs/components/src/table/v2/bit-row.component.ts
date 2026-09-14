@@ -17,6 +17,8 @@ import { BitTableV2Component } from "./table-v2.component";
  * - In manual mode (no `<bit-column>`), `grid-template-columns` is unset and
  *   the row falls back to `grid-auto-flow: column; grid-auto-columns: 1fr`
  *   so projected `<bit-cell>` children each get an equal share.
+ *
+ * In `list`, `<bit-table-v2>` wraps the row in a `<bit-item>` that owns the chrome.
  */
 @Component({
   selector: "bit-row",
@@ -37,17 +39,14 @@ export class BitRowComponent {
 
   protected readonly gridTemplateColumns = computed(() => this.table?.gridTemplateColumns());
 
+  private readonly isList = computed(() => this.table?.presentation() === "list");
+
   /** Virtualized rows are positioned by offset, so they must render at exactly the height the scroll strategy assumed. */
   protected readonly fixedHeight = computed(() =>
-    this.table?.presentation() === "list" ? undefined : this.table?.virtualRowHeight(),
+    this.isList() ? undefined : this.table?.virtualRowHeight(),
   );
 
-  /**
-   * Row chrome. The grid classes lay the cells out in both presentations; the
-   * rest is presentation-specific: `table` connects rows with a bottom divider,
-   * `list` renders each row as a standalone `bit-item`-style card (background,
-   * rounded corners, spacing, hover).
-   */
+  /** Row chrome. Grid in both presentations; the rest is `table`-only. */
   protected readonly hostClasses = computed(() =>
     [
       // `group/row` lets cell templates reveal row-hover affordances (e.g. quick
@@ -60,19 +59,8 @@ export class BitRowComponent {
       // If the row is fixed height, tall cell overflow should be clipped and the row should not
       // expand its height to fit the tall cell's content
       ...(this.fixedHeight() != null ? ["tw-grid-rows-1", "tw-overflow-clip"] : []),
-      ...(this.table?.presentation() === "list"
-        ? // `list` rows size to content off a `bit-item`-style minimum height.
-          [
-            "tw-min-h-9",
-            "tw-mb-1.5",
-            "tw-rounded-lg",
-            "tw-bg-background",
-            "tw-border-0",
-            "tw-border-b",
-            "tw-border-solid",
-            "tw-border-b-shadow",
-            "hover:tw-bg-hover-default",
-          ]
+      ...(this.isList()
+        ? ["tw-w-full", "tw-min-w-0"]
         : [
             // Omitted when virtualized: a min-height would clamp a `virtualRowHeight`
             // below it, breaking the offsets the scroll strategy positions rows at.
