@@ -18127,9 +18127,6 @@
   "copy": {
     "message": "Copy"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
