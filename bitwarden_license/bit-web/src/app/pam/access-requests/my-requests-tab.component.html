@@ -1,16 +1,20 @@
 <!-- Toolbar: free-text search + collection filter -->
 <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
   <bit-search
-    class="tw-grow"
+    class="tw-grow tw-max-w-md"
     [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
     [formControl]="searchControl"
   ></bit-search>
-  <bit-chip-filter
+  <bit-filter-menu
+    #collectionFilter
+    key="collection"
     [placeholderText]="'pamCollectionFilter' | i18n"
-    placeholderIcon="bwi-collection-shared"
-    [options]="collectionOptions()"
-    [formControl]="collectionControl"
-  ></bit-chip-filter>
+    [unsetLabel]="'all' | i18n"
+  >
+    @for (option of collectionOptions(); track option.value) {
+      <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+    }
+  </bit-filter-menu>
 </div>
 
 <bit-accordion-group>
