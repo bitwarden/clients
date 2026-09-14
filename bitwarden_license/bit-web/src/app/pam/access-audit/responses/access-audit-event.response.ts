@@ -1,8 +1,9 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 /**
- * The governance vocabulary for an audit event's kind, mirroring the server's AccessAuditEventKind. The trail emits
- * only the request and lease kinds today; the rest are defined so the contract is stable as deferred kinds come online.
+ * The governance vocabulary for an audit event's kind. Must stay in lockstep with the server's
+ * `AccessAuditEventKindNames`, which is the wire contract for both the reported `kind` and the `kind` filter — a
+ * name missing here renders as "Unknown event" (see {@link auditKindLabelKey}).
  */
 export const AccessAuditEventKind = Object.freeze({
   RequestSubmitted: "requestSubmitted",
@@ -24,6 +25,36 @@ export const AccessAuditEventKind = Object.freeze({
   LeasingKillSwitchTriggered: "leasingKillSwitchTriggered",
   LeasingFreezeEnabled: "leasingFreezeEnabled",
   LeasingFreezeLifted: "leasingFreezeLifted",
+  RotationConfigCreated: "rotationConfigCreated",
+  RotationSettingsUpdated: "rotationSettingsUpdated",
+  RotationAccountUpdated: "rotationAccountUpdated",
+  RotationPaused: "rotationPaused",
+  RotationResumed: "rotationResumed",
+  RotationConfigDeleted: "rotationConfigDeleted",
+  RotationOffered: "rotationOffered",
+  RotationDispatched: "rotationDispatched",
+  RotationSucceeded: "rotationSucceeded",
+  RotationAttemptFailed: "rotationAttemptFailed",
+  RotationFailed: "rotationFailed",
+  RotationJobReleased: "rotationJobReleased",
+  RotationJobTimedOut: "rotationJobTimedOut",
+  RotationCipherWriteRejected: "rotationCipherWriteRejected",
+  RotationReportRejected: "rotationReportRejected",
+  ManualRotationDue: "manualRotationDue",
+  ManualRotationRecorded: "manualRotationRecorded",
+  DaemonRegistered: "daemonRegistered",
+  DaemonRevoked: "daemonRevoked",
+  DaemonDisabled: "daemonDisabled",
+  DaemonEnabled: "daemonEnabled",
+  DaemonDeleted: "daemonDeleted",
+  DaemonAssignedToTarget: "daemonAssignedToTarget",
+  DaemonUnassignedFromTarget: "daemonUnassignedFromTarget",
+  TargetSystemRegistered: "targetSystemRegistered",
+  TargetSystemDisabled: "targetSystemDisabled",
+  TargetSystemEnabled: "targetSystemEnabled",
+  TargetSystemRenamed: "targetSystemRenamed",
+  TargetSystemPolicyUpdated: "targetSystemPolicyUpdated",
+  TargetSystemDeleted: "targetSystemDeleted",
 } as const);
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 
@@ -62,6 +93,10 @@ export class AccessAuditEventResponse extends BaseResponse {
   collectionName: string | null;
   /** The access rule's name — plaintext org configuration (not vault data), for rule administration events. */
   ruleName: string | null;
+  /** The target system's name — plaintext org configuration, for rotation and target administration events. */
+  targetSystemName: string | null;
+  /** The daemon's name — plaintext org configuration, for rotation and daemon administration events. */
+  daemonName: string | null;
   /** True when there's no human actor — a system / automatic event. */
   automated: boolean;
   /** True when the action's outcome never landed — only the write-ahead attempt, an in-doubt entry. */
@@ -89,6 +124,8 @@ export class AccessAuditEventResponse extends BaseResponse {
     this.cipherName = this.getResponseProperty("CipherName") ?? null;
     this.collectionName = this.getResponseProperty("CollectionName") ?? null;
     this.ruleName = this.getResponseProperty("RuleName") ?? null;
+    this.targetSystemName = this.getResponseProperty("TargetSystemName") ?? null;
+    this.daemonName = this.getResponseProperty("DaemonName") ?? null;
     this.automated = this.getResponseProperty("Automated");
     this.incomplete = this.getResponseProperty("Incomplete") ?? false;
   }

@@ -29,6 +29,8 @@ const POPULATED: AuditRow = {
   collectionId: "5c4b3a29-1d8e-4f60-b2a7-3e9c8d1f0a64",
   ruleName: "Approval required",
   ruleId: "8f1c0f2e-9b4a-4d1e-8a77-6c2f9d3b4a51",
+  targetSystemName: null,
+  daemonName: null,
   detail:
     "Approved ahead of the scheduled window after the on-call engineer confirmed the primary replica had not recovered, on the understanding that the credential would be surrendered as soon as failover completed.",
   automated: false,
@@ -60,6 +62,8 @@ const BARE: AuditRow = {
   collectionId: null,
   ruleName: null,
   ruleId: null,
+  targetSystemName: null,
+  daemonName: null,
   detail: null,
   automated: true,
   inDoubt: true,
@@ -81,6 +85,31 @@ const RULE_DELETED: AuditRow = {
   cipherId: null,
   collectionName: null,
   collectionId: null,
+  requestId: null,
+  leaseId: null,
+  duration: null,
+  exactWindow: null,
+  detail: null,
+};
+
+/**
+ * A fleet event: no cipher and no rule, so the subject is the daemon and the target it was assigned to.
+ * Those two fields are what keep a rotation-heavy trail from reading as a column of em dashes.
+ */
+const DAEMON_ASSIGNED: AuditRow = {
+  ...POPULATED,
+  kindLabelKey: "pamAuditKindDaemonAssigned",
+  requester: null,
+  requesterId: null,
+  requesterEmail: null,
+  cipherName: null,
+  cipherId: null,
+  collectionName: null,
+  collectionId: null,
+  ruleName: null,
+  ruleId: null,
+  targetSystemName: "prod-postgres-01",
+  daemonName: "eu-west-rotator",
   requestId: null,
   leaseId: null,
   duration: null,
@@ -165,6 +194,19 @@ export const DeletedRule: Story = {
   render: () => ({
     moduleMetadata: {
       providers: [{ provide: DIALOG_DATA, useValue: params(RULE_DELETED, true) }],
+    },
+    template: `<pam-audit-event-drawer />`,
+  }),
+};
+
+/**
+ * A rotation fleet event. It names neither a cipher nor a rule, so Item falls through to the daemon and
+ * the Target system / Daemon fields carry the pair the action actually concerned.
+ */
+export const FleetEvent: Story = {
+  render: () => ({
+    moduleMetadata: {
+      providers: [{ provide: DIALOG_DATA, useValue: params(DAEMON_ASSIGNED, true) }],
     },
     template: `<pam-audit-event-drawer />`,
   }),
