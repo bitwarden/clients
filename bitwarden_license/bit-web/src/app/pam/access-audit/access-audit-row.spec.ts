@@ -65,6 +65,40 @@ describe("toAuditRow", () => {
     expect(result.inDoubt).toBe(false);
   });
 
+  it("carries the target system and daemon a fleet event names", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.DaemonAssignedToTarget,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      ActorName: "admin",
+      TargetSystemName: "prod-postgres-01",
+      DaemonName: "eu-west-rotator",
+      Automated: false,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.targetSystemName).toBe("prod-postgres-01");
+    expect(result.daemonName).toBe("eu-west-rotator");
+    expect(result.cipherName).toBeNull();
+    expect(result.ruleName).toBeNull();
+  });
+
+  it("leaves the fleet names null on an event that does not concern the fleet", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.RequestApproved,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      ActorName: "admin",
+      Automated: false,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.targetSystemName).toBeNull();
+    expect(result.daemonName).toBeNull();
+  });
+
   it("carries the subject cipher's id beside its decrypted name", () => {
     const event = new AccessAuditEventResponse({
       Kind: AccessAuditEventKind.CredentialAccessed,

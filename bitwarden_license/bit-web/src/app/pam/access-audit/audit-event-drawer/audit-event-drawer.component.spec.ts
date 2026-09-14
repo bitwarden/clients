@@ -43,6 +43,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     collectionId: "collection-1",
     ruleName: "Approval required",
     ruleId: "rule-1",
+    targetSystemName: null,
+    daemonName: null,
     detail: "Approved for the incident window.",
     automated: false,
     inDoubt: false,
@@ -93,6 +95,8 @@ describe("AuditEventDrawerComponent", () => {
             pamAuditColumnDuration: "Duration",
             pamAuditColumnDetail: "Detail",
             pamColumnWindow: "Window",
+            pamAuditTargetSystem: "Target system",
+            pamAuditDaemon: "Daemon",
             pamAccessRequestTitle: "Access request",
             pamAccessRequestLeaseTitle: "Access",
             pamResolverAccessRule: "Access rule",
@@ -214,6 +218,37 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("item")).toBe("Production access");
     });
 
+    // PM-43606: a fleet event names neither, so Item read as a dash while the pane held the daemon all along.
+    it("falls back to the daemon when the event names neither an item nor a rule", async () => {
+      await render({
+        row: row({
+          cipherName: null,
+          cipherId: null,
+          ruleName: null,
+          targetSystemName: "prod-postgres-01",
+          daemonName: "eu-west-rotator",
+        }),
+      });
+
+      expect(text("item")).toBe("eu-west-rotator");
+      expect(text("target-system")).toBe("prod-postgres-01");
+      expect(text("daemon")).toBe("eu-west-rotator");
+    });
+
+    it("falls back to the target system when the event names no daemon either", async () => {
+      await render({
+        row: row({
+          cipherName: null,
+          cipherId: null,
+          ruleName: null,
+          targetSystemName: "prod-postgres-01",
+        }),
+      });
+
+      expect(text("item")).toBe("prod-postgres-01");
+      expect(text("daemon")).toBe("—");
+    });
+
     // "System" is a value, not an absence — an automated event has an actor, just not a person.
     it("reads System rather than a dash for an automated event", async () => {
       await render({ row: row({ automated: true }), actor: null });
@@ -261,6 +296,8 @@ describe("AuditEventDrawerComponent", () => {
       collectionId: null,
       ruleName: null,
       ruleId: null,
+      targetSystemName: null,
+      daemonName: null,
       detail: null,
       requestId: null,
       leaseId: null,
@@ -274,6 +311,8 @@ describe("AuditEventDrawerComponent", () => {
       "requester",
       "item",
       "collection",
+      "target-system",
+      "daemon",
       "duration",
       "window",
       "detail",
