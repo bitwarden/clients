@@ -1,11 +1,13 @@
-name: CLI Bug Report
-description: File a bug report
-labels: [bug, cli]
+name: Desktop Beta Bug Report
+description: File a bug report for a Desktop beta build
+labels: [bug, desktop, beta]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this bug report for a Desktop **beta** build!
+
+        Please only use this template if you are running the beta version of the Bitwarden Desktop app. For stable-release bugs, use the "Desktop Bug Report" instead.
 
         Please do not submit feature requests. The [Community Forums](https://community.bitwarden.com) has a section for submitting, voting for, and discussing product feature requests.
   - type: textarea
@@ -35,6 +37,11 @@ body:
     validations:
       required: true
   - type: textarea
+    id: regression
+    attributes:
+      label: Regression
+      description: Did this work in the current stable release? If so, which version last worked?
+  - type: textarea
     id: screenshots
     attributes:
       label: Screenshots or Videos
@@ -62,22 +69,26 @@ body:
       label: Operating System Version
       description: What version of the operating system(s) are you seeing the problem on?
   - type: dropdown
-    id: shell
+    id: install-method
     attributes:
-      label: Shell
-      description: What shell(s) are you seeing the problem on?
+      label: Installation method
       multiple: true
       options:
-        - Bash
-        - Zsh
-        - PowerShell
+        - Direct Download (from bitwarden.com)
+        - Mac App Store
+        - Microsoft Store
+        - Homebrew
+        - Chocolatey
+        - Snap
+        - Flatpak
+        - Other
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Build Version
-      description: What version of our software are you running? (run `bw --version`)
+      label: Beta Build Version
+      description: What beta version of our software are you running? (go to "Help" → "About Bitwarden" in the app)
     validations:
       required: true
   - type: checkboxes
