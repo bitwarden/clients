@@ -65,11 +65,6 @@ A route without a `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that does no
 > A new vault route that omits `vaultFilterScope` records no filters, and no error appears. If a
 > route does not restore its filters, examine its `data` first.
 
-> [!WARNING]
-> A scope change depends on `bit-table-v2` to clear its chips. If filters pass from one scope into
-> the next, the memory also stores them under the wrong key. Examine the table's URL sync before the
-> memory.
-
 ## The filter memory
 
 [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts) records the filters each scope

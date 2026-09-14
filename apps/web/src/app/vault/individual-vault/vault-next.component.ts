@@ -36,6 +36,7 @@ import {
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  VaultRemountOnDirective,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
@@ -47,6 +48,7 @@ import {
   resolveVaultScope,
   scopedCollectionSegment,
   scopedSharedFolderId,
+  scopeKey,
   sharedFolderNameForScope,
   VaultScopeType,
   defaultUserCollectionId,
@@ -86,6 +88,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
+    VaultRemountOnDirective,
     SharedFolderCardGridComponent,
   ],
   providers: [
@@ -146,6 +149,12 @@ export class VaultNextComponent {
   protected readonly parsedVaultScope = computed(
     () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
   );
+
+  /**
+   * The scope key the vault table's filter state belongs to. Keyed off the parsed scope rather
+   * than {@link vaultScope}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = computed(() => scopeKey(this.parsedVaultScope()));
 
   protected readonly collectionSelected = computed(() => {
     const seg = this.collectionSegment();
