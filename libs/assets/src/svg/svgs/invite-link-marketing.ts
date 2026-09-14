@@ -7,7 +7,7 @@
 import { svg } from "../svg";
 
 export const InviteLinkMarketing = svg`
-<svg width="608" height="245" viewBox="0 0 608 245" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 608 245" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_6396_43242)">
 <rect width="608" height="245" fill="white"/>
 <rect width="903" height="661.624" transform="translate(-147 -195)" fill="url(#paint0_linear_6396_43242)"/>
