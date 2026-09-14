@@ -190,6 +190,17 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
    */
   protected readonly canSelect = computed(() => !this.disabled());
 
+  /**
+   * Known gap, and not one this component can close: pressing Escape with the dropdown open makes
+   * `bit-multi-select` empty its own displayed selection without notifying its value accessor, and
+   * its close handler returns early on an empty list — so no event of any kind reaches this
+   * component. A confirmed pick therefore survives here and keeps Assign armed over a field showing
+   * nothing, until the next selection change or a successful assign resyncs the two.
+   *
+   * Closing it means changing Escape's behaviour in the shared control, which is not this stack's
+   * to change. Do not try to paper over it here by clearing on some proxy for Escape: the pick is
+   * still assignable, and the last read of the control's selection is the honest one.
+   */
   protected readonly canAssign = computed(
     () => !this.disabled() && this.pendingSelection().length > 0,
   );
@@ -237,10 +248,26 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
    * emptied before it closes. Taking only removals here leaves an unconfirmed pick unarmed.
    *
    * The same split as the access selector's inline mode.
+   *
+   * Two things this has to be careful about, both because `[ngModel]` writes whatever this signal
+   * holds straight back into the control:
+   *
+   * - It must hand back the *same array* when nothing was removed. A fresh array notifies, and the
+   *   writeback then pushes this mirror over the control's own selection, erasing the pick that
+   *   prompted the notification in the first place.
+   * - A genuine removal takes the control's whole selection rather than filtering this mirror down
+   *   to it. The two differ while a pick is unconfirmed — the mirror is the smaller of the pair —
+   *   and writing that subset back would drop the unconfirmed pick out of the control along with
+   *   the chip that was actually dismissed. Adopting the selection keeps the control intact, at
+   *   the cost of arming Assign over a pick whose dropdown never closed; the control is showing
+   *   that pick as selected, so the button agrees with the field either way.
    */
   protected readonly onSelectionChanged = (items: SelectItemView[] | null): void => {
-    const kept = new Set((items ?? []).map((item) => item.id));
-    this.pendingSelection.update((current) => current.filter((item) => kept.has(item.id)));
+    const selected = items ?? [];
+    const kept = new Set(selected.map((item) => item.id));
+    this.pendingSelection.update((current) =>
+      current.every((item) => kept.has(item.id)) ? current : selected,
+    );
   };
 
   protected readonly assignSelected = async (): Promise<void> => {
