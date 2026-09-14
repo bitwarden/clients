@@ -717,7 +717,7 @@ describe("VaultItemsTableComponent", () => {
         fixture.componentRef.setInput("ciphers", [cipherView({ favorite: true })]);
 
         expect(component["noFavorites"]()).toBe(false);
-        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        // Empty, not just falsy — the chip treats only an empty string as "no reason".
         expect(component["favoritesDisabledTooltip"]()).toBe("");
       });
     });
@@ -765,7 +765,7 @@ describe("VaultItemsTableComponent", () => {
         ]);
 
         expect(component["noSharedFolderOptions"]()).toBe(false);
-        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        // Empty, not just falsy — the chip treats only an empty string as "no reason".
         expect(component["sharedFolderDisabledTooltip"]()).toBe("");
       });
     });

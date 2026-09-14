@@ -214,6 +214,33 @@ class FilterMenuLongLabelsDemoComponent {
   ];
 }
 
+@Component({
+  selector: "filter-menu-disabled-reason-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-toggle
+        key="favorites"
+        label="Favorites"
+        icon="bwi-star"
+        iconActive="bwi-star-f"
+        disabled
+        disabledTooltip="No favorites to show"
+      ></bit-filter-toggle>
+
+      <bit-filter-menu
+        key="sharedFolder"
+        placeholderText="Shared folders"
+        multiple
+        disabled
+        disabledTooltip="No shared folders to show"
+      ></bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuDisabledReasonDemoComponent {}
+
 export default {
   title: "Component Library/Filter Menu",
   decorators: [
@@ -225,6 +252,7 @@ export default {
         FilterMenuNestedTilesDemoComponent,
         FilterMenuEmptyDemoComponent,
         FilterMenuLongLabelsDemoComponent,
+        FilterMenuDisabledReasonDemoComponent,
         FilterMenuModule,
       ],
       providers: [
@@ -378,5 +406,28 @@ export const LongLabelsSingleSelect: Story = {
   play: async (context) => {
     // The second chip is the single-select one.
     await userEvent.click(getAllByRole(context.canvasElement, "button")[1]);
+  },
+};
+
+export const DisabledReason: Story = {
+  render: () => ({
+    template: `<filter-menu-disabled-reason-demo></filter-menu-disabled-reason-demo>`,
+  }),
+  play: async (context) => {
+    const [favorites] = getAllByRole(context.canvasElement, "button");
+
+    await userEvent.hover(favorites);
+
+    await waitFor(
+      () =>
+        expect(
+          document.querySelector('.bit-tooltip-container[data-visible="true"]'),
+        ).not.toBeNull(),
+      { timeout: TOOLTIP_DELAY_MS + 2000 },
+    );
+
+    const describedBy = favorites.getAttribute("aria-describedby");
+    await expect(describedBy).not.toBeNull();
+    await expect(document.getElementById(describedBy!)).toHaveTextContent("No favorites to show");
   },
 };

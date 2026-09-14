@@ -14,6 +14,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { IconTileComponent } from "../icon-tile";
+import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { TooltipDirective } from "../tooltip";
 
 import { FilterMenuComponent } from "./filter-menu.component";
@@ -214,7 +215,8 @@ class FlatTooltipHostComponent {
 
 /**
  * Every row truncates its label, so each one carries a tooltip with the full text — the
- * regression this covers is a row that truncates with nothing on hover.
+ * regression this covers is a row that truncates with nothing on hover. The chip trigger
+ * truncates too, so it carries one as well.
  */
 describe("FilterMenuComponent row tooltips", () => {
   const setUp = async <T extends { showRows: WritableSignal<boolean> }>(
@@ -246,7 +248,9 @@ describe("FilterMenuComponent row tooltips", () => {
   it("tooltips each multi-select tree row, sections and nested options included", async () => {
     const fixture = await setUp(TreeTooltipHostComponent);
 
+    // The chip trigger leads: it precedes the stamped rows in the host's DOM order.
     expect(tooltips(fixture).map((row) => row.tooltip)).toEqual([
+      "Shared folders",
       LONG_SECTION,
       LONG_PARENT,
       LONG_CHILD,
@@ -258,6 +262,7 @@ describe("FilterMenuComponent row tooltips", () => {
 
     // `mockI18nService` echoes the key, so the unset row's label is "all".
     expect(tooltips(fixture).map((row) => row.tooltip)).toEqual([
+      "My folders",
       "all",
       LONG_PARENT,
       LONG_SECTION,
@@ -273,5 +278,151 @@ describe("FilterMenuComponent row tooltips", () => {
     for (const row of tooltips(fixture)) {
       expect(row.text).toContain(row.tooltip);
     }
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu key="collection" placeholderText="Shared folders" multiple disabled>
+      <bit-filter-option [value]="'parent'">Parent</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class DisabledHostComponent {}
+
+/**
+ * A disabled chip is `aria-disabled`, not `disabled`, so it stays focusable and its tooltip can
+ * still read out a truncated label. The regression that buys is a disabled chip whose full label
+ * is unreachable by keyboard.
+ */
+describe("FilterMenuComponent disabled trigger", () => {
+  let fixture: ComponentFixture<DisabledHostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DisabledHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DisabledHostComponent);
+    fixture.detectChanges();
+  });
+
+  const trigger = () =>
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      .nativeElement as HTMLButtonElement;
+
+  it("marks the trigger `aria-disabled` and leaves it focusable", () => {
+    expect(trigger().getAttribute("aria-disabled")).toBe("true");
+    expect(trigger().hasAttribute("disabled")).toBe(false);
+    expect(trigger().disabled).toBe(false);
+  });
+
+  it("keeps the trigger's tooltip so the label stays reachable while disabled", () => {
+    const tooltip = fixture.debugElement
+      .query(By.directive(MenuTriggerForDirective))
+      .injector.get(TooltipDirective);
+
+    expect(tooltip.tooltipContent()).toBe("Shared folders");
+  });
+
+  it("does not open the menu when the disabled trigger is clicked", () => {
+    const menuTrigger = fixture.debugElement
+      .query(By.directive(MenuTriggerForDirective))
+      .injector.get(MenuTriggerForDirective);
+
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(menuTrigger.isOpen).toBe(false);
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu
+      key="collection"
+      placeholderText="Shared folders"
+      multiple
+      [disabled]="off()"
+      [disabledTooltip]="reason()"
+    >
+      <bit-filter-option [value]="'parent'">Parent</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class DisabledReasonHostComponent {
+  readonly reason = signal("No shared folders to show");
+  readonly off = signal(true);
+}
+
+/**
+ * `disabledTooltip` is the reason a chip is disabled — something the label can't convey, so unlike
+ * the label it has to reach assistive tech. It rides the trigger's `aria-describedby`, which is
+ * why it is the one tooltip on this component that opts into `addTooltipToDescribedby`.
+ */
+describe("FilterMenuComponent disabledTooltip", () => {
+  let fixture: ComponentFixture<DisabledReasonHostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DisabledReasonHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DisabledReasonHostComponent);
+    fixture.detectChanges();
+  });
+
+  const triggerEl = () =>
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      .nativeElement as HTMLButtonElement;
+
+  const tooltip = () =>
+    fixture.debugElement
+      .query(By.directive(MenuTriggerForDirective))
+      .injector.get(TooltipDirective);
+
+  it("shows the reason in place of the label while disabled", () => {
+    expect(tooltip().tooltipContent()).toBe("No shared folders to show");
+  });
+
+  it("describes the trigger with the reason, so a keyboard user hears why", () => {
+    const id = triggerEl().getAttribute("aria-describedby");
+    expect(id).toBeTruthy();
+
+    // The description node is the tooltip itself, which the directive attaches on hover or focus.
+    triggerEl().dispatchEvent(new MouseEvent("mouseenter"));
+    fixture.detectChanges();
+
+    expect(document.getElementById(id!)?.textContent?.trim()).toBe("No shared folders to show");
+  });
+
+  it("gives the disabled trigger pointer events back so the reason is hoverable", () => {
+    expect(triggerEl().classList).toContain("tw-pointer-events-auto");
+  });
+
+  it("falls back to the label, and describes nothing, once enabled", () => {
+    fixture.componentInstance.off.set(false);
+    fixture.detectChanges();
+
+    expect(tooltip().tooltipContent()).toBe("Shared folders");
+    // The label is already the trigger's accessible name; repeating it as a description is noise.
+    expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
+    expect(triggerEl().classList).not.toContain("tw-pointer-events-auto");
+  });
+
+  it("falls back to the label when disabled with no reason supplied", () => {
+    fixture.componentInstance.reason.set("");
+    fixture.detectChanges();
+
+    expect(tooltip().tooltipContent()).toBe("Shared folders");
+    expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
   });
 });

@@ -51,7 +51,6 @@ import {
   SelectionConfig,
   SkeletonTextComponent,
   SortFn,
-  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -193,7 +192,6 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     LinkModule,
     SearchModule,
     SkeletonTextComponent,
-    TooltipDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
   ],

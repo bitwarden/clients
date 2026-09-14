@@ -31,18 +31,13 @@
 
     <bit-filter-divider></bit-filter-divider>
 
-    <!--
-      The pointer-events override below overrides `BaseChipDirective`'s own
-      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
-    -->
     <bit-filter-toggle
       [key]="filterKeys.favorites"
       [label]="'favorites' | i18n"
       icon="bwi-star"
       iconActive="bwi-star-f"
       [disabled]="noFavorites()"
-      [bitTooltip]="favoritesDisabledTooltip()"
-      [style.pointer-events]="'auto'"
+      [disabledTooltip]="favoritesDisabledTooltip()"
     ></bit-filter-toggle>
 
     @if (showVaults()) {
@@ -62,18 +57,13 @@
       </bit-filter-menu>
     }
 
-    <!--
-      The pointer-events override below overrides `BaseChipDirective`'s own
-      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
-    -->
     @if (showSharedFolders()) {
       <bit-filter-menu
         [key]="filterKeys.sharedFolder"
         [placeholderText]="'sharedFolders' | i18n"
         multiple
         [disabled]="noSharedFolderOptions()"
-        [bitTooltip]="sharedFolderDisabledTooltip()"
-        [style.pointer-events]="'auto'"
+        [disabledTooltip]="sharedFolderDisabledTooltip()"
       >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
@@ -96,8 +86,7 @@
       [placeholderText]="'myFolders' | i18n"
       multiple
       [disabled]="noFolders()"
-      [bitTooltip]="foldersDisabledTooltip()"
-      [style.pointer-events]="'auto'"
+      [disabledTooltip]="foldersDisabledTooltip()"
     >
       <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
       @for (folder of sortedFolders(); track folder.id) {
