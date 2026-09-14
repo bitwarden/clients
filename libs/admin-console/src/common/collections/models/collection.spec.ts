@@ -96,6 +96,7 @@ describe("Collection", () => {
       assigned: true,
       type: CollectionTypes.DefaultUserCollection,
       defaultUserCollectionEmail: "defaultCollectionEmail",
+      decryptionFailure: false,
     });
   });
 });
