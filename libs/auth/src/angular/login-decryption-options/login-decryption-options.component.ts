@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
+  EMPTY,
   catchError,
   concatMap,
   defer,
@@ -41,12 +42,13 @@ import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -63,14 +65,25 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+// eslint-disable-next-line no-restricted-imports
+import { EncString, LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  PureCrypto,
+  OrganizationId as SdkOrganizationId,
+  UserId as SdkUserId,
+} from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
+  // A user who has an account created on the server, but does not yet have cryptographic keys
+  // This is the case after JIT provisioning
   NewUser,
+  // A user who has an account created on the server, and has cryptographic keys, but is logging
+  // in from an untrusted device
   ExistingUserUntrustedDevice,
 }
 
@@ -125,6 +138,8 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
+    private logService: LogService,
     private loginDecryptionOptionsService: LoginDecryptionOptionsService,
     private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
@@ -142,6 +157,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private accountCryptographicStateService: AccountCryptographicStateService,
     private authService: AuthService,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private unlockService: UnlockService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -173,7 +189,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         !userDecryptionOptions?.hasMasterPassword
       ) {
         /**
-         * We are dealing with a new account if both are true:
+         * We are dealing with a new account (registered but no crypto initialized) if both are true:
          * - User does NOT have admin approval (i.e. has not enrolled in admin reset)
          * - User does NOT have a master password
          */
@@ -208,7 +224,17 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap((value) =>
-          defer(() => this.deviceTrustService.setShouldTrustDevice(this.activeAccountId, value)),
+          defer(() =>
+            this.deviceTrustService.setShouldTrustDevice(this.activeAccountId, value),
+          ).pipe(
+            // Caught inside the switchMap so a failed write is reported and the stream stays
+            // subscribed for later toggles. Left uncaught it would both kill the subscription
+            // and surface as an unhandled error, since this is a bare subscribe.
+            catchError((err: unknown) => {
+              this.validationService.showError(err);
+              return EMPTY;
+            }),
+          ),
         ),
       )
       .subscribe();
@@ -331,12 +357,18 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
   }
 
-  protected createUser = async () => {
+  /**
+   * Finishes account setup for a user who was just-in-time provisioned. The account itself already exists in state by this point ({@link activeAccountId}.
+   * This generates and posts the accounts cryptographic keys and unlock methods to the server.
+   */
+  protected initializeUserCryptoForJitProvisionedAccount = async () => {
     if (this.state !== State.NewUser) {
       return;
     }
 
     try {
+      await this.persistUnlockSharingChoice();
+
       const useSdkV2Creation = await this.configService.getFeatureFlag(
         FeatureFlag.PM27279_V2RegistrationTdeJit,
       );
@@ -372,7 +404,8 @@ export class LoginDecryptionOptionsComponent implements OnInit {
           throw new Error("Unexpected V1 account cryptographic state");
         }
 
-        // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
+        // Note: When SDK state management matures, the state writes and the unlock below should all
+        // be moved into post_keys_for_tde_registration
         // Set account cryptography state
         await this.accountCryptographicStateService.setAccountCryptographicState(
           register_result.account_cryptographic_state,
@@ -385,13 +418,14 @@ export class LoginDecryptionOptionsComponent implements OnInit {
           SymmetricCryptoKey.fromString(register_result.device_key) as DeviceKey,
         );
 
-        // Set user key - user is now unlocked
-        await this.keyService.setUserKey(
-          SymmetricCryptoKey.fromString(register_result.user_key) as UserKey,
+        // User is now unlocked. Unlocking initializes the SDK from state, so it has to run after
+        // the account cryptographic state above has been persisted.
+        await this.unlockService.unlockWithDecryptedUserKey(
           userId,
+          SymmetricCryptoKey.fromString(register_result.user_key),
         );
       } else {
-        const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
+        const { publicKey, privateKey } = await this.initAccount(this.activeAccountId);
         const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
         await this.apiService.postAccountKeys(keysRequest);
         await this.passwordResetEnrollmentService.enroll(this.newUserOrgId);
@@ -406,7 +440,11 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
-      await this.persistUnlockSharingChoice();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("inviteAccepted"),
+      });
 
       await this.loginDecryptionOptionsService.handleCreateUserSuccess();
 
@@ -419,6 +457,54 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       this.validationService.showError(err);
     }
   };
+
+  /**
+   * Initialize all necessary crypto keys needed for a new account.
+   * Warning! This completely replaces any existing keys!
+   *
+   * Moved here from `KeyService.initAccount`, which had this component as its only caller.
+   * It is reached only from the non-SDK branch of {@link initializeUserCryptoForJitProvisionedAccount},
+   * so it will be removed as part of the v2 rollout (when the PM27279_V2RegistrationTdeJit flag is
+   * unwound) along with that branch. Do not add callers.
+   *
+   * @throws An error if the user already has a user key.
+   */
+  private async initAccount(userId: UserId): Promise<{
+    publicKey: string;
+    privateKey: EncString;
+  }> {
+    // Verify user key doesn't exist
+    const existingUserKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    if (existingUserKey != null) {
+      this.logService.error("Tried to initialize account with existing user key.");
+      throw new Error("Cannot initialize account, keys already exist.");
+    }
+
+    await SdkLoadService.Ready;
+    const userKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key()) as UserKey;
+    const [publicKey, privateKey] = await this.legacyCompatKeyService.makeKeyPair(userKey);
+    if (privateKey.encryptedString == null) {
+      throw new Error("Failed to create valid private key.");
+    }
+
+    // Unlocking initializes the SDK from state, so the account cryptographic state for the newly
+    // created key pair has to be persisted first.
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      {
+        V1: {
+          private_key: privateKey.encryptedString,
+        },
+      },
+      userId,
+    );
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
+
+    return {
+      publicKey,
+      privateKey,
+    };
+  }
 
   private async handleCreateUserSuccessNavigation() {
     if (this.clientType === ClientType.Browser) {

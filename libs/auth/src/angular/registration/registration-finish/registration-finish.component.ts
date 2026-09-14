@@ -9,7 +9,7 @@ import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { getOpenOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
+import { ExpiredIcon } from "@bitwarden/assets/svg";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
@@ -21,9 +21,7 @@ import {
   OpenOrgInviteUnsealError,
 } from "@bitwarden/common/auth/organization-invite";
 import { HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -175,7 +173,6 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private premiumInterestStateService: PremiumInterestStateService,
     private deepLinkRedirectService: DeepLinkRedirectService,
     private organizationInviteService: OrganizationInviteService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -239,15 +236,6 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     if (this.sealedOpenOrgInviteData == null || !this.email) {
       return true;
     }
-    // Defense in depth: stale flag-on state may persist into a flag-off session
-    // (the email link is delivered before the user clicks). Skip the unseal when
-    // disabled — caller falls through to the plain registration path.
-    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
-    // guard clause.
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
-      return true;
-    }
-
     const unsealResult = await this.organizationInviteService.unsealOpenOrgInvite(
       this.email,
       this.sealedOpenOrgInviteData,
@@ -332,7 +320,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private showSealedOpenOrgInviteDecryptionFailed(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: { key: "registrationSealedOpenOrgInviteDecryptionFailedTitle" },
-      pageIcon: TwoFactorTimeoutIcon, // TODO: discuss clarity of this icon + consider renaming it
+      pageIcon: ExpiredIcon, // TODO: discuss clarity of this icon + consider renaming it
     });
     this.errorMessageI18nKey.set("registrationSealedOpenOrgInviteDecryptionFailedMessage");
     this.errorButton.set({
@@ -384,26 +372,25 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   }
 
   private async initOrgInviteFlowIfPresent(): Promise<boolean> {
-    this.masterPasswordPolicyOptions =
-      await this.registrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite();
-
-    const orgName = await this.registrationFinishService.getOrgNameFromOrgInvite();
-    if (orgName) {
-      // Org invite exists
-      // Set the page title and subtitle appropriately
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: {
-          key: "joinOrganizationName",
-          placeholders: [orgName],
-        },
-        pageSubtitle: {
-          key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-        },
-      });
-      return true;
+    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+    if (orgInvite == null) {
+      return false;
     }
 
-    return false;
+    this.masterPasswordPolicyOptions =
+      (await this.organizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)) ??
+      null;
+
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: {
+        key: "joinOrganizationName",
+        placeholders: [orgInvite.organizationName],
+      },
+      pageSubtitle: {
+        key: "finishJoiningThisOrganizationBySettingAMasterPassword",
+      },
+    });
+    return true;
   }
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {

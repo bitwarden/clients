@@ -13,7 +13,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
@@ -26,6 +25,8 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
@@ -182,14 +183,6 @@ export class CreateCommand {
       return Response.error("Premium status is required to use this feature.");
     }
 
-    const userKey = await this.keyService.getUserKey();
-    if (userKey == null) {
-      return Response.error(
-        "You must update your encryption key before you can use this feature. " +
-          "See https://help.bitwarden.com/article/update-encryption-key/",
-      );
-    }
-
     try {
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
@@ -278,7 +271,7 @@ export class CreateCommand {
             );
       const request = new CreateCollectionRequest({
         name: await this.encryptService.encryptString(req.name, orgKey),
-        externalId: req.externalId,
+        externalId: req.externalId ?? undefined,
         groups,
         users,
       });

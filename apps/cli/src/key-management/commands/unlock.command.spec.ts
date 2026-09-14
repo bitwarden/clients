@@ -9,7 +9,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray } from "@bitwarden/legacy-crypto";
 import { ConsoleLogService } from "@bitwarden/logging";
 import { PureCrypto, SymmetricKey } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";

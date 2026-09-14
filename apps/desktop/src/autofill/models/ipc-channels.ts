@@ -1,7 +1,5 @@
 // MVP, delete with PM-41067
 export const AUTOTYPE_MVP_IPC_CHANNELS = {
-  INIT: "autofill.initAutotypeMvp",
-  INITIALIZED: "autofill.autotypeMvpIsInitialized",
   TOGGLE: "autofill.toggleAutotypeMvp",
   CONFIGURE: "autofill.configureAutotypeMvp",
   LISTEN: "autofill.listenAutotypeRequestMvp",

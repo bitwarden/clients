@@ -2,7 +2,7 @@
   class="tw-m-4 tw-p-4 tw-border-border-brand-soft tw-rounded-xl tw-border tw-bg-cover tw-bg-no-repeat"
   [style.backgroundImage]="backgroundImage()"
 >
-  <img src="{{ introImage }}" alt="{{ 'introducingHealth' | i18n }}" class="tw-mb-4 tw-w-full" />
+  <img src="{{ introImage() }}" alt="{{ 'introducingHealth' | i18n }}" class="tw-mb-4 tw-w-full" />
   <h2 bitTypography="h2" class="!tw-text-fg-brand">{{ "introducingHealth" | i18n }}</h2>
   <p bitTypography="body1">
     {{ "healthIntroDescription" | i18n }}

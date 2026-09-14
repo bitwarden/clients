@@ -16,7 +16,8 @@ export type PolicyStep = {
   // Optional: Custom body template. If undefined, renders the policy component's template
   bodyContent?: Signal<TemplateRef<unknown> | undefined>;
 
-  // Optional: Custom footer template. If undefined, uses default: "Save" (primary) + "Cancel" (secondary)
+  // Optional: Custom footer template. If undefined, uses the default "Save"/"Next" (primary) button
+  // - plus a "Cancel" (secondary) button when rendered in the modal presentation.
   footerContent?: Signal<TemplateRef<unknown> | undefined>;
 
   // Optional: Observable to disable save button. If undefined, defaults to form validation state

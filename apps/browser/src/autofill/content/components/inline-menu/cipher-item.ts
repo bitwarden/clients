@@ -34,6 +34,7 @@ export type InlineMenuCipherItemProps = {
   showTotpUsername?: boolean;
   totpSecondsRemaining?: number;
   onTotpPeriodElapsed?: () => void;
+  onListEdgeReached?: (direction: 1 | -1) => void;
 };
 
 export function InlineMenuCipherItem({
@@ -53,6 +54,7 @@ export function InlineMenuCipherItem({
   showTotpUsername = false,
   totpSecondsRemaining,
   onTotpPeriodElapsed,
+  onListEdgeReached,
 }: InlineMenuCipherItemProps) {
   const isTotp = !!(cipher.login?.totpField && cipher.login?.totp);
   const period = cipher.login?.totpCodeTimeInterval ?? 30;
@@ -75,18 +77,22 @@ export function InlineMenuCipherItem({
     }
   };
 
+  const onFillKeyUp = (event: KeyboardEvent) => handleFillCipherKeyUp(event, onListEdgeReached);
+  const onViewKeyUp = (event: KeyboardEvent) => handleViewCipherKeyUp(event, onListEdgeReached);
+
   return html`
-    <div data-cipher-item class=${cipherItemStyles({ bordered, theme })}>
+    <div data-cipher-item role="listitem" class=${cipherItemStyles({ bordered, theme })}>
       <div data-cipher-content class=${cipherItemContentStyles(theme)}>
         <button
           type="button"
           data-fill-cipher
+          tabindex="-1"
           class=${fillCipherButtonStyles}
           title=${fillLabel}
           aria-label=${fillLabel}
           aria-description=${fillDescription ?? nothing}
           @click=${onFillCipher}
-          @keyup=${handleFillCipherKeyUp}
+          @keyup=${onFillKeyUp}
         >
           ${
             isTotp
@@ -119,11 +125,12 @@ export function InlineMenuCipherItem({
         <button
           type="button"
           data-view-cipher
+          tabindex="-1"
           title=${viewButtonText}
           aria-label=${viewButtonAria}
           class=${viewCipherButtonStyles(theme)}
           @click=${onViewCipher}
-          @keyup=${handleViewCipherKeyUp}
+          @keyup=${onViewKeyUp}
         >
           ${ExternalLink({ theme, color: themes[theme].primary["600"] })}
         </button>
@@ -132,7 +139,10 @@ export function InlineMenuCipherItem({
   `;
 }
 
-function handleFillCipherKeyUp(event: KeyboardEvent) {
+function handleFillCipherKeyUp(
+  event: KeyboardEvent,
+  onListEdgeReached?: (direction: 1 | -1) => void,
+) {
   const listItem = getTrustedCipherKeyTarget(event, ["ArrowDown", "ArrowUp", "ArrowRight"]);
   if (!listItem) {
     return;
@@ -143,10 +153,13 @@ function handleFillCipherKeyUp(event: KeyboardEvent) {
     return;
   }
 
-  focusFillCipher(listItem, event.code === "ArrowDown" ? 1 : -1);
+  focusFillCipher(listItem, event.code === "ArrowDown" ? 1 : -1, onListEdgeReached);
 }
 
-function handleViewCipherKeyUp(event: KeyboardEvent) {
+function handleViewCipherKeyUp(
+  event: KeyboardEvent,
+  onListEdgeReached?: (direction: 1 | -1) => void,
+) {
   const listItem = getTrustedCipherKeyTarget(event, ["ArrowDown", "ArrowUp", "ArrowLeft"]);
   if (!listItem) {
     return;
@@ -159,7 +172,7 @@ function handleViewCipherKeyUp(event: KeyboardEvent) {
     return;
   }
 
-  focusFillCipher(listItem, event.code === "ArrowDown" ? 1 : -1);
+  focusFillCipher(listItem, event.code === "ArrowDown" ? 1 : -1, onListEdgeReached);
 }
 
 function getTrustedCipherKeyTarget(event: KeyboardEvent, keys: string[]): HTMLElement | null {
@@ -175,12 +188,21 @@ function getTrustedCipherKeyTarget(event: KeyboardEvent, keys: string[]): HTMLEl
   return event.target.closest(CIPHER_ITEM_SELECTOR);
 }
 
-function focusFillCipher(currentListItem: HTMLElement, direction: 1 | -1) {
+function focusFillCipher(
+  currentListItem: HTMLElement,
+  direction: 1 | -1,
+  onListEdgeReached?: (direction: 1 | -1) => void,
+) {
   const adjacentFill = getAdjacentCipherItem(currentListItem, direction)?.querySelector(
     FILL_CIPHER_SELECTOR,
   ) as HTMLElement | null;
   if (adjacentFill) {
     adjacentFill.focus();
+    return;
+  }
+
+  if (onListEdgeReached) {
+    onListEdgeReached(direction);
     return;
   }
 

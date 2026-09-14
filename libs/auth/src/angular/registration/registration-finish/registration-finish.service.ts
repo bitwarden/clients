@@ -1,21 +1,6 @@
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
 export abstract class RegistrationFinishService {
-  /**
-   * Retrieves the organization name from an organization invite if it exists.
-   * Organization invites can currently only be accepted on the web.
-   * @returns a promise which resolves to the organization name string or null if no invite exists.
-   */
-  abstract getOrgNameFromOrgInvite(): Promise<string | null>;
-
-  /**
-   * Gets the master password policy options from an organization invite if it exits.
-   * Organization invites can currently only be accepted on the web.
-   */
-  abstract getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null>;
-
   /**
    * Finishes the registration process by creating a new user account.
    *

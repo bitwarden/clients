@@ -56,6 +56,7 @@
           @for (org of organizations$ | async; track org.id) {
             <bit-option
               [icon]="vfo1TerminologyService.enabled() ? getOrgIcon(org) : 'bwi-business'"
+              [iconTile]="vfo1TerminologyService.enabled() ? orgIconTiles.get(org.id) : undefined"
               [value]="org.id"
               [label]="org.name"
             >

@@ -205,15 +205,20 @@ describe("DefaultCipherHealthService", () => {
         const health1 = healthMap.get("1");
         expect(health1?.hasWeakPassword).toBe(true);
         expect(health1?.hasReusedPassword).toBe(true); // SharedWeak is reused
+        // The count is how many ciphers share the password, so the reuse flag is never
+        // set without a count the detail view can show alongside it.
+        expect(health1?.reuseCount).toBe(2);
         expect(health1?.isAtRisk()).toBe(true);
 
         const health2 = healthMap.get("2");
         expect(health2?.hasWeakPassword).toBe(true);
         expect(health2?.hasReusedPassword).toBe(true); // SharedWeak is reused
+        expect(health2?.reuseCount).toBe(2);
 
         const health3 = healthMap.get("3");
         expect(health3?.hasWeakPassword).toBe(false);
         expect(health3?.hasReusedPassword).toBe(false); // StrongUnique is unique
+        expect(health3?.reuseCount).toBe(0);
         expect(health3?.isAtRisk()).toBe(false);
 
         done();
@@ -355,6 +360,7 @@ describe("DefaultCipherHealthService", () => {
           hasExposedPassword: exposed,
           hasReusedPassword: reused,
           exposedCount: exposed ? 1 : 0,
+          reuseCount: reused ? 2 : 0,
           weakPasswordScore: score,
         });
 

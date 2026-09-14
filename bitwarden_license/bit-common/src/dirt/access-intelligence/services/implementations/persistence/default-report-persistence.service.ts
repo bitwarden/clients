@@ -2,8 +2,9 @@ import { forkJoin, map, Observable, of, switchMap, take, throwError } from "rxjs
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { RiskInsightsApiService } from "../../../../reports/risk-insights/services/api/risk-insights-api.service";

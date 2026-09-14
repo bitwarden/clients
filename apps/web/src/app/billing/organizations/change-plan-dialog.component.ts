@@ -45,6 +45,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
@@ -237,6 +239,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private i18nService: I18nService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private router: Router,
     private syncService: SyncService,
     private policyService: PolicyService,
@@ -903,7 +906,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .orgKeys$(userId)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 

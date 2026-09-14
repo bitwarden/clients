@@ -22,7 +22,6 @@ import {
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -47,7 +46,9 @@ import {
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -127,6 +128,7 @@ describe("LoginStrategy", () => {
 
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -156,6 +158,7 @@ describe("LoginStrategy", () => {
 
     passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -180,9 +183,9 @@ describe("LoginStrategy", () => {
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
     );
-    keyService.makeMasterKey.mockResolvedValue({} as any);
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 
     // The base class is abstract so we test it via PasswordLoginStrategy
     passwordLoginStrategy = new PasswordLoginStrategy(
@@ -191,6 +194,7 @@ describe("LoginStrategy", () => {
       policyService,
       passwordPreloginService,
       unlockService,
+      legacyCompatKeyService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -509,6 +513,7 @@ describe("LoginStrategy", () => {
         policyService,
         passwordPreloginService,
         unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -572,6 +577,7 @@ describe("LoginStrategy", () => {
         policyService,
         passwordPreloginService,
         unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,

@@ -18,7 +18,6 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   UriMatchDefaultPolicy,
   UriMatchDefaultPolicyComponent,
-  UriMatchDefaultPolicyV2Component,
 } from "./uri-match-default.component";
 
 const ORG_ID = "org1" as OrganizationId;
@@ -38,26 +37,14 @@ describe("UriMatchDefaultPolicy", () => {
     const policy = new UriMatchDefaultPolicy();
 
     expect(policy.name).toBe("uriMatchDetectionPolicy");
-    expect(policy.description).toBe("uriMatchDetectionPolicyDesc");
+    expect(policy.description).toBe("uriMatchDetectionPolicyDescV2");
     expect(policy.type).toBe(PolicyType.UriMatchDefaults);
     expect(policy.component).toBe(UriMatchDefaultPolicyComponent);
-  });
-
-  it("renders the v2 component inside the drawer, with its own description and prerequisite", () => {
-    const policy = new UriMatchDefaultPolicy();
-
-    expect(policy.v2?.component).toBe(UriMatchDefaultPolicyV2Component);
-    expect(policy.v2?.component).not.toBe(policy.component);
-    expect(policy.v2?.description).toBe("uriMatchDetectionPolicyDescV2");
-    expect(policy.v2?.prerequisiteKey).toBe("requireSsoPolicyReqV2");
+    expect(policy.prerequisiteKey).toBe("requireSsoPolicyReqV2");
   });
 });
 
-describe.each`
-  description                           | componentClass
-  ${"UriMatchDefaultPolicyComponent"}   | ${UriMatchDefaultPolicyComponent}
-  ${"UriMatchDefaultPolicyV2Component"} | ${UriMatchDefaultPolicyV2Component}
-`("$description", ({ componentClass }) => {
+describe("UriMatchDefaultPolicyComponent", () => {
   let component: UriMatchDefaultPolicyComponent;
   let fixture: ComponentFixture<UriMatchDefaultPolicyComponent>;
   let accountService: FakeAccountService;
@@ -77,7 +64,7 @@ describe.each`
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(componentClass);
+    fixture = TestBed.createComponent(UriMatchDefaultPolicyComponent);
     component = fixture.componentInstance;
   });
 

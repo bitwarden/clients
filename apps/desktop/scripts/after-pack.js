@@ -35,6 +35,27 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
+  // The autofill extension is copied in here, before electron-builder signs the app, so that
+  // the app's own signature seals it. Copying it in after signing leaves the outer bundle
+  // invalid ("a sealed resource is missing or invalid") and notarization rejects it unless the
+  // whole package is signed a second time. electron-builder never signs anything under
+  // Contents/PlugIns, so the extension keeps the signature and entitlements Xcode gave it.
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  if (context.electronPlatformName === "darwin" || isMasDevBuild) {
+    console.log("### Copying autofill extension");
+    // cannot use extraFiles because it modifies the extension's .plist and makes it invalid
+    const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+    if (!fse.existsSync(extensionPath)) {
+      console.log("### Autofill extension not found - skipping");
+    } else {
+      const appName = context.packager.appInfo.productFilename;
+      const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
+      fse.mkdirSync(plugInsPath, { recursive: true });
+      fse.copySync(extensionPath, path.join(plugInsPath, "autofill-extension.appex"));
+    }
+  }
+
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
 

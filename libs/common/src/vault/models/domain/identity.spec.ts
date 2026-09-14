@@ -1,5 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+
 import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
 

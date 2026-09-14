@@ -5,7 +5,9 @@
   </bit-form-field>
 </form>
 <form #form [formGroup]="formGroup" *ngIf="!nameOnly">
-  <h2>{{ "generalInformation" | i18n }}</h2>
+  @if (!vfo1Enabled()) {
+    <h2>{{ "generalInformation" | i18n }}</h2>
+  }
   <div class="tw-flex tw-w-full tw-space-x-4" *ngIf="createOrganization">
     <bit-form-field class="tw-w-1/2">
       <bit-label>{{ "organizationName" | vfo1I18n: "vaultName" }}</bit-label>

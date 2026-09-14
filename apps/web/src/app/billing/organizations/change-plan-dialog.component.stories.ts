@@ -18,6 +18,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   PreviewInvoiceClient,
@@ -168,6 +170,9 @@ const mockOrganizationService = { organizations$: () => of([mockOrganization]) }
 const mockOrganizationApiService: Partial<OrganizationApiServiceAbstraction> = {};
 const mockPolicyService = { policiesByType$: () => of([]), policyAppliesToUser$: () => of(false) };
 const mockKeyService = { orgKeys$: () => of({}) };
+const mockLegacyCompatKeyService = {
+  makeKeyPair: () => Promise.resolve(["publicKey", { encryptedString: "encryptedPrivateKey" }]),
+};
 const mockSyncService: Partial<SyncService> = { fullSync: () => Promise.resolve(true) };
 const mockMessagingService = { send: () => {} };
 const mockApiService: Partial<ApiService> = {
@@ -203,6 +208,7 @@ export default {
         { provide: ToastService, useValue: mockToastService },
         { provide: ApiService, useValue: mockApiService },
         { provide: KeyService, useValue: mockKeyService },
+        { provide: LegacyCompatKeyService, useValue: mockLegacyCompatKeyService },
         { provide: Router, useValue: mockRouter },
         { provide: SyncService, useValue: mockSyncService },
         { provide: PolicyService, useValue: mockPolicyService },

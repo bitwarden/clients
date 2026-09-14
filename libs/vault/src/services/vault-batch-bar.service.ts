@@ -145,6 +145,10 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** The Angular CDK selection model. Add, remove, or clear items directly. */
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
+  private readonly _cleared$ = new Subject<void>();
+  /** Emits whenever the selection is cleared via {@link clear} — the "Clear" button, a filter change, or a completed bulk action. */
+  readonly cleared$ = this._cleared$.asObservable();
+
   private readonly _completed$ = new Subject<void>();
   /** Emits once after each successful bulk action. Subscribe to trigger a list refresh. */
   readonly completed$ = this._completed$.asObservable();
@@ -378,13 +382,19 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         takeUntilDestroyed(),
       )
       .subscribe(() => {
-        this.selection.clear();
+        this.clear();
       });
   }
 
   /** Update the vault context. Call in `ngOnChanges` or when configuration values change so permission signals stay current. */
   setConfig(config: VaultBatchBarConfig): void {
     this.config.set(config);
+  }
+
+  /** Clear the selection and notify subscribers (e.g. the table component) to uncheck rows. */
+  clear(): void {
+    this.selection.clear();
+    this._cleared$.next();
   }
 
   /** Archive the selected ciphers after confirmation. No-op if reprompt is cancelled. */
@@ -419,7 +429,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         variant: "success",
         message: this.i18nService.t(successKey),
       });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error archiving ciphers", e);
@@ -448,7 +458,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
           ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
         ),
       });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error unarchiving ciphers", e);
@@ -534,7 +544,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       }
 
       this.toastService.showToast({ variant: "success", message: toastMessage });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error restoring ciphers", e);
@@ -622,7 +632,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkDeleteDialogResult.Deleted) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -650,7 +660,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === BulkMoveDialogResult.Moved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -725,7 +735,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === AssignCollectionsResult.Saved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -761,7 +771,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkEditCollectionAccessResult.Saved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }

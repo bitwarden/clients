@@ -2,10 +2,16 @@ import { Jsonify } from "type-fest";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import {
   EncString,
-  EphemeralPinEnvelopeState,
+  KeyId,
   PasswordProtectedKeyEnvelope,
   V2UpgradeToken,
   WebAuthnPrfUnlockData,
@@ -14,6 +20,7 @@ import {
 import {
   CRYPTO_DISK,
   CRYPTO_MEMORY,
+  ENCRYPTED_MIGRATION_DISK,
   KDF_CONFIG_DISK,
   MASTER_PASSWORD_UNLOCK_DISK,
   PIN_DISK,
@@ -21,7 +28,6 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/state";
 
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../types/key";
 
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";
@@ -35,9 +41,19 @@ import { MasterPasswordUnlockData } from "./master-password/types/master-passwor
 /**
  * The UserKey, held in memory while the account is unlocked.
  */
-export const USER_KEY = UserKeyDefinition.record<UserKey>(CRYPTO_MEMORY, "userKey", {
+export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
+  // Prevents the state from caching and rxjs observable becoming hot observable.
+  cleanupDelayMs: 0,
+});
+
+/**
+ * The id of the UserKey, as recorded by the server.
+ */
+export const USER_KEY_ID = new UserKeyDefinition<KeyId>(CRYPTO_DISK, "userKeyId", {
+  deserializer: (jsonValue) => jsonValue,
+  clearOn: ["logout"],
   // Prevents the state from caching and rxjs observable becoming hot observable.
   cleanupDelayMs: 0,
 });
@@ -133,7 +149,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-  UserKeyDefinition.record<EphemeralPinEnvelopeState>(
+  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
     PIN_MEMORY,
     "pinProtectedUserKeyEnvelopeEphemeral",
     {
@@ -153,6 +169,21 @@ export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncString>(
   {
     deserializer: (jsonValue) => jsonValue,
     clearOn: ["logout"],
+    cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
+  },
+);
+
+/**
+ * Timestamp for delaying v2 encrypted migrations. Stored on disk, the timestamp
+ * records the first time a user logs in while eligible for v2 encrypted migrations.
+ * User prompts are only shown once a grace period has elapsed since the timestamp.
+ */
+export const V2_ENCRYPTED_MIGRATIONS_GRACE_PERIOD_START = new UserKeyDefinition<Date>(
+  ENCRYPTED_MIGRATION_DISK,
+  "v2EncryptedMigrationsGracePeriodStart",
+  {
+    deserializer: (obj: string) => (obj != null ? new Date(obj) : null),
+    clearOn: [], // Doesn't clear on logout, we don't want users who regularly log in to indefinitely avoid the migration prompt.
     cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
   },
 );

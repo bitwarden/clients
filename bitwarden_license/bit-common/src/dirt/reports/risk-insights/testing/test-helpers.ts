@@ -153,6 +153,7 @@ export function createCipherHealth(
     hasReusedPassword?: boolean;
     hasExposedPassword?: boolean;
     exposedCount?: number;
+    reuseCount?: number;
     weakPasswordScore?: number;
   },
 ): CipherHealthView {
@@ -162,6 +163,8 @@ export function createCipherHealth(
     hasReusedPassword: options?.hasReusedPassword ?? false,
     hasExposedPassword: options?.hasExposedPassword ?? false,
     exposedCount: options?.exposedCount ?? 0,
+    // A reused password is shared by at least two ciphers, so keep the flag and the count consistent.
+    reuseCount: options?.reuseCount ?? (options?.hasReusedPassword ? 2 : 0),
     weakPasswordScore: options?.weakPasswordScore ?? (isAtRisk ? 1 : 4),
   });
 }

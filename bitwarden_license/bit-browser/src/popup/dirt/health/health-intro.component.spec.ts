@@ -53,14 +53,37 @@ describe("HealthIntroComponent", () => {
       expect(backgroundImage()).toContain("/images/health-tab/health_intro_bg_dark.png");
     });
 
-    it("swaps the background image when the theme changes", () => {
+    it("renders the light intro image for the light theme", () => {
       initComponent();
+
+      const image = fixture.nativeElement.querySelector("img");
+
+      expect(image.getAttribute("src")).toBe("/images/health-tab/health_intro.png");
+    });
+
+    it("renders the dark intro image for the dark theme", () => {
+      theme$.next(ThemeTypes.Dark);
+
+      initComponent();
+
+      const image = fixture.nativeElement.querySelector("img");
+
+      expect(image.getAttribute("src")).toBe("/images/health-tab/health_intro_dark.png");
+    });
+
+    it("swaps the images when the theme changes", () => {
+      initComponent();
+
+      const image = fixture.nativeElement.querySelector("img");
+
       expect(backgroundImage()).toContain("health_intro_bg_light.png");
+      expect(image.getAttribute("src")).toBe("/images/health-tab/health_intro.png");
 
       theme$.next(ThemeTypes.Dark);
       fixture.detectChanges();
 
       expect(backgroundImage()).toContain("health_intro_bg_dark.png");
+      expect(image.getAttribute("src")).toBe("/images/health-tab/health_intro_dark.png");
     });
 
     it("falls back to the light background image for a non-dark theme", () => {
@@ -73,14 +96,6 @@ describe("HealthIntroComponent", () => {
   });
 
   describe("content", () => {
-    it("renders the intro image from the extension root", () => {
-      initComponent();
-
-      const image = fixture.nativeElement.querySelector("img");
-
-      expect(image.getAttribute("src")).toBe("/images/health-tab/health_intro.png");
-    });
-
     it("renders the localized copy", () => {
       initComponent();
 

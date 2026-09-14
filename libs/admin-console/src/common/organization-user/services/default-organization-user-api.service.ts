@@ -252,6 +252,16 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  async putOrganizationUserBulkEnablePam(organizationId: string, ids: string[]): Promise<void> {
+    await this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/enable-pam",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      false,
+    );
+  }
+
   putOrganizationUser(
     organizationId: string,
     id: string,

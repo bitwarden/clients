@@ -6,17 +6,21 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { FakeStateProvider, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 
@@ -25,6 +29,7 @@ import { DefaultCollectionService } from "./default-collection.service";
 
 describe("DefaultCollectionService", () => {
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let stateProvider: FakeStateProvider;
@@ -40,6 +45,7 @@ describe("DefaultCollectionService", () => {
     userId = Utils.newGuid() as UserId;
 
     keyService = mock();
+    legacyCompatKeyService = mock();
     encryptService = mock();
     i18nService = mock();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
@@ -55,7 +61,11 @@ describe("DefaultCollectionService", () => {
         Promise.resolve(encString.data.replace("ENC_", "DEC_")),
       );
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(
+      keyService,
+      encryptService,
+      legacyCompatKeyService,
+    );
 
     // Arrange i18nService so that sorting algorithm doesn't throw
     i18nService.collator = null;

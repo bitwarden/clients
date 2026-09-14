@@ -2,18 +2,17 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   OrganizationId as SdkOrganizationId,
   UserId as SdkUserId,
@@ -26,20 +25,12 @@ import { RegistrationFinishService } from "./registration-finish.service";
 
 export class DefaultRegistrationFinishService implements RegistrationFinishService {
   constructor(
-    protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected accountApiService: AccountApiService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
     protected configService: ConfigService,
     protected sdkService: SdkService,
   ) {}
-
-  getOrgNameFromOrgInvite(): Promise<string | null> {
-    return null;
-  }
-
-  getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
-    return null;
-  }
 
   async finishRegistration(
     email: string,
@@ -95,18 +86,18 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       return;
     }
 
-    const newMasterKey = await this.keyService.makeMasterKey(
+    const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
       passwordInputResult.newPassword,
       passwordInputResult.salt,
       passwordInputResult.kdfConfig,
     );
 
-    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(newMasterKey);
+    const [newUserKey, newEncUserKey] = await this.legacyCompatKeyService.makeUserKey(newMasterKey);
 
     if (!newUserKey || !newEncUserKey) {
       throw new Error("User key could not be created");
     }
-    const userAsymmetricKeys = await this.keyService.makeKeyPair(newUserKey);
+    const userAsymmetricKeys = await this.legacyCompatKeyService.makeKeyPair(newUserKey);
 
     const registerRequest = await this.buildRegisterRequest(
       newUserKey,
@@ -152,6 +143,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       provider_invite_token: undefined,
       provider_user_id: undefined,
       sales_assisted_token: undefined,
+      open_org_invite: undefined,
     };
 
     return registerFinishRequest;

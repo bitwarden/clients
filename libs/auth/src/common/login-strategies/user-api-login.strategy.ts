@@ -90,7 +90,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
           masterKey,
           userId,
         );
-        await this.keyService.setUserKey(userKey, userId);
+        await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
       }
     }
   }

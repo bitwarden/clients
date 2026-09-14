@@ -1,7 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { isCryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -14,7 +14,7 @@ import { MasterPasswordUnlockData } from "../types/master-password.types";
 export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockService {
   constructor(
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private readonly keyService: KeyService,
+    private readonly legacyCompatKeyService: LegacyCompatKeyService,
     private readonly logService: LogService,
   ) {}
 
@@ -92,7 +92,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     masterPasswordUnlockData: MasterPasswordUnlockData,
     userId: UserId,
   ): Promise<void> {
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       masterPassword,
       masterPasswordUnlockData.salt,
       masterPasswordUnlockData.kdf,

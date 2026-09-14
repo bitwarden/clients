@@ -35,11 +35,21 @@ export function TotpCountdown({
           cx="14.5"
           cy="14.5"
           r="12.5"
+          stroke="transparent"
           stroke-width="3"
           stroke-dasharray=${TOTP_CIRCUMFERENCE}
+          stroke-dashoffset=${TOTP_CIRCUMFERENCE}
           transform="rotate(-90 14.5 14.5)"
         ></circle>
-        <circle data-totp-outer fill="none" cx="14.5" cy="14.5" r="14" stroke-width="1"></circle>
+        <circle
+          data-totp-outer
+          fill="none"
+          cx="14.5"
+          cy="14.5"
+          r="14"
+          stroke="transparent"
+          stroke-width="1"
+        ></circle>
       </svg>
       <span data-totp-seconds></span>
     </span>
@@ -75,7 +85,7 @@ function createTotpCountdownRef(
 
       if (secondsEl) {
         secondsEl.textContent = `${seconds}`;
-        secondsEl.className = totpSecondsStyles(textColor);
+        secondsEl.style.color = textColor;
       }
       if (innerCircle) {
         innerCircle.setAttribute("stroke", strokeColor);
@@ -112,14 +122,13 @@ const totpCountdownStyles = css`
     width: 100%;
     height: 100%;
   }
-`;
 
-const totpSecondsStyles = (color: string) => css`
-  ${typography.helperMedium}
+  [data-totp-seconds] {
+    ${typography.helperMedium}
 
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: ${color};
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 `;

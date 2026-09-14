@@ -2,12 +2,10 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -16,6 +14,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -53,7 +52,6 @@ export default class RuntimeBackground {
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -105,6 +103,7 @@ export default class RuntimeBackground {
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
         "getUrlAutofillTargetingRules",
+        "getBitwardenAutofillAttributeSettings",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -222,14 +221,19 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        // Because content scripts are injected into all _frames_, we give precedence
-        // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
-        // selector collision with coincidentally-matching in-frame structures.
-        const senderURL = sender.url ?? sender.tab?.url;
+        const senderURL = await this.resolveSenderFrameUrl(sender);
         const targetingRulesForUrl =
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
 
         return targetingRulesForUrl;
+      }
+      case "getBitwardenAutofillAttributeSettings": {
+        const [honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute] = await Promise.all([
+          firstValueFrom(this.autofillSettingsService.honorBitwardenIgnoreAttribute$),
+          firstValueFrom(this.autofillSettingsService.honorBitwardenAutofillAttribute$),
+        ]);
+
+        return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
       case "authResult": {
         if (!(await this.isValidVaultReferrer(msg.referrer))) {
@@ -257,6 +261,34 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /** Resolves the URL currently loaded in the frame a message came from. */
+  private async resolveSenderFrameUrl(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<string | undefined> {
+    const tabId = sender.tab?.id;
+    const frameId = sender.frameId;
+
+    if (tabId != null && frameId != null) {
+      // `frame.url` takes precedence over `tab.url` to minimize selector
+      // collisions between frames with similar in-frame markup. `frame.url`
+      // takes precedence over `sender.url` because the sender's value is pinned
+      // to the frame URI when the port was opened.
+      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+        .then((frame) => frame?.url)
+        .catch((): undefined => undefined);
+
+      if (frameUrl) {
+        return frameUrl;
+      }
+    }
+
+    if (frameId === 0 && sender.tab?.url) {
+      return sender.tab.url;
+    }
+
+    return sender.url ?? sender.tab?.url;
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
@@ -294,8 +326,6 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadService.cancelProcessReload();
-
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
           await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
@@ -321,17 +351,17 @@ export default class RuntimeBackground {
         this.lockedVaultPendingNotifications = [];
         break;
       case "lockVault":
-        await this.lockService.lock(msg.userId);
+        await this.lockService.lock(msg.userId, LockSource.Manual);
         break;
       case "lockAll":
         {
-          await this.lockService.lockAll();
+          await this.lockService.lockAll(msg.source);
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
         }
         break;
       case "lockUser":
         {
-          await this.lockService.lock(msg.userId);
+          await this.lockService.lock(msg.userId, msg.source);
           this.messagingService.send("lockUserFinished", {
             requestId: msg.requestId,
           });

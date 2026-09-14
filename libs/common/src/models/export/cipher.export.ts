@@ -1,4 +1,6 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";

@@ -1,10 +1,10 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Passport as SdkPassport } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { PassportData } from "../data/passport.data";
 import { PassportView } from "../view/passport.view";

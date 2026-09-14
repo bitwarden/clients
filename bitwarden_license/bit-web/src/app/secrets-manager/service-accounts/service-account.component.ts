@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, combineLatest, filter, startWith, switchMap, takeUntil } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ServiceAccountCounts } from "../models/view/counts.view";
@@ -50,6 +53,14 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private countService: CountService,
   ) {}
+
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   ngOnInit(): void {
     const serviceAccountCounts$ = combineLatest([

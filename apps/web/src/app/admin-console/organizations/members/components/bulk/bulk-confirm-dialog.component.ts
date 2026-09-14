@@ -15,7 +15,6 @@ import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
@@ -29,6 +28,8 @@ import {
   LinkModule,
   TableModule,
 } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";

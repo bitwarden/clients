@@ -10,6 +10,7 @@ import { SharedModule } from "../../shared";
 import { BulkDeleteDialogsModule } from "./bulk-action-dialogs/bulk-dialogs.module";
 import { OrganizationBadgeModule } from "./organization-badge/organization-badge.module";
 import { PipesModule } from "./pipes/pipes.module";
+import { VaultNextComponent } from "./vault-next.component";
 import { VaultRoutingModule } from "./vault-routing.module";
 import { VaultComponent } from "./vault.component";
 
@@ -25,6 +26,7 @@ import { VaultComponent } from "./vault.component";
     BulkDeleteDialogsModule,
     CollectionDialogComponent,
     VaultComponent,
+    VaultNextComponent,
   ],
 })
 export class VaultModule {}
