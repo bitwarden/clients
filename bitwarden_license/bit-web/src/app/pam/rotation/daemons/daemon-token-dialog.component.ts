@@ -23,7 +23,7 @@ export type DaemonTokenDialogParams = {
    * The one-time token to display.
    *
    * SECURITY: shown exactly once; never log it. Deliver out-of-band (e.g. paste into the daemon
-   * config). Format: `0.daemon.{apiKeyId}.{clientSecret}:{keyMaterialBase64}`.
+   * config). Format: `0.access-connector.{apiKeyId}.{clientSecret}:{keyMaterialBase64}`.
    */
   token: string;
 };
