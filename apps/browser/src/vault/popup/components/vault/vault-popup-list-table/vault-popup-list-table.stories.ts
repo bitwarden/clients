@@ -602,16 +602,6 @@ export const Default: Story = {
   }),
 };
 
-/**
- * The table inside the real page chrome, mirroring `vault.component.html` with the VFO1 flag on:
- * a `popup-page` with a `popup-header`, a callout in `above-scroll-area`, and the table filling the
- * scroll region.
- *
- * Scroll the item list: the title bar, the `above-scroll-area` callout, and the table's own
- * search/filter toolbar collapse together, and come back as soon as you scroll up. The app bar stays
- * pinned. The table owns the scrolling, which is why it carries `bitScrollCollapseSource` — the page
- * region around it never overflows.
- */
 export const VaultPage: Story = {
   parameters: { chromatic: { disableSnapshot: true } },
   decorators: [
@@ -633,7 +623,7 @@ export const VaultPage: Story = {
         <popup-page [collapseAboveScrollArea]="true">
           <popup-header slot="header" pageTitle="Vault"></popup-header>
           <ng-container slot="above-scroll-area">
-            <bit-callout title="Unlock advanced security" [icon]="null">
+            <bit-callout class="[&_aside]:!tw-mb-0" title="Unlock advanced security" [icon]="null">
               Get stronger protection with Bitwarden Premium.
             </bit-callout>
           </ng-container>
@@ -646,20 +636,6 @@ export const VaultPage: Story = {
   }),
 };
 
-/**
- * The CL-1318 geometry: a list that scrolls, but by less than the chrome would hand back if it
- * collapsed. Collapsing here would give the viewport more height than there was overflow, the
- * browser would clamp the offset back to the top, that would read as scrolling up, and the chrome
- * would reopen — leaving the page stuck at the top with the chrome flickering.
- *
- * So nothing should collapse. Scroll the list down: it moves, and the title bar and the
- * search/filter toolbar both stay put. {@link VaultPage} is the same page with enough items to
- * afford the collapse.
- *
- * The floor comes from `scrollDirection`'s `minScrollable`, summed across the registered regions by
- * `ScrollCollapseService`. The short viewport is what puts this story on the blocked side of it —
- * one section header plus seven rows against a shorter popup.
- */
 export const VaultPageShortScroll: Story = {
   parameters: { chromatic: { disableSnapshot: true } },
   decorators: [

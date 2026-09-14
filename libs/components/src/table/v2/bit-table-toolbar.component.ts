@@ -138,7 +138,8 @@ export class BitTableToolbarComponent {
     "tw-gap-3",
     // Row gap for when the `slot=end` controls wrap to their own line below `md`.
     "tw-gap-y-4",
-    "tw-p-5",
+    "tw-p-3",
+    "sm:tw-p-5",
     ...(this.hasFilterRow()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
