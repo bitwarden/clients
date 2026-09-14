@@ -5,6 +5,7 @@ import { switchMap } from "rxjs";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ButtonModule, DialogRef } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ShareLinkService } from "../../services/share-link.service";
 
@@ -30,6 +31,7 @@ export class ShareButtonComponent {
   readonly cipher = input.required<CipherViewLike>();
 
   private readonly shareLinkService = inject(ShareLinkService);
+  private readonly passwordRepromptService = inject(PasswordRepromptService);
 
   /** The dialog this button sits in, when it sits in one. */
   private readonly hostDialog = inject(DialogRef, { optional: true });
@@ -42,6 +44,10 @@ export class ShareButtonComponent {
   );
 
   protected async share(): Promise<void> {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher());
+    if (!repromptPassed) {
+      return;
+    }
     await this.shareLinkService.openShareForm(this.cipher(), this.hostDialog);
   }
 }

@@ -260,12 +260,12 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   protected override loadData(): void {
     const policyResponseData =
       (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
-    if (policyResponseData.allowedSendTypes == null) {
-      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
-    }
-    if (this.temporaryItemSharingEnabled()) {
-      policyResponseData.allowedSendTypes.push(SendType.Item);
-    }
+    const allowedSendTypes = policyResponseData.allowedSendTypes ?? [
+      SendType.Text,
+      SendType.File,
+      ...(this.temporaryItemSharingEnabled() ? [SendType.Item] : []),
+    ];
+    policyResponseData.allowedSendTypes = allowedSendTypes;
     if (policyResponseData.whoCanAccess == null) {
       policyResponseData.whoCanAccess = WhoCanAccessType.Any;
     }
