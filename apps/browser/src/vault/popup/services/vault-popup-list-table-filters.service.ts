@@ -291,8 +291,8 @@ export class VaultPopupListTableFiltersService {
     switchMap((account) =>
       account
         ? this.avatarService
-          .getUserAvatarColor$(account.id)
-          .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
+            .getUserAvatarColor$(account.id)
+            .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
         : of(undefined),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -331,10 +331,10 @@ export class VaultPopupListTableFiltersService {
           boolean,
           string | undefined,
         ] => [
-            orgs.filter((org) => org.enabled).sort(Utils.getSortFunction(this.i18nService, "name")),
-            organizationDataOwnership,
-            avatarColor,
-          ],
+          orgs.filter((org) => org.enabled).sort(Utils.getSortFunction(this.i18nService, "name")),
+          organizationDataOwnership,
+          avatarColor,
+        ],
       ),
       map(([orgs, organizationDataOwnership, avatarColor]) => {
         if (!orgs.length) {
@@ -347,12 +347,12 @@ export class VaultPopupListTableFiltersService {
         const myVaultOrg: ChipFilterOption<Organization>[] = organizationDataOwnership
           ? []
           : [
-            {
-              value: { id: MY_VAULT } as Organization,
-              label: this.i18nService.t("myVault"),
-              iconTile: personalIconTile(avatarColor ?? "brand"),
-            },
-          ];
+              {
+                value: { id: MY_VAULT } as Organization,
+                label: this.i18nService.t("myVault"),
+                iconTile: personalIconTile(avatarColor ?? "brand"),
+              },
+            ];
 
         return [
           ...myVaultOrg,
@@ -446,9 +446,9 @@ export class VaultPopupListTableFiltersService {
 
         const filtered = selectedOrgIds.length
           ? allCollections.filter(
-            (c) =>
-              c.organizationId != null && selectedOrgIds.includes(idString(c.organizationId)!),
-          )
+              (c) =>
+                c.organizationId != null && selectedOrgIds.includes(idString(c.organizationId)!),
+            )
           : allCollections;
 
         return sortDefaultCollections(filtered, orgs, this.i18nService.collator);

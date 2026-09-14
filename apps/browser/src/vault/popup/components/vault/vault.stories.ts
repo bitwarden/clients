@@ -430,7 +430,7 @@ const buildProviders = (args: StoryArgs) => {
         loading$: of(false),
         // Drives the autofill section's type grouping and its empty-state tip.
         hasFilterApplied$: of(false),
-        applyFilter: () => { },
+        applyFilter: () => {},
       },
     },
     {
@@ -490,9 +490,9 @@ const buildProviders = (args: StoryArgs) => {
       provide: VaultPopupListTableFiltersService,
       useValue: {
         restoreFilters$: () => of({}),
-        saveFilters: () => { },
+        saveFilters: () => {},
         cachedFilters: signal({}),
-        clearVaultScopedFilters: () => { },
+        clearVaultScopedFilters: () => {},
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -512,7 +512,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => { }, stop: () => { } },
+      useValue: { start: () => {}, stop: () => {} },
     },
     {
       provide: NudgesService,
@@ -557,7 +557,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: SyncService, useValue: { fullSync: () => Promise.resolve(true) } },
     // The real CDK announcer tears its live element down with the first fixture, so later ones
     // would announce into a detached node.
-    { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => { } } },
+    { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
     {
       provide: IntroCarouselService,
       useValue: { setIntroCarouselDismissed: () => Promise.resolve() },
@@ -670,11 +670,11 @@ const buildProviders = (args: StoryArgs) => {
     // Pulled in by the real `DialogService`, which is reachable via component-level providers.
     {
       provide: LogService,
-      useValue: { debug: () => { }, info: () => { }, warning: () => { }, error: () => { } },
+      useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
     },
     { provide: TotpService, useValue: {} },
     { provide: PasswordRepromptService, useValue: {} },
-    { provide: ToastService, useValue: { showToast: () => { } } },
+    { provide: ToastService, useValue: { showToast: () => {} } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
     { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve() } },
     {

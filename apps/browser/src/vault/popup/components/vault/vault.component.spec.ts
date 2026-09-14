@@ -82,7 +82,7 @@ export class PopupHeaderStubComponent {
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderStubComponent { }
+export class VaultHeaderStubComponent {}
 
 @Component({
   selector: "app-vault-switcher",
@@ -100,7 +100,7 @@ export class VaultSwitcherStubComponent {
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class CurrentAccountStubComponent { }
+class CurrentAccountStubComponent {}
 
 @Component({
   selector: "app-new-item-dropdown",
@@ -119,7 +119,7 @@ class NewItemDropdownStubComponent {
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class PopOutStubComponent { }
+class PopOutStubComponent {}
 
 @Component({
   selector: "blocked-injection-banner",
@@ -127,7 +127,7 @@ class PopOutStubComponent { }
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class BlockedInjectionBannerStubComponent { }
+class BlockedInjectionBannerStubComponent {}
 
 @Component({
   selector: "fill-assist-active-banner",
@@ -135,7 +135,7 @@ class BlockedInjectionBannerStubComponent { }
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class FillAssistActiveBannerStubComponent { }
+class FillAssistActiveBannerStubComponent {}
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -143,7 +143,7 @@ class FillAssistActiveBannerStubComponent { }
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class VaultAtRiskCalloutStubComponent { }
+class VaultAtRiskCalloutStubComponent {}
 
 @Component({
   selector: "vault-organization-user-notifications",
@@ -151,7 +151,7 @@ class VaultAtRiskCalloutStubComponent { }
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class VaultOrganizationUserNotificationsStubComponent { }
+class VaultOrganizationUserNotificationsStubComponent {}
 
 @Component({
   selector: "app-autofill-vault-list-items",
@@ -159,7 +159,7 @@ class VaultOrganizationUserNotificationsStubComponent { }
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class AutofillVaultListItemsStubComponent { }
+class AutofillVaultListItemsStubComponent {}
 
 @Component({
   selector: "app-vault-list-items-container",

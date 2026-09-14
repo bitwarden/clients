@@ -92,7 +92,6 @@ import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 
-
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
 const VaultState = {
