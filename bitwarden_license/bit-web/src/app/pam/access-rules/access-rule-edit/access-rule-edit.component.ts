@@ -62,6 +62,7 @@ import {
   AccessRuleErrorField,
   AccessRuleErrorOutcome,
   classifyAccessRuleError,
+  conflictingCollectionIds,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
   EXTENSION_DURATION_OPTIONS,
   formValueToRequest,
@@ -69,6 +70,7 @@ import {
   isIpAllowlist,
   isKnownAccessCondition,
   NO_DURATION_CAP,
+  resolveCollectionNames,
   snapToNearestAccessRuleDuration,
 } from "../..";
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
@@ -508,10 +510,43 @@ export class AccessRuleEditComponent {
    * clears the moment the admin edits the control — the next `updateValueAndValidity` recomputes
    * from the validators alone.
    */
-  private showFieldSaveError(field: AccessRuleErrorField, messageKey: string): void {
+  private showFieldSaveError(field: AccessRuleErrorField, message: string): void {
     const control = this.formGroup.controls[field];
-    control.setErrors({ serverError: { message: this.i18nService.t(messageKey) } });
+    control.setErrors({ serverError: { message } });
     control.markAsTouched();
+  }
+
+  /**
+   * The copy for a rejected save, naming the collections at fault: the server reports only that
+   * one exists, leaving the admin to find it by removing collections one at a time (PM-43430).
+   */
+  private async fieldSaveErrorMessage(messageKey: string): Promise<string> {
+    if (messageKey !== "pamAccessRuleErrorCollectionsGoverned") {
+      return this.i18nService.t(messageKey);
+    }
+
+    const names = await this.conflictingCollectionNames();
+    return names.length === 0
+      ? this.i18nService.t(messageKey)
+      : this.i18nService.t("pamAccessRuleErrorCollectionsGovernedNamed", names.join(", "));
+  }
+
+  /**
+   * Read fresh, since a conflict may have appeared after this page loaded. Empty on a failed read
+   * or one that disagrees with the server, which leaves the unnamed copy in place.
+   */
+  private async conflictingCollectionNames(): Promise<string[]> {
+    try {
+      const rules = await this.pamApi.listAccessRules(this.organizationId);
+      const conflicting = conflictingCollectionIds(
+        rules,
+        this.formGroup.controls.collections.value.map((c) => c.id),
+        this.existing()?.id,
+      );
+      return resolveCollectionNames(conflicting, this.allCollections());
+    } catch {
+      return [];
+    }
   }
 
   protected readonly submit = async (): Promise<void> => {
@@ -545,7 +580,10 @@ export class AccessRuleEditComponent {
     } catch (e) {
       const outcome = classifyAccessRuleError(e);
       if (outcome.kind === "mapped" && outcome.field != null) {
-        this.showFieldSaveError(outcome.field, outcome.messageKey);
+        this.showFieldSaveError(
+          outcome.field,
+          await this.fieldSaveErrorMessage(outcome.messageKey),
+        );
         return;
       }
       this.saveError.set(outcome);
