@@ -1,0 +1,21 @@
+{
+  "extends": "../../../tsconfig.base",
+  "compilerOptions": {
+    "lib": [
+      "es5",
+      "es6",
+      "es7",
+      "dom",
+      "ES2021",
+      "ESNext.Disposable",
+      "ES2024.Collection",
+      "esnext"
+    ],
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": ["./**/*.mts"]
+}
