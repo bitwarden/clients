@@ -36,11 +36,13 @@ import {
   CompactModeService,
   DialogService,
   FilterMenuComponent,
+  FilterOptionComponent,
   FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
+  NO_FOLDER,
   PasswordRepromptService,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -556,6 +558,23 @@ describe("VaultPopupListTableComponent", () => {
       fixture.detectChanges();
 
       expect(chipFor("organization")).toBeDefined();
+    });
+
+    it("binds the no-folder option to the NO_FOLDER sentinel, not the placeholder's empty id, so it matches unfiled items", () => {
+      const noFolder = { id: "", name: "itemsWithNoFolder" } as FolderView;
+      folders$.next([{ value: noFolder, label: "itemsWithNoFolder" }]);
+      filteredCiphers$.next([makeCipher({ id: "unfiled-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+
+      const folderMenu = fixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((de) => de.componentInstance.key() === "folder");
+      const noFolderOption = folderMenu!.query(By.directive(FilterOptionComponent))
+        .componentInstance as FilterOptionComponent;
+
+      expect(noFolderOption.value()).toBe(NO_FOLDER);
+      expect(noFolderOption.count()).toBe(1);
     });
 
     it("flattens nested folder options into one option per node", () => {
