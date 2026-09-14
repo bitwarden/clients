@@ -22,8 +22,8 @@ export class DesktopAutotypeDefaultSettingPolicy {
   ) {}
 
   /**
-   * Emits the autotype policy enabled status when the account is unlocked and the resolved
-   * Autotype feature flag state is anything other than `AutotypeFeatureFlagState.Off`.
+   * Emits the autotype policy enabled status when account is unlocked and the
+   * Autotype implementation is feature-flagged on.
    * - true: autotype policy applies to the user (enabled and the user is not exempt, e.g. an Owner)
    * - null: the resolved Autotype feature flag state is `AutotypeFeatureFlagState.Off`, no autotype
    *   policy applies to the user's organization, or the user is exempt from it
