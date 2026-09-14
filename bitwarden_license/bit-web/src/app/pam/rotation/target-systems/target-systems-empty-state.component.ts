@@ -33,14 +33,14 @@ const TEMPLATES: TargetSystemTemplate[] = [
   {
     key: "entra",
     icon: "bwi-globe",
-    titleKey: "pamTargetSystemKindEntra",
+    titleKey: "pamTargetSystemTypeEntra",
     summaryKey: "pamTargetSystemTemplateEntraSummary",
   },
   {
     key: "custom-script",
     icon: "bwi-terminal",
-    titleKey: "pamTargetSystemKindCustomScript",
-    summaryKey: "pamTargetSystemTemplateCustomScriptSummary",
+    titleKey: "pamTargetSystemTypeCustomScript",
+    summaryKey: "pamTargetSystemTemplateCustomScriptSummaryConnector",
   },
 ];
 

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule, Validators, FormBuilder } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 
 import {
   ButtonModule,
@@ -9,21 +10,28 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  LinkModule,
   SelectModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessConnector, TargetSystem } from "../rotation";
+import { ROTATION_TABS, rotationLink } from "../rotation-links";
 
 export type AssignTargetDialogParams = {
   /** The daemon being assigned a target system. */
   daemon: AccessConnector;
   /**
-   * The set of active+automatic target systems that are NOT already assigned to
-   * this daemon. Callers (the tab component) compute this from
-   * `activeAutomaticSystems$` filtered against `daemon.assignedTargetSystemIds`.
+   * The set of automatic target systems that are NOT already assigned to this daemon,
+   * including disabled ones. Callers (the tab component) compute this from
+   * `automaticSystems$` filtered against `daemon.assignedTargetSystemIds`.
    */
   options: TargetSystem[];
+  /**
+   * True when the organization has no active automatic target system at all, as opposed to
+   * having some that are all already assigned to this daemon.
+   */
+  noActiveAutomaticSystems: boolean;
 };
 
 /**
@@ -32,7 +40,7 @@ export type AssignTargetDialogParams = {
 export type AssignTargetDialogResult = string | undefined;
 
 /**
- * Simple select-and-confirm dialog for assigning an active automatic target
+ * Simple select-and-confirm dialog for assigning an automatic target
  * system to a daemon.
  */
 @Component({
@@ -41,9 +49,11 @@ export type AssignTargetDialogResult = string | undefined;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     ButtonModule,
     DialogModule,
     FormFieldModule,
+    LinkModule,
     SelectModule,
     I18nPipe,
   ],
@@ -52,6 +62,11 @@ export class AssignTargetDialogComponent {
   protected readonly params = inject<AssignTargetDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef<AssignTargetDialogResult>>(DialogRef);
   private readonly fb = inject(FormBuilder);
+
+  protected readonly targetSystemsRoute = rotationLink(
+    String(this.params.daemon.organizationId),
+    ROTATION_TABS.targetSystems,
+  );
 
   protected readonly form = this.fb.nonNullable.group({
     targetSystemId: ["", [Validators.required]],
