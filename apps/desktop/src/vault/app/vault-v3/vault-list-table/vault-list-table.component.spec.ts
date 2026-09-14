@@ -16,7 +16,8 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CipherRowMenuService,
-  VaultBatchBarService, VaultScopeType,
+  VaultBatchBarService,
+  VaultScopeType,
   VaultCopyButtonsService,
 } from "@bitwarden/vault";
 
