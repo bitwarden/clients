@@ -1,4 +1,4 @@
-@let subscription = cardSubscription();
+@let subscription = subscriptionPreview.hasValue() ? subscriptionPreview.value() : null;
 @let org = organization();
 @let orgSub = organizationSubscription();
 @let showSubscription = access()?.showSubscription;

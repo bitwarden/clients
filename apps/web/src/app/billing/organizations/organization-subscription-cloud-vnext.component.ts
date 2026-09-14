@@ -41,7 +41,6 @@ import {
   SubscriptionCardAction,
   SubscriptionCardActions,
   SubscriptionCardComponent,
-  SubscriptionPreview,
 } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -214,30 +213,6 @@ export class OrganizationSubscriptionCloudVNextComponent {
   });
 
   /**
-   * The subscription preview handed to the card, with a pending annual upgrade overlaid.
-   * The invoice preview describes the current monthly renewal; the card shows the upcoming
-   * annual plan, so its cadence and charge date come from the upgrade.
-   */
-  readonly cardSubscription = computed(() => {
-    const preview = this.subscriptionPreview.hasValue() ? this.subscriptionPreview.value() : null;
-    const upgrade = this.pendingAnnualUpgrade();
-    if (preview == null || upgrade == null) {
-      return preview;
-    }
-    // Only billable previews carry a next charge to re-point at the upgrade's effective date.
-    if (preview.status !== "active" && preview.status !== "trialing") {
-      return preview;
-    }
-    return {
-      ...preview,
-      // The invoice preview describes the current monthly cadence; the card shows the upcoming
-      // annual plan, so both the cadence and the charge date come from the upgrade.
-      cart: { ...preview.cart, cadence: "annually" },
-      nextCharge: upgrade.effectiveDate,
-    } as SubscriptionPreview;
-  });
-
-  /**
    * Computes the access rights for the organization subscription.
    * @summary Provides a reactive computation for the access rights of the organization subscription.
    * @returns The access rights object, or null if the organization is not available.
@@ -253,10 +228,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   readonly isFreeOrg = computed(() => this.access()?.isFreeOrg ?? false);
 
   readonly cardTitle = computed(() => {
-    // Determine the plan to display in the card title, prioritizing any pending annual upgrade over the current subscription plan.
-    const pendingAnnualUpgrade = this.pendingAnnualUpgrade();
-    const currentSubscriptionPlan = this.organizationSubscription()?.plan;
-    const plan = pendingAnnualUpgrade ? pendingAnnualUpgrade.plan : currentSubscriptionPlan;
+    const plan = this.organizationSubscription()?.plan;
     if (plan == null) {
       return null;
     }
@@ -277,11 +249,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
     () => this.billingSubscription()?.items.some((item) => item.sponsoredSubscriptionItem) ?? false,
   );
 
-  /** Plan name for the resold-org status table; a pending annual upgrade takes precedence. */
-  readonly statusPlanName = computed(() => {
-    const orgSub = this.organizationSubscription();
-    return orgSub?.pendingAnnualUpgrade?.plan?.name ?? orgSub?.plan?.name ?? null;
-  });
+  /** Plan name for the resold-org status table. */
+  readonly statusPlanName = computed(() => this.organizationSubscription()?.plan?.name ?? null);
 
   /** Localized status for the resold-org status table; hidden when unmapped or absent. */
   readonly statusLabel = computed(() => {
@@ -516,9 +485,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     if (org?.productTierType === ProductTierType.TeamsStarter) {
       return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
     }
-    const pendingAnnualUpgrade = this.pendingAnnualUpgrade();
-    const plan = pendingAnnualUpgrade ? pendingAnnualUpgrade.plan : sub.plan;
-    const key = plan.isAnnual
+    const key = sub.plan.isAnnual
       ? "annualSubscriptionUserSeatsMessage"
       : "monthlySubscriptionUserSeatsMessage";
     if (sub.maxAutoscaleSeats == null) {

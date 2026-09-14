@@ -299,20 +299,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   });
 
   describe("pending annual upgrade", () => {
-    it("overlays the pending annual plan's cadence and effective date on the card subscription", async () => {
+    it("exposes the pending annual upgrade for the notice callout", () => {
       const effectiveDate = new Date("2026-09-17T00:00:00.000Z");
-      // The invoice preview describes the current monthly renewal, not the upcoming annual plan.
-      dataService.getSubscriptionPreview.mockResolvedValue({
-        status: "active",
-        nextCharge: new Date("2026-10-10T00:00:00.000Z"),
-        cart: {
-          passwordManager: { seats: { translationKey: "pm-seat", quantity: 5, cost: 1000 } },
-          cadence: "monthly",
-          estimatedTax: 0,
-        },
-      } as SubscriptionPreview);
       createComponent({
-        detectChanges: true,
         subscription: buildSubscriptionResponse({
           pendingAnnualUpgrade: {
             plan: { isAnnual: true },
@@ -321,24 +310,14 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           },
         } as any),
       });
-      await fixture.whenStable();
 
-      expect(component.cardSubscription()).toEqual({
-        status: "active",
-        nextCharge: effectiveDate,
-        cart: {
-          passwordManager: { seats: { translationKey: "pm-seat", quantity: 5, cost: 1000 } },
-          cadence: "annually",
-          estimatedTax: 0,
-        },
-      });
+      expect(component.pendingAnnualUpgrade()?.effectiveDate).toEqual(effectiveDate);
     });
 
-    it("leaves the card subscription untouched when no annual upgrade is pending", async () => {
-      createComponent({ detectChanges: true });
-      await fixture.whenStable();
+    it("has no pending annual upgrade when none is scheduled", () => {
+      createComponent();
 
-      expect(component.cardSubscription()).toEqual(component.subscriptionPreview.value());
+      expect(component.pendingAnnualUpgrade()).toBeUndefined();
     });
   });
 
@@ -599,7 +578,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       );
     });
 
-    it("titles the card from the pending annual upgrade's plan", () => {
+    it("titles the card from the current plan even when an annual upgrade is pending", () => {
       createComponent({
         subscription: buildSubscriptionResponse({
           pendingAnnualUpgrade: {
@@ -613,7 +592,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
       expect(i18nService.t).toHaveBeenCalledWith(
         "organizationSubscriptionCardTitle",
-        "enterprise",
+        "teams",
         "annualLower",
       );
     });
