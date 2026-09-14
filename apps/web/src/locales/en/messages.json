@@ -1703,6 +1703,14 @@
     "message": "Copy username",
     "description": "Copy username to clipboard"
   },
+  "copyExternalId": {
+    "message": "Copy external ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copy SSO external ID",
+    "description": "Copy SSO external ID to clipboard"
+  },
   "copyNumber": {
     "message": "Copy number",
     "description": "Copy credit card number"
