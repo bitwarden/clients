@@ -229,6 +229,20 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   /** The caller's columns plus the options column, for the empty row's colspan. */
   protected readonly columnCount = computed(() => this.columns().length + 1);
 
+  /**
+   * The control announces a pick only when its dropdown closes, and it skips that announcement
+   * when the selection is empty. So additions arrive through `onItemsConfirmed` and removals
+   * arrive here, off the value accessor, which the control does notify on every deselection and
+   * every dismissed chip — a chip can be dismissed with the dropdown shut, and a dropdown can be
+   * emptied before it closes. Taking only removals here leaves an unconfirmed pick unarmed.
+   *
+   * The same split as the access selector's inline mode.
+   */
+  protected readonly onSelectionChanged = (items: SelectItemView[] | null): void => {
+    const kept = new Set((items ?? []).map((item) => item.id));
+    this.pendingSelection.update((current) => current.filter((item) => kept.has(item.id)));
+  };
+
   protected readonly assignSelected = async (): Promise<void> => {
     const selected = this.pendingSelection();
     if (this.disabled() || selected.length === 0) {
