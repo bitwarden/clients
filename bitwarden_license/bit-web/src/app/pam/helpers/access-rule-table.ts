@@ -6,7 +6,8 @@ export type AccessRuleFilter = {
   /** Lower-cased, trimmed text matched against the rule name + collection names. */
   text: string;
   status: AccessRuleStatusFilter | null;
-  collectionId: string | null;
+  /** A rule matches if it carries any of these; empty means no collection filtering. */
+  collectionIds: string[];
 };
 
 /**
@@ -32,7 +33,10 @@ export function accessRuleMatchesFilter(
   if (filter.status === "disabled" && rule.enabled) {
     return false;
   }
-  if (filter.collectionId != null && !rule.collections.includes(filter.collectionId)) {
+  if (
+    filter.collectionIds.length > 0 &&
+    !filter.collectionIds.some((id) => rule.collections.includes(id))
+  ) {
     return false;
   }
   if (filter.text.length > 0) {
