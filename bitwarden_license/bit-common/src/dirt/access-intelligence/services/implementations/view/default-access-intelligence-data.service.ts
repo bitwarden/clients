@@ -1,6 +1,7 @@
 import {
   BehaviorSubject,
   catchError,
+  first,
   forkJoin,
   from,
   map,
@@ -18,7 +19,9 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import type { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -26,6 +29,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
 import { AccessReportView } from "../../../models";
+import { measureFlowStep } from "../../../utils/measure-flow-step.operator";
 import { AccessIntelligenceDataService } from "../../abstractions/access-intelligence-data.service";
 import {
   CollectionAccessDetails,
@@ -61,6 +65,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     private reportGenerationService: ReportGenerationService,
     private reportPersistenceService: ReportPersistenceService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     super();
   }
@@ -80,6 +85,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._currentOrgId.next(orgId);
     this._loading.next(true);
     this._error.next(null);
+    this.logService.mark("[AccessReportFlow]: page open");
 
     return forkJoin({
       reportResult: this.reportPersistenceService.loadLastReport$(orgId),
@@ -121,6 +127,14 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         this._report.next(report);
         this._loading.next(false);
         return of(undefined as void);
+      }),
+      measureFlowStep(this.logService, "Load: page initialized", () => {
+        const report = this._report.value;
+        return [
+          ["itemCount", this._ciphers.value.length],
+          ["memberCount", report ? Object.keys(report.memberRegistry).length : 0],
+          ["applicationCount", report?.reports.length ?? 0],
+        ];
       }),
       catchError((error: unknown) => {
         this.logService.error(
@@ -439,11 +453,29 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   }
 
   private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
-    return from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
+    return this.fetchOrgCiphers$(orgId, "page open").pipe(
       catchError((err: unknown) => {
         this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
         return of([] as CipherView[]);
       }),
+    );
+  }
+
+  private fetchOrgCiphers$(
+    orgId: OrganizationId,
+    trigger: "page open" | "generate",
+  ): Observable<CipherView[]> {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM27632_SdkCipherCrudOperations).pipe(
+      first(),
+      switchMap((useSdk) =>
+        from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
+          measureFlowStep(
+            this.logService,
+            `Load: org ciphers fetched (${trigger}, ${useSdk ? "sdk" : "legacy"})`,
+            (ciphers) => [["itemCount", ciphers.length]],
+          ),
+        ),
+      ),
     );
   }
   /**
@@ -455,13 +487,21 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     collections: ListResponse<CollectionAccessDetailsResponse>;
   }> {
     return forkJoin({
-      ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId, true)),
+      ciphers: this.fetchOrgCiphers$(orgId, "generate"),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
           includeGroups: true,
         }),
+      ).pipe(
+        measureFlowStep(this.logService, "Load: org members fetched", (apiUsers) => [
+          ["orgMemberCount", apiUsers.data.length],
+        ]),
       ),
-      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)),
+      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)).pipe(
+        measureFlowStep(this.logService, "Load: org collections fetched", (collections) => [
+          ["collectionCount", collections.data.length],
+        ]),
+      ),
     });
   }
 
