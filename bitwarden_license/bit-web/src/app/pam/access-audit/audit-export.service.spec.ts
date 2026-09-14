@@ -23,6 +23,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     collectionId: "collection-1",
     ruleName: "Production access",
     ruleId: "rule-1",
+    targetSystemName: null,
+    daemonName: null,
     detail: "Approved for the incident window.",
     automated: false,
     inDoubt: false,
@@ -47,6 +49,7 @@ describe("AuditExportService", () => {
             pamAuditKindLeaseActivated: "Lease activated",
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindLeaseExtended: "Lease extended",
+            pamAuditKindDaemonAssigned: "Daemon assigned to target",
             pamInboxDurationHours: "__$1__ hours",
             pamInboxDuration1Hour: "1 hour",
           }),
@@ -68,6 +71,8 @@ describe("AuditExportService", () => {
         itemName: "prod db",
         collectionName: "production",
         ruleName: "Production access",
+        targetSystemName: "",
+        daemonName: "",
         grantedDuration: "4 hours",
         extendedUntil: "",
         detail: "Approved for the incident window.",
@@ -121,6 +126,8 @@ describe("AuditExportService", () => {
         itemName: "",
         collectionName: "",
         ruleName: "",
+        targetSystemName: "",
+        daemonName: "",
         grantedDuration: "",
         extendedUntil: "",
         detail: "",
@@ -130,6 +137,23 @@ describe("AuditExportService", () => {
         leaseId: "",
       });
       expect(JSON.stringify(exported)).not.toMatch(/null|undefined/);
+    });
+
+    // A fleet event names neither a cipher nor a rule; the two columns below are the only record of what it acted on.
+    it("carries the target system and daemon a fleet event names", () => {
+      const exported = service.toAuditExport(
+        row({
+          kindLabelKey: "pamAuditKindDaemonAssigned",
+          cipherName: null,
+          collectionName: null,
+          ruleName: null,
+          targetSystemName: "prod-postgres-01",
+          daemonName: "eu-west-rotator",
+        }),
+      );
+
+      expect(exported.targetSystemName).toBe("prod-postgres-01");
+      expect(exported.daemonName).toBe("eu-west-rotator");
     });
 
     // Names come from local vault state; an item the exporter can't decrypt has none, correctly.
