@@ -28,6 +28,7 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../../overflow-list";
+import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
@@ -50,6 +51,7 @@ import { BitTableV2Component } from "./table-v2.component";
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

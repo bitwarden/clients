@@ -43,11 +43,9 @@ const inactiveStyles = [
   "disabled:tw-text-fg-inactive",
   "disabled:hover:tw-bg-bg-inactive",
   "disabled:tw-pointer-events-none",
-  "aria-disabled:tw-bg-bg-inactive",
+  "aria-disabled:!tw-bg-bg-inactive",
   "aria-disabled:tw-border-border-base",
   "aria-disabled:tw-text-fg-inactive",
-  "aria-disabled:hover:tw-bg-bg-inactive",
-  "aria-disabled:focus-visible:tw-bg-bg-inactive",
   "aria-disabled:tw-pointer-events-none",
 ];
 

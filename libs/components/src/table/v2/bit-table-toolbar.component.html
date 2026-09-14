@@ -79,6 +79,7 @@
       @for (filter of activeFilters(); track filter.key()) {
         <bit-chip
           [label]="appliedLabel(filter)"
+          [bitTooltip]="appliedLabel(filter)"
           (click)="filter.clear()"
           (dismissed)="filter.clear()"
         ></bit-chip>

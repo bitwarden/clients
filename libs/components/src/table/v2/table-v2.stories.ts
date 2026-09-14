@@ -810,6 +810,109 @@ class DemoFormTableComponent {
   };
 }
 
+type LongLabelRow = { id: number; name: string; collectionIds: string[]; folderId: string };
+type LongLabelFilters = { search?: string; collection?: string[]; folder?: string[] };
+
+const LONG_LABEL_ORG = "Bitwarden Design System and Component Library";
+
+const LONG_LABEL_COLLECTIONS = [
+  { id: "onboarding", name: "Onboarding materials for new design system contributors" },
+  { id: "tokens", name: "Design tokens, themes, and every palette we publish" },
+];
+
+const LONG_LABEL_FOLDERS = [
+  { id: "household", name: "Household paperwork, warranties, and appliance manuals" },
+  { id: "subscriptions", name: "Streaming subscriptions I keep meaning to cancel" },
+];
+
+const LONG_LABEL_ROWS: LongLabelRow[] = [
+  {
+    id: 1,
+    name: "Design system handbook",
+    collectionIds: ["onboarding"],
+    folderId: "household",
+  },
+  { id: 2, name: "Palette generator", collectionIds: ["tokens"], folderId: "subscriptions" },
+  {
+    id: 3,
+    name: "Contributor checklist",
+    collectionIds: ["onboarding", "tokens"],
+    folderId: "household",
+  },
+];
+
+/**
+ * Filter options named after real organizations, collections, and folders — long enough that
+ * every surface has to truncate them.
+ */
+@Component({
+  selector: "demo-long-label-filters-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    FilterMenuModule,
+    SearchModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="seed()">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+
+          <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+            <bit-filter-section [label]="orgName" collapsible>
+              @for (collection of collections; track collection.id) {
+                <bit-filter-option [value]="collection.id">
+                  {{ collection.name }}
+                </bit-filter-option>
+              }
+            </bit-filter-section>
+          </bit-filter-menu>
+
+          <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+            @for (folder of folders; track folder.id) {
+              <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoLongLabelFiltersTableComponent {
+  /** Seeds a selection, so the collapsed toolbar's active-filter chips have something to show. */
+  readonly applied = input(false);
+
+  protected readonly data = signal(LONG_LABEL_ROWS);
+  protected readonly table = defineTable<LongLabelRow>(this.data);
+
+  protected readonly orgName = LONG_LABEL_ORG;
+  protected readonly collections = LONG_LABEL_COLLECTIONS;
+  protected readonly folders = LONG_LABEL_FOLDERS;
+
+  // `{}` rather than `undefined` when nothing is applied: the input's declared type isn't
+  // nullable, and an empty object seeds no chip.
+  protected readonly seed = computed<Partial<LongLabelFilters>>(() =>
+    this.applied() ? { collection: LONG_LABEL_COLLECTIONS.map((c) => c.id) } : {},
+  );
+
+  protected readonly filter = (row: LongLabelRow, f: Partial<LongLabelFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.folder?.length || f.folder.includes(row.folderId));
+}
+
 export default {
   title: "Component Library/Table V2 (Beta)",
   decorators: [
@@ -831,6 +934,7 @@ export default {
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
         DemoKitchenSinkTableComponent,
+        DemoLongLabelFiltersTableComponent,
         DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
@@ -1548,6 +1652,38 @@ export const KitchenSinkFilterEmpty: Story = {
   play: async ({ canvasElement }) => {
     await openSharedFoldersFilter(canvasElement);
     await searchForNothing();
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * Long option names, with a selection already applied. Nothing here can show a name in full,
+ * so each surface truncates and carries a tooltip with the whole thing: the chip triggers, and
+ * below `md` the dismissible chips on the collapsed toolbar's own row
+ * (`Shared folders: <name>, <name>`). Snapshotted at both widths.
+ */
+export const FilterLongLabelsApplied: Story = {
+  render: () => ({
+    template: `<demo-long-label-filters-table [applied]="true"></demo-long-label-filters-table>`,
+  }),
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * The same filters opened: the popover's rows above `md`, the dialog's row list below it —
+ * where a row shows its label, then as many selected names as fit and a `+N` for the rest.
+ * Hovering a row reads out the full text either way.
+ */
+export const FilterLongLabelsOpen: Story = {
+  render: () => ({
+    template: `<demo-long-label-filters-table [applied]="true"></demo-long-label-filters-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openSharedFoldersFilter(canvasElement);
   },
   parameters: {
     chromatic: { viewports: [390, 1280] },
