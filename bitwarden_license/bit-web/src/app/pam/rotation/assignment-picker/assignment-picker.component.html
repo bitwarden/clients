@@ -12,6 +12,7 @@
         [disabled]="!canSelect()"
         [placeholder]="placeholder()"
         [ngModel]="pendingSelection()"
+        (ngModelChange)="onSelectionChanged($event)"
         (onItemsConfirmed)="pendingSelection.set($event)"
         [ngModelOptions]="{ standalone: true }"
         [id]="idPrefix() + '_multi-select_options'"
