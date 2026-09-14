@@ -14,6 +14,7 @@ import { SendAccess } from "../models/domain/send-access";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendAccessView } from "../models/view/send-access.view";
 import { SendView } from "../models/view/send.view";
+import { SendType } from "../types/send-type";
 
 /**
  * Service for doing specific decryption operations for Send and SendAccess objects. It is expected
@@ -73,7 +74,11 @@ export class SendDecryptionService {
         ),
       );
     } else {
-      return Promise.all(sends.map((s) => s.decrypt(userId)));
+      // `pm-30110-sdk-sends-api` should be enabled and stable before `pm-34203-temporary-item-sharing`
+      // is and the server should filter out any Item Sends if the latter is off, but just to be safe
+      // we filter here as well.
+      const nonItemSends = sends.filter((s) => s.type !== SendType.Item);
+      return Promise.all(nonItemSends.map((s) => s.decrypt(userId)));
     }
   }
 

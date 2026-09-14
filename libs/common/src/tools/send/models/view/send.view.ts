@@ -19,6 +19,7 @@ import {
 } from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendView implements View {
@@ -31,6 +32,7 @@ export class SendView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
+  data = new SendItemView();
   maxAccessCount?: number = null;
   accessCount = 0;
   revisionDate: Date = null;
@@ -130,8 +132,12 @@ export class SendView implements View {
               hidden: this.text?.hidden ?? false,
             }
           : undefined,
-      // Item-type sends are not yet modeled client-side; see PM-41095.
-      data: undefined,
+      data:
+        this.type === SendType.Item
+          ? {
+              data: this.data?.data?.toSdkCipherView() ?? undefined,
+            }
+          : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
@@ -154,6 +160,7 @@ export class SendView implements View {
       cryptoKey: SymmetricCryptoKey.fromJSON(json.cryptoKey),
       text: SendTextView.fromJSON(json.text),
       file: SendFileView.fromJSON(json.file),
+      data: SendItemView.fromJSON(json.data),
       revisionDate: json.revisionDate == null ? null : new Date(json.revisionDate),
       deletionDate: json.deletionDate == null ? null : new Date(json.deletionDate),
       expirationDate: json.expirationDate == null ? null : new Date(json.expirationDate),
@@ -187,6 +194,7 @@ export class SendView implements View {
     send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
     send.text = obj.text != null ? SendTextView.fromSdk(obj.text) : null;
     send.file = obj.file != null ? SendFileView.fromSdk(obj.file) : null;
+    send.data = obj.data != null ? SendItemView.fromSdk(obj.data) : null;
     return send;
   }
 }
