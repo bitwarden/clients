@@ -1561,7 +1561,7 @@ jobs:
           cat << EOF > "$KEY_PATH"
           $APP_STORE_CONNECT_AUTH_KEY
           EOF
-          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
+          echo "auth-key-path=$KEY_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Build application (dist)
         env:
@@ -1784,7 +1784,7 @@ jobs:
           cat << EOF > "$KEY_PATH"
           $APP_STORE_CONNECT_AUTH_KEY
           EOF
-          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
+          echo "auth-key-path=$KEY_PATH" >> "$GITHUB_OUTPUT"
 
       # pack:mac:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
       # electron-builder reads for artifact names and the channel file. The `-beta.N`
@@ -2059,7 +2059,7 @@ jobs:
           cat << EOF > "$KEY_PATH"
           $APP_STORE_CONNECT_AUTH_KEY
           EOF
-          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
+          echo "auth-key-path=$KEY_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Build application for App Store
         env:
@@ -2242,7 +2242,7 @@ jobs:
 
       - name: Install .deb
         working-directory: apps/desktop/artifacts/linux/deb
-        run: sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
+        run: sudo apt-get install -y "./Bitwarden-${_PACKAGE_VERSION}-amd64.deb"
 
       - name: Run .deb
         run: |
@@ -2288,8 +2288,8 @@ jobs:
       - name: Run AppImage
         working-directory: apps/desktop/artifacts/linux/appimage
         run: |
-          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
-          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          chmod a+x "./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage"
+          xvfb-run -a "./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage" --no-sandbox &
           sleep 30
           if pgrep bitwarden > /dev/null; then
             pkill -9 bitwarden
@@ -2341,8 +2341,8 @@ jobs:
         env:
           WAYLAND_DISPLAY: wayland-0
         run: |
-          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
-          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          chmod a+x "./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage"
+          xvfb-run -a "./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage" --no-sandbox &
           sleep 30
           if pgrep bitwarden > /dev/null; then
             pkill -9 bitwarden
@@ -2392,6 +2392,7 @@ jobs:
 
       - name: Run Flatpak
         run: |
+          # shellcheck disable=SC2046
           export $(dbus-launch)
           xvfb-run -a flatpak run com.bitwarden.desktop &
           sleep 30
@@ -2442,7 +2443,7 @@ jobs:
       - name: Install snap
         working-directory: apps/desktop/artifacts/linux/snap
         run: |
-          sudo snap install --dangerous ./bitwarden_${_PACKAGE_VERSION}_${_CPU_ARCH}.snap
+          sudo snap install --dangerous "./bitwarden_${_PACKAGE_VERSION}_${_CPU_ARCH}.snap"
 
       - name: Run Snap
         run: |
@@ -2484,11 +2485,11 @@ jobs:
         working-directory: apps/desktop/artifacts/macos/dmg
         run: |
           # mount
-          hdiutil attach Bitwarden-${_PACKAGE_VERSION}-universal.dmg
+          hdiutil attach "Bitwarden-${_PACKAGE_VERSION}-universal.dmg"
           # install
-          cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/
+          cp -r "/Volumes/Bitwarden ${_PACKAGE_VERSION}-universal/Bitwarden.app" /Applications/
           # unmount
-          hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal
+          hdiutil detach "/Volumes/Bitwarden ${_PACKAGE_VERSION}-universal"
 
       - name: Run dmg
         run: |
