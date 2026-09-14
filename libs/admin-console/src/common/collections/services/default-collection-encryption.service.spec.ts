@@ -434,4 +434,80 @@ describe("DefaultCollectionEncryptionService", () => {
       });
     });
   });
+
+  /**
+   * The SDK bindings for these two calls are currently typed as synchronous, while the equivalent
+   * cipher bindings return promises. Both call sites are awaited so the service behaves correctly
+   * either way, and these specs pin that down: they hand the mocks a promise, which only produces
+   * the right result if the `await` is present. Dropping either `await` makes the spec below fail
+   * instead of silently returning an empty list.
+   */
+  describe("when the SDK bindings return promises", () => {
+    it("awaits decrypt_list_with_failures and still separates successes from failures", async () => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
+
+      const collection1 = makeCollection();
+      const collection2 = makeCollection({ id: collectionId2 });
+      jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
+      jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
+
+      mockDecryptListWithFailures.mockResolvedValue({
+        successes: [makeSdkCollectionView({ id: collectionId2 as any, name: "Collection 2" })],
+        failures: [{ id: collectionId as any }],
+      });
+
+      const result = await firstValueFrom(service.decryptMany([collection1, collection2], userId));
+
+      expect(result).toHaveLength(2);
+      expect(result.find((c) => c.id === collectionId2)?.name).toBe("Collection 2");
+      expect(result.find((c) => c.id === collectionId)?.decryptionFailure).toBe(true);
+    });
+
+    it("awaits the per-item decrypt on the V1 path", async () => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
+
+      const collection = makeCollection();
+      jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+      mockDecrypt.mockResolvedValue(makeSdkCollectionView({ name: "Decrypted Name" }));
+
+      const [result] = await firstValueFrom(service.decryptMany([collection], userId));
+
+      expect(result).toBeInstanceOf(CollectionView);
+      expect(result.name).toBe("Decrypted Name");
+    });
+
+    it("logs and drops an item whose per-item decrypt rejects, without aborting the rest", async () => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
+
+      const collection1 = makeCollection();
+      const collection2 = makeCollection({ id: collectionId2 });
+      jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
+      jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
+
+      mockDecrypt
+        .mockRejectedValueOnce(new Error("key not found"))
+        .mockResolvedValueOnce(makeSdkCollectionView({ name: "Collection 2" }));
+
+      const result = await firstValueFrom(service.decryptMany([collection1, collection2], userId));
+
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining(`Failed to decrypt collection ${collection1.id}`),
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("Collection 2");
+    });
+
+    it("rejects when a promise-returning decrypt_list_with_failures rejects", async () => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
+
+      const collection = makeCollection();
+      jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+      mockDecryptListWithFailures.mockRejectedValue(new Error("batch failure"));
+
+      await expect(firstValueFrom(service.decryptMany([collection], userId))).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to decrypt collections in batch"),
+      );
+    });
+  });
 });

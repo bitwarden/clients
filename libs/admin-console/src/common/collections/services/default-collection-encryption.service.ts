@@ -60,7 +60,10 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
         const success: CollectionView[] = [];
         for (const collection of collections) {
           try {
-            const sdkView = ref.value.vault().collections().decrypt(collection.toSdkCollection());
+            const sdkView = await ref.value
+              .vault()
+              .collections()
+              .decrypt(collection.toSdkCollection());
             success.push(CollectionView.fromSdkCollectionView(sdkView, collection));
           } catch (error: unknown) {
             this.logService.error(`Failed to decrypt collection ${collection.id}: ${error}`);
@@ -106,7 +109,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           collections.map((c) => [c.id, c]),
         );
         const sdkCollections = collections.map((c) => c.toSdkCollection());
-        const result: DecryptCollectionListResult = ref.value
+        const result: DecryptCollectionListResult = await ref.value
           .vault()
           .collections()
           .decrypt_list_with_failures(sdkCollections);
