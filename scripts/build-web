@@ -1,0 +1,43 @@
+validateBuildEnv() {
+    local tool=$1
+    local versionCommand=$2
+
+    $tool $versionCommand > /dev/null 2>&1
+    if [[ $? -eq 1 ]]; then
+        echo "[!] script requires: $tool"
+    fi
+}
+
+err() {
+    local msg=$1
+    echo "[!] $1"
+    exit 1
+}
+
+IMAGE_BUILDER=nerdctl
+
+NODE_VERSION=$(validateBuildEnv node --version)
+JQ_VERSION=$(validateBuildEnv jq --version)
+DOCKER_VERSION=$(validateBuildEnv $IMAGE_BUILDER --version)
+
+if [[ "$(basename $PWD)" != "clients" ]]; then
+    err "script needs to be executed from the root directory of the project\n    ./scripts/build-web"
+fi
+
+REQUIRED_NODE_VERSION=$(cat .nvmrc)
+
+if [[ "$(node --version | grep $REQUIRED_NODE_VERSION | wc -l | xargs)" == "0" ]]; then
+    err "web requires node $REQUIRED_NODE_VERSION"
+fi
+
+echo "[*] Build environment validated"
+
+
+# Build web app
+npm ci
+cd apps/web
+npm run dist:bit:selfhost
+
+
+# Build container image
+$IMAGE_BUILDER build -t bitwarden/web:latest .
