@@ -1,13 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-  viewChild,
-} from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { switchMap, take } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -29,7 +21,6 @@ import {
   copyPresentation$,
   DEFAULT_COPY_PRESENTATION,
   NewCipherMenuComponent,
-  VaultBatchBarService,
   VaultItemsTableComponent,
   VaultItemsTableRowAction,
   VaultScope,
@@ -59,10 +50,6 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
-  private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
-    optional: true,
-  });
-
   private readonly userId$ = this.accountService.activeAccount$.pipe(getOptionalUserId);
 
   private readonly subscriptionEndedMessaging = toSignal(
@@ -73,14 +60,6 @@ export class VaultListTableComponent<C extends CipherViewLike> {
     ),
     { initialValue: false },
   );
-
-  private readonly vaultItemsTable = viewChild(VaultItemsTableComponent);
-
-  constructor() {
-    this.batchBarService?.cleared$.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.vaultItemsTable()?.clearSelection();
-    });
-  }
 
   readonly ciphers = input.required<C[]>();
   readonly folders = input<FolderView[]>([]);
@@ -136,14 +115,6 @@ export class VaultListTableComponent<C extends CipherViewLike> {
 
   protected readonly itemAction = (item: C): void =>
     this.onEvent.emit({ type: "viewCipher", item });
-
-  protected handleSelectionChange(items: readonly C[]): void {
-    if (!this.batchBarService) {
-      return;
-    }
-    this.batchBarService.selection.clear();
-    this.batchBarService.selection.select(...items.map((cipher) => ({ cipher })));
-  }
 
   async navigateToGetPremium(): Promise<void> {
     await this.premiumUpgradePromptService.promptForPremium();

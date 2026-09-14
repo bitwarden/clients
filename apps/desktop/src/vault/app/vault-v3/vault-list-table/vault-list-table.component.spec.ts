@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of, Subject, of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,12 +14,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { I18nPipe } from "@bitwarden/ui-common";
-import {
-  CipherRowMenuService,
-  VaultBatchBarService,
-  VaultScopeType,
-  VaultCopyButtonsService,
-} from "@bitwarden/vault";
+import { CipherRowMenuService, VaultScopeType, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultListTableComponent } from "./vault-list-table.component";
 
@@ -39,6 +34,7 @@ describe("VaultListTableComponent", () => {
   let mockGetRowActions: jest.Mock;
   let cipherArchiveService: MockProxy<CipherArchiveService>;
   let showSubscriptionEndedMessaging$: Subject<boolean>;
+  let configService: MockProxy<ConfigService>;
 
   async function setup(extraProviders: unknown[] = []) {
     mockGetRowActions = jest.fn(() => []);
@@ -50,16 +46,18 @@ describe("VaultListTableComponent", () => {
 
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" as UserId } as Account);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [VaultListTableComponent],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: AccountService, useValue: accountService },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: CipherRowMenuService, useValue: { getRowActions: mockGetRowActions } },
+        { provide: ConfigService, useValue: configService },
         {
           provide: VaultCopyButtonsService,
           useValue: { showQuickCopyActions$: of(false) },
@@ -136,45 +134,6 @@ describe("VaultListTableComponent", () => {
           assignToCollections: expect.any(Function),
         }),
       );
-    });
-  });
-
-  describe("handleSelectionChange without VaultBatchBarService", () => {
-    it("does not throw when no service is provided", () => {
-      expect(() => component["handleSelectionChange"]([cipherView()])).not.toThrow();
-    });
-  });
-
-  describe("handleSelectionChange with VaultBatchBarService", () => {
-    let mockSelection: { clear: jest.Mock; select: jest.Mock };
-
-    beforeEach(async () => {
-      mockSelection = { clear: jest.fn(), select: jest.fn() };
-      TestBed.resetTestingModule();
-      await setup([
-        {
-          provide: VaultBatchBarService,
-          useValue: { selection: mockSelection, cleared$: EMPTY },
-        },
-      ]);
-    });
-
-    it("clears the selection then re-selects each item wrapped as { cipher }", () => {
-      const ciphers = [cipherView({ id: "a" }), cipherView({ id: "b" })];
-      component["handleSelectionChange"](ciphers);
-
-      expect(mockSelection.clear).toHaveBeenCalled();
-      expect(mockSelection.select).toHaveBeenCalledWith(
-        { cipher: ciphers[0] },
-        { cipher: ciphers[1] },
-      );
-    });
-
-    it("clears to empty when called with an empty list", () => {
-      component["handleSelectionChange"]([]);
-
-      expect(mockSelection.clear).toHaveBeenCalled();
-      expect(mockSelection.select).toHaveBeenCalledWith();
     });
   });
 

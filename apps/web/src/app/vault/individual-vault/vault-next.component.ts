@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
@@ -36,6 +44,8 @@ import {
   AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   copyPresentation$,
@@ -48,6 +58,8 @@ import {
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  VaultBatchActionComponent,
+  VaultBatchBarService,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
@@ -72,8 +84,10 @@ import {
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
+import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
+import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -102,6 +116,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     RouterLink,
     NewCipherMenuComponent,
     VaultBannersComponent,
+    VaultBatchActionComponent,
     VaultBreadcrumbsComponent,
     IconTileComponent,
     VaultItemsTableComponent,
@@ -112,6 +127,9 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
     safeProvider({ provide: WebVaultItemActionsService, useAngularDecorators: true }),
+    VaultBatchBarService,
+    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
   ],
 })
 export class VaultNextComponent {
@@ -128,6 +146,8 @@ export class VaultNextComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly i18nService = inject(I18nService);
+  private readonly batchBarService = inject(VaultBatchBarService);
+
   private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -235,7 +255,7 @@ export class VaultNextComponent {
   );
 
   protected readonly organizations = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
+    this.userId$.pipe(switchMap((userId) => this.organizationService.memberOrganizations$(userId))),
     { initialValue: [] },
   );
 
@@ -340,6 +360,40 @@ export class VaultNextComponent {
   protected readonly title = computed(() =>
     vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
   );
+
+  private readonly configureBatchBar = effect(() => {
+    const collections = this.collections();
+    const hasCiphers = this.ciphers().length > 0;
+    const scope = this.vaultScope();
+    const inTrash = scope.type === VaultScopeType.Trash;
+    const scopedCollectionId =
+      scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
+    const activeCollectionId = collections.find((c) => c.id === scopedCollectionId)?.id;
+    untracked(() =>
+      this.batchBarService.setConfig({
+        isOrgVault: false,
+        allCollections: collections,
+        hasCiphers,
+        inTrash,
+        activeCollectionId,
+      }),
+    );
+  });
+
+  /** Used to ensure the selection is cleared when the side nav rescopes the page */
+  private readonly lastScopeKey = signal<string | undefined>(undefined);
+
+  private readonly clearSelectionOnScopeChange = effect(() => {
+    // `resolveVaultScope` builds a fresh object each run, so compare by value, not reference.
+    const scope = this.vaultScope();
+    const key = `${scope.type}:${scope.type === VaultScopeType.Organization ? scope.organizationId : ""}`;
+    untracked(() => {
+      if (this.lastScopeKey() !== undefined && this.lastScopeKey() !== key) {
+        this.batchBarService.clearSelection();
+      }
+      this.lastScopeKey.set(key);
+    });
+  });
 
   protected readonly copyPresentation = toSignal(copyPresentation$(), {
     initialValue: DEFAULT_COPY_PRESENTATION,

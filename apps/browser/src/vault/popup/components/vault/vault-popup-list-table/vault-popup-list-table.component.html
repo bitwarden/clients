@@ -58,26 +58,34 @@
         multiple
         icon="bwi-shared-folder"
       >
+        <ng-template #collectionOption let-option>
+          <bit-filter-option
+            [value]="option.value.id"
+            [count]="optionCount('collection', [option.value.id])"
+          >
+            {{ option.label }}
+            @for (child of option.children ?? []; track child.value.id) {
+              <ng-container
+                *ngTemplateOutlet="collectionOption; context: { $implicit: child }"
+              ></ng-container>
+            }
+          </bit-filter-option>
+        </ng-template>
         @if (groupCollectionsByOrg()) {
           @for (org of collectionsByOrg(); track org.id) {
             <bit-filter-section [label]="org.name" collapsible>
               @for (option of org.collections; track option.value.id) {
-                <bit-filter-option
-                  [value]="option.value.id"
-                  [count]="optionCount('collection', [option.value.id])"
-                >
-                  {{ option.label }}
-                </bit-filter-option>
+                <ng-container
+                  *ngTemplateOutlet="collectionOption; context: { $implicit: option }"
+                ></ng-container>
               }
             </bit-filter-section>
           }
         } @else {
-          @for (option of collectionOptions(); track option.value.id) {
-            <bit-filter-option
-              [value]="option.value.id"
-              [count]="optionCount('collection', [option.value.id])"
-              >{{ option.label }}</bit-filter-option
-            >
+          @for (option of filteredCollectionTree(); track option.value.id) {
+            <ng-container
+              *ngTemplateOutlet="collectionOption; context: { $implicit: option }"
+            ></ng-container>
           }
         }
       </bit-filter-menu>
@@ -92,10 +100,14 @@
       >
         @for (option of folderOptions(); track option.value.id) {
           <bit-filter-option
-            [value]="option.value.id ?? NO_FOLDER"
-            [count]="optionCount('folder', [option.value.id ?? NO_FOLDER])"
+            [value]="option.value.id || NO_FOLDER"
+            [count]="optionCount('folder', [option.value.id || NO_FOLDER])"
             >{{ option.label }}</bit-filter-option
           >
+          <!-- "No folders" leads the list and stands apart from the real folders. -->
+          @if (!option.value.id) {
+            <bit-filter-option-divider></bit-filter-option-divider>
+          }
         }
       </bit-filter-menu>
     }

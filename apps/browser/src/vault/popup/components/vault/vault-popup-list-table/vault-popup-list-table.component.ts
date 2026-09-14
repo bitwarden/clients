@@ -305,6 +305,14 @@ export class VaultPopupListTableComponent {
     initialValue: [] as ChipFilterOption<CollectionView>[],
   });
 
+  /** The collection tree filtered to the current vault scope, preserving nesting. */
+  protected readonly filteredCollectionTree = computed(() => {
+    const scope = this.listTableService.vaultScope();
+    return this.collectionTree().filter(
+      (option) => option.value != null && collectionInScope(option.value, scope),
+    );
+  });
+
   private readonly folderTree = toSignal(this.listFiltersService.folders$, {
     initialValue: [] as ChipFilterOption<FolderView>[],
   });
@@ -359,16 +367,16 @@ export class VaultPopupListTableComponent {
   });
 
   /**
-   * Collections grouped by owning org, each group sorted alphabetically (the service pre-sorts),
-   * with groups themselves sorted by organization name. A collection whose organization isn't in
-   * {@link organizationNames} falls back to the localized "organization" label.
+   * Collections grouped by owning org, preserving nesting within each group. Groups are sorted by
+   * organization name; within a group the service pre-sorts. A collection whose organization isn't
+   * in {@link organizationNames} falls back to the localized "organization" label.
    */
   protected readonly collectionsByOrg = computed(() => {
     const groups = new Map<
       string,
       { id: string; name: string; collections: ChipFilterOption<CollectionView>[] }
     >();
-    for (const option of this.collectionOptions()) {
+    for (const option of this.filteredCollectionTree()) {
       const orgId = option.value?.organizationId as string | undefined;
 
       if (!orgId) {
