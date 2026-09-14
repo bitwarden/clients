@@ -116,7 +116,7 @@ export class RotationHistoryComponent {
   protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
 
   /** Guards {@link showJob}'s focus restore against a still-pending, since-superseded open. */
-  private openSeq = 0;
+  private readonly openSeq = signal(0);
 
   protected openJob(job: JobView, trigger: HTMLElement): void {
     void this.showJob(job, trigger);
@@ -124,7 +124,8 @@ export class RotationHistoryComponent {
 
   /** Opens one job's details in the side drawer and hands focus back to its row on the way out. */
   private async showJob(job: JobView, trigger: HTMLElement): Promise<void> {
-    const seq = ++this.openSeq;
+    const seq = this.openSeq() + 1;
+    this.openSeq.set(seq);
     const drawer = await RotationJobDrawerComponent.open(this.dialogService, {
       closeOnNavigation: true,
       data: { job, showCredential: this.showCredential() },
@@ -134,7 +135,7 @@ export class RotationHistoryComponent {
     }
     drawer.closed.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.detailsDrawer.update((open) => (open === drawer ? null : open));
-      if (this.openSeq === seq) {
+      if (this.openSeq() === seq) {
         trigger.focus();
       }
     });
