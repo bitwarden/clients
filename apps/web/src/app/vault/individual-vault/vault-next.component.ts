@@ -6,9 +6,14 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  CollectionData,
+  CollectionDetailsResponse,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -16,23 +21,23 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule, DialogService } from "@bitwarden/components";
+import { ButtonModule, DialogService, IconTileComponent } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  copyPresentation$,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
-  VaultCopyButtonsService,
-  VaultCollectionBreadcrumbsComponent,
+  VaultBreadcrumbsComponent,
   VaultItemsTableComponent,
-  VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
@@ -41,17 +46,23 @@ import {
   collectionInScope,
   hasMultipleVaults,
   organizationNameForScope,
-  MY_ITEMS_ROUTE,
   organizationInScope,
-  parseVaultScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   resolveVaultScope,
   scopedCollectionSegment,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
   scopedSharedFolderId,
   sharedFolderNameForScope,
   VaultScopeType,
   defaultUserCollectionId,
 } from "@bitwarden/vault";
 
+import {
+  CollectionDialogAction,
+  openCollectionDialog,
+} from "../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
@@ -82,7 +93,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
-    VaultCollectionBreadcrumbsComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -98,7 +110,6 @@ export class VaultNextComponent {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
-  private readonly copyButtonsService = inject(VaultCopyButtonsService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
@@ -143,14 +154,16 @@ export class VaultNextComponent {
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
 
-  protected readonly parsedVaultScope = computed(
-    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = computed(
+    () =>
+      organizationVaultPage(this.vaultScope(), this.vaultNav()) ===
+      OrganizationVaultPage.SharedFolder,
   );
 
-  protected readonly collectionSelected = computed(() => {
-    const seg = this.collectionSegment();
-    return seg != null && seg !== MY_ITEMS_ROUTE;
-  });
+  protected readonly headerTile = computed(() =>
+    vaultScopeHeaderTile(this.vaultScope(), this.vaultNav()),
+  );
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
@@ -282,6 +295,17 @@ export class VaultNextComponent {
       : undefined,
   );
 
+  protected readonly canCreateCollections = computed(() => {
+    const scope = this.vaultScope();
+
+    // The "Add item" menu offers a "New collection" action only for organization vaults or when viewing all their items
+    if (scope.type !== VaultScopeType.Organization && scope.type !== VaultScopeType.AllItems) {
+      return false;
+    }
+
+    return this.organizations()?.some((o) => o.canCreateNewCollections && !o.isProviderUser);
+  });
+
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
    * with a trashed or archived status and would "disappear" after creation on those views.
@@ -291,30 +315,13 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  protected readonly title = computed(() => {
-    const scope = this.vaultScope();
-    switch (scope.type) {
-      case VaultScopeType.MyVault:
-        return this.i18nService.t("myVault");
-      case VaultScopeType.Organization:
-        return this.scopedOrganizations()[0]?.name;
-      case VaultScopeType.Trash:
-        return this.i18nService.t("trash");
-      case VaultScopeType.Archive:
-        return this.i18nService.t("archiveNoun");
-      default:
-        return undefined;
-    }
-  });
-
-  protected readonly copyPresentation = toSignal(
-    this.copyButtonsService.showQuickCopyActions$.pipe(
-      map((showQuickCopyActions): VaultItemsTableCopyPresentation =>
-        showQuickCopyActions ? "expanded" : "collapsed",
-      ),
-    ),
-    { initialValue: DEFAULT_COPY_PRESENTATION },
+  protected readonly title = computed(() =>
+    vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
   );
+
+  protected readonly copyPresentation = toSignal(copyPresentation$(), {
+    initialValue: DEFAULT_COPY_PRESENTATION,
+  });
 
   private readonly rowMenuHandlers = computed<CipherRowMenuHandlers<CipherViewLike>>(() => ({
     edit: (item) => this.itemActions.edit(item),
@@ -361,22 +368,80 @@ export class VaultNextComponent {
    * Handles `vault-new-cipher-menu`'s `onAddItemDialog`, which it only emits once
    * `PM32009NewItemTypes` is on.
    */
-  protected async openAddItemDialog(): Promise<void> {
+  protected async openAddItemDialog(eventOrigin: "empty" | "toolbar"): Promise<void> {
+    let toolbarOptions = {};
+    // The empty state should only give the user options that allow them to populate that
+    // empty state. Therefore folders and shared folders should only be included when the dialog
+    // is opened from the toolbar.
+    if (eventOrigin === "toolbar") {
+      toolbarOptions = {
+        canCreateFolder: true,
+        canCreateCollection: this.canCreateCollections(),
+      };
+    }
+
     const dialogRef = AddItemDialogComponent.open(this.dialogService, {
       canCreateCipher: true,
+      canCreateSshKey: true,
       canCreateFolder: false,
       canCreateCollection: false,
-      canCreateSshKey: true,
+      ...toolbarOptions,
     });
     const result = await firstValueFrom(dialogRef.closed);
-    if (result?.result !== AddItemDialogResult.Cipher) {
+    if (result == null) {
       return;
     }
 
-    await this.itemActions.add(result.cipherType, {
-      organizationId: this.scopedOrganizationId(),
-      collectionId: this.scopedCollectionId(),
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.itemActions.add(result.cipherType, {
+        organizationId: this.scopedOrganizationId(),
+        collectionId: this.scopedCollectionId(),
+      });
+    } else if (result.result === AddItemDialogResult.Folder) {
+      this.addFolder();
+    } else if (result.result === AddItemDialogResult.Collection) {
+      await this.addCollection();
+    }
+  }
+
+  /** Handles `vault-new-cipher-menu`'s `folderAdded`, emitted by its legacy dropdown. */
+  protected addFolder(): void {
+    AddEditFolderDialogComponent.open(this.dialogService);
+  }
+
+  /** Handles `vault-new-cipher-menu`'s `collectionAdded`, emitted by its legacy dropdown. */
+  protected async addCollection(): Promise<void> {
+    const eligibleOrganizations = this.organizations()
+      .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
+      .sort(Utils.getSortFunction(this.i18nService, "name"));
+    if (eligibleOrganizations.length === 0) {
+      return;
+    }
+
+    const defaultOrganizationId =
+      eligibleOrganizations.find((o) => o.id === this.scopedOrganizationId())?.id ??
+      eligibleOrganizations[0].id;
+
+    const dialogRef = openCollectionDialog(this.dialogService, {
+      data: {
+        organizationId: defaultOrganizationId,
+        parentCollectionId: this.scopedCollectionId(),
+        showOrgSelector: true,
+        limitNestedCollections: true,
+      },
     });
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.action !== CollectionDialogAction.Saved) {
+      return;
+    }
+
+    if (result.collection) {
+      const userId = await firstValueFrom(this.userId$);
+      await this.collectionService.upsert(
+        new CollectionData(result.collection as CollectionDetailsResponse),
+        userId,
+      );
+    }
   }
 
   protected openImportDialog(): void {

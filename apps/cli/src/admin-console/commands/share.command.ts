@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -73,6 +71,10 @@ export class ShareCommand {
         .organizations$(activeUserId)
         .pipe(map((orgs) => orgs.find((o) => o.id === organizationId))),
     );
+
+    if (org == null) {
+      return Response.badRequest("Organization not found.");
+    }
 
     for (const collectionId of req) {
       const collection = orgCollections.find((c) => c.id === collectionId);
