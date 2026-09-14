@@ -54,6 +54,7 @@ export {
 export type { AccessRuleFormPatch, AccessRuleFormValue } from "./helpers/access-rule-request";
 export { accessRuleToCopyRequest, copyRuleName } from "./helpers/access-rule-copy";
 export { resolveCollectionNames } from "./helpers/collection-names";
+export { conflictingCollectionIds } from "./helpers/collection-conflicts";
 export { accessRuleDeleteConfirmOptions } from "./helpers/access-rule-delete-confirm";
 export { accessRuleDeactivateConfirmOptions } from "./helpers/access-rule-deactivate-confirm";
 export { rulesChangingEnabled } from "./helpers/rules-changing-enabled";
