@@ -16,6 +16,8 @@ import {
   rulesChangingEnabled,
 } from "..";
 
+import { GovernedCollectionsService } from "./governed-collections.service";
+
 /**
  * Page-level data service for the access rules table: owns the org's rule list and
  * collections, loads them, and performs the CRUD mutations (enable/disable, delete,
@@ -31,6 +33,7 @@ export class AccessRulesService {
   private readonly pamApi = inject(AccessRuleSdkService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
@@ -72,7 +75,8 @@ export class AccessRulesService {
    *
    * The copy is persisted immediately — the admin never gets a chance to abandon it — so the
    * name must already be free of collisions; {@link copyRuleName} is what makes it so. The copy
-   * governs no collections; see {@link accessRuleToCopyRequest} for why.
+   * governs no collections; see {@link accessRuleToCopyRequest} for why — so it can't change
+   * governance, and needn't invalidate {@link GovernedCollectionsService}'s cache.
    */
   async copy(rule: AccessRuleView, name: string): Promise<AccessRuleView> {
     const created = await this.pamApi.createAccessRule(
@@ -83,34 +87,50 @@ export class AccessRulesService {
     return created;
   }
 
-  /** Toggle a single rule's enabled flag, patching local state with the result. */
+  /**
+   * Toggle a single rule's enabled flag, patching local state with the result.
+   *
+   * Invalidates {@link GovernedCollectionsService}'s cache. The governed set itself doesn't move —
+   * the server keys governance off `Collection.AccessRuleId`, not `enabled` — but the cache holds
+   * the rule objects, and `rulesGoverningCollection` filters those on `enabled`. Without this, the
+   * collection dialog's callout and the vault's gated banner keep naming a rule the admin has just
+   * deactivated.
+   */
   async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
+    const organizationId = this.requireOrganizationId();
     const updated = await this.pamApi.updateAccessRule(
-      this.requireOrganizationId(),
+      organizationId,
       rule.id,
       accessRuleToRequest(rule, enabled),
     );
+    this.governedCollections.invalidate(organizationId);
     this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
   }
 
   /**
    * Enable/disable many rules at once, skipping rules already in the target state.
    * Returns the number of rules actually changed (0 when none needed updating).
+   *
+   * Same invalidation reasoning as {@link setEnabled}; the early return keeps a no-op toggle from
+   * dropping a still-valid cached read.
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
     const targets = rulesChangingEnabled(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }
-    const updated = await Promise.all(
-      targets.map((rule) =>
-        this.pamApi.updateAccessRule(
-          this.requireOrganizationId(),
-          rule.id,
-          accessRuleToRequest(rule, enabled),
+    const organizationId = this.requireOrganizationId();
+    let updated;
+    try {
+      updated = await Promise.all(
+        targets.map((rule) =>
+          this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
         ),
-      ),
-    );
+      );
+    } finally {
+      // A partial toggle still changed what `rulesGoverningCollection` reports; see {@link deleteMany}.
+      this.governedCollections.invalidate(organizationId);
+    }
     const byId = new Map(
       updated.map((r: AccessRuleView): [string, AccessRuleView] => [uuidAsString(r.id), r]),
     );
@@ -118,17 +138,35 @@ export class AccessRulesService {
     return updated.length;
   }
 
-  /** Delete a single rule, dropping it from local state. */
+  /**
+   * Delete a single rule, dropping it from local state.
+   *
+   * Invalidates {@link GovernedCollectionsService}'s cache so the freed collections reappear in
+   * the picker; see that service's `invalidate` doc.
+   */
   async delete(rule: AccessRuleView): Promise<void> {
-    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id);
+    const organizationId = this.requireOrganizationId();
+    await this.pamApi.deleteAccessRule(organizationId, rule.id);
+    this.governedCollections.invalidate(organizationId);
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
-  /** Delete many rules at once, dropping them all from local state. */
+  /**
+   * Delete many rules at once, dropping them all from local state. Invalidates once, see
+   * {@link delete}.
+   *
+   * Invalidates whatever the outcome: `Promise.all` rejects on the first failure but its siblings
+   * still land server-side, so a partial delete has freed collections even though this throws.
+   * An unnecessary invalidation costs one extra read; a missed one costs the whole
+   * {@link CACHE_TTL_MS} window with no in-app remedy.
+   */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
-    await Promise.all(
-      rules.map((rule) => this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id)),
-    );
+    const organizationId = this.requireOrganizationId();
+    try {
+      await Promise.all(rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)));
+    } finally {
+      this.governedCollections.invalidate(organizationId);
+    }
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
   }
