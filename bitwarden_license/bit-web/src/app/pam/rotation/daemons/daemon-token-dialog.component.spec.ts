@@ -20,7 +20,7 @@ describe("DaemonTokenDialogComponent", () => {
 
   const params: DaemonTokenDialogParams = {
     daemonName: "Prod Daemon",
-    token: "0.daemon.api-id.secret:keyb64==",
+    token: "0.access-connector.api-id.secret:keyb64==",
   };
 
   beforeEach(async () => {
