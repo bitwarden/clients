@@ -461,33 +461,31 @@
                     @if (u.canConfirm || u.canReinvite || u.canSendInvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
-                    @if (u.canManageMember) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
+                    >
+                      <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
+                    </button>
+                    @if (organization.useGroups) {
                       <button
                         type="button"
                         bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
+                        <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
                       </button>
-                      @if (organization.useGroups) {
-                        <button
-                          type="button"
-                          bitMenuItem
-                          (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
-                        >
-                          <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
-                        </button>
-                      }
-                      <button
-                        type="button"
-                        bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
-                      >
-                        <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
-                        {{ "collections" | vfo1I18n: "sharedFolders" }}
-                      </button>
-                      <bit-menu-divider></bit-menu-divider>
                     }
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
+                    >
+                      <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+                      {{ "collections" | vfo1I18n: "sharedFolders" }}
+                    </button>
+                    <bit-menu-divider></bit-menu-divider>
                     @if (organization.useEvents && u.status === userStatusType.Confirmed) {
                       <button
                         type="button"
