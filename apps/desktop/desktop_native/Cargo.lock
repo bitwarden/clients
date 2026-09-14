@@ -487,7 +487,6 @@ dependencies = [
 name = "biometric"
 version = "0.0.0"
 dependencies = [
- "aes 0.8.4",
  "anyhow",
  "bitwarden-crypto",
  "bitwarden-random",
@@ -658,28 +657,6 @@ dependencies = [
  "rand 0.10.2",
  "thiserror 2.0.17",
  "uuid",
-]
-
-[[package]]
-name = "bitwarden-russh"
-version = "0.1.0"
-source = "git+https://github.com/bitwarden/bitwarden-russh.git?rev=a641316227227f8777fdf56ac9fa2d6b5f7fe662#a641316227227f8777fdf56ac9fa2d6b5f7fe662"
-dependencies = [
- "anyhow",
- "byteorder",
- "ecdsa",
- "ed25519-dalek 2.2.0",
- "futures",
- "p256",
- "p384",
- "p521",
- "rsa 0.9.6",
- "russh-cryptovec",
- "ssh-encoding",
- "ssh-key",
- "thiserror 1.0.69",
- "tokio",
- "tokio-util",
 ]
 
 [[package]]
@@ -1345,7 +1322,6 @@ dependencies = [
  "fiat-crypto 0.2.9",
  "rustc_version",
  "subtle",
- "zeroize",
 ]
 
 [[package]]
@@ -1536,14 +1512,11 @@ dependencies = [
 name = "desktop_core"
 version = "0.0.0"
 dependencies = [
- "aes 0.8.4",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
  "base64",
- "bitwarden-russh",
  "bytes",
- "cbc 0.1.2",
  "core-foundation",
  "desktop_objc",
  "dirs",
@@ -1552,9 +1525,6 @@ dependencies = [
  "interprocess",
  "libc",
  "oo7",
- "pin-project",
- "rand 0.9.3",
- "rsa 0.9.6",
  "scopeguard",
  "secmem-proc",
  "security-framework",
@@ -1563,13 +1533,10 @@ dependencies = [
  "serde_json",
  "serde_with",
  "sha2 0.10.9",
- "ssh-key",
- "sysinfo",
  "thiserror 2.0.17",
  "tokio",
  "tokio-util",
  "tracing",
- "typenum",
  "widestring",
  "win_webauthn",
  "windows 0.62.2",
@@ -1766,7 +1733,6 @@ version = "2.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "115531babc129696a58c64a4fef0a8bf9e9698629fb97e9e40767d235cfbcd53"
 dependencies = [
- "pkcs8 0.10.2",
  "signature 2.2.0",
 ]
 
@@ -1787,11 +1753,8 @@ checksum = "70e796c081cee67dc755e1a36a0a172b897fab85fc3f6bc48307991f64e4eca9"
 dependencies = [
  "curve25519-dalek 4.1.3",
  "ed25519 2.2.3",
- "serde",
  "sha2 0.10.9",
- "signature 2.2.0",
  "subtle",
- "zeroize",
 ]
 
 [[package]]
@@ -1826,8 +1789,6 @@ dependencies = [
  "ff",
  "generic-array",
  "group",
- "hkdf 0.12.4",
- "pem-rfc7468 0.7.0",
  "pkcs8 0.10.2",
  "rand_core 0.6.4",
  "sec1",
@@ -3635,26 +3596,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pin-project"
-version = "1.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "677f1add503faace112b9f1373e43e9e054bfdd22ff1a63c1bc485eaec6a6a8a"
-dependencies = [
- "pin-project-internal",
-]
-
-[[package]]
-name = "pin-project-internal"
-version = "1.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e918e4ff8c4549eb882f14b3a4bc8c8bc93de829416eacf579f1207a8fbf861"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.118",
-]
-
-[[package]]
 name = "pin-project-lite"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4282,16 +4223,6 @@ dependencies = [
  "libsqlite3-sys",
  "smallvec",
  "sqlite-wasm-rs",
-]
-
-[[package]]
-name = "russh-cryptovec"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fadd2c0ab350e21c66556f94ee06f766d8bdae3213857ba7610bfd8e10e51880"
-dependencies = [
- "libc",
- "winapi",
 ]
 
 [[package]]

@@ -5,10 +5,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import {
-  TwoFactorAuthSecurityKeyIcon,
-  TwoFactorAuthSecurityKeyFailedIcon,
-} from "@bitwarden/assets/svg";
+import { SecurityKeyIcon, SecurityKeyWarningIcon } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
@@ -58,8 +55,8 @@ export class LoginViaWebAuthnComponent implements OnInit {
   private shouldAutoClosePopout = false;
 
   protected readonly Icons = {
-    TwoFactorAuthSecurityKeyIcon,
-    TwoFactorAuthSecurityKeyFailedIcon,
+    SecurityKeyIcon,
+    SecurityKeyWarningIcon,
   };
 
   private readonly successRoutes: Record<ClientType, string> = {
@@ -164,13 +161,13 @@ export class LoginViaWebAuthnComponent implements OnInit {
 
   private setDefaultIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon, // layout decides whether to render it via hidePageIcon
+      pageIcon: this.Icons.SecurityKeyIcon, // layout decides whether to render it via hidePageIcon
     });
   }
 
   private setFailureIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon, // layout decides whether to render it via hidePageIcon
+      pageIcon: this.Icons.SecurityKeyWarningIcon, // layout decides whether to render it via hidePageIcon
     });
   }
 }

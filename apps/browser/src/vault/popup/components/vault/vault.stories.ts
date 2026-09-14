@@ -2,9 +2,9 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { applicationConfig, componentWrapperDecorator, Meta, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -67,7 +67,12 @@ import {
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
-import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  VaultCopyButtonsService,
+  VaultNavItemType,
+  VaultNavService,
+} from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
 import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
@@ -417,13 +422,15 @@ const buildProviders = (args: StoryArgs) => {
         favoriteCiphers$: of(populated ? FAVORITE_CIPHERS : []),
         remainingCiphers$: of(populated ? ALL_ITEM_CIPHERS : []),
         filteredCiphers$: of(allItems),
+        // The folder chip's options come from the unsearched list, not the rendered rows.
+        activeCiphers$: of(allItems),
         autoFillCiphers$: of(populated ? AUTOFILL_CIPHERS : []),
         cipherCount$: of(allItems.length),
         searchText$: of(""),
         loading$: of(false),
         // Drives the autofill section's type grouping and its empty-state tip.
         hasFilterApplied$: of(false),
-        applyFilter: () => {},
+        applyFilter: () => { },
       },
     },
     {
@@ -454,11 +461,46 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     {
+      // The header's vault switcher reads the account's vaults; two entries render the switcher.
+      provide: VaultNavService,
+      useValue: {
+        viewModel$: () =>
+          of({
+            vaults: [
+              {
+                id: MY_VAULT_ID,
+                type: VaultNavItemType.Personal,
+                label: "My vault",
+                icon: "bwi-user",
+                // The real nav puts the avatar color here. Not `brand` — All items already is.
+                color: "coral",
+              },
+              {
+                id: STORY_ORG_ID,
+                type: VaultNavItemType.Organization,
+                label: "Acme Co",
+                icon: "bwi-business",
+              },
+            ],
+            organizationDataOwnership: false,
+          }),
+      },
+    },
+    {
       provide: VaultPopupListTableFiltersService,
       useValue: {
         restoreFilters$: () => of({}),
-        saveFilters: () => {},
+        saveFilters: () => { },
         cachedFilters: signal({}),
+        clearVaultScopedFilters: () => { },
+        vaultScopedFiltersCleared$: NEVER,
+        suspended$: () => of(false),
+        selectedFilters$: of({
+          cipherType: null,
+          organization: [] as string[],
+          collection: [] as string[],
+          folder: [] as string[],
+        }),
         selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
@@ -470,7 +512,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => {}, stop: () => {} },
+      useValue: { start: () => { }, stop: () => { } },
     },
     {
       provide: NudgesService,
@@ -515,7 +557,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: SyncService, useValue: { fullSync: () => Promise.resolve(true) } },
     // The real CDK announcer tears its live element down with the first fixture, so later ones
     // would announce into a detached node.
-    { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
+    { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => { } } },
     {
       provide: IntroCarouselService,
       useValue: { setIntroCarouselDismissed: () => Promise.resolve() },
@@ -613,7 +655,7 @@ const buildProviders = (args: StoryArgs) => {
     },
     {
       provide: AvatarService,
-      useValue: { avatarColor$: of("#175DDC") },
+      useValue: { avatarColor$: of("coral") },
     },
     {
       provide: AuthService,
@@ -628,11 +670,11 @@ const buildProviders = (args: StoryArgs) => {
     // Pulled in by the real `DialogService`, which is reachable via component-level providers.
     {
       provide: LogService,
-      useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
+      useValue: { debug: () => { }, info: () => { }, warning: () => { }, error: () => { } },
     },
     { provide: TotpService, useValue: {} },
     { provide: PasswordRepromptService, useValue: {} },
-    { provide: ToastService, useValue: { showToast: () => {} } },
+    { provide: ToastService, useValue: { showToast: () => { } } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
     { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve() } },
     {
@@ -649,7 +691,12 @@ const buildProviders = (args: StoryArgs) => {
     },
     {
       provide: ActivatedRoute,
-      useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
+      useValue: {
+        snapshot: { queryParams: {}, paramMap: new Map() },
+        queryParams: of({}),
+        // `vaultScope` combines this in a field initializer, so it must be a stream.
+        paramMap: of(convertToParamMap({})),
+      },
     },
     {
       provide: I18nService,

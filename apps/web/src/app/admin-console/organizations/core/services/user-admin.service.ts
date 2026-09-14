@@ -10,10 +10,9 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
-import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
-@Injectable({ providedIn: CoreOrganizationModule })
+@Injectable({ providedIn: "root" })
 export class UserAdminService {
   constructor(
     private organizationUserApiService: OrganizationUserApiService,
