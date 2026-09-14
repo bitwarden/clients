@@ -27,6 +27,7 @@ import { StateProvider } from "@bitwarden/state";
 
 import { AutoUnlockService } from "./auto-unlock.service";
 import { DefaultUnlockService } from "./default-unlock.service";
+import { UnlockMethod } from "./unlock-method.enum";
 
 const mockUserId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
 const mockEmail = "test@example.com";
@@ -355,6 +356,51 @@ describe("DefaultUnlockService", () => {
       await expect(
         service.unlockWithKeyConnector(mockUserId, mockKeyConnectorUnlockData),
       ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("runOnUnlockActions", () => {
+    it("runs the registered actions when the service performs an unlock", async () => {
+      const userEncryptionKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
+      mockCrypto.get_user_encryption_key.mockResolvedValue(userEncryptionKey.toBase64());
+      const action = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(action);
+
+      await service.unlockWithPin(mockUserId, mockPin);
+
+      expect(action).toHaveBeenCalledWith(
+        mockUserId,
+        expect.any(SymmetricCryptoKey),
+        UnlockMethod.Pin,
+      );
+    });
+
+    it("emits on unlocked$ for both", async () => {
+      const emissions: unknown[] = [];
+      service.unlocked$.subscribe((e) => emissions.push(e));
+
+      await service.unlockWithPin(mockUserId, mockPin);
+      await service.runOnUnlockActions(
+        mockUserId,
+        new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey,
+        UnlockMethod.SharedUnlock,
+      );
+
+      expect(emissions).toEqual([
+        { userId: mockUserId, method: UnlockMethod.Pin },
+        { userId: mockUserId, method: UnlockMethod.SharedUnlock },
+      ]);
+    });
+
+    it("runs the registered actions for an unlock performed elsewhere", async () => {
+      const userKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+      const action = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(action);
+
+      await service.runOnUnlockActions(mockUserId, userKey, UnlockMethod.Pin);
+
+      expect(action).toHaveBeenCalledWith(mockUserId, userKey, UnlockMethod.Pin);
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
     });
   });
 

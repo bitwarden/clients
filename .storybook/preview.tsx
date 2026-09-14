@@ -7,8 +7,8 @@ import type { Preview } from "@storybook/angular";
 import {
   featureFlagDecorator,
   FEATURE_FLAG_CATALOG,
-  FEATURE_FLAGS_CATALOG_GLOBAL,
   FEATURE_FLAGS_GLOBAL,
+  FEATURE_FLAGS_PARAM,
 } from "@bitwarden/storybook";
 
 import docJson from "../documentation.json";
@@ -66,13 +66,14 @@ const preview: Preview = {
     backgrounds: {
       disabled: true,
     },
+    // Published here (the preview can read the enum) so the manager's Feature
+    // Flags panel can render the catalog without importing `@bitwarden/*`.
+    // A parameter rather than a global: parameters are never diffed or written
+    // to the URL, so this array survives the boundary intact.
+    [FEATURE_FLAGS_PARAM]: { catalog: FEATURE_FLAG_CATALOG },
   },
   initialGlobals: {
     [FEATURE_FLAGS_GLOBAL]: [],
-    // Seeded here (preview can read the enum) so the manager panel can read the
-    // catalog from globals without importing `@bitwarden/*`. Unchanged globals
-    // stay out of the URL, so this large value never bloats story links.
-    [FEATURE_FLAGS_CATALOG_GLOBAL]: FEATURE_FLAG_CATALOG,
   },
   tags: ["autodocs"],
 };

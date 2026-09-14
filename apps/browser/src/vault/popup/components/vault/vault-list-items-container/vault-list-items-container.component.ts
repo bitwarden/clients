@@ -135,12 +135,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * to estimate how many items can be displayed at once and how large the virtual container should be.
    * Needs to be updated if the item height or spacing changes.
    *
-   * Default: 52px + 1px border + 6px bottom margin = 59px
+   * Default: 52px + 2px border + 6px bottom margin = 60px
    *
    * Compact mode: 52px + 1px border = 53px
    */
   protected readonly itemHeight$ = this.compactModeService.enabled$.pipe(
-    map((enabled) => (enabled ? 53 : 59)),
+    map((enabled) => (enabled ? 53 : 60)),
   );
 
   /**

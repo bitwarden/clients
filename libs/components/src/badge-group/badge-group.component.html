@@ -1,0 +1,48 @@
+<div
+  bitOverflowList
+  [gap]="8"
+  #ovf="bitOverflowList"
+  [class.tw-invisible]="!ovf.ready()"
+  class="tw-flex"
+>
+  <!-- The first badge is pinned so at least one is always visible. -->
+  @for (badge of badges(); track $index) {
+    <span
+      bitBadge
+      bitOverflowItem
+      #ovfItem="bitOverflowItem"
+      [pinned]="$first"
+      [variant]="badge.variant ?? 'primary'"
+      [startIcon]="badge.startIcon"
+      [class]="
+        ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
+      "
+    >
+      {{ badge.label }}
+    </span>
+    <!-- Separates the badge labels from each other for SR. Exists outside of the badge label so
+    that it does not show up in the tooltip -->
+    <span class="tw-sr-only" [hidden]="overflow().includes($index)">,</span>
+  }
+  <button
+    type="button"
+    bit-chip-action
+    bitOverflowTrigger
+    variant="subtle"
+    [label]="'+' + overflow().length"
+    [attr.aria-label]="'showMoreCount' | i18n: overflow().length"
+    [bitPopoverTriggerFor]="overflowPopover"
+  ></button>
+</div>
+
+<bit-popover-panel #overflowPopover [accessibleName]="'showMore' | i18n">
+  <div class="tw-flex tw-flex-col tw-items-start tw-gap-4">
+    @for (badge of overflowBadges(); track $index) {
+      <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
+        {{ badge.label }}
+      </span>
+      <!-- Separates the badge labels from each other for SR. -->
+      <span class="tw-sr-only">,</span>
+    }
+  </div>
+</bit-popover-panel>

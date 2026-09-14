@@ -173,6 +173,10 @@ describe("OverlayBackground", () => {
     const authServiceForDomain = mock<AuthService>();
     authServiceForDomain.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
 
+    // fillAssistPolicy$ (feeding resolvedEnableFillAssist$) subscribes to
+    // policyService.policiesByType$; default the mock to an empty stream.
+    policyService.policiesByType$.mockReturnValue(of([]));
+
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
@@ -3800,6 +3804,53 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(copyToClipboardSpy).toHaveBeenCalledWith("totp-code");
+      });
+
+      it("copies the cipher's totp code via fallback when the fill produced no target", async () => {
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        const copyToClipboardSpy = jest
+          .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
+          .mockImplementation();
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+        autofillService.getTotpCopyCode.mockResolvedValue("fallback-totp");
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(autofillService.getTotpCopyCode).toHaveBeenCalledWith(cipher2);
+        expect(copyToClipboardSpy).toHaveBeenCalledWith("fallback-totp");
+      });
+
+      it("does not copy anything when the fill produced no target and the fallback helper declines to return a code", async () => {
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        const copyToClipboardSpy = jest
+          .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
+          .mockImplementation();
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+        autofillService.getTotpCopyCode.mockResolvedValue(undefined);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(copyToClipboardSpy).not.toHaveBeenCalled();
       });
 
       describe("triggering passkey authentication", () => {

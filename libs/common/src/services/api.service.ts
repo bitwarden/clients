@@ -121,6 +121,8 @@ export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
 };
 
+export const EventUploadBatchSize = 100;
+
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
  * api services. The `send` method is still allowed to be used within api services. For background
@@ -1179,7 +1181,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
-  async postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any> {
+  async postEventsCollect(requests: EventRequest[], userId?: UserId): Promise<EventRequest[]> {
     const authHeader = await this.tokenService.getAccessToken(userId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
@@ -1189,24 +1191,41 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-
     const env = await firstValueFrom(
       userId == null
         ? this.environmentService.environment$
         : this.environmentService.getEnvironment$(userId),
     );
-    const response = await this.fetch(
-      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
-        cache: "no-store",
-        credentials: await this.getCredentials(env),
-        method: "POST",
-        body: JSON.stringify(request),
-        headers: headers,
-      }),
-    );
-    if (response.status !== 200) {
-      return Promise.reject("Event post failed.");
+
+    // Break uploads into chunks of {EventUploadBatchSize} events
+    let bail = false;
+    const failedRequests: EventRequest[] = [];
+    for (const eventRequests of Utils.chunkArray(requests, EventUploadBatchSize)) {
+      // We only fail once per set of uploads
+      if (bail) {
+        failedRequests.push(...eventRequests);
+        continue;
+      }
+
+      try {
+        const response = await this.fetch(
+          this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
+            cache: "no-store",
+            credentials: await this.getCredentials(env),
+            method: "POST",
+            body: JSON.stringify(eventRequests),
+            headers: headers,
+          }),
+        );
+        if (response.status !== 200) {
+          throw new Error("Event post failed.");
+        }
+      } catch {
+        bail = true;
+        failedRequests.push(...eventRequests);
+      }
     }
+    return failedRequests;
   }
 
   // User APIs
