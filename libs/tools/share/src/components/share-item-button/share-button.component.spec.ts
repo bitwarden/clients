@@ -6,7 +6,6 @@ import { BehaviorSubject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ShareLinkService } from "../../services/share-link.service";
 
@@ -16,17 +15,14 @@ describe("ShareButtonComponent", () => {
   let fixture: ComponentFixture<ShareButtonComponent>;
   let canBeShared: BehaviorSubject<boolean>;
   let shareLinkService: MockProxy<ShareLinkService>;
-  let passwordRepromptService: MockProxy<PasswordRepromptService>;
 
   const button = (fixture: ComponentFixture<ShareButtonComponent>) =>
     fixture.debugElement.query(By.css("button"));
 
   beforeEach(async () => {
     shareLinkService = mock<ShareLinkService>();
-    passwordRepromptService = mock<PasswordRepromptService>();
     canBeShared = new BehaviorSubject(true);
     shareLinkService.cipherCanBeShared$.mockReturnValue(canBeShared.asObservable());
-    passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key) => key);
@@ -37,7 +33,6 @@ describe("ShareButtonComponent", () => {
         { provide: ShareLinkService, useValue: shareLinkService },
         { provide: I18nService, useValue: i18nService },
         { provide: DialogRef, useValue: null },
-        { provide: PasswordRepromptService, useValue: passwordRepromptService },
       ],
     }).compileComponents();
 
@@ -67,7 +62,7 @@ describe("ShareButtonComponent", () => {
 
     expect(shareLinkService.openShareForm).toHaveBeenCalledWith(
       fixture.componentInstance.cipher(),
-      null,
+      false,
     );
   });
 });

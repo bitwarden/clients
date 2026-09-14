@@ -38,7 +38,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -254,7 +254,7 @@ export class ShareLinkService {
     );
   }
 
-  async openShareForm(cipher: CipherViewLike, hostDialog: DialogRef | null): Promise<void> {
+  async openShareForm(cipher: CipherViewLike, skipReprompt = false): Promise<void> {
     const clientType = this.platformService.getClientType();
     if (clientType === ClientType.Cli) {
       return;
@@ -268,20 +268,19 @@ export class ShareLinkService {
       return;
     }
     this.setCipher(cipherView.id as CipherId);
+    if (!skipReprompt) {
+      const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+      if (!repromptPassed) {
+        return;
+      }
+    }
     if (clientType === ClientType.Browser) {
       await this.router.navigate(["/share-item"], { queryParams: { cipherId: cipherView.id } });
     } else {
       // Web/Desktop
-      if (hostDialog == null && cipher.reprompt === CipherRepromptType.Password) {
-        const pwdEntered = await this.passwordRepromptService.showPasswordPrompt();
-        if (!pwdEntered) {
-          return;
-        }
-      }
       await this.dialogService.openDrawer(ShareItemDrawerComponent, {
         data: { cipher: cipherView },
       });
-      await hostDialog?.close();
     }
   }
 

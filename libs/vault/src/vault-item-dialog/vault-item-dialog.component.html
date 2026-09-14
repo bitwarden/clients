@@ -14,7 +14,11 @@
         [collections]="collections"
         [isAdminConsole]="formConfig.isAdminConsole"
       >
-        <app-share-button [cipher]="cipher" slot="button"></app-share-button>
+        <app-share-button
+          [cipher]="cipher"
+          slot="button"
+          [skipPasswordPrompt]="true"
+        ></app-share-button>
       </app-cipher-view>
     }
 

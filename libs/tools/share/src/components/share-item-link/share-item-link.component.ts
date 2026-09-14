@@ -5,7 +5,6 @@ import { switchMap } from "rxjs";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ButtonModule, IconComponent, MenuModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ShareLinkService } from "../../services/share-link.service";
 
@@ -31,9 +30,10 @@ export class ShareItemLinkComponent {
   readonly cipher = input.required<CipherViewLike>();
   /** Whether to show the leading icon */
   readonly showIcon = input<boolean>(true);
+  /** Whether to skip the master password reprompt when opening the share form */
+  readonly skipPasswordPrompt = input<boolean>(false);
 
   private readonly shareLinkService = inject(ShareLinkService);
-  private readonly passwordRepromptService = inject(PasswordRepromptService);
 
   protected readonly canShare = toSignal(
     toObservable(this.cipher).pipe(
@@ -43,10 +43,6 @@ export class ShareItemLinkComponent {
   );
 
   protected async share(): Promise<void> {
-    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher());
-    if (!repromptPassed) {
-      return;
-    }
-    await this.shareLinkService.openShareForm(this.cipher(), null);
+    await this.shareLinkService.openShareForm(this.cipher(), this.skipPasswordPrompt());
   }
 }
