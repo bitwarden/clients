@@ -7,30 +7,29 @@
 </div>
 
 @if (historyLoaded() && canSwitchScope()) {
-  <div class="tw-mb-4 tw-flex tw-justify-end">
-    <bit-toggle-group
-      [selected]="scope()"
-      (selectedChange)="selectScope($event)"
-      [label]="'pamHistoryScopeLabel' | i18n"
+  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+    <bit-filter-menu
+      #historyScopeFilter
+      key="historyScope"
+      [placeholderText]="'pamHistoryScopeLabel' | i18n"
+      [unsetLabel]="'pamHistoryScopeAll' | i18n"
+      data-testid="history-scope-filter"
     >
-      <bit-toggle [value]="HistoryScope.All" data-testid="history-scope-all">
-        {{ "pamHistoryScopeAll" | i18n }}
-      </bit-toggle>
-      <bit-toggle [value]="HistoryScope.Mine" data-testid="history-scope-mine">
-        {{ "pamHistoryScopeMine" | i18n }}
-      </bit-toggle>
-      <bit-toggle [value]="HistoryScope.Managed" data-testid="history-scope-managed">
-        {{ "pamHistoryScopeManaged" | i18n }}
-      </bit-toggle>
-    </bit-toggle-group>
+      <bit-filter-option [value]="HistoryScope.Mine">{{
+        "pamHistoryScopeMine" | i18n
+      }}</bit-filter-option>
+      <bit-filter-option [value]="HistoryScope.Managed">{{
+        "pamHistoryScopeManaged" | i18n
+      }}</bit-filter-option>
+    </bit-filter-menu>
   </div>
 }
 
 @if (!historyLoaded()) {
   @if (skeletonVisible()) {
     <div data-testid="history-loading" aria-hidden="true">
-      <div class="tw-mb-4 tw-flex tw-justify-end">
-        <bit-skeleton class="tw-h-10 tw-w-64"></bit-skeleton>
+      <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+        <bit-skeleton edgeShape="circle" class="tw-h-8 tw-w-56"></bit-skeleton>
       </div>
 
       <bit-table>
