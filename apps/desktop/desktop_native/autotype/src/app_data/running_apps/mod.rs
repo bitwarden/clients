@@ -26,3 +26,23 @@ pub fn get_running_apps() -> Result<Vec<AppData>> {
 pub fn get_running_apps() -> Result<Vec<AppData>> {
     unimplemented!("Autotype is not supported on non-Windows platforms")
 }
+
+/// Returns the [`AppData`] for the currently active (foreground) application.
+///
+/// # Errors
+///
+/// Returns an error if there is no foreground window, or the active window cannot be resolved.
+#[cfg(windows)]
+pub fn get_active_app() -> Result<AppData> {
+    windows::get_active_app()
+}
+
+/// Returns the [`AppData`] for the currently active (foreground) application.
+///
+/// # Panics
+///
+/// Always panics — Autotype is not supported on non-Windows platforms.
+#[cfg(not(windows))]
+pub fn get_active_app() -> Result<AppData> {
+    unimplemented!("Autotype is not supported on non-Windows platforms")
+}

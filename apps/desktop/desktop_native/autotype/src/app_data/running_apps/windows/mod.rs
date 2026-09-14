@@ -7,12 +7,14 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
+use anyhow::{anyhow, Result};
 use tracing::{debug, error, warn};
 use windows::{
     core::GUID,
     Win32::{
-        Foundation::{PROPERTYKEY, RPC_E_CHANGED_MODE},
+        Foundation::{HWND, PROPERTYKEY, RPC_E_CHANGED_MODE},
         System::Com::{CoInitializeEx, CoUninitialize, COINIT_APARTMENTTHREADED},
+        UI::WindowsAndMessaging::GetForegroundWindow,
     },
 };
 
@@ -94,18 +96,14 @@ impl RunningApp {
     }
 }
 
-/// Windows implementation of [`super::get_running_apps`]. Infallible — collection and
-/// filtering degrade to empty/skip on any OS-query failure.
+/// Run function `f` inside a COM single-threaded apartment (STA). Reading window property stores /
+/// AppsFolder / AppDiagnosticInfo needs COM, so this initializes an STA for the duration of the
+/// call and balances it with a matching `CoUninitialize`.
 ///
-/// Reading window property stores / AppsFolder / AppDiagnosticInfo needs COM, so this
-/// initializes a single-threaded apartment (STA) for the duration of the call and balances it
-/// with a matching `CoUninitialize`.
-///
-/// If the calling thread was already initialized in a
-/// different apartment (`RPC_E_CHANGED_MODE`) COM stays usable in that apartment and no
-/// reference is released; any other initialization failure leaves the shell/WinRT calls to
-/// fail their `Result`s, degrading to an empty list.
-pub(super) fn get_running_apps() -> Vec<AppData> {
+/// If the calling thread was already initialized in a different apartment (`RPC_E_CHANGED_MODE`)
+/// COM stays usable in that apartment and no reference is released; any other initialization
+/// failure leaves the shell/WinRT calls to fail their `Result`s, degrading gracefully.
+fn with_com<T>(f: impl FnOnce() -> T) -> T {
     // S_OK / S_FALSE add an initialization reference on this thread that we own and must
     // release; RPC_E_CHANGED_MODE does not (the thread keeps its existing apartment).
     // <https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex>
@@ -115,18 +113,58 @@ pub(super) fn get_running_apps() -> Vec<AppData> {
     if !owns_com && hr_result != RPC_E_CHANGED_MODE {
         warn!(
             ?hr_result,
-            "CoInitializeEx failed; running-app enumeration may be empty"
+            "CoInitializeEx failed; COM-dependent enumeration may be empty"
         );
     }
 
-    let apps = enumerate();
+    let out = f();
 
     if owns_com {
         // SAFETY: only run on successful CoInitializeEx result.
         unsafe { CoUninitialize() };
     }
 
-    apps
+    out
+}
+
+pub(super) fn get_running_apps() -> Vec<AppData> {
+    with_com(enumerate)
+}
+
+/// Retreive the current foreground window handle, or an error when there is none (or it is invalid).
+fn foreground_window() -> Result<HWND> {
+    // SAFETY: GetForegroundWindow only reads global UI state and returns a null handle when there
+    // is no foreground window (e.g. during a focus transition).
+    // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow>
+    let hwnd = unsafe { GetForegroundWindow() };
+    debug!("GetForegroundWindow() called.");
+
+    if hwnd.is_invalid() {
+        return Err(anyhow!("no foreground window"));
+    }
+    Ok(hwnd)
+}
+
+/// Resolves the current foreground window to a
+/// single [`AppData`] using the same identity resolution, exclusion policy, and path normalization
+/// as [`get_running_apps`].
+pub(super) fn get_active_app() -> Result<AppData> {
+    with_com(|| {
+        let hwnd = foreground_window()?;
+        let registry = appsfolder::load();
+
+        let raw = collect::resolve_window(hwnd, true)
+            .ok_or_else(|| anyhow!("could not resolve the foreground window's process"))?;
+        let (_key, running) = collect::window_to_running_app(&raw, &registry);
+
+        let normalizer = build_normalizer();
+        filter::apply(vec![running])
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow!("active window is not a pairable app"))?
+            .into_app_data(&normalizer)
+            .ok_or_else(|| anyhow!("active app is missing a display name or path"))
+    })
 }
 
 /// Collect → filter → sort → reduce to the public [`AppData`] shape.
