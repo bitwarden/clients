@@ -1,8 +1,9 @@
 import type { AccessRuleId, AccessRuleView } from "../abstractions/access-rule";
 
 /**
- * Mirrors `AccessRuleWriteValidator`, which ignores whether the owning rule is enabled, so
- * filtering on `enabled` here would leave a rejection unnamed.
+ * The selected collections some rule other than `existingRuleId` already governs, mirroring
+ * `AccessRuleWriteValidator`'s check — which reads the collection's link without regard to whether
+ * the owning rule is enabled, so filtering on `enabled` here would leave a rejection unnamed.
  */
 export function conflictingCollectionIds(
   rules: readonly AccessRuleView[],
