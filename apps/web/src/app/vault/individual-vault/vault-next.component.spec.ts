@@ -237,7 +237,7 @@ describe("VaultNextComponent", () => {
     i18nService.collator = undefined;
 
     const organizationService = mock<OrganizationService>();
-    organizationService.organizations$.mockReturnValue(organizations$);
+    organizationService.memberOrganizations$.mockReturnValue(organizations$);
 
     const policyService = mock<PolicyService>();
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
