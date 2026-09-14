@@ -16,7 +16,7 @@
     "message": "所有密码库项目"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "我的项目"
   },
   "vaults": {
     "message": "密码库"
@@ -2423,6 +2423,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 个结果",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ 个结果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "没有匹配「$SEARCH$」的筛选",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "清除搜索"
@@ -6274,13 +6298,82 @@
     "message": "回收站中没有项目"
   },
   "noItemsInTrashDesc": {
-    "message": "您删除的项目将显示在这里，并在 30 天后永久删除"
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除"
+  },
+  "noItemsInTrashDescription": {
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除。"
   },
   "noItemsInVault": {
     "message": "密码库中没有项目"
   },
+  "noItemsInMyVault": {
+    "message": "「我的密码库」中没有项目"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "「我的项目」中没有项目"
+  },
+  "noItemsInVaults": {
+    "message": "您的密码库是空的"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "没有匹配所选筛选规则的项目"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "没有匹配「$SEARCH_TERM$」的项目",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
+  "emptySharedFolderDescription": {
+    "message": "将项目添加到此共享文件夹，然后授予其他 $VAULT_NAME$ 成员访问权限。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "「我的项目」是您的私人空间，用于存储由 $VAULT_NAME$ 拥有、但其他成员不可见的项目。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "您没有文件夹。"
+  },
+  "emptyFoldersDescription": {
+    "message": "使用文件夹来整理密码库项目。这些文件夹仅供您使用 - 其他人无法看到或使用它们。"
+  },
+  "emptyVaultsDescription": {
+    "message": "添加登录、ID、支付卡和其他项目以开始使用。"
   },
   "emptyFavorites": {
     "message": "您没有收藏任何项目"
