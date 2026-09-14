@@ -20,7 +20,7 @@ import {
   StatusLockupComponent,
   SvgComponent,
 } from "@bitwarden/components";
-import { AddEditFolderDialogComponent, Vfo1I18nPipe } from "@bitwarden/vault";
+import { AddEditFolderDialogComponent, VaultFabComponent, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -43,6 +43,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     AsyncActionsModule,
     Vfo1I18nPipe,
     SvgComponent,
+    VaultFabComponent,
   ],
 })
 export class FoldersComponent {
