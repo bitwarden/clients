@@ -153,6 +153,7 @@ describe("SendView.fromSdkSend", () => {
         text: "Test Send contents",
         hidden: false,
       },
+      data: null,
       hideEmail: false,
       key: null,
       password: null,
@@ -176,6 +177,7 @@ describe("SendView to SdkSendView round trip", () => {
     view.key = key;
     view.text = Object.assign(new SendTextView(), { text: "hello", hidden: false });
     view.file = null;
+    view.data = null;
     view.maxAccessCount = 5;
     view.accessCount = 2;
     view.disabled = false;

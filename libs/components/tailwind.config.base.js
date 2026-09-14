@@ -22,6 +22,7 @@ const libContent = [
   "../../libs/subscription/src/**/*.{html,ts,mdx}",
   "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}",
   "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/share/src/**/*.{html,ts,mdx}",
   "../../libs/vault/src/**/*.{html,ts,mdx}",
 ].map((libPath) => path.resolve(__dirname, libPath));
 
