@@ -31,6 +31,7 @@ import {
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
 
+import { UNEMITTED_AUDIT_KINDS } from "./access-audit-row";
 import { AccessAuditComponent } from "./access-audit.component";
 import { AuditApiService, AuditTrailFilter, AuditTrailPage } from "./audit-api.service";
 import {
@@ -179,6 +180,36 @@ describe("AccessAuditComponent", () => {
             pamAuditKindLeasingKillSwitchTriggered: "Kill switch triggered",
             pamAuditKindLeasingFreezeEnabled: "Leasing frozen",
             pamAuditKindLeasingFreezeLifted: "Leasing unfrozen",
+            pamAuditKindRotationConfigCreated: "Rotation config created",
+            pamAuditKindRotationSettingsUpdated: "Rotation settings updated",
+            pamAuditKindRotationAccountUpdated: "Rotation account updated",
+            pamAuditKindRotationPaused: "Rotation paused",
+            pamAuditKindRotationResumed: "Rotation resumed",
+            pamAuditKindRotationConfigDeleted: "Rotation config deleted",
+            pamAuditKindRotationOffered: "Rotation offered to daemon",
+            pamAuditKindRotationDispatched: "Rotation dispatched",
+            pamAuditKindRotationSucceeded: "Credential rotated",
+            pamAuditKindRotationAttemptFailed: "Rotation attempt failed",
+            pamAuditKindRotationFailed: "Rotation failed",
+            pamAuditKindRotationReleased: "Rotation released",
+            pamAuditKindRotationTimedOut: "Rotation timed out",
+            pamAuditKindRotationWriteRejected: "Vault write rejected",
+            pamAuditKindRotationReportRejected: "Rotation report rejected",
+            pamAuditKindManualRotationDue: "Manual rotation due",
+            pamAuditKindManualRotationRecorded: "Manual rotation recorded",
+            pamAuditKindDaemonRegistered: "Daemon registered",
+            pamAuditKindDaemonRevoked: "Daemon revoked",
+            pamAuditKindDaemonDisabled: "Daemon disabled",
+            pamAuditKindDaemonEnabled: "Daemon enabled",
+            pamAuditKindDaemonDeleted: "Daemon deleted",
+            pamAuditKindDaemonAssigned: "Daemon assigned to target",
+            pamAuditKindDaemonUnassigned: "Daemon unassigned from target",
+            pamAuditKindTargetRegistered: "Target system registered",
+            pamAuditKindTargetDisabled: "Target system disabled",
+            pamAuditKindTargetEnabled: "Target system enabled",
+            pamAuditKindTargetRenamed: "Target system renamed",
+            pamAuditKindTargetPolicyUpdated: "Target password policy updated",
+            pamAuditKindTargetDeleted: "Target system deleted",
             pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
             pamAuditKindUnknown: "Unknown event",
             loadMore: "Load more",
@@ -394,19 +425,53 @@ describe("AccessAuditComponent", () => {
   });
 
   // The Event menu offers every kind regardless of what happens to be loaded on the page.
-  it("offers every event kind, whatever the page happens to hold", async () => {
+  it("offers every emitted event kind, whatever the page happens to hold", async () => {
     returnsTrail([event({ Kind: "requestApproved" })]);
 
     await renderReady();
 
     const options = component().kindOptions();
     expect(options.map((option: any) => option.value).sort()).toEqual(
-      Object.values(AccessAuditEventKind).sort(),
+      Object.values(AccessAuditEventKind)
+        .filter((kind) => !UNEMITTED_AUDIT_KINDS.has(kind))
+        .sort(),
     );
     // Sorted by the label an auditor reads, not by the wire value behind it.
     expect(options.map((option: any) => option.label)).toEqual(
       options.map((option: any) => option.label).sort((a: string, b: string) => a.localeCompare(b)),
     );
+  });
+
+  // PM-43606: selecting one of these could only ever answer with nothing, so the menu does not carry them.
+  it("keeps the kinds no action emits out of the Event menu", async () => {
+    returnsTrail([event({ Kind: "requestApproved" })]);
+
+    await renderReady();
+
+    const values = component()
+      .kindOptions()
+      .map((option: any) => option.value);
+    for (const kind of UNEMITTED_AUDIT_KINDS) {
+      expect(values).not.toContain(kind);
+    }
+    expect(values).toContain(AccessAuditEventKind.RotationSucceeded);
+    expect(values).toContain(AccessAuditEventKind.TargetSystemDeleted);
+  });
+
+  // PM-43606: the rotation and fleet kinds fell through to "Unknown event" while this enum lagged the server's.
+  it("labels a rotation row and a fleet row rather than calling them unknown", async () => {
+    returnsTrail([
+      event({ Kind: "rotationSucceeded", ActorId: null, Automated: true }),
+      event({ Kind: "targetSystemRenamed", ActorId: null, Automated: true }),
+    ]);
+
+    await renderReady();
+
+    expect(
+      component()
+        .rows()
+        .map((row: any) => row.kindLabelKey),
+    ).toEqual(["pamAuditKindRotationSucceeded", "pamAuditKindTargetRenamed"]);
   });
 
   it("offers the same event kinds whichever kinds the page holds", async () => {
@@ -1543,6 +1608,28 @@ describe("AccessAuditComponent", () => {
 
       expect(link("item")).toBeNull();
       expect(cells()[4].textContent).toContain("Production access");
+    });
+
+    // PM-43606: a fleet event names no cipher and no rule, so the Item cell read as a dash.
+    it("names the daemon a fleet event acted on, with its target as the tooltip", async () => {
+      await render([
+        event({
+          Kind: "daemonAssignedToTarget",
+          ActorId: null,
+          Automated: true,
+          TargetSystemName: "prod-postgres-01",
+          DaemonName: "eu-west-rotator",
+        }),
+      ]);
+
+      expect(link("item")).toBeNull();
+      expect(cells()[4].textContent).toContain("eu-west-rotator");
+    });
+
+    it("names the target system when the fleet event has no daemon", async () => {
+      await render([event({ Kind: "targetSystemRenamed", TargetSystemName: "prod-postgres-01" })]);
+
+      expect(cells()[4].textContent).toContain("prod-postgres-01");
     });
 
     // An item outside the viewer's own vault has no decrypted name to render as link text.

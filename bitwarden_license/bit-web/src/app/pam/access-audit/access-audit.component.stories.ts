@@ -58,6 +58,8 @@ function event(overrides: Record<string, unknown>): AccessAuditEventResponse {
     cipherName: null,
     collectionName: null,
     ruleName: null,
+    targetSystemName: null,
+    daemonName: null,
     automated: false,
     incomplete: false,
     ...overrides,
@@ -168,6 +170,77 @@ const EVENTS: AccessAuditEventResponse[] = [
  * Long text shapes that broke the layout: a rule name past sixty characters, and a single
  * token longer than the column cap, which must break mid-word.
  */
+/**
+ * The rotation and fleet half of the trail, which read as a column of "Unknown event" until the client caught up
+ * with the server's vocabulary (PM-43606). Every one is system-driven, and the fleet three name no cipher at all,
+ * so the Item cell falls through to the daemon and the target.
+ */
+const ROTATION_EVENTS: AccessAuditEventResponse[] = [
+  event({
+    kind: AccessAuditEventKind.RotationSucceeded,
+    occurredAt: fromNow(-2 * MINUTE),
+    requestId: null,
+    actorId: null,
+    actorName: null,
+    actorEmail: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    daemonName: "eu-west-rotator",
+    automated: true,
+  }),
+  event({
+    kind: AccessAuditEventKind.RotationAttemptFailed,
+    occurredAt: fromNow(-8 * MINUTE),
+    requestId: null,
+    actorId: null,
+    actorName: null,
+    actorEmail: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    daemonName: "eu-west-rotator",
+    detail: "Connection refused; 2 attempts left.",
+    automated: true,
+  }),
+  event({
+    kind: AccessAuditEventKind.DaemonAssignedToTarget,
+    occurredAt: fromNow(-25 * MINUTE),
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    targetSystemName: "prod-postgres-01",
+    daemonName: "eu-west-rotator",
+    ...APPROVER,
+  }),
+  event({
+    kind: AccessAuditEventKind.TargetSystemRenamed,
+    occurredAt: fromNow(-70 * MINUTE),
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    targetSystemName: "prod-postgres-01",
+    detail: "Renamed from 'pg-primary'.",
+    ...APPROVER,
+  }),
+  event({
+    kind: AccessAuditEventKind.RotationConfigCreated,
+    occurredAt: fromNow(-4 * HOUR),
+    requestId: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    targetSystemName: "prod-postgres-01",
+    ...APPROVER,
+  }),
+];
+
 const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
   event({
     kind: AccessAuditEventKind.RuleDeleted,
@@ -500,6 +573,15 @@ export const LoadError: Story = {
 /** A single event — the trail right after an organization's first request. */
 export const SingleEvent: Story = {
   decorators: [audit({ events: [EVENTS[EVENTS.length - 2]] })],
+};
+
+/**
+ * A trail from an organization with rotation configured, where the daemon- and sweep-driven kinds outnumber the
+ * human ones. Each names its own subject: a rotation the cipher it rotated, a fleet event the daemon and target
+ * it concerned.
+ */
+export const RotationTrail: Story = {
+  decorators: [audit({ events: [...ROTATION_EVENTS, ...EVENTS] })],
 };
 
 /**
