@@ -83,4 +83,29 @@ describe("GovernedCollectionsService", () => {
     await expect(firstValueFrom(service.rules$(ORG_ID))).resolves.toEqual([]);
     expect(logService.error).toHaveBeenCalled();
   });
+
+  it("re-reads on the next call after invalidate, even within the TTL", async () => {
+    accessRules.listAccessRules.mockResolvedValue(RULES);
+
+    await firstValueFrom(service.rules$(ORG_ID));
+    service.invalidate(ORG_ID);
+    await firstValueFrom(service.rules$(ORG_ID));
+
+    expect(accessRules.listAccessRules).toHaveBeenCalledTimes(2);
+  });
+
+  it("invalidating one organization leaves another organization's cached read alone", async () => {
+    accessRules.listAccessRules.mockResolvedValue(RULES);
+
+    await firstValueFrom(service.rules$(ORG_ID));
+    await firstValueFrom(service.rules$("org-2" as OrganizationId));
+    service.invalidate(ORG_ID);
+    await firstValueFrom(service.rules$("org-2" as OrganizationId));
+
+    expect(accessRules.listAccessRules).toHaveBeenCalledTimes(2);
+  });
+
+  it("invalidating an organization with no cached read is a no-op", () => {
+    expect(() => service.invalidate(ORG_ID)).not.toThrow();
+  });
 });
