@@ -53,4 +53,14 @@ export class GovernedCollectionsService {
     this.cache.set(organizationId, { fetchedAt: Date.now(), rules$ });
     return rules$;
   }
+
+  /**
+   * Drop the organization's cached read. Call after any successful access-rule
+   * create/update/delete: otherwise a collection freed (or newly governed) by that write stays
+   * wrong for up to {@link CACHE_TTL_MS}, with no in-app way to force a refresh (root-scoped
+   * cache, SPA navigation).
+   */
+  invalidate(organizationId: OrganizationId): void {
+    this.cache.delete(organizationId);
+  }
 }
