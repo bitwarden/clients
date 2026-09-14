@@ -53,7 +53,8 @@ import { BitTableV2Component } from "./table-v2.component";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
+    class: "tw-block",
+    "[class]": "hostClasses()",
   },
 })
 export class BitTableToolbarComponent {
@@ -114,6 +115,23 @@ export class BitTableToolbarComponent {
     this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
   );
 
+  protected readonly hostClasses = computed(() =>
+    [
+      "tw-border-0",
+      "tw-border-b",
+      "tw-border-solid",
+      "tw-transition-colors",
+      "tw-duration-200",
+      this.isList() && !this.table?.isScrolled()
+        ? "tw-border-transparent"
+        : "tw-border-border-base",
+    ].join(" "),
+  );
+
+  private readonly isList = computed(() => this.table?.presentation() === "list");
+
+  protected readonly insetX = computed(() => (this.isList() ? "tw-px-3" : "tw-px-5"));
+
   /**
    * The chip row. Collapsed, it stays laid out but invisible so `bitOverflowList` can
    * keep measuring it — `display: none` would zero every width and bounce it back open.
@@ -123,12 +141,21 @@ export class BitTableToolbarComponent {
     "tw-flex-wrap",
     "tw-items-center",
     "tw-gap-2",
-    "tw-px-5",
-    "tw-py-3.5",
+    this.insetX(),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5"]),
     "empty:tw-hidden",
     ...(this.collapsed()
       ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]
       : []),
+  ]);
+
+  protected readonly activeFilterRowClasses = computed(() => [
+    "tw-flex",
+    "tw-flex-wrap",
+    "tw-items-center",
+    "tw-gap-2",
+    this.insetX(),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
   ]);
 
   protected readonly searchRowClasses = computed(() => [
@@ -138,8 +165,9 @@ export class BitTableToolbarComponent {
     "tw-gap-3",
     // Row gap for when the `slot=end` controls wrap to their own line below `md`.
     "tw-gap-y-4",
-    "tw-p-5",
-    ...(this.hasFilterRow()
+    ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),
+    this.insetX(),
+    ...(this.hasFilterRow() && !this.isList()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
   ]);

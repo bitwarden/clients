@@ -9,6 +9,7 @@ import {
   AfterContentInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   TrackByFunction,
   booleanAttribute,
   computed,
@@ -21,6 +22,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -30,6 +32,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
+import { ItemComponent } from "../../item/item.component";
+import { ScrollLayoutService } from "../../layout/scroll-layout.directive";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
@@ -48,6 +52,7 @@ import { ColumnName } from "./column";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableDef } from "./table-def";
+import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
@@ -58,8 +63,8 @@ const SELECTION_COLUMN_WIDTH = "56px";
  * Fixed heights (px) of group headers when virtualized. Must match the header chrome
  * in {@link BitTableV2Component.groupHeaderClass}.
  */
-const GROUP_HEADER_HEIGHT = 40;
-const SUBGROUP_HEADER_HEIGHT = 28;
+const GROUP_HEADER_HEIGHT = 28;
+const SUBGROUP_HEADER_HEIGHT = 22;
 
 /**
  * Fixed height (px) of a group description when virtualized: two `text-sm` lines (20px
@@ -181,6 +186,7 @@ type RenderItem<T> =
     BitRowComponent,
     CheckboxModule,
     IconComponent,
+    ItemComponent,
     StatusLockupComponent,
     SkeletonTextComponent,
     SvgComponent,
@@ -193,6 +199,11 @@ type RenderItem<T> =
     // Filter chips projected into the table resolve this host by DI and
     // self-register; the table folds their values into `filtered`.
     { provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) },
+    {
+      provide: TABLE_PRESENTATION,
+      useFactory: (table: BitTableV2Component) => table.presentation,
+      deps: [forwardRef(() => BitTableV2Component)],
+    },
     // The virtual-scroll viewport in the template picks up the table's own strategy.
     {
       provide: VIRTUAL_SCROLL_STRATEGY,
@@ -229,7 +240,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Render style. `"table"` draws the bordered column grid; `"list"` renders each row
    * as a standalone card.
    */
-  readonly presentation = input<"table" | "list">("table");
+  readonly presentation = input<TablePresentation>("table");
 
   /** Active sort (`{ column, direction }`). Two-way — header clicks cycle it; bind `[(sort)]` to persist. */
   readonly sort = model<SortState<ColumnName<T, S>>>({ direction: "asc" });
@@ -265,6 +276,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * (minimum 4), and applies only when {@link virtualRowHeight} is set.
    */
   readonly height = input<"fill" | number>();
+
+  /**
+   * Registers the scrolling body as the page's scroll region, like `bitScrollLayoutHost`. A
+   * `"fill"` table is what scrolls, since the layout's region wraps it exactly. `"fill"` only.
+   */
+  readonly scrollLayoutHost = input(false, { transform: booleanAttribute });
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
@@ -570,12 +587,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
-    // Match the extension's section/subsection type: top = `h6` (text-sm, main,
-    // medium); subgroup = the muted subheader (text-xs, muted, medium), indented.
+    // Matches the extension's section headers.
     const type =
       level === 0
-        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1 tw-pt-3"
-        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-4 tw-pe-1 tw-py-1";
+        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
+        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-1 tw-pe-1 tw-pb-1";
     return `tw-flex tw-items-center ${type}`;
   }
 
@@ -635,6 +651,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   protected readonly horizontalScroll = signal(0);
 
+  private readonly scrolled = signal(false);
+
+  /** Whether the body has scrolled away from the top. */
+  readonly isScrolled = this.scrolled.asReadonly();
+
+  protected onBodyScroll(event: Event): void {
+    this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
+  }
+
   /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {
     this._columns.update((cols) => [...cols, col]);
@@ -649,6 +674,52 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** True when {@link height} is `"fill"`. */
   protected readonly isFill = computed(() => this.height() === "fill");
+
+  private readonly scrollLayout = inject(ScrollLayoutService);
+
+  /**
+   * The element the body scrolls in, virtualized or not — replaced when the table swaps between
+   * them
+   */
+  private readonly scrollBody = viewChild<ElementRef<HTMLElement> | CdkVirtualScrollViewport>(
+    "scrollBody",
+  );
+
+  /**
+   * Publishes the scrolling body as the page's scroll region while {@link scrollLayoutHost} is set.
+   */
+  private readonly _scrollLayoutHostEffect = effect((onCleanup) => {
+    if (!this.scrollLayoutHost()) {
+      return;
+    }
+
+    const body = this.scrollBody();
+    const element = body instanceof CdkVirtualScrollViewport ? body.elementRef : body;
+
+    if (element == null) {
+      return;
+    }
+
+    const previous = untracked(() => this.scrollLayout.scrollableRef());
+    this.scrollLayout.scrollableRef.set(element);
+
+    onCleanup(() => {
+      // Only give the region back if it is still ours; a later host taking over must not be undone.
+      if (this.scrollLayout.scrollableRef() === element) {
+        this.scrollLayout.scrollableRef.set(previous);
+      }
+    });
+  });
+
+  protected readonly isList = computed(() => this.presentation() === "list");
+
+  protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
+
+  /** Uniform height; `--bit-card-gap` removes the card's own margin. */
+  protected readonly listCardHeight = computed(() => {
+    const advance = this.virtualRowHeight();
+    return this.isList() && advance != null ? `calc(${advance}px - var(--bit-card-gap))` : null;
+  });
 
   /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
   protected readonly maxRows = computed(() => {
