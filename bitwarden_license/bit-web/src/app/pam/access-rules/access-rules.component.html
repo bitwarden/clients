@@ -51,18 +51,26 @@
         [placeholder]="'pamSearchRules' | i18n"
         formControlName="search"
       />
-      <bit-chip-filter
+      <bit-filter-menu
+        #statusFilter
+        key="status"
         [placeholderText]="'status' | i18n"
-        placeholderIcon="bwi-filter"
-        [options]="statusOptions"
-        formControlName="status"
-      />
-      <bit-chip-filter
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of statusOptions; track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+      <bit-filter-menu
+        #collectionFilter
+        key="collection"
         [placeholderText]="'pamAccessRuleCollectionsColumn' | i18n"
-        placeholderIcon="bwi-collection-shared"
-        [options]="collectionOptions()"
-        formControlName="collection"
-      />
+        multiple
+      >
+        @for (option of collectionOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
     </div>
 
     <div class="tw-overflow-x-auto">
