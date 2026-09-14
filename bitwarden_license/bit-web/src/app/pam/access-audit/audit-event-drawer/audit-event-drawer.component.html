@@ -86,6 +86,10 @@
             {{ row.cipherName }}
           } @else if (row.ruleName) {
             {{ row.ruleName }}
+          } @else if (row.daemonName) {
+            {{ row.daemonName }}
+          } @else if (row.targetSystemName) {
+            {{ row.targetSystemName }}
           } @else {
             <span class="tw-text-muted">—</span>
           }
@@ -106,6 +110,28 @@
             >
           } @else if (row.collectionName) {
             {{ row.collectionName }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditTargetSystem" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-target-system">
+          @if (row.targetSystemName) {
+            {{ row.targetSystemName }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditDaemon" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-daemon">
+          @if (row.daemonName) {
+            {{ row.daemonName }}
           } @else {
             <span class="tw-text-muted">—</span>
           }
