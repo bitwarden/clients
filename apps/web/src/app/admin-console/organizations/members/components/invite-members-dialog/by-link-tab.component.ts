@@ -13,12 +13,15 @@ import {
   switchMap,
 } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -74,6 +77,7 @@ export class ByLinkTabComponent {
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
   private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
+  private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
@@ -81,6 +85,16 @@ export class ByLinkTabComponent {
   private readonly eventCollectionService = inject(EventCollectionService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+
+  private readonly organization$: Observable<Organization | undefined> = combineLatest([
+    this.userId$,
+    toObservable(this.organizationId),
+  ]).pipe(
+    switchMap(([userId, orgId]) =>
+      this.organizationService.organizations$(userId).pipe(getById(orgId)),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
     this.userId$,
@@ -138,6 +152,14 @@ export class ByLinkTabComponent {
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
+    // The organization domains endpoint requires the Manage SSO permission. Calling it without
+    // that permission returns a 401, which the api service treats as an invalid access token and
+    // logs the user out. Members who can only manage users skip the prefill instead.
+    const organization = await firstValueFrom(this.organization$);
+    if (!organization?.canManageDomainVerification) {
+      return;
+    }
+
     const allDomains = await this.orgDomainApiService.getAllByOrgId(this.organizationId());
     const verifiedDomainNames = allDomains
       .filter((d) => d.verifiedDate != null)
