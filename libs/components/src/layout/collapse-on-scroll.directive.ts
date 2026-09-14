@@ -34,9 +34,10 @@ const COLLAPSE_CLASSES = [
 ].join(" ");
 
 /**
- * Collapses this element while the user scrolls down the region marked with
- * `bitScrollCollapseSource`, and restores it as soon as they scroll back up. For short viewports —
- * the extension popup especially — where chrome is worth more as content space.
+ * Collapses this element while the user scrolls down the page's scroll region — the layout's
+ * `bitScrollLayoutHost`, or a `bitScrollCollapseSource` where one reports — and restores it as soon
+ * as they scroll back up. For short viewports — the extension popup especially — where chrome is
+ * worth more as content space.
  *
  * The element must have exactly one element child, which becomes the collapsing row; further
  * children would land in implicit rows and wouldn't collapse. Put block padding on that child
