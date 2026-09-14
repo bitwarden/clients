@@ -11,6 +11,7 @@ import { DialogService, FilterControl, ToastService } from "@bitwarden/component
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { accessRuleDeactivateConfirmOptions, AccessRuleSdkService, AccessRuleView } from "..";
+import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
@@ -85,6 +86,7 @@ const setup = async (
       { provide: I18nService, useValue: i18nFake },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
       { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+      { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
       ...overrides,
     ],
   });
@@ -552,6 +554,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(collections) },
         },
+        { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
       ],
     });
 
