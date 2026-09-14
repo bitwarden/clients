@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -21,9 +22,11 @@ import {
   AccordionGroupComponent,
   BadgeComponent,
   ButtonModule,
-  ChipFilterComponent,
-  ChipFilterOption,
   DialogService,
+  FILTER_CONTROL,
+  FilterControl,
+  FilterMenuComponent,
+  FilterOptionComponent,
   SearchModule,
   SortDirection,
   SortFn,
@@ -49,6 +52,9 @@ import {
   lapsedGrantBadge,
 } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
+
+/** An option offered by a `bit-filter-menu` chip. */
+type FilterOption = { label: string; value: string };
 
 /** A row carrying the id + collection fields the toolbar filters against. */
 type FilterableRow = {
@@ -97,7 +103,8 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
     AccordionGroupComponent,
     BadgeComponent,
     ButtonModule,
-    ChipFilterComponent,
+    FilterMenuComponent,
+    FilterOptionComponent,
     IconComponent,
     SearchModule,
     TableModule,
@@ -123,12 +130,21 @@ export class MyRequestsTabComponent {
 
   /** Free-text search across item + collection names; the Collection filter selects one collection. */
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-  protected readonly collectionControl = new FormControl<string | null>(null);
 
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-  private readonly selectedCollection = toSignal(this.collectionControl.valueChanges, {
-    initialValue: null,
-  });
+
+  /**
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip owns its selection and is
+   * read through the {@link FilterControl} contract rather than a `FormControl`.
+   */
+  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
+  private readonly selectedCollection = computed(() => this.selectedValue(this.collectionFilter()));
+
+  /** A single-select chip's selection, or undefined for no selection. */
+  private selectedValue(chip: FilterControl | undefined): string | undefined {
+    const value = chip?.value();
+    return typeof value === "string" ? value : undefined;
+  }
 
   private readonly allPending = toSignal(this.myAccess.pendingRows$, {
     initialValue: [] as MyAccessRequestRow[],
@@ -159,7 +175,7 @@ export class MyRequestsTabComponent {
   });
 
   /** Every distinct collection present across the caller's rows, for the Collection filter. */
-  protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() => {
+  protected readonly collectionOptions = computed<FilterOption[]>(() => {
     const byId = new Map<string, string>();
     for (const row of [...this.allPending(), ...this.allExtensions(), ...this.allLeases()]) {
       if (row.collectionName != null && !byId.has(row.collectionId)) {
