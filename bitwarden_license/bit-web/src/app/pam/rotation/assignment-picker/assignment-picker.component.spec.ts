@@ -109,6 +109,8 @@ type PickerApi = {
 type ControlApi = {
   onChange(items: SelectItemView[]): void;
   onDropdownClosed(): void;
+  /** What the control itself holds — the chips and checkmarks the user is looking at. */
+  selectedItems(): SelectItemView[] | null;
 };
 
 describe("AssignmentPickerComponent", () => {
@@ -140,6 +142,18 @@ describe("AssignmentPickerComponent", () => {
 
   function textOf(selector: string): string {
     return el(selector)?.textContent?.trim() ?? "";
+  }
+
+  /**
+   * Runs change detection and lets the `[ngModel]` writeback land. Anything asserting on what the
+   * control holds needs this: the push back into the control happens a microtask after the
+   * selection handler returns, so an assertion made straight after `onChange` reads the selection
+   * before it could have been overwritten and passes either way.
+   */
+  async function settle(): Promise<void> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
   }
 
   async function click(selector: string): Promise<void> {
@@ -251,6 +265,42 @@ describe("AssignmentPickerComponent", () => {
 
       expect(picker.pendingSelection()).toEqual([]);
       expect(picker.canAssign()).toBe(false);
+    });
+
+    it("leaves that pick standing in the control rather than writing an empty mirror over it", async () => {
+      const picker = await render();
+
+      control().onChange([option("opt-1", "Prod Entra")]);
+      await settle();
+
+      // Unarmed until the dropdown closes, but the chip and its checkmark are still there to
+      // close over: the pick used to be erased by its own notification.
+      expect(control().selectedItems()).toEqual([option("opt-1", "Prod Entra")]);
+      expect(picker.pendingSelection()).toEqual([]);
+
+      control().onDropdownClosed();
+      await settle();
+
+      expect(picker.pendingSelection()).toEqual([option("opt-1", "Prod Entra")]);
+      expect(picker.canAssign()).toBe(true);
+    });
+
+    it("keeps an unconfirmed pick when a confirmed chip beside it is dismissed", async () => {
+      const picker = await render();
+      control().onChange([option("opt-1", "Prod Entra")]);
+      control().onDropdownClosed();
+      await settle();
+
+      // A second option picked with the dropdown still open, then the confirmed chip dismissed
+      // from under it. Only the dismissed one goes.
+      control().onChange([option("opt-1", "Prod Entra"), option("opt-2", "Staging")]);
+      await settle();
+      control().onChange([option("opt-2", "Staging")]);
+      await settle();
+
+      expect(control().selectedItems()).toEqual([option("opt-2", "Staging")]);
+      expect(picker.pendingSelection()).toEqual([option("opt-2", "Staging")]);
+      expect(picker.canAssign()).toBe(true);
     });
   });
 
