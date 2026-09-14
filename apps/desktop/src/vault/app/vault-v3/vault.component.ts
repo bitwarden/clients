@@ -27,6 +27,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   of,
+  skip,
 } from "rxjs";
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
@@ -135,6 +136,7 @@ import {
   VaultBreadcrumbsComponent,
   sharedFolderNameForScope,
   VaultNavService,
+  vaultScopeCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   VaultScopeType,
@@ -648,6 +650,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const filter$ = this.routedVaultFilterService.filter$;
 
+    /** Whether the current view is Trash, from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const isTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]) =>
+        vfo1Foundation ? scope.type === VaultScopeType.Trash : filter.type === "trash",
+      ),
+    );
+
     /** Rows come from the route's scope under VFO1, and from the query-param filter otherwise. */
     const rowFilter$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
       map(([vfo1Foundation, scope, filter]): FilterFunction =>
@@ -797,11 +806,25 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       );
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), isTrash$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers]) =>
-        this.vaultBatchBarService?.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      .subscribe(([allCollections, hasCiphers, isTrash]) =>
+        this.vaultBatchBarService?.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          isTrash,
+        }),
       );
+
+    this.vaultScope$
+      .pipe(
+        map((scope) => vaultScopeCommands(scope).join("/")),
+        distinctUntilChanged(),
+        skip(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.vaultBatchBarService?.clear());
 
     this.vaultBatchBarService?.completed$
       .pipe(takeUntil(this.destroy$))

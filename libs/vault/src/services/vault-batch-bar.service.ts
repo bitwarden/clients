@@ -71,6 +71,8 @@ export interface VaultBatchBarConfig {
   hasCiphers: boolean;
   /** Should be populated when isOrgVault is true. Used to apply org-specific permission checks and admin API paths. */
   organization?: Organization;
+  /** True when the current vault view is Trash. */
+  isTrash: boolean;
 }
 
 /**
@@ -113,14 +115,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     isOrgVault: false,
     allCollections: [],
     hasCiphers: false,
+    isTrash: false,
   };
 
   private readonly config = signal<VaultBatchBarConfig>(this.defaultConfig);
 
-  readonly inTrash = toSignal(
-    this.routedVaultFilterService.filter$.pipe(map((f) => f.type === "trash")),
-    { initialValue: false },
-  );
+  readonly inTrash = computed(() => this.config().isTrash);
 
   private readonly showBulkAddToFolder = computed(
     () => !this.inTrash() && !this.config().isOrgVault,
@@ -146,7 +146,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
   private readonly _cleared$ = new Subject<void>();
-  /** Emits whenever the selection is cleared via {@link clear} — the "Clear" button, a filter change, or a completed bulk action. */
+  /** Emits whenever the selection is cleared via {@link clear}, whether by the service itself or by the host. */
   readonly cleared$ = this._cleared$.asObservable();
 
   private readonly _completed$ = new Subject<void>();
@@ -225,12 +225,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   /** True when all selected ciphers can be restored from trash. */
   readonly canRestore = toSignal(
-    combineLatest([
-      this.selection.changed.pipe(startWith(null)),
-      toObservable(this.config),
-      toObservable(this.inTrash),
-    ]).pipe(
-      switchMap(([, config, inTrash]) => {
+    combineLatest([this.selection.changed.pipe(startWith(null)), toObservable(this.config)]).pipe(
+      switchMap(([, config]) => {
         const selected = this.selection.selected;
         const ciphers = selected.filter((i) => i.cipher).map((i) => i.cipher as C);
 
@@ -247,7 +243,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         );
 
         return combineLatest(canRestoreCiphers$).pipe(
-          map((results) => results.every((r) => r) && inTrash),
+          map((results) => results.every((r) => r) && config.isTrash),
         );
       }),
     ),
