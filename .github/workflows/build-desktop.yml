@@ -2283,7 +2283,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2 libfuse2 xvfb
+          sudo apt-get install -y libasound2 xvfb
 
       - name: Run AppImage
         working-directory: apps/desktop/artifacts/linux/appimage
@@ -2326,7 +2326,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2 libfuse2 xvfb
+          sudo apt-get install -y libasound2 xvfb
           sudo apt-get install -y weston libwayland-client0 libwayland-server0 libwayland-dev
 
       - name: Run headless Wayland compositor
