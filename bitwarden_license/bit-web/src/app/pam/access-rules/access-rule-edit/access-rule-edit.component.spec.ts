@@ -16,9 +16,12 @@ import { GovernedCollectionsService } from "../../services/governed-collections.
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
 
-/** Echoes the key as its translation so the form-field components don't crash on missing keys. */
+/**
+ * Echoes the key as its translation so the form-field components don't crash on missing keys,
+ * with any placeholder appended so assertions can see what was interpolated.
+ */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
-  t: (id: string) => id,
+  t: (id: string, p1?: string | number) => (p1 == null ? id : `${id} ${p1}`),
   translate: (id: string) => id,
 };
 
@@ -890,9 +893,13 @@ describe("AccessRuleEditComponent — form states", () => {
     createAccessRule: jest.Mock;
     updateAccessRule: jest.Mock;
     deleteAccessRule: jest.Mock;
+    listAccessRules: jest.Mock;
   };
 
-  const ORG_COLLECTIONS = [{ id: "col-1", name: "Engineering" }];
+  const ORG_COLLECTIONS = [
+    { id: "col-1", name: "Engineering" },
+    { id: "col-2", name: "Finance" },
+  ];
 
   const render = async (state: RouteState = {}) => {
     pamApi = {
@@ -905,6 +912,7 @@ describe("AccessRuleEditComponent — form states", () => {
       createAccessRule: jest.fn().mockResolvedValue(undefined),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
+      listAccessRules: jest.fn().mockResolvedValue([]),
     };
     showToast = jest.fn();
     dialog = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
@@ -1011,6 +1019,99 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(rendered).toContain("pamAccessRuleErrorCollectionsGoverned");
       expect(controls().collections.errors).toEqual({
         serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+      });
+    });
+
+    describe("naming the collection at fault", () => {
+      const governedRejection = () =>
+        accessRuleError(
+          "Api",
+          'error in response: {"message":"One or more collections are already ' +
+            'governed by another access rule."}',
+        );
+
+      const selectCollections = (...ids: string[]) =>
+        controls().collections.setValue(
+          ids.map((id) => ({
+            id,
+            listName: id,
+            labelName: id,
+            icon: "bwi-collection-shared",
+          })) satisfies SelectItemView[],
+        );
+
+      const ruleGoverning = (id: string, ...collections: string[]) =>
+        ({ id, name: id, collections, enabled: true }) as unknown as AccessRuleView;
+
+      it("names the collection another rule already governs", async () => {
+        await render();
+        fillRequiredFields();
+        pamApi.listAccessRules.mockResolvedValue([ruleGoverning("rule-1", "col-1")]);
+        pamApi.createAccessRule.mockRejectedValue(governedRejection());
+
+        await submitAndRender();
+
+        expect(controls().collections.errors).toEqual({
+          serverError: { message: "pamAccessRuleErrorCollectionsGovernedNamed Engineering" },
+        });
+        expect(fixture.nativeElement.textContent).toContain("Engineering");
+      });
+
+      it("names every collection at fault, so they aren't found one save at a time", async () => {
+        await render();
+        controls().name.setValue("Production access");
+        selectCollections("col-1", "col-2");
+        pamApi.listAccessRules.mockResolvedValue([ruleGoverning("rule-1", "col-1", "col-2")]);
+        pamApi.createAccessRule.mockRejectedValue(governedRejection());
+
+        await submitAndRender();
+
+        expect(controls().collections.errors).toEqual({
+          serverError: {
+            message: "pamAccessRuleErrorCollectionsGovernedNamed Engineering, Finance",
+          },
+        });
+      });
+
+      it("leaves out collections the admin selected that no rule governs", async () => {
+        await render();
+        controls().name.setValue("Production access");
+        selectCollections("col-1", "col-2");
+        pamApi.listAccessRules.mockResolvedValue([ruleGoverning("rule-1", "col-2")]);
+        pamApi.createAccessRule.mockRejectedValue(governedRejection());
+
+        await submitAndRender();
+
+        expect(controls().collections.errors).toEqual({
+          serverError: { message: "pamAccessRuleErrorCollectionsGovernedNamed Finance" },
+        });
+      });
+
+      it("does not blame the rule under edit for the collections it already governs", async () => {
+        const ruleId = "11111111-1111-1111-1111-111111111111";
+        await render({ params: { accessRuleId: ruleId } });
+        pamApi.listAccessRules.mockResolvedValue([ruleGoverning(ruleId, "col-1")]);
+        pamApi.updateAccessRule.mockRejectedValue(governedRejection());
+        fillRequiredFields();
+
+        await submitAndRender();
+
+        expect(controls().collections.errors).toEqual({
+          serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+        });
+      });
+
+      it("falls back to the unnamed copy when the rules read fails", async () => {
+        await render();
+        fillRequiredFields();
+        pamApi.listAccessRules.mockRejectedValue(new Error("boom"));
+        pamApi.createAccessRule.mockRejectedValue(governedRejection());
+
+        await submitAndRender();
+
+        expect(controls().collections.errors).toEqual({
+          serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+        });
       });
     });
 
