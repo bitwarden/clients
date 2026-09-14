@@ -8,7 +8,7 @@ import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider
 import { mkdirSync, readFileSync } from "fs";
 import { Logger } from "./build-support.mts";
 
-const ALL_TARGETS: BuildTask[] = [];
+const ALL_TARGETS: BuildTask[] = [BitwardenMacosProviderBuildTask];
 
 const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === "true";
 

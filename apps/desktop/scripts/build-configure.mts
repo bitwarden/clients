@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
 
 import {
   type BuildConfig,
@@ -14,7 +17,6 @@ import {
   AUDIENCES,
   type PackageFormat,
 } from "./build-config.mts";
-import { mkdirSync, writeFileSync } from "node:fs";
 import {
   BITWARDEN_APPLE_TEAM_ID,
   discoverDeveloperCodeSigningCertificates,
@@ -175,7 +177,9 @@ async function main() {
       cargoBin = execFileSync(process.platform == "win32" ? "where" : "which", ["cargo"])
         .toString()
         .trim();
-      const output = execFileSync(cargoBin, ["--version"], { encoding: "utf-8" });
+      const output = execFileSync(cargoBin, ["--version"], {
+        encoding: "utf-8",
+      });
       cargoVersion = output.split(" ")[1];
       config.toolchains.cargo = { bin: cargoBin, version: cargoVersion };
       console.log("Cargo version:", cargoVersion);
@@ -189,7 +193,9 @@ async function main() {
       nodeBin = execFileSync(process.platform == "win32" ? "where" : "which", ["node"])
         .toString()
         .trim();
-      nodeVersion = execFileSync(nodeBin, ["--version"], { encoding: "utf-8" }).trim();
+      nodeVersion = execFileSync(nodeBin, ["--version"], {
+        encoding: "utf-8",
+      }).trim();
       config.toolchains.node = { bin: nodeBin, version: nodeVersion };
       console.log("Node version:", nodeVersion);
     } catch (error) {
