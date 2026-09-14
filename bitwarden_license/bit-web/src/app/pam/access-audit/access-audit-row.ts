@@ -39,6 +39,10 @@ export type AuditRow = {
   ruleName: string | null;
   /** The subject access rule, when the event names one — the identity behind a rule-named Item cell. */
   ruleId: string | null;
+  /** The target system's name, for rotation and target administration events; null for others. */
+  targetSystemName: string | null;
+  /** The daemon's name, for rotation and daemon administration events; null for others. */
+  daemonName: string | null;
   /** An approver comment or a revoke reason. */
   detail: string | null;
   /** True for a system / automatic event (expiry, an automatic decision). */
@@ -60,51 +64,81 @@ export type AuditRow = {
   extendedUntil: string | null;
 };
 
-/** The i18n key for an event kind's label. */
+const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
+  [AccessAuditEventKind.RequestSubmitted]: "pamAuditKindRequestSubmitted",
+  [AccessAuditEventKind.RequestApproved]: "pamAuditKindRequestApproved",
+  [AccessAuditEventKind.RequestDenied]: "pamAuditKindRequestDenied",
+  [AccessAuditEventKind.RequestCancelled]: "pamAuditKindRequestCanceled",
+  [AccessAuditEventKind.RequestExpiredUnanswered]: "pamAuditKindRequestExpiredUnanswered",
+  [AccessAuditEventKind.RequestExpiredUnactivated]: "pamAuditKindRequestExpiredUnactivated",
+  [AccessAuditEventKind.LeaseActivated]: "pamAuditKindLeaseActivated",
+  [AccessAuditEventKind.LeaseActivationRejected]: "pamAuditKindLeaseActivationRejected",
+  [AccessAuditEventKind.LeaseExtended]: "pamAuditKindLeaseExtended",
+  [AccessAuditEventKind.LeaseRevoked]: "pamAuditKindLeaseRevoked",
+  [AccessAuditEventKind.LeaseExpired]: "pamAuditKindLeaseExpired",
+  [AccessAuditEventKind.CredentialAccessed]: "pamAuditKindCredentialAccessed",
+  [AccessAuditEventKind.CredentialAccessDenied]: "pamAuditKindCredentialAccessDenied",
+  [AccessAuditEventKind.RuleCreated]: "pamAuditKindRuleCreated",
+  [AccessAuditEventKind.RuleUpdated]: "pamAuditKindRuleUpdated",
+  [AccessAuditEventKind.RuleDeleted]: "pamAuditKindRuleDeleted",
+  [AccessAuditEventKind.LeasingKillSwitchTriggered]: "pamAuditKindLeasingKillSwitchTriggered",
+  [AccessAuditEventKind.LeasingFreezeEnabled]: "pamAuditKindLeasingFreezeEnabled",
+  [AccessAuditEventKind.LeasingFreezeLifted]: "pamAuditKindLeasingFreezeLifted",
+  [AccessAuditEventKind.RotationConfigCreated]: "pamAuditKindRotationConfigCreated",
+  [AccessAuditEventKind.RotationSettingsUpdated]: "pamAuditKindRotationSettingsUpdated",
+  [AccessAuditEventKind.RotationAccountUpdated]: "pamAuditKindRotationAccountUpdated",
+  [AccessAuditEventKind.RotationPaused]: "pamAuditKindRotationPaused",
+  [AccessAuditEventKind.RotationResumed]: "pamAuditKindRotationResumed",
+  [AccessAuditEventKind.RotationConfigDeleted]: "pamAuditKindRotationConfigDeleted",
+  [AccessAuditEventKind.RotationOffered]: "pamAuditKindRotationOffered",
+  [AccessAuditEventKind.RotationDispatched]: "pamAuditKindRotationDispatched",
+  [AccessAuditEventKind.RotationSucceeded]: "pamAuditKindRotationSucceeded",
+  [AccessAuditEventKind.RotationAttemptFailed]: "pamAuditKindRotationAttemptFailed",
+  [AccessAuditEventKind.RotationFailed]: "pamAuditKindRotationFailed",
+  [AccessAuditEventKind.RotationJobReleased]: "pamAuditKindRotationReleased",
+  [AccessAuditEventKind.RotationJobTimedOut]: "pamAuditKindRotationTimedOut",
+  [AccessAuditEventKind.RotationCipherWriteRejected]: "pamAuditKindRotationWriteRejected",
+  [AccessAuditEventKind.RotationReportRejected]: "pamAuditKindRotationReportRejected",
+  [AccessAuditEventKind.ManualRotationDue]: "pamAuditKindManualRotationDue",
+  [AccessAuditEventKind.ManualRotationRecorded]: "pamAuditKindManualRotationRecorded",
+  [AccessAuditEventKind.DaemonRegistered]: "pamAuditKindDaemonRegistered",
+  [AccessAuditEventKind.DaemonRevoked]: "pamAuditKindDaemonRevoked",
+  [AccessAuditEventKind.DaemonDisabled]: "pamAuditKindDaemonDisabled",
+  [AccessAuditEventKind.DaemonEnabled]: "pamAuditKindDaemonEnabled",
+  [AccessAuditEventKind.DaemonDeleted]: "pamAuditKindDaemonDeleted",
+  [AccessAuditEventKind.DaemonAssignedToTarget]: "pamAuditKindDaemonAssigned",
+  [AccessAuditEventKind.DaemonUnassignedFromTarget]: "pamAuditKindDaemonUnassigned",
+  [AccessAuditEventKind.TargetSystemRegistered]: "pamAuditKindTargetRegistered",
+  [AccessAuditEventKind.TargetSystemDisabled]: "pamAuditKindTargetDisabled",
+  [AccessAuditEventKind.TargetSystemEnabled]: "pamAuditKindTargetEnabled",
+  [AccessAuditEventKind.TargetSystemRenamed]: "pamAuditKindTargetRenamed",
+  [AccessAuditEventKind.TargetSystemPolicyUpdated]: "pamAuditKindTargetPolicyUpdated",
+  [AccessAuditEventKind.TargetSystemDeleted]: "pamAuditKindTargetDeleted",
+};
+
+/**
+ * The i18n key for an event kind's label. The map is keyed by the whole vocabulary, so a kind added without one
+ * fails to compile; the fallback is only for a server running ahead of this client.
+ */
 export function auditKindLabelKey(kind: AccessAuditEventKind): string {
-  switch (kind) {
-    case AccessAuditEventKind.RequestSubmitted:
-      return "pamAuditKindRequestSubmitted";
-    case AccessAuditEventKind.RequestApproved:
-      return "pamAuditKindRequestApproved";
-    case AccessAuditEventKind.RequestDenied:
-      return "pamAuditKindRequestDenied";
-    case AccessAuditEventKind.RequestCancelled:
-      return "pamAuditKindRequestCanceled";
-    case AccessAuditEventKind.RequestExpiredUnanswered:
-      return "pamAuditKindRequestExpiredUnanswered";
-    case AccessAuditEventKind.RequestExpiredUnactivated:
-      return "pamAuditKindRequestExpiredUnactivated";
-    case AccessAuditEventKind.LeaseActivated:
-      return "pamAuditKindLeaseActivated";
-    case AccessAuditEventKind.LeaseActivationRejected:
-      return "pamAuditKindLeaseActivationRejected";
-    case AccessAuditEventKind.LeaseExtended:
-      return "pamAuditKindLeaseExtended";
-    case AccessAuditEventKind.LeaseRevoked:
-      return "pamAuditKindLeaseRevoked";
-    case AccessAuditEventKind.LeaseExpired:
-      return "pamAuditKindLeaseExpired";
-    case AccessAuditEventKind.CredentialAccessed:
-      return "pamAuditKindCredentialAccessed";
-    case AccessAuditEventKind.CredentialAccessDenied:
-      return "pamAuditKindCredentialAccessDenied";
-    case AccessAuditEventKind.RuleCreated:
-      return "pamAuditKindRuleCreated";
-    case AccessAuditEventKind.RuleUpdated:
-      return "pamAuditKindRuleUpdated";
-    case AccessAuditEventKind.RuleDeleted:
-      return "pamAuditKindRuleDeleted";
-    case AccessAuditEventKind.LeasingKillSwitchTriggered:
-      return "pamAuditKindLeasingKillSwitchTriggered";
-    case AccessAuditEventKind.LeasingFreezeEnabled:
-      return "pamAuditKindLeasingFreezeEnabled";
-    case AccessAuditEventKind.LeasingFreezeLifted:
-      return "pamAuditKindLeasingFreezeLifted";
-    default:
-      return "pamAuditKindUnknown";
-  }
+  return KIND_LABEL_KEYS[kind] ?? "pamAuditKindUnknown";
 }
+
+/**
+ * The kinds no action emits: the seven the server marks `Deferred`, plus `DaemonRevoked`, which the reversible
+ * disable/enable pair replaced. Labelled, so a stored row still reads, but kept out of the Event filter, where
+ * selecting one could only ever return nothing.
+ */
+export const UNEMITTED_AUDIT_KINDS: ReadonlySet<AccessAuditEventKind> = new Set([
+  AccessAuditEventKind.RequestExpiredUnanswered,
+  AccessAuditEventKind.RequestExpiredUnactivated,
+  AccessAuditEventKind.CredentialAccessed,
+  AccessAuditEventKind.CredentialAccessDenied,
+  AccessAuditEventKind.LeasingKillSwitchTriggered,
+  AccessAuditEventKind.LeasingFreezeEnabled,
+  AccessAuditEventKind.LeasingFreezeLifted,
+  AccessAuditEventKind.DaemonRevoked,
+]);
 
 function isTimestamp(value: string | null): value is string {
   return value != null && Number.isFinite(Date.parse(value));
@@ -153,6 +187,8 @@ export function toAuditRow(
     collectionId: event.collectionId,
     ruleName: event.ruleName,
     ruleId: event.ruleId,
+    targetSystemName: event.targetSystemName,
+    daemonName: event.daemonName,
     detail: event.detail,
     automated: event.automated,
     inDoubt: event.incomplete,
