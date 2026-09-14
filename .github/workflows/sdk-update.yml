@@ -85,7 +85,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ env._BASE_BRANCH }}
@@ -349,7 +349,7 @@ jobs:
             echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "📝 Creating new PR..."
-            LABELS="automated pr"
+            LABELS="automated pr,t:deps"
 
             PR_URL=$(gh pr create \
               --title "$PR_TITLE" \
@@ -382,7 +382,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.base-branch }}
           persist-credentials: false

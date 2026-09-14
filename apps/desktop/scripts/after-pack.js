@@ -35,6 +35,27 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
+  // The autofill extension is copied in here, before electron-builder signs the app, so that
+  // the app's own signature seals it. Copying it in after signing leaves the outer bundle
+  // invalid ("a sealed resource is missing or invalid") and notarization rejects it unless the
+  // whole package is signed a second time. electron-builder never signs anything under
+  // Contents/PlugIns, so the extension keeps the signature and entitlements Xcode gave it.
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  if (context.electronPlatformName === "darwin" || isMasDevBuild) {
+    console.log("### Copying autofill extension");
+    // cannot use extraFiles because it modifies the extension's .plist and makes it invalid
+    const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+    if (!fse.existsSync(extensionPath)) {
+      console.log("### Autofill extension not found - skipping");
+    } else {
+      const appName = context.packager.appInfo.productFilename;
+      const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
+      fse.mkdirSync(plugInsPath, { recursive: true });
+      fse.copySync(extensionPath, path.join(plugInsPath, "autofill-extension.appex"));
+    }
+  }
+
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
 
@@ -67,13 +88,13 @@ async function run(context) {
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
-    const packageId = "com.bitwarden.desktop";
+    const packageId = context.packager.appInfo.id;
 
     if (is_mas) {
       const entitlementsName = "entitlements.desktop_proxy.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
 
       const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
@@ -84,7 +105,7 @@ async function run(context) {
         inheritEntitlementsName,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
       );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
@@ -92,10 +113,10 @@ async function run(context) {
       const entitlementsName = "entitlements.mac.inherit.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
       );
     }
   }
@@ -151,7 +172,7 @@ async function addElectronFuses(context) {
   const IS_LINUX = platform === "linux";
   const executableName = IS_LINUX
     ? context.packager.appInfo.productFilename.toLowerCase().replace("-dev", "").replace(" ", "-")
-    : context.packager.appInfo.productFilename; // .toLowerCase() to accomodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
+    : context.packager.appInfo.productFilename; // .toLowerCase() to accommodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
 
   const electronBinaryPath = path.join(context.appOutDir, `${executableName}${ext}`);
 
@@ -184,5 +205,8 @@ async function addElectronFuses(context) {
     // This can be done by defining a custom app:// protocol and loading the bundle from there,
     // but then any requests to the server will be blocked by CORS policy
     [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+
+    // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
+    [FuseV1Options.WasmTrapHandlers]: true,
   });
 }

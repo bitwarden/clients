@@ -13,7 +13,10 @@
           (closed)="handleBlur()"
         >
           @for (p of permissionList; track p) {
-            <bit-option [value]="p.perm" [label]="p.labelId | i18n" />
+            <bit-option
+              [value]="p.perm"
+              [label]="p.labelId | vfo1I18n: p.vfo1LabelId ?? p.labelId"
+            />
           }
         </bit-select>
       </bit-form-field>
@@ -123,7 +126,10 @@
                     (closed)="handleBlur()"
                   >
                     @for (p of permissionList; track p) {
-                      <bit-option [value]="p.perm" [label]="p.labelId | i18n" />
+                      <bit-option
+                        [value]="p.perm"
+                        [label]="p.labelId | vfo1I18n: p.vfo1LabelId ?? p.labelId"
+                      />
                     }
                   </bit-select>
                 </bit-form-field>
@@ -131,9 +137,9 @@
                 @if (item.readonly || disabled()) {
                   <div
                     class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-medium tw-text-muted"
-                    [title]="permissionLabelId(item.readonlyPermission) | i18n"
+                    [title]="readonlyPermissionLabel(item.readonlyPermission)"
                   >
-                    {{ permissionLabelId(item.readonlyPermission) | i18n }}
+                    {{ readonlyPermissionLabel(item.readonlyPermission) }}
                   </div>
                 }
               }

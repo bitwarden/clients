@@ -23,7 +23,10 @@ export class DriversLicenseView extends ItemView implements SdkDriversLicenseVie
     if (name && issuingState) {
       return `${name}, ${issuingState}`;
     }
-    return name || "";
+    if (name) {
+      return name;
+    }
+    return issuingState ?? "";
   }
 
   static fromJSON(obj: Partial<Jsonify<DriversLicenseView>> | undefined): DriversLicenseView {

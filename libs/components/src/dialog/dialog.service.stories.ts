@@ -1,9 +1,9 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "storybook/test";
+import { findByRole, getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -14,6 +14,7 @@ import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
+import { DrawerRef } from "./dialog-ref";
 import { DialogModule } from "./dialog.module";
 import { DialogService } from "./dialog.service";
 
@@ -21,8 +22,10 @@ interface Animal {
   animal: string;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+interface DrawerLevel {
+  level: number;
+}
+
 @Component({
   template: `
     <bit-layout>
@@ -35,9 +38,13 @@ interface Animal {
         Open Small Drawer
       </button>
       <button bitButton type="button" (click)="openLargeDrawer()">Open Large Drawer</button>
+      <button class="tw-ml-2" bitButton type="button" (click)="openStackedDrawer()">
+        Open Stacked Drawer
+      </button>
     </bit-layout>
   `,
   imports: [ButtonModule, LayoutComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryDialogComponent {
   dialogService = inject(DialogService);
@@ -82,10 +89,22 @@ class StoryDialogComponent {
       },
     });
   }
+
+  openStackedDrawer() {
+    void this.dialogService.openDrawer(StackedDrawerContentComponent, {
+      data: { level: 1 },
+      closePredicate: async () =>
+        await this.dialogService.openSimpleDialog({
+          title: "Discard level 1?",
+          content: "You have unsaved changes. Close this drawer anyway?",
+          type: "warning",
+          acceptButtonText: "Discard",
+          cancelButtonText: "Keep editing",
+        }),
+    });
+  }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Dialog Title">
@@ -103,6 +122,7 @@ class StoryDialogComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryDialogContentComponent {
   dialogRef = inject(DialogRef);
@@ -113,8 +133,6 @@ class StoryDialogContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog
@@ -133,6 +151,7 @@ class StoryDialogContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class NonDismissableContentComponent {
   dialogRef = inject(DialogRef);
@@ -143,8 +162,6 @@ class NonDismissableContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Small Drawer" dialogSize="small">
@@ -162,6 +179,7 @@ class NonDismissableContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class SmallDrawerContentComponent {
   dialogRef = inject(DialogRef);
@@ -172,8 +190,6 @@ class SmallDrawerContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Large Drawer" dialogSize="large">
@@ -191,6 +207,7 @@ class SmallDrawerContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class LargeDrawerContentComponent {
   dialogRef = inject(DialogRef);
@@ -198,6 +215,52 @@ class LargeDrawerContentComponent {
 
   get animal() {
     return this.data?.animal;
+  }
+}
+
+@Component({
+  template: `
+    <bit-dialog [title]="'Level ' + level + ' Drawer'">
+      <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4 tw-items-start">
+        <span>This is level {{ level }} of the drawer stack.</span>
+        @if (level < 3) {
+          <button type="button" bitButton buttonType="secondary" (click)="pushNext()">
+            Open Level {{ level + 1 }}
+          </button>
+        } @else {
+          <span>You've reached the deepest level.</span>
+        }
+      </div>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" bitDialogClose>Done</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StackedDrawerContentComponent {
+  private drawerRef = inject(DrawerRef, { optional: true });
+  private dialogService = inject(DialogService);
+  private data = inject<DrawerLevel>(DIALOG_DATA);
+
+  get level() {
+    return this.data?.level ?? 1;
+  }
+
+  pushNext() {
+    const nextLevel = this.level + 1;
+    this.drawerRef?.stack(StackedDrawerContentComponent, {
+      data: { level: nextLevel },
+      closePredicate: async () =>
+        await this.dialogService.openSimpleDialog({
+          title: `Discard level ${nextLevel}?`,
+          content: "You have unsaved changes. Close this drawer anyway?",
+          type: "warning",
+          acceptButtonText: "Discard",
+          cancelButtonText: "Keep editing",
+        }),
+    });
   }
 }
 
@@ -225,6 +288,7 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
+              back: "Back",
               close: "Close",
               search: "Search",
               skipToContent: "Skip to content",
@@ -299,5 +363,17 @@ export const DrawerLarge: Story = {
 
     const button = getAllByRole(canvas, "button")[4];
     await userEvent.click(button);
+  },
+};
+
+/** Two levels deep — the back button is visible on the level 2 drawer. */
+export const DrawerStacked: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    await userEvent.click(getAllByRole(canvas, "button")[5]);
+
+    const level2Button = await findByRole(canvas, "button", { name: "Open Level 2" });
+    await userEvent.click(level2Button);
   },
 };

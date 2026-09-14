@@ -13,12 +13,14 @@ export class OrganizationInviteLinkSsoResponseModel extends BaseResponse {
 
 export class OrganizationInviteLinkStatusResponseModel extends BaseResponse {
   organizationName: string;
+  linksEnabled: boolean;
   seatsAvailable: boolean;
   sso: OrganizationInviteLinkSsoResponseModel | null;
 
   constructor(response: any) {
     super(response);
     this.organizationName = this.getResponseProperty("OrganizationName");
+    this.linksEnabled = this.getResponseProperty("LinksEnabled");
     this.seatsAvailable = this.getResponseProperty("SeatsAvailable");
     const sso = this.getResponseProperty("Sso");
     this.sso = sso == null ? null : new OrganizationInviteLinkSsoResponseModel(sso);

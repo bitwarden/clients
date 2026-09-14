@@ -7,7 +7,6 @@ import { buildSvgDomElement } from "../../../../utils";
 import { logoIcon, logoLockedIcon } from "../../../../utils/svg-icons";
 import {
   InitAutofillInlineMenuButtonMessage,
-  AutofillInlineMenuButtonMessage,
   AutofillInlineMenuButtonWindowMessageHandlers,
 } from "../../abstractions/autofill-inline-menu-button";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
@@ -23,7 +22,6 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
       checkAutofillInlineMenuButtonFocused: () => this.checkButtonFocused(),
       updateAutofillInlineMenuButtonAuthStatus: ({ message }) =>
         this.updateAuthStatus(message.authStatus),
-      updateAutofillInlineMenuColorScheme: ({ message }) => this.updatePageColorScheme(message),
     };
 
   constructor() {
@@ -69,7 +67,6 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
       this.getTranslation("toggleBitwardenVaultOverlay"),
     );
     this.buttonElement.addEventListener(EVENTS.CLICK, this.handleButtonElementClick);
-    this.postMessageToParent({ command: "updateAutofillInlineMenuColorScheme" });
 
     this.updateAuthStatus(authStatus);
 
@@ -91,20 +88,6 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
         ? this.logoIconElement
         : this.logoLockedIconElement;
     this.buttonElement.append(iconElement);
-  }
-
-  /**
-   * Handles updating the page color scheme meta tag. Ensures that the button
-   * does not present with a non-transparent background on dark mode pages.
-   *
-   * @param colorScheme - The color scheme of the iframe's parent page
-   */
-  private updatePageColorScheme({ colorScheme }: AutofillInlineMenuButtonMessage) {
-    const colorSchemeMetaTag = globalThis.document.querySelector("meta[name='color-scheme']");
-
-    if (colorSchemeMetaTag && colorScheme) {
-      colorSchemeMetaTag.setAttribute("content", colorScheme);
-    }
   }
 
   /**

@@ -4,7 +4,12 @@
  */
 export function isKnownCloudOrigin(): boolean {
   // https://bitwarden.atlassian.net/browse/PM-32091
-  const managedSuffixes = [".bitwarden.com", ".bitwarden.eu", ".bitwarden.pw"];
+  const managedSuffixes = [
+    ".bitwarden.com",
+    ".bitwarden.eu",
+    ".bitwarden.pw",
+    ".bitwarden-gov.com",
+  ];
   const hostname = window.location.hostname || "";
   return managedSuffixes.some((suffix) => hostname.endsWith(suffix));
 }
@@ -71,6 +76,9 @@ function appLinkHost(): string {
   const hostName = window.location.hostname || "";
   if (hostName.endsWith("bitwarden.eu")) {
     return "bitwarden.eu";
+  }
+  if (hostName.endsWith("bitwarden-gov.com")) {
+    return "bitwarden-gov.com";
   }
   if (hostName.endsWith("bitwarden.pw")) {
     return "bitwarden.pw";

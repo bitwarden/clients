@@ -85,28 +85,6 @@ describe("ExtensionLockComponentService", () => {
     });
   });
 
-  describe("getBiometricsError", () => {
-    it("returns a biometric error description when given a valid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "startDesktop",
-        }),
-      ).toBe("startDesktopDesc");
-    });
-
-    it("returns null when given an invalid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "invalidError",
-        }),
-      ).toBeNull();
-    });
-
-    it("returns null when given a null input", () => {
-      expect(service.getBiometricsError(null)).toBeNull();
-    });
-  });
-
   describe("popOutBrowserExtension", () => {
     let openPopoutSpy: jest.SpyInstance;
     beforeEach(() => {
@@ -420,7 +398,9 @@ describe("ExtensionLockComponentService", () => {
 
       // Shared unlock
       configService.getFeatureFlag$.mockReturnValue(of(false));
-      sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 

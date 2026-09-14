@@ -13,14 +13,20 @@ import { PendingAuthRequestWithFingerprintView } from "@bitwarden/bit-common/adm
 import { PendingAuthRequestView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request.view";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { TableDataSource, NoItemsModule, ToastService, IconModule } from "@bitwarden/components";
+import {
+  TableDataSource,
+  StatusLockupComponent,
+  ToastService,
+  IconModule,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 
@@ -39,13 +45,14 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
       deps: [
         OrganizationAuthRequestApiService,
         KeyService,
+        LegacyCompatKeyService,
         EncryptService,
         OrganizationUserApiService,
         AccountService,
       ],
     }),
   ] satisfies SafeProvider[],
-  imports: [SharedModule, NoItemsModule, HeaderModule, IconModule],
+  imports: [SharedModule, StatusLockupComponent, HeaderModule, IconModule],
 })
 export class DeviceApprovalsComponent implements OnInit, OnDestroy {
   tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();

@@ -1,8 +1,8 @@
-import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
-import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherType } from "../../vault/enums";
+import { CipherView } from "../../vault/models/view/cipher.view";
 
+import { CipherExport } from "./cipher.export";
+import { SecureNoteExport } from "./secure-note.export";
 import { SshKeyExport } from "./ssh-key.export";
 
 describe("Cipher Export", () => {
@@ -62,6 +62,22 @@ describe("Cipher Export", () => {
       const sshKey = { ...validSshKey, keyFingerprint: value } as any;
       expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key fingerprint is required.");
     });
+
+    it.each([null, undefined, ""])(
+      "should not throw for a missing publicKey when derived keys are allowed (value %p)",
+      (value) => {
+        const sshKey = { ...validSshKey, publicKey: value } as any;
+        expect(() => SshKeyExport.toView(sshKey, undefined, true)).not.toThrow();
+      },
+    );
+
+    it.each([null, undefined, ""])(
+      "should not throw for a missing keyFingerprint when derived keys are allowed (value %p)",
+      (value) => {
+        const sshKey = { ...validSshKey, keyFingerprint: value } as any;
+        expect(() => SshKeyExport.toView(sshKey, undefined, true)).not.toThrow();
+      },
+    );
 
     it("should succeed with valid inputs", () => {
       const sshKey = { ...validSshKey };

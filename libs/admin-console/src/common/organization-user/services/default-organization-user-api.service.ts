@@ -252,6 +252,16 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  async putOrganizationUserBulkEnablePam(organizationId: string, ids: string[]): Promise<void> {
+    await this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/enable-pam",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      false,
+    );
+  }
+
   putOrganizationUser(
     organizationId: string,
     id: string,
@@ -274,20 +284,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/users/" + userId + "/reset-password-enrollment",
-      request,
-      true,
-      false,
-    );
-  }
-
-  putOrganizationUserResetPassword(
-    organizationId: string,
-    id: string,
-    request: OrganizationUserResetPasswordRequest,
-  ): Promise<void> {
-    return this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/reset-password",
       request,
       true,
       false,

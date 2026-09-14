@@ -12,7 +12,6 @@ import {
   SearchModule,
 } from "@bitwarden/components";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
-import { MemberDialogManagerService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-dialog-manager/member-dialog-manager.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import {
@@ -66,12 +65,12 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     BerryComponent,
+    BulkConfirmDialogComponent,
+    BulkRemoveDialogComponent,
   ],
   declarations: [
     AcceptProviderComponent,
     AccountComponent,
-    BulkConfirmDialogComponent,
-    BulkRemoveDialogComponent,
     EventsComponent,
     MembersComponent,
     SetupComponent,
@@ -90,11 +89,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
-  providers: [
-    WebProviderService,
-    ProviderActionsService,
-    MemberActionsService,
-    MemberDialogManagerService,
-  ],
+  providers: [WebProviderService, ProviderActionsService, MemberActionsService],
 })
 export class ProvidersModule {}

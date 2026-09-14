@@ -25,9 +25,9 @@ import {
   SectionHeaderComponent,
   SelectModule,
 } from "@bitwarden/components";
-import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
 
 @Component({
@@ -112,7 +112,7 @@ export class SendOptionsComponent {
     effect(() => {
       if (!this.editing() && this.sendFormService.originalSendView()) {
         this.sendOptionsForm.patchValue({
-          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount?.toString(),
+          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount?.toString() ?? "",
           accessCount: this.sendFormService.originalSendView()?.accessCount,
           hideEmail: this.sendFormService.originalSendView()?.hideEmail,
           notes: this.sendFormService.originalSendView()?.notes,
@@ -132,7 +132,10 @@ export class SendOptionsComponent {
       const value = this.sendOptionsForm.getRawValue();
       this.sendFormService.patchSend((send) => {
         return Object.assign(send, {
-          maxAccessCount: value.maxAccessCount === "" ? null : Number(value.maxAccessCount),
+          maxAccessCount:
+            value.maxAccessCount == null || value.maxAccessCount === ""
+              ? null
+              : Number(value.maxAccessCount),
           accessCount: value.accessCount,
           hideEmail: value.hideEmail,
           notes: value.notes,

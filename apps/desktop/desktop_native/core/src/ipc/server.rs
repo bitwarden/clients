@@ -1,6 +1,11 @@
 //! IPC server for handling multiple client connections.
 
-use std::{error::Error, path::PathBuf};
+use std::{
+    collections::HashMap,
+    error::Error,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 
 use anyhow::Result;
 use futures::{SinkExt, StreamExt, TryFutureExt};
@@ -34,12 +39,16 @@ pub enum MessageType {
     Message,
 }
 
+/// Per-client sender map, shared between the server and connection handlers.
+type ClientSenders = Arc<Mutex<HashMap<u32, mpsc::Sender<String>>>>;
+
 /// IPC server that listens for client connections.
 pub struct Server {
     /// The paths that the server is listening on
     pub paths: Vec<PathBuf>,
     cancel_token: CancellationToken,
     server_to_clients_send: broadcast::Sender<String>,
+    client_senders: ClientSenders,
 }
 
 impl Server {
@@ -65,6 +74,8 @@ impl Server {
         // tasks without having to wait on all the pending tasks finalizing first
         let cancel_token = CancellationToken::new();
 
+        let client_senders: ClientSenders = Arc::new(Mutex::new(HashMap::new()));
+
         for path in paths.iter() {
             // If the unix socket file already exists, we get an error when trying to bind to it. So
             // we remove it first. Any processes that were using the old socket should
@@ -84,11 +95,13 @@ impl Server {
             let client_to_server_send = client_to_server_send.clone();
             let server_to_clients_recv = server_to_clients_recv.resubscribe();
             let cancel_token = cancel_token.clone();
+            let client_senders = client_senders.clone();
             tokio::spawn(listen_incoming(
                 listener,
                 client_to_server_send,
                 server_to_clients_recv,
                 cancel_token,
+                client_senders,
             ));
         }
 
@@ -98,6 +111,7 @@ impl Server {
             paths,
             cancel_token: cancel_token.clone(),
             server_to_clients_send,
+            client_senders,
         };
         Ok(server)
     }
@@ -112,6 +126,22 @@ impl Server {
     pub fn send(&self, message: String) -> Result<usize> {
         let sent = self.server_to_clients_send.send(message)?;
         Ok(sent)
+    }
+
+    /// Send a message to a specific connected client by ID.
+    ///
+    /// Returns an error if the client is not connected or the channel is full.
+    pub fn send_to(&self, client_id: u32, message: String) -> Result<()> {
+        let senders = self
+            .client_senders
+            .lock()
+            .expect("client_senders lock poisoned");
+        let sender = senders
+            .get(&client_id)
+            .ok_or_else(|| anyhow::anyhow!("Client {client_id} is not connected"))?;
+        sender
+            .try_send(message)
+            .map_err(|e| anyhow::anyhow!("Failed to send to client {client_id}: {e}"))
     }
 
     /// Stop the IPC server.
@@ -131,6 +161,7 @@ async fn listen_incoming(
     client_to_server_send: mpsc::Sender<Message>,
     server_to_clients_recv: broadcast::Receiver<String>,
     cancel_token: CancellationToken,
+    client_senders: ClientSenders,
 ) {
     // We use a simple incrementing ID for each client
     let mut next_client_id = 1_u32;
@@ -158,7 +189,8 @@ async fn listen_incoming(
                             // to send the connected message to the client, which is done inside [`handle_connection`]
                             server_to_clients_recv.resubscribe(),
                             cancel_token.clone(),
-                            client_id
+                            client_id,
+                            client_senders.clone(),
                         );
                         tokio::spawn(future.map_err(|e| {
                             error!(error = %e, "Error handling connection")
@@ -180,7 +212,17 @@ async fn handle_connection(
     mut server_to_clients_recv: broadcast::Receiver<String>,
     cancel_token: CancellationToken,
     client_id: u32,
+    client_senders: ClientSenders,
 ) -> Result<(), Box<dyn Error>> {
+    // Create a per-client channel for targeted messages
+    let (targeted_send, mut targeted_recv) = mpsc::channel::<String>(MESSAGE_CHANNEL_BUFFER);
+
+    // Register this client's targeted sender
+    {
+        let mut senders = client_senders.lock().expect("client_senders lock poisoned");
+        senders.insert(client_id, targeted_send);
+    }
+
     client_to_server_send
         .send(Message {
             client_id,
@@ -198,7 +240,7 @@ async fn handle_connection(
                 break;
             },
 
-            // Forward messages to the IPC clients
+            // Forward broadcast messages to the IPC clients
             msg = server_to_clients_recv.recv() => {
                 match msg {
                     Ok(msg) => {
@@ -206,6 +248,19 @@ async fn handle_connection(
                     },
                     Err(e) => {
                         error!(error = %e, "Error reading message");
+                        break;
+                    }
+                }
+            },
+
+            // Forward targeted messages to this specific client
+            msg = targeted_recv.recv() => {
+                match msg {
+                    Some(msg) => {
+                        client_stream.send(msg.into()).await?;
+                    },
+                    None => {
+                        info!(client_id, "Targeted channel closed.");
                         break;
                     }
                 }
@@ -249,6 +304,12 @@ async fn handle_connection(
                 }
             }
         }
+    }
+
+    // Deregister this client's targeted sender on disconnect
+    {
+        let mut senders = client_senders.lock().expect("client_senders lock poisoned");
+        senders.remove(&client_id);
     }
 
     Ok(())

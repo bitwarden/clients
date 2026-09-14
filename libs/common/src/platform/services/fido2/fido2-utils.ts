@@ -1,5 +1,4 @@
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
+import { CipherView } from "../../../vault/models/view/cipher.view";
 // FIXME: Update this file to be type safe and remove this and next line
 import type {
   AssertCredentialResult,

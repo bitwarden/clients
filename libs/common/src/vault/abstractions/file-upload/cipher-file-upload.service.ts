@@ -1,9 +1,8 @@
-import { UploadOptions } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { UploadOptions } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "../../../platform/enums";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { Cipher } from "../../models/domain/cipher";
 import { CipherResponse } from "../../models/response/cipher.response";

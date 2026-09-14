@@ -4,18 +4,23 @@ import { firstValueFrom, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";
 import { AuthRequestService } from "./auth-request.service";
@@ -27,10 +32,12 @@ describe("AuthRequestService", () => {
   let masterPasswordService: FakeMasterPasswordService;
   const appIdService = mock<AppIdService>();
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const encryptService = mock<EncryptService>();
   const apiService = mock<ApiService>();
   const authRequestApiService = mock<DefaultAuthRequestApiService>();
   const accountService = mock<AccountService>();
+  const unlockService = mock<UnlockService>();
 
   let mockPrivateKey: Uint8Array;
   let mockPublicKey: Uint8Array;
@@ -44,11 +51,13 @@ describe("AuthRequestService", () => {
       appIdService,
       masterPasswordService,
       keyService,
+      legacyCompatKeyService,
       encryptService,
       apiService,
       stateProvider,
       authRequestApiService,
       accountService,
+      unlockService,
     );
 
     mockPrivateKey = new Uint8Array(64);
@@ -136,7 +145,7 @@ describe("AuthRequestService", () => {
       const mockDecryptedUserKey = {} as UserKey;
       jest.spyOn(sut, "decryptPubKeyEncryptedUserKey").mockResolvedValueOnce(mockDecryptedUserKey);
 
-      keyService.setUserKey.mockResolvedValueOnce(undefined);
+      unlockService.unlockWithDecryptedUserKey.mockResolvedValueOnce(undefined);
 
       // Act
       await sut.setUserKeyAfterDecryptingSharedUserKey(
@@ -150,7 +159,10 @@ describe("AuthRequestService", () => {
         mockAuthReqResponse.key,
         mockPrivateKey,
       );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+        mockUserId,
+        mockDecryptedUserKey,
+      );
     });
   });
 

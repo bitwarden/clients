@@ -1,7 +1,7 @@
-import { SdkRecordMapper } from "@bitwarden/common/platform/services/sdk/client-managed-state";
-import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
+import { SdkRecordMapper } from "../../../platform/services/sdk/client-managed-state";
+import { UserKeyDefinition } from "../../../platform/state";
 import { ENCRYPTED_CIPHERS } from "../../services/key-state/ciphers.state";
 import { CipherData } from "../data/cipher.data";
 

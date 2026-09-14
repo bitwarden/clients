@@ -29,7 +29,8 @@ import { TooltipDirective } from "../tooltip/tooltip.directive";
   },
 })
 export class BulkActionButtonComponent implements FocusableOption {
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** @internal Exposed so the parent bar's FocusKeyManager skipPredicate can read `hidden`. */
+  readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly tooltip = inject(TooltipDirective, { self: true });
 
   readonly icon = input.required<BitwardenIcon>();
@@ -70,6 +71,21 @@ export class BulkActionButtonComponent implements FocusableOption {
     });
   }
 
+  /**
+   * Overrides the label's inline `display` so the parent bar can read the
+   * full-label intrinsic width even while `compact()` is true. Without this,
+   * a remeasurement while compact would capture the compact width (labels
+   * are `tw-hidden` → `display: none`) and trap the bar in compact mode.
+   * Call with `false` to clear the override and let `tw-hidden` re-apply.
+   * @internal
+   */
+  forceLabelVisible(visible: boolean): void {
+    const el = this.label()?.nativeElement;
+    if (el) {
+      el.style.display = visible ? "inline" : "";
+    }
+  }
+
   get disabled(): boolean {
     return (this.elementRef.nativeElement as HTMLButtonElement).disabled === true;
   }
@@ -78,6 +94,13 @@ export class BulkActionButtonComponent implements FocusableOption {
     "tw-inline-flex",
     "tw-items-center",
     "tw-gap-2",
+    // Never let flex layout shrink buttons below their natural width — the
+    // parent bar's overflow list relies on measuring each button at its
+    // natural compact width to make a correct pack decision. With the default
+    // `flex-shrink: 1`, buttons get squeezed when the bar is narrow and the
+    // measurement reports widths that are smaller than what the buttons would
+    // actually need, so the pack thinks more items fit than really do.
+    "tw-shrink-0",
     ...(this.compact() ? ["tw-p-2"] : ["tw-px-3", "tw-py-2"]),
     "tw-text-sm",
     "!tw-text-fg-contrast",

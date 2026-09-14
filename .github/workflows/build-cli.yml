@@ -59,10 +59,11 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get Package Version
         id: retrieve-package-version
@@ -72,7 +73,6 @@ jobs:
 
       - name: Get Node Version
         id: retrieve-node-version
-        working-directory: ./
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION="${NODE_NVMRC/v/''}"
@@ -114,10 +114,11 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Setup Unix Vars
         run: |
@@ -135,6 +136,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
+
+      # The CLI builds on Node 22, which bundles npm 10. Pin npm 11 to match every other
+      # workflow (Node 24) so both produce and validate the same package-lock.json.
+      - name: Pin npm version
+        run: npm install --global npm@11.18.0
 
       - name: Install
         run: npm ci
@@ -290,7 +296,7 @@ jobs:
           fi
 
       - name: Upload unix zip asset
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
@@ -333,17 +339,17 @@ jobs:
       _WIN_PKG_VERSION: 3.5
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
       - name: Setup Windows builder
         run: |
-          choco install checksum --no-progress
           choco install reshack --no-progress
           choco install nasm --no-progress
 
@@ -353,6 +359,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
+
+      # The CLI builds on Node 22, which bundles npm 10. Pin npm 11 to match every other
+      # workflow (Node 24) so both produce and validate the same package-lock.json.
+      - name: Pin npm version
+        run: npm install --global npm@11.18.0
 
       - name: Get pkg-fetch
         shell: pwsh
@@ -523,7 +534,7 @@ jobs:
           }
 
       - name: Upload windows zip asset
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
@@ -531,7 +542,7 @@ jobs:
 
       - name: Upload Chocolatey asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/cli/dist/chocolatey/bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
@@ -544,7 +555,7 @@ jobs:
 
       - name: Upload NPM Build Directory asset
         if: matrix.license_type.build_prefix == 'bit'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
           path: apps/cli/bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
@@ -561,10 +572,11 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Print environment
         env:
@@ -576,7 +588,7 @@ jobs:
           echo "BW Package Version: $_PACKAGE_VERSION"
 
       - name: Get bw linux cli
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: bw-linux-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/snap
@@ -613,7 +625,7 @@ jobs:
         run: sudo snap remove bw
 
       - name: Upload snap asset
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap

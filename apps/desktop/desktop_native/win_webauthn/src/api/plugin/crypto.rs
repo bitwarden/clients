@@ -15,10 +15,9 @@ use windows::{
             BCryptCreateHash, BCryptDestroyHash, BCryptFinishHash, BCryptGetProperty,
             BCryptHashData, NCryptFreeObject, NCryptImportKey, NCryptOpenStorageProvider,
             NCryptVerifySignature, BCRYPT_HASH_HANDLE, BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB,
-            BCRYPT_OBJECT_LENGTH, BCRYPT_PSS_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB,
-            BCRYPT_RSAPUBLIC_MAGIC, BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE,
-            NCRYPT_FLAGS, NCRYPT_HANDLE, NCRYPT_KEY_HANDLE, NCRYPT_PAD_PSS_FLAG,
-            NCRYPT_PROV_HANDLE,
+            BCRYPT_PSS_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
+            BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE, NCRYPT_FLAGS, NCRYPT_HANDLE,
+            NCRYPT_KEY_HANDLE, NCRYPT_PAD_PSS_FLAG, NCRYPT_PROV_HANDLE,
         },
     },
 };
@@ -178,7 +177,6 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
                 mem::transmute(hash_buffer)
             }
         };
-        tracing::debug!(" Hash: {hash_buffer:?}");
         Ok(hash_buffer)
     }
 }
@@ -265,11 +263,6 @@ impl<'a> Signature<'a> {
 
 #[derive(Clone, Debug)]
 pub(crate) struct OwnedRequestHash(pub(super) Vec<u8>);
-impl OwnedRequestHash {
-    pub(crate) fn to_vec(&self) -> Vec<u8> {
-        self.0.to_vec()
-    }
-}
 
 impl<'a> From<&'a OwnedRequestHash> for RequestHash<'a> {
     fn from(value: &'a OwnedRequestHash) -> RequestHash<'a> {

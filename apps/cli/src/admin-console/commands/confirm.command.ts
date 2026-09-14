@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import {
@@ -11,12 +9,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { Response } from "../../models/response";
@@ -60,7 +59,7 @@ export class ConfirmCommand {
         this.accountService.activeAccount$.pipe(
           getUserId,
           switchMap((userId) => this.keyService.orgKeys$(userId)),
-          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+          map((orgKeys) => orgKeys?.[options.organizationId as OrganizationId] ?? null),
         ),
       );
 
@@ -97,6 +96,9 @@ export class ConfirmCommand {
   private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {
     const defaultCollectionName = this.i18nService.t("myItems");
     const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
+    if (encrypted.encryptedString == null) {
+      throw new Error("Failed to encrypt default user collection name.");
+    }
     return encrypted.encryptedString;
   }
 

@@ -576,7 +576,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("filePasswordAndConfirmFilePasswordDoNotMatch"),
+        message: this.i18nService.t("filePasswordConfirmationMismatch"),
       });
       return;
     }
@@ -604,7 +604,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   private async verifyUser(): Promise<boolean> {
-    let confirmDescription = "exportWarningDesc";
+    let confirmDescription = "exportUnencryptedWarningDesc";
     if (this.isFileEncryptedExport) {
       confirmDescription = "fileEncryptedExportWarningDesc";
     } else if (this.isAccountEncryptedExport) {

@@ -1,4 +1,9 @@
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
+<cdk-virtual-scroll-viewport
+  [itemSize]="RowHeight"
+  bitScrollLayout
+  class="tw-transition-[padding-bottom] tw-duration-300 tw-ease-in-out"
+  [ngClass]="batchBarService?.barVisible() ? 'tw-pb-[7.5rem]' : 'tw-pb-8'"
+>
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>
       <tr>
@@ -35,7 +40,9 @@
           </th>
         }
         @if (showCollections) {
-          <th bitCell class="tw-w-2/5 tw-hidden xl:tw-table-cell">{{ "collections" | i18n }}</th>
+          <th bitCell class="tw-w-2/5 tw-hidden xl:tw-table-cell">
+            {{ "collections" | vfo1I18n: "sharedFolders" }}
+          </th>
         }
         @if (showGroups) {
           <th
@@ -60,15 +67,15 @@
         }
         <th
           bitCell
+          class="tw-text-right"
           [ngClass]="
-            ((showCopyAndLaunchActions$ | async)
-              ? 'tw-w-28'
-              : batchBarService && batchBarFlag()
-                ? 'tw-w-24'
-                : 'tw-w-12') + ' tw-text-right'
+            optionsColumnWidthClass(
+              (showCopyAndLaunchActions$ | async) ?? false,
+              (showQuickCopyActions$ | async) ?? false
+            )
           "
         >
-          @if (!batchBarService || !batchBarFlag()) {
+          @if (!batchBarService?.enabled()) {
             @let menuDisabled = disableMenu$ | async;
             <button
               [disabled]="disabled || isEmpty || menuDisabled"
@@ -83,7 +90,7 @@
               @if (bulkMoveAllowed) {
                 <button type="button" bitMenuItem (click)="bulkMoveToFolder()">
                   <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-                  {{ "addToFolder" | i18n }}
+                  {{ "addToFolder" | vfo1I18n: "addToMyFolder" }}
                 </button>
               }
               @if (showAdminActions && showBulkEditCollectionAccess) {
@@ -96,8 +103,8 @@
                 (showAdminActions || showAssignToCollections()) && bulkAssignToCollectionsAllowed
               ) {
                 <button type="button" bitMenuItem (click)="assignToCollections()">
-                  <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-                  {{ "assignToCollections" | i18n }}
+                  <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+                  {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
                 </button>
               }
 

@@ -13,12 +13,19 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { BerryComponent, ChipFilterComponent, DialogService } from "@bitwarden/components";
+import {
+  BerryComponent,
+  ChipFilterComponent,
+  DialogService,
+  BreadcrumbsModule,
+} from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -47,8 +54,10 @@ import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from
     HeaderModule,
     OrganizationBadgeModule,
     PipesModule,
+    BreadcrumbsModule,
     ChipFilterComponent,
     BerryComponent,
+    Vfo1IconPipe,
   ],
 })
 export class WeakPasswordsReportComponent
@@ -71,6 +80,7 @@ export class WeakPasswordsReportComponent
     protected accountService: AccountService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
     private collectionService: CollectionService,
+    protected logService: LogService,
   ) {
     super(
       cipherService,
@@ -83,6 +93,7 @@ export class WeakPasswordsReportComponent
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
@@ -91,21 +102,41 @@ export class WeakPasswordsReportComponent
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          const manageableCiphers = await this.cipherService.getAll(userId);
-          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
-          const collections = await firstValueFrom(
-            this.collectionService.decryptedCollections$(userId),
-          );
-          this.sharedCollectionIds = new Set(
-            collections
-              .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
-              .map((c) => c.id as string),
-          );
-          await super.ngOnInit();
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[WeakPasswordsReport] Initializing for organization "${this.organization?.id ?? params.organizationId}"`,
+            );
+
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.logService.info(
+              `[WeakPasswordsReport] User has access to ${manageableCiphers.length} ciphers in organization"`,
+            );
+            this.logService.info(`[WeakPasswordsReport] Fetching collections for organization"`);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[WeakPasswordsReport] User has access to ${this.sharedCollectionIds.size} shared collections in organization"`,
+            );
+            await super.ngOnInit();
+          } catch (e) {
+            // Re-throwing here would surface an unhandled promise rejection rather than
+            // propagating through the observable stream, so we log and swallow instead.
+            this.logService.error(
+              `[WeakPasswordsReport] Failed to initialize for organization "${params.organizationId}"`,
+              e,
+            );
+          }
         }),
         takeUntil(this.destroyed$),
       )
@@ -113,8 +144,26 @@ export class WeakPasswordsReportComponent
   }
 
   async getAllCiphers(): Promise<CipherView[]> {
+    this.logService.info(
+      `[WeakPasswordsReport] Fetching ciphers for organization ${this.organization?.id ?? "N/A"}`,
+    );
     if (this.organization) {
-      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+      try {
+        const ciphers = await this.cipherService.getAllFromApiForOrganization(
+          this.organization.id,
+          true,
+        );
+        this.logService.info(
+          `[WeakPasswordsReport] Fetched ${ciphers.length} ciphers for organization "${this.organization.id}"`,
+        );
+        return ciphers;
+      } catch (e) {
+        this.logService.error(
+          `[WeakPasswordsReport] Failed to fetch ciphers for organization "${this.organization?.id ?? "N/A"}"`,
+          e,
+        );
+        throw e;
+      }
     }
     return [];
   }

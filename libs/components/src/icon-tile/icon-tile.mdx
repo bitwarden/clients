@@ -16,37 +16,56 @@ import { IconTileComponent } from "@bitwarden/components";
 
 ## Variants
 
-Icon tiles support 7 color variants
+Icon tiles come in two groups of color variants:
+
+- **Decorative color families** — the categorical color palette, each available in a `subtle` or
+  `bold` emphasis.
+- **Semantic variants** — backward-compatible aliases (`primary`, `success`, etc.). The overlapping
+  ones render identically to a `subtle` decorative color.
 
 <Canvas of={stories.AllVariants} />
 
-### Primary
+### Decorative color families
 
-Used for brand-colored indicators and primary visual elements.
+The decorative families (`brand`, `teal`, `green`, `orange`, `red`, `purple`, `gray`) are the single
+source of truth for the categorical palette. Each family responds to the `emphasis` input:
 
-### Success
+- **`subtle`** (default) — softer background for lower-emphasis indicators.
+- **`bold`** — saturated background for higher-emphasis indicators.
 
-Indicates successful operations, positive status, or completed states.
+### Semantic variants
 
-### Danger
+The original semantic variants remain fully usable. They **ignore the `emphasis` input** and always
+render the subtle styling. The overlapping variants map directly onto a decorative color family, so
+`variant="primary"` and `variant="brand"` (subtle) render identically — prefer whichever name best
+communicates intent at the call site.
 
-Represents errors, destructive actions, or critical warnings.
+| Semantic variant | Renders as         | Use for                                                      |
+| ---------------- | ------------------ | ------------------------------------------------------------ |
+| `primary`        | `brand` (subtle)   | Brand-colored indicators and primary visual elements.        |
+| `success`        | `green` (subtle)   | Successful operations, positive status, or completed states. |
+| `danger`         | `red` (subtle)     | Errors, destructive actions, or critical warnings.           |
+| `warning`        | `orange` (subtle)  | Caution states, alerts, or situations requiring attention.   |
+| `dark`           | — (unique styling) | High-contrast indicators on light backgrounds.               |
 
-### Warning
+Note that `dark` has no decorative equivalent and keeps its own dedicated styling.
 
-Used for caution states, alerts, or situations requiring attention.
+## Custom color
 
-### Subtle
+Provide a hex value to the `color` input to render an icon tile in an arbitrary color — typically to
+match a user's avatar color. When `color` is set it **overrides `variant` and `emphasis`**:
 
-Low-emphasis indicators on standard backgrounds, used for secondary or muted content.
+- **Fill** matches the provided color.
+- **Foreground** (the icon) is chosen automatically for contrast — dark on light colors, white on
+  dark colors — using the same contrast calculation as the avatar component.
+- **Border** is derived from the color, adjusted ±15% lightness: darkened when the foreground is
+  dark, lightened when the foreground is white.
 
-### Dark
+<Canvas of={stories.CustomColor} />
 
-High-contrast indicators on light backgrounds, used for emphasis or navigation elements.
-
-### Contrast
-
-Used on colored or contrasting backgrounds to maintain visibility.
+```html
+<bit-icon-tile icon="bwi-star" color="#f8e71c" />
+```
 
 ## Sizes
 
@@ -59,12 +78,6 @@ Icon tiles are available in 5 sizes to accommodate different layout contexts and
 - **xl** (64px) - Extra large for hero sections or feature highlights
 
 <Canvas of={stories.AllSizes} />
-
-## All Combinations
-
-View all variant and size combinations:
-
-<Canvas of={stories.AllCombinations} />
 
 ## Accessibility
 

@@ -1,11 +1,5 @@
-@if (!singleOrgEnabled()) {
-  <bit-callout type="info" [title]="'prerequisite' | i18n">{{
-    "singleOrgPrerequisite" | i18n
-  }}</bit-callout>
-}
-
 <bit-form-control>
-  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-switch [formControl]="enabled" id="enabled"></bit-switch>
   <bit-label>{{ "enableBanner" | i18n }}</bit-label>
 </bit-form-control>
 

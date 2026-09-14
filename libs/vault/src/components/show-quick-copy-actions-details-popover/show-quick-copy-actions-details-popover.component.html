@@ -1,0 +1,21 @@
+<button
+  type="button"
+  class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
+  [bitPopoverTriggerFor]="showQuickActionsDetailsPopover"
+  position="above-center"
+  [appA11yTitle]="'aboutThisSetting' | i18n"
+  bitLink
+  startIcon="bwi-question-circle"
+></button>
+
+<bit-popover [title]="'aboutThisSetting' | i18n" #showQuickActionsDetailsPopover>
+  <p>
+    {{ "showQuickCopyActionsDetailsDescription" | i18n }}
+  </p>
+  <div class="tw-flex tw-gap-1.5 tw-items-center">
+    <a bitLink href="#" (click)="openLearnMore($event)" class="tw-flex">
+      {{ "learnMore" | i18n }}
+    </a>
+    <i slot="end" class="bwi bwi-external-link tw-text-primary-600" aria-hidden="true"></i>
+  </div>
+</bit-popover>

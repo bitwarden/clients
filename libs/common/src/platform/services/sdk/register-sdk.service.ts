@@ -14,11 +14,12 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { UserId } from "../../../types/guid";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -64,9 +65,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = await this.toSettings(env);
+      const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
+        managedSettings,
       );
       await this.loadFeatureFlags(client);
       return client;
@@ -82,6 +85,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
+    private managedSettingsService: ManagedSettingsService,
     private userAgent: string | null = null,
   ) {}
 
@@ -139,9 +143,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             }
 
             const settings = await this.toSettings(env);
+            const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
+              managedSettings,
             );
 
             // Initialize the client managed repositories.

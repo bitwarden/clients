@@ -168,13 +168,19 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     if (this.showSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-      this.lineItems = this.sub?.subscription?.items;
+
+      // When an annual upgrade is scheduled but not yet active, show the scheduled (annual) line
+      // items instead of the still-active monthly ones. Classify Password Manager vs. Secrets
+      // Manager against the scheduled plan's seat price so the label matches the shown items.
+      const effectivePlan = this.sub?.pendingAnnualUpgrade?.plan ?? this.sub?.plan;
+      this.lineItems =
+        this.sub?.pendingAnnualUpgrade?.lineItems ?? this.sub?.subscription?.items ?? [];
 
       if (this.lineItems && this.lineItems.length) {
         this.lineItems = this.lineItems
           .map((item) => {
             const itemTotalAmount = item.amount * item.quantity;
-            const seatPriceTotal = this.sub.plan?.SecretsManager?.seatPrice * item.quantity;
+            const seatPriceTotal = effectivePlan?.SecretsManager?.seatPrice * item.quantity;
             item.productName =
               itemTotalAmount === seatPriceTotal || item.name.includes("Service Accounts")
                 ? "secretsManager"
@@ -315,11 +321,16 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       maxAutoscaleSeats: this.sub.maxAutoscaleSmSeats,
       seatPrice: this.sub.plan.SecretsManager.seatPrice,
       maxAutoscaleServiceAccounts: this.sub.maxAutoscaleSmServiceAccounts,
-      additionalServiceAccounts:
-        this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
+      additionalServiceAccounts: Math.max(
+        0,
+        this.sub.smServiceAccounts -
+          this.sub.plan.SecretsManager.baseServiceAccount -
+          (this.sub.smServiceAccountsGrace ?? 0),
+      ),
       interval: this.sub.plan.isAnnual ? "year" : "month",
       additionalServiceAccountPrice: this.sub.plan.SecretsManager.additionalPricePerServiceAccount,
       baseServiceAccountCount: this.sub.plan.SecretsManager.baseServiceAccount,
+      graceServiceAccounts: this.sub.smServiceAccountsGrace ?? 0,
     };
   }
 

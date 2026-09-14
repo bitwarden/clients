@@ -107,7 +107,10 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
           this.log.debug({ algorithm, profile }, "settings cached");
           return settings$;
         },
-        { key: ([request, metadata]) => `${metadata.id}:${request.profile}` },
+        {
+          key: ([request, metadata]) =>
+            `${toVendorId(metadata.id) ?? metadata.id}:${request.profile}`,
+        },
       ),
       switchAll(),
     );

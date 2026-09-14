@@ -6,7 +6,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BitIconButtonComponent, MenuItemComponent } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+
+import { CopyCipherFieldService } from "..";
 
 import { CopyCipherFieldDirective } from "./copy-cipher-field.directive";
 
@@ -43,7 +44,7 @@ describe("CopyCipherFieldDirective", () => {
 
       await copyCipherFieldDirective.ngOnChanges();
 
-      expect(copyCipherFieldDirective["disabled"]).toBe(null);
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(null);
     });
 
     it("should be disabled when the field is not available", async () => {
@@ -55,7 +56,32 @@ describe("CopyCipherFieldDirective", () => {
 
       await copyCipherFieldDirective.ngOnChanges();
 
-      expect(copyCipherFieldDirective["disabled"]).toBe(true);
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(true);
+    });
+
+    it("should be disabled when externally disabled even if the field is available", async () => {
+      copyCipherFieldDirective.action = "username";
+      (copyCipherFieldDirective.cipher as CipherView).login.username = "test-username";
+      copyCipherFieldDirective.disabled = true;
+
+      await copyCipherFieldDirective.ngOnChanges();
+
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(true);
+    });
+
+    it("stays disabled for an unavailable field when the external disabled state is toggled off", async () => {
+      // Empty cipher, so the field has no value to copy.
+      copyCipherFieldDirective.cipher = new CipherView();
+      copyCipherFieldDirective.cipher.type = CipherType.Login;
+      copyCipherFieldDirective.action = "username";
+
+      // Simulate a list refresh toggling the external disabled state true -> false.
+      copyCipherFieldDirective.disabled = true;
+      await copyCipherFieldDirective.ngOnChanges();
+      copyCipherFieldDirective.disabled = false;
+      await copyCipherFieldDirective.ngOnChanges();
+
+      expect(copyCipherFieldDirective["hostDisabled"]).toBe(true);
     });
 
     it("updates icon button disabled state", async () => {
@@ -99,6 +125,30 @@ describe("CopyCipherFieldDirective", () => {
       await copyCipherFieldDirective.ngOnChanges();
 
       expect(menuItemComponent.disabled).toBe(true);
+    });
+  });
+
+  describe("copy guard", () => {
+    it("does not copy when the field has no value", async () => {
+      copyCipherFieldDirective.cipher = new CipherView();
+      copyCipherFieldDirective.cipher.type = CipherType.Login;
+      copyCipherFieldDirective.action = "username";
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).not.toHaveBeenCalled();
+    });
+
+    it("does not copy when externally disabled", async () => {
+      copyCipherFieldDirective.action = "username";
+      (copyCipherFieldDirective.cipher as CipherView).login.username = "test-username";
+      copyCipherFieldDirective.disabled = true;
+
+      await copyCipherFieldDirective.ngOnChanges();
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).not.toHaveBeenCalled();
     });
   });
 

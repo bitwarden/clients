@@ -11,13 +11,18 @@ import {
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -63,10 +68,11 @@ export class PremiumOrgUpgradeService {
     private accountBillingClient: AccountBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
     private subscriberBillingClient: SubscriberBillingClient,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
     private syncService: SyncService,
+    private configService: ConfigService,
   ) {}
 
   async previewProratedInvoice(
@@ -182,14 +188,15 @@ export class PremiumOrgUpgradeService {
     orgKey: SymmetricCryptoKey;
     activeUserId: UserId;
   }> {
-    const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
+    const orgKey = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId);
     const key = orgKey[0].encryptedString as string;
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       orgKey[1],
     );
     const collectionCt = collection.encryptedString as string;
-    const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
+    const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgKey[1]);
 
     return {
       key,

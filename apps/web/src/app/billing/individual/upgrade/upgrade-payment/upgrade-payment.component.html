@@ -27,7 +27,7 @@
         }
         <div class="tw-pb-4">
           <bit-form-field class="!tw-mb-0">
-            <bit-label>{{ "organizationName" | i18n }}</bit-label>
+            <bit-label>{{ "organizationName" | vfo1I18n: "vaultName" }}</bit-label>
             <input bitInput type="text" formControlName="organizationName" required />
             <bit-hint bitTypography="helper" class="tw-text-muted">
               {{ "organizationNameDescription" | i18n }}

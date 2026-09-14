@@ -1,18 +1,23 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserInviteRequest,
+  OrganizationUserService,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
-import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
-@Injectable({ providedIn: CoreOrganizationModule })
+@Injectable({ providedIn: "root" })
 export class UserAdminService {
-  constructor(private organizationUserApiService: OrganizationUserApiService) {}
+  constructor(
+    private organizationUserApiService: OrganizationUserApiService,
+    private organizationUserService: OrganizationUserService,
+  ) {}
 
   async get(
     organizationId: OrganizationId,
@@ -33,26 +38,14 @@ export class UserAdminService {
     return OrganizationUserAdminView.fromResponse(organizationId, userResponse);
   }
 
-  // TODO: Remove this wrapper once MemberDialogComponent (the old dialog) is deleted.
-  // Callers should use saveV2() directly with an OrganizationUserUpdateRequest.
-  async save(userView: OrganizationUserAdminView): Promise<void> {
-    const request = new OrganizationUserUpdateRequest({
-      type: userView.type,
-      permissions: userView.permissions,
-      collections: userView.collections,
-      groups: userView.groups,
-      accessSecretsManager: userView.accessSecretsManager,
-    });
-
-    await this.saveV2(request, userView.id, userView.organizationId);
-  }
-
   async saveV2(
     request: OrganizationUserUpdateRequest,
-    userId: Guid,
-    organizationId: OrganizationId,
+    organizationUserId: Guid,
+    organization: Organization,
   ): Promise<void> {
-    await this.organizationUserApiService.putOrganizationUser(organizationId, userId, request);
+    await firstValueFrom(
+      this.organizationUserService.updateUser(organization, organizationUserId, request),
+    );
   }
 
   async invite(emails: string[], user: OrganizationUserAdminView): Promise<void> {

@@ -10,10 +10,13 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   OrganizationDataOwnershipPolicy,
@@ -21,6 +24,7 @@ import {
 } from "./organization-data-ownership.component";
 
 const ORG_ID = "org1" as OrganizationId;
+const USER_ID = "user1" as UserId;
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -40,13 +44,17 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
   });
+
+  it("hides the dialog's description (the component renders its own)", () => {
+    expect(policy.showDescription).toBe(false);
+  });
 });
 
 describe("OrganizationDataOwnershipPolicyComponent", () => {
   let component: OrganizationDataOwnershipPolicyComponent;
   let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
-  let mockAccountService: MockProxy<AccountService>;
+  let accountService: FakeAccountService;
 
   function setupOrg(useMyItems: boolean) {
     mockOrganizationService.organizations$.mockReturnValue(
@@ -56,9 +64,8 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    mockAccountService = mock<AccountService>();
+    accountService = mockAccountServiceWith(USER_ID);
 
-    mockAccountService.activeAccount$ = of({ id: "user1" as UserId } as any);
     mockOrganizationService.organizations$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
@@ -67,9 +74,10 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: EncryptService, useValue: mock<EncryptService>() },
         { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -125,6 +133,18 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
       await component.ngOnInit();
 
       expect(component.data.controls.enableIndividualItemsTransfer.disabled).toBe(true);
+    });
+
+    it("should resolve the organization from the organizationId input when the policy has never been saved (404 response has no organizationId)", async () => {
+      setupOrg(true);
+      // Simulates PolicyEditDrawerComponent/MultiStepPolicyEditDialogComponent's 404 fallback:
+      // `new PolicyResponse({ Enabled: false })` has no OrganizationId.
+      fixture.componentRef.setInput("policyResponse", new PolicyStatusResponse({ Enabled: true }));
+      fixture.componentRef.setInput("organizationId", ORG_ID);
+
+      await component.ngOnInit();
+
+      expect(component.data.controls.enableIndividualItemsTransfer.enabled).toBe(true);
     });
 
     it("should enable enableIndividualItemsTransfer control when enabled changes to true and useMyItems is true", async () => {

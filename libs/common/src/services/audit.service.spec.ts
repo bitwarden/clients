@@ -1,6 +1,8 @@
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../abstractions/api.service";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
-import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
 
 import { AuditService } from "./audit.service";
 
@@ -70,6 +72,16 @@ describe("AuditService", () => {
     expect((auditService as any).fetchLeakedPasswordCount).toHaveBeenCalledTimes(4);
     expect(mockCrypto.hash).toHaveBeenCalledTimes(4);
     expect(mockApi.nativeFetch).toHaveBeenCalledTimes(4);
+  });
+
+  it("should include Add-Padding header when checking leaked passwords", async () => {
+    const result = await auditService.passwordLeaked("password");
+
+    expect(result).toBe(4);
+    expect(mockApi.nativeFetch).toHaveBeenCalledTimes(1);
+    const request = mockApi.nativeFetch.mock.calls[0][0] as any;
+    expect(request.url).toBe("https://api.pwnedpasswords.com/range/AABBC");
+    expect(request.headers).toEqual(expect.objectContaining({ "Add-Padding": "true" }));
   });
 
   it("should return empty array for breachedAccounts when no breaches found", async () => {

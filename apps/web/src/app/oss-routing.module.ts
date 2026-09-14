@@ -1,5 +1,5 @@
-import { NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { NgModule, inject } from "@angular/core";
+import { Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -16,12 +16,13 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
-  TwoFactorTimeoutIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  ExpiredIcon,
+  EmailCodeSentIcon,
+  SecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
@@ -52,6 +53,7 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -61,18 +63,23 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
-import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
+import { AcceptOrgDirectInviteComponent } from "./auth/organization-invite/accept-org-direct-invite.component";
+import { AcceptOrgOpenInviteComponent } from "./auth/organization-invite/accept-org-open-invite.component";
+import { OpenOrgInviteLinkInvalidComponent } from "./auth/organization-invite/open-org-invite-link-invalid.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
+import { SsoLoginFailedComponent } from "./auth/sso/sso-login-failed.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
@@ -96,6 +103,7 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
+import { MyFoldersComponent } from "./vault/my-folders/my-folders.component";
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -123,9 +131,9 @@ const routes: Routes = [
       },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
-        path: AuthWebRoute.AcceptOrganizationInvite,
+        path: AuthWebRoute.AcceptOrgDirectInvite,
         canActivate: [deepLinkGuard()],
-        component: AcceptOrganizationComponent,
+        component: AcceptOrgDirectInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
       {
@@ -154,7 +162,7 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
           titleId: "logInWithPasskey",
           pageTitle: {
             key: "logInWithPasskey",
@@ -212,11 +220,38 @@ const routes: Routes = [
         ],
       },
       {
+        // Open organization invite link landing. The component handles both
+        // authenticated and unauthenticated users so no unauthGuardFn here.
+        // `deepLinkGuard` persists the URL so SSO + JIT flows can replay it after auth.
+        path: "join/:organizationId/:inviteLinkCode",
+        canActivate: [deepLinkGuard()],
+        component: AcceptOrgOpenInviteComponent,
+        data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
+      },
+      {
+        // Consolidated error view for the pre-auth open org invite link domain check
+        // when the server returns 404. Reached via `router.navigate` from
+        // `LoginComponent` / `RegistrationStartComponent`; component reads
+        // `orgName` + `returnTo` query params to configure the anon-layout title
+        // and the CTA.
+        path: "organization-invite-link-invalid",
+        canActivate: [unauthGuardFn()],
+        component: OpenOrgInviteLinkInvalidComponent,
+      },
+      {
+        // Terminal page for SSO-login failure states. Variant is selected via
+        // a `kind` query param; chrome + body-copy mapping lives in
+        // `getSsoLoginFailedUi`.
+        path: "sso-login-failed",
+        canActivate: [unauthGuardFn()],
+        component: SsoLoginFailedComponent,
+      },
+      {
         path: AuthRoute.Login,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "loginPageEmailEntryScreenTitle",
           },
           pageIcon: VaultIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
@@ -336,7 +371,7 @@ const routes: Routes = [
         path: AuthWebRoute.SignUpLinkExpired,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "expiredLink",
           },
@@ -431,7 +466,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "authenticationTimeout",
           },
@@ -470,7 +505,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailCodeSentIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },
@@ -605,6 +640,16 @@ const routes: Routes = [
         ],
       },
       {
+        path: "premium/checkout/success",
+        data: {
+          titleId: "paymentSuccessful",
+          pageIcon: null,
+          doNotSaveUrl: true,
+          maxWidth: "lg",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
+      },
+      {
         path: AuthRoute.ChangePassword,
         component: ChangePasswordComponent,
         canActivate: [authGuard],
@@ -664,6 +709,12 @@ const routes: Routes = [
         canDeactivate: [unsavedSendEditsGuard],
       },
       {
+        path: "folders",
+        component: MyFoldersComponent,
+        canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
+        data: { titleId: "myFolders" } satisfies RouteDataProperties,
+      },
+      {
         path: "sm-landing",
         component: SMLandingComponent,
         data: { titleId: "moreProductsFromBitwarden" },
@@ -676,6 +727,7 @@ const routes: Routes = [
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
+        canActivate: [addPlanRedirectGuard],
         data: { titleId: "newOrganization" } satisfies RouteDataProperties,
       },
       {
@@ -707,6 +759,11 @@ const routes: Routes = [
             data: { titleId: "domainRules" } satisfies RouteDataProperties,
           },
           {
+            path: "add-plan",
+            component: CreateOrganizationComponent,
+            data: { titleId: "addPlan" } satisfies RouteDataProperties,
+          },
+          {
             path: "subscription",
             loadChildren: () =>
               import("./billing/individual/individual-billing.module").then(
@@ -735,6 +792,17 @@ const routes: Routes = [
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
           },
+          {
+            path: "export",
+            loadComponent: () =>
+              import("./tools/vault-export/export-web.component").then(
+                (mod) => mod.ExportWebComponent,
+              ),
+            canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation)],
+            data: {
+              titleId: "exportNoun",
+            } satisfies RouteDataProperties,
+          },
         ],
       },
       {
@@ -756,6 +824,7 @@ const routes: Routes = [
               import("./tools/vault-export/export-web.component").then(
                 (mod) => mod.ExportWebComponent,
               ),
+            canActivate: [vfo1ConditionalRedirect],
             data: {
               titleId: "exportNoun",
             } satisfies RouteDataProperties,
@@ -780,6 +849,14 @@ const routes: Routes = [
       import("./admin-console/organizations/organization.module").then((m) => m.OrganizationModule),
   },
 ];
+
+function vfo1ConditionalRedirect() {
+  const configService = inject(ConfigService);
+  const router = inject(Router);
+  return configService
+    .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+    .pipe(map((isEnabled) => (isEnabled ? router.parseUrl("/settings/export") : true)));
+}
 
 @NgModule({
   imports: [

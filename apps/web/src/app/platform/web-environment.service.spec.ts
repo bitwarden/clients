@@ -56,7 +56,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdUSUrls.scim + "/v2";
-      const expectedSendUrl = PROD_US_REGION.urls.send + "/#/";
+      const expectedSendUrl = PROD_US_REGION.urls.send + "/#";
 
       const prodUSEnv = new WebCloudEnvironment(PROD_US_REGION, {
         ...expectedProdUSUrls,
@@ -143,12 +143,12 @@ describe("WebEnvironmentService", () => {
       });
 
       it("envUrls.send takes precedence over config.urls.send when both are set", async () => {
-        const customSendUrl = "https://custom-send.example.com";
+        const customSendUrl = "https://vault.bitwarden.com/#/send/";
         const env = new WebCloudEnvironment(PROD_US_REGION, {
           ...expectedProdUSUrls,
           send: customSendUrl,
         });
-        expect(env.getSendUrl()).toEqual(customSendUrl + "/#/");
+        expect(env.getSendUrl()).toEqual(customSendUrl);
       });
     });
 
@@ -176,7 +176,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";
-      const expectedSendUrl = prodEURegionConfig.urls.send + "/#/";
+      const expectedSendUrl = prodEURegionConfig.urls.send + "/#";
 
       const prodEUEnv = new WebCloudEnvironment(prodEURegionConfig, {
         ...expectedProdEUUrls,
@@ -221,7 +221,7 @@ describe("WebEnvironmentService", () => {
         expect(env.getEventsUrl()).toEqual(expectedProdEUUrls.events);
 
         expect(env.getScimUrl()).toEqual(expectedModifiedScimUrl);
-        expect(env.getSendUrl()).toEqual(expectedSendUrl);
+        expect(env.getSendUrl()).toEqual(expectedSendUrl + "/send/");
 
         expect(env.getHostname()).toEqual(prodEURegionConfig.domain);
       });
@@ -257,6 +257,79 @@ describe("WebEnvironmentService", () => {
             newRegionConfig.urls.webVault + "/#" + routeAndQueryParams,
           );
         });
+      });
+    });
+
+    describe("Gov Region", () => {
+      const mockInitialProdGovUrls = {
+        base: null,
+        api: "https://api.bitwarden-gov.com",
+        identity: "https://identity.bitwarden-gov.com",
+        icons: "https://icons.bitwarden-gov.com",
+        webVault: "https://vault.bitwarden-gov.com",
+        notifications: "https://notifications.bitwarden-gov.com",
+        events: "https://events.bitwarden-gov.com",
+        scim: "https://scim.bitwarden-gov.com",
+        send: "https://send.bitwarden-gov.com",
+      } as Urls;
+
+      const mockProdGovBaseUrl = "https://vault.bitwarden-gov.com";
+
+      const prodGovRegionConfig = PRODUCTION_REGIONS.find((r) => r.key === Region.Gov);
+
+      const expectedProdGovUrls: Urls = {
+        ...mockInitialProdGovUrls,
+        base: mockProdGovBaseUrl,
+      };
+
+      const expectedModifiedScimUrl = expectedProdGovUrls.scim + "/v2";
+      const expectedSendUrl = expectedProdGovUrls.send + "/#/send/";
+
+      const prodGovEnv = new WebCloudEnvironment(prodGovRegionConfig, expectedProdGovUrls);
+
+      beforeEach(() => {
+        window = mock<Window>();
+
+        window.location = {
+          origin: mockProdGovBaseUrl,
+          href: mockProdGovBaseUrl + "/#/example",
+        } as Location;
+
+        accountService = mockAccountServiceWith(mockUserId);
+        stateProvider = new FakeStateProvider(accountService);
+        router = mock<Router>();
+
+        (router as any).url = "";
+
+        service = new WebEnvironmentService(
+          window,
+          stateProvider,
+          accountService,
+          [], // no additional region configs required for prod envs
+          router,
+          mockInitialProdGovUrls,
+        );
+      });
+
+      it("initializes the environment with the Gov production urls", async () => {
+        const env = await firstValueFrom(service.environment$);
+
+        expect(env).toEqual(prodGovEnv);
+        expect(env.getRegion()).toEqual(Region.Gov);
+        expect(env.getUrls()).toEqual(expectedProdGovUrls);
+        expect(env.isCloud()).toBeTruthy();
+
+        expect(env.getApiUrl()).toEqual(expectedProdGovUrls.api);
+        expect(env.getIdentityUrl()).toEqual(expectedProdGovUrls.identity);
+        expect(env.getIconsUrl()).toEqual(expectedProdGovUrls.icons);
+        expect(env.getWebVaultUrl()).toEqual(expectedProdGovUrls.webVault);
+        expect(env.getNotificationsUrl()).toEqual(expectedProdGovUrls.notifications);
+        expect(env.getEventsUrl()).toEqual(expectedProdGovUrls.events);
+
+        expect(env.getScimUrl()).toEqual(expectedModifiedScimUrl);
+        expect(env.getSendUrl()).toEqual(expectedSendUrl);
+
+        expect(env.getHostname()).toEqual(prodGovRegionConfig.domain);
       });
     });
   });

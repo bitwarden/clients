@@ -17,7 +17,6 @@ import {
   WebAuthnPrfUnlockService,
 } from "@bitwarden/key-management-ui";
 
-import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -38,16 +37,6 @@ export class ExtensionLockComponentService implements LockComponentService {
 
   getPreviousUrl(): string | null {
     return this.routerService.getPreviousUrl() ?? null;
-  }
-
-  getBiometricsError(error: any): string | null {
-    const biometricsError = BiometricErrors[error?.message as BiometricErrorTypes];
-
-    if (!biometricsError) {
-      return null;
-    }
-
-    return biometricsError.description;
   }
 
   async popOutBrowserExtension(): Promise<void> {
@@ -74,13 +63,20 @@ export class ExtensionLockComponentService implements LockComponentService {
     return combineLatest([
       combineLatest([
         this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
-        this.sharedUnlockSettingsService.allowSharingUnlockState$(userId),
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
+        this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
         // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
         this.biometricStateService.biometricUnlockEnabled$(userId),
       ]).pipe(
         switchMap(
-          async ([sharedUnlockFeatureFlag, allowSharingUnlockState, biometricUnlockEnabled]) =>
-            biometricUnlockEnabled || (sharedUnlockFeatureFlag && allowSharingUnlockState)
+          async ([
+            sharedUnlockFeatureEnabled,
+            allowSharingWithDesktop,
+            unlockSharingDisabled,
+            biometricUnlockEnabled,
+          ]) =>
+            biometricUnlockEnabled ||
+            (sharedUnlockFeatureEnabled && allowSharingWithDesktop && !unlockSharingDisabled)
               ? await this.biometricsService.getBiometricsStatusForUser(userId)
               : BiometricsStatus.NotEnabledLocally,
         ),

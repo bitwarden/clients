@@ -6,6 +6,7 @@ import {
   ClipboardOptions,
   PlatformUtilsService,
 } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { hasUserAgentBrand } from "@bitwarden/common/platform/misc/user-agent-data";
 
 import { SafariApp } from "../../../browser/safariApp";
 import { BrowserApi } from "../../browser/browser-api";
@@ -32,6 +33,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     // the list we hope to catch all by the most generic clients they could be on.
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
+    } else if (BrowserPlatformUtilsService.isDuckDuckGo()) {
+      // Must precede the Edge and Chrome checks: DuckDuckGo's Chromium build carries an
+      // "Edg/" suffix in its user agent and lists "Chromium" among its brands, so both of
+      // those checks would otherwise claim it first.
+      this.deviceCache = DeviceType.DuckDuckGoExtension;
     } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
       this.deviceCache = DeviceType.OperaExtension;
     } else if (BrowserPlatformUtilsService.isEdge()) {
@@ -107,6 +113,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.VivaldiExtension;
   }
 
+  private static isDuckDuckGo(): boolean {
+    return hasUserAgentBrand("DuckDuckGo");
+  }
+
+  isDuckDuckGo(): boolean {
+    return this.getDevice() === DeviceType.DuckDuckGoExtension;
+  }
+
   private static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
@@ -124,7 +138,13 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   isChromium(): boolean {
-    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+    // DuckDuckGo is Chromium (WebView2) on Windows but WebKit on macOS, so it is not
+    // Chromium in general. It is safe to treat unconditionally here because detection relies
+    // on userAgentData, which only Chromium exposes — so DuckDuckGoExtension can only ever
+    // be the Windows build. Revisit if a user-agent-based fallback is ever added above.
+    return (
+      this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi() || this.isDuckDuckGo()
+    );
   }
 
   /**
@@ -211,9 +231,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * Copies the passed text to the clipboard. For Safari, this will use
    * the native messaging API to send the text to the Bitwarden app. If
-   * the extension is using manifest v3, the offscreen document API will
-   * be used to copy the text to the clipboard. Otherwise, the browser's
-   * clipboard API will be used.
+   * the extension is using manifest v3 and the calling context does not
+   * have direct DOM access (e.g. a service worker), the offscreen document
+   * API will be used to copy the text to the clipboard. Otherwise, the
+   * browser's clipboard API will be used directly, which requires a focused
+   * document with a user gesture (e.g. the popup).
    *
    * @param text - The text to copy to the clipboard.
    * @param options - Options for the clipboard operation.
@@ -238,7 +260,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       text = "\u0000";
     }
 
-    if (BrowserApi.isManifestVersion(3) && this.offscreenDocumentService.offscreenApiSupported()) {
+    if (
+      BrowserApi.isManifestVersion(3) &&
+      this.offscreenDocumentService.offscreenApiSupported() &&
+      typeof windowContext.document === "undefined"
+    ) {
       void this.triggerOffscreenCopyToClipboard(text).then(handleClipboardWriteCallback);
 
       return;
@@ -250,9 +276,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * Reads the text from the clipboard. For Safari, this will use the
    * native messaging API to request the text from the Bitwarden app. If
-   * the extension is using manifest v3, the offscreen document API will
-   * be used to read the text from the clipboard. Otherwise, the browser's
-   * clipboard API will be used.
+   * the extension is using manifest v3 and the calling context does not
+   * have direct DOM access (e.g. a service worker), the offscreen document
+   * API will be used to read the text from the clipboard. Otherwise, the
+   * browser's clipboard API will be used directly.
    *
    * @param options - Options for the clipboard operation.
    */
@@ -263,7 +290,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       return await SafariApp.sendMessageToApp("readFromClipboard");
     }
 
-    if (BrowserApi.isManifestVersion(3) && this.offscreenDocumentService.offscreenApiSupported()) {
+    if (
+      BrowserApi.isManifestVersion(3) &&
+      this.offscreenDocumentService.offscreenApiSupported() &&
+      typeof windowContext.document === "undefined"
+    ) {
       return await this.triggerOffscreenReadFromClipboard();
     }
 
@@ -317,6 +348,8 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
         return "Vivaldi Extension";
       case DeviceType.SafariExtension:
         return "Safari Extension";
+      case DeviceType.DuckDuckGoExtension:
+        return "DuckDuckGo Extension";
       default:
         return "Unknown Browser Extension";
     }

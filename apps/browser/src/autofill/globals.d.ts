@@ -8,6 +8,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS?: string;
+      BW_DETECT_SYNC_BOUNDARIES?: string;
     }
   }
 }

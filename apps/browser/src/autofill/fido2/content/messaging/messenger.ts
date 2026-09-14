@@ -24,8 +24,7 @@ type Handler = (
  */
 export class Messenger {
   private messageEventListener:
-    | ((event: MessageEvent<MessageWithMetadata>) => void | Promise<void>)
-    | null = null;
+    ((event: MessageEvent<MessageWithMetadata>) => void | Promise<void>) | null = null;
   private onDestroy = new EventTarget();
 
   /**

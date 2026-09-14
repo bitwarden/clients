@@ -1,22 +1,18 @@
 import { combineLatest, filter, firstValueFrom, map, Observable, shareReplay } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { ApiService } from "../../abstractions/api.service";
+import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { ListResponse } from "../../models/response/list.response";
+import { CipherId, UserId } from "../../types/guid";
+import { CipherArchiveService } from "../abstractions/cipher-archive.service";
+import { CipherService } from "../abstractions/cipher.service";
+import { CipherData } from "../models/data/cipher.data";
 import {
   CipherBulkArchiveRequest,
   CipherBulkUnarchiveRequest,
-} from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
-import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
-import {
-  CipherViewLike,
-  CipherViewLikeUtils,
-} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-
-import { CipherArchiveService } from "../abstractions/cipher-archive.service";
-import { CipherData } from "../models/data/cipher.data";
+} from "../models/request/cipher-bulk-archive.request";
+import { CipherResponse } from "../models/response/cipher.response";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
@@ -76,7 +72,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
 
     await this.cipherService.upsert(responseDataArray, userId);
-    return response.data[0];
+    return responseDataArray[0];
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
@@ -90,6 +86,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
 
     await this.cipherService.upsert(responseDataArray, userId);
-    return response.data[0];
+    return responseDataArray[0];
   }
 }

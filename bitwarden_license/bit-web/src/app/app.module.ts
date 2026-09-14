@@ -17,6 +17,7 @@ import { OrganizationsModule } from "./admin-console/organizations/organizations
 import { bitPolicyEditRegister } from "./admin-console/policies";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
+import { providePam } from "./pam/provide-pam";
 
 /**
  * This is the AppModule for the commercial version of Bitwarden.
@@ -47,6 +48,7 @@ import { AppComponent } from "./app.component";
       provide: POLICY_EDIT_REGISTER,
       useValue: bitPolicyEditRegister,
     }),
+    ...providePam(),
   ],
 })
 export class AppModule {}

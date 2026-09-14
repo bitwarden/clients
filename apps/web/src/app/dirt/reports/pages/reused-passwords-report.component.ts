@@ -1,15 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -28,6 +32,16 @@ import { CipherReportComponent } from "./cipher-report.component";
   standalone: false,
 })
 export class ReusedPasswordsReportComponent extends CipherReportComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+  protected readonly reportTitleKey = "reusedPasswordsReport";
+
   ciphersToCheckForReusedPasswords: CipherView[] = [];
   passwordUseMap: Map<string, number>;
   disabled = true;
@@ -42,6 +56,7 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected logService: LogService,
   ) {
     super(
       cipherService,
@@ -53,25 +68,51 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
-    await super.load();
+    this.logService.info("[ReusedPasswordsReport] load start");
+    try {
+      await super.load();
+      this.logService.info("[ReusedPasswordsReport] load success");
+    } catch (e) {
+      this.logService.error("[ReusedPasswordsReport] load failure", e);
+      throw e;
+    }
   }
 
   async setCiphers() {
-    this.ciphersToCheckForReusedPasswords = await this.getAllCiphers();
-    const reusedPasswordCiphers = await this.checkCiphersForReusedPasswords(
-      this.ciphersToCheckForReusedPasswords,
-    );
-    this.filterCiphersByOrg(reusedPasswordCiphers);
+    this.logService.info("[ReusedPasswordsReport] analysis start");
+    try {
+      this.ciphersToCheckForReusedPasswords = await this.getAllCiphers();
+      this.logService.info(
+        `[ReusedPasswordsReport] analysis candidates total=${this.ciphersToCheckForReusedPasswords.length}`,
+      );
+
+      const reusedPasswordCiphers = await this.checkCiphersForReusedPasswords(
+        this.ciphersToCheckForReusedPasswords,
+      );
+      this.logService.info(
+        `[ReusedPasswordsReport] analysis complete reused=${reusedPasswordCiphers.length}`,
+      );
+
+      this.filterCiphersByOrg(reusedPasswordCiphers);
+      this.logService.info(
+        `[ReusedPasswordsReport] filter complete displayed=${this.ciphers.length}`,
+      );
+    } catch (e) {
+      this.logService.error("[ReusedPasswordsReport] analysis failure", e);
+      throw e;
+    }
   }
 
   protected async checkCiphersForReusedPasswords(ciphers: CipherView[]): Promise<CipherView[]> {
     const ciphersWithPasswords: CipherView[] = [];
     this.passwordUseMap = new Map<string, number>();
     this.filterStatus = [0];
+    let eligibleCipherCount = 0;
 
     ciphers.forEach((ciph) => {
       const { type, login, isDeleted, edit, viewPassword } = ciph;
@@ -86,6 +127,7 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
         return;
       }
 
+      eligibleCipherCount++;
       ciphersWithPasswords.push(ciph);
       if (this.passwordUseMap.has(login.password)) {
         this.passwordUseMap.set(login.password, this.passwordUseMap.get(login.password) + 1);
@@ -96,6 +138,10 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
     const reusedPasswordCiphers = ciphersWithPasswords.filter(
       (c) =>
         this.passwordUseMap.has(c.login.password) && this.passwordUseMap.get(c.login.password) > 1,
+    );
+
+    this.logService.info(
+      `[ReusedPasswordsReport] password analysis eligible=${eligibleCipherCount} unique=${this.passwordUseMap.size} reused=${reusedPasswordCiphers.length}`,
     );
 
     return reusedPasswordCiphers;
@@ -110,10 +156,13 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
     result: VaultItemDialogResult,
     updatedCipherView: CipherView,
   ): Promise<CipherView | null> {
+    this.logService.info(`[ReusedPasswordsReport] update check start result=${result}`);
+
     if (result === VaultItemDialogResult.Deleted) {
       this.ciphersToCheckForReusedPasswords = this.ciphersToCheckForReusedPasswords.filter(
         (c) => c.id !== updatedCipherView.id,
       );
+      this.logService.info("[ReusedPasswordsReport] update check complete action=deleted");
       return null;
     }
 
@@ -127,6 +176,8 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
 
     if (index !== -1) {
       this.ciphersToCheckForReusedPasswords[index] = updatedCipherView;
+    } else {
+      this.logService.warning("[ReusedPasswordsReport] update check warning cipher not found");
     }
 
     // Re-check the passwords for reused passwords for all ciphers
@@ -136,6 +187,9 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
 
     // set the updated ciphers list to the filtered reused passwords
     this.filterCiphersByOrg(reusedPasswordCiphers);
+    this.logService.info(
+      `[ReusedPasswordsReport] update check complete action=recalculated displayed=${this.ciphers.length}`,
+    );
 
     // return the updated cipher view
     return updatedCipherView;

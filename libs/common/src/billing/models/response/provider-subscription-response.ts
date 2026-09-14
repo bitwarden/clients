@@ -1,9 +1,8 @@
-import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
-
 import { ProviderType } from "../../../admin-console/enums";
 import { BaseResponse } from "../../../models/response/base.response";
 import { PlanType, ProductTierType } from "../../enums";
 
+import { PaymentSourceResponse } from "./payment-source.response";
 import { SubscriptionSuspensionResponse } from "./subscription-suspension.response";
 import { TaxInfoResponse } from "./tax-info.response";
 

@@ -20,6 +20,7 @@ export class BrowserApi {
   static isChromeApi: boolean = !BrowserApi.isSafariApi && typeof chrome !== "undefined";
   static isFirefoxOnAndroid: boolean =
     navigator.userAgent.indexOf("Firefox/") !== -1 && navigator.userAgent.indexOf("Android") !== -1;
+  static isFirefox: boolean = navigator.userAgent.indexOf("Firefox/") !== -1;
 
   static get manifestVersion() {
     return chrome.runtime.getManifest().manifest_version;
@@ -221,8 +222,13 @@ export class BrowserApi {
     const device = BrowserPlatformUtilsService.getDevice(clientWindow);
 
     switch (device) {
+      // DuckDuckGoExtension implies the Windows (WebView2) build, since detection relies on
+      // userAgentData, which only Chromium exposes. That build uses the Chrome Web Store and
+      // Chromium's settings URIs. DuckDuckGoBrowser is deliberately absent: it spans both the
+      // Windows Chromium build and the WebKit-based macOS build, so it cannot be mapped here.
       case DeviceType.ChromeExtension:
       case DeviceType.ChromeBrowser:
+      case DeviceType.DuckDuckGoExtension:
         return BrowserClientVendors.Chrome;
       case DeviceType.OperaExtension:
       case DeviceType.OperaBrowser:
@@ -233,6 +239,9 @@ export class BrowserApi {
       case DeviceType.VivaldiExtension:
       case DeviceType.VivaldiBrowser:
         return BrowserClientVendors.Vivaldi;
+      case DeviceType.FirefoxExtension:
+      case DeviceType.FirefoxBrowser:
+        return BrowserClientVendors.Firefox;
       default:
         return BrowserClientVendors.Unknown;
     }
@@ -836,6 +845,35 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Every value the host operating system's Unified Endpoint Management (UEM/MDM) channel exposes
+   * to this extension, or `undefined` where the browser has no managed storage area at all
+   * (Safari). An empty object means the area exists but an administrator has set no policy.
+   *
+   * Only keys declared in `managed_schema.json` are surfaced. These are administrator
+   * configuration rather than vault data, but they must not be logged: a value can disclose an
+   * organization's self-hosted infrastructure.
+   *
+   * Rejects with `chrome.runtime.lastError` when the area exists but the read fails, notably on
+   * Firefox where no native managed manifest is installed. Callers decide whether that is
+   * exceptional; on most installations it is the normal case.
+   */
+  static getManagedStorage(): Promise<Record<string, unknown> | undefined> {
+    if (chrome.storage?.managed == null) {
+      return Promise.resolve(undefined);
+    }
+
+    return new Promise((resolve, reject) => {
+      chrome.storage.managed.get(null, (items) => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+
+        resolve(items);
+      });
+    });
+  }
+
   static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {
     if (BrowserApi.isWebExtensionsApi) {
       return browser.runtime.getPlatformInfo();
@@ -915,6 +953,30 @@ export class BrowserApi {
   }
 
   /**
+   * Executes a self-contained function in the given tab and returns its result from the top frame.
+   * The function is serialized for injection, so it must not close over outer-scope variables.
+   *
+   * @param tabId - The id of the tab to execute the function in.
+   * @param func - The function to inject.
+   */
+  static async executeFunctionInTab<R>(tabId: number, func: () => R): Promise<R | undefined> {
+    if (BrowserApi.isManifestVersion(3)) {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId },
+        func,
+      });
+      return results?.[0]?.result as R | undefined;
+    }
+
+    // MV2 has no `func` parameter, so serialize the function source and inject it as code.
+    return new Promise((resolve) => {
+      chrome.tabs.executeScript(tabId, { code: `(${func.toString()})()` }, (results) =>
+        resolve(results?.[0] as R | undefined),
+      );
+    });
+  }
+
+  /**
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
@@ -924,6 +986,16 @@ export class BrowserApi {
 
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
+
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    if (BrowserApi.isFirefox) {
+      return passwordSavingOverridden;
+    }
 
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
@@ -937,12 +1009,6 @@ export class BrowserApi {
       ),
     );
 
-    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
-      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
-        resolve(checkOverrideStatus(details)),
-      ),
-    );
-
     return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
   }
 
@@ -952,6 +1018,16 @@ export class BrowserApi {
    * @param value - Determines whether to enable or disable the autofill settings.
    */
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    if (BrowserApi.isFirefox) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.privacy?.services?.passwordSavingEnabled?.set({ value });
+      } else {
+        await chrome.privacy.services.passwordSavingEnabled.set({ value });
+      }
+
+      return;
+    }
+
     await chrome.privacy.services.autofillAddressEnabled.set({ value });
     await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
     await chrome.privacy.services.passwordSavingEnabled.set({ value });

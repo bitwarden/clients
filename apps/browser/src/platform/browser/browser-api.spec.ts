@@ -1,6 +1,10 @@
 import { mock } from "jest-mock-extended";
 
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { DeviceType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/logging";
+
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { BrowserApi } from "./browser-api";
 import { ExtensionInstallType } from "./extension-install-type";
@@ -111,6 +115,43 @@ describe("BrowserApi", () => {
       const result = await BrowserApi.getInstallType();
 
       expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+  });
+
+  describe("getManagedStorage", () => {
+    afterEach(() => {
+      delete (global.chrome as any).storage.managed;
+      (chrome.runtime.lastError as any) = undefined;
+    });
+
+    it("resolves the managed storage contents", async () => {
+      const managed = { environment: { base: "https://vault.example.com" } };
+      (global.chrome as any).storage.managed = {
+        get: jest.fn().mockImplementation((_keys, callback) => callback(managed)),
+      };
+
+      const result = await BrowserApi.getManagedStorage();
+
+      expect(result).toEqual(managed);
+    });
+
+    it("resolves undefined when the browser has no managed storage area", async () => {
+      const result = await BrowserApi.getManagedStorage();
+
+      expect(result).toBeUndefined();
+    });
+
+    it("rejects with the runtime error when the read fails", async () => {
+      (global.chrome as any).storage.managed = {
+        get: jest.fn().mockImplementation((_keys, callback) => {
+          (chrome.runtime.lastError as any) = { message: "Managed storage manifest not found" };
+          callback(undefined);
+        }),
+      };
+
+      await expect(BrowserApi.getManagedStorage()).rejects.toEqual({
+        message: "Managed storage manifest not found",
+      });
     });
   });
 
@@ -1024,6 +1065,37 @@ describe("BrowserApi", () => {
 
       expect(result).toBe(false);
     });
+
+    it("returns true if password saving is overridden on Firefox", async () => {
+      const originalIsFirefox = BrowserApi.isFirefox;
+      BrowserApi.isFirefox = true;
+
+      const mockFn = jest.fn<
+        void,
+        [
+          details: chrome.types.ChromeSettingGetDetails,
+          callback: (details: chrome.types.ChromeSettingGetResult<boolean>) => void,
+        ],
+        never
+      >((details, callback) => {
+        callback({
+          value: false,
+          levelOfControl: "controlled_by_this_extension",
+        });
+      });
+      const addressGet = jest.fn();
+      chrome.privacy.services.passwordSavingEnabled.get = mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.autofillAddressEnabled.get =
+        addressGet as unknown as ChromeSettingsGet;
+
+      const result = await BrowserApi.browserAutofillSettingsOverridden();
+
+      expect(result).toBe(true);
+      expect(mockFn).toHaveBeenCalled();
+      expect(addressGet).not.toHaveBeenCalled();
+
+      BrowserApi.isFirefox = originalIsFirefox;
+    });
   });
 
   describe("updateDefaultBrowserAutofillSettings", () => {
@@ -1039,6 +1111,58 @@ describe("BrowserApi", () => {
       expect(chrome.privacy.services.passwordSavingEnabled.set).toHaveBeenCalledWith({
         value: false,
       });
+    });
+
+    it("only sets passwordSavingEnabled on Firefox", async () => {
+      const originalIsFirefox = BrowserApi.isFirefox;
+      const originalIsWebExtensionsApi = BrowserApi.isWebExtensionsApi;
+      BrowserApi.isFirefox = true;
+      BrowserApi.isWebExtensionsApi = true;
+      globalThis.browser = mock<typeof browser>({
+        privacy: { services: { passwordSavingEnabled: { set: jest.fn() } } },
+      });
+
+      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
+
+      expect(browser.privacy.services.passwordSavingEnabled.set).toHaveBeenCalledWith({
+        value: false,
+      });
+      expect(chrome.privacy.services.autofillAddressEnabled.set).not.toHaveBeenCalled();
+      expect(chrome.privacy.services.autofillCreditCardEnabled.set).not.toHaveBeenCalled();
+
+      BrowserApi.isFirefox = originalIsFirefox;
+      BrowserApi.isWebExtensionsApi = originalIsWebExtensionsApi;
+      delete (global as any).browser;
+    });
+  });
+
+  describe("getBrowserClientVendor", () => {
+    it.each([
+      [DeviceType.FirefoxExtension, BrowserClientVendors.Firefox],
+      [DeviceType.FirefoxBrowser, BrowserClientVendors.Firefox],
+    ])("returns Firefox for %s device", (deviceType, expected) => {
+      jest.spyOn(BrowserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(expected);
+    });
+
+    // A DuckDuckGo extension implies the Windows (WebView2) build, which is Chromium.
+    it("returns Chrome for DuckDuckGoExtension device", () => {
+      jest
+        .spyOn(BrowserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoExtension);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(BrowserClientVendors.Chrome);
+    });
+
+    // DuckDuckGoBrowser spans both the Windows Chromium build and the WebKit macOS build, so
+    // it must not be assumed Chromium.
+    it("returns Unknown for DuckDuckGoBrowser device", () => {
+      jest
+        .spyOn(BrowserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoBrowser);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(BrowserClientVendors.Unknown);
     });
   });
 

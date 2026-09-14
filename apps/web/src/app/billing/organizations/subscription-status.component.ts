@@ -52,7 +52,10 @@ export class SubscriptionStatusComponent {
   }
 
   get planName() {
-    return this.organizationSubscriptionResponse.plan.name;
+    return (
+      this.organizationSubscriptionResponse.pendingAnnualUpgrade?.plan?.name ??
+      this.organizationSubscriptionResponse.plan.name
+    );
   }
 
   get status(): string {

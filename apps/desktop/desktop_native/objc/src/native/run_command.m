@@ -29,8 +29,8 @@ void runCommand(void *context, char* inputJson) {
       NSError *error = nil;
       NSDictionary *input = parseJson(inputString, error);
       if (error) {
-        NSLog(@"Error occured while deserializing input params: %@", error);
-        return _return(context, _error([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]));
+        NSLog(@"Error occurred while deserializing input params: %@", error);
+        return _return(context, _error([NSString stringWithFormat:@"Error occurred while deserializing input params: %@", error]));
       }
 
       pickAndRunCommand(context, input);

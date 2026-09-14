@@ -39,8 +39,9 @@ use std::{
     io::{Error, ErrorKind, Write},
 };
 
-/// Struct to write CBOR-encoded data to a writer.
-pub(crate) struct CborWriter<'a, W: Write> {
+/// Struct to write CBOR-encoded data to a writer. Implements a subset of CBOR
+/// suitable for serializing CTAP2 values.
+pub struct CborWriter<'a, W: Write> {
     writer: &'a mut W,
 }
 
@@ -277,11 +278,251 @@ enum MajorType {
     FloatOrSimple,
 }
 
+use std::{
+    fmt,
+    io::{Cursor, Read},
+};
+
+#[derive(Debug)]
+pub enum CborError {
+    UnexpectedEof,
+    InvalidUtf8(std::str::Utf8Error),
+    UnsupportedType(&'static str),
+    MaxDepthExceeded,
+    IndefiniteLength,
+}
+
+impl fmt::Display for CborError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            CborError::UnexpectedEof => write!(f, "unexpected end of input"),
+            CborError::InvalidUtf8(e) => write!(f, "invalid UTF-8: {e}"),
+            CborError::UnsupportedType(t) => write!(f, "unsupported CBOR type: {t}"),
+            CborError::MaxDepthExceeded => write!(f, "maximum nesting depth exceeded"),
+            CborError::IndefiniteLength => write!(
+                f,
+                "indefinite-length items are not permitted in CTAP2 canonical CBOR"
+            ),
+        }
+    }
+}
+
+/// Maximum nesting depth the parser will descend into. The CTAP2 canonical
+/// encoding form mandates no more than four levels of nesting, so eight is
+/// comfortable headroom. Its purpose is to bound recursion so that untrusted
+/// input made of deeply nested containers cannot overflow the stack and abort
+/// the process.
+const MAX_DEPTH: usize = 8;
+
+#[derive(Debug, PartialEq)]
+pub enum CborValue {
+    PositiveInteger(u64),
+    NegativeInteger(i128),
+    ByteString(Vec<u8>),
+    TextString(String),
+    Array(Vec<CborValue>),
+    Map(Vec<(CborValue, CborValue)>),
+    Bool(bool),
+    Null,
+    Undefined,
+}
+
+impl CborValue {
+    pub fn as_text(&self) -> Option<&str> {
+        match self {
+            CborValue::TextString(s) => Some(s.as_str()),
+            _ => None,
+        }
+    }
+
+    pub fn as_bytes(&self) -> Option<&[u8]> {
+        match self {
+            CborValue::ByteString(b) => Some(b.as_slice()),
+            _ => None,
+        }
+    }
+
+    pub fn into_map(self) -> Result<Vec<(CborValue, CborValue)>, CborValue> {
+        match self {
+            CborValue::Map(m) => Ok(m),
+            other => Err(other),
+        }
+    }
+}
+
+/// CBOR parser implementing the subset of features required for parsing
+/// WebAuthn structures.
+pub struct CborParser<'a> {
+    cursor: Cursor<&'a [u8]>,
+}
+
+impl<'a> CborParser<'a> {
+    fn new(data: &'a [u8]) -> Self {
+        Self {
+            cursor: Cursor::new(data),
+        }
+    }
+
+    fn read_byte(&mut self) -> Result<u8, CborError> {
+        let mut buf = [0u8; 1];
+        self.cursor
+            .read_exact(&mut buf)
+            .map_err(|_| CborError::UnexpectedEof)?;
+        Ok(buf[0])
+    }
+
+    /// Number of bytes left to read in the underlying buffer.
+    fn remaining(&self) -> usize {
+        let len = self.cursor.get_ref().len();
+        let pos = self.cursor.position() as usize;
+        len.saturating_sub(pos)
+    }
+
+    fn read_bytes(&mut self, n: usize) -> Result<Vec<u8>, CborError> {
+        // `n` is the length field of a byte/text string read from untrusted
+        // input, so it can be arbitrarily large (up to u64::MAX). A
+        // definite-length string of length `n` must be followed by `n` bytes in
+        // the stream, so if `n` exceeds what's left in the buffer the input is
+        // truncated. Reject it before allocating, otherwise a tiny payload
+        // declaring a huge length triggers a massive allocation or a
+        // capacity-overflow panic.
+        if n > self.remaining() {
+            return Err(CborError::UnexpectedEof);
+        }
+        let mut buf = vec![0u8; n];
+        self.cursor
+            .read_exact(&mut buf)
+            .map_err(|_| CborError::UnexpectedEof)?;
+        Ok(buf)
+    }
+
+    /// Returns `None` for indefinite-length (additional_info == 31).
+    fn read_argument(&mut self, additional_info: u8) -> Result<Option<u64>, CborError> {
+        match additional_info {
+            n @ 0..=23 => Ok(Some(n as u64)),
+            24 => Ok(Some(self.read_byte()? as u64)),
+            25 => {
+                let b = self.read_bytes(2)?;
+                Ok(Some(u16::from_be_bytes([b[0], b[1]]) as u64))
+            }
+            26 => {
+                let b = self.read_bytes(4)?;
+                Ok(Some(u32::from_be_bytes([b[0], b[1], b[2], b[3]]) as u64))
+            }
+            27 => {
+                let b = self.read_bytes(8)?;
+                Ok(Some(u64::from_be_bytes([
+                    b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7],
+                ])))
+            }
+            31 => Ok(None),
+            _ => Err(CborError::UnsupportedType("reserved additional info")),
+        }
+    }
+
+    fn read_value(&mut self, depth: usize) -> Result<CborValue, CborError> {
+        if depth >= MAX_DEPTH {
+            return Err(CborError::MaxDepthExceeded);
+        }
+
+        let first = self.read_byte()?;
+        let major_type = first >> 5;
+        let additional_info = first & 0x1f;
+
+        let arg = self.read_argument(additional_info)?;
+
+        match major_type {
+            // Major type 0: unsigned integer
+            0 => Ok(CborValue::PositiveInteger(
+                arg.ok_or(CborError::IndefiniteLength)?,
+            )),
+
+            // Major type 1: negative integer (-1 - n)
+            1 => {
+                let n = arg.ok_or(CborError::IndefiniteLength)?;
+                Ok(CborValue::NegativeInteger(-1_i128 - n as i128))
+            }
+
+            // Major type 2: byte string
+            2 => {
+                let len = arg.ok_or(CborError::IndefiniteLength)?;
+                Ok(CborValue::ByteString(self.read_bytes(len as usize)?))
+            }
+
+            // Major type 3: text string
+            3 => {
+                let len = arg.ok_or(CborError::IndefiniteLength)?;
+                let bytes = self.read_bytes(len as usize)?;
+                let s =
+                    String::from_utf8(bytes).map_err(|e| CborError::InvalidUtf8(e.utf8_error()))?;
+                Ok(CborValue::TextString(s))
+            }
+
+            // Major type 4: array
+            4 => {
+                let count = arg.ok_or(CborError::IndefiniteLength)?;
+                // `count` is attacker-controlled. Passing it raw to with_capacity
+                // would panic on capacity overflow for a huge declared count.
+                // Each element occupies at least one input byte, so the remaining
+                // input is a safe upper bound; clamp to it and let the Vec grow if
+                // elements turn out larger.
+                let mut items = Vec::with_capacity((count as usize).min(self.remaining()));
+                for _ in 0..count {
+                    items.push(self.read_value(depth + 1)?);
+                }
+                Ok(CborValue::Array(items))
+            }
+
+            // Major type 5: map
+            5 => {
+                let count = arg.ok_or(CborError::IndefiniteLength)?;
+                // See the array case: clamp the attacker-controlled count to the
+                // remaining input to avoid a capacity-overflow panic.
+                let mut pairs = Vec::with_capacity((count as usize).min(self.remaining()));
+                for _ in 0..count {
+                    let k = self.read_value(depth + 1)?;
+                    let v = self.read_value(depth + 1)?;
+                    pairs.push((k, v));
+                }
+                Ok(CborValue::Map(pairs))
+            }
+
+            // Major type 6: tag — not supported
+            6 => Err(CborError::UnsupportedType("Tag")),
+
+            // Major type 7: simple values (floats not supported)
+            7 => match arg {
+                Some(20) => Ok(CborValue::Bool(false)),
+                Some(21) => Ok(CborValue::Bool(true)),
+                Some(22) => Ok(CborValue::Null),
+                Some(23) => Ok(CborValue::Undefined),
+                _ => Err(CborError::UnsupportedType("Float or unknown simple value")),
+            },
+
+            _ => unreachable!("major_type is a 3-bit value"),
+        }
+    }
+
+    /// Parse a single CBOR value from `data`.
+    pub fn parse(data: &'a [u8]) -> Result<CborValue, CborError> {
+        Self::new(data).read_value(0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::io::ErrorKind;
 
-    use super::CborWriter;
+    use super::*;
+
+    #[expect(clippy::string_slice)]
+    fn from_hex(s: &str) -> Vec<u8> {
+        (0..s.len())
+            .step_by(2)
+            // SAFETY: Only used on trusted hex input.
+            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap())
+            .collect()
+    }
 
     #[test]
     fn write_bytes() {
@@ -440,5 +681,207 @@ mod tests {
         let mut cbor_writer = CborWriter::new(&mut buf);
         cbor_writer.write_map_start(800).unwrap();
         assert_eq!(buf, &[0b101_11001, 0b0000_0011, 0b0010_0000,]);
+    }
+
+    /// Test vectors from https://github.com/Yubico/python-fido2/blob/main/tests/test_cbor.py
+    /// which itself sources from https://github.com/cbor/test-vectors
+    #[test]
+    fn test_decode_vectors() {
+        use CborValue::*;
+        let cases: &[(&str, CborValue)] = &[
+            // unsigned integers — inline (< 24), 1-byte, 2-byte, 4-byte, 8-byte
+            ("00", PositiveInteger(0)),
+            ("01", PositiveInteger(1)),
+            ("0a", PositiveInteger(10)),
+            ("17", PositiveInteger(23)),
+            ("1818", PositiveInteger(24)),
+            ("1819", PositiveInteger(25)),
+            ("1864", PositiveInteger(100)),
+            ("1903e8", PositiveInteger(1000)),
+            ("1a000f4240", PositiveInteger(1_000_000)),
+            ("1b000000e8d4a51000", PositiveInteger(1_000_000_000_000)),
+            ("1bffffffffffffffff", PositiveInteger(u64::MAX)),
+            // negative integers
+            ("20", NegativeInteger(-1)),
+            ("29", NegativeInteger(-10)),
+            ("3863", NegativeInteger(-100)),
+            ("3903e7", NegativeInteger(-1000)),
+            // negatives that overflow i64: -2^63-1 and the CBOR minimum -2^64
+            ("3b8000000000000000", NegativeInteger(-(2_i128.pow(63)) - 1)),
+            ("3bffffffffffffffff", NegativeInteger(-(2_i128.pow(64)))),
+            // simple values
+            ("f4", Bool(false)),
+            ("f5", Bool(true)),
+            // byte strings
+            ("40", ByteString(vec![])),
+            ("4401020304", ByteString(vec![1, 2, 3, 4])),
+            // text strings — ASCII, escape chars, multi-byte UTF-8, 4-byte codepoint
+            ("60", TextString(String::new())),
+            ("6161", TextString("a".into())),
+            ("6449455446", TextString("IETF".into())),
+            ("62225c", TextString("\"\\".into())),
+            ("62c3bc", TextString("ü".into())),
+            ("63e6b0b4", TextString("水".into())),
+            ("64f0908591", TextString("𐅑".into())),
+            // arrays — empty, flat, nested, 1-byte-length (25 items)
+            ("80", Array(vec![])),
+            (
+                "83010203",
+                Array(vec![
+                    PositiveInteger(1),
+                    PositiveInteger(2),
+                    PositiveInteger(3),
+                ]),
+            ),
+            (
+                "8301820203820405",
+                Array(vec![
+                    PositiveInteger(1),
+                    Array(vec![PositiveInteger(2), PositiveInteger(3)]),
+                    Array(vec![PositiveInteger(4), PositiveInteger(5)]),
+                ]),
+            ),
+            (
+                "98190102030405060708090a0b0c0d0e0f101112131415161718181819",
+                Array((1u64..=25).map(PositiveInteger).collect()),
+            ),
+            // maps — empty, integer keys, string keys with array values, mixed nesting
+            ("a0", Map(vec![])),
+            (
+                "a201020304",
+                Map(vec![
+                    (PositiveInteger(1), PositiveInteger(2)),
+                    (PositiveInteger(3), PositiveInteger(4)),
+                ]),
+            ),
+            (
+                "a26161016162820203",
+                Map(vec![
+                    (TextString("a".into()), PositiveInteger(1)),
+                    (
+                        TextString("b".into()),
+                        Array(vec![PositiveInteger(2), PositiveInteger(3)]),
+                    ),
+                ]),
+            ),
+            (
+                "826161a161626163",
+                Array(vec![
+                    TextString("a".into()),
+                    Map(vec![(TextString("b".into()), TextString("c".into()))]),
+                ]),
+            ),
+            (
+                "a56161614161626142616361436164614461656145",
+                Map(vec![
+                    (TextString("a".into()), TextString("A".into())),
+                    (TextString("b".into()), TextString("B".into())),
+                    (TextString("c".into()), TextString("C".into())),
+                    (TextString("d".into()), TextString("D".into())),
+                    (TextString("e".into()), TextString("E".into())),
+                ]),
+            ),
+        ];
+
+        for (hex, expected) in cases {
+            let bytes = from_hex(hex);
+            assert_eq!(
+                CborParser::parse(&bytes).unwrap(),
+                *expected,
+                "failed for {hex}"
+            );
+        }
+    }
+
+    /// A tiny payload declaring an enormous length must error, not panic or
+    /// attempt a huge allocation. Covers byte string, text string, array, and
+    /// map, each declaring u64::MAX via an 8-byte length.
+    #[test]
+    fn oversized_length_does_not_panic() {
+        let cases: &[&str] = &[
+            "5bffffffffffffffff", // byte string, len = u64::MAX
+            "7bffffffffffffffff", // text string, len = u64::MAX
+            "9bffffffffffffffff", // array, count = u64::MAX
+            "bbffffffffffffffff", // map, count = u64::MAX
+        ];
+        for hex in cases {
+            let bytes = from_hex(hex);
+            assert!(
+                matches!(CborParser::parse(&bytes), Err(CborError::UnexpectedEof)),
+                "expected UnexpectedEof for {hex}"
+            );
+        }
+    }
+
+    /// Deeply nested containers must error rather than recurse until the stack
+    /// overflows. Eight nested single-element arrays (`81` headers) exceed
+    /// MAX_DEPTH.
+    #[test]
+    fn excessive_nesting_does_not_overflow_stack() {
+        let bytes = from_hex(&"81".repeat(8));
+        assert!(
+            matches!(CborParser::parse(&bytes), Err(CborError::MaxDepthExceeded)),
+            "expected MaxDepthExceeded"
+        );
+    }
+
+    /// Nesting up to the limit still parses: seven array headers wrapping a
+    /// single integer stays within MAX_DEPTH.
+    #[test]
+    fn nesting_within_limit_parses() {
+        use CborValue::*;
+        let bytes = from_hex(&("81".repeat(7) + "00"));
+        let mut value = CborParser::parse(&bytes).unwrap();
+        for _ in 0..7 {
+            match value {
+                Array(mut items) => {
+                    assert_eq!(items.len(), 1);
+                    value = items.pop().unwrap();
+                }
+                other => panic!("expected nested array, got {other:?}"),
+            }
+        }
+        assert_eq!(value, PositiveInteger(0));
+    }
+
+    /// Indefinite-length items are forbidden in CTAP2 canonical CBOR and must be
+    /// rejected. Covers byte string, text string, array, and map (each `..1f`
+    /// header followed by a `ff` break).
+    #[test]
+    fn indefinite_length_is_rejected() {
+        let cases: &[&str] = &[
+            "5fff", // indefinite byte string
+            "7fff", // indefinite text string
+            "9fff", // indefinite array
+            "bfff", // indefinite map
+        ];
+        for hex in cases {
+            let bytes = from_hex(hex);
+            assert!(
+                matches!(CborParser::parse(&bytes), Err(CborError::IndefiniteLength)),
+                "expected IndefiniteLength for {hex}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_webauthn_attestation_object() {
+        // {fmt: "none", attStmt: {}, authData: <4 bytes>}
+        // Byte sequence from make_credential test
+        let data = vec![
+            163, 99, 102, 109, 116, 100, 110, 111, 110, 101, 103, 97, 116, 116, 83, 116, 109, 116,
+            160, 104, 97, 117, 116, 104, 68, 97, 116, 97, 68, 1, 2, 3, 4,
+        ];
+        let value = CborParser::parse(&data).unwrap();
+        let map = value.into_map().unwrap();
+        let lookup: std::collections::HashMap<&str, &CborValue> = map
+            .iter()
+            .filter_map(|(k, v)| k.as_text().map(|s| (s, v)))
+            .collect();
+        assert_eq!(lookup["fmt"].as_text(), Some("none"));
+        assert_eq!(
+            lookup["authData"].as_bytes(),
+            Some([1u8, 2, 3, 4].as_slice())
+        );
     }
 }

@@ -1,10 +1,10 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { DECRYPT_ERROR, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
-import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Attachment } from "../domain/attachment";
 
 export class AttachmentView implements View {
@@ -105,5 +105,13 @@ export class AttachmentView implements View {
     view._hasDecryptionError = failure;
 
     return view;
+  }
+
+  /**
+   * Determines if the attachment is a legacy attachment without a per-attachment key.
+   * In this case, the attachment is encrypted with the user's user-key
+   */
+  isLegacyAttachment(): boolean {
+    return this.key == null && this.encryptedKey == null;
   }
 }

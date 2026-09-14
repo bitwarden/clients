@@ -5,15 +5,19 @@ import {
   InvalidCurrentPasswordError,
 } from "@bitwarden/angular/auth/password-management/change-password";
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
 
@@ -24,6 +28,8 @@ describe("WebChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let policyService: MockProxy<PolicyService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
   let syncService: MockProxy<SyncService>;
   let userKeyRotationService: MockProxy<UserKeyRotationService>;
   let routerService: MockProxy<RouterService>;
@@ -45,6 +51,8 @@ describe("WebChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    policyService = mock<PolicyService>();
+    organizationInviteService = mock<OrganizationInviteService>();
     syncService = mock<SyncService>();
     userKeyRotationService = mock<UserKeyRotationService>();
     routerService = mock<RouterService>();
@@ -54,6 +62,8 @@ describe("WebChangePasswordService", () => {
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      policyService,
+      organizationInviteService,
       syncService,
       userKeyRotationService,
       routerService,

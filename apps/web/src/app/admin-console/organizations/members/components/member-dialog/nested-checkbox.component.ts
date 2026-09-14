@@ -5,18 +5,38 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { map, startWith, switchMap } from "rxjs";
 
 import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
+
+/**
+ * Maps each collection-management form-control name to its VFO1 (shared folder terminology)
+ * i18n key. The control names themselves must not change - they are bound to
+ * `PermissionsApi` fields - only the label rendered for each checkbox is flagged.
+ */
+const VFO1_LABEL_KEYS: Readonly<Record<string, string>> = Object.freeze({
+  manageAllCollections: "manageAllSharedFolders",
+  createNewCollections: "createNewSharedFolders",
+  editAnyCollection: "editAnySharedFolder",
+  deleteAnyCollection: "deleteAnySharedFolder",
+});
 
 @Component({
   selector: "app-nested-checkbox",
   templateUrl: "nested-checkbox.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
+  imports: [AsyncPipe, ReactiveFormsModule, CheckboxModule, FormFieldModule, Vfo1I18nPipe],
 })
 export class NestedCheckboxComponent {
   readonly parentId = input.required<string>();
   readonly checkboxes = input.required<FormGroup<Record<string, FormControl<boolean>>>>();
+
+  /**
+   * Returns the VFO1 (shared folder) i18n key for a given control name, falling back to the
+   * control name itself when there is no mapping (keeps this component generic).
+   */
+  protected vfo1LabelKey(controlName: string): string {
+    return VFO1_LABEL_KEYS[controlName] ?? controlName;
+  }
 
   protected readonly children = computed(() =>
     Object.entries(this.checkboxes().controls).filter(([key]) => key !== this.parentId()),

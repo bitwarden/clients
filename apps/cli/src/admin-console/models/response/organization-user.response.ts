@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -11,12 +9,25 @@ export class OrganizationUserResponse implements BaseResponse {
   object: string;
   id: string;
   email: string;
-  name: string;
+  name: string | undefined;
   status: OrganizationUserStatusType;
   type: OrganizationUserType;
   twoFactorEnabled: boolean;
 
-  constructor() {
+  constructor(c: {
+    id: string;
+    email: string;
+    name: string | undefined;
+    status: OrganizationUserStatusType;
+    type: OrganizationUserType;
+    twoFactorEnabled: boolean;
+  }) {
     this.object = "org-member";
+    this.id = c.id;
+    this.email = c.email;
+    this.name = c.name;
+    this.status = c.status;
+    this.type = c.type;
+    this.twoFactorEnabled = c.twoFactorEnabled;
   }
 }

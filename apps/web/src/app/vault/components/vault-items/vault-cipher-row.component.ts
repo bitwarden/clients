@@ -2,13 +2,16 @@
 // @ts-strict-ignore
 import {
   Component,
+  computed,
   EventEmitter,
   HostListener,
+  inject,
   Input,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -27,10 +30,13 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
+  CollectionPermission,
   convertToPermission,
   getPermissionList,
+  permissionLabelId,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
@@ -44,6 +50,23 @@ import { RowHeightClass } from "./vault-items.component";
   host: { class: "tw-group/cipher-row" },
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
+
+  private readonly quickCopyIconFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
+  private readonly quickCopyActionsSetting = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
+  );
+
+  protected readonly showQuickCopyActions = computed(
+    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
+  );
+
   protected RowHeightClass = RowHeightClass;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -130,12 +153,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
+  // Ordered highest to lowest priority; compared against `CollectionPermission` values (not
+  // label ids) so the priority is unaffected by which terminology (VFO1 or legacy) is displayed.
   private permissionPriority = [
-    "manageCollection",
-    "editItems",
-    "editItemsHidePass",
-    "viewItems",
-    "viewItemsHidePass",
+    CollectionPermission.Manage,
+    CollectionPermission.Edit,
+    CollectionPermission.EditExceptPass,
+    CollectionPermission.View,
+    CollectionPermission.ViewExceptPass,
   ];
   protected organization?: Organization;
 
@@ -226,7 +251,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get subtitle() {
-    return CipherViewLikeUtils.subtitle(this.cipher);
+    return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
 
   protected get isDeleted() {
@@ -287,8 +312,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
     return filteredCollections
       .map((collection) => {
+        const permission = this.permissionList.find(
+          (p) => p.perm === convertToPermission(collection),
+        );
         const label = this.i18nService.t(
-          this.permissionList.find((p) => p.perm === convertToPermission(collection))?.labelId,
+          permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
         );
         return `${collection.name}: ${label}`;
       })
@@ -297,7 +325,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
-      return this.i18nService.t("manageCollection");
+      const managePermission = this.permissionList.find(
+        (p) => p.perm === CollectionPermission.Manage,
+      );
+      return this.i18nService.t(
+        permissionLabelId(managePermission, this.vfo1TerminologyService.enabled()),
+      );
     }
 
     const filteredCollections = this.collections.filter((collection) => {
@@ -311,19 +344,21 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     });
 
     if (filteredCollections?.length === 1) {
+      const permission = this.permissionList.find(
+        (p) => p.perm === convertToPermission(filteredCollections[0]),
+      );
       return this.i18nService.t(
-        this.permissionList.find((p) => p.perm === convertToPermission(filteredCollections[0]))
-          ?.labelId,
+        permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
       );
     }
 
     if (filteredCollections?.length > 1) {
-      const labels = filteredCollections.map((collection) => {
-        return this.permissionList.find((p) => p.perm === convertToPermission(collection))?.labelId;
-      });
-
-      const highestPerm = this.permissionPriority.find((perm) => labels.includes(perm));
-      return this.i18nService.t(highestPerm);
+      const perms = filteredCollections.map((collection) => convertToPermission(collection));
+      const highestPerm = this.permissionPriority.find((perm) => perms.includes(perm));
+      const permission = this.permissionList.find((p) => p.perm === highestPerm);
+      return this.i18nService.t(
+        permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
+      );
     }
 
     return this.i18nService.t("noAccess");

@@ -12,7 +12,7 @@ export class BitPrefixDirective implements OnInit {
   readonly classList = [
     "tw-transition-colors",
     "tw-text-fg-body",
-    "group-hover/form-field:tw-text-fg-brand",
+    "group-[&:hover:not(:has(:is(input,textarea):disabled))]/form-field:tw-text-fg-brand",
     "group-has-[:focus-visible]/form-field:!tw-text-fg-body-subtle",
   ];
 

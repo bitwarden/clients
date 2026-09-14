@@ -17,9 +17,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Get current rollout percentage
+        env:
+          DEBUG_MODE: ${{ inputs.debug }}
         run: |
           curl -sSfL -o latest.yml "https://artifacts.bitwarden.com/desktop/latest.yml"
-          if [[ "${{ inputs.debug }}" == "true" ]]; then
+          if [[ "$DEBUG_MODE" == "true" ]]; then
             cat latest.yml
             echo
           fi

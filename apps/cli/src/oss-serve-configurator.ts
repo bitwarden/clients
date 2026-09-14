@@ -62,6 +62,7 @@ export class OssServeConfigurator {
       this.serviceContainer.totpService,
       this.serviceContainer.auditService,
       this.serviceContainer.keyService,
+      this.serviceContainer.legacyCompatKeyService,
       this.serviceContainer.encryptService,
       this.serviceContainer.searchService,
       this.serviceContainer.apiService,
@@ -123,7 +124,8 @@ export class OssServeConfigurator {
       this.serviceContainer.syncService,
       this.serviceContainer.accountService,
       this.serviceContainer.authService,
-      this.serviceContainer.userAutoUnlockKeyService,
+      this.serviceContainer.unlockService,
+      this.serviceContainer.logService,
     );
     this.deleteCommand = new DeleteCommand(
       this.serviceContainer.cipherService,
@@ -167,7 +169,6 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
@@ -186,6 +187,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.policyService,
       this.serviceContainer.configService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -198,6 +200,7 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.apiService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
@@ -205,6 +208,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,
@@ -217,6 +221,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.environmentService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
   }
 

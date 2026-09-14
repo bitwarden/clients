@@ -4,7 +4,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeVariant, ButtonType, SvgModule, TypographyModule } from "@bitwarden/components";
-import { PricingCardComponent } from "@bitwarden/pricing";
+
+import { PricingCardComponent } from "../..";
 
 @Component({
   template: `

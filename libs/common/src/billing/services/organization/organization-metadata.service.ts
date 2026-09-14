@@ -1,9 +1,8 @@
 import { BehaviorSubject, from, Observable, shareReplay, switchMap } from "rxjs";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { OrganizationId } from "../../../types/guid";
+import { BillingApiServiceAbstraction } from "../../abstractions";
 import { OrganizationMetadataServiceAbstraction } from "../../abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "../../models/response/organization-billing-metadata.response";
 

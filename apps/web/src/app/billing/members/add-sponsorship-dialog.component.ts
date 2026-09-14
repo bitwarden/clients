@@ -14,7 +14,6 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
@@ -27,6 +26,8 @@ import {
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;

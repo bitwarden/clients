@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
@@ -13,10 +11,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -76,7 +73,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         ),
         tap(async (mapResponse) => {
           this.organizationId = mapResponse.params.organizationId;
-          this.organization = mapResponse.organization;
+          this.organization = mapResponse.organization!;
         }),
         concatMap(async () => await super.ngOnInit()),
         takeUntil(this.destroy$),
@@ -93,9 +90,9 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         const twoFactorVerifyDialogRef = TwoFactorVerifyComponent.open(this.dialogService, {
           data: { type: type, organizationId: this.organizationId },
         });
-        const result: AuthResponse<TwoFactorDuoResponse> = await lastValueFrom(
+        const result = (await lastValueFrom(
           twoFactorVerifyDialogRef.closed,
-        );
+        )) as TwoFactorSetupDialogData<TwoFactorOrganizationDuoResponse>;
         if (!result) {
           return;
         }

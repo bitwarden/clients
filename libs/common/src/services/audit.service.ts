@@ -1,11 +1,13 @@
 import { Subject } from "rxjs";
 import { mergeMap } from "rxjs/operators";
 
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "../abstractions/audit.service";
 import { BreachAccountResponse } from "../dirt/models/response/breach-account.response";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
-import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "../platform/misc/utils";
 
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
@@ -59,7 +61,10 @@ export class AuditService implements AuditServiceAbstraction {
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 
-    const response = await this.apiService.nativeFetch(new Request(PwnedPasswordsApi + hashStart));
+    const request = new Request(PwnedPasswordsApi + hashStart, {
+      headers: { "Add-Padding": "true" },
+    });
+    const response = await this.apiService.nativeFetch(request);
     const leakedHashes = await response.text();
     const match = leakedHashes.split(/\r?\n/).find((v) => {
       return v.split(":")[0] === hashEnding;

@@ -18,7 +18,6 @@ import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogi
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -35,6 +34,8 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
@@ -114,6 +115,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private unlockService: UnlockService,
     private loginStrategyCacheService: LoginStrategyCacheService,
     private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
   ) {
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
@@ -333,6 +335,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.policyService,
               this.passwordPreloginService,
               this.unlockService,
+              this.legacyCompatKeyService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
@@ -354,12 +357,14 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           case AuthenticationType.AuthRequest:
             return new AuthRequestLoginStrategy(
               data?.authRequest ?? new AuthRequestLoginStrategyData(),
+              this.unlockService,
               this.deviceTrustService,
               ...sharedDeps,
             );
           case AuthenticationType.WebAuthn:
             return new WebAuthnLoginStrategy(
               data?.webAuthn ?? new WebAuthnLoginStrategyData(),
+              this.unlockService,
               ...sharedDeps,
             );
         }

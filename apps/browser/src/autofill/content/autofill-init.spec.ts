@@ -68,19 +68,42 @@ describe("AutofillInit", () => {
   });
 
   describe("init", () => {
-    it("sets up the extension message listeners", () => {
-      jest.spyOn(autofillInit as any, "setupExtensionMessageListeners");
+    it("registers the always-on extension message listener", () => {
+      jest.spyOn(chrome.runtime.onMessage, "addListener");
 
       autofillInit.init();
 
-      expect(autofillInit["setupExtensionMessageListeners"]).toHaveBeenCalled();
+      expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(
+        autofillInit["handleExtensionMessage"],
+      );
     });
 
+    it("registers the contextmenu listener", () => {
+      jest.spyOn(document, "addEventListener");
+
+      autofillInit.init();
+
+      expect(document.addEventListener).toHaveBeenCalledWith(
+        "contextmenu",
+        autofillInit["handleContextMenuClick"],
+      );
+    });
+
+    it("does not start monitoring", () => {
+      jest.spyOn(window, "addEventListener");
+
+      autofillInit.init();
+
+      expect(window.addEventListener).not.toHaveBeenCalledWith("load", expect.any(Function));
+    });
+  });
+
+  describe("startMonitoring", () => {
     it("triggers a collection of page details if the document is in a `complete` ready state", () => {
       jest.useFakeTimers();
       Object.defineProperty(document, "readyState", { value: "complete", writable: true });
 
-      autofillInit.init();
+      autofillInit.startMonitoring();
       jest.advanceTimersByTime(750);
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("bgCollectPageDetails", {
@@ -92,32 +115,45 @@ describe("AutofillInit", () => {
       jest.spyOn(window, "addEventListener");
       Object.defineProperty(document, "readyState", { value: "loading", writable: true });
 
-      autofillInit.init();
+      autofillInit.startMonitoring();
 
       expect(window.addEventListener).toHaveBeenCalledWith("load", expect.any(Function));
     });
+
+    it("is idempotent across repeated calls", () => {
+      jest.spyOn(window, "addEventListener");
+
+      autofillInit.startMonitoring();
+      autofillInit.startMonitoring();
+
+      const loadCalls = (window.addEventListener as jest.Mock).mock.calls.filter(
+        ([eventName]) => eventName === "load",
+      );
+      expect(loadCalls).toHaveLength(1);
+    });
   });
 
-  describe("setupExtensionMessageListeners", () => {
-    it("sets up a chrome runtime on message listener", () => {
-      jest.spyOn(chrome.runtime.onMessage, "addListener");
+  describe("stopMonitoring", () => {
+    it("removes the load listener", () => {
+      jest.spyOn(window, "removeEventListener");
 
-      autofillInit["setupExtensionMessageListeners"]();
+      autofillInit.startMonitoring();
+      autofillInit.stopMonitoring();
 
-      expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(
-        autofillInit["handleExtensionMessage"],
-      );
+      expect(window.removeEventListener).toHaveBeenCalledWith("load", expect.any(Function));
     });
 
-    it("registers a contextmenu event listener on the document", () => {
-      jest.spyOn(document, "addEventListener");
+    it("is idempotent on repeated stop calls", () => {
+      jest.spyOn(window, "removeEventListener");
 
-      autofillInit["setupExtensionMessageListeners"]();
+      autofillInit.startMonitoring();
+      autofillInit.stopMonitoring();
+      autofillInit.stopMonitoring();
 
-      expect(document.addEventListener).toHaveBeenCalledWith(
-        "contextmenu",
-        autofillInit["handleContextMenuClick"],
+      const loadCalls = (window.removeEventListener as jest.Mock).mock.calls.filter(
+        ([eventName]) => eventName === "load",
       );
+      expect(loadCalls.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -151,6 +187,7 @@ describe("AutofillInit", () => {
     const sendResponse = jest.fn();
 
     beforeEach(() => {
+      autofillInit.startMonitoring();
       message = {
         command: "collectPageDetails",
         tab: mock<chrome.tabs.Tab>(),
@@ -165,6 +202,95 @@ describe("AutofillInit", () => {
       const response = autofillInit["handleExtensionMessage"](message, sender, sendResponse);
 
       expect(response).toBe(null);
+    });
+
+    describe("monitoring gate", () => {
+      it("drops operational commands when monitoring is stopped", async () => {
+        autofillInit.stopMonitoring();
+        const getPageDetailsSpy = jest.spyOn(
+          autofillInit["collectAutofillContentService"],
+          "getPageDetails",
+        );
+        message.command = "collectPageDetails";
+
+        const response = autofillInit["handleExtensionMessage"](message, sender, sendResponse);
+        await flushPromises();
+
+        expect(response).toBe(null);
+        expect(getPageDetailsSpy).not.toHaveBeenCalled();
+      });
+
+      it("routes lifecycle commands while stopped, then routes operational commands again after start", async () => {
+        autofillInit.stopMonitoring();
+        const getPageDetailsSpy = jest
+          .spyOn(autofillInit["collectAutofillContentService"], "getPageDetails")
+          .mockResolvedValue({
+            title: "",
+            url: "",
+            documentUrl: "",
+            forms: {},
+            fields: [],
+            collectedTimestamp: 0,
+          });
+
+        autofillInit["handleExtensionMessage"](
+          { command: "startAutofillMonitors" } as AutofillExtensionMessage,
+          sender,
+          sendResponse,
+        );
+        autofillInit["handleExtensionMessage"](
+          { ...message, command: "collectPageDetails" },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(getPageDetailsSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it("drops applyTargetedFields when monitoring is stopped", async () => {
+        autofillInit.stopMonitoring();
+        const applyExternalTargetedFieldsSpy = jest.spyOn(
+          autofillInit["collectAutofillContentService"],
+          "applyExternalTargetedFields",
+        );
+
+        const response = autofillInit["handleExtensionMessage"](
+          {
+            ...message,
+            command: "applyTargetedFields",
+            iframeTargetedFields: [{ selector: "#username", fieldType: "username" }],
+          },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(response).toBe(null);
+        expect(applyExternalTargetedFieldsSpy).not.toHaveBeenCalled();
+      });
+
+      it("drops operational commands again after stopAutofillMonitors", async () => {
+        const getPageDetailsSpy = jest.spyOn(
+          autofillInit["collectAutofillContentService"],
+          "getPageDetails",
+        );
+
+        autofillInit["handleExtensionMessage"](
+          { command: "stopAutofillMonitors" } as AutofillExtensionMessage,
+          sender,
+          sendResponse,
+        );
+        const response = autofillInit["handleExtensionMessage"](
+          { ...message, command: "collectPageDetails" },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(response).toBe(null);
+        expect(getPageDetailsSpy).not.toHaveBeenCalled();
+      });
     });
 
     it("returns a null value if the message handler does not return a response", async () => {
@@ -557,10 +683,11 @@ describe("AutofillInit", () => {
   });
 
   describe("destroy", () => {
-    it("clears the timeout used to collect page details on load", () => {
+    it("stops monitoring and clears the LOAD timeout", () => {
       jest.spyOn(window, "clearTimeout");
 
       autofillInit.init();
+      autofillInit.startMonitoring();
       autofillInit.destroy();
 
       expect(window.clearTimeout).toHaveBeenCalledWith(
@@ -572,6 +699,7 @@ describe("AutofillInit", () => {
       jest.spyOn(window, "removeEventListener");
 
       autofillInit.init();
+      autofillInit.startMonitoring();
       autofillInit.destroy();
 
       expect(window.removeEventListener).toHaveBeenCalledWith(
@@ -588,12 +716,12 @@ describe("AutofillInit", () => {
       );
     });
 
-    it("destroys the collectAutofillContentService", () => {
-      jest.spyOn(autofillInit["collectAutofillContentService"], "destroy");
+    it("stops collectAutofillContentService monitoring", () => {
+      jest.spyOn(autofillInit["collectAutofillContentService"], "stopMonitoring");
 
       autofillInit.destroy();
 
-      expect(autofillInit["collectAutofillContentService"].destroy).toHaveBeenCalled();
+      expect(autofillInit["collectAutofillContentService"].stopMonitoring).toHaveBeenCalled();
     });
   });
 });

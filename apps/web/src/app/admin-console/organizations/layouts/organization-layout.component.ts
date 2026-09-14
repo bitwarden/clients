@@ -27,6 +27,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, SvgModule } from "@bitwarden/components";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
@@ -35,6 +36,7 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
+import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -50,6 +52,9 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
+    PamOrgNavSlotComponent,
   ],
 })
 export class OrganizationLayoutComponent {

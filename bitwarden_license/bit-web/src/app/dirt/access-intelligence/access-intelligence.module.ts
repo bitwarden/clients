@@ -13,9 +13,9 @@ import {
   SecurityTasksApiService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";

@@ -14,7 +14,8 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+
+import { PasswordRepromptService } from "./password-reprompt.service";
 
 /**
  * The types of fields that can be copied from a cipher.
@@ -79,7 +80,7 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     protected: true,
     event: EventType.Cipher_ClientCopiedPassword,
   },
-  totp: { typeI18nKey: "verificationCodeTotp", protected: true },
+  totp: { typeI18nKey: "verificationCode", protected: true },
   cardNumber: { typeI18nKey: "number", protected: true },
   securityCode: {
     typeI18nKey: "securityCode",
@@ -89,7 +90,7 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   email: { typeI18nKey: "email", protected: true },
   phone: { typeI18nKey: "phone", protected: true },
   address: { typeI18nKey: "address", protected: true },
-  secureNote: { typeI18nKey: "note", protected: true },
+  secureNote: { typeI18nKey: "typeSecureNote", protected: true },
   privateKey: { typeI18nKey: "sshPrivateKey", protected: true },
   publicKey: { typeI18nKey: "sshPublicKey", protected: true },
   keyFingerprint: { typeI18nKey: "sshFingerprint", protected: true },

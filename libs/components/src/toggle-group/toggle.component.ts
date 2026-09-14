@@ -25,6 +25,7 @@ let nextId = 0;
   host: {
     tabindex: "-1",
     "[class]": "hostClasses",
+    "[class.bit-toggle--selected]": "selected()",
   },
 })
 export class ToggleComponent<TValue> {
@@ -33,11 +34,11 @@ export class ToggleComponent<TValue> {
   private readonly groupComponent = inject(ToggleGroupComponent<TValue>);
 
   readonly value = input.required<TValue>();
-  protected readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
-  private readonly berryComponent = contentChild(BerryComponent);
+  readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
+  readonly berryComponent = contentChild(BerryComponent);
   protected readonly hasBerry = computed(() => !!this.berryComponent());
 
-  protected readonly labelTitle = signal<string | null>(null);
+  readonly labelTitle = signal<string | null>(null);
 
   constructor() {
     // Set label title after view is initialized
@@ -61,7 +62,7 @@ export class ToggleComponent<TValue> {
     this.groupComponent.onInputInteraction(this.value());
   }
 
-  protected readonly hostClasses = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
+  protected readonly hostClasses = ["tw-group/toggle", "tw-flex", "tw-min-w-16", "tw-relative"];
 
   protected readonly inputClasses = [
     "tw-peer/toggle-input",
@@ -70,6 +71,9 @@ export class ToggleComponent<TValue> {
   ];
 
   protected readonly labelClasses = [
+    "tw-py-1.5",
+    "tw-px-3",
+    "tw-relative",
     "tw-h-full",
     "tw-w-full",
     "tw-flex",
@@ -81,35 +85,37 @@ export class ToggleComponent<TValue> {
     "tw-transition",
     "tw-text-center",
     "tw-text-sm",
-    "tw-border-primary-600",
-    "!tw-text-primary-600",
-    "tw-border-solid",
-    "tw-border-y",
-    "tw-border-r",
-    "tw-border-l-0",
+    "tw-rounded-xl",
+    "tw-z-[2]",
+    "tw-transition",
+    "tw-duration-[350ms]",
+    "!tw-text-fg-body",
     "tw-cursor-pointer",
-    "hover:tw-bg-hover-default",
 
-    "group-first-of-type/toggle:tw-border-l",
-    "group-first-of-type/toggle:tw-rounded-s-full",
-    "group-last-of-type/toggle:tw-rounded-e-full",
+    "hover:tw-bg-bg-hover",
+
+    "after:tw-content-['']",
+    "after:tw-w-px",
+    "after:tw-h-[calc(100%_-_theme(spacing.2))]",
+    "after:tw-absolute",
+    "after:tw-right-[-2px]",
+    "after:tw-top-[50%]",
+    "after:tw-translate-x-[100%]",
+    "after:tw-translate-y-[-50%]",
+    "after:tw-bg-border-base",
+    "after:tw-transition-opacity",
+
+    "[bit-toggle:has(+_bit-toggle.bit-toggle--selected)_&]:after:tw-opacity-0",
+    "group-last-of-type/toggle:after:tw-opacity-0",
 
     "peer-focus-visible/toggle-input:tw-outline-none",
     "peer-focus-visible/toggle-input:tw-ring",
-    "peer-focus-visible/toggle-input:tw-ring-offset-2",
-    "peer-focus-visible/toggle-input:tw-ring-primary-600",
+    "peer-focus-visible/toggle-input:tw-ring-offset-1",
+    "peer-focus-visible/toggle-input:tw-ring-border-focus",
     "peer-focus-visible/toggle-input:tw-z-10",
-    "peer-focus-visible/toggle-input:tw-bg-primary-600",
-    "peer-focus-visible/toggle-input:tw-border-primary-600",
-    "peer-focus-visible/toggle-input:!tw-text-contrast",
+    "peer-focus-visible/toggle-input:tw-bg-bg-hover",
 
-    "peer-checked/toggle-input:tw-bg-primary-600",
-    "peer-checked/toggle-input:tw-border-primary-600",
-    "peer-checked/toggle-input:!tw-text-contrast",
-    "tw-py-1.5",
-    "tw-px-3",
-
-    // Fix for bootstrap styles that add bottom margin
-    "!tw-mb-0",
+    "peer-checked/toggle-input:!tw-text-fg-contrast",
+    "peer-checked/toggle-input:after:tw-opacity-[0]",
   ];
 }

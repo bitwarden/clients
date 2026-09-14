@@ -132,7 +132,7 @@ describe("SecretClassifier", () => {
       const classifier = SecretClassifier.allSecret<{ foo: boolean }>().disclose("foo");
 
       // `any` is required here because Typescript knows `bar` is not a disclosed member,
-      // but the feautre assumes the disclosed data bypassed the typechecker (e.g. someone
+      // but the feature assumes the disclosed data bypassed the typechecker (e.g. someone
       // is trying to clobber secret data.)
       const declassified = classifier.declassify({ foo: true, bar: false } as any, {});
 

@@ -4,7 +4,8 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GeneratorModule } from "@bitwarden/generator-components";
-import { CipherFormGeneratorComponent } from "@bitwarden/vault";
+
+import { CipherFormGeneratorComponent } from "../../..";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

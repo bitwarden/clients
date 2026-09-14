@@ -34,7 +34,12 @@ export class ReportVersioningService extends VersioningService<AccessReportPaylo
       this.logService.debug(
         `[ReportVersioningService] Report blob: version ${this.currentVersion} — no transformation needed`,
       );
-      const data = validateAccessReportPayload(json.data);
+      const { data, errors } = validateAccessReportPayload(json.data);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[ReportVersioningService] Dropped ${errors.length} invalid report payload ${errors.length === 1 ? "entry" : "entries"}:\n${errors.join("\n")}`,
+        );
+      }
       return { data, wasLegacy: false };
     }
 

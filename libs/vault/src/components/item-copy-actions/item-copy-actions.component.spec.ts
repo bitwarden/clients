@@ -1,8 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -12,6 +16,8 @@ import {
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
 
+import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+
 import { VaultItemCopyActionsComponent } from "./item-copy-actions.component";
 
 describe("VaultItemCopyActionsComponent", () => {
@@ -19,11 +25,15 @@ describe("VaultItemCopyActionsComponent", () => {
   let component: VaultItemCopyActionsComponent;
 
   let i18nService: jest.Mocked<I18nService>;
+  let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
 
   beforeEach(async () => {
     i18nService = {
       t: jest.fn((key: string) => `translated-${key}`),
     } as unknown as jest.Mocked<I18nService>;
+
+    copyCipherFieldService = mock<CopyCipherFieldService>();
+    copyCipherFieldService.totpAllowed.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -34,7 +44,12 @@ describe("VaultItemCopyActionsComponent", () => {
         MenuModule,
         VaultItemCopyActionsComponent,
       ],
-      providers: [{ provide: I18nService, useValue: i18nService }],
+      providers: [
+        { provide: I18nService, useValue: i18nService },
+        { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
+        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: CipherService, useValue: mock<CipherService>() },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VaultItemCopyActionsComponent);
@@ -73,8 +88,120 @@ describe("VaultItemCopyActionsComponent", () => {
     jest.restoreAllMocks();
   });
 
+  describe("quick copy action labels", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+    });
+
+    const labelFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-label");
+
+    it("uses the copy labels when the login fields are populated", () => {
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+
+      fixture.detectChanges();
+
+      expect(labelFor("bwi-user")).toBe("translated-copyUsername");
+      expect(labelFor("bwi-key")).toBe("translated-copyPassword");
+      expect(labelFor("bwi-clock")).toBe("translated-copyVerificationCode");
+    });
+
+    it("uses the empty-state labels when the login fields are not populated", () => {
+      (component.cipher() as any).__copyable = { username: false, password: false, totp: false };
+
+      fixture.detectChanges();
+
+      expect(labelFor("bwi-user")).toBe("translated-noUsername");
+      expect(labelFor("bwi-key")).toBe("translated-noPassword");
+      expect(labelFor("bwi-clock")).toBe("translated-noVerificationCode");
+    });
+
+    describe("card cipher", () => {
+      beforeEach(() => {
+        (component.cipher() as CipherView).type = CipherType.Card;
+      });
+
+      it("uses the copy labels when the card fields are populated", () => {
+        (component.cipher() as any).__copyable = { cardNumber: true, securityCode: true };
+
+        fixture.detectChanges();
+
+        expect(labelFor("bwi-hashtag")).toBe("translated-copyNumber");
+        expect(labelFor("bwi-key")).toBe("translated-copySecurityCode");
+      });
+
+      it("uses the empty-state labels when the card fields are not populated", () => {
+        (component.cipher() as any).__copyable = { cardNumber: false, securityCode: false };
+
+        fixture.detectChanges();
+
+        expect(labelFor("bwi-hashtag")).toBe("translated-noNumber");
+        expect(labelFor("bwi-key")).toBe("translated-noSecurityCode");
+      });
+    });
+  });
+
+  describe("disabled input", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+    });
+
+    const disabledFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-disabled");
+
+    it("leaves copy actions enabled by default", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBeNull();
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
+
+    it("disables copy actions when disabled is true", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBe("true");
+      expect(disabledFor("bwi-clock")).toBe("true");
+    });
+
+    it("keeps empty-value copy actions disabled after disabled toggles off (list refresh)", async () => {
+      // A login with no username: the username quick-copy button should always be disabled.
+      (component.cipher() as any).__copyable = { username: false, password: true, totp: true };
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Simulate a list refresh toggling the disabled input true -> false.
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // The empty username button must remain disabled; the populated ones become enabled again.
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
+  });
+
   describe("findSingleCopyableItem", () => {
-    it("returns the single item with value and translates its key", () => {
+    it("returns the single item with value", () => {
       const items = [
         { key: "copyUsername", field: "username" as const },
         { key: "copyPassword", field: "password" as const },
@@ -88,10 +215,9 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.findSingleCopyableItem(component.cipher(), items);
 
       expect(result).toEqual({
-        key: "translated-copyUsername",
+        key: "copyUsername",
         field: "username",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("copyUsername");
     });
 
     it("returns null when no items have a value", () => {
@@ -140,10 +266,9 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableLogin;
 
       expect(result).toEqual({
-        key: "translated-username",
+        key: "copyUsername",
         field: "username",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("username");
     });
 
     it("returns null when password is hidden but multiple fields exist, ensuring username and totp are shown in the menu UI", () => {
@@ -183,7 +308,7 @@ describe("VaultItemCopyActionsComponent", () => {
       expect(findSingleCopyableItemSpy).toHaveBeenCalled();
     });
 
-    it("returns a field-name-only key so copyFieldCipherName does not produce 'Copy copy'", () => {
+    it("returns a full copy-action translation key rather than a bare field name", () => {
       (component.cipher() as CipherView).viewPassword = true;
 
       (component.cipher() as any).__copyable = {
@@ -194,10 +319,9 @@ describe("VaultItemCopyActionsComponent", () => {
 
       const result = component.singleCopyableLogin;
 
-      // The key should be the translated field name (e.g. "username"), NOT "Copy username",
-      // because the template wraps it in copyFieldCipherName = "Copy $FIELD$, $CIPHERNAME$".
-      expect(result?.key).toBe("translated-username");
-      expect(result?.key).not.toContain("copy");
+      // The key must be the existing full-phrase key ("Copy username"), not a lowercased
+      // noun fragment composed into a sentence at render time — fragments localize poorly.
+      expect(result?.key).toBe("copyUsername");
     });
   });
 
@@ -211,10 +335,9 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableCard;
 
       expect(result).toEqual({
-        key: "translated-securityCode",
+        key: "copySecurityCode",
         field: "securityCode",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("securityCode");
     });
 
     it("returns null when both card number and security code are available", () => {
@@ -241,10 +364,9 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableIdentity;
 
       expect(result).toEqual({
-        key: "translated-email",
+        key: "copyEmail",
         field: "email",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("email");
     });
 
     it("returns null when multiple identity fields are available", () => {
@@ -273,10 +395,9 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableBankAccount;
 
       expect(result).toEqual({
-        key: "translated-accountNumber",
+        key: "copyAccountNumber",
         field: "accountNumber",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("accountNumber");
     });
 
     it("returns null when multiple bank account fields are available", () => {
@@ -328,10 +449,9 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableDriversLicense;
 
       expect(result).toEqual({
-        key: "translated-licenseNumber",
+        key: "copyLicenseNumber",
         field: "licenseNumber",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("licenseNumber");
     });
 
     it("returns null when multiple drivers license fields are available", () => {
@@ -707,7 +827,7 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyablePassport;
 
       expect(result).toEqual({
-        key: "translated-passportNumber",
+        key: "copyPassportNumber",
         field: "passportNumber",
       });
     });

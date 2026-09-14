@@ -1,4 +1,3 @@
-import { WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { UserKey } from "@bitwarden/common/types/key";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
@@ -12,6 +11,14 @@ import { LogRecorder } from "../log-recorder";
 export abstract class RecoveryStep {
   /** Title of the recovery step, as an i18n key. */
   abstract title: string;
+
+  /** Localized detail about the outcome, shown under the step once diagnostics have run. */
+  message?: string;
+
+  /**
+   * IDs of ciphers that hold old attachments. Rendered under the step as links to the vault item.
+   */
+  oldAttachmentCipherIds?: string[];
 
   /**
    * Runs diagnostics on the provided working data.
@@ -36,7 +43,6 @@ export abstract class RecoveryStep {
 export type RecoveryWorkingData = {
   userId: UserId | null;
   userKey: UserKey | null;
-  encryptedPrivateKey: WrappedPrivateKey | null;
   isPrivateKeyCorrupt: boolean;
   ciphers: Cipher[];
   folders: Folder[];

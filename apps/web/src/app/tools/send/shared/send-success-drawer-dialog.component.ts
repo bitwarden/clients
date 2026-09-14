@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DIALOG_DATA, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -19,6 +20,10 @@ export class SendSuccessDrawerDialogComponent {
   readonly AuthType = AuthType;
   readonly sendLink = signal<string>("");
   readonly activeSendIcon = ActiveSendIcon;
+
+  get dialogTitle(): string {
+    return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";
+  }
 
   constructor(
     @Inject(DIALOG_DATA) readonly send: SendView,

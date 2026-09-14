@@ -16,6 +16,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { SendSuccessDrawerDialogComponent } from "./send-success-drawer-dialog.component";
@@ -87,6 +88,10 @@ describe("SendSuccessDrawerDialogComponent", () => {
         },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ToastService, useValue: toastService },
+        {
+          provide: SendPolicyService,
+          useValue: { allowedSendTypes$: of([SendType.Text, SendType.File]) },
+        },
       ],
     }).compileComponents();
 

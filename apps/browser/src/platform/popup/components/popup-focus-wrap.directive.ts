@@ -1,4 +1,6 @@
-import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, inject, OnDestroy, Renderer2 } from "@angular/core";
+
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 /**
  * Directive that wraps Tab focus within the host element.
@@ -16,6 +18,8 @@ import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from "@ang
   standalone: true,
 })
 export class PopupFocusWrapDirective implements AfterViewInit, OnDestroy {
+  private platformUtilsService = inject(PlatformUtilsService);
+
   private sentinels: { start: HTMLElement; end: HTMLElement } | undefined;
   private cleanupFns: (() => void)[] = [];
 
@@ -25,6 +29,11 @@ export class PopupFocusWrapDirective implements AfterViewInit, OnDestroy {
   ) {}
 
   ngAfterViewInit() {
+    // Firefox-only to avoid impacting other browsers which already handle wrapping correctly
+    if (!this.platformUtilsService.isFirefox()) {
+      return;
+    }
+
     const start = this.createSentinel();
     const end = this.createSentinel();
     this.sentinels = { start, end };

@@ -120,6 +120,7 @@ export function createGenerateFillScriptOptionsMock(customFields = {}): Generate
     allowTotpAutofill: false,
     autoSubmitLogin: false,
     cipher: mock<CipherView>(),
+    canAccessTotp: false,
     tabUrl: "https://jest-testing-website.com",
     defaultUriMatch: UriMatchStrategy.Domain,
     ...customFields,

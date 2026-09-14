@@ -26,7 +26,6 @@ import {
   ButtonModule,
   IconButtonModule,
   LinkModule,
-  NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
@@ -71,7 +70,6 @@ export type ApplicationFilterOption =
     ReportLoadingComponent,
     LinkModule,
     SearchModule,
-    NoItemsModule,
     SharedModule,
     ApplicationsTableV2Component,
     IconButtonModule,
@@ -359,7 +357,7 @@ export class ApplicationsTabComponent {
    * Uses DrawerStateService to manage drawer state.
    */
   readonly showAppAtRiskMembers = async (applicationName: string) => {
-    this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+    this.drawerStateService.toggleDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
   protected readonly onCheckboxChange = ({

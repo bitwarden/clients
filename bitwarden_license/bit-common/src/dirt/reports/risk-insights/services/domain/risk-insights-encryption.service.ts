@@ -1,12 +1,17 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { createNewSummaryData } from "../../helpers";
 import {
@@ -62,7 +67,8 @@ export class RiskInsightsEncryptionService {
     try {
       if (!wrappedKey) {
         // Generate a new key
-        contentEncryptionKey = await this.keyGeneratorService.createKey(512);
+        await SdkLoadService.Ready;
+        contentEncryptionKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
       } else {
         // Unwrap the existing key
         contentEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);

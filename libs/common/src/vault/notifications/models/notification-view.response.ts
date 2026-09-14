@@ -1,5 +1,5 @@
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { NotificationId, SecurityTaskId } from "@bitwarden/common/types/guid";
+import { BaseResponse } from "../../../models/response/base.response";
+import { NotificationId, SecurityTaskId } from "../../../types/guid";
 
 export class NotificationViewResponse extends BaseResponse {
   id: NotificationId;

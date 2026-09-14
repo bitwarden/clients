@@ -1,7 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { BillingAccountProfile } from "@bitwarden/common/billing/abstractions";
-
 import {
   FakeAccountService,
   mockAccountServiceWith,
@@ -9,6 +7,7 @@ import {
   FakeSingleUserState,
 } from "../../../../spec";
 import { UserId } from "../../../types/guid";
+import { BillingAccountProfile } from "../../abstractions";
 
 import {
   BILLING_ACCOUNT_PROFILE_KEY_DEFINITION,

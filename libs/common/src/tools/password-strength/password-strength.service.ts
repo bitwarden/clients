@@ -4,6 +4,15 @@ import zxcvbn from "zxcvbn";
 
 import { PasswordStrengthServiceAbstraction } from "./password-strength.service.abstraction";
 
+/**
+ * Maximum number of characters scored by zxcvbn. Longer inputs are truncated to this length before
+ * scoring to avoid blocking the UI — zxcvbn is O(n²) in input length and runs synchronously. A
+ * prefix this long already saturates the top score, so truncation never downgrades a real password.
+ *
+ * Set above the password generator's maximum length (128) for headroom.
+ */
+export const MAX_PASSWORD_STRENGTH_LENGTH = 256;
+
 export class PasswordStrengthService implements PasswordStrengthServiceAbstraction {
   /**
    * Calculates a password strength score using zxcvbn.
@@ -28,7 +37,12 @@ export class PasswordStrengthService implements PasswordStrengthServiceAbstracti
     ];
     // Use a hash set to get rid of any duplicate user inputs
     const finalUserInputs = Array.from(new Set(globalUserInputs));
-    const result = zxcvbn(password, finalUserInputs);
+    // Cap the scored length to keep zxcvbn's O(n²) work bounded on oversized inputs.
+    const scoredPassword =
+      password.length > MAX_PASSWORD_STRENGTH_LENGTH
+        ? password.substring(0, MAX_PASSWORD_STRENGTH_LENGTH)
+        : password;
+    const result = zxcvbn(scoredPassword, finalUserInputs);
     return result;
   }
 

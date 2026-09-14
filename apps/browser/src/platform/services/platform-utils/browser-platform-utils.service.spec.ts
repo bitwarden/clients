@@ -53,6 +53,13 @@ describe("Browser Utils Service", () => {
       });
     });
 
+    const setUserAgentData = (userAgentData: unknown) => {
+      Object.defineProperty(navigator, "userAgentData", {
+        configurable: true,
+        value: userAgentData,
+      });
+    };
+
     beforeEach(() => {
       (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
     });
@@ -60,6 +67,7 @@ describe("Browser Utils Service", () => {
     afterEach(() => {
       window.matchMedia = undefined;
       (BrowserPlatformUtilsService as any).deviceCache = null;
+      delete (navigator as any).userAgentData;
     });
 
     it("should detect chrome", () => {
@@ -119,6 +127,65 @@ describe("Browser Utils Service", () => {
       });
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.VivaldiExtension);
+    });
+
+    it("should detect duckduckgo from the userAgentData brand list", () => {
+      // DuckDuckGo's Chromium build masquerades as Edge in its user agent, so the brand
+      // list is the only signal that distinguishes it.
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+      });
+      setUserAgentData({
+        brands: [
+          { brand: "Not=A?Brand", version: "99" },
+          { brand: "DuckDuckGo", version: "151" },
+          { brand: "Chromium", version: "151" },
+        ],
+      });
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.DuckDuckGoExtension);
+      expect(browserPlatformUtilsService.isDuckDuckGo()).toBe(true);
+    });
+
+    it("should still detect chrome when the brand list has no DuckDuckGo entry", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      });
+      setUserAgentData({
+        brands: [
+          { brand: "Not=A?Brand", version: "99" },
+          { brand: "Chromium", version: "135" },
+          { brand: "Google Chrome", version: "135" },
+        ],
+      });
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
+    });
+
+    it("should fall back to user agent detection when userAgentData is unavailable", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      });
+      setUserAgentData(undefined);
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
+    });
+
+    it("should not throw when userAgentData is present without a brand list", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      });
+      setUserAgentData({});
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
     });
 
     it("returns a previously determined device using a cached value", () => {
@@ -224,13 +291,13 @@ describe("Browser Utils Service", () => {
       expect(triggerOffscreenCopyToClipboardSpy).not.toHaveBeenCalled();
     });
 
-    it("copies the passed text using the offscreen document if the extension is using manifest v3", async () => {
+    it("copies the passed text using the offscreen document if the extension is using manifest v3 and the calling context lacks DOM access (e.g. service worker)", async () => {
       BrowserApi.sendMessageWithResponse = jest.fn();
       const text = "test";
       offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
       getManifestVersionSpy.mockReturnValue(3);
 
-      browserPlatformUtilsService.copyToClipboard(text);
+      browserPlatformUtilsService.copyToClipboard(text, { window: {} as Window });
       await flushPromises();
 
       expect(triggerOffscreenCopyToClipboardSpy).toHaveBeenCalledWith(text);
@@ -246,6 +313,21 @@ describe("Browser Utils Service", () => {
       expect(BrowserApi.sendMessageWithResponse).toHaveBeenCalledWith("offscreenCopyToClipboard", {
         text,
       });
+    });
+
+    it("copies the passed text directly using BrowserClipboardService when in manifest v3 with DOM access (e.g. popup)", async () => {
+      const text = "test";
+      offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
+      getManifestVersionSpy.mockReturnValue(3);
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+
+      browserPlatformUtilsService.copyToClipboard(text);
+      await flushPromises();
+
+      expect(clipboardServiceCopySpy).toHaveBeenCalledWith(window, text);
+      expect(triggerOffscreenCopyToClipboardSpy).not.toHaveBeenCalled();
     });
 
     it("skips the clipboardWriteCallback if the clipboard is clearing", async () => {
@@ -307,7 +389,7 @@ describe("Browser Utils Service", () => {
       getManifestVersionSpy.mockReturnValue(3);
       offscreenDocumentService.withDocument.mockResolvedValueOnce("test");
 
-      await browserPlatformUtilsService.readFromClipboard();
+      await browserPlatformUtilsService.readFromClipboard({ window: {} as Window });
 
       expect(offscreenDocumentService.withDocument).toHaveBeenCalledWith(
         [chrome.offscreen.Reason.CLIPBOARD],
@@ -320,6 +402,20 @@ describe("Browser Utils Service", () => {
       expect(BrowserApi.sendMessageWithResponse).toHaveBeenCalledWith("offscreenReadFromClipboard");
     });
 
+    it("reads the clipboard text directly using BrowserClipboardService when in manifest v3 with DOM access", async () => {
+      offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
+      getManifestVersionSpy.mockReturnValue(3);
+      clipboardServiceReadSpy.mockResolvedValueOnce("test");
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+
+      const result = await browserPlatformUtilsService.readFromClipboard();
+
+      expect(clipboardServiceReadSpy).toHaveBeenCalledWith(window);
+      expect(result).toBe("test");
+    });
+
     it("returns an empty string from the offscreen document if the response is not of type string", async () => {
       jest
         .spyOn(browserPlatformUtilsService, "getDevice")
@@ -328,7 +424,7 @@ describe("Browser Utils Service", () => {
       jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(1);
       offscreenDocumentService.withDocument.mockResolvedValueOnce(1);
 
-      const result = await browserPlatformUtilsService.readFromClipboard();
+      const result = await browserPlatformUtilsService.readFromClipboard({ window: {} as Window });
 
       expect(result).toBe("");
     });
@@ -340,6 +436,7 @@ describe("Browser Utils Service", () => {
       DeviceType.EdgeExtension,
       DeviceType.OperaExtension,
       DeviceType.VivaldiExtension,
+      DeviceType.DuckDuckGoExtension,
     ];
 
     const nonChromiumDevices: DeviceType[] = [

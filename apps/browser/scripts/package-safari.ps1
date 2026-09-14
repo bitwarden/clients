@@ -89,14 +89,31 @@ foreach ($subBuildPath in $subBuildPaths) {
     )
     $proc = Start-Process "xcodebuild" -ArgumentList $xcodeBuildArgs -NoNewWindow -PassThru
     $proc.WaitForExit()
+    if ($proc.ExitCode -ne 0) {
+        throw "xcodebuild failed for '$subBuildPath' with exit code $($proc.ExitCode)"
+    }
+
+    # Verify the appex actually contains its executable. A compile/link failure can leave a bundle
+    # with the Info.plist and resources but no Mach-O binary, which only surfaces much later as a
+    # "Bad CFBundleExecutable" error during App Store validation.
+    $appexExecutablePath = Join-Path -Path $builtAppexPath -ChildPath "Contents/MacOS/safari"
+    if (-not (Test-Path $appexExecutablePath)) {
+        throw "Built appex for '$subBuildPath' is missing its executable at $appexExecutablePath"
+    }
 
     # Codesign
     $libs = Get-ChildItem -Path $builtAppexFrameworkPath -Filter "*.dylib"
     foreach ($lib in $libs) {
         $proc = Start-Process "codesign" -ArgumentList ($codesignArgs + $lib.FullName) -NoNewWindow -PassThru
         $proc.WaitForExit()
+        if ($proc.ExitCode -ne 0) {
+            throw "codesign failed for '$($lib.FullName)' with exit code $($proc.ExitCode)"
+        }
     }
 
     $proc = Start-Process "codesign" -ArgumentList ($codesignArgs + $builtAppexPath) -NoNewWindow -PassThru
     $proc.WaitForExit()
+    if ($proc.ExitCode -ne 0) {
+        throw "codesign failed for '$builtAppexPath' with exit code $($proc.ExitCode)"
+    }
 }

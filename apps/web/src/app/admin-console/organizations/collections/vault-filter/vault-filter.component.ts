@@ -40,6 +40,7 @@ import {
   CipherStatus,
   CipherTypeFilter,
   VaultFilter,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 @Component({
@@ -54,6 +55,7 @@ export class VaultFilterComponent {
   private readonly accountService = inject(AccountService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   readonly activeFilter = input<VaultFilter>(new VaultFilter());
   readonly searchText = model("");
@@ -103,7 +105,7 @@ export class VaultFilterComponent {
       return "searchDriversLicense";
     }
     if (filter.selectedCollectionNode?.node) {
-      return "searchCollection";
+      return this.vfo1TerminologyService.enabled() ? "searchSharedFolder" : "searchCollection";
     }
     return "searchVault";
   }
@@ -155,20 +157,22 @@ export class VaultFilterComponent {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.removeCollapsibleCollection();
 
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
+
     return {
       data$: this.vaultFilterService.buildTypeTree(
         {
           id: "AllCollections",
-          name: "collections",
+          name: vfo1Enabled ? "sharedFolders" : "collections",
           type: "all",
-          icon: "bwi-collection-shared",
+          icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
         },
         [
           {
             id: "AllCollections",
-            name: "Collections",
+            name: vfo1Enabled ? "Shared folders" : "Collections",
             type: "all",
-            icon: "bwi-collection-shared",
+            icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
           },
         ],
       ),

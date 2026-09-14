@@ -3,11 +3,10 @@
 import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {

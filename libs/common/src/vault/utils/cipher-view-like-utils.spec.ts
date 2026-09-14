@@ -1,8 +1,13 @@
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { mock } from "jest-mock-extended";
 
-import { CipherType } from "../enums";
+import { CipherListView, LoginUriView as LoginListUriView } from "@bitwarden/sdk-internal";
+
+import { UriMatchStrategy } from "../../models/domain/domain-service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { BankAccountType, CipherType } from "../enums";
 import { Attachment } from "../models/domain/attachment";
 import { AttachmentView } from "../models/view/attachment.view";
+import { BankAccountView } from "../models/view/bank-account.view";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
 import { IdentityView } from "../models/view/identity.view";
@@ -258,7 +263,7 @@ describe("CipherViewLikeUtils", () => {
         cipherListView.type = "secureNote";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.SecureNote);
 
-        cipherListView.type = "bankAccount";
+        cipherListView.type = { bankAccount: { accountNumber: "1234", accountType: "checking" } };
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
 
         cipherListView.type = "driversLicense";
@@ -286,6 +291,110 @@ describe("CipherViewLikeUtils", () => {
         } as CipherListView;
 
         expect(CipherViewLikeUtils.subtitle(cipherListView)).toBe("Test Subtitle");
+      });
+    });
+
+    describe("bank account with i18nService", () => {
+      const i18nService = mock<I18nService>();
+
+      beforeEach(() => {
+        i18nService.t.mockReset();
+        i18nService.t.mockImplementation((key: string) => `translated:${key}`);
+      });
+
+      const createBankAccountCipher = (bankAccount: BankAccountView) => {
+        const cipherView = createCipherView(CipherType.BankAccount);
+        cipherView.bankAccount = bankAccount;
+        return cipherView;
+      };
+
+      it("returns '<translated type>, *<lastFour>' when both accountType and accountNumber are set", () => {
+        const bankAccount = new BankAccountView();
+        bankAccount.bankName = "Bank of America";
+        bankAccount.accountType = BankAccountType.Checking;
+        bankAccount.accountNumber = "987651234";
+
+        const cipher = createBankAccountCipher(bankAccount);
+
+        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe(
+          "translated:bankAccountTypeChecking, *1234",
+        );
+        expect(i18nService.t).toHaveBeenCalledWith("bankAccountTypeChecking");
+      });
+
+      it("returns just the translated type when accountNumber is missing", () => {
+        const bankAccount = new BankAccountView();
+        bankAccount.accountType = BankAccountType.Savings;
+
+        const cipher = createBankAccountCipher(bankAccount);
+
+        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe(
+          "translated:bankAccountTypeSavings",
+        );
+      });
+
+      it("returns just '*<lastFour>' when accountType is missing", () => {
+        const bankAccount = new BankAccountView();
+        bankAccount.accountNumber = "987651234";
+
+        const cipher = createBankAccountCipher(bankAccount);
+
+        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("*1234");
+      });
+
+      it("falls back to the view's subTitle when both accountType and accountNumber are missing", () => {
+        const bankAccount = new BankAccountView();
+        bankAccount.bankName = "Bank of America";
+
+        const cipher = createBankAccountCipher(bankAccount);
+
+        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("Bank of America");
+      });
+
+      it("falls back to the view's subTitle when i18nService is not provided", () => {
+        const bankAccount = new BankAccountView();
+        bankAccount.bankName = "Bank of America";
+        bankAccount.accountType = BankAccountType.Checking;
+        bankAccount.accountNumber = "987651234";
+
+        const cipher = createBankAccountCipher(bankAccount);
+
+        expect(CipherViewLikeUtils.subtitle(cipher)).toBe("Bank of America");
+        expect(i18nService.t).not.toHaveBeenCalled();
+      });
+
+      it("falls back to the SDK-provided subtitle for a CipherListView bank account without inline data", () => {
+        const cipherListView = {
+          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
+          subtitle: "SDK-provided fallback",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
+          "SDK-provided fallback",
+        );
+      });
+
+      it("computes a translated subtitle from the inline data of a CipherListView bank account", () => {
+        const cipherListView = {
+          type: {
+            bankAccount: { accountNumber: "987651234", accountType: BankAccountType.Checking },
+          },
+          subtitle: "SDK-provided fallback",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
+          "translated:bankAccountTypeChecking, *1234",
+        );
+        expect(i18nService.t).toHaveBeenCalledWith("bankAccountTypeChecking");
+      });
+
+      it("returns the base subtitle for non-bank-account ciphers even when i18nService is provided", () => {
+        const cipherView = createCipherView();
+        cipherView.login = new LoginView();
+        cipherView.login.username = "Test Username";
+
+        expect(CipherViewLikeUtils.subtitle(cipherView, i18nService)).toBe("Test Username");
+        expect(i18nService.t).not.toHaveBeenCalled();
       });
     });
   });
@@ -670,7 +779,6 @@ describe("CipherViewLikeUtils", () => {
 
       it("returns true for copyable fields in a bank account cipher", () => {
         const cipherListView = {
-          type: "bankAccount",
           copyableFields: [
             "BankAccountNameOnAccount",
             "BankAccountAccountNumber",
@@ -680,6 +788,7 @@ describe("CipherViewLikeUtils", () => {
             "BankAccountIban",
             "BankAccountSwift",
           ],
+          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
         } as CipherListView;
 
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "nameOnAccount")).toBe(true);
@@ -1010,6 +1119,67 @@ describe("CipherViewLikeUtils", () => {
         } as CipherListView;
 
         expect(CipherViewLikeUtils.getAttachmentNames(cipherListView)).toBeUndefined();
+      });
+    });
+  });
+
+  describe("getUriHostname", () => {
+    describe("CipherView (LoginUriView)", () => {
+      it("returns the hostname for a valid URI", () => {
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com/path";
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBe("example.com");
+      });
+
+      it("returns undefined, not null, when the URI has no parseable hostname", () => {
+        const uri = new LoginUriView();
+        uri.uri = "data:text/plain,hello";
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined for RegularExpression match strategy", () => {
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com";
+        uri.match = UriMatchStrategy.RegularExpression;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined when there is no URI", () => {
+        const uri = new LoginUriView();
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+    });
+
+    describe("CipherListView (LoginListUriView)", () => {
+      it("returns the hostname for a valid URI", () => {
+        const uri = { uri: "https://example.com/path" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBe("example.com");
+      });
+
+      it("returns undefined, not null, when the URI has no parseable hostname", () => {
+        const uri = { uri: "data:text/plain,hello" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined for RegularExpression match strategy", () => {
+        const uri = {
+          uri: "https://example.com",
+          match: UriMatchStrategy.RegularExpression,
+        } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined when the URI is empty", () => {
+        const uri = { uri: "" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
       });
     });
   });

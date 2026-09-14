@@ -4,6 +4,8 @@ import { Component, DestroyRef, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, lastValueFrom, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -64,6 +66,12 @@ export class SendComponent {
   private logService = inject(LogService);
   private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 

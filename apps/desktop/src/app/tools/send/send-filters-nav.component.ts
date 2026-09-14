@@ -7,7 +7,7 @@ import { filter, map, startWith } from "rxjs";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NavigationModule } from "@bitwarden/components";
-import { SendListFiltersService } from "@bitwarden/send-ui";
+import { SendListFiltersService, SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
@@ -28,6 +28,10 @@ export class SendFiltersNavComponent {
   private readonly filtersService = inject(SendListFiltersService);
   private readonly router = inject(Router);
   private readonly currentFilter = toSignal(this.filtersService.filters$);
+  private readonly sendPolicyService = inject(SendPolicyService);
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
+  });
 
   // Track whether current route is the send route
   private readonly isSendRouteActive = toSignal(

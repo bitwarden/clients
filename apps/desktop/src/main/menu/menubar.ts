@@ -8,7 +8,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { VersionMain } from "../../platform/main/version.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { isMac } from "../../utils";
+import { isMac } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 import { WindowMain } from "../window.main";
 
@@ -75,12 +75,16 @@ export class Menubar {
       !isLocked && updateRequest?.accounts?.[updateRequest.activeUserId]?.isLockable;
     const hasMasterPassword =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.hasMasterPassword ?? false;
+    const hasPremium = updateRequest?.accounts?.[updateRequest.activeUserId]?.hasPremium ?? false;
     // TODO: PM-32419 - remove feature flag check once fully rolled out
     const multiClientPasswordManagement =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.multiClientPasswordManagement ?? false;
     // TODO: PM-34438 - remove desktopAddDevices variable and the parameter passed to AccountMenu
     const desktopAddDevices =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.desktopAddDevices ?? false;
+    // TODO: PM-34580 - remove pm32009NewItemTypes variable and the parameter passed to FileMenu
+    const pm32009NewItemTypes =
+      updateRequest?.accounts?.[updateRequest.activeUserId]?.pm32009NewItemTypes ?? false;
 
     this.items = [
       new FileMenu(
@@ -92,6 +96,7 @@ export class Menubar {
         isLocked,
         isLockable,
         updateRequest?.restrictedCipherTypes,
+        pm32009NewItemTypes,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
       new ViewMenu(i18nService, messagingService, isLocked, windowMain),
@@ -102,6 +107,7 @@ export class Menubar {
         windowMain.win,
         isLocked,
         hasMasterPassword,
+        hasPremium,
         multiClientPasswordManagement,
         shell,
         desktopAddDevices,

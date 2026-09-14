@@ -9,7 +9,7 @@ import {
   OrganizationBillingServiceAbstraction,
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
-import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { InitiationPath, PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
@@ -182,8 +182,8 @@ export class TrialBillingStepService {
         billingEmail: trial.organization.email,
         initiationPath:
           trial.product === "passwordManager"
-            ? "Password Manager trial from marketing website"
-            : "Secrets Manager trial from marketing website",
+            ? InitiationPath.PasswordManagerTrialFromMarketingWebsite
+            : InitiationPath.SecretsManagerTrialFromMarketingWebsite,
       },
       plan:
         trial.product === "passwordManager"

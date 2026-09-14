@@ -48,15 +48,17 @@ const editButtonStyles = ({ disabled, theme }: { disabled?: boolean; theme: Them
   background-color: transparent;
   padding: ${editButtonInset};
 
-  ${!disabled
-    ? `
+  ${
+    !disabled
+      ? `
     cursor: pointer;
 
     :hover {
       border-color: ${themes[theme].primary["600"]};
     }
   `
-    : ""}
+      : ""
+  }
 
   > svg {
     width: ${editButtonIconSize};

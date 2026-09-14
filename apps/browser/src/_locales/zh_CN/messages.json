@@ -9,6 +9,10 @@
     "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -37,8 +41,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "您的组织要求单点登录 (SSO)。"
   },
-  "welcomeBack": {
-    "message": "欢迎回来"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "登录"
   },
   "setAStrongPassword": {
     "message": "设置强密码"
@@ -117,6 +121,9 @@
     "message": "标签页"
   },
   "vault": {
+    "message": "密码库"
+  },
+  "vaults": {
     "message": "密码库"
   },
   "myVault": {
@@ -289,8 +296,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
-  "getMasterPasswordHint": {
-    "message": "获取主密码提示"
+  "hint": {
+    "message": "提示"
   },
   "continue": {
     "message": "继续"
@@ -505,6 +512,87 @@
   "options": {
     "message": "选项"
   },
+  "optionsForItem": {
+    "message": "$NAME$ 的选项",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "没有共享文件夹"
+  },
+  "filterByName": {
+    "message": "按 $NAME$ 筛选",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "将项目标记为收藏以在此处筛选它们。"
+  },
+  "foldersFilterTooltip": {
+    "message": "将文件夹添加到项目以在此处筛选它们。"
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "将项目添加到共享文件夹以在此处筛选它们。"
+  },
+  "editItemWithName": {
+    "message": "编辑项目 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "密码库中没有项目"
+  },
+  "noItemsInMyVault": {
+    "message": "「我的密码库」中没有项目"
+  },
+  "emptyMyItems": {
+    "message": "「我的项目」中没有项目"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "您的密码库是空的"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "没有匹配所选筛选规则的项目"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "没有匹配「$SEARCH_TERM$」的项目",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "长度"
   },
@@ -557,7 +645,7 @@
     "message": "数字最少个数"
   },
   "minSpecial": {
-    "message": "符号最少个数"
+    "message": "特殊字符最少个数"
   },
   "avoidAmbiguous": {
     "message": "避免易混淆的字符",
@@ -603,7 +691,7 @@
     "message": "归档项目"
   },
   "archiveItemDialogContent": {
-    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "归档后，此项目将被排除在搜索结果和自动填充建议之外。"
   },
   "archived": {
     "message": "已归档"
@@ -613,6 +701,23 @@
   },
   "upgradeToUseArchive": {
     "message": "需要高级版成员资格才能使用归档功能。"
+  },
+  "archiveItemsPlural": {
+    "message": "归档 $NUM$ 个项目",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "归档项目",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "归档后，这些项目将被排除在搜索结果和自动填充建议之外。"
   },
   "itemRestored": {
     "message": "项目已恢复"
@@ -624,7 +729,7 @@
     "message": "查看"
   },
   "viewAll": {
-    "message": "查看全部"
+    "message": "显示全部"
   },
   "showAll": {
     "message": "显示全部"
@@ -692,7 +797,7 @@
   "launchWebsite": {
     "message": "打开网站"
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "前往 $ITEMNAME$ 的网站",
     "placeholders": {
       "itemname": {
@@ -978,8 +1083,8 @@
   "logIn": {
     "message": "登录"
   },
-  "logInToBitwarden": {
-    "message": "登录到 Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "登录"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "输入发送到您的电子邮箱的代码"
@@ -1038,6 +1143,12 @@
   "addedFolder": {
     "message": "文件夹已添加"
   },
+  "folderEdited": {
+    "message": "文件夹已编辑"
+  },
+  "enterAName": {
+    "message": "输入名称。"
+  },
   "twoStepLoginConfirmation": {
     "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页密码库中设置。现在要访问此网站吗？"
   },
@@ -1070,6 +1181,10 @@
   },
   "passwordCopied": {
     "message": "密码已复制"
+  },
+  "passwordAnnounceSpace": {
+    "message": "空格",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1200,7 +1315,7 @@
     "message": "保存"
   },
   "notificationViewAria": {
-    "message": "在新窗口中查看 $ITEMNAME$",
+    "message": "查看 $ITEMNAME$（在新窗口中打开）",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1346,17 +1461,29 @@
   "additionalOptions": {
     "message": "附加选项"
   },
-  "enableFillAssist": {
-    "message": "使用填充助手"
+  "fillAssistActiveNoticeV2": {
+    "message": "自动填充正在此页面上使用填充辅助。"
   },
-  "turnOnFillAssist": {
-    "message": "启用填充助手"
+  "activateFillAssistV2": {
+    "message": "启用填充辅助"
   },
-  "enableFillAssistDescription": {
-    "message": "填充助手通过使用站点特定的规则来提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
+  "activateFillAssistDescriptionV2": {
+    "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
   },
-  "aboutFillAssist": {
-    "message": "关于填充助手"
+  "aboutFillAssistLabelV2": {
+    "message": "关于填充辅助"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "允许网站排除自动填充字段"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "跳过网站上标记有 `data bwignore` 属性的字段。"
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "允许网站添加自动填充字段"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "使用网站上标记有 `data-bwautofill` 属性的任何 span 元素。"
   },
   "enableContextMenuItem": {
     "message": "显示上下文菜单选项"
@@ -1410,6 +1537,9 @@
     "message": "导入",
     "description": "The verb form of the word Import"
   },
+  "importItems": {
+    "message": "导入项目"
+  },
   "fileFormat": {
     "message": "文件格式"
   },
@@ -1434,8 +1564,8 @@
   "accountRestricted": {
     "message": "账户限制"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "「文件密码」与「确认文件密码」不一致。"
+  "filePasswordConfirmationMismatch": {
+    "message": "「文件密码」和「确认文件密码」不匹配。"
   },
   "warning": {
     "message": "警告",
@@ -1448,7 +1578,7 @@
   "confirmVaultExport": {
     "message": "确认密码库导出"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
@@ -1462,6 +1592,24 @@
   },
   "shared": {
     "message": "已共享"
+  },
+  "sharedFolder": {
+    "message": "共享文件夹"
+  },
+  "sharedFolders": {
+    "message": "共享文件夹"
+  },
+  "myFolder": {
+    "message": "我的文件夹"
+  },
+  "myFolders": {
+    "message": "我的文件夹"
+  },
+  "addSharedFolder": {
+    "message": "添加共享文件夹"
+  },
+  "newSharedFolder": {
+    "message": "新增共享文件夹"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden 商业版允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站了解更多信息。"
@@ -1483,7 +1631,7 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
+    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "learnMore": {
     "message": "进一步了解"
@@ -1518,6 +1666,21 @@
   "copyVerificationCode": {
     "message": "复制验证码"
   },
+  "noUsername": {
+    "message": "没有用户名"
+  },
+  "noPassword": {
+    "message": "没有密码"
+  },
+  "noVerificationCode": {
+    "message": "没有验证码"
+  },
+  "noNumber": {
+    "message": "没有号码"
+  },
+  "noSecurityCode": {
+    "message": "没有安全码"
+  },
   "attachments": {
     "message": "附件"
   },
@@ -1551,6 +1714,12 @@
   "file": {
     "message": "文件"
   },
+  "photo": {
+    "message": "照片"
+  },
+  "unknown": {
+    "message": "未知"
+  },
   "fileToShare": {
     "message": "要分享的文件"
   },
@@ -1581,13 +1750,7 @@
   "premiumRefresh": {
     "message": "刷新成员资格"
   },
-  "premiumNotCurrentMember": {
-    "message": "您目前不是高级版成员。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "注册高级版成员资格并获得："
-  },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
   },
   "premiumSignUpStorageV2": {
@@ -1614,16 +1777,16 @@
   "restartPremium": {
     "message": "重启高级版"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "优先客户支持。"
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
@@ -1631,12 +1794,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 网页 App 的账户设置中购买高级版。"
-  },
-  "premiumCurrentMember": {
-    "message": "您是高级版成员！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "感谢您支持 Bitwarden。"
   },
   "premiumFeatures": {
     "message": "升级到高级版并接收："
@@ -1714,7 +1871,7 @@
   "passkeyAuthenticationFailed": {
     "message": "通行密钥验证失败"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "使用其他登录方式"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1775,7 +1932,7 @@
     "message": "自托管环境"
   },
   "selfHostedBaseUrlHint": {
-    "message": "指定您的本地托管 Bitwarden 安装的基础 URL。例如：https://bitwarden.company.com"
+    "message": "指定您的本地托管 Bitwarden 安装的基础 URL。示例：https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "对于高级配置，您可以单独指定每个服务的基础 URL。"
@@ -1858,7 +2015,7 @@
     "message": "URI 匹配规则"
   },
   "neverMatch": {
-    "message": "永不匹配"
+    "message": "从不匹配"
   },
   "loginHasNoSiteSaved": {
     "message": "登录未保存任何站点"
@@ -1905,6 +2062,9 @@
   "showInlineMenuCardsLabel": {
     "message": "将支付卡显示为建议"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "将 SSH 密钥显示为建议"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "选择图标时显示建议"
   },
@@ -1912,7 +2072,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "停用您浏览器内置的密码管理器设置以避免冲突。"
+    "message": "停用您浏览器的内置密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -2108,14 +2268,11 @@
   "securityCode": {
     "message": "安全码"
   },
-  "cardNumber": {
-    "message": "卡号"
-  },
   "ex": {
     "message": "例如"
   },
   "title": {
-    "message": "称呼"
+    "message": "称谓"
   },
   "mr": {
     "message": "先生"
@@ -2321,6 +2478,42 @@
   "licenseClass": {
     "message": "驾驶证类别"
   },
+  "addItemHeaderLogin": {
+    "message": "添加登录",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "添加支付卡",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "添加身份",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "添加笔记",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "添加安全笔记",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "添加 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "添加银行账户",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "添加驾驶证",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "添加护照",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "新增登录",
     "description": "Header for new login item type"
@@ -2336,6 +2529,10 @@
   "newItemHeaderNote": {
     "message": "新增笔记",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "新增安全笔记",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
@@ -2374,6 +2571,26 @@
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "编辑安全笔记",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
     "message": "编辑笔记",
     "description": "Header for edit note item type"
   },
@@ -2417,6 +2634,10 @@
     "message": "查看笔记",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "查看安全笔记",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
     "description": "Header for view SSH key item type"
@@ -2445,7 +2666,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除生成器历史记录"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "back": {
@@ -2456,6 +2677,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ 个共享文件夹",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2491,8 +2721,134 @@
     "message": "清除",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "选择所有行"
+  },
+  "selectRow": {
+    "message": "选择行"
+  },
+  "showingItemRange": {
+    "message": "显示 $START$ - $END$ / $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "每页行数"
+  },
+  "rowsPerPageOption": {
+    "message": "每页 $COUNT$ 行",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "全部"
+  },
+  "clearAll": {
+    "message": "清除全部"
+  },
+  "done": {
+    "message": "完成"
+  },
+  "filter": {
+    "message": "筛选"
+  },
+  "filtersSelected": {
+    "message": "已选择 $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "上一页"
+  },
+  "nextPage": {
+    "message": "下一页"
+  },
+  "goToPage": {
+    "message": "跳转至..."
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "没有匹配的项目"
+  },
+  "noFiltersMatch": {
+    "message": "没有匹配「$SEARCH$」的筛选",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 个结果",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ 个结果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "没有匹配「$SEARCH$」的筛选",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "清除搜索"
+  },
   "selected": {
     "message": "已选择"
+  },
+  "selectedLowercase": {
+    "message": "已选择",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "批量操作"
@@ -2617,7 +2973,7 @@
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
-    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
+    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您应确保您的设备已受到妥善保护。"
   },
   "noOrganizationsList": {
     "message": "您没有加入任何组织。组织允许您与其他用户安全地共享项目。"
@@ -2891,8 +3247,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "您的新主密码不符合策略要求。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
+  "receiveMarketingEmails": {
+    "message": "通过电子邮件接收 Bitwarden 的最新动态。"
   },
   "unsubscribe": {
     "message": "取消订阅"
@@ -2933,12 +3289,6 @@
   "errorRefreshingAccessTokenDesc": {
     "message": "未找到刷新令牌或 API 密钥。请尝试注销然后重新登录。"
   },
-  "desktopSyncVerificationTitle": {
-    "message": "桌面同步验证"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "请确认桌面应用程序显示此指纹： "
-  },
   "desktopIntegrationDisabledTitle": {
     "message": "浏览器集成未设置"
   },
@@ -2966,10 +3316,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "桌面应用程序登录到了不同的账户。请确保两个应用程序都登录到同一个账户。"
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "账户不匹配"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "生物识别密钥不匹配"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3005,6 +3355,18 @@
   "biometricsFailedDesc": {
     "message": "生物识别无法完成，请尝试使用主密码或注销。如果仍无法解决，请联系 Bitwarden 支持。"
   },
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "未提供权限"
+  },
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "由于没有与 Bitwarden 桌面应用程序通信的权限，我们无法在浏览器扩展中提供生物识别。请重试。"
+  },
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "权限请求错误"
+  },
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "此操作不能在侧边栏中完成，请在弹出窗口或弹出面板中重试。"
+  },
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
   },
@@ -3018,7 +3380,7 @@
     "message": "无法导入支付卡项目类型"
   },
   "restrictCardTypeImportDesc": {
-    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
   "domainsTitle": {
     "message": "域名",
@@ -3066,6 +3428,10 @@
   },
   "atRiskPasswords": {
     "message": "存在风险的密码"
+  },
+  "atRisk": {
+    "message": "存在风险",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ 要求您更改 1 个密码，因为它存在风险。",
@@ -3130,6 +3496,18 @@
       }
     }
   },
+  "reviewXAtRiskPassword": {
+    "message": "审查 1 个存在风险的密码"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "审查 $COUNT$ 个存在风险的密码",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "changeAtRiskPasswordsFaster": {
     "message": "尽快更改存在风险的密码"
   },
@@ -3173,7 +3551,7 @@
     "message": "启用自动填充"
   },
   "turnedOnAutofill": {
-    "message": "已启用自动填充"
+    "message": "启用了自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -3325,6 +3703,10 @@
     "message": "自定义"
   },
   "createSend": {
+    "message": "创建 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
     "message": "创建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -3795,7 +4177,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "无效的 $SERVICENAME$ API 令牌",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3805,7 +4187,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "无效的 $SERVICENAME$ API 令牌：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3819,7 +4201,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3829,7 +4211,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3893,6 +4275,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "添加网站前缀",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "主机名",
     "description": "Part of a URL."
@@ -3906,7 +4296,7 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector 错误：请确保 Key Connector 可用且工作正常。"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
@@ -3951,9 +4341,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密码登录"
-  },
   "newAroundHere": {
     "message": "初来乍到吗？"
   },
@@ -3979,7 +4366,7 @@
     "message": "通知已发送到您的设备。"
   },
   "notificationSentDevicePart1": {
-    "message": "解锁您设备上的 Bitwarden 或通过"
+    "message": "解锁您设备上的 Bitwarden 或解锁"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
@@ -4658,6 +5045,72 @@
   "importNothingError": {
     "message": "没有导入任何内容。"
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ 个项目将被跳过",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ 个项目将被跳过",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "以下项目无法读取，将不会包含在您的导入中："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "此 SSH 密钥无法导入"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "不受支持的项目类型"
+  },
+  "importSkipReasonGeneric": {
+    "message": "此项目无法导入"
+  },
+  "identifier": {
+    "message": "标识符"
+  },
+  "contact": {
+    "message": "联系人"
+  },
+  "membership": {
+    "message": "成员资格"
+  },
+  "passport": {
+    "message": "护照"
+  },
+  "driverLicense": {
+    "message": "驾驶证"
+  },
+  "ssnCard": {
+    "message": "身份证"
+  },
+  "birthCertificate": {
+    "message": "出生证明"
+  },
+  "databaseCredentials": {
+    "message": "数据库凭据"
+  },
+  "serverCredentials": {
+    "message": "服务器凭据"
+  },
+  "softwareLicense": {
+    "message": "软件许可证"
+  },
+  "healthInsurance": {
+    "message": "健康保险"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi 凭据"
+  },
   "importEncKeyError": {
     "message": "解密导出的文件时出错。您的加密密钥与导出数据时使用的加密密钥不匹配。"
   },
@@ -4700,6 +5153,79 @@
   "noFileChosen": {
     "message": "未选择文件"
   },
+  "noFileSelected": {
+    "message": "未选择文件"
+  },
+  "fileChosen": {
+    "message": "已选择文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "已添加文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "已添加 $COUNT$ 个文件：$FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "已移除文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 个文件已上传"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ 个文件已上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "已上传文件"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "点击上传或拖放至此"
+  },
+  "chooseFiles": {
+    "message": "选择文件"
+  },
+  "maxFileSizeParam": {
+    "message": "最大文件大小：$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "或复制/粘贴要导入的文件内容"
   },
@@ -4713,6 +5239,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "有关 $NAME$ 的详细说明，请参阅我们的",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "帮助中心"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "此过程与从 Google Chrome 导入完全相同。",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "使用 KeePassX 桌面应用程序，导航到「Database」→「Export to CSV file」，然后保存 CSV 文件。"
+  },
+  "importAviraInstructions": {
+    "message": "在 Avira 网页密码库中，前往「Settings」→「My Data」→「Export data」，然后保存 CSV 文件。"
+  },
+  "importBlurInstructions": {
+    "message": "在 Blur 网页密码库中，点击顶部您的用户名，然后前往「Settings」→「Export Data」，然后点击您的「Accounts」对应的「Export CSV」。"
+  },
+  "importSafeincloudInstructions": {
+    "message": "使用 SafeInCloud 桌面应用程序，导航到「File」→「Export」→「As XML」，然后保存 XML 文件。"
+  },
+  "importPadlockInstructions": {
+    "message": "使用 Padlock 桌面应用程序，点击左上角的汉堡图标并导航到「Settings」→「Export」按钮，然后将文件保存为「As CSV」。"
+  },
+  "importKeepass2Instructions": {
+    "message": "使用 KeePass 2 桌面应用程序，导航到「File」→「Export」，然后选择「KeePass XML (2.x)」选项。"
+  },
+  "importUpmInstructions": {
+    "message": "使用 Universal Password Manager 桌面应用程序，导航到「Database」→「Export」，然后保存 CSV 文件。"
+  },
+  "importSaferpassInstructions": {
+    "message": "使用 SaferPass 浏览器扩展，点击左上角的汉堡图标并导航到「Settings」。点击「Export accounts」按钮以保存 CSV 文件。"
+  },
+  "importMeldiumInstructions": {
+    "message": "使用 Meldium 网页密码库，导航到「Settings」。定位到「Export data」功能，然后点击「Show me my data」以保存 CSV 文件。"
+  },
+  "importPassworddragonInstructions": {
+    "message": "使用 Password Dragon 桌面应用程序，导航到「File」→「Export」→「To XML」。在弹出的对话框中，选择「All Rows」并检查所有字段。点击「Export」按钮，然后保存 XML 文件。"
+  },
+  "importEnpassCsvInstructions": {
+    "message": "使用 Enpasks 桌面应用程序，导航到「File」→「Export」→「As CSV」。在弹出的警告提示中选择「OK」，然后保存 CSV 文件。注意：导入器仅支持在 Enpass 语言设置为英语时导出的文件，因此请相应地调整您的设置。"
+  },
+  "importEnpassJsonInstructions": {
+    "message": "使用 Enpask 6 桌面应用程序，点击菜单按钮，然后导航到「File」→「Export」。选择「.json」文件格式选项，然后保存 JSON 文件。"
+  },
+  "importPwsafeInstructions": {
+    "message": "使用 Password Safe 桌面应用程序，导航到「File」→「Export To」→「XML format...」，然后保存 XML 文件。"
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "登录到 Dashlane，点击「My Account」→「Settings」→「Export file」，然后选择「Export as a CSV file」。这将下载一个包含多个 CSV 文件的 zip 压缩包。解压该压缩包，然后逐一导入每个 CSV 文件。"
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane 不再支持 JSON 格式。仅当您已有可用于导入的 JSON 文件时，才使用此格式。创建新导出时请使用 CSV 导入器。"
+  },
+  "importMsecureInstructions": {
+    "message": "使用 mSecure 桌面应用程序，导航到「File」→「Export」→「CSV File...」，然后保存 CSV 文件。"
+  },
+  "importStickypasswordInstructions": {
+    "message": "使用 Sticky Password 桌面应用程序，导航到「Menu」（右上角）→「Export」→「Export all」。选择未加密格式 XML 选项，然后保存 XML 文件。"
+  },
+  "importTruekeyInstructions": {
+    "message": "使用 True Key 桌面应用程序，点击齿轮图标（右上角），然后导航到「App Settings」。点击「Export」按钮，输入您的密码，然后保存 CSV 文件。"
+  },
+  "importClipperzInstructions": {
+    "message": "登录到 Clipperz 网页应用程序 (clipperz.is/app)。点击右上角的汉堡菜单图标以展开导航栏。导航到「Data」→「Export」。点击「download HTML+JSON」按钮以保存 HTML 文件。"
+  },
+  "importRoboformInstructions": {
+    "message": "使用 RoboForm Editor 桌面应用程序，导航到「RoboForm」（左上角）→「Options」→「Account & Data」，然后点击「Export」按钮。选择您的所有数据，将「Format」更改为「CSV file」，然后点击「Export」按钮以保存 CSV 文件。注意：RoboForm 仅允许您导出登录，其他项目将不会被导出。"
+  },
+  "importPassboltInstructions": {
+    "message": "登录到 Passbolt 网页密码库，然后导航到「Passwords」列表。选择您想要导出的所有密码，然后点击列表顶部的「Export」按钮。选择「csv (lastpass)」导出格式，然后点击「Export」按钮。"
+  },
+  "importAscendoInstructions": {
+    "message": "使用 Ascendo DataVault 桌面应用程序，导航到「Tools」→「Export」。在弹出的对话框中，选择「All Items (DVX, CSV)」选项。单击「Ok」按钮以保存 CSV 文件。"
+  },
+  "importPasswordbossInstructions": {
+    "message": "使用 Password Boss 桌面应用程序，导航到「File」→「Export data」→「Password Boss JSON - not encrypted」，然后保存 JSON 文件。"
+  },
+  "importZohoInstructions": {
+    "message": "登录到 Zoho 网页密码库 (vault.zoho.com)。导航到「Tools」→「Export Secrets」。选择「All Secrets」，然后点击「Zoho Vault Format CSV」按钮。选中并复制文本区域中的数据。打开如 Notepad 之类的文本编辑器并粘贴数据。将文本编辑器中的数据另存为",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "使用 SplashID Safe 桌面应用程序，点击右上角的 SplashID 蓝色锁形标识。导航到「Export」→「Export as CSV」，然后保存 CSV 文件。"
+  },
+  "importPasskeepInstructions": {
+    "message": "使用 PassCond 移动 App，导航到「Backup/Restore」。定位到「CSV Backup/Restore」部分，然后点击「Backup to CSV」以保存 CSV 文件。"
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "请确保您已安装 python-keyring 和 python-gnomekeyring。将",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring 导入/导出"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "Python 脚本保存到您的桌面为",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": "。打开终端并运行",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "然后运行",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": "。然后将生成的",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "文件上传到 Bitwarden。",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "使用 Password Agent 桌面应用程序导航到「File」→「Export」，选择「Fields to export」按钮并检查所有字段。将「Output format」更改为「CSV」，然后点击「Start」按钮以保存 CSV 文件。"
+  },
+  "importPasspackInstructions": {
+    "message": "登录到 Passpack 网站密码库，然后导航到「Settings」→「Export」，然后点击「Download」按钮以保存 CSV 文件。"
+  },
+  "importPassmanInstructions": {
+    "message": "打开您的 Passman 密码库，然后点击左下角的「Settings」。在「Settings」窗口中，切换到「Export credentials」选项卡并选择「JSON」作为导出类型。输入您的密码库口令并点击「Export」按钮以保存 JSON 文件。"
+  },
+  "importAvastCsvInstructions": {
+    "message": "打开 Avast Passwords 桌面应用程序，然后导航到「Settings」→「Import/export data」。选择「Export to CSV file」选项对应的「Export」按钮以保存 CSV 文件。"
+  },
+  "importAvastJsonInstructions": {
+    "message": "打开 Avast Passwords 桌面应用程序，然后导航到「Settings」→「Import/export data」。选择「Export to JSON file」选项对应的「Export」按钮以保存 JSON 文件。"
+  },
+  "importFsecureInstructions": {
+    "message": "打开 F-Secure KEY 桌面应用程序，然后导航到「Settings」→「Export Passwords」。选择「Export」按钮，输入您的主密码，然后保存 FSK 文件。"
+  },
+  "importKasperskyInstructions": {
+    "message": "打开 Kaspersky Password Manager 桌面应用程序，然后导航到「Settings」→「Import/Export」。定位到「Export to text file」部分，然后选择「Export」按钮以保存 TXT 文件。"
+  },
+  "importRemembearInstructions": {
+    "message": "打开 RememBear 桌面应用程序，然后导航到「Settings」→「Account」→「Export」。输入您的主密码，然后选择「Export Anyway」按钮以保存 CSV 文件。"
+  },
+  "importPasswordwalletInstructions": {
+    "message": "打开 PasswordWallet 桌面应用程序，然后导航到「File」→「Export」→「Visible entries to text file」。输入您的密码，然后选择「Ok」按钮以保存 TXT 文件。"
+  },
+  "importMykiInstructions": {
+    "message": "打开 Myki 桌面浏览器扩展，然后导航到「Advanced」→「Export Accounts」，然后使用您的移动设备扫描二维码。多个 CSV 文件将被保存到您计算机的下载文件夹。"
+  },
+  "importSecuresafeInstructions": {
+    "message": "将您的 SecureSafe password safe 导出为以逗号分隔的 CSV 文件。"
+  },
+  "importLogmeonceInstructions": {
+    "message": "打开 LogMeOne 浏览器扩展，然后导航到「Open Menu」→「Export To」，然后选择「CSV File」以保存 CSV 文件。"
+  },
+  "importBlackberryInstructions": {
+    "message": "打开 BlackBerry Password Keeper 应用程序，然后导航到「Settings」→「Import/Export」。选择「Export Passwords」并按照屏幕上的说明保存未加密的 CSV 文件。"
+  },
+  "importButtercupInstructions": {
+    "message": "打开 Buttercup 桌面应用程序并解锁您的密码库。右键点击您的密码库图标并选择「Export」以保存 CSV 文件。"
+  },
+  "importCodebookInstructions": {
+    "message": "打开 CodeBook 桌面应用程序并登录。导航到「File」→「Export all」，然后点击对话框上的「Yes」并保存 CSV 文件。"
+  },
+  "importEncryptrInstructions": {
+    "message": "打开最新版本的 Encryptr 桌面应用程序，并允许所有数据同步。数据同步完成后，右上角的下载图标将变成粉色。点击下载图标，然后保存 CSV 文件。"
+  },
+  "importYotiInstructions": {
+    "message": "在 Yoti 浏览器扩展中，点击「Settings」，然后点击「Export Saved Logins」并保存 CSV 文件。"
+  },
+  "importPsonoInstructions": {
+    "message": "登录到 Psono 网页密码库，点击「Signed in as」下拉菜单，选择「Others」。前往「Export」选项卡并选择 json 类型的导出，然后点击「Export」。"
+  },
+  "importPasskyInstructions": {
+    "message": "登录到「https://vault.passky.org」→「Import & Export」→ 选择 Passky 部分中的「Export」（不支持「Backup」，因为它是加密的）。"
+  },
+  "importProtonpassInstructions": {
+    "message": "在 ProtonPass 浏览器扩展中，前往「Settings」→「Export」。选择「Export without PGP encryption」，然后保存 zip 文件。"
+  },
+  "importPasswordxpInstructions": {
+    "message": "选择「Database」→「Export to file...」菜单 → 在导出选项中，确保文件夹名称和列标题被选中 → 按下「Browse...」按钮，然后选择目标文件并将其类型设置为 CSV 文件。"
+  },
+  "importNetwrixInstructions": {
+    "message": "打开 FullClient，前往主菜单然后选择「Export」。启动导出密码向导，然后遵循说明导出 CSV 文件。"
+  },
+  "importNordpassInstructions": {
+    "message": "登录到 NordPass，然后打开「Settings」→ 向下滚动到「Import and Export」部分并选择「Export」→ 输入您的主密码并选择「Continue」→ 保存 CSV 文件到您的设备上。"
+  },
+  "importPassworddepot17Instructions": {
+    "message": "在桌面应用程序中，前往「Tools」→「Export」→ 输入您的主密码 → 选择「XML Format (*.xml)」作为导出格式 → 点击下一步 → 选择要包含在导出文件中的条目 → 点击下一步以导出到之前选择的位置。"
+  },
+  "importDelineaInstructions": {
+    "message": "登录到 Delinea，搜索「Import/Export」→ 选择「Export」→ 选择「XML」作为导出格式 → 选择「QuantumLock」作为验证器类型 → 输入您的密码，然后选择「Export」以保存 XML 文件。"
+  },
+  "importDelineaCsvInstructions": {
+    "message": "登录到 Delinea，搜索「Import/Export」→ 选择「Export」→ 选择「CSV」作为导出格式 → 选择「QuantumLock」作为验证器类型 → 输入您的密码，然后选择「Export」以保存 CSV 文件。"
+  },
   "confirmVaultImport": {
     "message": "确认密码库导入"
   },
@@ -4721,6 +5448,30 @@
   },
   "confirmFilePassword": {
     "message": "确认文件密码"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass 主密码"
+  },
+  "addKeyFile": {
+    "message": "添加密钥文件"
+  },
+  "keyFileUpload": {
+    "message": "密钥文件上传"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX 文件上传"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "可接受的格式：kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "数据格式不正确。请检查您的导入文件然后重试。"
+  },
+  "kdbxWrongFileType": {
+    "message": "此文件不是有效的 KeePass 数据库 (.kdbx) 文件。请选择一个 .kdbx 文件，然后重试。"
+  },
+  "kdbxFileTooLarge": {
+    "message": "此 KeePass 数据库过大，无法导入。"
   },
   "exportSuccess": {
     "message": "密码库数据已导出"
@@ -4801,7 +5552,7 @@
     "message": "功能尚不被支持"
   },
   "yourPasskeyIsLocked": {
-    "message": "使用通行密钥需要身份验证。请验证身份以继续。"
+    "message": "需要身份验证才能使用通行密钥。验证您的身份以继续。"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"
@@ -4824,8 +5575,11 @@
   "multifactorAuthenticationFailed": {
     "message": "多重身份验证失败"
   },
+  "keeperConnectionError": {
+    "message": "与 Keeper 通信时出现问题。请再次尝试导入。"
+  },
   "includeSharedFolders": {
-    "message": "包含共享的文件夹"
+    "message": "包含共享文件夹"
   },
   "lastPassEmail": {
     "message": "LastPass Email"
@@ -4857,10 +5611,6 @@
   "awaitingSSODesc": {
     "message": "请使用您的公司凭据继续登录。"
   },
-  "seeDetailedInstructions": {
-    "message": "请参阅我们的帮助网站上的详细说明：",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "从 LastPass 直接导入"
   },
@@ -4875,6 +5625,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
+  },
+  "keeperEmail": {
+    "message": "Keeper 电子邮箱"
+  },
+  "keeperEmailHint": {
+    "message": "输入您用于登录 Keeper 的电子邮箱"
+  },
+  "dataCenterLocation": {
+    "message": "数据中心位置"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper 主密码"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "请输入您的 Keeper 主密码"
+  },
+  "twoFactorCodePrompt": {
+    "message": "请输入来自您的双重身份验证方式的代码"
+  },
+  "totpCodePrompt": {
+    "message": "请输入来自您的验证器 App 的代码"
+  },
+  "smsCodePrompt": {
+    "message": "请输入通过短信发送的代码"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "请输入来自您的 Keeper DNA App 的代码"
+  },
+  "adminApproval": {
+    "message": "管理员批准"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "我们已经向您的管理员发送了管理员批准请求"
+  },
+  "method": {
+    "message": "方式"
+  },
+  "directImporter": {
+    "message": "直接导入器"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "需要 SSO 身份验证"
+  },
+  "keeperSsoDesc": {
+    "message": "您的 Keeper 账户要求 SSO 身份验证。在打开的浏览器窗口中完成登录，然后粘贴页面上显示的令牌。"
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "在打开的浏览器标签页中完成登录。令牌将被自动捕获。"
+  },
+  "ssoToken": {
+    "message": "SSO 令牌"
+  },
+  "keeperAuthRequired": {
+    "message": "需要 Keeper 身份验证"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "需要 Keeper 设备批准"
+  },
+  "selectApprovalMethod": {
+    "message": "批准方式"
+  },
+  "deviceApprovalNeeded": {
+    "message": "需要设备批准"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "通过选择下面的方式来批准此设备"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "双重身份验证方式"
+  },
+  "emailVerification": {
+    "message": "电子邮箱验证"
+  },
+  "approvalEmailDesc": {
+    "message": "请检查您的电子邮箱然后在下面输入验证码"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push 通知已发送到认可的设备"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push 已发送"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "批准请求将被取消"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "确定要离开吗？您的管理员批准请求将被取消。"
+  },
+  "cancelRequest": {
+    "message": "取消请求"
+  },
+  "keeperMFARequired": {
+    "message": "需要 Keeper 双重身份验证"
+  },
+  "mfaPushDesc": {
+    "message": "在您的身份验证 App 中批准登录请求。此对话框将自动关闭。"
+  },
+  "selectTwoFactorMethod": {
+    "message": "选择双重身份验证方式"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "选择验证您的身份的方式。"
+  },
+  "authenticatorAppTotp": {
+    "message": "验证器 App (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "短信 (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "备份代码"
+  },
+  "securityKeyU2f": {
+    "message": "安全密钥 (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "安全密钥 (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA 验证"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "批准您设备上的 Keeper DNA 通知"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "选择 Keeper DNA 方式"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "选择使用 Keeper DNA 进行验证的方式。"
+  },
+  "pushNotification": {
+    "message": "Push 通知"
+  },
+  "enterCodeManually": {
+    "message": "手动输入代码"
+  },
+  "twoFactorAuthentication": {
+    "message": "双重身份验证"
+  },
+  "unknownMethod": {
+    "message": "未知方式"
+  },
+  "selectDuoMethod": {
+    "message": "选择 Duo 方式"
+  },
+  "selectDuoMethodDesc": {
+    "message": "选择使用 Duo Security 进行验证的方式。"
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "电话"
+  },
+  "duoVerification": {
+    "message": "Duo 验证"
+  },
+  "duoPushWaiting": {
+    "message": "批准您设备上的 Duo Push 通知。"
+  },
+  "duoSmsWaiting": {
+    "message": "短信已经发送到您的手机。请在 Duo App 中输入代码以继续。"
+  },
+  "duoVoiceWaiting": {
+    "message": "接听来自 Duo 的电话然后按照说明操作。"
+  },
+  "tryAnotherMethod": {
+    "message": "尝试其他方式"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "您的 Keeper 账户需要双重身份验证方式，而直接导入器目前不支持这种方式。"
   },
   "switchAccount": {
     "message": "切换账户"
@@ -4898,7 +5837,7 @@
     "message": "已达到账户上限。请注销一个账户后再添加其他账户。"
   },
   "active": {
-    "message": "活动的"
+    "message": "活动"
   },
   "locked": {
     "message": "已锁定"
@@ -4990,6 +5929,20 @@
     "message": "将 Bitwarden 设置为默认密码管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "提升您的自动填充体验",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "您将被请求授予 $BROWSER$ 浏览器权限，以将 Bitwarden 设为默认密码管理器。",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "无法将 Bitwarden 设置为默认密码管理器",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5001,6 +5954,37 @@
   "makeDefault": {
     "message": "设为默认",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
+  },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "将 Bitwarden 设置为默认密码管理器",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "停用浏览器自动填充设置以避免冲突。",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "管理浏览器设置",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "根据浏览器提示授予 Bitwarden 更改您的设置的权限。"
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
+  },
+  "allow": {
+    "message": "允许",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "跳过"
   },
   "saveCipherAttemptSuccess": {
     "message": "凭据保存成功！",
@@ -5028,6 +6012,12 @@
   "removePasskey": {
     "message": "移除通行密钥"
   },
+  "deletePasskey": {
+    "message": "删除通行密钥"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "此通行密钥将从您的登录项目中永久删除，无法撤销！"
+  },
   "passkeyRemoved": {
     "message": "通行密钥已移除"
   },
@@ -5049,25 +6039,11 @@
   "clearFiltersOrTryAnother": {
     "message": "清除筛选或尝试其他搜索词"
   },
-  "copyInfoTitle": {
-    "message": "复制信息 - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
+  "noSharedFoldersAdded": {
+    "message": "未添加任何共享文件夹"
   },
-  "copyNoteTitle": {
-    "message": "复制备注 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+  "noSharedFoldersAddedDescription": {
+    "message": "添加共享文件夹以安全地与其他成员共享密码库项目。"
   },
   "moreOptionsLabel": {
     "message": "更多选项，$ITEMNAME$",
@@ -5140,29 +6116,21 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "未输入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "没有可复制的值"
+  "noDetailsToCopy": {
+    "message": "没有可复制的详细信息"
   },
   "assignToCollections": {
     "message": "分配到集合"
+  },
+  "addToSharedFolder": {
+    "message": "添加到共享文件夹"
+  },
+  "transferAndAdd": {
+    "message": "转移并添加"
   },
   "copyEmail": {
     "message": "复制电子邮箱"
@@ -5256,6 +6224,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "创建",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "添加集合"
+  },
   "new": {
     "message": "新增"
   },
@@ -5283,6 +6274,60 @@
   },
   "owner": {
     "message": "所有者"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "共享文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "集合 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "我的文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "密码库 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "您",
@@ -5440,11 +6485,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "网址已添加"
   },
   "addWebsite": {
     "message": "添加网站"
+  },
+  "addWebsiteOrApp": {
+    "message": "添加网站或 App"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "删除网站"
@@ -5533,10 +6597,16 @@
     "message": "分配"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这个项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到此项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到此项目。"
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到这些项目。"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
@@ -5574,8 +6644,8 @@
   "linkedHelpText": {
     "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
-  "linkedLabelHelpText": {
-    "message": "输入字段的 html id、名称、aria-label 或占位符。"
+  "linkedFieldLabelHelpText": {
+    "message": "输入字段的 HTML id、name、aria-label 或占位符。"
   },
   "editField": {
     "message": "编辑字段"
@@ -5642,8 +6712,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 个项目将永久转移到所选密码库。您将不再拥有该项目。"
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选密码库。您将不再拥有这些项目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5675,6 +6757,39 @@
   },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
+  },
+  "successfullyAddedSharedFolders": {
+    "message": "成功添加了共享文件夹"
+  },
+  "itemMovedToCollection": {
+    "message": "项目已移动到集合"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "项目已添加到共享文件夹"
+  },
+  "itemMovedToCollections": {
+    "message": "项目已移动到集合"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "项目已添加到共享文件夹"
+  },
+  "itemsMovedToCollection": {
+    "message": "项目已移动到集合"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "项目已添加到共享文件夹"
+  },
+  "itemsMovedToCollections": {
+    "message": "项目已移动到集合"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "项目已添加到共享文件夹"
+  },
+  "itemAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
+  "itemsAssignedToCollections": {
+    "message": "已分配至集合的项目"
   },
   "nothingSelected": {
     "message": "您没有选择任何内容。"
@@ -5718,16 +6833,22 @@
     "message": "项目位置"
   },
   "fileSends": {
-    "message": "文件 Send"
+    "message": "文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "文本 Send"
+    "message": "文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Send 项目",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "账户操作"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "在扩展图标上显示自动填充建议的登录数量"
+    "message": "在扩展图标上显示自动填充建议的登录的数量"
   },
   "accountAccessRequested": {
     "message": "已请求账户访问权限"
@@ -5741,8 +6862,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "在密码库上显示快速复制操作"
+  "showQuickCopyActionsInVault": {
+    "message": "在密码库中显示快速复制操作"
   },
   "systemDefault": {
     "message": "跟随系统"
@@ -5796,7 +6917,10 @@
     "message": "回收站中没有项目"
   },
   "noItemsInTrashDesc": {
-    "message": "您删除的项目将显示在这里，并在 30 天后永久删除"
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除"
+  },
+  "noItemsInTrashDescription": {
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除。"
   },
   "trashWarning": {
     "message": "回收站中超过 30 天的项目将被自动删除"
@@ -5845,9 +6969,6 @@
   },
   "unlockPinSet": {
     "message": "解锁 PIN 设置"
-  },
-  "unlockWithBiometricSet": {
-    "message": "生物识别解锁设置"
   },
   "authenticating": {
     "message": "正在验证"
@@ -6003,13 +7124,10 @@
     "message": "大写"
   },
   "generatedPassword": {
-    "message": "生成了密码"
+    "message": "生成的密码"
   },
   "compactMode": {
     "message": "紧凑模式"
-  },
-  "beta": {
-    "message": "Beta 版"
   },
   "extensionWidth": {
     "message": "扩展宽度"
@@ -6059,11 +7177,14 @@
       }
     }
   },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "请更新您的桌面应用程序"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "changeAtRiskPassword": {
     "message": "更改存在风险的密码"
@@ -6085,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
+  "emptyVaultsDescription": {
+    "message": "添加登录、ID、支付卡和其他项目以开始使用。"
+  },
+  "emptySharedFolderDescription": {
+    "message": "将项目添加到此共享文件夹，然后授予其他 $VAULT_NAME$ 成员访问权限。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "「我的项目」是您的私人空间，用于存储由 $VAULT_NAME$ 拥有、但其他成员不可见的项目。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "您没有文件夹。"
+  },
+  "emptyFoldersDescription": {
+    "message": "使用文件夹来整理密码库项目。这些文件夹仅供您使用 - 其他人无法看到或使用它们。"
   },
   "introCarouselLabel": {
     "message": "欢迎使用 Bitwarden"
@@ -6241,15 +7389,27 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "在项目旁边添加 3 个快速复制按钮，以将您的用户名、密码或验证码复制到剪贴板。"
+  },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
   },
   "wasmNotSupported": {
-    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
+    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。需要 WebAssembly 才能使用 Bitwarden App。",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
     "message": "显示更多"
+  },
+  "showMoreCount": {
+    "message": "再显示 $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "显示更少"
@@ -6527,14 +7687,32 @@
   "sharedUnlock": {
     "message": "共享解锁"
   },
-  "sharedUnlockDescription": {
-    "message": "保持您的 Bitwarden App 同步。启用后，此机器上的所有 App 将共享解锁状态。要在不同浏览器之间同步，需要使用桌面 App。"
+  "sharedUnlockWithDesktop": {
+    "message": "与桌面端共享解锁"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Safari 中的 Bitwarden 网页密码库共享。"
+  "sharedUnlockWithDesktopDescription": {
+    "message": "启用后，解锁状态将与 Bitwarden 桌面 App 共享。"
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Bitwarden 桌面 App 共享。"
+  "sharedUnlockWithWeb": {
+    "message": "与网页密码库共享解锁"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "启用后，解锁状态将与 Bitwarden 网页密码库共享。"
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "共享解锁不可用，因为您选择了不记住此设备。要启用此设置，请尝试重新登录。"
+  },
+  "newPermissionNeeded": {
+    "message": "需要新权限"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "要使用共享解锁，Bitwarden 需要与桌面应用程序通信的权限。继续操作后，浏览器将向您请求授权。"
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden 将锁定并重新加载。在您批准后，扩展将重新加载并锁定您的密码库。"
+  },
+  "biometricPermissionDesc": {
+    "message": "要使用生物识别解锁，Bitwarden 需要与桌面应用程序通信的权限。继续操作后，浏览器将向您请求授权。"
   },
   "enterMonth": {
     "message": "输入月份。"
@@ -6682,10 +7860,261 @@
   "hideEmailPolicyInEffect": {
     "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
   },
+  "domainNotAllowed": {
+    "message": "仅允许以下域名：$DOMAINS$。请检查然后重试",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您组织的 Send 策略",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "创建副本"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "您的组织不允许文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "您的组织不允许文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
+  },
+  "duplicateAttachmentNameError": {
+    "message": "项目不能有多个具有相同文件名的附件"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ 已设置此删除日期",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "health": {
+    "message": "健康状况"
+  },
+  "scanMyVault": {
+    "message": "扫描我的密码库"
+  },
+  "introducingHealth": {
+    "message": "健康状况介绍"
+  },
+  "healthIntroDescription": {
+    "message": "通过修复暴露的、弱的和重复使用的密码，监测并改善您的密码库的健康状况。"
+  },
+  "yourVaultIsHealthy": {
+    "message": "您的密码库状态良好",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "您的密码库风险较高",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ / $TOTAL$ 个密码需要修复",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "没有暴露的密码",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 个暴露的密码",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ 个暴露的密码",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "暴露于数据泄露中",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "在数据泄露中没有发现您的任何密码",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "没有弱密码",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 个弱密码",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ 个弱密码",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "过于简短或简单",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "您所有的密码均很强大",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "没有重复使用的密码",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 个重复使用的密码",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ 个重复使用的密码",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "重复用于多个登录",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "您所有的密码均是唯一的",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "已识别的风险",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "upgradeToViewPasswords": {
+    "message": "升级以查看密码"
+  },
+  "categoryHealthy": {
+    "message": "没有需要注意的项目",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "正在扫描您的密码库",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "正在检查暴露的、弱的和重复使用的密码。",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "进行中",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "出错了",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "由于意外错误，您的密码库扫描未完成。",
+    "description": "Explains that the vault health scan did not complete."
+  },
+  "exposedPasswordsTitle": {
+    "message": "暴露的密码"
+  },
+  "exposedPasswordsDescription": {
+    "message": "这些登录的密码曾在数据泄露中被暴露。立即更改它们以保护您的账户。"
+  },
+  "weakPasswordsTitle": {
+    "message": "弱密码"
+  },
+  "weakPasswordsDescription": {
+    "message": "这些密码过于简短或简单，很容易被猜到。增加它们的复杂度以增强其强度。"
+  },
+  "reusedPasswordsTitle": {
+    "message": "重复使用的密码"
+  },
+  "reusedPasswordsDescription": {
+    "message": "这些登录拥有重复使用的密码。为每个账户创建唯一的密码，以防止他人仅凭一个密码就能访问多个账户。"
+  },
+  "deleteAtRiskItemDesc": {
+    "message": "请务必先更改密码。删除操作只会将项目从您的密码库中移除，并不能消除风险。"
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "此密码还存在其他风险："
+  },
+  "reused": {
+    "message": "重复使用",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ 次",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "在数据泄露中没有发现您的任何密码。"
+  },
+  "weakPasswordEmpty": {
+    "message": "您所有的密码均很强大。"
+  },
+  "reusedPasswordEmpty": {
+    "message": "您所有的密码均是唯一的。"
+  },
+  "youreAllSet": {
+    "message": "一切就绪！"
+  },
+  "permissions": {
+    "message": "权限"
+  },
+  "viewItems": {
+    "message": "查看项目"
+  },
+  "viewItemsHidePass": {
+    "message": "查看项目，隐藏密码"
+  },
+  "editItems": {
+    "message": "编辑项目"
+  },
+  "editItemsHidePass": {
+    "message": "编辑项目，隐藏密码"
   }
 }

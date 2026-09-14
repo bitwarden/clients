@@ -130,11 +130,14 @@
               type="button"
               (click)="openUri(launchUri)"
               data-testid="launch-website"
-              [label]="'launchWebsiteName' | i18n: cipher.name"
+              [label]="'launchWebsite' | i18n"
             ></button>
           }
 
-          <vault-item-copy-actions [cipher]="cipher"></vault-item-copy-actions>
+          <vault-item-copy-actions
+            [cipher]="cipher"
+            [showQuickCopyActions]="showQuickCopyActions()"
+          ></vault-item-copy-actions>
         </div>
       }
 
@@ -145,7 +148,7 @@
         bitIconButton="bwi-ellipsis-v"
         type="button"
         appStopProp
-        label="{{ 'options' | i18n }}"
+        label="{{ 'moreOptions' | i18n }}"
       ></button>
       <bit-menu #cipherOptions>
         @if (!(showCopyAndLaunchActions$ | async)) {
@@ -316,8 +319,8 @@
         }
         @if (showAssignToCollections) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
-            <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-            {{ "assignToCollections" | i18n }}
+            <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+            {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
           </button>
         }
         @if (showEventLogs) {

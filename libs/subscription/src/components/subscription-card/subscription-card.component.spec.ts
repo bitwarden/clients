@@ -4,7 +4,8 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Cart } from "@bitwarden/pricing";
-import { BitwardenSubscription, SubscriptionCardComponent } from "@bitwarden/subscription";
+
+import { BitwardenSubscription, SubscriptionCardComponent } from "../..";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;

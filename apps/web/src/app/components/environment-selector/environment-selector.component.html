@@ -1,7 +1,7 @@
 <div class="tw-mb-1" *ngIf="showRegionSelector">
   <bit-menu #environmentOptions>
     <a
-      *ngFor="let region of availableRegions"
+      *ngFor="let region of availableRegions$ | async"
       bitMenuItem
       [attr.href]="
         region == currentRegion ? 'javascript:void(0)' : region.urls.webVault + routeAndParams

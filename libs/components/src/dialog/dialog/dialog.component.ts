@@ -10,11 +10,9 @@ import {
   input,
   booleanAttribute,
   ElementRef,
-  DestroyRef,
   computed,
   signal,
   AfterViewInit,
-  NgZone,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -28,7 +26,7 @@ import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { DialogRef } from "../dialog.service";
+import { DialogRef } from "../dialog-ref";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 import { DrawerService } from "../drawer.service";
@@ -79,9 +77,6 @@ export const drawerSizeToWidthRem: Record<string, number> = {
   hostDirectives: [{ directive: AutofocusFallbackDirective }],
 })
 export class DialogComponent implements AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
-  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly drawerService = inject(DrawerService);
   private readonly autofocusFallback = inject(AutofocusFallbackDirective, { host: true });
 
@@ -180,11 +175,31 @@ export class DialogComponent implements AfterViewInit {
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
-  handleEsc(event: Event) {
-    if (!this.dialogRef?.disableClose) {
+  /** True when this dialog is a drawer and there is a previous entry in the stack to go back to. */
+  protected readonly isStacked = computed(
+    () => this.dialogRef?.isDrawer === true && this.drawerService.stackDepth() > 1,
+  );
+
+  protected async closeDialog(): Promise<void> {
+    if (this.dialogRef?.isDrawer) {
+      await this.drawerService.closeAll();
+    } else {
       void this.dialogRef?.close();
-      event.stopPropagation();
     }
+  }
+
+  handleEsc(event: Event) {
+    if (this.dialogRef?.disableClose) {
+      return;
+    }
+    // For drawers, Esc mirrors the back button — pop only the top entry.
+    // The X button still calls closeDialog() to tear down the whole stack.
+    if (this.dialogRef?.isDrawer) {
+      void this.dialogRef.close();
+    } else {
+      void this.closeDialog();
+    }
+    event.stopPropagation();
   }
 
   onAnimationEnd() {

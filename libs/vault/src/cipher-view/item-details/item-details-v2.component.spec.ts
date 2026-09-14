@@ -1,4 +1,4 @@
-import { ComponentRef } from "@angular/core";
+import { ComponentRef, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { of } from "rxjs";
@@ -9,8 +9,11 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { ItemDetailsV2Component } from "./item-details-v2.component";
 
@@ -18,6 +21,7 @@ describe("ItemDetailsV2Component", () => {
   let component: ItemDetailsV2Component;
   let fixture: ComponentFixture<ItemDetailsV2Component>;
   let componentRef: ComponentRef<ItemDetailsV2Component>;
+  let mockVfo1Enabled: WritableSignal<boolean>;
 
   const cipher = {
     id: "cipher1",
@@ -48,16 +52,21 @@ describe("ItemDetailsV2Component", () => {
   } as FolderView;
 
   beforeEach(async () => {
+    mockVfo1Enabled = signal(false);
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
+        },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         {
           provide: EnvironmentService,
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: Vfo1TerminologyService, useFactory: () => ({ enabled: mockVfo1Enabled }) },
       ],
     }).compileComponents();
   });
@@ -88,11 +97,91 @@ describe("ItemDetailsV2Component", () => {
     expect(itemDetailsList[3].nativeElement.textContent.trim()).toContain(folder.name);
   });
 
+  describe("getAriaLabel", () => {
+    it("separates the label and name with a space for organizations", () => {
+      const org = Object.assign(new Organization(), { name: "Organization 1" });
+      expect(component.getAriaLabel(org)).toBe("ownerAriaLabel Organization 1");
+    });
+
+    it("separates the label and name with a space for collections", () => {
+      const col = new CollectionView({
+        id: "col1" as CollectionId,
+        organizationId: "org1" as OrganizationId,
+        name: "Collection 1",
+      });
+      expect(component.getAriaLabel(col)).toBe("collectionAriaLabel Collection 1");
+    });
+
+    it("separates the label and name with a space for folders", () => {
+      const folderView = Object.assign(new FolderView(), { name: "Folder 1" });
+      expect(component.getAriaLabel(folderView)).toBe("folderAriaLabel Folder 1");
+    });
+  });
+
   it("does not render owner when `hideOwner` is true", () => {
     componentRef.setInput("hideOwner", true);
     fixture.detectChanges();
 
     const owner = fixture.debugElement.query(By.css('[data-testid="owner"]'));
     expect(owner).toBeNull();
+  });
+
+  describe("when VFO1Foundation flag is enabled", () => {
+    beforeEach(() => {
+      mockVfo1Enabled.set(true);
+    });
+
+    it("uses 'vault' i18n key for the org item aria-label", () => {
+      const orgInstance = Object.assign(new Organization(), {
+        id: "org1",
+        name: "Organization 1",
+      });
+      componentRef.setInput("organization", orgInstance);
+      fixture.detectChanges();
+
+      const itemDetailsList = fixture.debugElement.queryAll(
+        By.css('[data-testid="item-details-list"]'),
+      );
+      const orgItem = itemDetailsList.find((el) =>
+        el.nativeElement.getAttribute("aria-label")?.includes(orgInstance.name),
+      );
+
+      expect(orgItem).toBeDefined();
+      expect(orgItem!.nativeElement.getAttribute("aria-label")).toBe(
+        `vaultAriaLabel ${orgInstance.name}`,
+      );
+    });
+
+    it("shows personal vault chip when cipher has no organizationId", () => {
+      componentRef.setInput("cipher", {
+        ...cipher,
+        organizationId: null,
+        collectionIds: [],
+      } as unknown as CipherView);
+      fixture.detectChanges();
+
+      const itemDetailsList = fixture.debugElement.queryAll(
+        By.css('[data-testid="item-details-list"]'),
+      );
+      const personalVaultChip = itemDetailsList.find(
+        (el) => el.nativeElement.getAttribute("aria-label") === "myVault",
+      );
+
+      expect(personalVaultChip).toBeDefined();
+      expect(personalVaultChip!.nativeElement.textContent.trim()).toContain("myVault");
+    });
+
+    it("does not show personal vault chip when cipher has an organizationId", () => {
+      fixture.detectChanges();
+
+      const itemDetailsList = fixture.debugElement.queryAll(
+        By.css('[data-testid="item-details-list"]'),
+      );
+      const personalVaultChip = itemDetailsList.find(
+        (el) => el.nativeElement.getAttribute("aria-label") === "myVault",
+      );
+
+      expect(personalVaultChip).toBeUndefined();
+    });
   });
 });

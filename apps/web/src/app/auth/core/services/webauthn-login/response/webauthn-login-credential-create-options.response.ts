@@ -1,4 +1,4 @@
-import { ChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
+import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 /**
@@ -6,7 +6,7 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
  */
 export class WebauthnLoginCredentialCreateOptionsResponse extends BaseResponse {
   /** Options to be provided to the webauthn authenticator */
-  options: ChallengeResponse;
+  options: WebAuthnChallengeResponse;
 
   /**
    * Contains an encrypted version of the {@link options}.
@@ -16,7 +16,7 @@ export class WebauthnLoginCredentialCreateOptionsResponse extends BaseResponse {
 
   constructor(response: unknown) {
     super(response);
-    this.options = new ChallengeResponse(this.getResponseProperty("options"));
+    this.options = new WebAuthnChallengeResponse(this.getResponseProperty("options"));
     this.token = this.getResponseProperty("token");
   }
 }

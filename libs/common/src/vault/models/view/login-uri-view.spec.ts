@@ -40,6 +40,66 @@ const exampleUris = {
   noEquivalentDomains: () => new Set<string>(),
 };
 
+// IANA reserved internationalized domain names (https://www.iana.org/domains/reserved),
+// paired with their punycode equivalents.
+const idnTestDomains = [
+  {
+    script: "Arabic Arabic",
+    unicode: "https://www.إختبار.com",
+    punycode: "https://www.xn--kgbechtv.com",
+  },
+  {
+    script: "Persian Arabic",
+    unicode: "https://www.آزمایشی.com",
+    punycode: "https://www.xn--hgbk6aj7f53bba.com",
+  },
+  {
+    script: "Chinese Han (Simplified variant)",
+    unicode: "https://www.测试.com",
+    punycode: "https://www.xn--0zwm56d.com",
+  },
+  {
+    script: "Chinese Han (Traditional variant)",
+    unicode: "https://www.測試.com",
+    punycode: "https://www.xn--g6w251d.com",
+  },
+  {
+    script: "Russian Cyrillic",
+    unicode: "https://www.испытание.com",
+    punycode: "https://www.xn--80akhbyknj4f.com",
+  },
+  {
+    script: "Hindi Devanagari (Nagari)",
+    unicode: "https://www.परीक्षा.com",
+    punycode: "https://www.xn--11b5bs3a9aj6g.com",
+  },
+  {
+    script: "Greek, Modern (1453-) Greek",
+    unicode: "https://www.δοκιμή.com",
+    punycode: "https://www.xn--jxalpdlp.com",
+  },
+  {
+    script: "Korean Hangul (Hangŭl, Hangeul)",
+    unicode: "https://www.테스트.com",
+    punycode: "https://www.xn--9t4b11yi5a.com",
+  },
+  {
+    script: "Yiddish Hebrew",
+    unicode: "https://www.טעסט.com",
+    punycode: "https://www.xn--deba0ad.com",
+  },
+  {
+    script: "Japanese Katakana",
+    unicode: "https://www.テスト.com",
+    punycode: "https://www.xn--zckzah.com",
+  },
+  {
+    script: "Tamil Tamil",
+    unicode: "https://www.பரிட்சை.com",
+    punycode: "https://www.xn--hlcj6aya9esc7a.com",
+  },
+];
+
 describe("LoginUriView", () => {
   it("isWebsite() given an invalid domain should return false", async () => {
     const uri = new LoginUriView();
@@ -97,6 +157,50 @@ describe("LoginUriView", () => {
         const uri = uriFactory(UriMatchStrategy.Domain, exampleUris.standard);
         const actual = uri.matchesUri(
           exampleUris.differentDomain,
+          exampleUris.noEquivalentDomains(),
+        );
+        expect(actual).toBe(false);
+      });
+
+      // Internationalized domain names (IDN): a saved URI and the target URI may
+      // express the same registrable domain in either unicode or punycode form.
+      describe.each(idnTestDomains)("$script IDN domains", ({ unicode, punycode }) => {
+        it("matches a saved unicode domain against a punycode target", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, unicode);
+          expect(uri.matchesUri(punycode, exampleUris.noEquivalentDomains())).toBe(true);
+        });
+
+        it("matches a saved punycode domain against a unicode target", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, punycode);
+          expect(uri.matchesUri(unicode, exampleUris.noEquivalentDomains())).toBe(true);
+        });
+
+        it("matches a saved unicode domain against a unicode target", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, unicode);
+          expect(uri.matchesUri(unicode, exampleUris.noEquivalentDomains())).toBe(true);
+        });
+
+        it("matches a saved punycode domain against a punycode target", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, punycode);
+          expect(uri.matchesUri(punycode, exampleUris.noEquivalentDomains())).toBe(true);
+        });
+      });
+
+      it("matches IDN domains across subdomains", () => {
+        // Chinese Han (Simplified): www.测试.com and login.xn--0zwm56d.com share a domain.
+        const uri = uriFactory(UriMatchStrategy.Domain, "https://www.测试.com");
+        const actual = uri.matchesUri(
+          "https://login.xn--0zwm56d.com",
+          exampleUris.noEquivalentDomains(),
+        );
+        expect(actual).toBe(true);
+      });
+
+      it("does not match different IDN domains", () => {
+        // Arabic إختبار.com should not match Chinese 测试.com (xn--0zwm56d.com).
+        const uri = uriFactory(UriMatchStrategy.Domain, "https://www.إختبار.com");
+        const actual = uri.matchesUri(
+          "https://www.xn--0zwm56d.com",
           exampleUris.noEquivalentDomains(),
         );
         expect(actual).toBe(false);

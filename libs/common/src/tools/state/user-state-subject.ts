@@ -29,8 +29,10 @@ import {
   switchMap,
 } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { Account } from "../../auth/abstractions/account.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { SemanticLogger } from "../log";

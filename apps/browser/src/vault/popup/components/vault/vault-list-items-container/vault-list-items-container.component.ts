@@ -135,12 +135,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * to estimate how many items can be displayed at once and how large the virtual container should be.
    * Needs to be updated if the item height or spacing changes.
    *
-   * Default: 52px + 1px border + 6px bottom margin = 59px
+   * Default: 52px + 2px border + 6px bottom margin = 60px
    *
    * Compact mode: 52px + 1px border = 53px
    */
   protected readonly itemHeight$ = this.compactModeService.enabled$.pipe(
-    map((enabled) => (enabled ? 53 : 59)),
+    map((enabled) => (enabled ? 53 : 60)),
   );
 
   /**
@@ -371,7 +371,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
 
   constructor(
-    private i18nService: I18nService,
+    protected i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private passwordRepromptService: PasswordRepromptService,
     private cipherService: CipherService,
@@ -430,8 +430,13 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
     // When only the `CipherListView` is available, fetch the full cipher details
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id!), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id!) as CipherId),
+    );
+
+    if (!cipherView) {
+      return;
+    }
 
     await this.vaultPopupAutofillService.doAutofill(cipherView);
   }

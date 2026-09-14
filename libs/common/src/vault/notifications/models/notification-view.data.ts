@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { NotificationId, SecurityTaskId } from "@bitwarden/common/types/guid";
+import { NotificationId, SecurityTaskId } from "../../../types/guid";
 
 import { NotificationViewResponse } from "./notification-view.response";
 

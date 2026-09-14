@@ -1,5 +1,4 @@
-import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
-
+import { NeverDomains } from "../../models/domain/domain-service";
 import { CardView } from "../../vault/models/view/card.view";
 import {
   isCardExpired,

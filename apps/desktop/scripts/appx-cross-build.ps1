@@ -91,13 +91,6 @@ if (!(Get-Command osslsigncode -ErrorAction SilentlyContinue)) {
     Exit 1
 }
 
-if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
-    Write-Error "The `cargo-xwin` tool is required to cross-compile Windows native code."
-    Write-Error "You can install with cargo:"
-    Write-Error "  cargo install --version 0.20.2 --locked cargo-xwin"
-    Exit 1
-}
-
 try {
 
 # Resolve certificate file before we change directories.
@@ -114,7 +107,7 @@ else {
 
 $builderConfig = Get-Content $electronConfigFile | ConvertFrom-Json
 $packageConfig = Get-Content package.json | ConvertFrom-Json
-$manifestTemplate = Get-Content ($builderConfig.appx.customManifestPath ?? "custom-appx-manifest.xml")
+$manifestTemplate = Get-Content -Raw "custom-appx-manifest.xml"
 
 $srcDir = Get-Location
 $assetsDir = Get-Item $builderConfig.directories.buildResources
@@ -171,13 +164,34 @@ Write-Host "Copying Assets"
 New-Item -Type Directory (Join-Path $outDir appx/assets)
 Copy-Item $srcDir/resources/appx/* $outDir/appx/assets/
 
+if ($Beta) {
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.beta.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+}
+else {
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+}
+
 Write-Host "Building Appx manifest"
+# electron-builder resolves appx.customExtensionsPath against directories.app, so we do too.
+$customExtensions = ""
+if ($builderConfig.appx.customExtensionsPath) {
+    $customExtensions = Get-Content -Raw (Join-Path $srcDir $builderConfig.directories.app $builderConfig.appx.customExtensionsPath)
+}
+
+# electron-builder's defaults when appx.minVersion is unset.
+$minVersion = $builderConfig.appx.minVersion ?? ($arch -eq "arm64" ? "10.0.16299.0" : "10.0.14316.0")
 $translationMap = @{
     'arch' = $arch
     'applicationId' = $builderConfig.appx.applicationId
+    'backgroundColor' = $builderConfig.appx.backgroundColor
+    'customExtensions' = $customExtensions
     'displayName' = $productName
     'executable' = "app\${productName}.exe"
     'identityName' = $builderConfig.appx.identityName
+    'maxVersionTested' = $builderConfig.appx.maxVersionTested ?? $minVersion
+    'minVersion' = $minVersion
     'publisher' = $builderConfig.appx.publisher
     'publisherDisplayName' = $builderConfig.appx.publisherDisplayName
     'version' = $version
@@ -187,6 +201,15 @@ $manifest = $manifestTemplate
 $translationMap.Keys | ForEach-Object {
     $manifest = $manifest.Replace("`${$_}", $translationMap[$_])
 }
+
+# The extensions inlined above name their channel's plugin config rather than carrying the
+# COM class ID; resolve it the same way scripts/appx-manifest-created.js does for CI builds.
+$manifest = [regex]::Replace($manifest, '\$\{clsid:([\w.-]+)\}', {
+    param($clsidMacro)
+    $pluginConfigFile = Join-Path $srcDir resources $clsidMacro.Groups[1].Value
+    (Get-Content -Raw $pluginConfigFile | ConvertFrom-Json).clsid
+})
+
 $manifest | Out-File appx/AppxManifest.xml
 $unsignedArtifactpath = [System.IO.Path]::GetFileNameWithoutExtension($artifactName) + "-unsigned.$ext"
 Write-Host "Creating unsigned Appx"

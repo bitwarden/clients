@@ -7,10 +7,13 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventResponse } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -32,6 +35,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
 
   private providerUsersUserIdMap = new Map<string, any>();
   private providerUsersIdMap = new Map<string, any>();
+  // Maps a provider-organization relationship id (EventResponse.providerOrganizationId) to the
+  // client organization's display name.
+  private providerOrganizationNameMap = new Map<string, string>();
 
   constructor(
     private apiService: ApiService,
@@ -39,6 +45,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     eventService: EventService,
     i18nService: I18nService,
     private providerService: ProviderService,
+    private providerApiService: ProviderApiServiceAbstraction,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -48,6 +55,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     toastService: ToastService,
     accountService: AccountService,
     organizationService: OrganizationService,
+    private configService: ConfigService,
   ) {
     super(
       eventService,
@@ -92,6 +100,18 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       this.providerUsersIdMap.set(u.id, { name: name, email: u.email });
       this.providerUsersUserIdMap.set(u.userId, { name: name, email: u.email });
     });
+
+    // Only needed to personalize event copy with the client org name, which is gated behind this
+    // flag, so skip the extra request entirely when it's off.
+    if (await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation)) {
+      const providerOrganizations = await this.providerApiService.getProviderOrganizations(
+        this.providerId,
+      );
+      providerOrganizations.data.forEach((o) => {
+        this.providerOrganizationNameMap.set(o.id, o.organizationName);
+      });
+    }
+
     await this.refreshEvents();
     this.loaded.set(true);
   }
@@ -115,5 +135,11 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     }
 
     return null;
+  }
+
+  protected override getOrganizationName(r: EventResponse): string | undefined {
+    return r.providerOrganizationId
+      ? this.providerOrganizationNameMap.get(r.providerOrganizationId)
+      : undefined;
   }
 }

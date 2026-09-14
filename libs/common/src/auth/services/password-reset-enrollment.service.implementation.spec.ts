@@ -7,11 +7,12 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import { mockAccountInfoWith } from "../../../spec/fake-account-service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { UserId } from "../../types/guid";
 import { Account, AccountService } from "../abstractions/account.service";
