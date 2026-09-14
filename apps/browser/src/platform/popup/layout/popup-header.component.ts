@@ -24,6 +24,7 @@ import {
   FunctionReturningAwaitable,
   IconButtonModule,
   ScrollCollapseService,
+  ScrollLayoutService,
   settledHeight,
   SvgModule,
   TypographyModule,
@@ -49,6 +50,7 @@ import { PopupPageComponent } from "./popup-page.component";
 export class PopupHeaderComponent {
   private readonly popupRouterCacheService = inject(PopupRouterCacheService);
   private readonly scrollCollapse = inject(ScrollCollapseService);
+  private readonly scrollLayout = inject(ScrollLayoutService);
 
   /**
    * TODO: remove with the VFO1Foundation flag.

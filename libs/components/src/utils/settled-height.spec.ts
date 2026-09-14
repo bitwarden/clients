@@ -21,7 +21,7 @@ describe("settledHeight", () => {
   const create = (
     element: Signal<ElementRef<HTMLElement> | HTMLElement | null>,
     expanded: Signal<boolean>,
-  ): Signal<number> => TestBed.runInInjectionContext(() => settledHeight(element, expanded));
+  ): (() => number) => TestBed.runInInjectionContext(() => settledHeight(element, expanded));
 
   it("measures the element on first render, which is always settled", () => {
     const height = create(signal(createElement(48)), signal(true));
