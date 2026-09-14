@@ -1,0 +1,21 @@
+targetTemplates:
+  # Adds common include/excludes for app and framework targets.
+  CommonTarget:
+    sources:
+      - path: ${sourcesPath}
+        excludes:
+          - "**/*Tests.*"
+          - "**/.gitignore"
+          - "**/Fixtures/*"
+          - "**/GoogleService-Info.*.plist"
+          - "**/Mocks/*"
+          - "**/Sourcery/Generated/*"
+          - "**/TestHelpers/*"
+          - "**/Tests/*"
+          - "**/__Snapshots__/*"
+          - "**/sourcery.yml"
+      - path: ${sourcesPath}
+        includes:
+          - "**/__Snapshots__/*"
+          - "**/GoogleService-Info.*.plist"
+        buildPhase: none

@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
+import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
 
 import {
   type BuildConfig,
@@ -234,37 +235,85 @@ async function main() {
     // macOS provisioning profiles
     let appProvisioningProfile: string;
     if (config.platform === "macos") {
-      // TODO(BRE-2234): This entire else block can be delete once BRE-2234 is
-      // completed, as all the provisioning profiles will have the autofill
-      // entitlement available for use.
-      switch (config.channel) {
-        case "stable":
-          switch (config.audience) {
-            case "public":
-              if (isMasBuild) {
-                appProvisioningProfile = "Bitwarden Desktop App Store 2021";
-              } else {
-                appProvisioningProfile = "Bitwarden Desktop Autofill Extension Developer Dis";
-              }
-              break;
-            case "internal":
-              appProvisioningProfile = "Bitwarden Desktop Development (2021)";
-              break;
-          }
-          break;
-        case "beta":
-          switch (config.audience) {
-            case "public":
-              if (isMasBuild) {
-                throw new BuildError("Beta build not supported for App Store");
-              } else {
-                throw new BuildError("Beta build not supported for Developer Distribution");
-              }
-            case "internal":
-              appProvisioningProfile = "Beta Bitwarden Desktop Development";
-              break;
-          }
-          break;
+      const withAutofill = options.withAutofillExtension;
+      if (withAutofill) {
+        switch (config.channel) {
+          case "stable":
+            switch (config.audience) {
+              case "public":
+                if (isMasBuild) {
+                  // TODO(BRE-2234): Update with new provisioning profile names.
+                  // appProvisioningProfile = "PM Stable Desktop AppStore";
+                  appProvisioningProfile = "Bitwarden Desktop App Store 2024 w autofill";
+                } else {
+                  // TODO(BRE-2234): Update with new provisioning profile names.
+                  // appProvisioningProfile =  "PM Stable Desktop Distrib";
+                  throw new BuildError(
+                    "Building a developer distribution with autofill extension enabled is not currently supported",
+                  );
+                }
+                break;
+              case "internal":
+                // TODO(BRE-2234): Update with new provisioning profile names.
+                // appProvisioningProfile =  "PM Stable Desktop Testing";
+                appProvisioningProfile = "Bitwarden Desktop Development (2021)";
+                break;
+            }
+            break;
+          case "beta":
+            switch (config.audience) {
+              case "public":
+                if (isMasBuild) {
+                  // TODO(BRE-2234): Update with new provisioning profile names.
+                  // appProvisioningProfile = "PM Beta Desktop AppStore";
+                  throw new BuildError("Beta build not supported for App Store");
+                } else {
+                  // TODO(BRE-2234): Update with new provisioning profile names.
+                  // appProvisioningProfile =  "PM Beta Desktop Distrib";
+                  throw new BuildError("Beta build not supported for Developer Distribution");
+                }
+                break;
+              case "internal":
+                // TODO(BRE-2234): Update with new provisioning profile names.
+                // appProvisioningProfile =  "PM Stable Desktop Testing";
+                appProvisioningProfile = "Beta Bitwarden Desktop Development";
+                break;
+            }
+            break;
+        }
+      } else {
+        // TODO(BRE-2234): This entire else block can be delete once BRE-2234 is
+        // completed, as all the provisioning profiles will have the autofill
+        // entitlement available for use.
+        switch (config.channel) {
+          case "stable":
+            switch (config.audience) {
+              case "public":
+                if (isMasBuild) {
+                  appProvisioningProfile = "Bitwarden Desktop App Store 2021";
+                } else {
+                  appProvisioningProfile = "Bitwarden Desktop Autofill Extension Developer Dis";
+                }
+                break;
+              case "internal":
+                appProvisioningProfile = "Bitwarden Desktop Development (2021)";
+                break;
+            }
+            break;
+          case "beta":
+            switch (config.audience) {
+              case "public":
+                if (isMasBuild) {
+                  throw new BuildError("Beta build not supported for App Store");
+                } else {
+                  throw new BuildError("Beta build not supported for Developer Distribution");
+                }
+              case "internal":
+                appProvisioningProfile = "Beta Bitwarden Desktop Development";
+                break;
+            }
+            break;
+        }
       }
       config.derived.macos!.appProvisioningProfile = appProvisioningProfile;
       console.log("App Provisioning Profile:", appProvisioningProfile);
@@ -368,6 +417,105 @@ async function main() {
     }[options.channel as Channel];
     config.derived.productName = productName;
     console.log("Product name:", productName);
+
+    // Optional features
+
+    if (options.withAutofillExtension) {
+      if (options.platform === "macos") {
+        BitwardenMacosProviderBuildTask.validate(config);
+        tasks.push(BitwardenMacosProviderBuildTask);
+        BitwardenMacosAutofillExtensionBuildTask.validate(config);
+        tasks.push(BitwardenMacosAutofillExtensionBuildTask);
+        let autofillExtensionAppId;
+        let extensionProvisioningProfile: string;
+        switch (config.channel) {
+          case "stable":
+            autofillExtensionAppId = "com.bitwarden.desktop.autofill-extension";
+
+            switch (config.audience) {
+              case "public":
+                if (isMasBuild) {
+                  // TODO(BRE-2234): Update with new provisioning profile names.
+                  // extensionProvisioningProfile = "PM Stable Desktop-ExtAutofill AppStore";
+                  extensionProvisioningProfile = "Bitwarden Desktop Autofill App Store 2024";
+                } else {
+                  // TODO(BRE-2234): Update with new provisioning profile names.
+                  // extensionProvisioningProfile = "PM Stable Desktop-ExtAutofill Distrib";
+                  extensionProvisioningProfile =
+                    "Bitwarden Desktop Autofill Extension Developer Dis";
+                }
+                break;
+              case "internal":
+                // TODO(BRE-2234): Update with new provisioning profile names.
+                if (isMasBuild) {
+                  // extensionProvisioningProfile = "PM Stable Desktop-ExtAutofill Testing";
+                  extensionProvisioningProfile = "Bitwarden Desktop Autofill Development 2024";
+                } else {
+                  // extensionProvisioningProfile = "PM Stable Desktop-ExtAutofill Testing"
+                  extensionProvisioningProfile = "Bitwarden Desktop Autofill Development 2024";
+                }
+                break;
+              default:
+                throw new BuildError(`Unknown audience: ${config.audience}`);
+            }
+            break;
+          case "beta":
+            autofillExtensionAppId = "com.bitwarden.beta.desktop.autofill-extension";
+
+            switch (config.audience) {
+              case "public":
+                // TODO(BRE-2234): Update with new provisioning profile names.
+                throw new BuildError("Public beta autofill extension is not supported");
+                if (isMasBuild) {
+                  extensionProvisioningProfile = "PM Beta Desktop-ExtAutofill AppStore";
+                } else {
+                  extensionProvisioningProfile = "PM Beta Desktop-ExtAutofill Distrib";
+                }
+                break;
+              case "internal":
+                extensionProvisioningProfile = "Beta Bitwarden Desktop Autofill Development";
+                break;
+              default:
+                throw new BuildError(`Unknown audience: ${config.audience}`);
+            }
+        }
+        if (options.packageSigning === "signed" && ["internal"].includes(config.audience)) {
+          // When producing a signed developer build, check that the developer
+          // has an appropriate signing certificate for the required
+          // provisioning profiles.
+          const profiles = await discoverProvisioningProfilesByName(extensionProvisioningProfile, [
+            // DESKTOP_PROJECT_DIR,
+            // CLIENTS_PROJECT_DIR,
+            XCODE_PROVISIONING_PROFILES,
+          ]);
+          if (profiles.length === 0) {
+            console.error(
+              `❌ No provisioning profile files found in Xcode directory. Ensure that the certificates are installed into ${XCODE_PROVISIONING_PROFILES} using Xcode or manually copying into the directory.`,
+            );
+            console.error("  Provisioning profile:", extensionProvisioningProfile);
+            isValid = false;
+          }
+          const hasEligibleCert = profiles.some((p) =>
+            p.developerCertificates.includes(config.macos!.signingCertificate!),
+          );
+          if (!hasEligibleCert) {
+            console.error(
+              `❌ Signing certificate does not match provisioning profile. Ensure you have the correct provisioning profiles installed, and ask BRE to add your certificate to the provision profile if the issue persists.`,
+            );
+            console.error("  Provisioning profile:", extensionProvisioningProfile);
+            console.error("  Signing certificate:", config.macos?.signingCertificate);
+            isValid = false;
+          }
+          // TODO: try looking up profiles from the current directory and copy them into the right place.
+        }
+        config.derived.macos!.autofillExtensionProvisioningProfile = extensionProvisioningProfile;
+        config.derived.macos!.autofillExtensionAppId = autofillExtensionAppId;
+        console.log("Autofill extension App ID:", autofillExtensionAppId);
+        console.log("Autofill extension provisioning profile :", extensionProvisioningProfile);
+      }
+    }
+    config.features.autofillExtension = options.withAutofillExtension;
+    console.log("Autofill extension enabled:", options.withAutofillExtension);
 
     const orderedTasks = getDependencyOrder(tasks);
     config.targets = orderedTasks.map((t) => t.targetName);
