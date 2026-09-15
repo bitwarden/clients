@@ -8,6 +8,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { concatMap, map, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import { AutotypeShortcutComponent } from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -64,7 +65,6 @@ import {
 } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
-import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";

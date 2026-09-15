@@ -263,3 +263,37 @@ export const NoButton: Story = {
     },
   },
 };
+
+/** An unbroken search term has no break opportunity, so it must wrap mid-word to stay in bounds. */
+export const LongUnbrokenTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <div class="tw-border tw-border-solid tw-border-secondary-300" style="width: 380px;">
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="svg"></bit-svg>
+        <ng-container slot="title">No items match "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWO"</ng-container>
+        <button
+            slot="button"
+            type="button"
+            bitButton
+            buttonType="secondary"
+        >
+            <bit-icon name="bwi-plus" />
+            New item
+        </button>
+      </bit-status-lockup>
+    </div>
+    `,
+  }),
+  args: {
+    svg: NoResults,
+  },
+  argTypes: {
+    svg: {
+      options: Object.keys(Svgs),
+      mapping: Svgs,
+      control: { type: "select" },
+    },
+  },
+};

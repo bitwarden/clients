@@ -13,7 +13,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonModule } from "../button";
-import { DIALOG_DATA, DialogModule, DialogRef } from "../dialog";
+import { DIALOG_DATA, DialogModule } from "../dialog";
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import {
@@ -21,6 +21,7 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../overflow-list";
+import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterPresenter } from "./filter-tokens";
@@ -50,11 +51,11 @@ function optionCount(filter: FilterPresenter): number {
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilterDialogComponent {
-  private readonly dialogRef = inject(DialogRef);
   private readonly injector = inject(Injector);
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
@@ -76,9 +77,23 @@ export class FilterDialogComponent {
     return filter ? optionCount(filter) : 0;
   });
 
+  /** Whichever count the footer is showing — the drilled-into filter's, or every filter's. */
+  protected readonly footerSelectedCount = computed(() =>
+    this.activeFilter() ? this.activeSelectedCount() : this.selectedCount(),
+  );
+
   /** Kept out of the template so no whitespace lands between the label and the colon. */
   protected rowLabel(filter: FilterPresenter): string {
     return filter.summary() ? `${filter.label()}:` : filter.label();
+  }
+
+  /**
+   * The row's full text for its tooltip. Unlike {@link rowLabel} this keeps the summary, since
+   * the row truncates its label and hides any selection past the first few behind a `+N`.
+   */
+  protected rowTooltip(filter: FilterPresenter): string {
+    const summary = filter.summary();
+    return summary ? `${filter.label()}: ${summary}` : filter.label();
   }
 
   // The rows come from the chip's template, shared with the popover, so the card and
@@ -149,10 +164,5 @@ export class FilterDialogComponent {
   /** Clearing removes the button that was clicked, so move focus rather than drop it. */
   private keepFocusOnDone(): void {
     focusAfterRender(this.injector, () => this.doneButtonEl()?.nativeElement);
-  }
-
-  /** Dismiss the dialog. Selections apply live, so this just closes. */
-  protected close(): void {
-    void this.dialogRef.close();
   }
 }

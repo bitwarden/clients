@@ -1,0 +1,8 @@
+@if (canShare()) {
+  <button bitMenuItem type="button" (click)="share()">
+    @if (showIcon()) {
+      <bit-icon name="bwi-share-link" fixedWidth />
+    }
+    {{ "shareViaLink" | i18n }}
+  </button>
+}
