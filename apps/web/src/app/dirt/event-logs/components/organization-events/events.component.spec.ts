@@ -1,5 +1,9 @@
-import { ActivatedRoute, Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -16,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { HeaderModule } from "../../../../layouts/header/header.module";
 import { EventExportService } from "../../../../tools/event-export";
 import {
   EventService,
@@ -191,5 +196,93 @@ describe("EventsComponent Send access linking", () => {
       expect(dialogService.open).not.toHaveBeenCalled();
       expect(router.navigate).not.toHaveBeenCalled();
     });
+  });
+});
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-header",
+  template: "<div></div>",
+})
+class MockHeaderComponent {}
+
+describe("EventsComponent Export button", () => {
+  let fixture: ComponentFixture<EventsComponent>;
+
+  beforeEach(async () => {
+    // The template-only assertions below don't need the data load; ngOnInit needs a live route
+    // and org lookup, neither of which affect the Export button's rendering.
+    jest.spyOn(EventsComponent.prototype, "ngOnInit").mockResolvedValue(undefined);
+
+    const eventService = mock<EventService>();
+    eventService.getDefaultDateFilters.mockReturnValue(["", ""]);
+    const i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((id: string) => id);
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = new BehaviorSubject(null);
+    const organizationService = mock<OrganizationService>();
+    organizationService.organizations$.mockReturnValue(of([]));
+    const activatedRoute = mock<ActivatedRoute>();
+    activatedRoute.params = of({});
+    activatedRoute.paramMap = of(convertToParamMap({}));
+    // The component library's DialogModule providers are instantiated for real (they live in the
+    // component's own environment injector), so the Router mock needs a usable url/events.
+    const router = mock<Router>();
+    router.url = "/";
+    router.events = of();
+
+    await TestBed.configureTestingModule({
+      imports: [EventsComponent],
+      providers: [
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: EventService, useValue: eventService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: EventExportService, useValue: mock<EventExportService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: UserNamePipe, useValue: mock<UserNamePipe>() },
+        { provide: OrganizationService, useValue: organizationService },
+        { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
+        {
+          provide: OrganizationApiServiceAbstraction,
+          useValue: mock<OrganizationApiServiceAbstraction>(),
+        },
+        { provide: ProviderService, useValue: mock<ProviderService>() },
+        { provide: FileDownloadService, useValue: mock<FileDownloadService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: AccountService, useValue: accountService },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: Router, useValue: router },
+      ],
+    })
+      .overrideComponent(EventsComponent, {
+        remove: { imports: [HeaderModule] },
+        add: { imports: [MockHeaderComponent] },
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(EventsComponent);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    // The ngOnInit spy is installed on the shared prototype, so it has to be restored to keep it
+    // from leaking into any describe block added below this one.
+    jest.restoreAllMocks();
+  });
+
+  const exportButton = () =>
+    fixture.debugElement
+      .queryAll(By.css("button[bitButton]"))
+      .find((button) => button.nativeElement.textContent.trim() === "exportVerb");
+
+  it("renders the export (bwi-import) icon, not the sign-in icon", () => {
+    const icon = exportButton().query(By.css("i.bwi"));
+
+    expect(icon).not.toBeNull();
+    expect(icon.nativeElement.classList).toContain("bwi-import");
+    expect(icon.nativeElement.classList).not.toContain("bwi-sign-in");
   });
 });
