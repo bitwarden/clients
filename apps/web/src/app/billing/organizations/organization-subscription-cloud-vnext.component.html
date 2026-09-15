@@ -216,7 +216,7 @@
           {{ "billingContactProviderForAssistance" | i18n }}.
         </p>
       }
-    } @else if (!showSubscriptionStatus && !showProviderManagedBilling) {
+    } @else if (org && !showSubscriptionStatus && !showProviderManagedBilling) {
       <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
         <div class="tw-size-56 tw-content-center">
           <bit-svg [content]="gearIcon" aria-hidden="true"></bit-svg>
