@@ -12,7 +12,7 @@
 ///
 /// Pure: the base is passed in, so this is testable without reading anything.
 
-import type { BuildConfig, DistributionChannel } from "./build-config.mts";
+import { type BuildConfig, type DistributionChannel, isAppStoreBuild } from "./build-config.mts";
 
 /// electron-builder target for each distribution channel. Null where producing the channel
 /// takes more than an electron-builder target -- those are packaged by steps that do not exist
@@ -37,13 +37,6 @@ export const ELECTRON_BUILDER_TARGETS: Record<DistributionChannel, string | null
   // Built by flatpak-builder, not electron-builder.
   flatpak: null,
 };
-
-/// App Store builds sign differently: the outer mac identity is disabled and the mas one is
-/// used instead, which is what pack:mac:mas and pack:mac:masdev do with -c overrides today.
-const APP_STORE_CHANNELS: readonly DistributionChannel[] = [
-  "mac-app-store",
-  "mac-app-store-development",
-];
 
 export interface ExtraFile {
   from: string;
@@ -120,6 +113,7 @@ export function applyBuildConfig(
   result[platformKey] = { ...(result[platformKey] as Record<string, unknown>), extraFiles };
 
   if (config.derived.platform === "macos") {
+    applyMacIdentity(result, config);
     applyMacSigning(result, config);
   }
 
@@ -153,12 +147,30 @@ function packagedBinaries(config: BuildConfig): ExtraFile[] {
   return entries;
 }
 
+/// The bundle identifier and the entitlements are generated together from the channel, so
+/// applying both from the same place is what keeps them from disagreeing -- an app signed with
+/// entitlements naming a different application identifier is rejected outright.
+function applyMacIdentity(result: Record<string, unknown>, config: BuildConfig): void {
+  const macos = config.derived.macos;
+  if (macos == null) {
+    return;
+  }
+
+  result.appId = macos.bundleId;
+
+  const section = isAppStoreBuild(config) ? "mas" : "mac";
+  result[section] = {
+    ...(result[section] as Record<string, unknown>),
+    entitlements: macos.entitlements.app,
+  };
+}
+
 function applyMacSigning(result: Record<string, unknown>, config: BuildConfig): void {
   const certificate = config.macos?.signingCertificate;
   const profile = config.macos?.provisioningProfile?.path;
-  const appStore = config.distributionChannels.some((channel) =>
-    APP_STORE_CHANNELS.includes(channel),
-  );
+  // App Store builds sign differently: the outer mac identity is disabled and the mas one is
+  // used instead, which is what pack:mac:mas and pack:mac:masdev do with -c overrides today.
+  const appStore = isAppStoreBuild(config);
 
   const mac = { ...(result.mac as Record<string, unknown>) };
   const mas = { ...(result.mas as Record<string, unknown>) };
