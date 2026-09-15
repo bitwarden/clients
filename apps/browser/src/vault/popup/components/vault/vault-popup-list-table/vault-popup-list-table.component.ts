@@ -417,6 +417,19 @@ export class VaultPopupListTableComponent {
     this.currentUriIsBlocked() ? "itemSuggestions" : "autofillSuggestions",
   );
 
+  /**
+   * Whether the autofill section shows the "save a login for this site" tip in place of rows.
+   * The tip keeps the section's header on screen, so `hideOnEmpty` has to be cleared alongside it.
+   */
+  protected readonly showEmptyAutofillTip = toSignal(this.listTableService.showEmptyAutofillTip$, {
+    initialValue: false,
+  });
+
+  /** The autofill section's description text, set only while {@link showEmptyAutofillTip}. */
+  protected readonly autofillDescription = computed(() =>
+    this.showEmptyAutofillTip() ? this.i18nService.t("autofillSuggestionsTip") : undefined,
+  );
+
   protected readonly favoritesOpenState = computed(
     () => this.vaultPopupSectionService.getOpenDisplayStateForSection("favorites")() ?? true,
   );
