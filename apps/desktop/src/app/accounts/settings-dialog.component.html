@@ -189,7 +189,7 @@
             <bit-hint>{{ "sshAgentPromptBehaviorDesc" | i18n }}</bit-hint>
           </bit-form-field>
 
-          @if (showSshAgentSetupDialog()) {
+          @if (showSshAgentSetupDialog() && !sshAgentConfigured()) {
             <button
               bitLink
               linkType="primary"
