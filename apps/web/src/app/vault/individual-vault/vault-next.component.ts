@@ -8,7 +8,7 @@ import {
   untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -20,6 +20,8 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId } from "@bitwarden/common/types/guid";
@@ -129,6 +131,7 @@ export class VaultNextComponent {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly configService = inject(ConfigService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
@@ -138,7 +141,7 @@ export class VaultNextComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
   private readonly batchBarService = inject(VaultBatchBarService);
-
+  private readonly router = inject(Router);
   private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -499,7 +502,11 @@ export class VaultNextComponent {
     }
   }
 
-  protected openImportDialog(): void {
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/tools/import"]);
+      return;
+    }
     ImportDialogComponent.open(this.dialogService);
   }
 }
