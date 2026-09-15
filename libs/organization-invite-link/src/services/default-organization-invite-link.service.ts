@@ -77,6 +77,34 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
+  async setInviteConfirmation(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void> {
+    const current = await firstValueFrom(this.inviteLink$(userId, orgId));
+    if (current == null) {
+      throw new Error("No invite link exists for this organization.");
+    }
+
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          const inviteLink = ref.value
+            .invite_link()
+            .set_invite_confirmation(
+              asUuid<SdkOrganizationId>(orgId),
+              current.invite,
+              supportsConfirmation,
+            );
+          return await inviteLink;
+        }),
+        concatMap((inviteLink) => this.upsert(userId, OrganizationInviteLink.fromSdk(inviteLink))),
+      ),
+    );
+  }
+
   async refreshInviteLink(
     userId: UserId,
     orgId: OrganizationId,

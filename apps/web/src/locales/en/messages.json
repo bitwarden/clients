@@ -7489,6 +7489,9 @@
   "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Invite link updated"
+  },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
   },
