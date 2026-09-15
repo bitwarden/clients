@@ -1,0 +1,20 @@
+<bit-card class="tw-flex tw-flex-col tw-items-center tw-gap-5 !tw-p-6 tw-shadow-sm">
+  <bit-icon-tile [icon]="icon()" [variant]="variant()" size="lg" />
+
+  <div class="tw-flex tw-flex-col tw-gap-2 tw-text-center">
+    <h2 bitTypography="h4" class="tw-m-0">{{ title() }}</h2>
+    <p bitTypography="body2" class="tw-max-w-lg tw-text-main tw-m-0">{{ description() }}</p>
+  </div>
+
+  @if (buttonText(); as buttonText) {
+    <button
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [loading]="loading()"
+      (click)="actionClicked.emit()"
+    >
+      {{ buttonText }}
+    </button>
+  }
+</bit-card>

@@ -5,6 +5,7 @@ import { SendAccessResponse as SdkSendAccessResponse } from "@bitwarden/sdk-inte
 import { BaseResponse } from "../../../../models/response/base.response";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
+import { SendItemApi } from "../api/send-item.api";
 import { SendTextApi } from "../api/send-text.api";
 import { SEND_TYPE_TO_SDK } from "../domain/send";
 
@@ -14,6 +15,7 @@ export class SendAccessResponse extends BaseResponse {
   name: string;
   file: SendFileApi;
   text: SendTextApi;
+  data: SendItemApi;
   expirationDate: Date;
   creatorIdentifier: string;
 
@@ -31,6 +33,11 @@ export class SendAccessResponse extends BaseResponse {
     const file = this.getResponseProperty("File");
     if (file != null) {
       this.file = new SendFileApi(file);
+    }
+
+    const data = this.getResponseProperty("Data");
+    if (data != null) {
+      this.data = new SendItemApi(data);
     }
 
     const expirationDate = this.getResponseProperty("ExpirationDate");
@@ -63,7 +70,13 @@ export class SendAccessResponse extends BaseResponse {
               sizeName: obj.file?.sizeName ?? undefined,
             }
           : undefined,
-      data: undefined,
+      data:
+        obj.type === SendType.Item
+          ? {
+              encryptionVersion: obj.data?.encryptionVersion ?? undefined,
+              data: obj.data?.data ?? undefined,
+            }
+          : undefined,
     };
   }
 }

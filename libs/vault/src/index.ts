@@ -130,7 +130,11 @@ export {
   CollectionDialogTab,
 } from "./tokens/collection-dialog.token";
 
-export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
+export {
+  VaultBatchBarService,
+  VaultBatchBarConfig,
+  VaultSelectionSource,
+} from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
@@ -140,6 +144,7 @@ export { organizationVaultGuard } from "./routing/organization-vault.guard";
 export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
+export { VAULT_BASE_ROUTE } from "./routing/vault-base-route";
 export {
   matchesType,
   matchesFavorite,
@@ -148,4 +153,4 @@ export {
   matchesFolder,
   idString,
 } from "./utils/vault-filter-predicates";
-export { VaultCollectionBreadcrumbsComponent } from "./components/vault-collection-breadcrumbs/vault-collection-breadcrumbs.component";
+export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
