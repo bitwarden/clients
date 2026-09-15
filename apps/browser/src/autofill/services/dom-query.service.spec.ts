@@ -122,6 +122,57 @@ describe("DomQueryService", () => {
 
       expect(treeWalkerCallback).toHaveBeenCalled();
     });
+
+    describe("field-presence observer scoping", () => {
+      const isInput = (element: Element) => element.tagName === "INPUT";
+      const fullObserverConfig = {
+        attributes: true,
+        attributeFilter: expect.any(Array),
+        childList: true,
+        subtree: true,
+      };
+
+      it("attaches the full field-scoped observer to a field-bearing shadow root", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(document.createElement("input"));
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, fullObserverConfig);
+      });
+
+      it("attaches only a shallow childList watch to a field-less shadow root", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(document.createElement("div"));
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, { childList: true });
+      });
+
+      it("promotes a field-less root to the full observer once a field is injected", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(document.createElement("div"));
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+        expect(observeSpy).toHaveBeenLastCalledWith(shadowRoot, { childList: true });
+
+        // The shallow watch fires on the injection, re-querying finds the new field.
+        shadowRoot.appendChild(document.createElement("input"));
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        expect(observeSpy).toHaveBeenLastCalledWith(shadowRoot, fullObserverConfig);
+      });
+    });
   });
 
   describe("queryAllTreeWalkerNodes", () => {
@@ -393,6 +444,8 @@ describe("DomQueryService", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
+      // Add a form field so the root is observed with full options
+      shadowRoot.appendChild(document.createElement("input"));
       document.body.appendChild(customElement);
       const observeSpy = jest.spyOn(mutationObserver, "observe");
 
@@ -676,10 +729,8 @@ describe("DomQueryService", () => {
         expect(unresolvedHosts).toEqual(new Set([pending]));
         // A root is recorded as known only paired with an observer watching it.
         expect(domQueryService["knownShadowRoots"].has(hydratedRoot)).toBe(true);
-        expect(observeSpy).toHaveBeenCalledWith(
-          hydratedRoot,
-          expect.objectContaining({ attributes: true, childList: true, subtree: true }),
-        );
+        // Field-less root (filter matches nothing) gets shallow observation
+        expect(observeSpy).toHaveBeenCalledWith(hydratedRoot, { childList: true });
       });
     });
 
@@ -820,6 +871,18 @@ describe("DomQueryService", () => {
         const roots = domQueryService["suppressDescendantsInBatch"]([a, b]);
 
         expect(roots).toEqual([a, b]);
+      });
+
+      it("drops a descendant whose only batch ancestor is a transitive (non-parent) ancestor", () => {
+        const grandparent = document.createElement("section");
+        const parent = document.createElement("div");
+        const child = document.createElement("span");
+        grandparent.appendChild(parent);
+        parent.appendChild(child);
+
+        const roots = domQueryService["suppressDescendantsInBatch"]([grandparent, child]);
+
+        expect(roots).toEqual([grandparent]);
       });
     });
 
