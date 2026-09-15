@@ -84,6 +84,9 @@ describe("OverlayNotificationsContentService", () => {
       const rootElement = overlayNotificationsContentService["notificationBarRootElement"];
       expect(bodyAppendChildSpy).toHaveBeenCalledWith(rootElement);
       expect(rootElement?.tagName).toBe("BIT-NOTIFICATION-BAR-ROOT");
+      expect(
+        overlayNotificationsContentService["notificationBarElement"]?.style.pointerEvents,
+      ).toBe("auto");
 
       expect(document.getElementById("bit-notification-bar")).toBeNull();
       expect(document.querySelector("#bit-notification-bar-iframe")).toBeNull();
