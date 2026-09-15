@@ -1329,16 +1329,25 @@ describe("VaultItemsTableComponent", () => {
     it("assigns each collection to its owning organization's group", () => {
       fixture.componentRef.setInput("collections", manyCollections(11));
 
-      const groups = component["groupedCollectionTree"]();
+      const groups = component["groupedSharedFolders"]();
       const acme = groups.find((g: { organizationId: string }) => g.organizationId === "org-1");
       const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
 
-      expect(acme?.collections.map((n: { collection: CollectionView }) => n.collection.id)).toEqual(
-        ["col-0", "col-2", "col-4", "col-6", "col-8", "col-10"],
-      );
-      expect(
-        contoso?.collections.map((n: { collection: CollectionView }) => n.collection.id),
-      ).toEqual(["col-1", "col-3", "col-5", "col-7", "col-9"]);
+      expect(acme?.collections.map((c: CollectionView) => c.id)).toEqual([
+        "col-0",
+        "col-2",
+        "col-4",
+        "col-6",
+        "col-8",
+        "col-10",
+      ]);
+      expect(contoso?.collections.map((c: CollectionView) => c.id)).toEqual([
+        "col-1",
+        "col-3",
+        "col-5",
+        "col-7",
+        "col-9",
+      ]);
     });
 
     it("sorts groups by organization name and collections by name within each group", () => {
@@ -1348,13 +1357,11 @@ describe("VaultItemsTableComponent", () => {
         ...manyCollections(9),
       ]);
 
-      const groups = component["groupedCollectionTree"]();
+      const groups = component["groupedSharedFolders"]();
 
       expect(groups.map((g: { name: string }) => g.name)).toEqual(["Acme corporation", "Contoso"]);
       const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
-      expect(
-        contoso?.collections.map((n: { collection: CollectionView }) => n.collection.name),
-      ).toEqual([
+      expect(contoso?.collections.map((c: CollectionView) => c.name)).toEqual([
         "A collection",
         "B collection",
         "Collection 01",
@@ -1370,7 +1377,7 @@ describe("VaultItemsTableComponent", () => {
         { id: "col-orphan", name: "Orphan", organizationId: "org-unknown" } as CollectionView,
       ]);
 
-      const groups = component["groupedCollectionTree"]();
+      const groups = component["groupedSharedFolders"]();
       const orphanGroup = groups.find(
         (g: { organizationId: string }) => g.organizationId === "org-unknown",
       );

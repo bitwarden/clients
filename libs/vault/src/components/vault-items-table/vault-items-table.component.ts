@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from "@angular/common";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -83,13 +82,6 @@ import {
 import { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
-
-interface CollectionNode {
-  collection: CollectionView;
-  /** Leaf name segment — the part after the last "/" in the full collection name. */
-  label: string;
-  children: CollectionNode[];
-}
 
 /** The `queryParam` namespace shared by every filter chip in the vault table. */
 export const VAULT_FILTER_NAMESPACE = "vault";
@@ -207,7 +199,6 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
-    NgTemplateOutlet,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,
@@ -597,6 +588,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly showSharedFolders = computed(() => this.organizations().length > 0);
 
+  /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
+  protected readonly sortedCollections = computed(() =>
+    [...this.collections()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
+
   /**
    * Whether the Shared folders chip has enough collections to group by organization instead of
    * listing them flat. Matches `bit-filter-menu`'s own `SEARCH_THRESHOLD` (also 10, exclusive) so
@@ -605,29 +601,21 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly groupSharedFolders = computed(() => this.collections().length > 10);
 
   /**
-   * A nested tree of the Shared folders chip's options built from the `/`-separated collection
-   * names. A collection is a child of another when its name is prefixed by the parent's name and a
-   * "/". Root nodes are sorted alphabetically; children preserve that same order.
+   * The Shared folders chip's options grouped by owning organization, for when there are enough
+   * collections to warrant it (see {@link groupSharedFolders}). Groups are sorted by organization
+   * name, and each group's collections are sorted by name — both for the same menu stability
+   * {@link sortedOrganizations} exists for. A collection whose organization isn't in
+   * {@link organizations} falls back to the localized "organization" label, matching
+   * {@link vaultName}.
    */
-  protected readonly collectionTree = computed(() =>
-    this.buildCollectionForest(this.collections()),
-  );
-
-  /**
-   * {@link collectionTree} roots grouped by owning organization, for when there are enough
-   * collections to warrant org sections (see {@link groupSharedFolders}). Groups and their root
-   * nodes are both sorted alphabetically. Children follow their parent naturally, so only roots need
-   * grouping. A collection whose organization isn't in {@link organizations} falls back to the
-   * localized "organization" label, matching {@link vaultName}.
-   */
-  protected readonly groupedCollectionTree = computed(() => {
+  protected readonly groupedSharedFolders = computed(() => {
     const names = this.organizationNames();
     const groups = new Map<
       string,
-      { organizationId: string; name: string; collections: CollectionNode[] }
+      { organizationId: string; name: string; collections: CollectionView[] }
     >();
-    for (const node of this.collectionTree()) {
-      const organizationId = idString(node.collection.organizationId) ?? "";
+    for (const collection of this.collections()) {
+      const organizationId = idString(collection.organizationId) ?? "";
       let group = groups.get(organizationId);
       if (!group) {
         group = {
@@ -637,49 +625,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
         };
         groups.set(organizationId, group);
       }
-      group.collections.push(node);
+      group.collections.push(collection);
     }
-    return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
+    return [...groups.values()]
+      .map((group) => ({
+        ...group,
+        collections: [...group.collections].sort((a, b) => a.name.localeCompare(b.name)),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
-
-  /**
-   * Builds a tree of {@link CollectionNode} from a flat list of collections, using the
-   * "/"-delimited name path to determine parent–child relationships. A collection is nested under
-   * its parent when the parent exists in the input list; orphaned children (whose parent name
-   * segment has no matching collection) are promoted to roots with their full name as the label.
-   *
-   * Each org's hierarchy is keyed independently so two orgs can share a collection name without
-   * one overwriting the other or being incorrectly nested under the wrong org's parent.
-   */
-  private buildCollectionForest(collections: CollectionView[]): CollectionNode[] {
-    const sorted = [...collections].sort((a, b) => a.name.localeCompare(b.name));
-    // Key: "<orgId>\0<name>" — the null byte cannot appear in a collection name, so it's
-    // a safe separator that prevents cross-org collisions when two orgs share a name.
-    const nodeByKey = new Map<string, CollectionNode>();
-    for (const collection of sorted) {
-      const lastSlash = collection.name.lastIndexOf("/");
-      const orgId = idString(collection.organizationId) ?? "";
-      nodeByKey.set(`${orgId}\0${collection.name}`, {
-        collection,
-        label: lastSlash >= 0 ? collection.name.slice(lastSlash + 1) : collection.name,
-        children: [],
-      });
-    }
-    const roots: CollectionNode[] = [];
-    for (const node of nodeByKey.values()) {
-      const name = node.collection.name;
-      const lastSlash = name.lastIndexOf("/");
-      const parentName = lastSlash >= 0 ? name.slice(0, lastSlash) : null;
-      const orgId = idString(node.collection.organizationId) ?? "";
-      const parentKey = parentName !== null ? `${orgId}\0${parentName}` : null;
-      if (parentKey !== null && nodeByKey.has(parentKey)) {
-        nodeByKey.get(parentKey)!.children.push(node);
-      } else {
-        roots.push(node);
-      }
-    }
-    return roots;
-  }
 
   /** The My folders chip's options, sorted for a stable menu; {@link NO_FOLDER} stays pinned first. */
   protected readonly sortedFolders = computed(() =>

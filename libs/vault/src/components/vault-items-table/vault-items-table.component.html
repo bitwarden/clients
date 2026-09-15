@@ -75,31 +75,17 @@
         [disabled]="noSharedFolderOptions()"
         [disabledTooltip]="sharedFolderDisabledTooltip()"
       >
-        <ng-template #collectionOption let-node>
-          <bit-filter-option [value]="node.collection.id">
-            {{ node.label }}
-            @for (child of node.children; track child.collection.id) {
-              <ng-container
-                *ngTemplateOutlet="collectionOption; context: { $implicit: child }"
-              ></ng-container>
-            }
-          </bit-filter-option>
-        </ng-template>
         @if (groupSharedFolders()) {
-          @for (group of groupedCollectionTree(); track group.organizationId) {
+          @for (group of groupedSharedFolders(); track group.organizationId) {
             <bit-filter-section [label]="group.name" collapsible>
-              @for (node of group.collections; track node.collection.id) {
-                <ng-container
-                  *ngTemplateOutlet="collectionOption; context: { $implicit: node }"
-                ></ng-container>
+              @for (collection of group.collections; track collection.id) {
+                <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
               }
             </bit-filter-section>
           }
         } @else {
-          @for (node of collectionTree(); track node.collection.id) {
-            <ng-container
-              *ngTemplateOutlet="collectionOption; context: { $implicit: node }"
-            ></ng-container>
+          @for (collection of sortedCollections(); track collection.id) {
+            <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
           }
         }
       </bit-filter-menu>
