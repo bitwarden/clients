@@ -9,6 +9,7 @@ import {
   AfterContentInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   TrackByFunction,
   booleanAttribute,
   computed,
@@ -21,6 +22,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -31,6 +33,7 @@ import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
 import { ItemComponent } from "../../item/item.component";
+import { ScrollLayoutService } from "../../layout/scroll-layout.directive";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
@@ -274,6 +277,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   readonly height = input<"fill" | number>();
 
+  /**
+   * Registers the scrolling body as the page's scroll region, like `bitScrollLayoutHost`. A
+   * `"fill"` table is what scrolls, since the layout's region wraps it exactly. `"fill"` only.
+   */
+  readonly scrollLayoutHost = input(false, { transform: booleanAttribute });
+
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
 
@@ -433,13 +442,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
     });
 
-    // (Re)build the selection model from config — in an effect, since the model's
-    // constructor writes a signal (not allowed in a computed). Scoped over the
-    // filtered rows for select-all.
+    /** (Re)build the selection model from config — in an effect, since the model's
+     * constructor writes a signal (not allowed in a computed). Scoped over the rows in display
+     * order (see {@link sorted}), so a capped select-all keeps the ones the user sees first.
+     */
     effect(() => {
       const config = this.selection();
       this._selectionModel.set(
-        config ? new TableSelectionModel<T>({ ...config, rows: this.filtered }) : undefined,
+        config ? new TableSelectionModel<T>({ ...config, rows: this.sorted }) : undefined,
       );
     });
 
@@ -666,6 +676,42 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** True when {@link height} is `"fill"`. */
   protected readonly isFill = computed(() => this.height() === "fill");
 
+  private readonly scrollLayout = inject(ScrollLayoutService);
+
+  /**
+   * The element the body scrolls in, virtualized or not — replaced when the table swaps between
+   * them
+   */
+  private readonly scrollBody = viewChild<ElementRef<HTMLElement> | CdkVirtualScrollViewport>(
+    "scrollBody",
+  );
+
+  /**
+   * Publishes the scrolling body as the page's scroll region while {@link scrollLayoutHost} is set.
+   */
+  private readonly _scrollLayoutHostEffect = effect((onCleanup) => {
+    if (!this.scrollLayoutHost()) {
+      return;
+    }
+
+    const body = this.scrollBody();
+    const element = body instanceof CdkVirtualScrollViewport ? body.elementRef : body;
+
+    if (element == null) {
+      return;
+    }
+
+    const previous = untracked(() => this.scrollLayout.scrollableRef());
+    this.scrollLayout.scrollableRef.set(element);
+
+    onCleanup(() => {
+      // Only give the region back if it is still ours; a later host taking over must not be undone.
+      if (this.scrollLayout.scrollableRef() === element) {
+        this.scrollLayout.scrollableRef.set(previous);
+      }
+    });
+  });
+
   protected readonly isList = computed(() => this.presentation() === "list");
 
   protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
@@ -699,17 +745,25 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   ]);
 
   /**
-   * Rendered rows: {@link filtered} sorted by {@link sort}, then sliced to a projected
-   * paginator's page unless it's in server-side mode.
+   * {@link filtered} in display order — sorted, but not page-sliced. The selection model scopes over
+   * this, so a `max`-capped select-all keeps the rows shown at the top rather than scattered ones.
    */
-  protected readonly rows = computed(() => {
+  readonly sorted = computed<T[]>(() => {
     const filtered = this.filtered();
     const sort = this.sort();
-    let sorted = filtered;
-    if (sort.column) {
-      const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-      sorted = sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+    if (!sort.column) {
+      return filtered;
     }
+    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+  });
+
+  /**
+   * Rendered rows: {@link sorted} sliced to a projected paginator's page (unless it's in
+   * server-side mode, where the data already holds only the page).
+   */
+  protected readonly rows = computed(() => {
+    const sorted = this.sorted();
     const paginator = this.paginator();
     if (paginator && !paginator.manual()) {
       const start = paginator.currentPage() * paginator.pageSize();

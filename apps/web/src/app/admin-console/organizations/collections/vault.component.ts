@@ -430,7 +430,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           organization,
           allCollections,
           hasCiphers: ciphers.length > 0,
-          isTrash: filter.type === "trash",
+          inTrash: filter.type === "trash",
         });
       });
 

@@ -4,14 +4,16 @@
       role="columnheader"
       class="tw-mb-0 tw-flex tw-h-12 tw-cursor-pointer tw-items-center tw-px-4 tw-py-0"
     >
-      <input
-        bitCheckbox
-        type="checkbox"
-        [attr.aria-label]="'selectAllRows' | i18n"
-        [checked]="sel.allSelected()"
-        [indeterminate]="sel.indeterminate()"
-        (change)="sel.toggleAll()"
-      />
+      @if (sel.multiSelect) {
+        <input
+          bitCheckbox
+          type="checkbox"
+          [attr.aria-label]="'selectAllRows' | i18n"
+          [checked]="sel.allSelected()"
+          [indeterminate]="sel.indeterminate()"
+          (change)="sel.toggleAll()"
+        />
+      }
     </label>
   }
   @for (col of effectiveColumns(); track col.name()) {
@@ -34,6 +36,7 @@
           data-selection-input
           [attr.aria-label]="'selectRow' | i18n"
           [checked]="sel.isSelected(row)"
+          [disabled]="sel.full() && !sel.isSelected(row)"
           (change)="sel.toggle(row)"
         />
       }
@@ -233,6 +236,7 @@
           at `height` rows), or `flex-1` to fill the host in `fill` mode.
         -->
         <cdk-virtual-scroll-viewport
+          #scrollBody
           class="tw-overscroll-x-none"
           (scroll)="onBodyScroll($event)"
           [style.height]="isFill() ? null : viewportHeight()"
@@ -261,6 +265,7 @@
           rows when ungrouped); headers size to content here.
         -->
         <div
+          #scrollBody
           class="tw-overflow-auto tw-overscroll-x-none"
           (scroll)="onBodyScroll($event)"
           [class.tw-flex-1]="isFill()"

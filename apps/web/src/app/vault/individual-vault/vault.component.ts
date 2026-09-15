@@ -663,7 +663,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           isOrgVault: false,
           allCollections,
           hasCiphers,
-          isTrash: filter.type === "trash",
+          inTrash: filter.type === "trash",
         }),
       );
   }

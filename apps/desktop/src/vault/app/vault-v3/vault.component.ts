@@ -289,7 +289,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
-    switchMap((id) => this.organizationService.organizations$(id)),
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
   /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
@@ -651,7 +651,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const filter$ = this.routedVaultFilterService.filter$;
 
     /** Whether the current view is Trash, from the route's scope under VFO1, and from the query-param filter otherwise. */
-    const isTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+    const inTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
       map(([vfo1Foundation, scope, filter]) =>
         vfo1Foundation ? scope.type === VaultScopeType.Trash : filter.type === "trash",
       ),
@@ -806,14 +806,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       );
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), isTrash$])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers, isTrash]) =>
+      .subscribe(([allCollections, hasCiphers, inTrash]) =>
         this.vaultBatchBarService?.setConfig({
           isOrgVault: false,
           allCollections,
           hasCiphers,
-          isTrash,
+          inTrash,
         }),
       );
 
@@ -824,7 +824,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         skip(1),
         takeUntil(this.destroy$),
       )
-      .subscribe(() => this.vaultBatchBarService?.clear());
+      .subscribe(() => this.vaultBatchBarService?.clearSelection());
 
     this.vaultBatchBarService?.completed$
       .pipe(takeUntil(this.destroy$))
