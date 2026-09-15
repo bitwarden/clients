@@ -4,6 +4,7 @@ import { parse } from "tldts";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
+import { unsafeUrlReason } from "../url-safety";
 
 import { IntegrationMetadata } from "./integration-metadata";
 import { ApiSettings, IntegrationRequest } from "./rpc";
@@ -47,6 +48,20 @@ export class IntegrationContext<Settings extends object> {
     // postconditions
     if (result === "") {
       const error = this.i18n.t("forwarderNoUrl", this.metadata.name);
+      throw error;
+    }
+
+    // an unsafe url the user has deliberately approved for this exact value is exempt;
+    // changing the url invalidates the approval and the check below applies again. A url that
+    // can't be parsed is never exempt, regardless of approval
+    const allowUnsafeUrlFor =
+      this.settings && "allowUnsafeUrlFor" in this.settings
+        ? (this.settings.allowUnsafeUrlFor as string)
+        : undefined;
+
+    const unsafe = unsafeUrlReason(result);
+    if (unsafe && (unsafe.code === "invalid" || allowUnsafeUrlFor !== result)) {
+      const error = this.i18n.t("forwarderUnsafeUrl");
       throw error;
     }
 
