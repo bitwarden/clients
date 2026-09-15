@@ -1916,6 +1916,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 sonuç",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ sonuç",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "“$SEARCH$” ile hiçbir filtre eşleşmedi",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Aramayı temizle"
   },
@@ -2539,11 +2563,80 @@
   "noItemsInTrashDesc": {
     "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
   },
+  "noItemsInTrashDescription": {
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir."
+  },
   "noItemsInVault": {
     "message": "Kasada hiç kayıt yok"
   },
+  "noItemsInMyVault": {
+    "message": "Kasanızda hiç kayıt yok"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ kasasında hiç kayıt yok",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ kasasında hiç kayıt yok",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Kayıtlarım'da hiç kayıt yok"
+  },
+  "noItemsInVaults": {
+    "message": "Kasalarınız boş"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Seçilen filtrelerle hiçbir kayıt eşleşmedi"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" ile hiçbir kayıt eşleşmedi",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Hiç klasörünüz yok."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Başlamak için hesaplarınızı, kimliklerinizi ve diğer bilgilerinizi ekleyin."
   },
   "emptyFavorites": {
     "message": "Henüz hiçbir kaydı favorilere eklemediniz"
@@ -3807,6 +3900,9 @@
     "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
+  },
   "restrictCardTypeImport": {
     "message": "Kart öge türleri içe aktarılamıyor"
   },
@@ -4172,8 +4268,11 @@
   "passkeyLoginFound": {
     "message": "Logins that support passkeys"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Great news! We found "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ login(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4280,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "No accounts were found in your vault that support passkeys without one configured."
@@ -7405,6 +7501,57 @@
   "deactivateLink": {
     "message": "Deactivate link"
   },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "An admin must manually approve new members before they’re added to the organization vault."
+  },
+  "setYourAllowedDomains": {
+    "message": "Set your allowed domains"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+  },
+  "adjustTheLink": {
+    "message": "Adjust the link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Your needs change, and the link can change with you."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Share the link anywhere"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "View Bitwarden onboarding guide"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$/$TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Bitir"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
@@ -7719,9 +7866,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Set minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
     "message": "Generated password"
@@ -7774,7 +7920,7 @@
   "minimumNumberOfWords": {
     "message": "Minimum kelime sayısı"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Parola türü",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7978,9 +8124,8 @@
   "singleOrgDesc": {
     "message": "Üyelerin diğer kuruluşlara katılmasını kısıtlayın."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Members cannot join other organization vaults."
   },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
@@ -8002,13 +8147,9 @@
     "message": "Require SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Require members to log in using SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
@@ -8426,9 +8567,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "All member items will be owned and managed by the organization."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
@@ -8666,6 +8806,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Enable desktop autotype for members."
+  },
   "disableSend": {
     "message": "Send'i sil"
   },
@@ -8714,10 +8857,6 @@
     "message": "Send'i yönet",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8726,9 +8865,9 @@
     "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Manage how members use Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send seçenekleri",
@@ -9185,9 +9324,8 @@
   "accountRecoveryPolicy": {
     "message": "Hesap kurtarma yönetimi"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Allow admins to help members regain access to their accounts."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Bu ilkeyi etkinleştirmeden önce tek kuruluş kurumsal ilkesi etkinleştirilmelidir."
@@ -9586,9 +9724,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Sahipler dışındaki tüm üyeler için maksimum oturum zaman aşımı belirleyin."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Set a maximum session timeout for members."
   },
   "maximumAllowedTimeout": {
     "message": "İzin verilen maksimum zaman aşımı"
@@ -9716,18 +9853,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Bir veya daha fazla kuruluş ilkesi, kişisel kasanızı dışa aktarmanızı engelliyor."
   },
-  "activateAutofillPolicy": {
-    "message": "Otomatik doldurmayı etkinleştir"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Enable autofill on page load"
   },
   "activateAutofillPolicyDescription": {
     "message": "Tüm mevcut ve yeni üyeler için tarayıcı uzantısındaki \"sayfa yüklendiğinde otomatik doldur\" ayarını etkinleştir."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Enable autofill on page load setting in the browser extension for all members."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
@@ -10396,9 +10529,6 @@
   "billingHistory": {
     "message": "Fatura geçmişi"
   },
-  "backToReports": {
-    "message": "Raporlara geri dön"
-  },
   "organizationPicker": {
     "message": "Kuruluş seçici"
   },
@@ -10499,6 +10629,10 @@
   "random": {
     "message": "Rastgele",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Web sitesi adı",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Rastgele kelime"
@@ -10957,6 +11091,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11790,35 +11933,8 @@
   "switchProducts": {
     "message": "Ürün değiştir"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Ücretsiz kuruluşların en fazla $SEATCOUNT$ üyesi olabilir. Daha fazla üye davet etmek için ücretli bir plana geçin.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Ücretsiz kuruluşların en fazla $SEATCOUNT$ üyesi olabilir. Yükseltmek için kuruluşunuzun sahibiyle iletişime geçin.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Ekip Başlangıç planları en fazla $SEATCOUNT$ üyeye sahip olabilir. Daha fazla üye davet etmek için planınızı yükseltin.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Ekip Başlangıç planları en fazla $SEATCOUNT$ üyeye sahip olabilir. Planınızı yükseltmek ve daha fazla üye davet etmek için kuruluş sahibinizle iletişime geçin.",
+  "seatLimitReachedContactOwner": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13154,14 +13270,14 @@
   "unexpectedErrorSend": {
     "message": "Bu Gönderim yüklenirken beklenmeyen bir hata oluştu. Daha sonra tekrar deneyin."
   },
-  "seatLimitReached": {
-    "message": "Yer limitine ulaşıldı"
-  },
-  "contactYourProvider": {
-    "message": "Ek yerler satın almak için sağlayıcınızla iletişime geçin."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Yer limitine ulaşıldı. Ek yerler satın almak için sağlayıcınızla iletişime geçin."
+  "seatLimitReachedContactProvider": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your provider to purchase additional seats.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Koleksiyona erişim kısıtlı"
@@ -14550,24 +14666,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "SSO Kimlik Doğrulama"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Aile kuruluşlarının en fazla $SEATCOUNT$ üyesi olabilir. Daha fazla üye davet etmek için ücretli bir plana geçin.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Aile kuruluşlarının en fazla $SEATCOUNT$ üyesi olabilir. Yükseltmek için kuruluşunuzun sahibiyle iletişime geçin.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
     "placeholders": {
@@ -14925,6 +15023,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Remove the option for members to redeem a free Families plan.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Banka hesabı ile ödeme yalnızca Amerika Birleşik Devletleri'ndeki müşteriler için geçerlidir. Banka hesabınızı doğrulamanız gerekecektir. Önümüzdeki 1-2 iş günü içinde mikro bir para yatırma işlemi gerçekleştireceğiz. Banka hesabını doğrulamak için kuruluşun fatura sayfasına bu para yatırma işleminin açıklama kodunu girin. Banka hesabının doğrulanmaması, ödemenin yapılmaması ve aboneliğinizin askıya alınmasıyla sonuçlanacaktır."
@@ -15375,6 +15476,9 @@
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "PIN ile Kilit Açmayı Kaldır"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Remove unlock with PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
@@ -17046,6 +17150,9 @@
   },
   "singleOrgPrerequisite": {
     "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "Bu ilkeyi etkinleştirmeden önce çoklu kuruluş üyelik ilkesi etkinleştirilmelidir."
   },
   "enableBanner": {
     "message": "Enable banner"

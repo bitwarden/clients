@@ -1,14 +1,21 @@
-<app-header [title]="title()">
-  @if (collectionSelected()) {
-    <vault-collection-breadcrumbs
-      slot="breadcrumbs"
-      [scope]="parsedVaultScope()"
-    ></vault-collection-breadcrumbs>
-  }
-</app-header>
-
 <vault-organization-user-notifications></vault-organization-user-notifications>
 <app-vault-banners [organizations]="organizations()"></app-vault-banners>
+
+<app-header [title]="title()">
+  @if (showBreadcrumbs()) {
+    <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
+  } @else if (headerTile(); as tile) {
+    <bit-icon-tile
+      slot="title-prefix"
+      [icon]="tile.icon"
+      [variant]="tile.variant ?? 'primary'"
+      [color]="tile.color"
+      [emphasis]="tile.emphasis ?? 'subtle'"
+      size="sm"
+      aria-hidden="true"
+    />
+  }
+</app-header>
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
@@ -44,7 +51,7 @@
       [canCreateFolder]="false"
       [canCreateCollection]="false"
       (cipherAdded)="addCipher($event)"
-      (onAddItemDialog)="openAddItemDialog()"
+      (onAddItemDialog)="openAddItemDialog('empty')"
       id="vault-next_empty-new-cipher-menu"
     />
   }
@@ -64,9 +71,15 @@
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
+        [canCreateFolder]="true"
+        [canCreateCollection]="canCreateCollections()"
         (cipherAdded)="addCipher($event)"
-        (onAddItemDialog)="openAddItemDialog()"
+        (onAddItemDialog)="openAddItemDialog('toolbar')"
+        (folderAdded)="addFolder()"
+        (collectionAdded)="addCollection()"
       />
     }
   </div>
 </vault-items-table>
+
+<bit-vault-batch-action />

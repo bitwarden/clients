@@ -1916,6 +1916,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 результат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ результатов",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Нет фильтров, соответствующих “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Очистить поиск"
   },
@@ -2539,11 +2563,80 @@
   "noItemsInTrashDesc": {
     "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней"
   },
+  "noItemsInTrashDescription": {
+    "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней."
+  },
   "noItemsInVault": {
     "message": "В хранилище нет элементов"
   },
+  "noItemsInMyVault": {
+    "message": "В моем хранилище нет элементов"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Нет элементов в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Нет элементов в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "В моих элементах нет элементов"
+  },
+  "noItemsInVaults": {
+    "message": "Ваши хранилища пусты"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Нет элементов, соответствующих выбранным фильтрам"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Нет элементов совпадающих с \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавьте элементы в эту общую папку, а затем предоставьте доступ другим пользователям $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Мои элементы - это ваше личное хранилище для элементов, которые остаются в $VAULT_NAME$, но не видны другим пользователям.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "У вас нет папок."
+  },
+  "emptyFoldersDescription": {
+    "message": "Используйте папки для организации хранилищ. Они только для вас: никто больше не увидит и не будет их использовать."
+  },
+  "emptyVaultsDescription": {
+    "message": "Чтобы начать, добавьте логины, ID, карты и другие элементы."
   },
   "emptyFavorites": {
     "message": "В избранном нет элементов"
@@ -3807,6 +3900,9 @@
     "message": "Не позволять пользователям создавать и хранить кредитные карты. При включении этой политики существующие карты будут автоматически скрыты.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Не разрешать пользователям создавать и сохранять элементы карт. Существующие карты будут скрыты."
+  },
   "restrictCardTypeImport": {
     "message": "Невозможно импортировать элементы карт"
   },
@@ -4172,8 +4268,11 @@
   "passkeyLoginFound": {
     "message": "Логины, поддерживающие passkey"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "В вашем хранилище мы обнаружили $COUNT$ логин(ов), которые поддерживают passkey. Для дополнительной защиты этих аккаунтов рассмотрите возможность установки passkey, если он доступен. Источник: passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Отличные новости! Мы нашли "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ логин(ов)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4280,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "В ваших хранилищах мы обнаружили $COUNT$ логин(ов), которые поддерживают passkey. Для дополнительной защиты этих аккаунтов рассмотрите возможность установки passkey, если он доступен. Источник: passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " в вашем хранилище, которые поддерживают passkey. Для дополнительной защиты этих аккаунтов рассмотрите возможность установки passkey, если он доступен. Источник: passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " в ваших хранилищах, которые поддерживают passkey. Для дополнительной защиты этих аккаунтов рассмотрите возможность установки passkey, если он доступен. Источник: passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "В вашем хранилище не обнаружено аккаунтов, поддерживающих passkey, которые не были настроены."
@@ -7405,6 +7501,57 @@
   "deactivateLink": {
     "message": "Деактивировать ссылку"
   },
+  "requireAdminConfirmation": {
+    "message": "Требовать подтверждение администратора"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "Администратор должен вручную одобрить новых пользователей, прежде чем они будут добавлены в хранилище организации."
+  },
+  "setYourAllowedDomains": {
+    "message": "Укажите разрешенные домены"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Добавьте разрешенные почтовые домены (например, acme.com), чтобы ссылкой для приглашения могли воспользоваться только пользователи с соответствующими адресами email. Вы можете изменить эти настройки в любое время."
+  },
+  "adjustTheLink": {
+    "message": "Настроить ссылку"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Ваши потребности меняются, и ссылка может меняться вместе с ними. <strong>Сгенерируйте заново</strong> ссылку, чтобы аннулировать старую и создать новую."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Ваши потребности меняются, и ссылка может измениться с вами."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Обновите</strong> ссылку, чтобы аннулировать старую и создать новую."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Требуется подтверждение администратора</strong>, чтобы одобрить новых пользователей до того, как они смогут присоединиться к организации."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Поделитесь ссылкой где угодно"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Скопируйте и вставьте ссылку туда, где ваша команда сможет ее найти: в чек-лист для новых сотрудников, в канал #new-joiners в Slack, в документы Notion или в шаблон электронного письма."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "Просмотреть руководство по началу работы с Bitwarden"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ из $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Закончить"
+  },
   "inviteByLinkDesc": {
     "message": "Пригласите участников в вашу организацию с помощью ссылки. Если ни одна из ролей не указана, они будут добавлены в качестве пользователей по умолчанию."
   },
@@ -7719,9 +7866,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Выберите набор минимальных требований к паролям, создаваемым пользователями."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Установить требования к генератору паролей.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Установить минимальные требования к паролям, создаваемым пользователями."
   },
   "generatedPassword": {
     "message": "Сгенерированный пароль"
@@ -7774,7 +7920,7 @@
   "minimumNumberOfWords": {
     "message": "Минимальное количество слов"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Тип пароля",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7978,9 +8124,8 @@
   "singleOrgDesc": {
     "message": "Запретить пользователям присоединяться к другим организациям."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Запретить пользователям присоединяться к другим общим хранилищам или хранилищам организации.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Пользователи не могут присоединяться к хранилищам других организаций."
   },
   "singleOrgPolicyDescV2": {
     "message": "Члены этой организации не могут вступать в другие организации. При включении этой политики у существующих пользователей, принадлежащим к другим организациям, будет отозван доступ. Эта политика не будет применяться к владельцам и администраторам."
@@ -8002,13 +8147,9 @@
     "message": "Требовать SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Требовать от пользователей авторизацию через единый вход (SSO).",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Требовать от пользователей авторизации с использованием единого входа. Эта политика не будет применяться к владельцам и администраторам.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Требовать от пользователей авторизации с помощью единого входа (SSO).",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Требовать единый вход в систему (SSO)"
@@ -8426,9 +8567,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "Все элементы пользователя будут принадлежать и управляться организацией. Администраторы и владельцы не участвуют в этом процессе. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Требовать от пользователей сохранять элементы в хранилище организации, удалив их персональное хранилище.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "Все элементы, принадлежащие пользователям, будут находиться в собственности организации и управляться ею."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Узнайте больше о централизованном владении",
@@ -8666,6 +8806,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "Включить автонастройку клиента для компьютера. Пользователи смогут отключить автонастройку самостоятельно в приложении для компьютера."
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Включить для пользователей автоматическое заполнение на компьютере."
+  },
   "disableSend": {
     "message": "Отключить Send"
   },
@@ -8714,10 +8857,6 @@
     "message": "Управление Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Управление Send и общим доступом",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Настройте параметры создания и редактирования Send, включая возможность их удаления.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8726,9 +8865,9 @@
     "message": "Управляйте тем, как участники используют функцию Send. Эта политика будет применяться к Send, созданным после ее включения. Администраторы и владельцы группы исключаются из-под действия этой политики.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Установите настройки Send.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Управлять как пользователи используют Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Параметры Send",
@@ -9185,9 +9324,8 @@
   "accountRecoveryPolicy": {
     "message": "Управление восстановлением аккаунта"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Разрешить администраторам сбрасывать мастер-пароли пользователей.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Предоставить администраторам возможность помогать участникам восстановить доступ к своим аккаунтам."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
@@ -9586,9 +9724,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Установите максимальный тайм-аут сессии для всех участников, кроме владельцев."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Установить максимальный тайм-аут хранилища для пользователей.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Установить максимальный тайм-аут сессии для пользователей."
   },
   "maximumAllowedTimeout": {
     "message": "Максимально допустимый тайм-аут"
@@ -9716,18 +9853,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Одна или несколько политик организации запрещают вам экспортировать личное хранилище."
   },
-  "activateAutofillPolicy": {
-    "message": "Активировать автозаполнение"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Включить автозаполнение при загрузке страницы"
   },
   "activateAutofillPolicyDescription": {
     "message": "Включить автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых участников."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Автоматически заполнять логины на сайтах и в приложениях.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Включитьавтозаполнение при загрузке страницы в расширении браузера для всех пользователей."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Включите автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых пользователей. Имейте в виду, что скомпрометированные или ненадежные сайты могут"
@@ -10396,9 +10529,6 @@
   "billingHistory": {
     "message": "История платежей"
   },
-  "backToReports": {
-    "message": "Вернуться к отчетам"
-  },
   "organizationPicker": {
     "message": "Выбор организации"
   },
@@ -10499,6 +10629,10 @@
   "random": {
     "message": "Случайно",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Website name",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Случайное слово"
@@ -10957,6 +11091,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Осталось всего $COUNT$ мест. Удалите адрес email или перейдите на тарифный план более высокого уровня.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11790,35 +11933,8 @@
   "switchProducts": {
     "message": "Изменить продукты"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "В бесплатных организациях может быть до $SEATCOUNT$ участников. Перейдите на платный план, чтобы пригласить больше участников.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "В бесплатных организациях может быть до $SEATCOUNT$ участников. Свяжитесь с владельцем вашей организации для обновления.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "На тарифных планах Teams Starter может быть до $SEATCOUNT$ участников. Перейдите на новый тарифный план, чтобы пригласить больше участников.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "На тарифных планах Teams Starter может быть до $SEATCOUNT$ участников. Свяжитесь с владельцем организации, чтобы перейти на новый тарифный план и пригласить больше участников.",
+  "seatLimitReachedContactOwner": {
+    "message": "Достигнут лимит мест в количестве $SEATCOUNT$. Обратитесь к владельцу вашей организации для перехода на тарифный план с большим количеством мест.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13154,14 +13270,14 @@
   "unexpectedErrorSend": {
     "message": "При загрузке этой Send произошла непредвиденная ошибка. Повторите попытку позже."
   },
-  "seatLimitReached": {
-    "message": "Лимит мест исчерпан"
-  },
-  "contactYourProvider": {
-    "message": "Свяжитесь с вашим провайдером для покупки дополнительных мест."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Лимит мест исчерпан. Свяжитесь с вашим провайдером для покупки дополнительных мест."
+  "seatLimitReachedContactProvider": {
+    "message": "Достигнут лимит мест: $SEATCOUNT$. Обратитесь к своему провайдеру для приобретения дополнительных мест.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Доступ к коллекции ограничен"
@@ -14550,24 +14666,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "Аутентификация SSO"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "В семейных организациях может быть до $SEATCOUNT$ участников. Перейдите на платный план, чтобы пригласить больше участников.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "В семейных организациях может быть до $SEATCOUNT$ участников. Свяжитесь с владельцем вашей организации для обновления.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Семейные организации могут иметь до $SEATCOUNT$ участников. Перейдите на платный тариф, чтобы восстановить доступ этого участника.",
     "placeholders": {
@@ -14925,6 +15023,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Отключить возможность для пользователей воспользоваться бесплатным тарифным планом Family.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Не разрешать пользователям использовать план Family, спонсируемый вашей организацией."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Введите код дескриптора выписки из этого депозита на странице выставления счетов организации, чтобы подтвердить банковский счет. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
@@ -15374,6 +15475,9 @@
     "message": "Отсутствует сайт"
   },
   "removeUnlockWithPinPolicyTitle": {
+    "message": "Отключить разблокировку PIN-кодом"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
     "message": "Отключить разблокировку PIN-кодом"
   },
   "removeUnlockWithPinPolicyDescV2": {
@@ -17046,6 +17150,9 @@
   },
   "singleOrgPrerequisite": {
     "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
+  },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "Перед активацией этой политики необходимо включить политику членства в SSO."
   },
   "enableBanner": {
     "message": "Включить баннер"

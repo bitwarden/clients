@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Bitwarden கடவுச்சொல் மேலாளர் பீட்டா",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -33,7 +33,7 @@
     "message": "பாஸ்கீயுடன் உள்நுழையவும்"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Passkey மூலம் திறக்கவும்"
   },
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழைவைப் பயன்படுத்தவும்"
@@ -42,7 +42,7 @@
     "message": "உங்கள் நிறுவனத்திற்கு ஒற்றை உள்நுழைவு தேவை."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "மீண்டும் வருக"
   },
   "setAStrongPassword": {
     "message": "ஒரு வலிமையான கடவுச்சொல்லை அமைக்கவும்"
@@ -124,7 +124,7 @@
     "message": "வால்ட்"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "பெட்டகங்கள்"
   },
   "myVault": {
     "message": "எனது வால்ட்"
@@ -175,16 +175,16 @@
     "message": "பாஸ்போர்ட் எண்ணை நகலெடு"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "தேசிய அடையாள எண்ணை நகலெடுக்கவும்"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "முதல் பெயரை நகலெடுக்கவும்"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "இடைப்பெயரை நகலெடுக்கவும்"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "கடைசிப் பெயரை நகலெடுக்கவும்"
   },
   "copyLicenseNumber": {
     "message": "உரிமம் எண்ணை நகலெடு"
@@ -222,11 +222,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "தானியங்கு நிரப்புதல்",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "தானாக நிரப்புக",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -297,7 +297,7 @@
     "message": "உங்கள் கணக்கு மின்னஞ்சல் முகவரியை உள்ளிடவும், உங்கள் கடவுச்சொல் குறிப்பு உங்களுக்கு அனுப்பப்படும்"
   },
   "hint": {
-    "message": "Hint"
+    "message": "குறிப்பு"
   },
   "continue": {
     "message": "தொடர்"
@@ -401,7 +401,7 @@
     "message": "சேமி"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "சேமித்து நிரப்புக"
   },
   "move": {
     "message": "நகர்த்து"
@@ -467,7 +467,7 @@
     "message": "ஒத்திசை"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "இப்போது ஒத்திசைக்கவும்"
   },
   "lastSync": {
     "message": "கடைசி ஒத்திசைவு:"
@@ -513,7 +513,7 @@
     "message": "விருப்பத்தேர்வுகள்"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ க்கான விருப்பங்கள்",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -522,10 +522,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "பகிர்ந்த கோப்புறை இல்லை"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ மூலம் வடிகட்டவும்",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -534,16 +534,16 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "உருப்படிகளை இங்கே வடிகட்ட அவற்றை விருப்பமானவையாகக் குறிக்கவும்."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "உருப்படிகளை இங்கே வடிகட்ட அவற்றுக்குக் கோப்புறைகளைச் சேர்க்கவும்."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "இங்கே வடிகட்ட பகிரப்பட்ட கோப்புறையில் உருப்படிகளைச் சேர்க்கவும்."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "உருப்படியைத் திருத்தவும் - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -552,7 +552,46 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "பெட்டகத்தில் உருப்படிகள் எதுவும் இல்லை"
+  },
+  "noItemsInMyVault": {
+    "message": "எனது பெட்டகத்தில் உருப்படிகள் எதுவும் இல்லை"
+  },
+  "emptyMyItems": {
+    "message": "எனது உருப்படிகளில் எதுவும் இல்லை"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ இல் உருப்படிகள் எதுவும் இல்லை",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ இல் உருப்படிகள் எதுவும் இல்லை",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "உங்கள் பெட்டகங்கள் காலியாக உள்ளன"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "தேர்ந்தெடுக்கப்பட்ட வடிப்பான்களுடன் பொருந்தும் உருப்படிகள் எதுவும் இல்லை"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" உடன் பொருந்தும் உருப்படிகள் எதுவும் இல்லை",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "நீளம்"
@@ -643,28 +682,28 @@
     "message": "காப்பகப்படுத்தப்பட்ட உருப்படிகள் இங்கே தோன்றும், மேலும் அவை பொதுவான தேடல் முடிவுகள் மற்றும் தானியங்குநிரப்பு பரிந்துரைகளிலிருந்து விலக்கப்படும்."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "உருப்படி காப்பகப்படுத்தப்பட்டது"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "உருப்படி காப்பகத்திலிருந்து மீட்டெடுக்கப்பட்டது"
   },
   "archiveItem": {
     "message": "உருப்படியைக் காப்பகப்படுத்து"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "காப்பகப்படுத்தப்பட்டதும், இந்த உருப்படி தேடல் முடிவுகள் மற்றும் தானியங்கு நிரப்புதல் பரிந்துரைகளில் இருந்து விலக்கப்படும்."
   },
   "archived": {
-    "message": "Archived"
+    "message": "காப்பகப்படுத்தப்பட்டது"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "காப்பகத்திலிருந்து மீட்டெடுத்துச் சேமி"
   },
   "upgradeToUseArchive": {
     "message": "காப்பகத்தைப் பயன்படுத்த பிரீமியம் உறுப்பினர் தேவை."
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "$NUM$ உருப்படிகளைக் காப்பகப்படுத்து",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -674,14 +713,14 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "உருப்படியைக் காப்பகப்படுத்து",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "காப்பகப்படுத்தப்பட்டதும், இந்த உருப்படிகள் தேடல் முடிவுகள் மற்றும் தானியங்கு நிரப்புதல் பரிந்துரைகளில் இருந்து விலக்கப்படும்."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "உருப்படி மீட்டமைக்கப்பட்டது"
   },
   "edit": {
     "message": "திருத்து"
@@ -759,7 +798,7 @@
     "message": "வலைத்தளத்தைத் தொடங்கு"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "$ITEMNAME$ க்கான வலைத்தளத்தைத் தொடங்கு",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -795,20 +834,20 @@
     "message": "நீட்டிப்புக்கு மதிப்பிடு"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "சிக்கலைத் தீர்த்தல்"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "சிக்கலை எதிர்கொள்கிறீர்களா?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "கண்டறிதல் அறிக்கையைப் பதிவிறக்கம் செய்து பின்வருபவர்களுடன் பகிரவும்"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwarden ஆதரவு",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "பதிவிறக்கவும்"
   },
   "browserNotSupportClipboard": {
     "message": "உங்கள் உலாவி எளிதான நகலெடுப்பதை ஆதரிக்கவில்லை. அதற்குப் பதிலாக கைமுறையாக நகலெடுக்கவும்."
@@ -993,7 +1032,7 @@
     "message": "தவறான சரிபார்ப்புக் குறியீடு"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "தவறான மின்னஞ்சல் அல்லது சரிபார்ப்புக் குறியீடு"
   },
   "valueCopied": {
     "message": "$VALUE$ நகலெடுக்கப்பட்டது",
@@ -1045,7 +1084,7 @@
     "message": "உள்நுழை"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Bitwarden இல் உள்நுழைக"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்"
@@ -1087,10 +1126,10 @@
     "message": "இல்லை"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "இணைப்பைக் கொண்ட எவரும்"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "நீங்கள் அமைத்த கடவுச்சொல்லைக் கொண்ட எவரும்"
   },
   "location": {
     "message": "இருப்பிடம்"
@@ -1105,10 +1144,10 @@
     "message": "கோப்புறை சேர்க்கப்பட்டது"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "கோப்புறை திருத்தப்பட்டது"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "ஒரு பெயரை உள்ளிடவும்."
   },
   "twoStepLoginConfirmation": {
     "message": "இரண்டு-படி உள்நுழைவு உங்கள் உள்நுழைவை ஒரு பாதுகாப்பு விசை, அங்கீகரிப்பு பயன்பாடு, SMS, தொலைபேசி அழைப்பு அல்லது மின்னஞ்சல் போன்ற மற்றொரு சாதனத்துடன் சரிபார்க்கும்படி செய்வதன் மூலம் உங்கள் கணக்கை மேலும் பாதுகாப்பானதாக்குகிறது. இரண்டு-படி உள்நுழைவை bitwarden.com வலை வால்ட்டில் அமைக்கலாம். இப்போது வலைத்தளத்தைப் பார்வையிட விரும்புகிறீர்களா?"
@@ -1144,7 +1183,7 @@
     "message": "கடவுச்சொல் நகலெடுக்கப்பட்டது"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "இடைவெளி",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1261,13 +1300,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "கிளிப்போர்டு அமைப்பு புதுப்பிக்கப்பட்டது"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "உங்கள் கிளிப்போர்டு காலாவதி இயல்புநிலைக்கு அமைக்கப்பட்டுள்ளது, கூடுதல் பாதுகாப்பிற்காக இது 5 நிமிடங்களாகப் புதுப்பிக்கப்பட்டுள்ளது."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "அமைப்பிற்குச் செல்"
   },
   "notificationAddDesc": {
     "message": "இந்த கடவுச்சொல்லை Bitwarden உங்களுக்காக நினைவில் வைத்திருக்க வேண்டுமா?"
@@ -1423,28 +1462,28 @@
     "message": "கூடுதல் விருப்பத்தேர்வுகள்"
   },
   "fillAssistActiveNoticeV2": {
-    "message": "Autofill is using fill assist on this page."
+    "message": "தானியங்கு நிரப்புதல் இந்தப் பக்கத்தில் நிரப்பல் உதவியைப் பயன்படுத்துகிறது."
   },
   "activateFillAssistV2": {
-    "message": "Turn on fill assist"
+    "message": "நிரப்பல் உதவியை இயக்கு"
   },
   "activateFillAssistDescriptionV2": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "ஆதரிக்கப்படும் தளங்களில் தளம் சார்ந்த விதிகளைப் பயன்படுத்தி தானியங்கு நிரப்புதலின் துல்லியத்தை நிரப்பல் உதவி மேம்படுத்துகிறது. இந்த அம்சத்தைப் பயன்படுத்தும்போது எந்தத் தரவும் சேகரிக்கப்படவோ சேமிக்கப்படவோ மாட்டாது."
   },
   "aboutFillAssistLabelV2": {
-    "message": "About fill assist"
+    "message": "நிரப்பல் உதவி பற்றி"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
-    "message": "Allow websites to exclude fields to autofill"
+    "message": "தானியங்கு நிரப்புதலில் இருந்து புலங்களை விலக்க வலைத்தளங்களை அனுமதி"
   },
   "honorDataBitwardenIgnoreAttributeHint": {
-    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+    "message": "`data-bwignore` பண்புக்கூறுடன் வலைத்தளம் குறிக்கும் புலங்களைத் தவிர்க்கவும்."
   },
   "honorDataBitwardenAutofillAttributeLabel": {
-    "message": "Allow websites to add fields to autofill"
+    "message": "தானியங்கு நிரப்புதலுக்கு புலங்களைச் சேர்க்க வலைத்தளங்களை அனுமதி"
   },
   "honorDataBitwardenAutofillAttributeHint": {
-    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+    "message": "`data-bwautofill` பண்புக்கூறுடன் வலைத்தளம் குறிக்கும் எந்தவொரு span கூறுகளையும் பயன்படுத்தவும்."
   },
   "enableContextMenuItem": {
     "message": "சூழல் மெனு விருப்பத்தேர்வுகளைக் காட்டு"
@@ -1483,20 +1522,23 @@
     "message": "இதிலிருந்து ஏற்றுமதிசெய்"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "ஏற்றுமதி செய்",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "ஏற்றுமதி",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "இறக்குமதி",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "இறக்குமதி செய்",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "உருப்படிகளை இறக்குமதி செய்"
   },
   "fileFormat": {
     "message": "கோப்பு வடிவம்"
@@ -1523,7 +1565,7 @@
     "message": "கணக்கு கட்டுப்படுத்தப்பட்டது"
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "“File password” மற்றும் “Confirm file password” ஆகியவை பொருந்தவில்லை."
   },
   "warning": {
     "message": "எச்சரிக்கை",
@@ -1537,7 +1579,7 @@
     "message": "வால்ட் ஏற்றுமதியை உறுதிப்படுத்துக"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "இந்த ஏற்றுமதியில் உங்கள் பெட்டகத் தரவு குறியாக்கம் செய்யப்படாத வடிவத்தில் உள்ளது. ஏற்றுமதி செய்யப்பட்ட கோப்பைப் பாதுகாப்பற்ற வழிகளில் (மின்னஞ்சல் போன்றவை) சேமிக்கவோ அனுப்பவோ கூடாது. அதைப் பயன்படுத்தி முடித்தவுடன் உடனடியாக நீக்கவும்."
   },
   "encExportKeyWarningDesc": {
     "message": "இந்த ஏற்றுமதி உங்கள் கணக்கின் என்க்ரிப்ஷன் கீயைப் பயன்படுத்தி உங்கள் டேட்டாவை என்க்ரிப்ட் செய்கிறது. உங்கள் கணக்கின் என்க்ரிப்ஷன் கீயை நீங்கள் மாற்றினால், நீங்கள் மீண்டும் ஏற்றுமதி செய்ய வேண்டும், ஏனெனில் உங்களால் இந்த ஏற்றுமதி கோப்பை டீக்ரிப்ட் செய்ய முடியாது."
@@ -1552,22 +1594,22 @@
     "message": "பகிரப்பட்டது"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "பகிரப்பட்ட கோப்புறை"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "பகிரப்பட்ட கோப்புறைகள்"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "எனது கோப்புறை"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "எனது கோப்புறைகள்"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "பகிர்ந்த கோப்புறையைச் சேர்க்கவும்"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "புதிய பகிர்ந்த கோப்புறை"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business ஒரு அமைப்பைப் பயன்படுத்தி மற்றவர்களுடன் உங்கள் வால்ட் பொருட்களைப் பகிர உங்களை அனுமதிக்கிறது. bitwarden.com வலைத்தளத்தில் மேலும் அறிக."
@@ -1625,19 +1667,19 @@
     "message": "சரிபார்ப்புக் குறியீட்டை நகலெடு"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "பயனர்பெயர் இல்லை"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "கடவுச்சொல் இல்லை"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "சரிபார்ப்புக் குறியீடு இல்லை"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "எண் இல்லை"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "பாதுகாப்புக் குறியீடு இல்லை"
   },
   "attachments": {
     "message": "இணைப்புகள்"
@@ -1661,22 +1703,22 @@
     "message": "இணைப்பு சேமிக்கப்பட்டது"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "மறைகுறியாக்கத்தைச் சரிசெய்யவும்"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "இந்தக் கோப்பு காலாவதியான மறைகுறியாக்க முறையைப் பயன்படுத்துகிறது."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "இணைப்பு புதுப்பிக்கப்பட்டது"
   },
   "file": {
     "message": "கோப்பு"
   },
   "photo": {
-    "message": "Photo"
+    "message": "புகைப்படம்"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "தெரியாதது"
   },
   "fileToShare": {
     "message": "பகிர வேண்டிய கோப்பு"
@@ -1685,7 +1727,7 @@
     "message": "ஒரு கோப்பைத் தேர்ந்தெடுக்கவும்"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "உருப்படிகள் மாற்றப்பட்டன"
   },
   "maxFileSize": {
     "message": "அதிகபட்ச கோப்பு அளவு 500 MB ஆகும்."
@@ -1709,7 +1751,7 @@
     "message": "மெம்பர்ஷிப்பை ரெஃப்ரெஷ் செய்"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."
+    "message": "கோப்பு இணைப்புகளுக்கான 1 GB மறைகுறியாக்கப்பட்ட சேமிப்பகம்."
   },
   "premiumSignUpStorageV2": {
     "message": "கோப்பு இணைப்புகளுக்கான $SIZE$ மறைகுறியாக்கப்பட்ட சேமிப்பிடம்.",
@@ -1727,25 +1769,25 @@
     "message": "YubiKey மற்றும் Duo போன்ற பிரத்யேக டூ-ஸ்டெப் உள்நுழைவு விருப்பங்கள்."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "உங்கள் Premium சந்தா முடிவடைந்தது"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "உங்கள் காப்பகத்திற்கான அணுகலை மீண்டும் பெற, உங்கள் Premium சந்தாவை மீண்டும் தொடங்கவும். மீண்டும் தொடங்குவதற்கு முன் காப்பகப்படுத்தப்பட்ட உருப்படியின் விவரங்களைத் திருத்தினால், அது உங்கள் பெட்டகத்திற்கு மீண்டும் நகர்த்தப்படும்."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Premium-ஐ மீண்டும் தொடங்கவும்"
   },
   "premiumSignUpReports": {
-    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
+    "message": "உங்கள் பெட்டகத்தைப் பாதுகாப்பாக வைத்திருக்க கடவுச்சொல் சுகாதாரம், கணக்கு ஆரோக்கியம் மற்றும் தரவு மீறல் அறிக்கைகள்."
   },
   "premiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "உங்கள் பெட்டகத்தில் உள்ள உள்நுழைவுகளுக்கான TOTP சரிபார்ப்புக் குறியீடு (2FA) உருவாக்கி."
   },
   "premiumSignUpSupport": {
-    "message": "Priority customer support."
+    "message": "முன்னுரிமை வாடிக்கையாளர் ஆதரவு."
   },
   "premiumSignUpFuture": {
-    "message": "All future Premium features. More coming soon!"
+    "message": "எதிர்கால அனைத்து Premium அம்சங்களும். விரைவில் மேலும் பல!"
   },
   "premiumPurchase": {
     "message": "பிரீமியம் வாங்கு"
@@ -1830,7 +1872,7 @@
     "message": "கடவுச்சொல் அங்கீகாரம் தோல்வியடைந்தது"
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "வேறு உள்நுழைவு முறையைப் பயன்படுத்தவும்"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "பாதுகாப்பு விசை தொடர்புகொள்ளக் காத்திருக்கிறது..."
@@ -1927,7 +1969,7 @@
     "message": "ஐகான்ஸ் சர்வர் URL"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send சேவையக URL"
   },
   "environmentSaved": {
     "message": "சூழல் URLகள் சேமிக்கப்பட்டன"
@@ -1958,43 +2000,43 @@
     "message": "ஆட்டோஃபில்லை முடக்கு"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "தானியங்கு நிரப்புதலை உறுதிப்படுத்து"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "இந்தத் தளம் நீங்கள் சேமித்த உள்நுழைவு விவரங்களுடன் பொருந்தவில்லை. உங்கள் உள்நுழைவு சான்றுகளை நிரப்புவதற்கு முன், இது நம்பகமான தளம் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
   },
   "loginNeverMatchTitle": {
-    "message": "Login doesn't match"
+    "message": "உள்நுழைவு பொருந்தவில்லை"
   },
   "loginNeverMatchDesc": {
-    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+    "message": "இந்தத் தளம் நீங்கள் சேமித்த உள்நுழைவு விவரங்களுடன் பொருந்தவில்லை. தானாக நிரப்புவதற்கு முன் நீங்கள் நம்பகமான தளத்தில் உள்ளீர்கள் என்பதைச் சரிபார்க்கவும்."
   },
   "uriMatchRule": {
-    "message": "URI match rule"
+    "message": "URI பொருந்தல் விதி"
   },
   "neverMatch": {
-    "message": "Never match"
+    "message": "ஒருபோதும் பொருந்தாதே"
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "உள்நுழைவில் வலைத்தளம் எதுவும் சேமிக்கப்படவில்லை"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "தளம் பொருந்தவில்லை"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "இந்த உள்நுழைவில் இதுவரை எந்த வலைத்தளமும் சேமிக்கப்படவில்லை. தானாக நிரப்புவதற்கு முன் நீங்கள் நம்பகமான தளத்தில் உள்ளீர்கள் என்பதைச் சரிபார்க்கவும்."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "இந்தத் தளம் இந்த உள்நுழைவிற்காக நீங்கள் சேமித்துள்ள தளத்துடன் பொருந்தவில்லை. தானாக நிரப்புவதற்கு முன் நீங்கள் நம்பகமான தளத்தில் உள்ளீர்கள் என்பதைச் சரிபார்க்கவும்."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "இந்தத் தளம் இந்த உள்நுழைவிற்காக நீங்கள் சேமித்துள்ள தளங்களுடன் பொருந்தவில்லை. தானாக நிரப்புவதற்கு முன் நீங்கள் நம்பகமான தளத்தில் உள்ளீர்கள் என்பதைச் சரிபார்க்கவும்."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "தானாக நிரப்பி இந்தத் தளத்தைச் சேமிக்கவும்"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "தானாக மட்டுமே நிரப்பு"
   },
   "showInlineMenuLabel": {
     "message": "படிவப் புலங்களில் ஆட்டோஃபில் பரிந்துரைகளைக் காட்டு"
@@ -2021,7 +2063,7 @@
     "message": "பரிந்துரைகளாக கார்டுகளைக் காட்டு"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "SSH விசைகளைப் பரிந்துரைகளாகக் காண்பி"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "ஐகான் தேர்ந்தெடுக்கப்பட்டபோது பரிந்துரைகளைக் காட்டு"
@@ -2155,16 +2197,16 @@
     "message": "பிராண்ட்"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "பிறந்த நாள்"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "பிறந்த மாதம்"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "பிறந்த ஆண்டு"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "காலாவதி நாள்"
   },
   "expirationMonth": {
     "message": "காலாவதி மாதம்"
@@ -2173,13 +2215,13 @@
     "message": "காலாவதி ஆண்டு"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "வழங்கப்பட்ட நாள்"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "வழங்கப்பட்ட மாதம்"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "வழங்கப்பட்ட ஆண்டு"
   },
   "monthly": {
     "message": "மாதம்"
@@ -2272,49 +2314,49 @@
     "message": "கடவுச்சீட்டு எண்"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "பிறந்த தேதி"
   },
   "sex": {
-    "message": "Sex"
+    "message": "பாலினம்"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "பாலினத்தை நகலெடுக்கவும்"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "பிறந்த இடம்"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "பிறந்த இடத்தை நகலெடுக்கவும்"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "குடியுரிமை"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "குடியுரிமையை நகலெடுக்கவும்"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "வழங்கிய நாடு"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "வழங்கிய நாட்டை நகலெடுக்கவும்"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "கடவுச்சீட்டு வகை"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "கடவுச்சீட்டு வகையை நகலெடுக்கவும்"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "தேசிய அடையாள எண்"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "வழங்கிய ஆணையம்"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "வழங்கிய அதிகாரம் / அலுவலகத்தை நகலெடுக்கவும்"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "வழங்கப்பட்ட தேதி"
   },
   "licenseNumber": {
     "message": "உரிமம் எண்"
@@ -2323,7 +2365,7 @@
     "message": "மின்னஞ்சல்"
   },
   "emails": {
-    "message": "Emails"
+    "message": "மின்னஞ்சல்கள்"
   },
   "phone": {
     "message": "தொலைபேசி"
@@ -2374,102 +2416,102 @@
     "message": "SSH விசை"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "வங்கி கணக்கு"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "வங்கி கணக்கு விவரங்கள்"
   },
   "typeNote": {
     "message": "குறிப்பு"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "வங்கிக் கணக்கு"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "இணையதளம் அல்லது செயலி"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "கிரெடிட் அல்லது டெபிட் கார்டு"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "தனிப்பட்ட விவரங்கள்"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "முக்கிய உரை"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "சர்வர் உள்நுழைவு டோக்கன்"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "உங்கள் உருப்படிகளை ஒழுங்கமைக்கவும்"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "பகிரப்பட்ட உருப்படிகளை ஒழுங்கமைக்கவும்"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "வங்கி விவரங்கள்"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "கடவுச்சீட்டு"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "கடவுச்சீட்டு விவரங்கள்"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "கடவுச்சீட்டு சேர்க்கப்பட்டது"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "பயண ஆவணம்"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "ஓட்டுநர் உரிமம்"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "ஓட்டுநர் உரிமம் அல்லது அடையாள அட்டை"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "உரிம விவரங்கள்"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "வழங்கிய மாநிலம் / மாகாணம்"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "உரிமப் பிரிவு"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "உள்நுழைவைச் சேர்க்கவும்",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "அட்டையைச் சேர்க்கவும்",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "அடையாளத்தைச் சேர்க்கவும்",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "குறிப்பைச் சேர்க்கவும்",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "பாதுகாப்பான குறிப்பைச் சேர்க்கவும்",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "SSH விசையைச் சேர்க்கவும்",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "வங்கி கணக்கைச் சேர்க்கவும்",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "உரிமத்தைச் சேர்க்கவும்",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "கடவுச்சீட்டைச் சேர்க்கவும்",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -2489,7 +2531,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "புதிய பாதுகாப்பான குறிப்பு",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -2497,23 +2539,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "புதிய வங்கி கணக்கு",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "புதிய உரிமம்",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "புதிய கடவுச்சீட்டு",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "புதிய உரை",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "புதிய கோப்பு",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2533,23 +2575,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "பாதுகாப்பான குறிப்பைத் திருத்தவும்",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "உள்நுழைவைத் திருத்தவும்",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "அட்டையைத் திருத்தவும்",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "அடையாளத்தைத் திருத்தவும்",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "குறிப்பைத் திருத்தவும்",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -2557,23 +2599,23 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "வங்கி கணக்கைத் திருத்தவும்",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "உரிமத்தைத் திருத்தவும்",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "கடவுச்சீட்டைத் திருத்தவும்",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "உரையைத் திருத்தவும்",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "கோப்பைத் திருத்தவும்",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2593,7 +2635,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "பாதுகாப்பான குறிப்பைப் பார்க்கவும்",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -2601,19 +2643,19 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "வங்கி கணக்கைப் பார்க்கவும்",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "உரிமத்தைப் பார்க்கவும்",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "கடவுச்சீட்டைப் பார்க்கவும்",
     "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "சேர்க்க வேண்டிய உருப்படியைத் தேர்ந்தெடுக்கவும்"
   },
   "passwordHistory": {
     "message": "கடவுச்சொல் வரலாறு"
@@ -2625,7 +2667,7 @@
     "message": "ஜெனரேட்டர் வரலாற்றை அழி"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "நீங்கள் தொடர்ந்தால், ஜெனரேட்டரின் வரலாற்றிலிருந்து அனைத்து உள்ளீடுகளும் நிரந்தரமாக நீக்கப்படும். நீங்கள் நிச்சயமாகத் தொடர விரும்புகிறீர்களா?"
   },
   "back": {
     "message": "பின்"
@@ -2643,7 +2685,7 @@
     }
   },
   "nSharedFolders": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ பகிரப்பட்ட கோப்புறைகள்",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2680,13 +2722,13 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "அனைத்து வரிசைகளையும் தேர்ந்தெடுக்கவும்"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "வரிசையைத் தேர்ந்தெடுக்கவும்"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "$TOTAL$ இல் $START$ - $END$ காட்டப்படுகிறது",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2703,10 +2745,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "ஒரு பக்கத்திற்கான வரிசைகள்"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "ஒரு பக்கத்திற்கு $COUNT$ வரிசைகள்",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2715,7 +2757,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ உருப்படிகள்",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2724,19 +2766,19 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "அனைத்தும்"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "அனைத்தையும் அழிக்கவும்"
   },
   "done": {
-    "message": "Done"
+    "message": "முடிந்தது"
   },
   "filter": {
-    "message": "Filter"
+    "message": "வடிகட்டு"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ தேர்ந்தெடுக்கப்பட்டது",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2745,16 +2787,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "முந்தைய பக்கம்"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "அடுத்த பக்கம்"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "பக்கத்திற்குச் செல்லவும்"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "$COUNT$ இல்",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2763,10 +2805,10 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "பொருந்தும் உருப்படிகள் எதுவும் இல்லை"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "\"$SEARCH$\" என்பதற்குப் பொருந்தும் வடிப்பான்கள் எதுவும் இல்லை",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2774,21 +2816,45 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "தேடலை அழிக்கவும்"
   },
   "selected": {
-    "message": "Selected"
+    "message": "தேர்ந்தெடுக்கப்பட்டது"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "தேர்ந்தெடுக்கப்பட்டது",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "மொத்த நடவடிக்கைகள்"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ உருப்படி(கள்) தேர்ந்தெடுக்கப்பட்டது. மொத்த நடவடிக்கைகள் பட்டி இப்போது திரையின் அடிப்பகுதியில் கிடைக்கிறது. மொத்த நடவடிக்கைகள் பட்டிக்கு கவனத்தை மாற்ற $SHORTCUTBINDING$ ஐ அழுத்தவும்.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2801,10 +2867,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "தேர்வு அழிக்கப்பட்டது"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "கூடுதல் நடவடிக்கைகள்"
   },
   "checkPassword": {
     "message": "கடவுச்சொல் வெளிப்பட்டதா எனச் சரிபார்க்கவும்."
@@ -2940,28 +3006,28 @@
     "message": "நீங்கள் தேர்ந்தெடுத்த முதன்மை கடவுச்சொல் பலவீனமானது. உங்கள் Bitwarden கணக்கைப் பாதுகாக்க, நீங்கள் ஒரு வலுவான முதன்மை கடவுச்சொல்லை (அல்லது ஒரு கடவுச்சொல் சொற்றொடரை) பயன்படுத்த வேண்டும். இந்த முதன்மை கடவுச்சொல்லைப் பயன்படுத்த நீங்கள் உறுதியாக இருக்கிறீர்களா?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "எனது கணக்கின் குறியாக்க விசையையும் மாற்றவும்"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "குறியாக்க விசையை மாற்றவும்"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "உங்கள் கணக்கின் குறியாக்க விசையை நிச்சயமாக மாற்ற விரும்புகிறீர்களா?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "உங்கள் குறியாக்க விசையைப் புதுப்பித்த பிறகு, நீங்கள் தற்போது பயன்படுத்தும் அனைத்து Bitwarden பயன்பாடுகளிலிருந்தும் (மொபைல் செயலி அல்லது உலாவி நீட்டிப்புகள் போன்றவை) வெளியேறி மீண்டும் உள்நுழைய வேண்டும். வெளியேறி மீண்டும் உள்நுழையத் தவறினால் (இது உங்கள் புதிய குறியாக்க விசையைப் பதிவிறக்கும்) தரவு சிதைவு ஏற்படக்கூடும். உங்களைத் தானாகவே வெளியேற்ற நாங்கள் முயற்சிப்போம், இருப்பினும் அதில் தாமதம் ஏற்படலாம்."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "நீங்கள் சேமித்துள்ள கணக்குக் கட்டுப்படுத்தப்பட்ட ஏற்றுமதிகள் அனைத்தும் செல்லுபடியாகாது."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "உங்கள் கணக்கின் குறியாக்க விசையை மாற்றுவதற்கு முன் உங்கள் பெட்டகத்தில் உள்ள பழைய கோப்பு இணைப்புகள் சரிசெய்யப்பட வேண்டும்."
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "உங்கள் குறியாக்க விசையை மாற்றுவதால் ஏற்படும் தாக்கம்"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "ஒன்று அல்லது அதற்கு மேற்பட்ட நிறுவனக் கொள்கைகளின்படி முதன்மை கடவுச்சொல் பின்வரும் தேவைகளைப் பூர்த்தி செய்ய வேண்டும்:"
   },
   "pin": {
     "message": "PIN",
@@ -3054,7 +3120,7 @@
     "message": "பெட்டக காலக்கெடு நடவடிக்கை"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "ஆபத்தில் உள்ள கடவுச்சொல் அறிவிப்புகளைக் காட்டு"
   },
   "lock": {
     "message": "பூட்டு",
@@ -3077,7 +3143,7 @@
     "message": "பொருள் நிரந்தரமாக நீக்கப்பட்டது"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "காப்பகப்படுத்தப்பட்ட உருப்படி மீட்டெடுக்கப்பட்டது"
   },
   "restoreItem": {
     "message": "பொருளை மீட்டமை"
@@ -3182,7 +3248,7 @@
     "message": "உங்கள் புதிய முதன்மை கடவுச்சொல் கொள்கை தேவைகளைப் பூர்த்தி செய்யவில்லை."
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "Bitwarden-இன் புதுப்பிப்புகளை உங்கள் இன்பாக்ஸில் பெறவும்."
   },
   "unsubscribe": {
     "message": "தவிர்க்கவும்"
@@ -3251,10 +3317,10 @@
     "message": "டெஸ்க்டாப் பயன்பாடு வேறு கணக்கில் உள்நுழைந்துள்ளது. இரண்டு பயன்பாடுகளும் ஒரே கணக்கில் உள்நுழைந்துள்ளன என்பதை உறுதிப்படுத்தவும்."
   },
   "nativeMessagingAccountMismatchTitle": {
-    "message": "Account mismatch"
+    "message": "கணக்கு பொருந்தவில்லை"
   },
   "nativeMessagingBiometricKeyMismatchTitle": {
-    "message": "Biometric key mismatch"
+    "message": "பயோமெட்ரிக் விசை பொருந்தவில்லை"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "பயோமெட்ரிக் திறத்தல் தோல்வியடைந்தது. பயோமெட்ரிக் ரகசிய விசை பெட்டகத்தைத் திறக்கத் தவறிவிட்டது. பயோமெட்ரிக்ஸை மீண்டும் அமைக்க முயற்சிக்கவும்."
@@ -3290,16 +3356,16 @@
     "message": "பயோமெட்ரிக்ஸ் முடிக்க முடியாது, ஒரு முதன்மை கடவுச்சொல்லைப் பயன்படுத்த அல்லது வெளியேற பரிசீலிக்கவும். இது தொடர்ந்தால், Bitwarden ஆதரவை தொடர்பு கொள்ளவும்."
   },
   "nativeMessagingPermissionErrorTitle": {
-    "message": "Permission not provided"
+    "message": "அனுமதி வழங்கப்படவில்லை"
   },
   "nativeMessagingPermissionErrorDesc": {
-    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
+    "message": "Bitwarden Desktop Application உடன் தொடர்புகொள்வதற்கான அனுமதி இல்லாமல் உலாவி நீட்டிப்பில் எங்களால் பயோமெட்ரிக்ஸை வழங்க முடியாது. மீண்டும் முயற்சிக்கவும்."
   },
   "nativeMessagingPermissionSidebarTitle": {
-    "message": "Permission request error"
+    "message": "அனுமதி கோரிக்கை பிழை"
   },
   "nativeMessagingPermissionSidebarDesc": {
-    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
+    "message": "இந்தச் செயலை பக்கப்பட்டியில் செய்ய முடியாது, பாப்அப் அல்லது பாப்அவுட்டில் மீண்டும் முயற்சிக்கவும்."
   },
   "personalOwnershipSubmitError": {
     "message": "ஒரு என்டர்பிரைஸ் கொள்கை காரணமாக, உங்கள் தனிப்பட்ட பெட்டகத்தில் பொருட்களைச் சேமிப்பதிலிருந்து நீங்கள் தடை செய்யப்பட்டுள்ளீர்கள். உரிமை விருப்பத்தை ஒரு அமைப்புக்கு மாற்றி, கிடைக்கக்கூடிய சேகரிப்புகளில் இருந்து தேர்ந்தெடுக்கவும்."
@@ -3364,7 +3430,7 @@
     "message": "ஆபத்தில் உள்ள கடவுச்சொற்கள்"
   },
   "atRisk": {
-    "message": "at risk",
+    "message": "ஆபத்தில் உள்ளது",
     "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
@@ -3409,7 +3475,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "இந்தத் தளத்திற்கான உங்கள் கடவுச்சொல் ஆபத்தில் உள்ளது. உங்கள் கணக்கு அமைப்புகளுக்குச் சென்று அதை மாற்றுமாறு $ORGANIZATION$ கோரியுள்ளது.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3431,10 +3497,10 @@
     }
   },
   "reviewXAtRiskPassword": {
-    "message": "Review 1 at-risk password"
+    "message": "ஆபத்தில் உள்ள 1 கடவுச்சொல்லை மதிப்பாய்வு செய்க"
   },
   "reviewXAtRiskPasswordsPlural": {
-    "message": "Review $COUNT$ at-risk passwords",
+    "message": "ஆபத்தில் உள்ள $COUNT$ கடவுச்சொற்களை மதிப்பாய்வு செய்க",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3462,7 +3528,7 @@
     "message": "ஆபத்தில் உள்ள உள்நுழைவுகளின் பட்டியலின் விளக்கம்."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden பெட்டகப் பக்கத்தின் அமைப்பின் விளக்கம்."
   },
   "generatePasswordSlideDesc": {
     "message": "ஆபத்தில் உள்ள தளத்தில் உள்ள Bitwarden தானாக நிரப்பு மெனுவுடன் ஒரு வலுவான, தனிப்பட்ட கடவுச்சொல்லை விரைவாக உருவாக்குங்கள்.",
@@ -3641,7 +3707,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Send-ஐ உருவாக்கு",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3692,7 +3758,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ மணிநேரம்",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3701,7 +3767,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "இந்த Send இணைப்பை நகலெடுத்துப் பகிரவும். அடுத்த $TIME$-க்கு இணைப்பு உள்ள எவருக்கும் இந்த Send கிடைக்கும்.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3711,7 +3777,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "இந்த Send இணைப்பை நகலெடுத்துப் பகிரவும். அடுத்த $TIME$-க்கு இணைப்பு மற்றும் நீங்கள் அமைத்த கடவுச்சொல் உள்ள எவருக்கும் இந்த Send கிடைக்கும்.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3721,7 +3787,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "இந்த Send இணைப்பை நகலெடுத்துப் பகிரவும். அடுத்த $TIME$-க்கு நீங்கள் குறிப்பிட்ட நபர்களால் இதைப் பார்க்க முடியும்.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3949,10 +4015,10 @@
     "message": "நிறுவன பெட்டகத்தை ஏற்றுமதி செய்கிறது"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "உங்கள் தனிப்பட்ட பெட்டகத்தில் உள்ள உருப்படிகள் மட்டுமே ஏற்றுமதி செய்யப்படும்."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "$ORGANIZATION$ பெட்டகத்துடன் தொடர்புடைய உருப்படிகள் மட்டுமே ஏற்றுமதி செய்யப்படும். தனிப்பட்ட பெட்டகங்களில் உள்ள உருப்படிகள் செய்யப்படாது.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3982,10 +4048,10 @@
     "message": "பிழை"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Passkey மூலம் திறப்பதில் தோல்வி ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும் அல்லது வேறொரு திறக்கும் முறையைப் பயன்படுத்தவும்."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "திறப்பதற்கு PRF-இயக்கப்பட்ட Passkey-கள் எதுவும் கிடைக்கவில்லை."
   },
   "decryptionError": {
     "message": "குறியாக்கம் நீக்கப் பிழை"
@@ -4112,7 +4178,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "தவறான $SERVICENAME$ API டோக்கன்",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -4122,7 +4188,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "தவறான $SERVICENAME$ API டோக்கன்: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4136,7 +4202,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ உங்கள் கோரிக்கையை நிராகரித்தது. உதவிக்கு உங்கள் சேவை வழங்குநரைத் தொடர்பு கொள்ளவும்.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -4146,7 +4212,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ உங்கள் கோரிக்கையை நிராகரித்தது: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4210,11 +4276,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "வலைத்தள முன்னொட்டைச் சேர்க்கவும்",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "இயக்கப்பட்ட போது, உருவாக்கப்பட்ட மின்னஞ்சல் முகவரிக்கான முன்னொட்டாக தற்போதைய வலைத்தளத்தின் டொமைன் பயன்படுத்தப்படும்",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4231,7 +4297,7 @@
     "message": "சாவி இணைப்பி பிழை: சாவி இணைப்பி கிடைப்பதை மற்றும் சரியாக வேலை செய்வதை உறுதிப்படுத்தவும்."
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Premium சந்தா தேவை"
   },
   "organizationIsDisabled": {
     "message": "நிறுவனம் இடைநிறுத்தப்பட்டது."
@@ -4346,22 +4412,22 @@
     "message": "உள்நுழைவு நிலை"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "சமீபத்தில் செயலில்"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "இன்று"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "கடந்த 7 நாட்கள்"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "கடந்த 14 நாட்கள்"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "கடந்த 30 நாட்கள்"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30 நாட்களுக்கு முன்"
   },
   "masterPasswordChanged": {
     "message": "மாஸ்டர் கடவுச்சொல் சேமிக்கப்பட்டது"
@@ -4722,7 +4788,7 @@
     "message": "1 அல்லது அதற்கு மேற்பட்ட மின்னஞ்சல்கள் தவறானவை"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "மின்னஞ்சல் பெறுநர் பட்டியல் 2,500 எழுத்துகளுக்கு மிகாமல் இருக்க வேண்டும். தொடர ஒன்று அல்லது அதற்கு மேற்பட்ட பெறுநர்களை அகற்றவும்."
   },
   "inputTrimValidator": {
     "message": "உள்ளீடு வெற்று இடங்களை மட்டுமே கொண்டிருக்கக்கூடாது.",
@@ -4980,7 +5046,7 @@
     "message": "எதுவும் இறக்குமதி செய்யப்படவில்லை."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ உருப்படிகள் தவிர்க்கப்படும்",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4989,7 +5055,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ உருப்படி தவிர்க்கப்படும்",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4998,52 +5064,52 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "பின்வரும் உருப்படிகளைப் படிக்க முடியவில்லை மற்றும் அவை உங்கள் இறக்குமதியில் சேர்க்கப்படாது:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "இந்த SSH விசையை இறக்குமதி செய்ய முடியவில்லை"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "ஆதரிக்கப்படாத உருப்படி வகை"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "இந்த உருப்படியை இறக்குமதி செய்ய முடியவில்லை"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "அடையாளங்காட்டி"
   },
   "contact": {
-    "message": "Contact"
+    "message": "தொடர்பு"
   },
   "membership": {
-    "message": "Membership"
+    "message": "உறுப்பினர் உரிமை"
   },
   "passport": {
-    "message": "Passport"
+    "message": "கடவுச்சீட்டு"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "ஓட்டுநர் உரிமம்"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "அடையாள அட்டை"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "பிறப்புச் சான்றிதழ்"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "தரவுத்தள நற்சான்றிதழ்கள்"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "சர்வர் நற்சான்றிதழ்கள்"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "மென்பொருள் உரிமம்"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "மருத்துவக் காப்பீடு"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi நற்சான்றிதழ்கள்"
   },
   "importEncKeyError": {
     "message": "ஏற்றுமதி செய்யப்பட்ட கோப்பை குறியாக்கம் நீக்குவதில் பிழை. உங்கள் என்க்ரிப்ஷன் சாவி, தரவை ஏற்றுமதி செய்யப் பயன்படுத்தப்பட்ட என்க்ரிப்ஷன் சாவுடன் பொருந்தவில்லை."
@@ -5082,16 +5148,16 @@
     "message": "கோப்பைத் தேர்ந்தெடு"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "கோப்பைத் தேர்ந்தெடுக்கவும்"
   },
   "noFileChosen": {
     "message": "கோப்பு எதுவும் தேர்ந்தெடுக்கப்படவில்லை"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "எந்தக் கோப்பும் தேர்ந்தெடுக்கப்படவில்லை"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "தேர்ந்தெடுக்கப்பட்ட கோப்பு: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5100,7 +5166,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "கோப்பு சேர்க்கப்பட்டது: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5109,7 +5175,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$ கோப்புகள் சேர்க்கப்பட்டன: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5122,7 +5188,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "கோப்பு அகற்றப்பட்டது: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5131,10 +5197,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 கோப்பு பதிவேற்றப்பட்டது"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ கோப்புகள் பதிவேற்றப்பட்டன",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5143,16 +5209,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "பதிவேற்றப்பட்ட கோப்புகள்"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "பதிவேற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "கோப்புகளைத் தேர்ந்தெடுக்கவும்"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "அதிகபட்ச கோப்பு அளவு: $SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5174,7 +5240,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "விரிவான $NAME$ வழிமுறைகளை எங்கள்",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5184,195 +5250,195 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "உதவி மையம்"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "இந்த செயல்முறை Google Chrome-லிருந்து இறக்குமதி செய்வதைப் போன்றதே ஆகும்.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "KeePassX டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"Database\" → \"Export to CSV file\" என்பதற்குச் சென்று CSV கோப்பைச் சேமிக்கவும்."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "Avira வலைப் பெட்டகத்தில், \"Settings\" → \"My Data\" → \"Export data\" என்பதற்குச் சென்று CSV கோப்பைச் சேமிக்கவும்."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "Blur வலைப் பெட்டகத்தில், மேலே உள்ள உங்கள் பயனர்பெயரைக் கிளிக் செய்து \"Settings\" → \"Export Data\" என்பதற்குச் சென்று, பின்னர் உங்கள் \"Accounts\" என்பதற்கு \"Export CSV\" என்பதைக் கிளிக் செய்யவும்."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "SafeInCloud டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export\" → \"As XML\" என்பதற்குச் சென்று XML கோப்பைச் சேமிக்கவும்."
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Padlock டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, மேல் இடது மூலையில் உள்ள ஹாம்பர்கர் ஐகானைக் கிளிக் செய்து, \"Settings\" → \"Export\" பொத்தானுக்குச் சென்று கோப்பை \"As CSV\" எனச் சேமிக்கவும்."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "KeePass 2 டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export\" என்பதற்குச் சென்று \"KeePass XML (2.x)\" விருப்பத்தைத் தேர்ந்தெடுக்கவும்."
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "Universal Password Manager டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"Database\" → \"Export\" என்பதற்குச் சென்று CSV கோப்பைச் சேமிக்கவும்."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "SaferPass உலாவி நீட்டிப்பைப் பயன்படுத்தி, மேல் இடது மூலையில் உள்ள ஹாம்பர்கர் ஐகானைக் கிளிக் செய்து \"Settings\" என்பதற்குச் செல்லவும். CSV கோப்பைச் சேமிக்க \"Export accounts\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "Meldium வலைப் பெட்டகத்தைப் பயன்படுத்தி, \"Settings\" என்பதற்குச் செல்லவும். \"Export data\" அம்சத்தைக் கண்டறிந்து, CSV கோப்பைச் சேமிக்க \"Show me my data\" என்பதைக் கிளிக் செய்யவும்."
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "Password Dragon டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export\" → \"To XML\" என்பதற்குச் செல்லவும். தோன்றும் உரையாடல் பெட்டியில் \"All Rows\" என்பதைத் தேர்ந்தெடுத்து அனைத்துப் புலங்களையும் சரிபார்க்கவும். \"Export\" பொத்தானைக் கிளிக் செய்து XML கோப்பைச் சேமிக்கவும்."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "Enpass டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export\" → \"As CSV\" என்பதற்குச் செல்லவும். எச்சரிக்கை அறிவிப்பில் \"OK\" என்பதைத் தேர்ந்தெடுத்து CSV கோப்பைச் சேமிக்கவும். Enpass ஆங்கில மொழியில் அமைக்கப்பட்டிருக்கும் போது ஏற்றுமதி செய்யப்பட்ட கோப்புகளை மட்டுமே இறக்குமதியாளர் ஆதரிக்கிறார் என்பதை நினைவில் கொள்ளவும், எனவே உங்கள் அமைப்புகளை அதற்கேற்ப மாற்றவும்."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "Enpass 6 டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, மெனு பொத்தானைக் கிளிக் செய்து \"File\" → \"Export\" என்பதற்குச் செல்லவும். \".json\" கோப்பு வடிவ விருப்பத்தைத் தேர்ந்தெடுத்து JSON கோப்பைச் சேமிக்கவும்."
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "Password Safe டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export To\" → \"XML format...\" என்பதற்குச் சென்று XML கோப்பைச் சேமிக்கவும்."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Dashlane-இல் உள்நுழைந்து, \"My Account\" → \"Settings\" → \"Export file\" என்பதைக் கிளிக் செய்து \"Export as a CSV file\" என்பதைத் தேர்ந்தெடுக்கவும். இது பல்வேறு CSV கோப்புகளைக் கொண்ட ஜிப் காப்பகத்தைப் பதிவிறக்கும். காப்பகத்தை அன்ஜிப் செய்து ஒவ்வொரு CSV கோப்பையும் தனித்தனியாக இறக்குமதி செய்யவும்."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane இனி JSON வடிவத்தை ஆதரிக்காது. இறக்குமதி செய்ய ஏற்கனவே உள்ள JSON கோப்பு உங்களிடம் இருந்தால் மட்டுமே இதைப் பயன்படுத்தவும். புதிய ஏற்றுமதிகளை உருவாக்கும் போது CSV இறக்குமதியாளரைப் பயன்படுத்தவும்."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "mSecure டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export\" → \"CSV File...\" என்பதற்குச் சென்று CSV கோப்பைச் சேமிக்கவும்."
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "Sticky Password டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"Menu\" (மேல் வலது) → \"Export\" → \"Export all\" என்பதற்குச் செல்லவும். குறியாக்கம் செய்யப்படாத XML வடிவ விருப்பத்தைத் தேர்ந்தெடுத்து XML கோப்பைச் சேமிக்கவும்."
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "True Key டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, கியர் ஐகானைக் (மேல் வலது) கிளிக் செய்து, பின்னர் \"App Settings\" என்பதற்குச் செல்லவும். \"Export\" பொத்தானைக் கிளிக் செய்து, உங்கள் கடவுச்சொல்லை உள்ளிட்டு CSV கோப்பைச் சேமிக்கவும்."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Clipperz வலைப் பயன்பாட்டில் (clipperz.is/app) உள்நுழையவும். வழிசெலுத்தல் பட்டியை விரிவாக்க மேல் வலதுபுறத்தில் உள்ள ஹாம்பர்கர் மெனு ஐகானைக் கிளிக் செய்யவும். \"Data\" → \"Export\" என்பதற்குச் செல்லவும். HTML கோப்பைச் சேமிக்க \"download HTML+JSON\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "RoboForm Editor டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"RoboForm\" (மேல் இடது) → \"Options\" → \"Account & Data\" என்பதற்குச் சென்று \"Export\" பொத்தானைக் கிளிக் செய்யவும். உங்கள் எல்லாத் தரவையும் தேர்ந்தெடுத்து, \"Format\" என்பதை \"CSV file\" என மாற்றி, பின்னர் CSV கோப்பைச் சேமிக்க \"Export\" பொத்தானைக் கிளிக் செய்யவும். குறிப்பு: RoboForm உள்நுழைவுகளை மட்டுமே ஏற்றுமதி செய்ய உங்களை அனுமதிக்கிறது. பிற உருப்படிகள் ஏற்றுமதி செய்யப்படாது."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "Passbolt வலைப் பெட்டகத்தில் உள்நுழைந்து \"Passwords\" பட்டியலுக்குச் செல்லவும். நீங்கள் ஏற்றுமதி செய்ய விரும்பும் அனைத்துக் கடவுச்சொற்களையும் தேர்ந்தெடுத்து பட்டியலின் மேலே உள்ள \"Export\" பொத்தானைக் கிளிக் செய்யவும். \"csv (lastpass)\" ஏற்றுமதி வடிவத்தைத் தேர்ந்தெடுத்து \"Export\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "Ascendo DataVault டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"Tools\" → \"Export\" என்பதற்குச் செல்லவும். தோன்றும் உரையாடல் பெட்டியில், \"All Items (DVX, CSV)\" விருப்பத்தைத் தேர்ந்தெடுக்கவும். CSV கோப்பைச் சேமிக்க \"Ok\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "Password Boss டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" என்பதற்குச் சென்று JSON கோப்பைச் சேமிக்கவும்."
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "Zoho வலைப் பெட்டகத்தில் (vault.zoho.com) உள்நுழையவும். \"Tools\" → \"Export Secrets\" என்பதற்குச் செல்லவும். \"All Secrets\" என்பதைத் தேர்ந்தெடுத்து \"Zoho Vault Format CSV\" பொத்தானைக் கிளிக் செய்யவும். உரைப் பகுதியிலுள்ள தரவைத் தேர்ந்தெடுத்து நகலெடுக்கவும். Notepad போன்ற உரை திருத்தியைத் திறந்து தரவை ஒட்டவும். உரை திருத்தியிலிருந்து தரவை இவ்வாறு சேமிக்கவும்",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "SplashID Safe டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி, மேல் வலது மூலையில் உள்ள SplashID நீல பூட்டு லோகோவைக் கிளிக் செய்யவும். \"Export\" → \"Export as CSV\" என்பதற்குச் சென்று CSV கோப்பைச் சேமிக்கவும்."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "PassKeep மொபைல் பயன்பாட்டைப் பயன்படுத்தி, \"Backup/Restore\" என்பதற்குச் செல்லவும். \"CSV Backup/Restore\" பகுதியைக் கண்டறிந்து CSV கோப்பைச் சேமிக்க \"Backup to CSV\" என்பதைக் கிளிக் செய்யவும்."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "python-keyring மற்றும் python-gnomekeyring நிறுவப்பட்டுள்ளதை உறுதிப்படுத்தவும். இந்த",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
     "message": "GNOME Keyring Import/Export"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "பைதான் ஸ்கிரிப்டை உங்கள் டெஸ்க்டாப்பில் பின்வருமாறு சேமிக்கவும்",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". டெர்மினலைத் திறந்து இதை இயக்கவும்",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "அதன் பிறகு",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". பின்னர் உருவாக்கப்பட்ட",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "கோப்பை இங்கே Bitwarden இல் பதிவேற்றவும்.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Password Agent டெஸ்க்டாப் பயன்பாட்டைப் பயன்படுத்தி \"File\" → \"Export\" என்பதற்குச் சென்று, \"Fields to export\" பொத்தானைத் தேர்ந்தெடுத்து அனைத்து புலங்களையும் சரிபார்க்கவும், \"Output format\" என்பதை \"CSV\" என மாற்றி, பின்னர் CSV கோப்பைச் சேமிக்க \"Start\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Passpack வலைத்தளப் பெட்டகத்தில் உள்நுழைந்து \"Settings\" → \"Export\" என்பதற்குச் சென்று, பின்னர் CSV கோப்பைச் சேமிக்க \"Download\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "உங்கள் Passman பெட்டகத்தைத் திறந்து கீழ் இடது மூலையில் உள்ள \"Settings\" என்பதைக் கிளிக் செய்யவும். \"Settings\" சாளரத்தில் \"Export credentials\" தாவலுக்கு மாறி, ஏற்றுமதி வகையாக \"JSON\" என்பதைத் தேர்ந்தெடுக்கவும். உங்கள் பெட்டகத்தின் கடவுச்சொற்றொடரை உள்ளிட்டு JSON கோப்பைச் சேமிக்க \"Export\" பொத்தானைக் கிளிக் செய்யவும்."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Avast Passwords டெஸ்க்டாப் பயன்பாட்டைத் திறந்து \"Settings\" → \"Import/export data\" என்பதற்குச் செல்லவும். CSV கோப்பைச் சேமிக்க \"Export to CSV file\" விருப்பத்திற்கான \"Export\" பொத்தானைத் தேர்ந்தெடுக்கவும்."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Avast Passwords டெஸ்க்டாப் பயன்பாட்டைத் திறந்து \"Settings\" → \"Import/export data\" என்பதற்குச் செல்லவும். JSON கோப்பைச் சேமிக்க \"Export to JSON file\" விருப்பத்திற்கான \"Export\" பொத்தானைத் தேர்ந்தெடுக்கவும்."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "F-Secure KEY டெஸ்க்டாப் பயன்பாட்டைத் திறந்து \"Settings\" → \"Export Passwords\" என்பதற்குச் செல்லவும். \"Export\" பொத்தானைத் தேர்ந்தெடுத்து, உங்கள் முதன்மை கடவுச்சொல்லை உள்ளிட்டு FSK கோப்பைச் சேமிக்கவும்."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Kaspersky Password Manager டெஸ்க்டாப் பயன்பாட்டைத் திறந்து \"Settings\" → \"Import/Export\" என்பதற்குச் செல்லவும். \"Export to text file\" பகுதியைக் கண்டறிந்து TXT கோப்பைச் சேமிக்க \"Export\" பொத்தானைத் தேர்ந்தெடுக்கவும்."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "RememBear டெஸ்க்டாப் பயன்பாட்டைத் திறந்து \"Settings\" → \"Account\" → \"Export\" என்பதற்குச் செல்லவும். உங்கள் முதன்மை கடவுச்சொல்லை உள்ளிட்டு CSV கோப்பைச் சேமிக்க \"Export Anyway\" பொத்தானைத் தேர்ந்தெடுக்கவும்."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "PasswordWallet டெஸ்க்டாப் பயன்பாட்டைத் திறந்து \"File\" → \"Export\" → \"Visible entries to text file\" என்பதற்குச் செல்லவும். உங்கள் கடவுச்சொல்லை உள்ளிட்டு TXT கோப்பைச் சேமிக்க \"Ok\" பொத்தானைத் தேர்ந்தெடுக்கவும்."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Myki டெஸ்க்டாப் உலாவி நீட்டிப்பைத் திறந்து \"Advanced\" → \"Export Accounts\" என்பதற்குச் சென்று, பின்னர் உங்கள் மொபைல் சாதனத்தைக் கொண்டு QR குறியீட்டை ஸ்கேன் செய்யவும். பல்வேறு CSV கோப்புகள் உங்கள் கணினியின் பதிவிறக்கங்கள் கோப்புறையில் சேமிக்கப்படும்."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "உங்கள் SecureSafe கடவுச்சொல் சேமிப்பகத்தைக் காற்புள்ளி பிரிப்பானைக் கொண்ட CSV கோப்பாக ஏற்றுமதி செய்யவும்."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "LogMeOnce உலாவி நீட்டிப்பைத் திறந்து, பின்னர் \"Open Menu\" → \"Export To\" என்பதற்குச் சென்று CSV கோப்பைச் சேமிக்க \"CSV File\" என்பதைத் தேர்ந்தெடுக்கவும்."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "BlackBerry Password Keeper பயன்பாட்டைத் திறந்து, பின்னர் \"Settings\" → \"Import/Export\" என்பதற்குச் செல்லவும். \"Export Passwords\" என்பதைத் தேர்ந்தெடுத்து, திரையில் உள்ள வழிமுறைகளைப் பின்பற்றி குறியாக்கம் செய்யப்படாத CSV கோப்பைச் சேமிக்கவும்."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Buttercup டெஸ்க்டாப் பயன்பாட்டைத் திறந்து உங்கள் பெட்டகத்தைத் திறக்கவும். உங்கள் பெட்டகத்தின் ஐகானில் வலது கிளிக் செய்து CSV கோப்பைச் சேமிக்க \"Export\" என்பதைத் தேர்ந்தெடுக்கவும்."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Codebook டெஸ்க்டாப் பயன்பாட்டைத் திறந்து உள்நுழையவும். \"File\" → \"Export all\" என்பதற்குச் சென்று, பின்னர் உரையாடல் பெட்டியில் \"Yes\" என்பதைக் கிளிக் செய்து CSV கோப்பைச் சேமிக்கவும்."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Encryptr டெஸ்க்டாப் பயன்பாட்டின் புதிய பதிப்பைத் திறந்து உங்கள் எல்லாத் தரவையும் ஒத்திசைக்க அனுமதிக்கவும். உங்கள் தரவின் ஒத்திசைவு முடிந்ததும், மேல் வலது மூலையில் உள்ள பதிவிறக்க ஐகான் இளஞ்சிவப்பு நிறமாக மாறும். பதிவிறக்க ஐகானைக் கிளிக் செய்து CSV கோப்பைச் சேமிக்கவும்."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "Yoti உலாவி நீட்டிப்பிலிருந்து, \"Settings\" என்பதைக் கிளிக் செய்து, பின்னர் \"Export Saved Logins\" என்பதைக் கிளிக் செய்து CSV கோப்பைச் சேமிக்கவும்."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Psono வலைப் பெட்டகத்தில் உள்நுழைந்து, \"Signed in as\" கீழ்தோன்றலைக் கிளிக் செய்து, \"Others\" என்பதைத் தேர்ந்தெடுக்கவும். \"Export\" தாவலுக்குச் சென்று json வகை ஏற்றுமதியைத் தேர்ந்தெடுத்து, பின்னர் Export என்பதைக் கிளிக் செய்யவும்."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "\"https://vault.passky.org\" இல் உள்நுழையவும் → Passky பிரிவில் \"Import & Export\" → \"Export\" என்பதற்குச் செல்லவும். (\"Backup\" குறியாக்கம் செய்யப்பட்டுள்ளதால் ஆதரிக்கப்படாது)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "ProtonPass உலாவி நீட்டிப்பில், Settings > Export என்பதற்குச் செல்லவும். PGP குறியாக்கம் இல்லாமல் ஏற்றுமதி செய்து ஜிப் கோப்பைச் சேமிக்கவும்."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Database → Export to file... மெனுவைத் தேர்ந்தெடுக்கவும். → ஏற்றுமதி விருப்பங்களுக்குள், Folder names மற்றும் Column titles தேர்வு செய்யப்பட்டுள்ளதை உறுதிப்படுத்தவும். → Browse... பொத்தானை அழுத்தி இலக்குக் கோப்பைத் தேர்ந்தெடுத்து அதன் வகையை CSV கோப்பாக அமைக்கவும்."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "FullClient ஐத் திறந்து, முதன்மை மெனுவுக்குச் சென்று Export என்பதைத் தேர்ந்தெடுக்கவும். கடவுச்சொற்கள் ஏற்றுமதி வழிகாட்டியைத் தொடங்கி, CSV கோப்பை ஏற்றுமதி செய்ய வழிமுறைகளைப் பின்பற்றவும்."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "NordPass இல் உள்நுழைந்து Settings என்பதைத் திறக்கவும் → இறக்குமதி மற்றும் ஏற்றுமதி பகுதிக்குக் கீழே உருட்டி Export items என்பதைத் தேர்ந்தெடுக்கவும் → உங்கள் முதன்மை கடவுச்சொல்லை உள்ளிட்டு Continue என்பதைத் தேர்ந்தெடுக்கவும். → உங்கள் சாதனத்தில் CSV கோப்பைச் சேமிக்கவும்."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "டெஸ்க்டாப் பயன்பாட்டில், Tools → Export என்பதற்குச் செல்லவும் → உங்கள் முதன்மை கடவுச்சொல்லை உள்ளிடவும் → ஏற்றுமதி வடிவமாக XML Format (*.xml) என்பதைத் தேர்ந்தெடுக்கவும் → அடுத்து என்பதைக் கிளிக் செய்யவும் → ஏற்றுமதியில் எந்தெந்த உள்ளீடுகள் சேர்க்கப்பட வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும் → முன்பு தேர்ந்தெடுக்கப்பட்ட இடத்தில் ஏற்றுமதி செய்ய அடுத்து என்பதைக் கிளிக் செய்யவும்."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Delinea இல் உள்நுழைந்து, “Import/Export” எனத் தேடவும் -> “Export” என்பதைத் தேர்ந்தெடுக்கவும் -> ஏற்றுமதி வடிவமாக “XML” என்பதைத் தேர்ந்தெடுக்கவும் -> அங்கீகரிப்பு வகையாக “QuantumLock” என்பதைத் தேர்ந்தெடுக்கவும் -> உங்கள் கடவுச்சொல்லை உள்ளிட்டு XML கோப்பைச் சேமிக்க “Export” என்பதைத் தேர்ந்தெடுக்கவும்."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Delinea இல் உள்நுழைந்து, “Import/Export” எனத் தேடவும் -> “Export” என்பதைத் தேர்ந்தெடுக்கவும் -> ஏற்றுமதி வடிவமாக “CSV” என்பதைத் தேர்ந்தெடுக்கவும் -> அங்கீகரிப்பு வகையாக “QuantumLock” என்பதைத் தேர்ந்தெடுக்கவும் -> உங்கள் கடவுச்சொல்லை உள்ளிட்டு CSV கோப்பைச் சேமிக்க “Export” என்பதைத் தேர்ந்தெடுக்கவும்."
   },
   "confirmVaultImport": {
     "message": "வால்ட் இறக்குமதியை உறுதிப்படுத்தவும்"
@@ -5384,40 +5450,40 @@
     "message": "கோப்பு கடவுச்சொல்லை உறுதிப்படுத்தவும்"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass முதன்மை கடவுச்சொல்"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "விசைக் கோப்பைச் சேர்க்கவும்"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "விசைக் கோப்புப் பதிவேற்றம்"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX கோப்புப் பதிவேற்றம்"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "ஏற்றுக்கொள்ளப்படும் வடிவங்கள்: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "தரவு சரியாக வடிவமைக்கப்படவில்லை. உங்கள் இறக்குமதி கோப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
   },
   "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+    "message": "இந்தக் கோப்பு சரியான KeePass தரவுத்தளம் (.kdbx) அல்ல. .kdbx கோப்பைத் தேர்ந்தெடுத்து மீண்டும் முயற்சிக்கவும்."
   },
   "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
+    "message": "இந்த KeePass தரவுத்தளம் இறக்குமதி செய்வதற்கு மிகவும் பெரியதாக உள்ளது."
   },
   "exportSuccess": {
     "message": "வால்ட் தரவு ஏற்றுமதி செய்யப்பட்டது"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "உங்கள் பெட்டகத் தரவை ஏற்றுமதி செய்யும் போது பிழை ஏற்பட்டது"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "ஏற்றுமதியின் போது 1 சிதைந்த இணைப்பு தவிர்க்கப்பட்டது. மற்ற அனைத்து பெட்டகத் தரவுகளும் இணைப்புகளும் வெற்றிகரமாக ஏற்றுமதி செய்யப்பட்டன."
   },
   "exportSuccessSkippedAttachments": {
-    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "message": "ஏற்றுமதியின் போது $COUNT$ சிதைந்த இணைப்புகள் தவிர்க்கப்பட்டன. மற்ற அனைத்து பெட்டகத் தரவுகளும் இணைப்புகளும் வெற்றிகரமாக ஏற்றுமதி செய்யப்பட்டன.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5510,7 +5576,7 @@
     "message": "பல காரணி அங்கீகாரம் தோல்வியடைந்தது"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Keeper உடன் தொடர்புகொள்வதில் சிக்கல் ஏற்பட்டது. இறக்குமதியை மீண்டும் முயற்சிக்கவும்."
   },
   "includeSharedFolders": {
     "message": "பகிரப்பட்ட கோப்புறைகளைச் சேர்"
@@ -5561,43 +5627,43 @@
     "message": "உங்கள் LastPass கணக்குடன் தொடர்புடைய YubiKey-யை உங்கள் கம்ப்யூட்டரின் USB போர்ட்டில் செருகவும், பின்னர் அதன் பட்டனைத் தொடவும்."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Keeper மின்னஞ்சல்"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Keeper-இல் உள்நுழைய நீங்கள் பயன்படுத்தும் மின்னஞ்சலை உள்ளிடவும்"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "தரவு மைய இருப்பிடம்"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Keeper முதன்மை கடவுச்சொல்"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "உங்கள் Keeper முதன்மை கடவுச்சொல்லை உள்ளிடவும்"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "உங்கள் இரண்டு காரணி முறையிலிருந்து குறியீட்டை உள்ளிடவும்"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "உங்கள் அங்கீகாரப் பயன்பாட்டிலிருந்து குறியீட்டை உள்ளிடவும்"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "உரைச் செய்தி மூலம் அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "உங்கள் Keeper DNA பயன்பாட்டிலிருந்து குறியீட்டை உள்ளிடவும்"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "நிர்வாகி ஒப்புதல்"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "உங்கள் நிர்வாகிக்கு நிர்வாக ஒப்புதல் கோரிக்கையை அனுப்பியுள்ளோம்"
   },
   "method": {
-    "message": "Method"
+    "message": "முறை"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "நேரடி இறக்குமதியாளர்"
   },
   "csv": {
     "message": "CSV"
@@ -5606,76 +5672,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "SSO அங்கீகாரம் தேவை"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "உங்கள் Keeper கணக்கிற்கு SSO அங்கீகாரம் தேவைப்படுகிறது. திறக்கப்பட்ட உலாவி சாளரத்தில் உள்நுழைவை முடித்து, பக்கத்தில் காட்டப்பட்டுள்ள டோக்கனை ஒட்டவும்."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "திறக்கப்பட்ட உலாவி தாவலில் உள்நுழைவை முடிக்கவும். டோக்கன் தானாகவே பெறப்படும்."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "SSO டோக்கன்"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Keeper அங்கீகாரம் தேவை"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Keeper சாதன ஒப்புதல் தேவை"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "ஒப்புதல் முறைகள்"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "சாதன ஒப்புதல் தேவை"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "கீழே உள்ள ஒரு முறையைத் தேர்ந்தெடுத்து இந்தச் சாதனத்திற்கு ஒப்புதல் அளிக்கவும்"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "இரண்டு காரணி முறை"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "மின்னஞ்சல் சரிபார்ப்பு"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "உங்கள் மின்னஞ்சலைச் சரிபார்த்து கீழே உள்ள சரிபார்ப்புக் குறியீட்டை உள்ளிடவும்"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "ஒப்புதல் அளிக்கப்பட்ட சாதனத்திற்கு Keeper Push அறிவிப்பு அனுப்பப்பட்டது"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push அனுப்பப்பட்டது"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "ஒப்புதல் கோரிக்கை ரத்து செய்யப்படும்"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "நிச்சயமாக வெளியேற விரும்புகிறீர்களா? உங்கள் நிர்வாகி ஒப்புதல் கோரிக்கை ரத்து செய்யப்படும்."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "கோரிக்கையை ரத்து செய்"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Keeper இரண்டு காரணி அங்கீகாரம் தேவை"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "உங்கள் அங்கீகாரப் பயன்பாட்டில் உள்நுழைவு கோரிக்கையை ஏற்கவும். இந்த உரையாடல் தானாகவே மூடப்படும்."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "இரண்டு காரணி முறையைத் தேர்ந்தெடுக்கவும்"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "உங்கள் அடையாளத்தை எவ்வாறு சரிபார்க்க விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்யவும்."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "அங்கீகாரப் பயன்பாடு (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "உரைச் செய்தி (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5684,70 +5750,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "காப்புப்பிரதிக் குறியீடுகள்"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "பாதுகாப்பு விசை (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "பாதுகாப்பு விசை (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA சரிபார்ப்பு"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "உங்கள் சாதனத்தில் Keeper DNA அறிவிப்பை ஏற்கவும்"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Keeper DNA முறையைத் தேர்ந்தெடுக்கவும்"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Keeper DNA மூலம் எவ்வாறு சரிபார்க்க விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்யவும்."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "புஷ் அறிவிப்பு"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "குறியீட்டை கைமுறையாக உள்ளிடவும்"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "இரண்டு காரணி அங்கீகாரம்"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "தெரியாத முறை"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Duo முறையைத் தேர்ந்தெடுக்கவும்"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Duo Security மூலம் எவ்வாறு சரிபார்க்க விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்யவும்."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "தொலைபேசி அழைப்பு"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo சரிபார்ப்பு"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "உங்கள் சாதனத்தில் Duo புஷ் அறிவிப்பை ஏற்கவும்."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "உங்கள் தொலைபேசிக்கு ஓர் உரைச் செய்தி அனுப்பப்பட்டுள்ளது. தொடர Duo பயன்பாட்டில் குறியீட்டை உள்ளிடவும்."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Duo-விலிருந்து வரும் தொலைபேசி அழைப்பிற்குப் பதிலளித்து வழிமுறைகளைப் பின்பற்றவும்."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "மற்றொரு முறையை முயற்சிக்கவும்"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "உங்கள் Keeper கணக்கிற்கு ஒரு இரு காரணி அங்கீகார முறை தேவைப்படுகிறது, ஆனால் அது நேரடி இறக்குமதியாளரால் தற்போது ஆதரிக்கப்படவில்லை."
   },
   "switchAccount": {
     "message": "கணக்கை மாற்று"
@@ -5864,11 +5930,11 @@
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerCalloutTitle": {
-    "message": "Make your autofill experience better",
+    "message": "உங்கள் தானியங்கு நிரப்புதல் அனுபவத்தை சிறந்ததாக்குங்கள்",
     "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
   },
   "defaultPasswordManagerCalloutDesc": {
-    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "message": "Bitwarden-ஐ உங்கள் இயல்புநிலை கடவுச்சொல் மேலாளராக மாற்ற $BROWSER$ உலாவி அனுமதியை வழங்குமாறு கேட்கப்படுவீர்கள்.",
     "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
     "placeholders": {
       "browser": {
@@ -5890,35 +5956,35 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Make Bitwarden your browser's default password manager"
+    "message": "Bitwarden-ஐ உங்கள் உலாவியின் இயல்புநிலை கடவுச்சொல் மேலாளராக அமைக்கவும்"
   },
   "defaultPasswordManagerPromptTitleV2": {
-    "message": "Make Bitwarden your default password manager",
+    "message": "Bitwarden-ஐ உங்கள் இயல்புநிலை கடவுச்சொல் மேலாளராக அமைக்கவும்",
     "description": "Label for the setting to make Bitwarden the default password manager"
   },
   "defaultPasswordManagerSettingHintV2": {
-    "message": "Turn off the browser autofill settings to avoid conflicts.",
+    "message": "முரண்பாடுகளைத் தவிர்க்க உலாவி தானியங்கு நிரப்புதல் அமைப்புகளை முடக்கவும்.",
     "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
   "defaultPasswordManagerSettingHintLinkV2": {
-    "message": "Manage browser settings",
+    "message": "உலாவி அமைப்புகளை நிர்வகிக்கவும்",
     "description": "Link text to browser autofill settings in the default password manager setting hint."
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
-    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+    "message": "உங்கள் அமைப்புகளை மாற்ற Bitwarden-க்கு அனுமதி வழங்க உலாவி அறிவுறுத்தலில் இருந்து."
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+    "message": "பாதுகாப்பான உள்நுழைவு அனுபவத்தை நீங்கள் பெற உங்கள் உலாவியின் உள்ளமைக்கப்பட்ட கடவுச்சொல் மேலாளரை நாங்கள் முடக்குவோம்."
   },
   "defaultPasswordManagerSuccessToast": {
-    "message": "Made Bitwarden your default browser password manager"
+    "message": "Bitwarden உங்கள் இயல்புநிலை உலாவி கடவுச்சொல் மேலாளராக அமைக்கப்பட்டது"
   },
   "allow": {
-    "message": "Allow",
+    "message": "அனுமதி",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "தவிர்"
   },
   "saveCipherAttemptSuccess": {
     "message": "சான்றுகள் வெற்றிகரமாகச் சேமிக்கப்பட்டன!",
@@ -5947,10 +6013,10 @@
     "message": "பாஸ்கியை அகற்று"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Passkey ஐ நீக்கவும்"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "இந்த Passkey உங்கள் உள்நுழைவு உருப்படியிலிருந்து நிரந்தரமாக நீக்கப்படும். இதைச் செயல்தவிர்க்க முடியாது."
   },
   "passkeyRemoved": {
     "message": "பாஸ்கி அகற்றப்பட்டது"
@@ -5974,10 +6040,10 @@
     "message": "ஃபில்ட்டர்களை அகற்றுங்கள் அல்லது வேறு தேடல் சொல்லை முயற்சிக்கவும்"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "பகிர்ந்த கோப்புறைகள் எதுவும் சேர்க்கப்படவில்லை"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "பெட்டக உருப்படிகளை பிற உறுப்பினர்களுடன் பாதுகாப்பாகப் பகிர, பகிர்ந்த கோப்புறையைச் சேர்க்கவும்."
   },
   "moreOptionsLabel": {
     "message": "மேலும் விருப்பத்தேர்வுகள், $ITEMNAME$",
@@ -5990,7 +6056,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "கூடுதல் விருப்பங்கள்"
   },
   "moreOptionsTitle": {
     "message": "மேலும் விருப்பத்தேர்வுகள் - $ITEMNAME$",
@@ -6051,20 +6117,20 @@
     }
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "எந்த மதிப்பும் உள்ளிடப்படவில்லை",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "நகலெடுக்க எந்த விவரங்களும் இல்லை"
   },
   "assignToCollections": {
     "message": "சேகரிப்புகளுக்கு ஒதுக்கு"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "பகிர்ந்த கோப்புறையில் சேர்க்கவும்"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "மாற்றிச் சேர்க்கவும்"
   },
   "copyEmail": {
     "message": "மின்னஞ்சலை நகலெடு"
@@ -6076,55 +6142,55 @@
     "message": "முகவரியை நகலெடு"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "எனது உருப்படிகள்"
   },
   "adminConsole": {
     "message": "நிர்வாகக் கன்சோல்"
   },
   "admin": {
-    "message": "Admin"
+    "message": "நிர்வாகி"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "தானியங்கி பயனர் உறுதிப்படுத்தல்"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "இந்தச் சாதனம் திறக்கப்பட்டிருக்கும்போது காத்திருக்கும் பயனர்களைத் தானாகவே உறுதிப்படுத்தவும்"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "தானியங்கு பயனர் உறுதிப்படுத்தல் மூலம் நேரத்தைச் சேமிக்கவும்"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "இது உங்கள் நிறுவனத்தின் தரவுப் பாதுகாப்பைப் பாதிக்கலாம். "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "அபாயங்களைப் பற்றி அறிக"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "புதிய பயனர்களைத் தானாகவே உறுதிப்படுத்தவும்"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "இந்தச் சாதனம் திறக்கப்பட்டிருக்கும் போது புதிய பயனர்கள் தானாகவே உறுதிப்படுத்தப்படுவார்கள்."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "சாத்தியமான பாதுகாப்பு அபாயங்கள் என்ன?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "தானியங்கு உறுதிப்படுத்தல் இயக்கப்பட்டது"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "இப்போது கிடைக்கிறது"
   },
   "accountSecurity": {
     "message": "கணக்கு பாதுகாப்பு"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "ஃபிஷிங் தடுப்பான்"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "ஃபிஷிங் கண்டறிதல்"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "சந்தேகத்திற்குரிய ஃபிஷிங் தளங்களை அணுகும் முன் எச்சரிக்கையைக் காண்பி"
   },
   "notifications": {
     "message": "அறிவிப்புகள்"
@@ -6159,27 +6225,27 @@
     }
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "உள்நுழைவைப் பார்க்கவும்",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "அட்டையைப் பார்க்கவும்",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "அடையாளத்தைப் பார்க்கவும்",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "குறிப்பைப் பார்க்கவும்",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "உருவாக்கவும்",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "தொகுப்பைச் சேர்க்கவும்"
   },
   "new": {
     "message": "புதியது"
@@ -6210,7 +6276,7 @@
     "message": "உரிமையாளர்"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "பகிர்ந்த கோப்புறை $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6219,7 +6285,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "தொகுப்பு $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6228,7 +6294,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "எனது கோப்புறை $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6237,7 +6303,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "கோப்புறை $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6246,7 +6312,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "உரிமையாளர் $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6255,7 +6321,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "பெட்டகம் $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6316,7 +6382,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "இணைப்பைப் பதிவிறக்கு"
   },
   "downloadBitwarden": {
     "message": "Bitwarden-ஐப் பதிவிறக்கு"
@@ -6420,10 +6486,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "செயலி (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "செயலி (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -6439,10 +6505,10 @@
     "message": "வலைத்தளத்தைச் சேர்"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "இணையதளம் அல்லது செயலியைச் சேர்க்கவும்"
   },
   "app": {
-    "message": "App"
+    "message": "செயலி"
   },
   "deleteWebsite": {
     "message": "வலைத்தளத்தை நீக்கு"
@@ -6477,10 +6543,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "பொருத்தம் கண்டறிதலைக் காட்டு"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "பொருத்தம் கண்டறிதலை மறை"
   },
   "autoFillOnPageLoad": {
     "message": "பக்கத்தை ஏற்றும்போது தானாக நிரப்ப வேண்டுமா?"
@@ -6534,13 +6600,13 @@
     "message": "இந்தச் சேகரிப்புகளை அணுகும் நிறுவன உறுப்பினர்கள் மட்டுமே இந்த உருப்படியைப் பார்க்க முடியும்."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "இந்தப் பகிர்ந்த கோப்புறைகளுக்கான அணுகல் உள்ள வால்ட் உறுப்பினர்களால் மட்டுமே இந்த உருப்படியைப் பார்க்க முடியும்."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "இந்தச் சேகரிப்புகளை அணுகும் நிறுவன உறுப்பினர்கள் மட்டுமே இந்த உருப்படிகளைப் பார்க்க முடியும்."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "இந்தப் பகிர்ந்த கோப்புறைகளுக்கான அணுகல் உள்ள வால்ட் உறுப்பினர்களால் மட்டுமே இந்த உருப்படிகளைப் பார்க்க முடியும்."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "நீங்கள் $TOTAL_COUNT$ உருப்படிகளைத் தேர்ந்தெடுத்துள்ளீர்கள். உங்களால் $READONLY_COUNT$ உருப்படிகளைப் புதுப்பிக்க முடியாது, ஏனெனில் உங்களிடம் திருத்துவதற்கான அனுமதிகள் இல்லை.",
@@ -6579,7 +6645,7 @@
     "message": "ஒரு குறிப்பிட்ட இணையதளத்திற்கு தானாக நிரப்புவதில் சிக்கல்கள் இருந்தால் ஒரு இணைக்கப்பட்ட புலத்தைப் பயன்படுத்தவும்."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "புலத்தின் HTML id, name, aria-label அல்லது placeholder ஐ உள்ளிடவும்."
   },
   "editField": {
     "message": "புலத்தை திருத்தவும்"
@@ -6647,7 +6713,7 @@
     "message": "1 பொருள் தேர்ந்தெடுக்கப்பட்ட நிறுவனத்திற்கு நிரந்தரமாக மாற்றப்படும். இந்தப் பொருள் இனி உங்களிடம் இருக்காது."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 உருப்படி தேர்ந்தெடுக்கப்பட்ட வால்ட்டிற்கு நிரந்தரமாக மாற்றப்படும். இனி இந்த உருப்படி உங்களுக்குச் சொந்தமாக இருக்காது."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ பொருள்கள் தேர்ந்தெடுக்கப்பட்ட நிறுவனத்திற்கு நிரந்தரமாக மாற்றப்படும். இந்தப் பொருள்கள் இனி உங்களிடம் இருக்காது.",
@@ -6659,7 +6725,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ உருப்படிகள் தேர்ந்தெடுக்கப்பட்ட வால்ட்டிற்கு நிரந்தரமாக மாற்றப்படும். இனி இந்த உருப்படிகள் உங்களுக்குச் சொந்தமாக இருக்காது.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6693,37 +6759,37 @@
     "message": "சேகரிப்புகள் வெற்றிகரமாக ஒதுக்கப்பட்டன"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "பகிர்ந்த கோப்புறைகள் வெற்றிகரமாகச் சேர்க்கப்பட்டன"
   },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "உருப்படி தொகுப்பிற்கு நகர்த்தப்பட்டது"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "உருப்படி பகிர்ந்த கோப்புறையில் சேர்க்கப்பட்டது"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "உருப்படி தொகுப்புகளுக்கு நகர்த்தப்பட்டது"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "உருப்படி பகிர்ந்த கோப்புறைகளில் சேர்க்கப்பட்டது"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "உருப்படிகள் தொகுப்பிற்கு நகர்த்தப்பட்டன"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "உருப்படிகள் பகிர்ந்த கோப்புறையில் சேர்க்கப்பட்டன"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "உருப்படிகள் தொகுப்புகளுக்கு நகர்த்தப்பட்டன"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "உருப்படிகள் பகிர்ந்த கோப்புறைகளில் சேர்க்கப்பட்டன"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "உருப்படி தொகுப்புகளுக்கு ஒதுக்கப்பட்டது"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "உருப்படிகள் தொகுப்புகளுக்கு ஒதுக்கப்பட்டன"
   },
   "nothingSelected": {
     "message": "நீங்கள் எதையும் தேர்ந்தெடுக்கவில்லை."
@@ -6775,7 +6841,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "itemSends": {
-    "message": "Item Sends",
+    "message": "உருப்படி Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
@@ -6797,7 +6863,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "பெட்டகத்தில் விரைவு நகல் செயல்களைக் காட்டவும்"
   },
   "systemDefault": {
     "message": "சிஸ்டம் இயல்புநிலை"
@@ -6852,6 +6918,9 @@
   },
   "noItemsInTrashDesc": {
     "message": "நீங்கள் நீக்கிய பொருள்கள் இங்கு தோன்றும் மற்றும் 30 நாட்களுக்குப் பிறகு நிரந்தரமாக நீக்கப்படும்"
+  },
+  "noItemsInTrashDescription": {
+    "message": "நீங்கள் நீக்கும் உருப்படிகள் இங்கே தோன்றும் மற்றும் 30 நாட்களுக்குப் பிறகு நிரந்தரமாக நீக்கப்படும்."
   },
   "trashWarning": {
     "message": "30 நாட்களுக்கும் மேலாக குப்பையில் இருந்த பொருள்கள் தானாகவே நீக்கப்படும்"
@@ -7070,7 +7139,7 @@
     "message": "அதிக அகலமானது"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "குறுகிய"
   },
   "sshKeyWrongPassword": {
     "message": "நீங்கள் உள்ளிடப்பட்ட கடவுச்சொல் தவறானது."
@@ -7109,7 +7178,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "பார்வை மட்டும் (View only) அனுமதிகளைக் கொண்ட பகிர்ந்த கோப்புறைகளை நீங்கள் அகற்ற முடியாது: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -7124,10 +7193,10 @@
     "message": "இந்த உள்நுழைவு ஆபத்தில் உள்ளது, மேலும் அதில் ஒரு வலைத்தளமும் இல்லை. வலுவான பாதுகாப்பிற்காக ஒரு வலைத்தளத்தைச் சேர்த்து கடவுச்சொல்லை மாற்றவும்."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "பாதிக்கப்படக்கூடிய கடவுச்சொல்."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "இப்போதே மாற்றவும்"
   },
   "missingWebsite": {
     "message": "காணாமல் போன வலைத்தளம்"
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "சேமிப்பு பெட்டகம் உங்கள் கடவுச்சொற்களை மட்டுமல்லாமல், பாதுகாப்பான உள்நுழைவுகள், அடையாளங்கள், அட்டைகள் மற்றும் குறிப்புகளையும் இங்கு பாதுகாக்கிறது."
+  },
+  "emptyVaultsDescription": {
+    "message": "தொடங்குவதற்கு உள்நுழைவுகள், அடையாளங்கள், அட்டைகள் மற்றும் பிற உருப்படிகளைச் சேர்க்கவும்."
+  },
+  "emptySharedFolderDescription": {
+    "message": "இந்த பகிர்ந்த கோப்புறையில் உருப்படிகளைச் சேர்த்து, பிற $VAULT_NAME$ உறுப்பினர்களுக்கு அணுகலை வழங்கவும்.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "எனது உருப்படிகள் என்பது $VAULT_NAME$ நிறுவனத்திற்குச் சொந்தமான, ஆனால் பிற உறுப்பினர்களால் பார்க்க முடியாத உருப்படிகளைச் சேமிப்பதற்கான உங்கள் பிரத்தியேக இடமாகும்.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "உங்களிடம் கோப்புறைகள் எதுவும் இல்லை."
+  },
+  "emptyFoldersDescription": {
+    "message": "பெட்டக உருப்படிகளை ஒழுங்கமைக்க கோப்புறைகளைப் பயன்படுத்தவும். அவை உங்களுக்காக மட்டுமே — வேறு யாரும் அவற்றைப் பார்க்கவோ பயன்படுத்தவோ முடியாது."
   },
   "introCarouselLabel": {
     "message": "Bitwarden க்கு நல்வரவு"
@@ -7294,7 +7390,7 @@
     "message": "உங்கள் அனுபவத்தை மேம்படுத்த எந்த ஐகான் அல்லது கடவுச்சொல்லை மாற்ற URL ஐப் பயன்படுத்த வேண்டும் என்பதை அடையாளம் காண பிட்வார்டன் சேமிக்கப்பட்ட உள்நுழைவு URIகளைப் பயன்படுத்தும். நீங்கள் இந்த சேவையைப் பயன்படுத்தும்போது எந்த தகவலும் சேகரிக்கப்படாது அல்லது சேமிக்கப்படாது."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "உங்கள் பயனர்பெயர், கடவுச்சொல் அல்லது சரிபார்ப்புக் குறியீட்டை கிளிப்போர்டுக்கு நகலெடுக்க உருப்படிகளுக்கு அடுத்து 3 விரைவு நகல் பொத்தான்களைச் சேர்க்கவும்."
   },
   "noPermissionsViewPage": {
     "message": "இந்த பக்கத்தைக் காண உங்களுக்கு அனுமதிகள் இல்லை. வேறு கணக்குடன் உள்நுழைய முயற்சிக்கவும்."
@@ -7307,7 +7403,7 @@
     "message": "மேலும் காட்டு"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "மேலும் $COUNT$ ஐக் காட்டு",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7385,46 +7481,46 @@
     "message": "அட்டை எண்"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "பிழை: மறைகுறியாக்க முடியாது"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "உங்கள் நிறுவனம் Bitwarden-இல் உள்நுழைய இனி முதன்மை கடவுச்சொற்களைப் பயன்படுத்துவதில்லை. தொடர, நிறுவனம் மற்றும் டொமைனைச் சரிபார்க்கவும்."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "உள்நுழைவுடன் தொடரவும்"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "தொடர வேண்டாம்"
   },
   "domain": {
-    "message": "Domain"
+    "message": "டொமைன்"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "இந்த டொமைன் உங்கள் கணக்கின் குறியாக்க விசைகளைச் சேமிக்கும், எனவே இதை நீங்கள் நம்புகிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள். உங்களுக்குத் தெரியவில்லை என்றால், உங்கள் நிர்வாகியிடம் சரிபார்க்கவும்."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "உள்நுழைய உங்கள் நிறுவனத்தைச் சரிபார்க்கவும்"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "நிறுவனம் சரிபார்க்கப்பட்டது"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "டொமைன் சரிபார்க்கப்பட்டது"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "உங்கள் நிறுவனத்தை நீங்கள் சரிபார்க்காவிட்டால், நிறுவனத்திற்கான உங்கள் அணுகல் ரத்து செய்யப்படும்."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "இப்போது வெளியேறவும்"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "உள்நுழைய உங்கள் டொமைனைச் சரிபார்க்கவும்"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "உள்நுழைவைத் தொடர, இந்த டொமைனைச் சரிபார்க்கவும்."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "உள்நுழைவைத் தொடர, நிறுவனம் மற்றும் டொமைனைச் சரிபார்க்கவும்."
   },
   "sessionTimeoutSettingsAction": {
     "message": "காலாவதி நடவடிக்கை"
@@ -7474,10 +7570,10 @@
     "message": "உங்கள் காலாவதி செயலை மாற்ற ஒரு திறத்தல் முறையை அமைக்கவும்"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "Bitwarden உலாவி நீட்டிப்புச் செயலியால் நிர்வகிக்கப்படுகிறது. திருத்துவதற்கு உலாவிச் செயலியைத் திறக்கவும்."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% முடிந்தது",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -7486,19 +7582,19 @@
     }
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "மேம்படுத்து"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "நிச்சயமாக வெளியேற விரும்புகிறீர்களா?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "நிராகரிப்பதன் மூலம், உங்கள் தனிப்பட்ட உருப்படிகள் உங்கள் கணக்கிலேயே இருக்கும், ஆனால் பகிர்ந்த உருப்படிகள் மற்றும் நிறுவனத்தின் அம்சங்களுக்கான அணுகலை நீங்கள் இழப்பீர்கள்."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "மீண்டும் அணுகலைப் பெற உங்கள் நிர்வாகியைத் தொடர்பு கொள்ளவும்."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$-லிருந்து வெளியேறவும்",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7507,10 +7603,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "எனது பெட்டகத்தை எவ்வாறு நிர்வகிப்பது?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "உருப்படிகளை $ORGANIZATION$-க்கு மாற்றவும்",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7519,7 +7615,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "பாதுகாப்பு மற்றும் இணக்கத்திற்காக அனைத்து உருப்படிகளும் நிறுவனத்திற்குச் சொந்தமானதாக இருக்க வேண்டும் என்று $ORGANIZATION$ கோருகிறது.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7528,46 +7624,46 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "உங்கள் உருப்படிகளின் உரிமையை மாற்ற ஏற்கவும் என்பதைக் கிளிக் செய்யவும்."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "உருப்படிகளை மாற்றுவது குறித்த உதவி கட்டுரையைத் திறக்கவும்"
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "பரிமாற்றத்தை ஏற்கவும்"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "நிராகரித்து வெளியேறவும்"
   },
   "items": {
-    "message": "Items"
+    "message": "உருப்படிகள்"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "தேடல் முடிவுகள்"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "எளிமைப்படுத்தப்பட்ட தானியங்கு நிரப்புதல்"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "பரிந்துரைக்கப்பட்ட தானியங்கு நிரப்புதல் உருப்படியைக் கிளிக் செய்யும்போது, அது விவரங்களுக்கு உங்களை அழைத்துச் செல்வதற்குப் பதிலாக நிரப்புகிறது. கூடுதல் மெனுவிலிருந்து இந்த உருப்படிகளை நீங்கள் தொடர்ந்து பார்க்கலாம்."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "எளிமைப்படுத்தப்பட்ட தானியங்கு நிரப்புதல் பாப்ஓவரைத் திற"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "பக்க வழிசெலுத்தலின் அளவை மாற்றவும்"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "யார் பார்க்கலாம்"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "குறிப்பிட்ட நபர்கள்"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "இந்த Send இணைப்பைப் பகிர்ந்த பிறகு, இந்த Send-ஐப் பார்க்க தனிநபர்கள் ஒரு குறியீட்டைக் கொண்டு தங்கள் மின்னஞ்சலைச் சரிபார்க்க வேண்டும்."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "காற்புள்ளியால் பிரித்து பல மின்னஞ்சல்களை உள்ளிடவும்."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -7576,196 +7672,196 @@
     "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Bitwarden பயன்பாடுகளைப் பதிவிறக்கவும்"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "மின்னஞ்சல் பாதுகாக்கப்பட்டது"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "இந்த Send-ஐப் பார்க்க தனிநபர்கள் கடவுச்சொல்லை உள்ளிட வேண்டும்",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "பயனர் சரிபார்ப்பு தோல்வியடைந்தது."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "பகிரப்பட்ட திறத்தல்"
   },
   "sharedUnlockWithDesktop": {
-    "message": "Share unlock with Desktop"
+    "message": "டெஸ்க்டாப்புடன் திறத்தலைப் பகிரவும்"
   },
   "sharedUnlockWithDesktopDescription": {
-    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
+    "message": "இயக்கப்பட்டதும், திறத்தல் நிலை Bitwarden Desktop பயன்பாட்டுடன் பகிரப்படும்."
   },
   "sharedUnlockWithWeb": {
-    "message": "Share unlock with web vault"
+    "message": "வலைப் பெட்டகத்துடன் திறத்தலைப் பகிரவும்"
   },
   "sharedUnlockWithWebDescription": {
-    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+    "message": "இயக்கப்பட்டதும், திறத்தல் நிலை Bitwarden வலைப் பெட்டகங்களுடன் பகிரப்படும்."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
-    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+    "message": "இந்தச் சாதனத்தை நினைவில் வைத்திருக்க வேண்டாம் என்று நீங்கள் தேர்வுசெய்ததால் பகிரப்பட்ட திறத்தல் கிடைக்கவில்லை. இந்த அமைப்பை இயக்க, மீண்டும் உள்நுழைய முயற்சிக்கவும்."
   },
   "newPermissionNeeded": {
-    "message": "New permission needed"
+    "message": "புதிய அனுமதி தேவை"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "பகிரப்பட்ட திறத்தலைப் பயன்படுத்த, டெஸ்க்டாப் பயன்பாட்டுடன் தொடர்புகொள்ள Bitwarden-க்கு அனுமதி தேவை. நீங்கள் தொடரும்போது, அதை அங்கீகரிக்குமாறு உங்கள் உலாவி கேட்கும்."
   },
   "sharedUnlockDesktopPermissionWarning": {
-    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+    "message": "Bitwarden பூட்டப்பட்டு மீண்டும் ஏற்றப்படும். நீங்கள் அங்கீகரித்த பிறகு, நீட்டிப்பு மீண்டும் ஏற்றப்பட்டு உங்கள் பெட்டகத்தைப் பூட்டும்."
   },
   "biometricPermissionDesc": {
-    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "பயோமெட்ரிக் திறத்தலைப் பயன்படுத்த, டெஸ்க்டாப் பயன்பாட்டுடன் தொடர்புகொள்ள Bitwarden-க்கு அனுமதி தேவை. நீங்கள் தொடரும்போது, அதை அங்கீகரிக்குமாறு உங்கள் உலாவி கேட்கும்."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "மாதத்தை உள்ளிடவும்."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "நாளை உள்ளிடவும்."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "ஆண்டை உள்ளிடவும்."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "சரியான நாளை உள்ளிடவும்."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "சரியான ஆண்டை உள்ளிடவும்."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "உரிமங்களைத் தேடு"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "வங்கிப் பெயர்"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "கணக்கில் உள்ள பெயர்"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "கணக்கு வகை"
   },
   "bankAccountTypeCompany": {
-    "message": "Company (business)"
+    "message": "நிறுவனம்"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual (personal)"
+    "message": "தனிநபர்"
   },
   "accountNumber": {
-    "message": "Account number"
+    "message": "கணக்கு எண்"
   },
   "bankRoutingNumber": {
-    "message": "Routing number",
+    "message": "ரூட்டிங் எண்",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
-    "message": "Branch/institution number"
+    "message": "கிளை/நிறுவன எண்"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT குறியீடு"
   },
   "iban": {
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "வங்கி தொடர்பு தொலைபேசி எண்"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "வங்கிக் கணக்கைத் தேடு"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "கடவுச்சீட்டுகளைத் தேடு"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "கணக்கு எண்ணை நகலெடு"
   },
   "copyRoutingNumber": {
-    "message": "Copy routing number"
+    "message": "ரூட்டிங் எண்ணை நகலெடு"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "PIN-ஐ நகலெடு"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "IBAN-ஐ நகலெடு"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "கணக்கில் உள்ள பெயரை நகலெடு"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "கிளை எண்ணை நகலெடு"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "SWIFT குறியீட்டை நகலெடு"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "செக்கிங்"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "சேமிப்பு"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "டெபாசிட் சான்றிதழ்"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "கடன் வரம்பு"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "முதலீடு/புரோக்கரேஜ்"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "பணச் சந்தை"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "பிற"
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "பதிவிறக்க முடியவில்லை."
   },
   "more": {
-    "message": "More"
+    "message": "மேலும்"
   },
   "maxAccessCount": {
-    "message": "Maximum access count",
+    "message": "அதிகபட்ச அணுகல் எண்ணிக்கை",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "பெறுநர்களிடமிருந்து எனது மின்னஞ்சல் முகவரியை மறை."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "உரையைக் காண்க"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "கோப்பைக் காண்க"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send உருவாக்கப்பட்டது",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "உள்ளீடு எண்களாக மட்டுமே இருக்க வேண்டும்"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "உள்ளீடு முழு எண்ணாக இருக்க வேண்டும்"
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "பக்க வழிசெலுத்தல்"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "இணைப்பைத் தவிர்"
   },
   "callout": {
-    "message": "Callout",
+    "message": "முக்கிய அறிவிப்புக்குறிப்பு",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "முன்னேற்றப் பட்டை",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "உங்கள் நிறுவனத்திற்கு மின்னஞ்சல் தெரிவுநிலை தேவைப்படுகிறது. சேமிக்க \"பார்வையாளர்களிடமிருந்து உங்கள் மின்னஞ்சலை மறை\" என்பதைத் தேர்வுநீக்கவும்."
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "பின்வரும் டொமைன்களை மட்டுமே சேர்க்கவும்: $DOMAINS$. தயவுசெய்து மதிப்பாய்வு செய்து மீண்டும் முயற்சிக்கவும்",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -7773,39 +7869,39 @@
     }
   },
   "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "Not compliant with your organization's Send policy",
+    "message": "உங்கள் நிறுவனத்தின் Send கொள்கைக்கு இணங்கவில்லை",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "message": "இந்த Send-ஐத் திருத்த, ஒரு நகலை உருவாக்கவும். நிர்ணயிக்கப்பட்ட நீக்கல் தேதியில் இந்த Send காலாவதியாகலாம் என்றால், எந்த நடவடிக்கையும் தேவையில்லை",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "ஒரு நகலை உருவாக்கவும்"
   },
   "orgDoesNotAllowTextSends": {
-    "message": "Text Sends are not allowed for your organization",
+    "message": "உங்கள் நிறுவனத்திற்கு உரை Send-கள் அனுமதிக்கப்படவில்லை",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowFileSends": {
-    "message": "File Sends are not allowed for your organization",
+    "message": "உங்கள் நிறுவனத்திற்கு கோப்பு Send-கள் அனுமதிக்கப்படவில்லை",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendWillAutomaticallyExpire": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "இந்த Send நிர்ணயிக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "பல தொகுப்புகளின் பகுதியாக உள்ள உருப்படிகளை 'எனது உருப்படிகள்' என்பதில் இறக்குமதி செய்ய முடியாது"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "உருப்படியைச் சேமிக்க முடியவில்லை. உருப்படிகளைச் சேமிக்க நீங்கள் நிறுவனத்தில் உறுதிப்படுத்தப்பட்டிருக்க வேண்டும்."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "உருப்படிகள் ஒரே கோப்புப் பெயரைக் கொண்ட பல இணைப்புகளைக் கொண்டிருக்க முடியாது"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "$ORGNAME$ இந்த நீக்கல் தேதியை அமைத்துள்ளது",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -7814,27 +7910,27 @@
     }
   },
   "health": {
-    "message": "Health"
+    "message": "ஆரோக்கியம்"
   },
   "scanMyVault": {
-    "message": "Scan my vault"
+    "message": "எனது பெட்டகத்தை ஸ்கேன் செய்"
   },
   "introducingHealth": {
-    "message": "Introducing Health"
+    "message": "ஆரோக்கியம் அறிமுகம்"
   },
   "healthIntroDescription": {
-    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+    "message": "வெளிப்படுத்தப்பட்ட, பலவீனமான மற்றும் மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்களைச் சரிசெய்வதன் மூலம் உங்கள் பெட்டகத்தின் ஆரோக்கியத்தைக் கண்காணித்து மேம்படுத்தவும்."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "உங்கள் பெட்டகம் ஆரோக்கியமாக உள்ளது",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "உங்கள் பெட்டகத்தின் ஆபத்து அதிகமாக உள்ளது",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$TOTAL$ இல் $AT_RISK$ கடவுச்சொற்களைச் சரிசெய்ய வேண்டும்",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7848,15 +7944,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "வெளிப்படுத்தப்பட்ட கடவுச்சொற்கள் எதுவும் இல்லை",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "வெளிப்படுத்தப்பட்ட 1 கடவுச்சொல்",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "வெளிப்படுத்தப்பட்ட $COUNT$ கடவுச்சொற்கள்",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7866,23 +7962,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "தரவு மீறல்களில் வெளிப்பட்டது",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "உங்கள் கடவுச்சொற்கள் எதுவும் தரவு மீறல்களில் காணப்படவில்லை",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "பலவீனமான கடவுச்சொற்கள் இல்லை",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 பலவீனமான கடவுச்சொல்",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ பலவீனமான கடவுச்சொற்கள்",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7892,23 +7988,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "மிகவும் குறுகியதாக அல்லது எளிமையாக உள்ளது",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "உங்கள் கடவுச்சொற்கள் அனைத்தும் வலுவானவை",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்கள் இல்லை",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொல்",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்கள்",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7918,74 +8014,74 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "பல உள்நுழைவுகளுக்கு மீண்டும் பயன்படுத்தப்பட்டுள்ளது",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "உங்கள் கடவுச்சொற்கள் அனைத்தும் தனித்துவமானவை",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "கண்டறியப்பட்ட அபாயங்கள்",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "upgradeToViewPasswords": {
-    "message": "Upgrade to view passwords"
+    "message": "கடவுச்சொற்களைப் பார்க்க மேம்படுத்தவும்"
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "எந்த உருப்படிகளுக்கும் கவனம் தேவையில்லை",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   },
   "scanningYourVault": {
-    "message": "Scanning your vault",
+    "message": "உங்கள் பெட்டகம் ஸ்கேன் செய்யப்படுகிறது",
     "description": "Heading shown while the vault health scan is running."
   },
   "scanningYourVaultDescription": {
-    "message": "Checking for exposed, weak, and reused passwords.",
+    "message": "வெளியான, பலவீனமான மற்றும் மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்கள் உள்ளதா எனச் சரிபார்க்கிறது.",
     "description": "Explains what the vault health scan is doing while it runs."
   },
   "scanInProgress": {
-    "message": "In progress",
+    "message": "செயல்பாட்டில் உள்ளது",
     "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
   },
   "healthScanFailed": {
-    "message": "Something went wrong",
+    "message": "ஏதோ தவறு நடந்துவிட்டது",
     "description": "Heading shown when the vault health scan did not complete."
   },
   "healthScanFailedDescription": {
-    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "message": "எதிர்பாராத பிழையின் காரணமாக உங்கள் பெட்டக ஸ்கேன் நிறைவடையவில்லை.",
     "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
-    "message": "Exposed passwords"
+    "message": "வெளியான கடவுச்சொற்கள்"
   },
   "exposedPasswordsDescription": {
-    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+    "message": "இந்த உள்நுழைவுகளுக்கான கடவுச்சொற்கள் தரவு மீறல்களில் வெளியாயின. உங்கள் கணக்குகளைப் பாதுகாக்க அவற்றை உடனடியாக மாற்றவும்."
   },
   "weakPasswordsTitle": {
-    "message": "Weak passwords"
+    "message": "பலவீனமான கடவுச்சொற்கள்"
   },
   "weakPasswordsDescription": {
-    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+    "message": "இந்தக் கடவுச்சொற்கள் மிகவும் குறுகியதாக அல்லது எளிமையாக இருப்பதால் அவற்றை எளிதில் யூகிக்க முடியும். அவற்றை மேலும் சிக்கலானதாக்கி வலுப்படுத்துங்கள்."
   },
   "reusedPasswordsTitle": {
-    "message": "Reused passwords"
+    "message": "மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொற்கள்"
   },
   "reusedPasswordsDescription": {
-    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+    "message": "இந்த உள்நுழைவுகள் மீண்டும் பயன்படுத்தப்பட்ட கடவுச்சொல்லைக் கொண்டுள்ளன. ஒரே கடவுச்சொல் மூலம் ஒருவர் பல கணக்குகளை அணுகுவதைத் தடுக்க ஒவ்வொரு கணக்கிற்கும் தனித்துவமான கடவுச்சொல்லை உருவாக்கவும்."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "முதலில் உங்கள் கடவுச்சொல்லை மாற்றுவதை உறுதிசெய்யவும். நீக்குவது உருப்படியை உங்கள் பெட்டகத்திலிருந்து மட்டுமே அகற்றும், அது அபாயத்தைச் சரிசெய்யாது."
   },
   "passwordHasAdditionalRisks": {
-    "message": "This password has additional risks:"
+    "message": "இந்தக் கடவுச்சொல்லில் கூடுதல் அபாயங்கள் உள்ளன:"
   },
   "reused": {
-    "message": "Reused",
+    "message": "மீண்டும் பயன்படுத்தப்பட்டது",
     "description": "ex. A password that is reused across multiple logins."
   },
   "xTimes": {
-    "message": "$COUNT$ times",
+    "message": "$COUNT$ முறைகள்",
     "description": "The number of times a password is reused. ex. 6 times",
     "placeholders": {
       "count": {
@@ -7995,30 +8091,30 @@
     }
   },
   "exposedPasswordsEmpty": {
-    "message": "None of your passwords were found in data breaches."
+    "message": "உங்கள் கடவுச்சொற்கள் எதுவும் தரவு மீறல்களில் காணப்படவில்லை."
   },
   "weakPasswordEmpty": {
-    "message": "All your passwords are strong."
+    "message": "உங்கள் கடவுச்சொற்கள் அனைத்தும் வலுவானவை."
   },
   "reusedPasswordEmpty": {
-    "message": "All your passwords are unique."
+    "message": "உங்கள் கடவுச்சொற்கள் அனைத்தும் தனித்துவமானவை."
   },
   "youreAllSet": {
-    "message": "You're all set!"
+    "message": "நீங்கள் தயாராகிவிட்டீர்கள்!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "அனுமதிகள்"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "உருப்படிகளைக் காண்க"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "உருப்படிகளைக் காண்க, மறைக்கப்பட்ட கடவுச்சொற்கள்"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "உருப்படிகளைத் திருத்து"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "உருப்படிகளைத் திருத்து, மறைக்கப்பட்ட கடவுச்சொற்கள்"
   }
 }
