@@ -14,6 +14,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -27,6 +28,7 @@ import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { HeaderModule } from "../../layouts/header/header.module";
+import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
 
 import { FreeBitwardenFamiliesComponent } from "./free-bitwarden-families.component";
 
@@ -46,6 +48,7 @@ const mockPlatformUtilsService = { isSelfHost: () => false };
 const mockDialogService: Partial<DialogService> = {};
 const mockToastService = { showToast: () => {} };
 const mockLogService = { error: () => {} };
+const mockGovModeService = { isGovMode$: () => of(false), globalIsGovMode$: of(false) };
 const mockApiService: Partial<ApiService> = {};
 const mockEncryptService: Partial<EncryptService> = {};
 const mockOrganizationSponsorshipApiService: Partial<OrganizationSponsorshipApiServiceAbstraction> =
@@ -76,6 +79,8 @@ export default {
         { provide: KeyService, useValue: mockKeyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: LogService, useValue: mockLogService },
+        { provide: GovModeService, useValue: mockGovModeService },
+        ProductSwitcherService,
         { provide: ToastService, useValue: mockToastService },
         {
           provide: OrganizationSponsorshipApiServiceAbstraction,

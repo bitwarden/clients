@@ -8,6 +8,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
@@ -93,6 +94,7 @@ describe("UserLayoutComponent", () => {
 
   const canArchive$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  const isGovMode$ = new BehaviorSubject<boolean>(false);
 
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
@@ -100,6 +102,7 @@ describe("UserLayoutComponent", () => {
   const policyService = mock<PolicyService>();
   const cipherArchiveService = mock<CipherArchiveService>();
   const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+  const govModeService = mock<GovModeService>();
 
   /** Trimmed text of every rendered nav item and group, in document order. */
   const navText = () =>
@@ -143,6 +146,8 @@ describe("UserLayoutComponent", () => {
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
+    isGovMode$.next(false);
+    govModeService.isGovMode$.mockReturnValue(isGovMode$);
     vaultNavService.viewModel$.mockReturnValue(viewModel$);
 
     await TestBed.configureTestingModule({
@@ -163,6 +168,7 @@ describe("UserLayoutComponent", () => {
         { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
+        { provide: GovModeService, useValue: govModeService },
       ],
     })
       .overrideComponent(UserLayoutComponent, {
@@ -234,6 +240,13 @@ describe("UserLayoutComponent", () => {
       expect(children).toContain("addPlan");
       expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
       expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
+    });
+
+    it("hides Add plan in Gov mode", () => {
+      isGovMode$.next(true);
+      fixture.detectChanges();
+
+      expect(childText(expandGroup("settings"))).not.toContain("addPlan");
     });
   });
 });

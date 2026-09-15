@@ -30,6 +30,7 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -168,6 +169,10 @@ describe("VaultComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: BillingApiServiceAbstraction, useValue: mock<BillingApiServiceAbstraction>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
+        {
+          provide: GovModeService,
+          useValue: { isGovMode$: () => of(false), globalIsGovMode$: of(false) },
+        },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
         {

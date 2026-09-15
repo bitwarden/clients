@@ -28,10 +28,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { BitwardenIcon } from "@bitwarden/components";
+
+import { clientIsGovMode$ } from "../../../platform/gov-mode";
 
 export type ProductSwitcherItem = {
   /**
@@ -116,6 +119,7 @@ export class ProductSwitcherService {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private govModeService: GovModeService,
   ) {
     this.pollUntilSynced();
   }
@@ -134,6 +138,8 @@ export class ProductSwitcherService {
     getUserId,
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
+
+  isGovMode$ = clientIsGovMode$(this.accountService, this.govModeService);
 
   private vfo1Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.VFO1Foundation,
@@ -157,14 +163,16 @@ export class ProductSwitcherService {
     this.organizations$,
     this.providers$,
     this.userHasSingleOrgPolicy$,
+    this.isGovMode$,
     this.vfo1Enabled$,
     this.route.paramMap,
     this.triggerProductUpdate$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, vfo1Enabled, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, isGovMode, vfo1Enabled, paramMap]: [
         Organization[],
         Provider[],
+        boolean,
         boolean,
         boolean,
         ParamMap,
@@ -288,9 +296,10 @@ export class ProductSwitcherService {
 
         if (acOrg) {
           bento.push(products.ac);
-        } else if (!userHasSingleOrgPolicy && !vfo1Enabled) {
+        } else if (!userHasSingleOrgPolicy && !isGovMode && !vfo1Enabled) {
           // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
-          // replaces the Organizations entry point.
+          // replaces the Organizations entry point. Never offered in Gov
+          // environments (PM-40490).
           other.push(products.orgs);
         }
 

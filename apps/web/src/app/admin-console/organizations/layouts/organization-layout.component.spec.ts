@@ -11,6 +11,7 @@ import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -31,6 +32,7 @@ describe("OrganizationLayoutComponent", () => {
   let mockFreeFamiliesPolicyService: MockProxy<FreeFamiliesPolicyService>;
   let mockOrganizationWarningsService: MockProxy<OrganizationWarningsService>;
   let mockAccountService: ReturnType<typeof mockAccountServiceWith>;
+  let mockGovModeService: MockProxy<GovModeService>;
 
   let routeParamsSubject: BehaviorSubject<{ organizationId: OrganizationId }>;
 
@@ -85,6 +87,8 @@ describe("OrganizationLayoutComponent", () => {
     mockFreeFamiliesPolicyService = mock<FreeFamiliesPolicyService>();
     mockOrganizationWarningsService = mock<OrganizationWarningsService>();
     mockAccountService = mockAccountServiceWith(userId);
+    mockGovModeService = mock<GovModeService>();
+    mockGovModeService.isGovMode$.mockReturnValue(of(false));
 
     mockOrganizationService.organizations$.mockReturnValue(of([makeOrg()]));
     mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
@@ -104,6 +108,7 @@ describe("OrganizationLayoutComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
+        { provide: GovModeService, useValue: mockGovModeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -305,6 +310,25 @@ describe("OrganizationLayoutComponent", () => {
         component.refreshTaxIdWarning();
         expect(mockOrganizationWarningsService.refreshTaxIdWarning).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("hideNewOrgButton$", () => {
+    it("is false when neither the single org policy nor Gov mode applies", async () => {
+      const result = await firstValueFrom(component.hideNewOrgButton$);
+      expect(result).toBe(false);
+    });
+
+    it("is true when the single org policy applies", async () => {
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
+      const result = await firstValueFrom(component.hideNewOrgButton$);
+      expect(result).toBe(true);
+    });
+
+    it("is true in Gov mode", async () => {
+      mockGovModeService.isGovMode$.mockReturnValue(of(true));
+      const result = await firstValueFrom(component.hideNewOrgButton$);
+      expect(result).toBe(true);
     });
   });
 });
