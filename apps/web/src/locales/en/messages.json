@@ -18906,6 +18906,94 @@
       }
     }
   },
+  "pamRotationScheduleColumnEveryDay": {
+    "message": "Every day at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDays": {
+    "message": "Every $COUNT$ days at $TIME$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonth": {
+    "message": "Every month at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonths": {
+    "message": "Every $COUNT$ months at $TIME$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Every day at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Every $COUNT$ days at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Every month at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Every $COUNT$ months at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Schedules run in UTC, not your local time zone."
   },
