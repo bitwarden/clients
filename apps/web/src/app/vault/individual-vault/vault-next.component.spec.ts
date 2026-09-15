@@ -6,7 +6,7 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
 
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, Data, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject } from "rxjs";
 
@@ -55,6 +55,7 @@ import {
   CollectionDialogResult,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
 import { VaultNextComponent } from "./vault-next.component";
@@ -80,6 +81,7 @@ describe("VaultNextComponent", () => {
   };
   let configService: MockProxy<ConfigService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
+  let router: MockProxy<Router>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let collectionService: MockProxy<CollectionService>;
   let addItemDialogOpen: jest.SpyInstance;
@@ -208,9 +210,13 @@ describe("VaultNextComponent", () => {
     };
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(false));
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
+
+    router = mock<Router>();
+    router.navigate.mockResolvedValue(true);
 
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
     // `restricted$` is readonly on the service, so it can't be assigned onto the mock.
@@ -275,16 +281,17 @@ describe("VaultNextComponent", () => {
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
+        { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
+        { provide: Router, useValue: router },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         // `viewModel$` takes a userId and returns the stream, so the double is a function.
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
-        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -1167,6 +1174,35 @@ describe("VaultNextComponent", () => {
 
       const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
       expect(config.allCollections).toEqual(component().collections());
+    });
+  });
+
+  describe("openImport", () => {
+    let legacyOpen: jest.SpyInstance;
+
+    beforeEach(() => {
+      legacyOpen = jest
+        .spyOn(ImportDialogComponent, "open")
+        .mockClear()
+        .mockReturnValue({} as DialogRef);
+    });
+
+    it("opens the legacy import dialog when the flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await component().openImport();
+
+      expect(legacyOpen).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("navigates to the new import source picker page when the flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"]);
+      expect(legacyOpen).not.toHaveBeenCalled();
     });
   });
 });
