@@ -187,10 +187,13 @@ The element must have exactly one element child, which becomes the collapsing ro
 on that child rather than on the element itself, so it collapses with the row.
 
 Collapsing regions are only ever visually clipped, never removed from the accessibility tree, so
-tabbing into one brings it into view. If a region holds focus when the collapse comes due — the
-vault's search is autofocused and keeps focus through a wheel scroll — focus moves out to
-`popup-page`'s scroll region rather than being hidden. Keyboard users tabbing onward move focus
-themselves, so that hand-off only happens for pointer scrolling.
+tabbing into one brings it into view and holds it open. If a region already holds focus when the
+collapse comes due — the vault's search is autofocused and keeps focus through a wheel scroll —
+focus moves out to the nearest focusable ancestor rather than being hidden.
+
+A restored scroll position collapses every region on the page, not just the title bar, so the page
+arrives collapsed rather than animating into it — as long as the list has more left to scroll than
+the collapse would hand back. The regions are handed back on the user's first scroll.
 
 <Canvas of={stories.HeaderV2ScrollingTitleBar} />
 

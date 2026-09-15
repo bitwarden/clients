@@ -7,6 +7,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from "@angular/core";
 
 import { settledHeight } from "../utils/settled-height";
@@ -28,10 +29,12 @@ const COLLAPSE_CLASSES = [
   "tw-grid",
   "tw-overflow-hidden",
   "[&>*]:tw-min-h-0",
-  "motion-safe:tw-transition-[grid-template-rows]",
   "tw-duration-200",
   "tw-ease-out",
 ].join(" ");
+
+/** Declared separately so a restore can arrive collapsed rather than animating into it. */
+const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows]";
 
 /**
  * Collapses this element while the user scrolls down the page's scroll region — the layout's
@@ -74,13 +77,25 @@ export class CollapseOnScrollDirective {
       : "expanded",
   );
 
-  protected readonly collapseClasses = computed(() =>
-    this.state() === "collapsed"
-      ? // The child's padding still sizes the track, since padding sits outside the content box
-        // where `min-height` never reaches it. Needs `!` to beat the consumer's own padding class.
-        `${COLLAPSE_CLASSES} tw-grid-rows-[0fr] [&>*]:!tw-py-0`
-      : `${COLLAPSE_CLASSES} tw-grid-rows-[1fr]`,
-  );
+  protected readonly collapseClasses = computed(() => {
+    // `popup-page` instantiates this unconditionally, so an opted-out page must keep its own box
+    // rather than gain a grid and clipping it never asked for.
+    if (!this.bitCollapseOnScroll()) {
+      return "";
+    }
+
+    return [
+      COLLAPSE_CLASSES,
+      // A restored scroll position is already where the user left it, so there is nothing to
+      // animate from — the same reason the title bar declares its transition late.
+      ...(this.service.restoring() ? [] : [COLLAPSE_TRANSITION]),
+      // The child's padding still sizes the track, since padding sits outside the content box
+      // where `min-height` never reaches it. Needs `!` to beat the consumer's own padding class.
+      ...(this.state() === "collapsed"
+        ? ["tw-grid-rows-[0fr]", "[&>*]:!tw-py-0"]
+        : ["tw-grid-rows-[1fr]"]),
+    ].join(" ");
+  });
 
   /** This region's height as chrome, which is what gates every region's collapse. */
   private readonly height = settledHeight(
@@ -100,8 +115,15 @@ export class CollapseOnScrollDirective {
       onCleanup(() => this.service.unregister(this.height));
     });
 
+    // `hasFocus` read untracked: the hand-off belongs to the collapse coming due, not to focus
+    // arriving. Tracked, focus entering an already-collapsed region would be bounced straight back
+    // out and the region could never be tabbed into.
     effect(() => {
-      if (this.bitCollapseOnScroll() && this.service.direction() === "down" && this.hasFocus()) {
+      if (
+        this.bitCollapseOnScroll() &&
+        this.service.direction() === "down" &&
+        untracked(this.hasFocus)
+      ) {
         this.releaseFocus();
       }
     });
@@ -109,8 +131,8 @@ export class CollapseOnScrollDirective {
 
   /**
    * Hands focus to the nearest focusable ancestor when the collapse comes due while this region
-   * holds it, so an autofocused control inside it isn't left focused but clipped. Keyboard users
-   * tabbing onward move focus out themselves, so this only fires for pointer scrolling.
+   * holds it, so an autofocused control inside it isn't left focused but clipped. Focus arriving
+   * afterwards is left alone — it holds the region open instead.
    */
   private releaseFocus(): void {
     const host = this.host.nativeElement;

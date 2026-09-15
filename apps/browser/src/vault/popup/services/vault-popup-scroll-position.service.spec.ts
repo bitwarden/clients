@@ -3,7 +3,7 @@ import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { NavigationEnd, Router } from "@angular/router";
 import { Subject, Subscription } from "rxjs";
 
-import { ScrollLayoutService } from "@bitwarden/components";
+import { ScrollCollapseService, ScrollLayoutService } from "@bitwarden/components";
 import { VAULT_BASE_ROUTE } from "@bitwarden/vault";
 
 import { VaultPopupScrollPositionService } from "./vault-popup-scroll-position.service";
@@ -13,6 +13,15 @@ import { VaultPopupScrollPositionService } from "./vault-popup-scroll-position.s
  * waits a frame. Dispatching synchronously is an ordering the browser never produces.
  */
 const stubScrollTo = (el: HTMLElement, maxTop = Number.MAX_SAFE_INTEGER) => {
+  // Geometry to match, since the restore only declares itself when the scroller can afford to give
+  // the collapsing chrome's height back.
+  const clientHeight = 500;
+  Object.defineProperty(el, "clientHeight", { value: clientHeight, configurable: true });
+  Object.defineProperty(el, "scrollHeight", {
+    value: Math.min(maxTop, 100_000) + clientHeight,
+    configurable: true,
+  });
+
   (el as any).scrollTop = 0;
   (el as any).scrollTo = jest.fn((opts: { top?: number }) => {
     const next = Math.min(opts?.top ?? 0, maxTop);
@@ -267,6 +276,39 @@ describe("VaultPopupScrollPositionService", () => {
         expect(scrollLayout.restoredScrolled()).toBe(false);
       }));
 
+      it("holds the state through the height the collapse hands back", fakeAsync(() => {
+        // The collapse gives its height to the scroller, so the range left to scroll shrinks by
+        // exactly the chrome. Re-measuring after it closes would read that as too short and hand
+        // the chrome straight back, animating it open under the user.
+        TestBed.inject(ScrollCollapseService).register(() => 130);
+        stubScrollTo(scrollElement, 200);
+        const scrollLayout = TestBed.inject(ScrollLayoutService);
+        service["scrollPosition"] = 200;
+
+        service.start(scrollElement);
+        expect(scrollLayout.restoredScrolled()).toBe(true);
+
+        // The chrome has collapsed; its height belongs to the scroller now.
+        Object.defineProperty(scrollElement, "clientHeight", { value: 630, configurable: true });
+        tick();
+
+        expect(scrollLayout.restoredScrolled()).toBe(true);
+      }));
+
+      it("does not declare the state when the list is too short to afford the collapse", fakeAsync(() => {
+        // 104px left to scroll against 130px of chrome: collapsing would clamp the offset and
+        // reopen the chrome against the user (CL-1318).
+        TestBed.inject(ScrollCollapseService).register(() => 130);
+        stubScrollTo(scrollElement, 104);
+        const scrollLayout = TestBed.inject(ScrollLayoutService);
+        service["scrollPosition"] = 100;
+
+        service.start(scrollElement);
+        tick();
+
+        expect(scrollLayout.restoredScrolled()).toBe(false);
+      }));
+
       it("does not declare the state when there is nothing to restore", fakeAsync(() => {
         const scrollLayout = TestBed.inject(ScrollLayoutService);
         service["scrollPosition"] = null;
@@ -353,6 +395,19 @@ describe("VaultPopupScrollPositionService", () => {
 
         expect(scrollLayout.restoredScrolled()).toBe(false);
         expect(service["scrollPosition"]).toBe(300);
+      }));
+
+      it("does not leave the restored state declared after stop", fakeAsync(() => {
+        // The deferred jump belongs to the attach that scheduled it. Applied after a stop, it
+        // would raise the state with no listener and no later attach left to clear it.
+        const scrollLayout = TestBed.inject(ScrollLayoutService);
+        service["scrollPosition"] = 234;
+
+        service.start(scrollElement);
+        service.stop(true);
+        tick();
+
+        expect(scrollLayout.restoredScrolled()).toBe(false);
       }));
 
       it("does not leave the restore guard raised after stop", fakeAsync(() => {

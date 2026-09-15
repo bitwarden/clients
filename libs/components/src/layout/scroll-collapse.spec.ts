@@ -115,6 +115,30 @@ describe("scroll collapse", () => {
       expect(state()).toBe("collapsed");
     });
 
+    it("expands the region when a keyboard user focuses a control inside it", async () => {
+      await scrollTo(200);
+      expect(state()).toBe("collapsed");
+
+      // Tabbing back into the region brings it into view rather than handing focus away again.
+      search().focus();
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(search());
+      expect(state()).toBe("expanded");
+    });
+
+    it("collapses again once that focus leaves", async () => {
+      await scrollTo(200);
+      search().focus();
+      fixture.detectChanges();
+      expect(state()).toBe("expanded");
+
+      search().blur();
+      fixture.detectChanges();
+
+      expect(state()).toBe("collapsed");
+    });
+
     it("collapses normally when focus was never inside", async () => {
       await scrollTo(200);
 
@@ -129,6 +153,58 @@ describe("scroll collapse", () => {
 
       expect(document.activeElement).toBe(outside);
       expect(state()).toBe("collapsed");
+    });
+  });
+
+  it("carries no collapse classes when collapsing is disabled", async () => {
+    // The directive is instantiated unconditionally by `popup-page`, so an opted-out region keeps
+    // whatever box it already had.
+    host.collapse.set(false);
+    fixture.detectChanges();
+
+    await scrollTo(200);
+
+    expect(region().className).not.toContain("tw-overflow-hidden");
+    expect(region().className).not.toContain("tw-grid");
+  });
+
+  describe("a restored scroll position", () => {
+    const restore = (restored = true) => {
+      TestBed.inject(ScrollLayoutService).restoredScrolled.set(restored);
+      fixture.detectChanges();
+    };
+
+    it("collapses the region without a downward scroll", () => {
+      restore();
+
+      expect(state()).toBe("collapsed");
+    });
+
+    it("arrives collapsed rather than animating into it", () => {
+      restore();
+
+      // The transition classes are what animate the collapse; without them it arrives collapsed.
+      expect(region().className).not.toContain("tw-transition-");
+    });
+
+    it("animates again once the user takes over the scrolling", async () => {
+      restore();
+
+      // The position service clears the flag on the user's first real scroll.
+      restore(false);
+      await scrollTo(200);
+
+      expect(state()).toBe("collapsed");
+      expect(region().className).toContain("tw-transition-");
+    });
+
+    it("hands the region back once the user takes over the scrolling", async () => {
+      restore();
+
+      restore(false);
+      await scrollTo(0);
+
+      expect(state()).toBe("expanded");
     });
   });
 
@@ -239,6 +315,18 @@ describe("scroll collapse", () => {
       await new Promise((resolve) => requestAnimationFrame(resolve));
 
       expect(service.direction()).toBe("down");
+    });
+
+    it("tells a would-be restore when the scroller cannot afford the collapse", async () => {
+      // The `VaultPageShortScroll` geometry again: 104px of overflow against 130px of chrome. The
+      // floor `minScrollable` applies to a direction flip has to be asked for explicitly here.
+      Object.defineProperty(region(), "offsetHeight", { value: 130, configurable: true });
+      await scrollTo(0);
+
+      const service = TestBed.inject(ScrollCollapseService);
+
+      expect(service.affordsCollapse(stubGeometry(el("scroller"), 453, 349))).toBe(false);
+      expect(service.affordsCollapse(stubGeometry(el("scroller"), 512, 349))).toBe(true);
     });
 
     it("stops counting a region towards the chrome height once it is destroyed", async () => {

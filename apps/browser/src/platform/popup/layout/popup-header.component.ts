@@ -156,7 +156,8 @@ export class PopupHeaderComponent {
     () =>
       this.vfo1Enabled() &&
       !this.hideTitleBar() &&
-      (this.scrollDirection() === "down" || this.scrollLayout.restoredScrolled()),
+      // A restored scroll position reports `"down"` through the service.
+      this.scrollDirection() === "down",
   );
 
   /**
