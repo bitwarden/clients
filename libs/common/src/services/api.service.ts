@@ -187,7 +187,12 @@ export class ApiService implements ApiServiceAbstraction {
         ? request.toIdentityToken()
         : request.toIdentityToken(this.platformUtilsService.getClientType());
 
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // SSO completes before its account exists, so exchange its code on the login-screen server.
+    const environment$ =
+      request instanceof SsoTokenRequest
+        ? this.environmentService.globalEnvironment$
+        : this.environmentService.environment$;
+    const env = await firstValueFrom(environment$);
 
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
