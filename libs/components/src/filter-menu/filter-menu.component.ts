@@ -47,6 +47,7 @@ import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
 import { StatusLockupComponent } from "../status-lockup";
+import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterOptionComponent } from "./filter-option.component";
@@ -163,6 +164,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     FilterTreeRowDirective,
     IconTileComponent,
     StatusLockupComponent,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -194,6 +196,12 @@ export class FilterMenuComponent
 
   /** Multi-select (checkbox) when `true`; single-select (radio) when omitted. */
   readonly multiple = input(false, { transform: booleanAttribute });
+
+  /**
+   * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
+   * {@link disabled} is true. Pass an already-localized string.
+   */
+  readonly disabledTooltip = input("");
 
   /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
   readonly icon = input<BitwardenIcon>();
@@ -289,6 +297,16 @@ export class FilterMenuComponent
     const unsetLabel = this.unsetLabel();
     return unsetLabel ? `${prefix}: ${unsetLabel}` : prefix;
   });
+
+  /** Whether a {@link disabledTooltip} is in play, i.e. the chip is disabled and has a reason. */
+  protected readonly showDisabledReason = computed(
+    () => this.disabled() && this.disabledTooltip().length > 0,
+  );
+
+  /** The trigger's tooltip: the disabled reason when there is one, else the label. */
+  protected readonly triggerTooltip = computed(() =>
+    this.showDisabledReason() ? this.disabledTooltip() : this.displayLabel(),
+  );
 
   /** Live count of selected options (`multiple` only). Source for the committed berry value. */
   protected readonly selectedCount = computed(() => {
