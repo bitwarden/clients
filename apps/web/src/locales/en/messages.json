@@ -17792,15 +17792,15 @@
     "message": "member"
   },
   "passwordManagerProratedCharge": {
-    "message": "Password Manager Prorated Charge"
+    "message": "Password Manager prorated charge"
   },
   "storageProratedCharge": {
-    "message": "Storage Prorated Charge"
+    "message": "Storage prorated charge"
   },
   "secretsManagerProratedCharge": {
-    "message": "Secrets Manager Prorated Charge"
+    "message": "Secrets Manager prorated charge"
   },
   "serviceAccountsProratedCharge": {
-    "message": "Service Accounts Prorated Charge"
+    "message": "Service Accounts prorated charge"
   }
 }
