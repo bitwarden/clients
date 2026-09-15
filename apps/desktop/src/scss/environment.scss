@@ -21,6 +21,19 @@ html.os_macos {
   --bit-sidenav-extra-top-padding: var(--header-height);
 }
 
+// Windows and Linux draw a native title bar, so the web contents start flush with the top
+// of the window and there is no band for the rounded top-left corner of <main> to sit
+// under. VFO1 paints one (.header is navy via headerBackgroundColorVfo1); macOS already
+// reserves this space for the inset traffic lights above. Only the routes that render
+// <bit-layout> have that corner, so the band stays collapsed (--header-height: 0px)
+// elsewhere, such as on the login and lock screens, which have no side nav.
+html.os_windows app-root.vfo1:has(bit-layout),
+html.os_linux app-root.vfo1:has(bit-layout) {
+  --header-height: 28px;
+
+  --bit-sidenav-extra-top-padding: var(--header-height);
+}
+
 .environment-selector-btn {
   font-size: $font-size-small;
   color: $text-muted;
