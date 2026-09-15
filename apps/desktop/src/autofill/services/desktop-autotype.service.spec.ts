@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -170,6 +170,44 @@ describe("DesktopAutotypeService", () => {
     it("should initialize observables", () => {
       expect(service.autotypeEnabledUserSetting$).toBeDefined();
       expect(service.autotypeKeyboardShortcut$).toBeDefined();
+    });
+  });
+
+  describe("autotypeFeatureEnabled$", () => {
+    it("should emit false when both flags are off", async () => {
+      mockAutotypeFlags(false, false);
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(false);
+    });
+
+    it("should emit true when the GA flag alone is enabled", async () => {
+      mockAutotypeFlags(false, true);
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(true);
+    });
+
+    it("should emit false when both the MVP and GA flags are enabled", async () => {
+      mockAutotypeFlags(true, true); // dual-flag-on resolves to `Off`
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(false);
+    });
+
+    it("should emit false when only the MVP flag is enabled", async () => {
+      mockAutotypeFlags(true, false);
+      autotypeEnabledSubject.next(true);
+
+      const enabled = await firstValueFrom(service["autotypeFeatureEnabled$"]);
+
+      expect(enabled).toBe(false);
     });
   });
 
