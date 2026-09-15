@@ -2,10 +2,11 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { AutotypeFeatureFlagState } from "../enums/autotype-feature-flag-state.enum";
 
-import { autotypeFeatureFlagEnabled$ } from "./autotype-feature-flags";
+import { autotypeFeatureFlagState$ } from "./autotype-feature-flags";
 
-describe("autotypeFeatureFlagEnabled$", () => {
+describe("autotypeFeatureFlagState$", () => {
   let mockConfigService: jest.Mocked<ConfigService>;
   let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
   let gaFeatureFlagSubject: BehaviorSubject<boolean>;
@@ -29,7 +30,7 @@ describe("autotypeFeatureFlagEnabled$", () => {
   });
 
   it("reads the MVP and GA feature flags", () => {
-    const subscription = autotypeFeatureFlagEnabled$(mockConfigService).subscribe();
+    const subscription = autotypeFeatureFlagState$(mockConfigService).subscribe();
 
     expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
       FeatureFlag.WindowsDesktopAutotype,
@@ -41,56 +42,55 @@ describe("autotypeFeatureFlagEnabled$", () => {
     subscription.unsubscribe();
   });
 
-  it("emits false when neither flag is enabled", async () => {
+  it("resolves to Off when neither flag is enabled", async () => {
     mvpFeatureFlagSubject.next(false);
     gaFeatureFlagSubject.next(false);
 
-    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagState$(mockConfigService));
 
-    expect(result).toBe(false);
+    expect(result).toBe(AutotypeFeatureFlagState.Off);
   });
 
-  it("emits true when only the MVP flag is enabled", async () => {
+  it("resolves to Mvp when only the MVP flag is enabled", async () => {
     mvpFeatureFlagSubject.next(true);
     gaFeatureFlagSubject.next(false);
 
-    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagState$(mockConfigService));
 
-    expect(result).toBe(true);
+    expect(result).toBe(AutotypeFeatureFlagState.Mvp);
   });
 
-  it("emits true when only the GA flag is enabled", async () => {
+  it("resolves to Ga when only the GA flag is enabled", async () => {
     mvpFeatureFlagSubject.next(false);
     gaFeatureFlagSubject.next(true);
 
-    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagState$(mockConfigService));
 
-    expect(result).toBe(true);
+    expect(result).toBe(AutotypeFeatureFlagState.Ga);
   });
 
-  it("emits true when both flags are enabled", async () => {
+  it("resolves to Off (fails closed) when both flags are enabled", async () => {
     mvpFeatureFlagSubject.next(true);
     gaFeatureFlagSubject.next(true);
 
-    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagState$(mockConfigService));
 
-    expect(result).toBe(true);
+    expect(result).toBe(AutotypeFeatureFlagState.Off);
   });
 
   it("does not re-emit when the resolved value is unchanged", () => {
-    mvpFeatureFlagSubject.next(false);
+    mvpFeatureFlagSubject.next(true);
     gaFeatureFlagSubject.next(false);
 
-    const emissions: boolean[] = [];
-    const subscription = autotypeFeatureFlagEnabled$(mockConfigService).subscribe((value) =>
+    const emissions: AutotypeFeatureFlagState[] = [];
+    const subscription = autotypeFeatureFlagState$(mockConfigService).subscribe((value) =>
       emissions.push(value),
     );
 
-    mvpFeatureFlagSubject.next(true); // false -> true: a real change
-    gaFeatureFlagSubject.next(true); // true || true is still true: no new emission
+    mvpFeatureFlagSubject.next(true); // redundant re-emission of the same flag value
 
     subscription.unsubscribe();
 
-    expect(emissions).toEqual([false, true]);
+    expect(emissions).toEqual([AutotypeFeatureFlagState.Mvp]);
   });
 });
