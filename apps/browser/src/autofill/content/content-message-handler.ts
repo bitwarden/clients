@@ -17,7 +17,7 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
     handleAuthResultMessage(data, referrer),
   webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleWebAuthnResultMessage(data, referrer),
-  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
+  [VaultMessages.checkBwInstalled]: ({ referrer }) => handleExtensionInstallCheck(referrer),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
   [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
@@ -38,11 +38,16 @@ setupExtensionDisconnectAction(() => {
   chrome.runtime.onMessage.removeListener(handleExtensionMessage);
 });
 
-/**
- * Handles the post to the web vault showing the extension has been installed
- */
-function handleExtensionInstallCheck() {
-  window.postMessage({ command: VaultMessages.HasBwInstalled });
+/** Posts hasBwInstalled only after background confirms a known vault host. */
+function handleExtensionInstallCheck(referrer: string) {
+  chrome.runtime.sendMessage({ command: VaultMessages.checkBwInstalled, referrer }, (response) => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
+    if (response?.result === true) {
+      window.postMessage({ command: VaultMessages.HasBwInstalled });
+    }
+  });
 }
 
 /**
