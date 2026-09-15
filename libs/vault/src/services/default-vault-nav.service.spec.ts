@@ -21,11 +21,16 @@ import { VaultNavItemType } from "../models/vault-nav-view-model";
 import { DefaultVaultNavService } from "./default-vault-nav.service";
 
 /** Build a minimal Organization with just the fields the service reads. */
-function makeOrg(name: string, productTierType: ProductTierType): Organization {
+function makeOrg(
+  name: string,
+  productTierType: ProductTierType,
+  enabled: boolean = true,
+): Organization {
   const org = new Organization();
   org.id = newGuid() as OrganizationId;
   org.name = name;
   org.productTierType = productTierType;
+  org.enabled = enabled;
   return org;
 }
 
@@ -115,6 +120,20 @@ describe("DefaultVaultNavService", () => {
 
       const familyItems = vm.vaults.filter((v) => v.type === VaultNavItemType.Family);
       expect(familyItems).toHaveLength(2);
+    });
+
+    it("carries each organization's suspended state through to its nav item", async () => {
+      const suspended = makeOrg("Suspended Org", ProductTierType.Teams, false);
+      const active = makeOrg("Active Org", ProductTierType.Teams);
+      memberOrgs$.next([suspended, active]);
+
+      const vm = await firstValueFrom(service.viewModel$(userId));
+
+      expect(vm.vaults.map((v) => [v.label, v.enabled])).toEqual([
+        ["myVault", true],
+        ["Active Org", true],
+        ["Suspended Org", false],
+      ]);
     });
 
     it("leaves color unset on organization items", async () => {

@@ -1,6 +1,18 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, filter, map, Observable, shareReplay, switchMap, take } from "rxjs";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  skip,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -9,14 +21,11 @@ import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/se
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import {
-  CollectionView,
-  CollectionTypes,
-} from "@bitwarden/common/admin-console/models/collections";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,29 +42,22 @@ import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
-import { idString, MY_VAULT, NO_FOLDER } from "@bitwarden/vault";
+import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
+import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
-/** Nesting delimiter for folder path segments. */
 const NESTING_DELIMITER = "/";
 
-/** Persisted filter state for the view cache. */
 interface CachedTableFilterState {
   organizationIds?: string[];
   collectionIds?: string[];
-  /** Folder ids; {@link NO_FOLDER} marks the "no folder" selection. */
   folderIds?: string[];
   cipherType?: CipherType | null;
 }
 
 /**
  * Filter service for the vault popup list table (`VaultPopupListTableComponent`).
- *
- * Provides filter chip option streams, per-option item counts, cache persistence,
- * and cache restore. The table component owns its chip selections via `BitTableV2Component`;
- * this service supplies the option data and saves/restores state from the view cache.
  */
 @Injectable({
   providedIn: "root",
@@ -71,6 +73,7 @@ export class VaultPopupListTableFiltersService {
   private readonly viewCacheService = inject(ViewCacheService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly configService = inject(ConfigService);
+  private readonly avatarService = inject(AvatarService);
 
   /**
    * Ids of the currently-selected organizations (plus {@link MY_VAULT}); drives {@link folders$}
@@ -87,16 +90,18 @@ export class VaultPopupListTableFiltersService {
     filter((userId): userId is UserId => userId !== null),
   );
 
-  private readonly cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
+  private readonly _cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
     key: "vault-table-filters",
     initialValue: {},
     deserializer: (v) => v,
     persistNavigation: true,
   });
 
+  readonly cachedFilters = this._cachedFilters.asReadonly();
+
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
-    const filters = this.cachedFilters();
+    const filters = this._cachedFilters();
     return !!(
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
@@ -108,13 +113,64 @@ export class VaultPopupListTableFiltersService {
   /** Observable mirror of {@link hasFilterApplied} for use in RxJS pipelines. */
   hasFilterApplied$ = toObservable(this.hasFilterApplied);
 
+  private readonly vaultScopedFiltersCleared = new Subject<void>();
+
+  /** Emits on {@link clearVaultScopedFilters}, so the table can reset its own chip controls. */
+  readonly vaultScopedFiltersCleared$ = this.vaultScopedFiltersCleared.asObservable();
+
+  /**
+   * Whether every organization in `ids` is suspended, which blanks the rows rather than filtering
+   * them. Takes ids because either the chip or the route scope can name them.
+   */
+  suspended$(ids: string[]): Observable<boolean> {
+    const named = ids.filter((id) => id !== MY_VAULT);
+    if (!named.length || named.length !== ids.length) {
+      return of(false);
+    }
+
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+      map((orgs) => {
+        const selected = orgs.filter((org) => named.includes(idString(org.id)!));
+        return selected.length > 0 && selected.every((org) => !org.enabled);
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  /**
+   * The current chip selection, in the shape the table's `filterValues` uses.
+   */
+  readonly selectedFilters$ = toObservable(
+    computed(() => {
+      const filters = this.cachedFilters();
+      return {
+        cipherType: filters.cipherType ?? null,
+        organization: filters.organizationIds ?? [],
+        collection: filters.collectionIds ?? [],
+        folder: filters.folderIds ?? [],
+      };
+    }),
+  );
+
+  constructor() {
+    // Unlike navigating within the vault (which VFO1 intentionally persists filters across, see `clearVaultStateGuard`),
+    // switching the active account must always clear filters, this service is `providedIn: "root"` and survives the switch, so nothing else resets it.
+    this.activeUserId$
+      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
+      .subscribe(() => this.clearFilters());
+  }
+
+  /** Clears all persisted filter state. Called when the active account changes. */
+  private clearFilters(): void {
+    this._cachedFilters.set({});
+    this.selectedOrganizations.set([]);
+  }
+
   /**
    * Persists the current chip selection to the view cache.
    * Call this whenever the table's `filterValues` signal emits a new value.
-   *
-   * Also keeps {@link selectedOrganizations} in sync: this service is `providedIn: "root"` and
-   * outlives any one component instance, so every call site that changes the org selection
-   * (including clearing it) must go through here rather than setting the signal separately.
    */
   saveFilters(values: {
     cipherType?: CipherType | null;
@@ -122,13 +178,28 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }): void {
-    this.cachedFilters.set({
+    this._cachedFilters.set({
       organizationIds: values.organization ?? [],
       collectionIds: values.collection ?? [],
       folderIds: values.folder ?? [],
       cipherType: values.cipherType ?? null,
     });
     this.selectedOrganizations.set(values.organization ?? []);
+  }
+
+  /**
+   * Drops the vault, shared-folder, and folder selections for a switch. Type is kept: item types
+   * span vaults.
+   */
+  clearVaultScopedFilters(): void {
+    this._cachedFilters.set({
+      organizationIds: [],
+      collectionIds: [],
+      folderIds: [],
+      cipherType: this.cachedFilters().cipherType ?? null,
+    });
+    this.selectedOrganizations.set([]);
+    this.vaultScopedFiltersCleared.next();
   }
 
   /**
@@ -145,7 +216,7 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }> {
-    const state = this.cachedFilters();
+    const state = this._cachedFilters();
     return combineLatest([
       this.organizations$,
       this.collections$,
@@ -178,7 +249,7 @@ export class VaultPopupListTableFiltersService {
         }
 
         if (state.folderIds?.length) {
-          const validIds = new Set(folderViews.map((f) => f.id ?? NO_FOLDER));
+          const validIds = new Set(folderViews.map((f) => f.id || NO_FOLDER));
           const folder = state.folderIds.filter((id) => validIds.has(id));
           if (folder.length) {
             result.folder = folder;
@@ -211,9 +282,34 @@ export class VaultPopupListTableFiltersService {
         .map((item) => ({
           value: item.type,
           label: this.i18nService.t(item.labelKey),
-          icon: item.icon as BitwardenIcon,
         }));
     }),
+  );
+
+  /** The active user's avatar color, so the "My vault" filter tile matches their avatar. */
+  private readonly userAvatarColor$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      account
+        ? this.avatarService
+            .getUserAvatarColor$(account.id)
+            .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
+        : of(undefined),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * Organization names by id, for every organization the user is a member of.
+   *
+   * Kept separate from {@link organizations$}, which drops suspended organizations so they aren't
+   * offered as a filter option. Collections owned by a suspended organization are still listed, so
+   * name resolution has to read the unfiltered membership or those collections lose their label.
+   */
+  organizationNames$: Observable<Map<string, string>> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+    map((orgs) => new Map(orgs.map((org) => [idString(org.id)!, org.name]))),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
@@ -226,13 +322,21 @@ export class VaultPopupListTableFiltersService {
         combineLatest([
           this.organizationService.memberOrganizations$(userId),
           this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+          this.userAvatarColor$,
         ]),
       ),
-      map(([orgs, organizationDataOwnership]): [Organization[], boolean] => [
-        orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
-        organizationDataOwnership,
-      ]),
-      map(([orgs, organizationDataOwnership]) => {
+      map(
+        ([orgs, organizationDataOwnership, avatarColor]): [
+          Organization[],
+          boolean,
+          string | undefined,
+        ] => [
+          orgs.filter((org) => org.enabled).sort(Utils.getSortFunction(this.i18nService, "name")),
+          organizationDataOwnership,
+          avatarColor,
+        ],
+      ),
+      map(([orgs, organizationDataOwnership, avatarColor]) => {
         if (!orgs.length) {
           return [];
         }
@@ -246,28 +350,17 @@ export class VaultPopupListTableFiltersService {
               {
                 value: { id: MY_VAULT } as Organization,
                 label: this.i18nService.t("myVault"),
-                icon: "bwi-user",
+                iconTile: personalIconTile(avatarColor ?? "brand"),
               },
             ];
 
         return [
           ...myVaultOrg,
-          ...orgs.map((org) => {
-            let icon: BitwardenIcon = "bwi-business";
-            let iconClass: string | undefined = undefined;
-
-            if (!org.enabled) {
-              icon = "bwi-exclamation-triangle";
-              iconClass = "tw-text-danger";
-            } else if (
-              org.productTierType === ProductTierType.Families ||
-              org.productTierType === ProductTierType.Free
-            ) {
-              icon = "bwi-family";
-            }
-
-            return { value: org, label: org.name, icon, iconClass };
-          }),
+          ...orgs.map((org) => ({
+            value: org,
+            label: org.name,
+            iconTile: orgIconTile(org.productTierType),
+          })),
         ];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -299,8 +392,9 @@ export class VaultPopupListTableFiltersService {
           const noFolder = folders.find((f) => !f.id);
 
           if (noFolder) {
-            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("itemsWithNoFolder") };
-            arrangedFolders = [...folders.filter((f) => f.id), updatedNoFolder];
+            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("noFoldersFilter") };
+            // Leads the list, and the menu rules it off from the real folders.
+            arrangedFolders = [updatedNoFolder, ...folders.filter((f) => f.id)];
           }
 
           return [selectedOrgs, arrangedFolders, cipherViews] as const;
@@ -328,7 +422,7 @@ export class VaultPopupListTableFiltersService {
           const nested = this.getAllFoldersNested(folders);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
-        map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f, "bwi-folder"))),
+        map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
       );
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -367,16 +461,7 @@ export class VaultPopupListTableFiltersService {
             nestedList: this.collectionService.getAllNested(fullList),
           }),
       ),
-      map((tree) =>
-        tree.nestedList.map((c) =>
-          this.convertToChipFilterOption(
-            c,
-            c.node.type === CollectionTypes.DefaultUserCollection
-              ? "bwi-user"
-              : "bwi-shared-folder",
-          ),
-        ),
-      ),
+      map((tree) => tree.nestedList.map((c) => this.convertToChipFilterOption(c))),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
@@ -386,13 +471,11 @@ export class VaultPopupListTableFiltersService {
 
   private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: BitwardenIcon,
   ): ChipFilterOption<T> {
     return {
       value: item.node,
       label: item.node.name,
-      icon,
-      children: item.children?.map((i) => this.convertToChipFilterOption(i, icon)),
+      children: item.children?.map((i) => this.convertToChipFilterOption(i)),
     };
   }
 

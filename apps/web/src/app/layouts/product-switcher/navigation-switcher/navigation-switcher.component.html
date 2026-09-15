@@ -24,6 +24,7 @@
         <bit-icon-tile
           [size]="sideNavOpen() ? 'base' : 'sm'"
           [icon]="activeProduct.icon"
+          [variant]="tileVariant()"
         ></bit-icon-tile>
         @if (sideNavOpen()) {
           {{ activeProduct.name }}
