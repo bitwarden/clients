@@ -8,6 +8,7 @@ publish.workspace = true
 [target.'cfg(windows)'.dev-dependencies]
 mockall.workspace = true
 serial_test.workspace = true
+tracing-subscriber = { workspace = true }
 windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
@@ -26,6 +27,21 @@ itertools.workspace = true
 windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation",
+    "Win32_Graphics_Dwm",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Com",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Variant",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_Shell_Common",
+    "Win32_UI_Shell_PropertiesSystem",
+    "System",
+    "System_Diagnostics",
+    "ApplicationModel",
+    "Foundation",
+    "Foundation_Collections",
 ] }
 windows-core = { workspace = true }
 

@@ -143,7 +143,7 @@ describe("UserLayoutComponent", () => {
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
-    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+    vaultNavService.viewModel$.mockReturnValue(viewModel$);
 
     await TestBed.configureTestingModule({
       imports: [UserLayoutComponent, RouterModule.forRoot([]), NavigationModule],
