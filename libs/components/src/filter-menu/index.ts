@@ -1,6 +1,10 @@
 export { FilterMenuComponent } from "./filter-menu.component";
 export { FilterToggleComponent } from "./filter-toggle.component";
-export { FilterOptionComponent, type FilterOptionIconTile } from "./filter-option.component";
+export {
+  FilterOptionComponent,
+  type FilterOptionIconTile,
+  type FilterOptionNode,
+} from "./filter-option.component";
 export { FilterSectionComponent } from "./filter-section.component";
 export { FilterDividerComponent } from "./filter-divider.component";
 export { FilterOptionDividerComponent } from "./filter-option-divider.component";

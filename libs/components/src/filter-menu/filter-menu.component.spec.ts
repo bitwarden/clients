@@ -155,6 +155,97 @@ describe("FilterMenuComponent icon tiles", () => {
   });
 });
 
+type Row = { value: string; label: string; nested?: Row[] };
+
+/**
+ * A data-driven tree via `nested`, the way a consumer builds an arbitrary-depth option tree
+ * from data rather than literal markup — see `FilterOptionComponent.nested`.
+ */
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterSectionComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu key="test" placeholderText="Test" multiple>
+      @if (grouped) {
+        <bit-filter-section label="Group A">
+          @for (row of rows; track row.value) {
+            <bit-filter-option [value]="row.value" [nested]="row.nested ?? []">{{
+              row.label
+            }}</bit-filter-option>
+          }
+        </bit-filter-section>
+      } @else {
+        @for (row of rows; track row.value) {
+          <bit-filter-option [value]="row.value" [nested]="row.nested ?? []">{{
+            row.label
+          }}</bit-filter-option>
+        }
+      }
+    </bit-filter-menu>
+  `,
+})
+class DataDrivenTreeHostComponent {
+  grouped = false;
+  rows: Row[] = [
+    { value: "parent", label: "Parent", nested: [{ value: "child", label: "Child" }] },
+  ];
+}
+
+describe("FilterMenuComponent options built from FilterOptionComponent.nested", () => {
+  async function setup(grouped: boolean): Promise<{
+    fixture: ComponentFixture<DataDrivenTreeHostComponent>;
+    menu: FilterMenuComponent;
+  }> {
+    await TestBed.configureTestingModule({
+      imports: [DataDrivenTreeHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(DataDrivenTreeHostComponent);
+    fixture.componentInstance.grouped = grouped;
+    fixture.detectChanges();
+    const menu = fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .componentInstance as FilterMenuComponent;
+    return { fixture, menu };
+  }
+
+  /** Finds a rendered option instance by its value, via the real component tree. */
+  function findOption(
+    fixture: ComponentFixture<DataDrivenTreeHostComponent>,
+    value: string,
+  ): FilterOptionComponent {
+    const option = fixture.debugElement
+      .queryAll(By.directive(FilterOptionComponent))
+      .map((el) => el.componentInstance as FilterOptionComponent)
+      .find((o) => o.value() === value);
+    if (!option) {
+      throw new Error(`No option found for value ${value}`);
+    }
+    return option;
+  }
+
+  it("selecting the parent selects its whole nested subtree (ungrouped)", async () => {
+    const { fixture, menu } = await setup(false);
+
+    expect(menu.isSelected("parent")).toBe(false);
+    menu["toggleOption"](findOption(fixture, "parent"));
+    expect(menu.isSelected("parent")).toBe(true);
+    expect(menu.isSelected("child")).toBe(true);
+  });
+
+  it("groups the nested option's subtree under its bit-filter-section", async () => {
+    const { fixture, menu } = await setup(true);
+    const section = fixture.debugElement.query(By.directive(FilterSectionComponent))
+      .componentInstance as FilterSectionComponent;
+
+    expect(section.options().map((o) => o.value())).toEqual(["parent"]);
+    expect(section.allOptions().map((o) => o.value())).toEqual(["parent", "child"]);
+
+    menu["toggleOption"](findOption(fixture, "parent"));
+    expect(menu.isSelected("child")).toBe(true);
+  });
+});
+
 const LONG_SECTION = "An organization name long enough to truncate in the row";
 const LONG_PARENT = "A collection name long enough to truncate in the row";
 const LONG_CHILD = "A nested collection name long enough to truncate in the row";

@@ -59,12 +59,13 @@
         icon="bwi-shared-folder"
       >
         @if (groupCollectionsByOrg()) {
-          @for (org of collectionsByOrg(); track org.id) {
+          @for (org of nestedCollectionsByOrg(); track org.id) {
             <bit-filter-section [label]="org.name" collapsible>
-              @for (option of org.collections; track option.value.id) {
+              @for (option of org.collections; track option.value) {
                 <bit-filter-option
-                  [value]="option.value.id"
-                  [count]="optionCount('collection', [option.value.id])"
+                  [value]="option.value"
+                  [nested]="option.nested"
+                  [count]="option.count"
                 >
                   {{ option.label }}
                 </bit-filter-option>
@@ -72,10 +73,11 @@
             </bit-filter-section>
           }
         } @else {
-          @for (option of collectionOptions(); track option.value.id) {
+          @for (option of nestedCollectionOptions(); track option.value) {
             <bit-filter-option
-              [value]="option.value.id"
-              [count]="optionCount('collection', [option.value.id])"
+              [value]="option.value"
+              [nested]="option.nested"
+              [count]="option.count"
               >{{ option.label }}</bit-filter-option
             >
           }
@@ -90,16 +92,20 @@
         multiple
         icon="bwi-folder"
       >
-        @for (option of folderOptions(); track option.value.id) {
-          <bit-filter-option
-            [value]="option.value.id || NO_FOLDER"
-            [count]="optionCount('folder', [option.value.id || NO_FOLDER])"
-            >{{ option.label }}</bit-filter-option
-          >
+        @if (noFolderOption(); as noFolder) {
+          <bit-filter-option [value]="NO_FOLDER" [count]="optionCount('folder', [NO_FOLDER])">{{
+            noFolder.label
+          }}</bit-filter-option>
           <!-- "No folders" leads the list and stands apart from the real folders. -->
-          @if (!option.value.id) {
-            <bit-filter-option-divider></bit-filter-option-divider>
-          }
+          <bit-filter-option-divider></bit-filter-option-divider>
+        }
+        @for (folder of nestedFolderOptions(); track folder.value) {
+          <bit-filter-option
+            [value]="folder.value"
+            [nested]="folder.nested"
+            [count]="folder.count"
+            >{{ folder.label }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }

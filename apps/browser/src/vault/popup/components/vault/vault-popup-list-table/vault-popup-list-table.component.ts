@@ -47,6 +47,7 @@ import {
   CompactModeService,
   defineTable,
   FilterMenuModule,
+  FilterOptionNode,
   IconButtonModule,
   IconComponent,
   SearchModule,
@@ -88,7 +89,11 @@ import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 
-/** Flattens a `ChipFilterOption` tree depth-first; drop once CL-985 adds nesting. */
+/**
+ * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
+ * option, not per branch. Nested rendering rebuilds nesting from the original tree instead of
+ * this flat list — see {@link VaultPopupListTableComponent.toFilterOptionNodes}.
+ */
 function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
 }
@@ -348,6 +353,25 @@ export class VaultPopupListTableComponent {
   /** Exposed for the folder chip's `[value]`, which falls back to this sentinel for "no folder". */
   protected readonly NO_FOLDER = NO_FOLDER;
 
+  /** The "no folder" option, pinned first with its own divider — see {@link nestedFolderOptions}. */
+  protected readonly noFolderOption = computed(() =>
+    this.folderOptions().find((option) => !option.value?.id),
+  );
+
+  /**
+   * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,
+   * since each node's name is already truncated to its own path segment. Excludes
+   * {@link noFolderOption} (rendered separately, pinned first).
+   */
+  protected readonly nestedFolderOptions = computed(() => {
+    const visibleIds = new Set(
+      this.folderOptions()
+        .map((option) => option.value?.id)
+        .filter((id): id is string => !!id),
+    );
+    return this.toFilterOptionNodes(this.folderTree(), visibleIds, "folder");
+  });
+
   /** True when collections span more than one organization — switches to org-sectioned layout. */
   protected readonly groupCollectionsByOrg = computed(() => {
     const orgIds = new Set(
@@ -383,6 +407,70 @@ export class VaultPopupListTableComponent {
     }
     return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
   });
+
+  /**
+   * {@link collectionOptions}, nested — same approach as {@link nestedFolderOptions}. Used for
+   * the ungrouped render; see {@link nestedCollectionsByOrg} for the grouped one.
+   */
+  protected readonly nestedCollectionOptions = computed(() => {
+    const visibleIds = new Set<string>(
+      this.collectionOptions()
+        .map((o) => o.value?.id)
+        .filter((id): id is NonNullable<typeof id> => id != null),
+    );
+    return this.toFilterOptionNodes(this.collectionTree(), visibleIds, "collection");
+  });
+
+  /**
+   * {@link collectionsByOrg}, nested per group the same way {@link nestedCollectionOptions} is,
+   * for the grouped (multi-org) render. Pruning to each group's ids naturally excludes other
+   * orgs' nodes too, since a collection only nests under its own org.
+   */
+  protected readonly nestedCollectionsByOrg = computed(() =>
+    this.collectionsByOrg().map((group) => {
+      const visibleIds = new Set<string>(
+        group.collections
+          .map((o) => o.value?.id)
+          .filter((id): id is NonNullable<typeof id> => id != null),
+      );
+      return {
+        ...group,
+        collections: this.toFilterOptionNodes(this.collectionTree(), visibleIds, "collection"),
+      };
+    }),
+  );
+
+  /**
+   * Prunes a `ChipFilterOption` tree to nodes in `visibleIds`, keeping ancestors with a visible
+   * descendant so nesting survives narrowing even when the ancestor itself didn't pass (e.g. a
+   * folder with no directly-scoped items). Converts to {@link FilterOptionNode} for
+   * `bit-filter-option`'s `nested` input — each node's `count` is {@link optionCount} pinned to
+   * just that node's own id, never its descendants', since a parent collection/folder doesn't
+   * contain its children's items.
+   */
+  private toFilterOptionNodes<T extends { id: string }>(
+    tree: ChipFilterOption<T>[],
+    visibleIds: ReadonlySet<string>,
+    key: "collection" | "folder",
+  ): FilterOptionNode<string>[] {
+    return tree.flatMap((option) => {
+      const id = option.value?.id;
+      if (id == null) {
+        return [];
+      }
+      const children = this.toFilterOptionNodes(option.children ?? [], visibleIds, key);
+      if (!visibleIds.has(id) && children.length === 0) {
+        return [];
+      }
+      const node: FilterOptionNode<string> = {
+        value: id,
+        label: option.label ?? "",
+        count: this.optionCount(key, [id]),
+        nested: children,
+      };
+      return [node];
+    });
+  }
 
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 60))),

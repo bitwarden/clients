@@ -940,6 +940,136 @@ describe("VaultPopupListTableComponent", () => {
         expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(2);
       });
     });
+
+    describe("nesting collections and folders", () => {
+      /** Every `bit-filter-option` actually rendered, by value. */
+      function renderedOptions(): FilterOptionComponent[] {
+        return fixture.debugElement
+          .queryAll(By.directive(FilterOptionComponent))
+          .map((el) => el.componentInstance as FilterOptionComponent);
+      }
+
+      function findOption(value: unknown): FilterOptionComponent {
+        const option = renderedOptions().find((o) => o.value() === value);
+        if (!option) {
+          throw new Error(`No rendered option for value ${JSON.stringify(value)}`);
+        }
+        return option;
+      }
+
+      // The service builds `children` itself (`getAllNested`/`getAllFoldersNested`), truncating
+      // each nested node's own name/label down to its own path segment along the way — these
+      // fixtures mirror that shape rather than a flat, still-fully-pathed list.
+
+      it("nests a rendered collection option under its parent, ungrouped", () => {
+        collections$.next([
+          {
+            value: { id: "col-1", name: "Engineering" } as CollectionView,
+            label: "Engineering",
+            children: [
+              {
+                value: { id: "col-2", name: "Backend" } as CollectionView,
+                label: "Backend",
+              },
+            ],
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(false);
+        expect(
+          findOption("col-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["col-2"]);
+      });
+
+      it("nests a rendered collection option under its bit-filter-section, grouped by organization", () => {
+        collections$.next([
+          {
+            value: { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+            label: "Engineering",
+            children: [
+              {
+                value: {
+                  id: "col-2",
+                  name: "Backend",
+                  organizationId: "org-1",
+                } as CollectionView,
+                label: "Backend",
+              },
+            ],
+          },
+          {
+            value: { id: "col-3", name: "Gamma", organizationId: "org-2" } as CollectionView,
+            label: "Gamma",
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(true);
+        expect(
+          findOption("col-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["col-2"]);
+      });
+
+      it("nests a rendered folder option under its parent, leaving 'no folder' unnested", () => {
+        folders$.next([
+          {
+            value: { id: "", name: "itemsWithNoFolder" } as FolderView,
+            label: "itemsWithNoFolder",
+          },
+          {
+            value: { id: "f-1", name: "Travel" } as FolderView,
+            label: "Travel",
+            children: [
+              {
+                value: { id: "f-2", name: "Flights" } as FolderView,
+                label: "Flights",
+              },
+            ],
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(findOption(NO_FOLDER).hasChildren()).toBe(false);
+        expect(
+          findOption("f-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["f-2"]);
+      });
+
+      it("keeps a folder nested even when it has no directly-scoped items of its own", () => {
+        // "Travel" itself has no in-scope cipher, only its child "Flights" does — it must still
+        // render (as a pass-through) so "Flights" has somewhere to nest under.
+        activeCiphers$.next([
+          makeCipher({ id: "flight-1", organizationId: null, folderId: "f-2" }),
+        ]);
+        folders$.next([
+          {
+            value: { id: "f-1", name: "Travel" } as FolderView,
+            label: "Travel",
+            children: [
+              {
+                value: { id: "f-2", name: "Flights" } as FolderView,
+                label: "Flights",
+              },
+            ],
+          },
+        ]);
+        listTableSvc.setScope({ type: VaultScopeType.MyVault });
+        fixture.detectChanges();
+
+        expect(
+          findOption("f-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["f-2"]);
+      });
+    });
   });
 
   describe("clearFilters", () => {

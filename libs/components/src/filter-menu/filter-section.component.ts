@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   booleanAttribute,
+  computed,
   contentChildren,
   forwardRef,
   input,
@@ -10,7 +11,7 @@ import {
 } from "@angular/core";
 
 import { FilterOptionComponent } from "./filter-option.component";
-import { FILTER_ENTRY, FilterRow } from "./filter-tokens";
+import { FILTER_ENTRY, FilterRow, flattenFilterOptions } from "./filter-tokens";
 
 /** A labelled group of options within a `bit-filter-menu`. */
 @Component({
@@ -46,7 +47,7 @@ export class FilterSectionComponent implements FilterRow {
   readonly children = this.options;
 
   /** Every option in the section, nesting included — for the header's selected count. */
-  readonly allOptions = contentChildren(FilterOptionComponent, { descendants: true });
+  readonly allOptions = computed(() => flattenFilterOptions(this.options()));
 
   /** Open state, seeded from `expanded` and thereafter driven by the chip's header. */
   readonly open = linkedSignal(() => this.expanded());
