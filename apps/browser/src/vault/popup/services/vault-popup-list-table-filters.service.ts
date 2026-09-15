@@ -36,18 +36,16 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
 import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
-
-const NESTING_DELIMITER = "/";
 
 interface CachedTableFilterState {
   organizationIds?: string[];
@@ -419,7 +417,7 @@ export class VaultPopupListTableFiltersService {
           });
         }),
         map((folders) => {
-          const nested = this.getAllFoldersNested(folders);
+          const nested = getNestedFolderTree(folders);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
         map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
@@ -477,17 +475,5 @@ export class VaultPopupListTableFiltersService {
       label: item.node.name,
       children: item.children?.map((i) => this.convertToChipFilterOption(i)),
     };
-  }
-
-  private getAllFoldersNested(folders: FolderView[]): TreeNode<FolderView>[] {
-    const nodes: TreeNode<FolderView>[] = [];
-    folders.forEach((f) => {
-      const folderCopy = new FolderView();
-      folderCopy.id = f.id;
-      folderCopy.revisionDate = f.revisionDate;
-      const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NESTING_DELIMITER) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NESTING_DELIMITER);
-    });
-    return nodes;
   }
 }
