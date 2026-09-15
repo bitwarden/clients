@@ -12,13 +12,24 @@ import {
 } from "../clients/invoice-preview.client";
 
 /**
+ * `Cart` has no month field, so the Premium-to-organization upgrade returns the prorated month
+ * count alongside it for the seat label. TODO(PM-40231): fold into the adapter, return a plain `Cart`.
+ */
+export type CartWithProratedMonths = {
+  cart: Cart;
+  proratedMonths: number;
+};
+
+/**
  * Fetches server-calculated invoice previews and adapts them into render-ready {@link Cart}s
  * that bind directly to `<billing-cart-summary>`.
  *
  * When the preview-driven cart feature flag (PM-36631) is on, checkout screens call this service
  * instead of deriving cart contents locally. Each method serves exactly one checkout flow and
  * supplies that flow's `InvoicePreviewFlowContext` internally, so components never pass a flow
- * context and cannot pick the wrong translation copy for their screen.
+ * context and cannot pick the wrong translation copy for their screen. The Premium-to-organization
+ * upgrade additionally returns the prorated month count alongside its cart (see
+ * {@link previewPremiumOrgUpgradeCart}).
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewService {
@@ -47,16 +58,20 @@ export class InvoicePreviewService {
     );
   };
 
+  /** A single-seat swap yields at most one Password Manager proration, hence `prorations[0]`. */
   previewPremiumOrgUpgradeCart = async (
     request: PremiumOrgUpgradePreviewRequest,
-  ): Promise<Cart> => {
+  ): Promise<CartWithProratedMonths> => {
     const preview = await this.invoicePreviewClient.previewPremiumOrgUpgrade(request);
 
-    return adaptInvoicePreviewToCart(
-      preview,
-      InvoicePreviewFlowContext.PremiumOrgUpgrade,
-      this.logService,
-    );
+    return {
+      cart: adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        this.logService,
+      ),
+      proratedMonths: preview.passwordManager.prorations?.[0]?.months ?? 0,
+    };
   };
 
   /**

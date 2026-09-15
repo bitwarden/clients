@@ -19,11 +19,13 @@ import {
   combineLatest,
   startWith,
   debounceTime,
+  distinctUntilChanged,
   switchMap,
   Observable,
   from,
   defer,
   map,
+  tap,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -35,6 +37,8 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -141,19 +145,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     return this.selectedPlanId() !== PersonalSubscriptionPricingTierIds.Families;
   });
 
-  // Use defer to lazily create the observable when subscribed to
-  protected readonly estimatedInvoice$ = defer(() =>
-    combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
-      debounceTime(1000),
-      switchMap(() => this.refreshInvoicePreview$()),
-    ),
-  );
-
-  protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
-    initialValue: this.getEmptyInvoicePreview(),
-  });
-
   private readonly i18nService = inject(I18nService);
   private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private readonly toastService = inject(ToastService);
@@ -162,10 +153,49 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private readonly premiumOrgUpgradeService = inject(PremiumOrgUpgradeService);
   private readonly subscriberBillingClient = inject(SubscriberBillingClient);
   private readonly accountService = inject(AccountService);
+  private readonly configService = inject(ConfigService);
+
+  // Deduped: getFeatureFlag$ re-emits on every server-config refresh, and only a real flip should refetch.
+  private readonly previewDrivenCart$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
+    .pipe(distinctUntilChanged());
+
+  /** Server cart on the flag-on path; null when the flag is off, the address is incomplete, or the preview failed. */
+  private readonly previewCart = signal<Cart | null>(null);
+
+  // Use defer to lazily create the observable when subscribed to
+  protected readonly estimatedInvoice$ = defer(() =>
+    combineLatest([
+      this.formGroup.controls.billingAddress.valueChanges.pipe(
+        startWith(this.formGroup.controls.billingAddress.value),
+      ),
+      this.previewDrivenCart$,
+    ]).pipe(
+      debounceTime(1000),
+      switchMap(([, previewDrivenCart]) => {
+        if (!previewDrivenCart) {
+          // A runtime flip to off must drop the server cart, or the kill switch leaves it pinned.
+          this.previewCart.set(null);
+          return this.refreshInvoicePreview$();
+        }
+        return this.refreshPreviewCart$();
+      }),
+    ),
+  );
+
+  protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
+    initialValue: this.getEmptyInvoicePreview(),
+  });
 
   constructor() {}
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
+    // Flag on and a preview has resolved: render the server's cart verbatim.
+    const previewCart = this.previewCart();
+    if (previewCart) {
+      return previewCart;
+    }
+
     if (!this.selectedPlan()) {
       return {
         hidePricingTerm: true,
@@ -488,6 +518,59 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
 
     return isParentFormValid;
+  }
+
+  /**
+   * Flag-on counterpart of {@link refreshInvoicePreview$}: stores the server cart in
+   * {@link previewCart} and emits an empty legacy preview so both branches share one stream.
+   */
+  private refreshPreviewCart$(): Observable<InvoicePreview> {
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+
+    if (!this.isFormValid() || !billingAddress.country || !billingAddress.postalCode) {
+      this.previewCart.set(null);
+      return of(this.getEmptyInvoicePreview());
+    }
+
+    return from(
+      this.premiumOrgUpgradeService.previewInvoiceCart(this.selectedPlan()!, billingAddress),
+    ).pipe(
+      tap(({ cart, proratedMonths }) =>
+        this.previewCart.set(this.withProratedMonthsLabel(cart, proratedMonths)),
+      ),
+      map(() => this.getEmptyInvoicePreview()),
+      catchError((error: unknown) => {
+        this.logService.error("Invoice preview failed:", error);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("invoicePreviewErrorMessage"),
+        });
+        this.previewCart.set(null);
+        return of(this.getEmptyInvoicePreview());
+      }),
+    );
+  }
+
+  /**
+   * Applies the prorated-months seat label; it needs the plan name, which only this component has.
+   * TODO(PM-40231): move into the cart adapter.
+   */
+  private withProratedMonthsLabel(cart: Cart, months: number): Cart {
+    if (months <= 0) {
+      return cart;
+    }
+
+    return {
+      ...cart,
+      passwordManager: {
+        ...cart.passwordManager,
+        seats: {
+          ...cart.passwordManager.seats,
+          translationKey: "planProratedMembershipInMonths",
+          translationParams: [this.selectedPlan()!.details.name, this.formatMonthLabel(months)],
+        },
+      },
+    };
   }
 
   /**

@@ -40,9 +40,26 @@ export const adaptInvoicePreviewToCart = (
   const passwordManagerProrated = hasProrations(passwordManager.prorations);
   const secretsManagerProrated = hasProrations(secretsManager?.prorations);
 
+  const passwordManagerSeats = (): CartItem => {
+    if (passwordManager.seats) {
+      return toCartItem(passwordManager.seats, passwordManagerProrated);
+    }
+
+    if (!passwordManagerProrated) {
+      throw new Error("Invoice preview has neither a Password Manager seats line nor a proration.");
+    }
+
+    return {
+      translationKey: getCartItemTranslationKey("pm-seat", planTier, flowContext, logService),
+      quantity: 1,
+      cost: sumInCents(passwordManager.prorations!.map((proration) => proration.charge)),
+      hideBreakdown: true,
+    };
+  };
+
   const cart: Cart = {
     passwordManager: {
-      seats: toCartItem(passwordManager.seats, passwordManagerProrated),
+      seats: passwordManagerSeats(),
       ...(passwordManager.additionalStorage
         ? { additionalStorage: toCartItem(passwordManager.additionalStorage) }
         : {}),
@@ -81,12 +98,14 @@ export const adaptInvoicePreviewToCart = (
 const hasProrations = (prorations: PurchasableProration[] | undefined): boolean =>
   !!prorations && prorations.length > 0;
 
+/** Sums in integer cents and converts once so a run of fractional amounts cannot accumulate drift. */
+const sumInCents = (amounts: number[]): number =>
+  amounts.reduce((sum, amount) => sum + Math.round(amount * 100), 0) / 100;
+
 /**
- * Collapses every proration across both product groups into at most one credit row.
- *
- * Sums in integer cents and converts once at the end so a run of fractional credits cannot
- * accumulate floating-point drift. The row is emitted only when the total is positive AND the
- * flow context actually renders credit — only two surfaces do.
+ * Collapses every proration across both product groups into at most one credit row. The row is
+ * emitted only when the total is positive AND the flow context actually renders credit — only two
+ * surfaces do.
  */
 const buildCreditRow = (
   preview: InvoicePreview,
@@ -97,14 +116,16 @@ const buildCreditRow = (
     return undefined;
   }
 
-  const totalCents = [
-    ...(preview.passwordManager.prorations ?? []),
-    ...(preview.secretsManager?.prorations ?? []),
-  ].reduce((sum, proration) => sum + Math.round(proration.credit * 100), 0);
+  const value = sumInCents(
+    [
+      ...(preview.passwordManager.prorations ?? []),
+      ...(preview.secretsManager?.prorations ?? []),
+    ].map((proration) => proration.credit),
+  );
 
-  if (totalCents <= 0) {
+  if (value <= 0) {
     return undefined;
   }
 
-  return { translationKey, value: totalCents / 100 };
+  return { translationKey, value };
 };
