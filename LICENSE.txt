@@ -1,4 +1,4 @@
-Source code in this repository is covered by one of two licenses: (i) the
+Unless otherwise noted, source code in this repository is covered by one of two licenses: (i) the
 GNU General Public License (GPL) v3.0 (ii) the Bitwarden License v1.0. The
 default license throughout the repository is GPL v3.0 unless the header
 specifies another license. Bitwarden Licensed code is found only in the
