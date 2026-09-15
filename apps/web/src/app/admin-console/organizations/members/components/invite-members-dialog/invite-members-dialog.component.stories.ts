@@ -43,6 +43,7 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     permissions: new PermissionsApi(),
     enabled: true,
     canEditAnyCollection: false,
+    canManageDomainVerification: true,
     ...overrides,
   } as unknown as Organization;
 }
