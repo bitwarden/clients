@@ -6775,9 +6775,6 @@
   "verifyEmail": {
     "message": "Verify email"
   },
-  "verifyEmailDesc": {
-    "message": "Verify your account's email address to unlock access to all features."
-  },
   "verifyEmailFirst": {
     "message": "Your account's email address first must be verified."
   },
@@ -6789,6 +6786,9 @@
   },
   "emailVerifiedV2": {
     "message": "Email verified"
+  },
+  "emailAlreadyVerified": {
+    "message": "Email already verified"
   },
   "emailVerifiedFailed": {
     "message": "Unable to verify your email. Try sending a new verification email."
