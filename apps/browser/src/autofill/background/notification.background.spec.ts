@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -348,6 +348,174 @@ describe("NotificationBackground", () => {
       sendMockExtensionMessage(message);
 
       expect(notificationBackground["handleSaveCipherMessage"]).not.toHaveBeenCalled();
+    });
+
+    describe("bgGetDecryptedCiphers message handler", () => {
+      beforeEach(() => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        domainSettingsService.showFavicons$ = of(false);
+        environmentService.environment$ = of(new SelfHostedEnvironment({}));
+        organizationService.organizations$.mockReturnValue(of([]));
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+        jest.spyOn(BrowserApi, "tabSendMessageData").mockResolvedValue(undefined);
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("returns the sender's new login preview when another tab is active", async () => {
+        const tab = createChromeTabMock({ url: "https://example.com", active: false });
+        await notificationBackground.triggerAddLoginNotification(
+          {
+            uri: "https://example.com",
+            username: "source-user",
+            password: "test-password",
+            newPassword: "",
+          },
+          tab,
+        );
+        jest
+          .spyOn(BrowserApi, "getTabFromCurrentWindow")
+          .mockResolvedValue(createChromeTabMock({ id: 2, url: "https://example.org" }));
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage({ command: "bgGetDecryptedCiphers" }, { tab }, sendResponse);
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith([
+          expect.objectContaining({ name: "example.com", login: { username: "source-user" } }),
+        ]);
+      });
+
+      it("returns only the sender's update candidates when another tab has a notification", async () => {
+        const tab = createChromeTabMock({ url: "https://example.com", active: false });
+        const otherTab = createChromeTabMock({ id: 2, url: "https://example.org" });
+        const sourceCipher = mock<CipherView>({
+          id: "source-login",
+          name: "Source login",
+          login: { username: "source-user", password: "saved-password" },
+        });
+        const otherCipher = mock<CipherView>({
+          id: "other-login",
+          name: "Other login",
+          login: { username: "other-user", password: "saved-password" },
+        });
+        cipherService.getAllDecryptedForUrl
+          .mockResolvedValueOnce([sourceCipher])
+          .mockResolvedValueOnce([otherCipher]);
+        await notificationBackground.triggerChangedPasswordNotification(
+          {
+            uri: "https://example.com",
+            username: "source-user",
+            password: "",
+            newPassword: "new-password",
+          },
+          tab,
+        );
+        await notificationBackground.triggerChangedPasswordNotification(
+          {
+            uri: "https://example.org",
+            username: "other-user",
+            password: "",
+            newPassword: "new-password",
+          },
+          otherTab,
+        );
+        cipherService.getAllDecrypted.mockResolvedValue([sourceCipher, otherCipher]);
+        jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(otherTab);
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage({ command: "bgGetDecryptedCiphers" }, { tab }, sendResponse);
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith([
+          expect.objectContaining({ id: "source-login", name: "Source login" }),
+        ]);
+      });
+
+      it("preserves the sender's login while notification metadata is loading", async () => {
+        const tab = createChromeTabMock({ url: "https://example.com" });
+        await notificationBackground.triggerAddLoginNotification(
+          {
+            uri: "https://example.com",
+            username: "source-user",
+            password: "test-password",
+            newPassword: "",
+          },
+          tab,
+        );
+        const environment = new Subject<SelfHostedEnvironment>();
+        environmentService.environment$ = environment;
+        const activeTab = jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(tab);
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage({ command: "bgGetDecryptedCiphers" }, { tab }, sendResponse);
+        await flushPromises();
+        expect(sendResponse).not.toHaveBeenCalled();
+        activeTab.mockResolvedValue(createChromeTabMock({ id: 2, url: "https://example.org" }));
+        environment.next(new SelfHostedEnvironment({}));
+        environment.complete();
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith([
+          expect.objectContaining({ name: "example.com", login: { username: "source-user" } }),
+        ]);
+      });
+
+      it("looks up the sender's saved logins when no notification is queued", async () => {
+        const tab = createChromeTabMock({ url: "https://example.com", active: false });
+        const sourceCipher = mock<CipherView>({ id: "source-login", name: "Source login" });
+        const savedLogins = new Map([["https://example.com", [sourceCipher]]]);
+        cipherService.getAllDecryptedForUrl.mockImplementation(
+          async (url) => savedLogins.get(url) ?? [],
+        );
+        jest
+          .spyOn(BrowserApi, "getTabFromCurrentWindow")
+          .mockResolvedValue(createChromeTabMock({ id: 2, url: "https://example.org" }));
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage({ command: "bgGetDecryptedCiphers" }, { tab }, sendResponse);
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith([
+          expect.objectContaining({ id: "source-login", name: "Source login" }),
+        ]);
+      });
+
+      it.each([
+        ["tab", undefined],
+        ["tab ID", createChromeTabMock({ id: undefined })],
+        ["tab URL", createChromeTabMock({ url: undefined })],
+      ])("returns no notification data when the sender's %s is missing", async (_, tab) => {
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage({ command: "bgGetDecryptedCiphers" }, { tab }, sendResponse);
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith([]);
+      });
+
+      it.each([
+        ["another tab", createChromeTabMock({ id: 2, url: "https://example.com" })],
+        ["another domain", createChromeTabMock({ url: "https://example.org" })],
+      ])("keeps a queued login separate from %s", async (_, tab) => {
+        await notificationBackground.triggerAddLoginNotification(
+          {
+            uri: "https://example.com",
+            username: "source-user",
+            password: "test-password",
+            newPassword: "",
+          },
+          createChromeTabMock({ url: "https://example.com" }),
+        );
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage({ command: "bgGetDecryptedCiphers" }, { tab }, sendResponse);
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith([]);
+      });
     });
 
     describe("unlockCompleted message handler", () => {
@@ -2732,11 +2900,42 @@ describe("NotificationBackground", () => {
           expect(createWithServerSpy).not.toHaveBeenCalled();
         });
 
+        it.each([undefined, "unlisted-cipher"])(
+          "ignores an update target outside the notification's candidates (%s)",
+          async (cipherId) => {
+            const tab = createChromeTabMock({ url: "https://example.com" });
+            const storedCipher = mock<CipherView>({
+              id: "candidate-cipher",
+              login: { username: "testUser" },
+            });
+            enableChangedPasswordPromptMock$.next(true);
+            getAllDecryptedForUrlSpy.mockResolvedValueOnce([storedCipher]);
+            await expect(
+              notificationBackground.triggerChangedPasswordNotification(
+                {
+                  uri: "https://example.com",
+                  username: "testUser",
+                  password: "",
+                  newPassword: "new-password",
+                },
+                tab,
+              ),
+            ).resolves.toBe(true);
+
+            sendMockExtensionMessage({ command: "bgSaveCipher", cipherId }, { tab });
+            await flushPromises();
+
+            expect(cipherService.get).not.toHaveBeenCalled();
+            expect(updateWithServerSpy).not.toHaveBeenCalled();
+          },
+        );
+
         it("updates the password if the notification message type is for ChangePassword", async () => {
           const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const message: NotificationBackgroundExtensionMessage = {
             command: "bgSaveCipher",
+            cipherId: "testId",
             edit: false,
             folder: "folder-id",
           };
@@ -2744,7 +2943,7 @@ describe("NotificationBackground", () => {
             type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            data: { newPassword: "newPassword" },
+            data: { cipherIds: ["testId"], newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -2786,6 +2985,7 @@ describe("NotificationBackground", () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const message: NotificationBackgroundExtensionMessage = {
             command: "bgSaveCipher",
+            cipherId: "testId",
             edit: false,
             folder: "folder-id",
           };
@@ -2793,7 +2993,7 @@ describe("NotificationBackground", () => {
             type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            data: { newPassword: "newPassword" },
+            data: { cipherIds: ["testId"], newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -2863,6 +3063,7 @@ describe("NotificationBackground", () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const message: NotificationBackgroundExtensionMessage = {
             command: "bgSaveCipher",
+            cipherId: "testId",
             edit: false,
             folder: "folder-id",
           };
@@ -2870,7 +3071,7 @@ describe("NotificationBackground", () => {
             type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            data: { newPassword: "newPassword" },
+            data: { cipherIds: ["testId"], newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -2953,6 +3154,7 @@ describe("NotificationBackground", () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const message: NotificationBackgroundExtensionMessage = {
             command: "bgSaveCipher",
+            cipherId: "testId",
             edit: true,
             folder: "folder-id",
           };
@@ -2960,7 +3162,7 @@ describe("NotificationBackground", () => {
             type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            data: { newPassword: "newPassword" },
+            data: { cipherIds: ["testId"], newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>();
@@ -3148,6 +3350,7 @@ describe("NotificationBackground", () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const message: NotificationBackgroundExtensionMessage = {
             command: "bgSaveCipher",
+            cipherId: "testId",
             edit: false,
             folder: "folder-id",
           };
@@ -3155,7 +3358,7 @@ describe("NotificationBackground", () => {
             type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            data: { newPassword: "newPassword" },
+            data: { cipherIds: ["testId"], newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({ reprompt: CipherRepromptType.None });

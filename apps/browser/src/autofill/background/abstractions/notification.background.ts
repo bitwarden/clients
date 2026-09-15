@@ -3,6 +3,7 @@ import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/ser
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
+import { NotificationCipherData } from "../../content/components/cipher/types";
 import { CollectionView } from "../../content/components/common-types";
 import { NotificationType } from "../../enums/notification-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
@@ -126,6 +127,7 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 export type NotificationBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgGetDecryptedCiphers: ({ sender }: BackgroundSenderParam) => Promise<NotificationCipherData[]>;
   bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
   bgGetCollectionData: ({
     message,
