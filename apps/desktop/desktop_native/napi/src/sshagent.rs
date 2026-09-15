@@ -106,6 +106,12 @@ pub mod sshagent {
         }
     }
 
+    /// The address SSH clients connect to in order to reach the agent.
+    #[napi]
+    pub fn get_socket_address() -> napi::Result<String> {
+        ssh_agent::socket_address().map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
     /// Wrapper for Electron to be able to interface with the agent directly.
     #[napi]
     pub struct SSHAgentState {

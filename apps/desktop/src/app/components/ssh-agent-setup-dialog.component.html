@@ -1,0 +1,34 @@
+<bit-dialog dialogSize="default">
+  <span bitDialogTitle>{{ "sshAgentSetupTitle" | i18n }}</span>
+
+  <ng-container bitDialogContent>
+    @if (isWindows) {
+      <p>{{ "sshAgentSetupWindowsDesc" | i18n }}</p>
+      <bit-callout type="info">{{ "sshAgentSetupWindowsService" | i18n }}</bit-callout>
+    } @else {
+      <p>{{ "sshAgentSetupUnixDesc" | i18n }}</p>
+
+      <div class="tw-flex tw-items-center tw-gap-2 tw-rounded tw-bg-secondary-100 tw-p-2">
+        <code class="tw-break-all">{{ envVarLine }}</code>
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          size="small"
+          [label]="'copy' | i18n"
+          (click)="copyEnvVarLine()"
+        ></button>
+      </div>
+
+      <p class="tw-mt-4">{{ "sshAgentSetupUnixRestart" | i18n }}</p>
+    }
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" [bitDialogClose]="undefined">
+      {{ "ok" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="launchHelp()">
+      {{ "learnMore" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
