@@ -30,6 +30,10 @@ import { MemberDialogManagerService } from "../member-dialog-manager/member-dial
 
 import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
 
+// Provided in root so that EditMemberDialogComponent can resolve it. DialogService parents a
+// dialog's injector to the environment injector DialogService itself was created in, so dialogs
+// opened via the root-provided MemberDialogManagerService resolve against root — a module-scoped
+// provider is never in that chain.
 @Injectable({ providedIn: "root" })
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
