@@ -132,6 +132,27 @@ describe("OrganizationFreeTrialWarningComponent", () => {
     expect(warningsService.getFreeTrialWarning$).toHaveBeenCalledWith(organization, true);
   });
 
+  describe("when the organization input is not yet available", () => {
+    beforeEach(() => {
+      setWarning(warningFor(false));
+      fixture.componentRef.setInput("organization", undefined);
+      fixture.detectChanges();
+    });
+
+    it("does not request a warning or render a banner", () => {
+      expect(warningsService.getFreeTrialWarning$).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.querySelector("#free-trial-banner")).toBeNull();
+    });
+
+    it("renders the banner once the organization arrives", () => {
+      fixture.componentRef.setInput("organization", organization);
+      fixture.detectChanges();
+
+      expect(warningsService.getFreeTrialWarning$).toHaveBeenCalledWith(organization, false);
+      expect(fixture.nativeElement.textContent).toContain("Your free trial ends in 5 days.");
+    });
+  });
+
   describe("when the organization input changes", () => {
     const otherOrganization = { id: "org-id-456", name: "Other Organization" } as Organization;
 

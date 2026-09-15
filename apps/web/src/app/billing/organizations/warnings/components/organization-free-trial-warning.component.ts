@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, filter, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BannerModule } from "@bitwarden/components";
@@ -42,13 +42,11 @@ export class OrganizationFreeTrialWarningComponent {
 
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
 
-  // Re-resolve the warning whenever the bound organization changes. The Admin Console reuses
-  // the page component when switching organizations, so a one-time lookup in ngOnInit would
-  // keep showing the first-loaded organization's warning.
   protected readonly warning$ = combineLatest([
     toObservable(this.organization),
     toObservable(this.includeOrganizationNameInMessaging),
   ]).pipe(
+    filter(([organization]) => organization != null),
     switchMap(([organization, includeOrganizationNameInMessaging]) =>
       this.organizationWarningsService.getFreeTrialWarning$(
         organization,
