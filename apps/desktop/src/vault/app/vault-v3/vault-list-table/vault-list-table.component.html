@@ -1,5 +1,5 @@
 @if (showPremiumCallout()) {
-  <div class="tw-m-4">
+  <div class="tw-mx-8">
     <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
       <div>{{ "premiumSubscriptionEndedDesc" | i18n }}</div>
       <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
