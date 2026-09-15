@@ -35,13 +35,14 @@ import path from "path";
 
 import {
   BUILD_CONFIG_FILENAME,
-  ConfigureError,
+  BuildError,
   DIST_DIR,
   INTERMEDIATES_DIR,
   type BuildConfig,
   type ResolvedInputs,
   type RawOptions,
   diffKeys,
+  enabledTargetDefinitions,
   parseConfigureArgs,
   provisioningProfilePath,
   serializeBuildConfig,
@@ -49,6 +50,8 @@ import {
   usage,
   validate,
 } from "./build-config.mts";
+import { asHostPlatform, crossCompilationPlan, rustTargetsFor } from "./rust-targets.mts";
+import { verifyToolchain } from "./toolchain.mts";
 
 const projectDir = path.resolve(import.meta.dirname, "..");
 const repoRoot = path.resolve(projectDir, "../..");
@@ -84,6 +87,14 @@ function main(): void {
   }
 
   const config = toBuildConfig(raw, resolution.inputs);
+
+  // Probed here rather than installed at build time: a machine that cannot finish this build
+  // should say so now, while the only thing lost is the time it took to ask.
+  if (!raw.skipToolchainCheck && !toolchainIsReady(config)) {
+    process.exitCode = 1;
+    return;
+  }
+
   const buildDir = path.resolve(projectDir, config.buildDir);
   const configPath = path.join(buildDir, BUILD_CONFIG_FILENAME);
 
@@ -100,6 +111,36 @@ function main(): void {
 
   writeFileSync(configPath, serializeBuildConfig(config));
   summarize(config, configPath);
+}
+
+function toolchainIsReady(config: BuildConfig): boolean {
+  const host = asHostPlatform(process.platform);
+  if (host == null) {
+    console.warn(
+      `warning: ${process.platform} is not a supported build host; skipping the toolchain check.`,
+    );
+    return true;
+  }
+
+  const needsRust = enabledTargetDefinitions(config).some((target) => target.toolchain === "rust");
+  if (!needsRust) {
+    return true;
+  }
+
+  const targets = rustTargetsFor(config.derived.platform, config.architectures);
+  const report = verifyToolchain(crossCompilationPlan(host, targets));
+
+  for (const warning of report.warnings) {
+    console.warn(`warning: ${warning}`);
+  }
+  for (const error of report.errors) {
+    console.error(`error: ${error}`);
+  }
+  if (report.errors.length > 0) {
+    console.error("\nRun with --skip-toolchain-check to write the configuration anyway.");
+    return false;
+  }
+  return true;
 }
 
 interface Resolution {
@@ -156,13 +197,13 @@ function resolveProvisioningProfile(requested: string): ResolvedProfile {
   if (looksLikePath(requested)) {
     const sourcePath = path.resolve(projectDir, requested);
     if (!existsSync(sourcePath)) {
-      throw new ConfigureError(`--provisioning-profile '${requested}' does not exist.`);
+      throw new BuildError(`--provisioning-profile '${requested}' does not exist.`);
     }
     return { sourcePath, name: readProfileName(sourcePath) };
   }
 
   if (process.platform !== "darwin") {
-    throw new ConfigureError(
+    throw new BuildError(
       `--provisioning-profile '${requested}' looks like an installed profile name, which can ` +
         "only be resolved on macOS. Pass a path instead.",
     );
@@ -187,7 +228,7 @@ function resolveProvisioningProfile(requested: string): ResolvedProfile {
     }
   }
 
-  throw new ConfigureError(
+  throw new BuildError(
     `No installed provisioning profile named '${requested}'. Searched ` +
       `${PROFILE_SEARCH_DIRS.join(" and ")}.`,
   );
@@ -276,7 +317,7 @@ function summarize(config: BuildConfig, configPath: string): void {
 try {
   main();
 } catch (error) {
-  if (error instanceof ConfigureError) {
+  if (error instanceof BuildError) {
     console.error(`error: ${error.message}`);
     console.error("\nRun with --help for usage.");
     process.exitCode = 1;
