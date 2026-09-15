@@ -79,7 +79,7 @@ export class InviteLinkCalloutService {
       return;
     }
 
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.InviteLinkNotification))) {
       return;
     }
 
