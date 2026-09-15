@@ -19929,5 +19929,11 @@
         "example": "Production database"
       }
     }
+  },
+  "privateAccessBanner": {
+    "message": "This is a Privileged Controls preview environment. Do not use real credentials."
+  },
+  "viewUserGuide": {
+    "message": "View user guide"
   }
 }
