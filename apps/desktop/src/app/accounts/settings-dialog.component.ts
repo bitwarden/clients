@@ -38,6 +38,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   ButtonModule,
+  CalloutModule,
   CheckboxModule,
   DialogModule,
   DialogService,
@@ -85,6 +86,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   ],
   imports: [
     ButtonModule,
+    CalloutModule,
     CheckboxModule,
     DialogModule,
     FormFieldModule,
@@ -519,42 +521,23 @@ export class SettingsDialogComponent implements OnInit {
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
       await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
-    } else if (!(await this.enrollPersistentBiometricIfNeeded(userId))) {
-      // Nothing was persisted, so a master password or PIN is still required on app restart.
-      this.form.controls.requireMasterPasswordOnAppRestart.setValue(true, { emitEvent: false });
+    } else {
+      // Allow biometric unlock on app restart
+      await this.enrollPersistentBiometricIfNeeded(userId);
     }
   }
 
   /**
    * Persists the user key so biometrics alone can unlock the vault after an app restart.
-   *
-   * On Linux the persisted key is protected only by the OS Secret Service, which any
-   * un-sandboxed process running as the user can read, so this asks for informed consent
-   * first. Returns false when the user declines and nothing was persisted.
    */
-  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<boolean> {
-    if (await this.biometricsService.hasPersistentKey(userId)) {
-      return true;
+  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
+    if (!(await this.biometricsService.hasPersistentKey(userId))) {
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      await this.biometricsService.enrollPersistent(userId, userKey);
+      this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
+        emitEvent: false,
+      });
     }
-
-    if (this.isLinux && !(await this.confirmSystemAuthOnAppRestart())) {
-      return false;
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    await this.biometricsService.enrollPersistent(userId, userKey);
-    this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
-      emitEvent: false,
-    });
-    return true;
-  }
-
-  private async confirmSystemAuthOnAppRestart(): Promise<boolean> {
-    return await this.dialogService.openSimpleDialog({
-      title: { key: "warningCapitalized" },
-      content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
-      type: "warning",
-    });
   }
 
   protected async updateAutoPromptBiometrics() {

@@ -430,17 +430,31 @@ describe("SettingsDialogComponent", () => {
         platformUtilsService.getDevice.mockReset();
       });
 
-      it("displays require MP on app restart checkbox when the user has a master password", async () => {
+      it("displays require MP on app restart checkbox with hint and warning callout when unchecked", async () => {
         userVerificationService.hasMasterPassword.mockResolvedValue(true);
 
         await component.ngOnInit();
         fixture.detectChanges();
 
-        expect(
-          fixture.debugElement.query(
-            By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
-          ),
-        ).not.toBeNull();
+        const input = fixture.debugElement.query(
+          By.css("input[formControlName='requireMasterPasswordOnAppRestart']"),
+        );
+        expect(input).not.toBeNull();
+
+        const formControl = input.parent;
+        const hint = formControl?.query(By.css("bit-hint"));
+        expect(hint?.nativeElement.textContent).toContain("requireMasterPasswordOnAppRestartDesc");
+
+        expect(fixture.debugElement.query(By.css("bit-callout[type='warning']"))).toBeNull();
+
+        (component as any).form.controls.requireMasterPasswordOnAppRestart.setValue(false);
+        fixture.detectChanges();
+
+        const callout = fixture.debugElement.query(By.css("bit-callout[type='warning']"));
+        expect(callout).not.toBeNull();
+        expect(callout.nativeElement.textContent).toContain(
+          "requireMasterPasswordOnAppRestartWarning",
+        );
       });
 
       it("does not display require MP/PIN on app restart checkbox without a master password or PIN", async () => {
@@ -672,34 +686,15 @@ describe("SettingsDialogComponent", () => {
           (component as any).form.value.biometric = true;
         };
 
-        it("enrolls a persistent key once the user accepts the security warning", async () => {
-          dialogService.openSimpleDialog.mockResolvedValue(true);
+        it("enrolls a persistent key when turning off PIN", async () => {
           await setUpUserWithoutMasterPassword();
 
           await (component as any).updatePinHandler(false);
 
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: { key: "warningCapitalized" },
-            content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
-            type: "warning",
-          });
           expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
             mockUserId,
             mockUserKey,
           );
-          expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
-        });
-
-        it("still removes the PIN when the user declines the security warning", async () => {
-          dialogService.openSimpleDialog.mockResolvedValue(false);
-          await setUpUserWithoutMasterPassword();
-
-          await (component as any).updatePinHandler(false);
-
-          expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
-          // The PIN removal the user asked for still happens; they simply have to log in
-          // again after an app restart.
           expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
         });
       });
@@ -956,43 +951,19 @@ describe("SettingsDialogComponent", () => {
           );
         });
 
-        it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart once the security warning is accepted", async () => {
-          dialogService.openSimpleDialog.mockResolvedValue(true);
+        it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart", async () => {
           (component as any).userHasMasterPassword.set(false);
           (component as any).userHasPinSet.set(false);
           desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
 
           await (component as any).updateBiometricHandler(true);
 
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: { key: "warningCapitalized" },
-            content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
-            type: "warning",
-          });
           expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
             mockUserId,
             mockUserKey,
           );
           expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
             false,
-          );
-        });
-
-        it("when the user doesn't have a master password or a PIN set, does not persist the key if the security warning is declined", async () => {
-          dialogService.openSimpleDialog.mockResolvedValue(false);
-          (component as any).userHasMasterPassword.set(false);
-          (component as any).userHasPinSet.set(false);
-          desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
-
-          await (component as any).updateBiometricHandler(true);
-
-          expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-          expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
-          // Biometrics still unlock the vault while the app is running; only unlocking after
-          // an app restart stays unavailable.
-          expect((component as any).form.controls.biometric.value).toBe(true);
-          expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
-            true,
           );
         });
 
@@ -1118,17 +1089,11 @@ describe("SettingsDialogComponent", () => {
         (component as any).isLinux = true;
       });
 
-      it("enrolls a persistent key once the user accepts the security warning", async () => {
-        dialogService.openSimpleDialog.mockResolvedValue(true);
-
+      it("enrolls persistent biometric if not already enrolled", async () => {
         await component.ngOnInit();
         await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
 
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-          title: { key: "warningCapitalized" },
-          content: { key: "allowSystemAuthOnAppRestartWarningDesc" },
-          type: "warning",
-        });
+        expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
         expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
           mockUserId,
           mockUserKey,
@@ -1136,17 +1101,6 @@ describe("SettingsDialogComponent", () => {
         expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
           false,
         );
-      });
-
-      it("keeps the setting enabled when the user declines the security warning", async () => {
-        dialogService.openSimpleDialog.mockResolvedValue(false);
-
-        await component.ngOnInit();
-        await (component as any).updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);
-
-        expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-        expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
-        expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(true);
       });
     });
   });
