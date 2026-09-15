@@ -293,18 +293,29 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   };
 
   /**
-   * Handles web requests that are triggering a redirect. Stores the redirect URL as a valid
-   * auto-submit host if the redirectUrl should trigger an auto-submit.
+   * Promotes hosts from a redirect chain into validAutoSubmitHosts. The initiator check
+   * prevents any origin from 302'ing to `target#autosubmit=1` to force autofill there.
    *
    * @param details - The details of the request.
    */
   private handleWebRequestOnBeforeRedirect = (
     details: chrome.webRequest.OnBeforeRedirectDetails,
   ) => {
-    if (this.isRequestInMainFrame(details) && this.urlContainsAutoSubmitHash(details.redirectUrl)) {
-      this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
-      this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
+    if (!this.isRequestInMainFrame(details)) {
+      return;
     }
+    if (!this.urlContainsAutoSubmitHash(details.redirectUrl)) {
+      return;
+    }
+    // Only the security-relevant exit is marked. Earlier guards fire on
+    // every unrelated redirect and would produce frequent unnecessary logs.
+    if (!this.isValidInitiator(details.url)) {
+      this.logService.mark("[AutoSubmitLogin] Redirect skipped: untrusted initiator");
+      return;
+    }
+
+    this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
+    this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
   };
 
   /**
