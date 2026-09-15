@@ -27,17 +27,31 @@ import { SharedUnlockPeerService } from "./shared-unlock-peer.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 
 const NO_DESTINATIONS: SharedUnlockClient[] = [];
-// Desktop and web do not choose peers; they only ever share with the extension.
+// Desktop and web do not choose peers; they only ever share with the extension. The CLI reaches
+// the desktop over the same native-messaging socket the extension uses, so the desktop addresses
+// it as a browser endpoint too, and needs no destination of its own.
 const BROWSER_ONLY: SharedUnlockClient[] = ["Browser"];
+// The CLI has no peer picker; the desktop app it proxies through is its only peer.
+const DESKTOP_ONLY: SharedUnlockClient[] = ["Desktop"];
 
 function sameDestinations(a: SharedUnlockClient[], b: SharedUnlockClient[]): boolean {
   return a.length === b.length && a.every((client, i) => client === b[i]);
 }
 
+/** Builds the SDK peer. Exists so tests can stand in for the wasm type. */
+export type SharedUnlockPeerFactory = (
+  ipcClient: IpcService["client"],
+  driver: JsSharedUnlockDriver,
+) => SharedUnlockPeer;
+
+const defaultPeerFactory: SharedUnlockPeerFactory = (ipcClient, driver) =>
+  new SharedUnlockPeer(ipcClient, driver);
+
 export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
   private peer: SharedUnlockPeer | null = null;
   /** The live destination subscription per account, which is also the set of accounts seen so far. */
   private readonly destinationSubscriptions = new Map<UserId, Subscription>();
+  private accountsSubscription: Subscription | null = null;
 
   constructor(
     private ipcService: IpcService,
@@ -49,9 +63,10 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
     private unlockService: UnlockService,
     private configService: ConfigService,
+    private peerFactory: SharedUnlockPeerFactory = defaultPeerFactory,
   ) {}
 
-  async start(): Promise<void> {
+  async start(abortController?: AbortController): Promise<void> {
     const sharedUnlockDriver = new JsSharedUnlockDriver(
       this.accountService,
       this.lockService,
@@ -61,13 +76,16 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.environmentService,
     );
 
-    const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
+    const peer = this.peerFactory(this.ipcService.client, sharedUnlockDriver);
     this.peer = peer;
-    await peer.start();
+    await peer.start(abortController ?? null);
 
-    this.accountService.accounts$
+    this.accountsSubscription = this.accountService.accounts$
       .pipe(concatMap((accounts) => this.syncAccounts(Object.keys(accounts) as UserId[])))
       .subscribe();
+
+    // The peer's own loops stop on abort, but its subscriptions here are ours to release.
+    abortController?.signal.addEventListener("abort", () => this.stopWatching());
 
     this.lockService.registerOnLockAction(async (userId, source) => {
       // A peer locked us. Announcing it back would send it around the hierarchy again.
@@ -95,6 +113,17 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
         },
       });
     });
+  }
+
+  /** Releases every subscription this service opened. */
+  private stopWatching(): void {
+    this.accountsSubscription?.unsubscribe();
+    this.accountsSubscription = null;
+
+    for (const subscription of this.destinationSubscriptions.values()) {
+      subscription.unsubscribe();
+    }
+    this.destinationSubscriptions.clear();
   }
 
   /**
@@ -156,7 +185,8 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
    * The clients this peer shares the user's unlock state with.
    *
    *   browser  ->  desktop and/or web, per the user's settings
-   *   desktop  ->  browser
+   *   cli      ->  desktop, per the user's setting
+   *   desktop  ->  browser (which is also how it reaches the CLI)
    *   web      ->  browser
    */
   private destinations$(userId: UserId): Observable<SharedUnlockClient[]> {
@@ -167,11 +197,19 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
     ]).pipe(
       map(([featureEnabled, sharingDisabled, allowDesktop, allowWeb]) => {
+        // TEMPORARY: SharedUnlockPart2 gate disabled for local testing. Restore before committing.
+        featureEnabled = true;
+
         if (!featureEnabled || sharingDisabled) {
           return NO_DESTINATIONS;
         }
 
-        if (this.platformUtilsService.getClientType() !== ClientType.Browser) {
+        const clientType = this.platformUtilsService.getClientType();
+        if (clientType === ClientType.Cli) {
+          return allowDesktop ? DESKTOP_ONLY : NO_DESTINATIONS;
+        }
+
+        if (clientType !== ClientType.Browser) {
           return BROWSER_ONLY;
         }
 

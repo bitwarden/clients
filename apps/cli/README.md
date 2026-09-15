@@ -63,6 +63,31 @@ bw list --help
 bw create --help
 ```
 
+### Unlock through the desktop app
+
+The CLI can borrow its unlock state from the Bitwarden desktop app instead of maintaining its own.
+This requires Bitwarden Desktop 2026.9.0 or newer to be running, with unlock sharing enabled for
+the same account.
+
+| Desktop app                                   | CLI behaviour                                                         |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| Running and unlocked                          | Every command works with no prompt, even with no `BW_SESSION` set     |
+| Running but locked, biometric unlock enabled  | A biometric prompt appears; the desktop window is not brought forward |
+| Running but locked, biometric unlock disabled | The CLI prompts for the master password                               |
+| Not running                                   | The CLI prompts for the master password                               |
+
+Unlocking or locking in the CLI is shared in the other direction too: `bw unlock` also unlocks the
+desktop app and, through it, the browser extension, and `bw lock` locks them.
+
+A session key the CLI acquires this way lives only for that command. Run `bw unlock` to get a
+`BW_SESSION` you can export.
+
+Passing a password, `--passwordenv`, or `--passwordfile` skips the biometric attempt. Biometric
+unlock is also skipped when `BW_NOINTERACTION=true`.
+
+If the desktop app is installed in a non-standard location, set
+`BITWARDEN_DESKTOP_PROXY_PATH` to the path of its `desktop_proxy` executable.
+
 ### Help Center
 
 We provide detailed documentation and examples for using the CLI in our help center at https://help.bitwarden.com/article/cli/.
