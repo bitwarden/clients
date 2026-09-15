@@ -18509,7 +18509,10 @@
   "requestAccessModalReasonPlaceholder": {
     "message": "Why do you need this?"
   },
-  "requestAccessModalReasonHint": {
+  "requestAccessModalAutomaticReasonHint": {
+    "message": "This reason is saved with your access request."
+  },
+  "requestAccessModalHumanReasonHint": {
     "message": "Approvers will see this reason when reviewing your request."
   },
   "requestAccessModalGenericError": {
