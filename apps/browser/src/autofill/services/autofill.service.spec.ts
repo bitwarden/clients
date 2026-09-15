@@ -120,7 +120,7 @@ describe("AutofillService", () => {
   let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
   const autofillLifecycleService = mock<AutofillLifecycleService>();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     configService = mock<ConfigService>();
     fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
     configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
@@ -147,6 +147,7 @@ describe("AutofillService", () => {
       authService,
     );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
+    await domainSettingsService.setBlockedInteractionsUris({});
 
     scriptInjectorService = new BrowserScriptInjectorService(
       domainSettingsService,
@@ -395,6 +396,97 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
     });
 
+    afterEach(() => jest.restoreAllMocks());
+
+    it("registers the selected bootstrap and context menu scripts for manifest v2", async () => {
+      jest.spyOn(BrowserApi, "isManifestVersion").mockImplementation((version) => version === 2);
+      const registeredContentScript = mock<browser.contentScripts.RegisteredContentScript>();
+      const registerContentScripts = jest
+        .spyOn(BrowserApi, "registerContentScriptsMv2")
+        .mockResolvedValue(registeredContentScript);
+
+      await autofillService.loadAutofillScriptsOnInstall();
+
+      expect(registerContentScripts).toHaveBeenCalledWith({
+        matches: ["*://*/*", "file:///*"],
+        excludeMatches: ["*://*/*.xml*", "file:///*.xml*"],
+        allFrames: true,
+        runAt: "document_start",
+        js: [
+          { file: "content/bootstrap-autofill-overlay.js" },
+          { file: "content/contextMenuHandler.js" },
+        ],
+      });
+    });
+
+    it("registers the selected bootstrap and context menu scripts for manifest v3", async () => {
+      jest.spyOn(BrowserApi, "isManifestVersion").mockImplementation((version) => version === 3);
+      jest.spyOn(BrowserApi, "getRegisteredContentScriptsMv3").mockResolvedValue([]);
+      jest.spyOn(BrowserApi, "unregisterContentScriptsMv3").mockResolvedValue();
+      const registerContentScripts = jest
+        .spyOn(BrowserApi, "registerContentScriptsMv3")
+        .mockResolvedValue();
+
+      await autofillService.loadAutofillScriptsOnInstall();
+
+      expect(registerContentScripts).toHaveBeenCalledWith([
+        {
+          id: "autofill-bootstrap",
+          matches: ["*://*/*", "file:///*"],
+          excludeMatches: ["*://*/*.xml*", "file:///*.xml*"],
+          allFrames: true,
+          runAt: "document_start",
+          js: ["content/bootstrap-autofill-overlay.js", "content/contextMenuHandler.js"],
+        },
+      ]);
+    });
+
+    it("excludes blocked hostnames and their subdomains from registered scripts", async () => {
+      await domainSettingsService.setBlockedInteractionsUris({ "example.com": null });
+      jest.spyOn(BrowserApi, "isManifestVersion").mockImplementation((version) => version === 2);
+      const registerContentScripts = jest
+        .spyOn(BrowserApi, "registerContentScriptsMv2")
+        .mockResolvedValue(mock<browser.contentScripts.RegisteredContentScript>());
+
+      await autofillService.loadAutofillScriptsOnInstall();
+
+      expect(registerContentScripts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          excludeMatches: [
+            "*://*/*.xml*",
+            "file:///*.xml*",
+            "*://example.com/*",
+            "*://*.example.com/*",
+          ],
+        }),
+      );
+    });
+
+    it("reloads registration when notification settings change", async () => {
+      await autofillService.loadAutofillScriptsOnInstall();
+      const reloadAutofillScripts = jest
+        .spyOn(autofillService, "reloadAutofillScripts")
+        .mockResolvedValue();
+
+      enableChangedPasswordPromptMock$.next(false);
+      enableAddedLoginPromptMock$.next(false);
+      await flushPromises();
+
+      expect(reloadAutofillScripts).toHaveBeenCalledTimes(1);
+    });
+
+    it("reloads registration when blocked hostnames change", async () => {
+      await autofillService.loadAutofillScriptsOnInstall();
+      const reloadAutofillScripts = jest
+        .spyOn(autofillService, "reloadAutofillScripts")
+        .mockResolvedValue();
+
+      await domainSettingsService.setBlockedInteractionsUris({ "example.com": null });
+      await flushPromises();
+
+      expect(reloadAutofillScripts).toHaveBeenCalledTimes(1);
+    });
+
     it("queries all browser tabs and injects the autofill scripts into them", async () => {
       jest.spyOn(autofillService, "injectAutofillScripts");
 
@@ -459,10 +551,10 @@ describe("AutofillService", () => {
   });
 
   describe("reloadAutofillScripts", () => {
-    it("retires all frames through the lifecycle service and re-injects the autofill scripts", () => {
+    it("retires all frames through the lifecycle service and re-injects the autofill scripts", async () => {
       jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
 
-      void autofillService.reloadAutofillScripts();
+      await autofillService.reloadAutofillScripts();
 
       expect(autofillLifecycleService.retireAllFrames).toHaveBeenCalled();
       expect(autofillService["injectAutofillScriptsInAllTabs"]).toHaveBeenCalled();
@@ -593,6 +685,61 @@ describe("AutofillService", () => {
         sender.tab,
         sender.frameId,
       );
+    });
+  });
+
+  describe("handleAutofillScriptInjection", () => {
+    const tabMock = createChromeTabMock({ id: 1, url: "https://example.com" });
+
+    beforeEach(() => {
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tabMock);
+      jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
+      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(false);
+    });
+
+    it("uses dynamic injection when content script registration is unavailable", async () => {
+      const injectAutofillScripts = jest
+        .spyOn(autofillService, "injectAutofillScripts")
+        .mockResolvedValue();
+
+      await autofillService.handleAutofillScriptInjection(tabMock, 2);
+
+      expect(injectAutofillScripts).toHaveBeenCalledWith(tabMock, 2);
+    });
+
+    it("starts lifecycle monitoring without re-injecting registered bootstrap scripts", async () => {
+      autofillService["autofillContentScriptRegistrationReady"] = true;
+      const injectAutofillScripts = jest.spyOn(autofillService, "injectAutofillScripts");
+
+      await autofillService.handleAutofillScriptInjection(tabMock, 2);
+
+      expect(injectAutofillScripts).not.toHaveBeenCalled();
+      expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalled();
+      expect(autofillLifecycleService.startMonitoringFrame).toHaveBeenCalledWith(tabMock, 2);
+    });
+
+    it("only dynamically injects page-load autofill when registered scripts are available", async () => {
+      autofillService["autofillContentScriptRegistrationReady"] = true;
+      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
+
+      await autofillService.handleAutofillScriptInjection(tabMock, 2);
+
+      expect(BrowserApi.executeScriptInTab).toHaveBeenCalledTimes(1);
+      expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
+        file: "content/autofiller.js",
+        frameId: 2,
+        runAt: "document_start",
+      });
+    });
+
+    it("does not start monitoring or inject scripts on blocked tabs", async () => {
+      autofillService["autofillContentScriptRegistrationReady"] = true;
+      await domainSettingsService.setBlockedInteractionsUris({ "example.com": null });
+
+      await autofillService.handleAutofillScriptInjection(tabMock, 2);
+
+      expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalled();
+      expect(autofillLifecycleService.startMonitoringFrame).not.toHaveBeenCalled();
     });
   });
 

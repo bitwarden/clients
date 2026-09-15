@@ -1,4 +1,5 @@
 import {
+  combineLatest,
   filter,
   firstValueFrom,
   merge,
@@ -25,10 +26,11 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
-import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
+import { isUrlInList, normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
+  NeverDomains,
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
@@ -90,10 +92,18 @@ const loginIdentifierQualifierPriority: string[] = [
   AutofillTargetingRuleTypes.phone,
 ];
 
+const autofillContentScriptId = "autofill-bootstrap";
+const autofillContentScriptMatches = ["*://*/*", "file:///*"];
+const autofillContentScriptBaseExcludes = ["*://*/*.xml*", "file:///*.xml*"];
+
 export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
   private openPasswordRepromptPopoutDebounce?: ReturnType<typeof setTimeout>;
   private currentlyOpeningPasswordRepromptPopout = false;
+  private registeredAutofillContentScript:
+    browser.contentScripts.RegisteredContentScript | undefined;
+  private autofillContentScriptRegistrationReady = false;
+  private autofillContentScriptRegistrationUpdate = Promise.resolve();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   enableInlineMenuAnimation$: Observable<boolean>;
   enableNotificationAnimation$: Observable<boolean>;
@@ -206,6 +216,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * if the extension context has been disconnected.
    */
   async loadAutofillScriptsOnInstall() {
+    await this.updateAutofillContentScriptRegistration();
     void this.injectAutofillScriptsInAllTabs();
 
     this.autofillSettingsService.inlineMenuVisibility$
@@ -225,6 +236,26 @@ export default class AutofillService implements AutofillServiceInterface {
       .subscribe(([previousSetting, currentSetting]) =>
         this.handleInlineMenuVisibilitySettingsChange(previousSetting, currentSetting),
       );
+
+    combineLatest([
+      this.userNotificationSettingsService.enableChangedPasswordPrompt$,
+      this.userNotificationSettingsService.enableAddedLoginPrompt$,
+    ])
+      .pipe(
+        map(([enableChangedPasswordPrompt, enableAddedLoginPrompt]) =>
+          Boolean(enableChangedPasswordPrompt || enableAddedLoginPrompt),
+        ),
+        pairwise(),
+      )
+      .subscribe(([previousSetting, currentSetting]) =>
+        this.handleAutofillContentScriptSettingChange(previousSetting, currentSetting),
+      );
+
+    this.domainSettingsService.blockedInteractionsUris$
+      .pipe(pairwise())
+      .subscribe(([previousSetting, currentSetting]) =>
+        this.handleBlockedInteractionsUrisChange(previousSetting, currentSetting),
+      );
   }
 
   /**
@@ -235,7 +266,50 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   async reloadAutofillScripts() {
     this.autofillLifecycleService.retireAllFrames();
+    await this.updateAutofillContentScriptRegistration();
     void this.injectAutofillScriptsInAllTabs();
+  }
+
+  /**
+   * Handles the lightweight document-start trigger. Registered bootstrap scripts are already
+   * present in newly-created frames, so only page-load autofill and lifecycle startup remain.
+   * Falls back to the existing dynamic path when registration is unavailable.
+   */
+  async handleAutofillScriptInjection(tab: chrome.tabs.Tab, frameId = 0): Promise<void> {
+    if (tab.id == null) {
+      return;
+    }
+
+    if (!this.autofillContentScriptRegistrationReady) {
+      await this.injectAutofillScripts(tab, frameId);
+      return;
+    }
+
+    const blockedInteractionsUris = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+    if (tab.url && isUrlInList(tab.url, blockedInteractionsUris)) {
+      return;
+    }
+
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (
+      activeAccount &&
+      authStatus === AuthenticationStatus.Unlocked &&
+      (await this.getAutofillOnPageLoad())
+    ) {
+      await this.scriptInjectorService.inject({
+        tabId: tab.id,
+        injectDetails: {
+          file: "content/autofiller.js",
+          runAt: "document_start",
+          frame: frameId,
+        },
+      });
+    }
+
+    await this.autofillLifecycleService.startMonitoringFrame(tab, frameId);
   }
 
   /**
@@ -335,6 +409,74 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return "bootstrap-autofill-overlay.js";
+  }
+
+  /**
+   * Registers the selected bootstrap once so the browser can deliver it directly to each frame,
+   * avoiding a background round-trip and one executeScript call per file and frame.
+   */
+  private async updateAutofillContentScriptRegistration(): Promise<void> {
+    this.autofillContentScriptRegistrationUpdate =
+      this.autofillContentScriptRegistrationUpdate.then(() =>
+        this.replaceAutofillContentScriptRegistration(),
+      );
+    await this.autofillContentScriptRegistrationUpdate;
+  }
+
+  private async replaceAutofillContentScriptRegistration(): Promise<void> {
+    this.autofillContentScriptRegistrationReady = false;
+
+    try {
+      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+      const bootstrapScript = await this.getBootstrapAutofillContentScript(activeAccount);
+      const blockedInteractionsUris = await firstValueFrom(
+        this.domainSettingsService.blockedInteractionsUris$,
+      );
+      const excludeMatches = [
+        ...autofillContentScriptBaseExcludes,
+        ...Object.keys(blockedInteractionsUris).flatMap((hostname) => [
+          `*://${hostname}/*`,
+          `*://*.${hostname}/*`,
+        ]),
+      ];
+      const js = [`content/${bootstrapScript}`, "content/contextMenuHandler.js"];
+
+      if (BrowserApi.isManifestVersion(2)) {
+        await this.registeredAutofillContentScript?.unregister();
+        this.registeredAutofillContentScript = undefined;
+        this.registeredAutofillContentScript = await BrowserApi.registerContentScriptsMv2({
+          matches: autofillContentScriptMatches,
+          excludeMatches,
+          allFrames: true,
+          runAt: "document_start",
+          js: js.map((file) => ({ file })),
+        });
+      } else {
+        const existingRegistrations = await BrowserApi.getRegisteredContentScriptsMv3({
+          ids: [autofillContentScriptId],
+        });
+        if (existingRegistrations.length > 0) {
+          await BrowserApi.unregisterContentScriptsMv3({ ids: [autofillContentScriptId] });
+        }
+        await BrowserApi.registerContentScriptsMv3([
+          {
+            id: autofillContentScriptId,
+            matches: autofillContentScriptMatches,
+            excludeMatches,
+            allFrames: true,
+            runAt: "document_start",
+            js,
+          },
+        ]);
+      }
+
+      this.autofillContentScriptRegistrationReady = true;
+    } catch (error) {
+      this.logService.error(
+        "Unable to register autofill content scripts; using dynamic injection.",
+        error,
+      );
+    }
   }
 
   /**
@@ -3382,6 +3524,33 @@ export default class AutofillService implements AutofillServiceInterface {
       !isInlineMenuVisibilitySubSetting &&
       !inlineMenuPreviouslyDisabled &&
       !inlineMenuCurrentlyDisabled
+    ) {
+      return;
+    }
+
+    await this.reloadAutofillScripts();
+  }
+
+  private async handleAutofillContentScriptSettingChange(
+    oldSettingValue: boolean,
+    newSettingValue: boolean,
+  ) {
+    if (oldSettingValue === newSettingValue) {
+      return;
+    }
+
+    await this.reloadAutofillScripts();
+  }
+
+  private async handleBlockedInteractionsUrisChange(
+    oldSettingValue: NeverDomains,
+    newSettingValue: NeverDomains,
+  ) {
+    const oldHostnames = Object.keys(oldSettingValue).sort();
+    const newHostnames = Object.keys(newSettingValue).sort();
+    if (
+      oldHostnames.length === newHostnames.length &&
+      oldHostnames.every((hostname, index) => hostname === newHostnames[index])
     ) {
       return;
     }

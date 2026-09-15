@@ -20,6 +20,8 @@ import RuntimeBackground from "./runtime.background";
 describe("RuntimeBackground collectPageDetailsResponse routing", () => {
   let runtimeBackground: RuntimeBackground;
   let autofillOrchestrator: MockProxy<AutofillOrchestrator>;
+  let autofillService: MockProxy<AutofillService>;
+  let mainBackground: MockProxy<MainBackground>;
 
   const tab = createChromeTabMock({ id: 1 });
   const details = { foo: "bar" } as any;
@@ -37,10 +39,12 @@ describe("RuntimeBackground collectPageDetailsResponse routing", () => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
 
     autofillOrchestrator = mock<AutofillOrchestrator>();
+    autofillService = mock<AutofillService>();
+    mainBackground = mock<MainBackground>();
 
     runtimeBackground = new RuntimeBackground(
-      mock<MainBackground>(),
-      mock<AutofillService>(),
+      mainBackground,
+      autofillService,
       mock<BrowserPlatformUtilsService>(),
       undefined as any,
       undefined as any,
@@ -56,6 +60,23 @@ describe("RuntimeBackground collectPageDetailsResponse routing", () => {
       undefined as any,
       autofillOrchestrator,
     );
+  });
+
+  it("routes the document-start trigger through the registered-script handler", async () => {
+    await runtimeBackground.processMessageWithSender(
+      { command: "triggerAutofillScriptInjection" },
+      sender,
+    );
+
+    expect(autofillService.handleAutofillScriptInjection).toHaveBeenCalledWith(tab, 0);
+    expect(autofillService.injectAutofillScripts).not.toHaveBeenCalled();
+  });
+
+  it("reloads registered scripts after logout changes the active account", async () => {
+    await runtimeBackground.processMessage({ command: "logout", expired: false });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(false, undefined);
+    expect(autofillService.reloadAutofillScripts).toHaveBeenCalled();
   });
 
   it("forwards a keyboard-shortcut collection to AutofillOrchestrator", async () => {
