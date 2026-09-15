@@ -268,6 +268,59 @@ describe("adaptInvoicePreviewToCart", () => {
     });
   });
 
+  describe("proration-only password manager", () => {
+    it("should derive the seat row from the prorated charge when the preview has no seats line", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        passwordManager: {
+          prorations: [{ credit: 6.67, charge: 26.67, tax: 2, total: 20, months: 8 }],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
+
+      expect(cart.passwordManager.seats).toEqual({
+        translationKey: "enterpriseMembership",
+        quantity: 1,
+        cost: 26.67,
+        hideBreakdown: true,
+      });
+      expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 6.67 });
+    });
+
+    it("should sum multiple prorated charges in integer cents", () => {
+      const preview = basePreview({
+        passwordManager: {
+          prorations: [
+            { credit: 0, charge: 0.1, tax: 0, total: 0.1, months: 1 },
+            { credit: 0, charge: 0.1, tax: 0, total: 0.1, months: 1 },
+            { credit: 0, charge: 0.1, tax: 0, total: 0.1, months: 1 },
+          ],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
+
+      expect(cart.passwordManager.seats.cost).toBe(0.3);
+    });
+
+    it("should throw when the preview has neither a seats line nor a proration", () => {
+      const preview = basePreview({ passwordManager: {} });
+
+      expect(() =>
+        adaptInvoicePreviewToCart(preview, InvoicePreviewFlowContext.PremiumOrgUpgrade, logService),
+      ).toThrow("neither a Password Manager seats line nor a proration");
+    });
+  });
+
   describe("hideBreakdown", () => {
     const proration = { credit: 10, charge: 0, tax: 0, total: 0, months: 1 };
 

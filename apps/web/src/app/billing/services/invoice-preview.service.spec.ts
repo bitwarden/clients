@@ -112,8 +112,7 @@ describe("InvoicePreviewService", () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue({
         ...preview("enterprise"),
         passwordManager: {
-          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
-          prorations: [{ credit: 20, charge: 0, tax: 0, total: 0, months: 6 }],
+          prorations: [{ credit: 20, charge: 30, tax: 0, total: 10, months: 6 }],
         },
       } as never);
 
@@ -126,7 +125,6 @@ describe("InvoicePreviewService", () => {
       const response = {
         ...preview("enterprise"),
         passwordManager: {
-          seats: { reference: "pm-seat", quantity: 1, cost: 26.67 },
           prorations: [{ credit: 6.67, charge: 26.67, tax: 2, total: 20, months: 8 }],
         },
       };
@@ -135,8 +133,8 @@ describe("InvoicePreviewService", () => {
       const { cart, proratedMonths } =
         await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest);
 
-      // The cart carries no month count, which is why the caller needs it alongside.
-      expect(cart.passwordManager.seats.cost).toBe(26.67);
+      // The server sends no seats line for this upgrade; the seat row is the prorated charge.
+      expect(cart.passwordManager.seats).toMatchObject({ quantity: 1, cost: 26.67 });
       expect(proratedMonths).toBe(8);
     });
 

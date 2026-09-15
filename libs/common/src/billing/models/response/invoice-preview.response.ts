@@ -55,14 +55,17 @@ export class PurchasableProrationResponse extends BaseResponse implements Purcha
 }
 
 class PasswordManagerInvoicePreviewResponse extends BaseResponse {
-  seats: InvoicePreviewItem;
+  seats?: InvoicePreviewItem;
   additionalStorage?: InvoicePreviewItem;
   prorations?: PurchasableProration[];
 
   constructor(response: any) {
     super(response);
 
-    this.seats = new InvoicePreviewItemResponse(this.getResponseProperty("Seats"));
+    const seats = this.getResponseProperty("Seats");
+    if (seats) {
+      this.seats = new InvoicePreviewItemResponse(seats);
+    }
 
     const additionalStorage = this.getResponseProperty("AdditionalStorage");
     if (additionalStorage) {
@@ -107,7 +110,7 @@ class SecretsManagerInvoicePreviewResponse extends BaseResponse {
 
 export class InvoicePreviewResponse extends BaseResponse implements InvoicePreview {
   passwordManager: {
-    seats: InvoicePreviewItem;
+    seats?: InvoicePreviewItem;
     additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
