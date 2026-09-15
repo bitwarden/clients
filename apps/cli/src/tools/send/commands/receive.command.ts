@@ -25,6 +25,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -195,7 +196,7 @@ export class SendReceiveCommand extends DownloadCommand {
       password,
       keyArray,
       "sha256",
-      100000,
+      SEND_KDF_ITERATIONS,
     );
     return Utils.fromBufferToB64(passwordHash);
   }
