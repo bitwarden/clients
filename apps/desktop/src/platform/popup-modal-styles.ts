@@ -61,10 +61,8 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
   window.setResizable(true);
   window.setAlwaysOnTop(false);
 
-  // We're currently not recovering the maximized state, mostly due to conflicts with hiding the window.
-  // window.setFullScreen(existingWindowState.isMaximized);
-
-  // if (existingWindowState.isMaximized) {
-  //   window.maximize();
-  // }
+  // Maximized state is intentionally NOT restored here: this helper is also
+  // called immediately before hide() on the modal-mode exit path, where
+  // maximize()+hide() conflict. Callers that show the window (see WindowMain.show
+  // and createWindow) re-apply maximize() themselves after calling this.
 }
