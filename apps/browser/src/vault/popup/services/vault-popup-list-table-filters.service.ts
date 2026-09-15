@@ -288,7 +288,7 @@ export class VaultPopupListTableFiltersService {
     this.fullCipherListViews$,
   ]).pipe(
     map(([restrictedTypes, allowNewItemTypes, ciphers]) => {
-      const presentTypes = new Set((ciphers ?? []).map((c) => c.type));
+      const presentTypes = new Set((ciphers ?? []).map((c) => CipherViewLikeUtils.getType(c)));
       const cipherMenuItems = allowNewItemTypes ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
       return cipherMenuItems
         .filter((item) => {
