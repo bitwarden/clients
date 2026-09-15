@@ -1,6 +1,7 @@
 @let subscription = subscriptionPreview.hasValue() ? subscriptionPreview.value() : null;
 @let org = organization();
 @let orgSub = organizationSubscription();
+@let billingSubscription = orgSub?.subscription;
 @let showSubscription = access()?.showSubscription;
 @let showSubscriptionStatus = access()?.showSubscriptionStatus;
 @let showSelfHost = access()?.showSelfHost;
@@ -142,7 +143,7 @@
         <bit-progress-bar [value]="storagePercentage()" variant="success">
           <bit-hint slot="start">{{ storagePercentage() }}%</bit-hint>
         </bit-progress-bar>
-        @if (subscription && !isSubscriptionCanceledOrPendingCancellation()) {
+        @if (billingSubscription && !isSubscriptionCanceledOrPendingCancellation()) {
           <div class="tw-mt-3">
             <div class="tw-flex tw-space-x-2">
               <button
@@ -178,7 +179,7 @@
       <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
       <p bitTypography="body1">{{ "additionalOptionsDesc" | i18n }}</p>
 
-      @if (subscription && !isSubscriptionCanceledOrPendingCancellation()) {
+      @if (billingSubscription && !isSubscriptionCanceledOrPendingCancellation()) {
         <div class="tw-flex tw-space-x-2">
           <button bitButton buttonType="danger" type="button" (click)="cancelSubscription()">
             {{ "cancelSubscription" | i18n }}
