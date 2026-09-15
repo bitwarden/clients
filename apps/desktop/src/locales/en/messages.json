@@ -2798,6 +2798,12 @@
   "requireMasterPasswordOnAppRestart": {
     "message": "Require master password on app restart"
   },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "This setting provides an additional layer of protection by helping prevent other applications on your computer from unlocking Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Unchecking this means any application on your computer may unlock Bitwarden, and access all your saved passwords."
+  },
   "deleteAccount": {
     "message": "Delete account"
   },

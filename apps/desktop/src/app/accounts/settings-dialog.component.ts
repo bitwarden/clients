@@ -39,6 +39,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   ButtonModule,
+  CalloutModule,
   CheckboxModule,
   DialogModule,
   DialogService,
@@ -85,6 +86,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   ],
   imports: [
     ButtonModule,
+    CalloutModule,
     CheckboxModule,
     DialogModule,
     FormFieldModule,
@@ -418,9 +420,9 @@ export class SettingsDialogComponent implements OnInit {
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      // On Windows if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
+      // On Windows and Linux if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
       if (
-        this.isWindows &&
+        (this.isWindows || this.isLinux) &&
         this.supportsBiometric() &&
         this.form.value.requireMasterPasswordOnAppRestart &&
         this.form.value.biometric &&
@@ -477,8 +479,8 @@ export class SettingsDialogComponent implements OnInit {
     }
 
     await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
-    if (this.isWindows) {
-      // Recommended settings for Windows Hello
+    if (this.isWindows || this.isLinux) {
+      // Recommended settings for Windows Hello and Linux system authentication
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
@@ -489,10 +491,6 @@ export class SettingsDialogComponent implements OnInit {
       } else {
         this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
       }
-    } else if (this.isLinux) {
-      // Similar to Windows
-      this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
@@ -529,6 +527,9 @@ export class SettingsDialogComponent implements OnInit {
     }
   }
 
+  /**
+   * Persists the user key so biometrics alone can unlock the vault after an app restart.
+   */
   private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
     if (!(await this.biometricsService.hasPersistentKey(userId))) {
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
