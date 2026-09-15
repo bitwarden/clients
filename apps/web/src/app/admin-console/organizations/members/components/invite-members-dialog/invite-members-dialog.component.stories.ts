@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -43,7 +44,6 @@ function mockOrganization(overrides: Partial<Organization> = {}): Organization {
     permissions: new PermissionsApi(),
     enabled: true,
     canEditAnyCollection: false,
-    canManageDomainVerification: true,
     ...overrides,
   } as unknown as Organization;
 }
@@ -63,6 +63,10 @@ const mockPlatformUtilsService = {
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockLogService = {
+  error: () => {},
 };
 
 const mockDialogRef = {
@@ -222,9 +226,10 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: LogService, useValue: mockLogService },
         {
           provide: OrgDomainApiServiceAbstraction,
-          useValue: { getAllByOrgId: () => Promise.resolve([]) },
+          useValue: { getAllMiniByOrgId: () => Promise.resolve([]) },
         },
       ],
     }),

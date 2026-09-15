@@ -2,13 +2,12 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
   OrganizationInviteLink,
@@ -49,14 +48,8 @@ const mockEventCollectionService = {
   collectMany: () => Promise.resolve(),
 };
 
-const mockOrganizationService = {
-  organizations$: () =>
-    of([
-      {
-        id: "org-1" as OrganizationId,
-        canManageDomainVerification: true,
-      } as unknown as Organization,
-    ]),
+const mockLogService = {
+  error: () => {},
 };
 
 const mockInviteLinkUrl =
@@ -88,7 +81,7 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: ToastService, useValue: mockToastService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
+        { provide: LogService, useValue: mockLogService },
       ],
     }),
     applicationConfig({
@@ -129,10 +122,9 @@ const makeRender =
           {
             provide: OrgDomainApiServiceAbstraction,
             useValue: {
-              getAllByOrgId: () =>
+              getAllMiniByOrgId: () =>
                 Promise.resolve(
-                  verifiedDomainNames.map((name, i) => ({
-                    id: `domain-${i}`,
+                  verifiedDomainNames.map((name) => ({
                     domainName: name,
                     verifiedDate: "2025-01-01T00:00:00Z",
                   })),
