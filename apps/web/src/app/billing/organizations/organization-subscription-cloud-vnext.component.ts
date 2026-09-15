@@ -274,7 +274,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   );
 
   readonly canAdjustSeats = computed(
-    () => this.organizationSubscription()?.plan.PasswordManager.hasAdditionalSeatsOption ?? false,
+    () => this.organizationSubscription()?.plan?.PasswordManager.hasAdditionalSeatsOption ?? false,
   );
 
   /**
@@ -283,15 +283,15 @@ export class OrganizationSubscriptionCloudVNextComponent {
    */
   readonly showChangePlanButton = computed(() => {
     const orgSubscription = this.organizationSubscription();
-    if (orgSubscription == null) {
+    if (orgSubscription == null || orgSubscription.plan == null) {
       return false;
     }
-    const isCanceled = orgSubscription?.subscription?.cancelled;
+    const isCanceled = orgSubscription.subscription?.cancelled;
     const canChangePlan =
-      orgSubscription?.plan.productTier !== ProductTierType.Enterprise && !isCanceled;
+      orgSubscription.plan.productTier !== ProductTierType.Enterprise && !isCanceled;
 
     const isFreePlanCancelled =
-      isCanceled && orgSubscription?.plan.productTier === ProductTierType.Free;
+      isCanceled && orgSubscription.plan.productTier === ProductTierType.Free;
 
     return canChangePlan || isFreePlanCancelled;
   });
@@ -303,7 +303,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   readonly showSecretsManagerSubscribe = computed(() => {
     const org = this.organization();
     const sub = this.organizationSubscription();
-    if (org == null || sub == null) {
+    if (org == null || sub == null || sub.plan == null) {
       return false;
     }
     const hasAProvider = org.hasProvider;
@@ -328,7 +328,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
       return false;
     }
     const isSubscribedToSecretsManager = org.useSecretsManager;
-    const hasAdditionalSeatsOption = sub.plan.SecretsManager?.hasAdditionalSeatsOption;
+    const hasAdditionalSeatsOption = sub.plan?.SecretsManager?.hasAdditionalSeatsOption;
     return (
       isSubscribedToSecretsManager &&
       hasAdditionalSeatsOption &&
@@ -389,7 +389,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * @returns The price per GB of additional storage, or 0 if not applicable.
    */
   readonly storageGbPrice = computed(
-    () => this.organizationSubscription()?.plan.PasswordManager.additionalStoragePricePerGb ?? 0,
+    () => this.organizationSubscription()?.plan?.PasswordManager.additionalStoragePricePerGb ?? 0,
   );
 
   /**
@@ -397,7 +397,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * @returns The price per seat, or 0 if not applicable.
    */
   readonly seatPrice = computed(() => {
-    const price = this.organizationSubscription()?.plan.PasswordManager.seatPrice;
+    const price = this.organizationSubscription()?.plan?.PasswordManager.seatPrice;
     return price == null ? 0 : this.discountPrice(price);
   });
 
@@ -440,7 +440,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
    */
   readonly smOptions = computed<SecretsManagerSubscriptionOptions | null>(() => {
     const sub = this.organizationSubscription();
-    if (sub == null) {
+    if (sub == null || sub.plan == null) {
       return null;
     }
     return {
@@ -485,7 +485,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     if (org?.productTierType === ProductTierType.TeamsStarter) {
       return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
     }
-    const key = sub.plan.isAnnual
+    const key = sub.plan?.isAnnual
       ? "annualSubscriptionUserSeatsMessage"
       : "monthlySubscriptionUserSeatsMessage";
     if (sub.maxAutoscaleSeats == null) {
@@ -575,7 +575,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
    */
   readonly cancelSubscription = async () => {
     const sub = this.organizationSubscription();
-    if (sub == null) {
+    if (sub == null || sub.plan == null) {
       return;
     }
     const billing = this.billingSubscription();
