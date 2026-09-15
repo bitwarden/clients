@@ -32,16 +32,21 @@ export const getCartItemTranslationKey = (
   planTier: PlanTier,
   flowContext: InvoicePreviewFlowContext,
   logService: LogService,
+  quantity?: number,
 ): string => {
   switch (reference) {
     case "pm-seat":
-      return getPasswordManagerSeatTranslationKey(planTier, flowContext, logService);
+      return getSeatUnitTranslationKey(
+        getPasswordManagerSeatTranslationKey(planTier, flowContext, logService),
+        quantity ?? 0,
+      );
     case "pm-storage":
       return "additionalStorageGbLower";
     case "sm-seat":
-      return flowContext === InvoicePreviewFlowContext.OrganizationSubscriptionPage
-        ? "membersLower"
-        : "secretsManagerPlanPrice";
+      return getSeatUnitTranslationKey(
+        getSecretsManagerSeatTranslationKey(flowContext),
+        quantity ?? 0,
+      );
     case "sm-service-account":
       return "additionalServiceAccountsLower";
     default: {
@@ -104,6 +109,18 @@ const getPasswordManagerSeatTranslationKey = (
 };
 
 /**
+ * Resolves the translation key for a Secrets Manager seat based on the flow context.
+ */
+const getSecretsManagerSeatTranslationKey = (flowContext: InvoicePreviewFlowContext): string => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+      return "membersLower";
+    default:
+      return "secretsManagerPlanPrice";
+  }
+};
+
+/**
  * Resolves the translation key for the collapsed proration credit row.
  *
  * Surfaces that do not render a credit row return `undefined`, and the adapter emits no credit
@@ -120,5 +137,32 @@ export const getCreditTranslationKey = (
       return "appliedSubscriptionCredits";
     default:
       return undefined;
+  }
+};
+
+/**
+ * Resolves the seat-count unit for a line item: "members" reads wrong for a single seat, so a
+ * lone seat renders the singular. Non-seat keys pass through unchanged.
+ */
+export const getSeatUnitTranslationKey = (key: string, quantity: number): string =>
+  key === "membersLower" && quantity === 1 ? "memberLower" : key;
+
+/**
+ * Resolves the translation key for a proration charge line by the purchasable it offsets,
+ * falling back to the group's seat reference when the server omits the reference.
+ */
+export const getProrationChargeTranslationKey = (
+  reference: PurchasableReference | undefined,
+  seatReference: PurchasableReference,
+): string => {
+  switch (reference ?? seatReference) {
+    case "pm-seat":
+      return "passwordManagerProratedCharge";
+    case "pm-storage":
+      return "storageProratedCharge";
+    case "sm-seat":
+      return "secretsManagerProratedCharge";
+    case "sm-service-account":
+      return "serviceAccountsProratedCharge";
   }
 };

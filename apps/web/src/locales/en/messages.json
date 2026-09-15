@@ -1805,9 +1805,6 @@
   "launchWebsite": {
     "message": "Launch website"
   },
-  "launchWebsite": {
-    "message": "Launch website"
-  },
   "me": {
     "message": "Me"
   },
@@ -1890,9 +1887,6 @@
   },
   "clearAll": {
     "message": "Clear all"
-  },
-  "done": {
-    "message": "Done"
   },
   "filtersSelected": {
     "message": "$COUNT$ selected",
@@ -17793,5 +17787,20 @@
   },
   "membersLower": {
     "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager Prorated Charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage Prorated Charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager Prorated Charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service Accounts Prorated Charge"
   }
 }

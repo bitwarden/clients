@@ -61,6 +61,9 @@ export class CartSummaryComponent {
     const {
       passwordManager: { seats },
     } = this.cart();
+    if (!seats) {
+      return 0;
+    }
     return seats.quantity * seats.cost;
   });
 
