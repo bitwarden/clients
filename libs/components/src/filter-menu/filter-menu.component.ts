@@ -65,6 +65,7 @@ import {
   FilterPresenter,
   FilterTreeHost,
   FilterTreeNode,
+  flattenFilterOptions,
 } from "./filter-tokens";
 import { FilterTreeRowDirective } from "./filter-tree-row.directive";
 
@@ -217,7 +218,18 @@ export class FilterMenuComponent
   protected readonly entries = contentChildren(FILTER_ENTRY);
 
   /** Every option (including those nested in sections) — for the summary, search, and threshold. */
-  private readonly allOptions = contentChildren(FilterOptionComponent, { descendants: true });
+  private readonly allOptions = computed(() => {
+    const topLevelOptions = this.entries().flatMap((entry): FilterOptionComponent[] => {
+      if (entry.kind === "option") {
+        return [entry as FilterOptionComponent];
+      }
+      if (entry.kind === "section") {
+        return [...(entry as FilterSectionComponent).options()];
+      }
+      return [];
+    });
+    return flattenFilterOptions(topLevelOptions);
+  });
 
   /** The selected options' labels, e.g. ["Login"]. Eager (options always exist), so it's never stale. */
   private readonly labels = signal<string[]>([]);

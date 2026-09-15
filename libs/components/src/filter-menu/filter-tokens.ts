@@ -150,3 +150,17 @@ export const FILTER_TREE_HOST = new InjectionToken<FilterTreeHost>("FilterTreeHo
 
 /** Provided by `bit-filter-option` and `bit-filter-section`; injected by `bit-filter-menu`. */
 export const FILTER_ENTRY = new InjectionToken<FilterEntry>("FilterEntry");
+
+/**
+ * An option together with every option nested under it, at any depth, depth-first.
+ *
+ * Reads each option's own {@link FilterRow.children} rather than a `descendants` content query,
+ * so it also reaches an option's data-driven subtree (`FilterOptionComponent.nested`) — those
+ * options live in their parent's own view, not its projected content, which a content query
+ * can't see into.
+ */
+export function flattenFilterOptions(
+  options: readonly FilterOptionComponent[],
+): FilterOptionComponent[] {
+  return options.flatMap((option) => [option, ...flattenFilterOptions(option.children())]);
+}
