@@ -2139,8 +2139,12 @@ describe("AutofillOverlayContentService", () => {
         });
         await flushPromises();
 
-        const resolvedValue = await sendExtensionMessageSpy.mock.calls[0][1];
-        expect(resolvedValue).toEqual(formFieldData);
+        expect(sendExtensionMessageSpy).toHaveBeenNthCalledWith(
+          1,
+          "generatedPasswordFilled",
+          formFieldData,
+        );
+        expect(sendExtensionMessageSpy).toHaveBeenNthCalledWith(2, "openAutofillInlineMenu");
       });
     });
 
