@@ -15,6 +15,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
@@ -105,6 +106,8 @@ const mockDialogService = {
 
 const mockToastService = { showToast: () => {} };
 
+const mockPlatformUtilsService = { copyToClipboard: () => {} };
+
 const mockAccountService = {
   activeAccount$: new BehaviorSubject({ id: USER_ID, email: "alice@example.com" }),
 };
@@ -143,6 +146,7 @@ export default {
         { provide: DialogService, useValue: mockDialogService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: GroupApiService, useValue: mockGroupApiService },
         { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
         { provide: CollectionService, useValue: mockCollectionService },

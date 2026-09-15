@@ -21,6 +21,7 @@
           <button
             type="button"
             class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-lg tw-border tw-border-solid tw-border-secondary-300 tw-bg-transparent tw-p-3 tw-text-start tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+            [bitTooltip]="rowTooltip(filter)"
             (click)="select(filter)"
           >
             <!-- Rendered only when active: the spec lets an inactive row's icon take the

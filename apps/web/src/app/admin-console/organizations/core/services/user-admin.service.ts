@@ -12,6 +12,10 @@ import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
+// Provided in root, not CoreOrganizationModule: standalone components (EditMemberDialogComponent)
+// resolve against the root injector, not the organization module's, so a module-scoped provider is
+// not visible to them. Matches GroupApiService in this folder. Both dependencies below are
+// provided by the eager CoreModule.
 @Injectable({ providedIn: "root" })
 export class UserAdminService {
   constructor(

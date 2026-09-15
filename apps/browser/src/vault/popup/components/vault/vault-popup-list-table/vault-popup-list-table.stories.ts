@@ -321,11 +321,19 @@ const buildProviders = (args: StoryArgs) => {
   const searchText$ = new BehaviorSubject("");
   const hasSearchText$ = new BehaviorSubject(false);
 
+  // Mirrors the real service: the list counts as filtered when search text or any restored filter
+  // narrows it. `showEmptyAutofillTip$` combines this stream, so it must exist on the mock.
+  const filtersApplied = Object.values(args.appliedFilters ?? {}).some((value) =>
+    Array.isArray(value) ? value.length > 0 : value != null,
+  );
+  const hasFilterApplied$ = new BehaviorSubject(filtersApplied);
+
   // Minimal stand-in for the real search service so the toolbar search folds the list live.
   const applyFilter = (text: string) => {
     const term = (text ?? "").trim().toLowerCase();
     searchText$.next(text ?? "");
     hasSearchText$.next(term.length > 0);
+    hasFilterApplied$.next(filtersApplied || term.length > 0);
     filteredCiphers$.next(
       term ? allItems.filter((c) => c.name.toLowerCase().includes(term)) : allItems,
     );
@@ -378,6 +386,7 @@ const buildProviders = (args: StoryArgs) => {
         loading$: loading$.asObservable(),
         searchText$: searchText$.asObservable(),
         hasSearchText$: hasSearchText$.asObservable(),
+        hasFilterApplied$: hasFilterApplied$.asObservable(),
         // No story exercises the suspended-organization notice.
         showDeactivatedOrg$: of(false),
         // Mirrors the real service: whether the account has any items at all, ignoring search/filters.
@@ -456,6 +465,7 @@ const buildProviders = (args: StoryArgs) => {
           resetSearch: "Reset search",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
+          autofillSuggestionsTip: "Save a login item for this site to autofill",
           itemSuggestions: "Suggested items",
           // Sidebar-only autofill refresh control; not rendered in Storybook (not a sidebar).
           refresh: "Refresh",

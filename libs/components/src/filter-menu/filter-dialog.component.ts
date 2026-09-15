@@ -21,6 +21,7 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../overflow-list";
+import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterPresenter } from "./filter-tokens";
@@ -50,6 +51,7 @@ function optionCount(filter: FilterPresenter): number {
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -83,6 +85,15 @@ export class FilterDialogComponent {
   /** Kept out of the template so no whitespace lands between the label and the colon. */
   protected rowLabel(filter: FilterPresenter): string {
     return filter.summary() ? `${filter.label()}:` : filter.label();
+  }
+
+  /**
+   * The row's full text for its tooltip. Unlike {@link rowLabel} this keeps the summary, since
+   * the row truncates its label and hides any selection past the first few behind a `+N`.
+   */
+  protected rowTooltip(filter: FilterPresenter): string {
+    const summary = filter.summary();
+    return summary ? `${filter.label()}: ${summary}` : filter.label();
   }
 
   // The rows come from the chip's template, shared with the popover, so the card and

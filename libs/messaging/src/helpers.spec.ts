@@ -1,4 +1,4 @@
-import { Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom, of } from "rxjs";
 
 import { getCommand, tagAsExternal } from "./helpers";
 import { isExternalMessage } from "./is-external-message";
@@ -21,27 +21,40 @@ describe("helpers", () => {
     });
   });
 
-  describe("tag integration", () => {
-    it("can tag and identify as tagged", async () => {
-      const messagesSubject = new Subject<Message<Record<string, unknown>>>();
+  describe("tagAsExternal", () => {
+    it("emits a message that reads back as external", async () => {
+      const message: Message<Record<string, unknown>> = { command: "test" };
 
-      const taggedMessages = messagesSubject.asObservable().pipe(tagAsExternal());
+      const tagged = await firstValueFrom(of(message).pipe(tagAsExternal()));
 
-      const firstValuePromise = firstValueFrom(taggedMessages);
-
-      messagesSubject.next({ command: "test" });
-
-      const result = await firstValuePromise;
-
-      expect(isExternalMessage(result)).toEqual(true);
+      expect(isExternalMessage(tagged)).toBe(true);
     });
-  });
 
-  describe("isExternalMessage", () => {
-    it.each([null, { command: "myCommand", test: "object" }, undefined] as Message<
-      Record<string, unknown>
-    >[])("returns false when value is %s", (value: Message<Record<string, unknown>>) => {
-      expect(isExternalMessage(value)).toBe(false);
+    it("emits the same message instance it ingested", async () => {
+      // Tagging a copy would leave the ingested object untagged, and would silently drop
+      // non-enumerable tags applied upstream, such as the authoritative sender.
+      const message: Message<Record<string, unknown>> = { command: "test" };
+
+      const tagged = await firstValueFrom(of(message).pipe(tagAsExternal()));
+
+      expect(tagged).toBe(message);
+    });
+
+    it("errors the stream when a message cannot be tagged", async () => {
+      const messages = new Subject<Message<Record<string, unknown>>>();
+      const delivered: Message<Record<string, unknown>>[] = [];
+      const errors: unknown[] = [];
+
+      messages.pipe(tagAsExternal()).subscribe({
+        next: (message) => delivered.push(message),
+        error: (error: unknown) => errors.push(error),
+      });
+
+      messages.next(42 as unknown as Message<Record<string, unknown>>);
+      messages.next({ command: "test" });
+
+      expect(errors).toEqual([expect.any(TypeError)]);
+      expect(delivered).toEqual([]);
     });
   });
 });

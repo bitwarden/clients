@@ -77,6 +77,7 @@ export * from "./import-vivaldi.icon";
 export * from "./import-yoti.icon";
 export * from "./import-zoho.icon";
 export * from "./info-filled.icon";
+export * from "./invite-link-marketing";
 export * from "./item-types";
 export * from "./lock.icon";
 export * from "./login-cards";

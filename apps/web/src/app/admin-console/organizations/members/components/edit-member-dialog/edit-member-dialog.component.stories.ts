@@ -17,6 +17,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -154,6 +155,10 @@ const mockLogService: Partial<LogService> = {
   error: () => {},
 };
 
+const mockPlatformUtilsService: Partial<PlatformUtilsService> = {
+  copyToClipboard: () => {},
+};
+
 function makeConfigService() {
   return {
     getFeatureFlag: () => Promise.resolve(false),
@@ -195,6 +200,7 @@ const sharedDecorators = [
       },
       { provide: ValidationService, useValue: mockValidationService },
       { provide: LogService, useValue: mockLogService },
+      { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
     ],
   }),
   applicationConfig({
@@ -316,6 +322,21 @@ export const ClaimedByOrganization: Story = {
     defaultParams({ claimedByOrganization: true }),
     mockOrganization({ productTierType: ProductTierType.Enterprise }),
     mockUserDetails({ claimedByOrganization: true }),
+  ),
+};
+
+/**
+ * Member provisioned through Directory Connector and SSO — the read-only External ID and
+ * SSO External ID fields are shown on the Details tab.
+ */
+export const WithExternalIds: Story = {
+  render: makeRender(
+    defaultParams(),
+    mockOrganization(),
+    mockUserDetails({
+      externalId: "1308a41a-5c5b-46d3-9573-abad9b0608dc",
+      ssoExternalId: "alice@example.com",
+    }),
   ),
 };
 

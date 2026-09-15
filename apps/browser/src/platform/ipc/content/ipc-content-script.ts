@@ -1,4 +1,4 @@
-import { isIpcMessage } from "@bitwarden/common/platform/ipc/ipc-message";
+import { isIpcMessage, reconstructIpcMessage } from "@bitwarden/common/platform/ipc/ipc-message";
 
 const IPC_CONTENT_SCRIPT_PORT_NAME = "ipc-content-script-port";
 
@@ -22,7 +22,9 @@ function handleWindowMessage(event: MessageEvent) {
   }
 
   if (isIpcMessage(event.data)) {
-    sendExtensionMessage(event.data);
+    // Relay a freshly built message rather than the page's object so a hostile page cannot
+    // smuggle extra properties onto the shared runtime message bus. See reconstructIpcMessage.
+    sendExtensionMessage(reconstructIpcMessage(event.data));
   }
 }
 

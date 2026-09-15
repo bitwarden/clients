@@ -89,7 +89,7 @@ function makeOrg(overrides: Partial<Organization> = {}): Organization {
 }
 
 function makeConfig(overrides: Partial<VaultBatchBarConfig> = {}): VaultBatchBarConfig {
-  return { isOrgVault: false, allCollections: [], hasCiphers: true, ...overrides };
+  return { isOrgVault: false, allCollections: [], hasCiphers: true, inTrash: false, ...overrides };
 }
 
 describe("VaultBatchBarService", () => {
@@ -483,7 +483,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns false when filter type is trash", () => {
-      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: true }));
 
       service.selection.select(makeCipherItem());
 
@@ -526,7 +526,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns false when in trash view", () => {
-      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: true }));
       userCanArchiveSubject.next(true);
 
       service.selection.select(makeCipherItem());
@@ -574,7 +574,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns false when in trash view", () => {
-      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: true }));
 
       service.selection.select(makeCipherItem({ archivedDate: new Date() }));
 
@@ -627,7 +627,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns true when in trash view and all ciphers pass canRestoreCipher$", () => {
-      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: true }));
 
       service.selection.select(makeCipherItem());
       TestBed.tick();
@@ -636,7 +636,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns false when not in trash view even if ciphers pass canRestoreCipher$", () => {
-      filterSubject.next({});
+      service.setConfig(makeConfig({ inTrash: false }));
       service.selection.select(makeCipherItem());
       TestBed.tick();
 
@@ -644,7 +644,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns false when a cipher fails canRestoreCipher$", () => {
-      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: true }));
       mockCipherAuthorizationService.canRestoreCipher$.mockReturnValue(of(false));
 
       service.selection.select(makeCipherItem());
@@ -733,8 +733,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("returns false when in trash view", () => {
-      filterSubject.next({ type: "trash" });
-      service.setConfig(makeConfig({ hasCiphers: true }));
+      service.setConfig(makeConfig({ hasCiphers: true, inTrash: true }));
       organizationsSubject.next([makeOrg()]);
 
       service.selection.select(makeCipherItem());
@@ -1157,7 +1156,7 @@ describe("VaultBatchBarService", () => {
     });
 
     it("opens BulkDeleteDialog with permanent=true in trash", async () => {
-      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: true }));
       service.selection.select(makeCipherItem());
       mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
 

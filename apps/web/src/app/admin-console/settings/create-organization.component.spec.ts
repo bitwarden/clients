@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
-import { TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
-import { of } from "rxjs";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { ActivatedRoute, RouterModule } from "@angular/router";
+import { BehaviorSubject, of } from "rxjs";
 
 import { InitiationPath, ProductType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -15,7 +17,7 @@ import { CreateOrganizationComponent } from "./create-organization.component";
 
 @Component({
   selector: "app-header",
-  template: "",
+  template: '<ng-content select="[slot=breadcrumbs]"></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockHeaderComponent {}
@@ -41,9 +43,50 @@ class MockOrganizationPlansComponent {
 class MockContainerComponent {}
 
 describe("CreateOrganizationComponent", () => {
+  // The VFO1 flag drives both the page copy and the breadcrumbs — `Vfo1TerminologyService` reads
+  // it from ConfigService too — so each nested describe sets it before rendering.
+  const vfo1Enabled = new BehaviorSubject(false);
+  const getFeatureFlag$ = jest.fn(() => vfo1Enabled);
+
+  beforeEach(async () => {
+    vfo1Enabled.next(false);
+    getFeatureFlag$.mockClear();
+
+    await TestBed.configureTestingModule({
+      imports: [CreateOrganizationComponent, RouterModule.forRoot([])],
+      providers: [
+        { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: { getFeatureFlag$ } },
+      ],
+    })
+      .overrideComponent(CreateOrganizationComponent, {
+        remove: { imports: [SharedModule, OrganizationPlansComponent, HeaderModule] },
+        add: {
+          imports: [
+            MockHeaderComponent,
+            MockOrganizationPlansComponent,
+            MockContainerComponent,
+            I18nPipe,
+          ],
+        },
+      })
+      .compileComponents();
+  });
+
+  function render(): ComponentFixture<CreateOrganizationComponent> {
+    const fixture = TestBed.createComponent(CreateOrganizationComponent);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  // `showBreadcrumbs` uses `toSignal`, which requires an injection context, so build the
+  // component inside one rather than calling the constructor bare.
   function createComponent(queryParams: Record<string, unknown>): CreateOrganizationComponent {
     const route = { queryParams: of(queryParams) } as unknown as ActivatedRoute;
-    return new CreateOrganizationComponent(route);
+    return TestBed.runInInjectionContext(
+      () => new CreateOrganizationComponent(route, TestBed.inject(ConfigService)),
+    );
   }
 
   describe("initiationPath derivation from the product query param", () => {
@@ -77,44 +120,53 @@ describe("CreateOrganizationComponent", () => {
   });
 
   describe("page copy", () => {
-    async function renderedText(vfo1Enabled: boolean): Promise<string> {
-      const i18nService = { t: (key: string) => key } as unknown as I18nService;
-
-      await TestBed.resetTestingModule()
-        .configureTestingModule({
-          imports: [CreateOrganizationComponent],
-          providers: [
-            { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
-            { provide: I18nService, useValue: i18nService },
-            // The Vfo1I18nPipe rendering the copy injects this service.
-            { provide: Vfo1TerminologyService, useValue: { enabled: () => vfo1Enabled } },
-          ],
-        })
-        .overrideComponent(CreateOrganizationComponent, {
-          remove: { imports: [SharedModule, OrganizationPlansComponent, HeaderModule] },
-          add: {
-            imports: [MockHeaderComponent, MockOrganizationPlansComponent, MockContainerComponent],
-          },
-        })
-        .compileComponents();
-
-      const fixture = TestBed.createComponent(CreateOrganizationComponent);
-      fixture.detectChanges();
-      return fixture.nativeElement.textContent ?? "";
+    function renderedText(): string {
+      return render().nativeElement.textContent ?? "";
     }
 
-    it("renders the legacy description when the VFO1 foundation flag is off", async () => {
-      const text = await renderedText(false);
+    it("renders the legacy description when the VFO1 foundation flag is off", () => {
+      const text = renderedText();
 
       expect(text).toContain("newOrganizationDesc");
       expect(text).not.toContain("addPlanDesc");
     });
 
-    it("renders the Add plan description when the VFO1 foundation flag is on", async () => {
-      const text = await renderedText(true);
+    it("renders the Add plan description when the VFO1 foundation flag is on", () => {
+      vfo1Enabled.next(true);
+
+      const text = renderedText();
 
       expect(text).toContain("addPlanDesc");
       expect(text).not.toContain("newOrganizationDesc");
+    });
+  });
+
+  describe("breadcrumbs", () => {
+    function renderBreadcrumbs() {
+      return render().debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+    }
+
+    it("renders a header breadcrumb that navigates back to settings", () => {
+      vfo1Enabled.next(true);
+
+      const breadcrumbs = renderBreadcrumbs();
+      expect(breadcrumbs).not.toBeNull();
+
+      const links = breadcrumbs.queryAll(By.css("a[href]"));
+      expect(links).toHaveLength(1);
+      expect(links[0].nativeElement.getAttribute("href")).toBe("/settings");
+    });
+
+    it("renders the current page breadcrumb when the VFO1 feature flag is enabled", () => {
+      vfo1Enabled.next(true);
+
+      const crumbs = renderBreadcrumbs().queryAll(By.css("span[bitOverflowItem]"));
+      expect(crumbs).toHaveLength(2);
+      expect(crumbs[1].nativeElement.textContent.trim()).toBe("addPlan");
+    });
+
+    it("renders no breadcrumbs when the VFO1 feature flag is disabled", () => {
+      expect(renderBreadcrumbs()).toBeNull();
     });
   });
 });

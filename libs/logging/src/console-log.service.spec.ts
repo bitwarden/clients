@@ -104,13 +104,13 @@ describe("ConsoleLogService", () => {
     expect(consoleError).toHaveBeenCalledWith("still reaches the console");
   });
 
-  it("tees info-funneled measure calls to the recorder", () => {
+  it("tees debug-funneled measure calls to the recorder", () => {
     const service = new ConsoleLogService(true, null, recorder);
 
     service.measure(0, "group", "track", "name");
 
     expect(recorder.record).toHaveBeenCalledWith(
-      LogLevel.Info,
+      LogLevel.Debug,
       expect.stringContaining("[track]: name took"),
       undefined,
     );

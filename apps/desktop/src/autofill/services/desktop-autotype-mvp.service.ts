@@ -19,8 +19,9 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
+import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -176,7 +177,9 @@ export class DesktopAutotypeMvpService implements OnDestroy {
       // if the user has enabled the setting
       this.autotypeEnabledUserSetting$,
       // if the feature flag is set
-      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+      autotypeFeatureFlagState$(this.configService).pipe(
+        map((state) => state === AutotypeFeatureFlagState.Mvp),
+      ),
       // if there is an active account with an unlocked vault
       this.authService.activeAccountStatus$,
       // if the active user's account is Premium
