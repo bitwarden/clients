@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  OnInit,
   signal,
   untracked,
 } from "@angular/core";
@@ -36,6 +37,7 @@ import {
   DialogService,
   IconTileComponent,
   LinkModule,
+  PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { PolicyType } from "@bitwarden/sdk-internal";
@@ -76,6 +78,8 @@ import {
   sharedFolderNameForScope,
   VaultScopeType,
   defaultUserCollectionId,
+  DefaultVaultItemsTransferService,
+  VaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import {
@@ -85,7 +89,9 @@ import {
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
+import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
+import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
@@ -110,11 +116,13 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   imports: [
     ButtonModule,
     CalloutModule,
+    CoachmarkComponent,
     I18nPipe,
     HeaderModule,
     LinkModule,
     RouterLink,
     NewCipherMenuComponent,
+    PopoverModule,
     VaultBannersComponent,
     VaultBatchActionComponent,
     VaultBreadcrumbsComponent,
@@ -127,12 +135,18 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
     safeProvider({ provide: WebVaultItemActionsService, useAngularDecorators: true }),
+    safeProvider({ provide: WebVaultPromptService, useAngularDecorators: true }),
+    safeProvider({
+      provide: VaultItemsTransferService,
+      useClass: DefaultVaultItemsTransferService,
+      useAngularDecorators: true,
+    }),
     VaultBatchBarService,
     { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
     { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
   ],
 })
-export class VaultNextComponent {
+export class VaultNextComponent implements OnInit {
   private readonly accountService = inject(AccountService);
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
@@ -149,7 +163,26 @@ export class VaultNextComponent {
   private readonly batchBarService = inject(VaultBatchBarService);
 
   private readonly policyService = inject(PolicyService);
+  private readonly webVaultPromptService = inject(WebVaultPromptService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  protected readonly importCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "importData",
+  );
+
+  protected readonly addItemCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "addItem",
+  );
+
+  /**
+   * Onboarding prompts are the page's to start. {@link WebVaultPromptService} sequences them so
+   * only one shows at a time.
+   */
+  ngOnInit(): void {
+    void this.webVaultPromptService.conditionallyPromptUser();
+  }
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
 
