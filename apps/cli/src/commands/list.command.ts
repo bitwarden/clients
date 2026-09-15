@@ -265,16 +265,17 @@ export class ListCommand {
     try {
       const response = await this.organizationUserApiService.getAllUsers(options.organizationId);
       const res = new ListResponse(
-        response.data.map((r) => {
-          const u = new OrganizationUserResponse();
-          u.email = r.email;
-          u.name = r.name;
-          u.id = r.id;
-          u.status = r.status;
-          u.type = r.type;
-          u.twoFactorEnabled = r.twoFactorEnabled;
-          return u;
-        }),
+        response.data.map(
+          (r) =>
+            new OrganizationUserResponse({
+              id: r.id,
+              email: r.email,
+              name: r.name,
+              status: r.status,
+              type: r.type,
+              twoFactorEnabled: r.twoFactorEnabled,
+            }),
+        ),
       );
       return Response.success(res);
     } catch (e) {

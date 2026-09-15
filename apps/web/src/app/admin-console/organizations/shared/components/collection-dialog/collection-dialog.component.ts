@@ -32,7 +32,6 @@ import {
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
-  CollectionAccessSelectionView,
   CollectionAdminView,
   CollectionView,
   CollectionResponse,
@@ -694,9 +693,7 @@ function mapUserToAccessItemView(
     readonly: false,
     readonlyPermission:
       collection != null
-        ? convertToPermission(
-            new CollectionAccessSelectionView(collection.users.find((u) => u.id === user.id)),
-          )
+        ? convertToPermission(collection.users.find((u) => u.id === user.id))
         : undefined,
   };
 }

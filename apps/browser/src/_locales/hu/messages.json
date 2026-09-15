@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "Nincsenek elemek a széfben."
   },
+  "noItemsInMyVault": {
+    "message": "Nincsenek elemek a saját széfben."
+  },
+  "emptyMyItems": {
+    "message": "Nincsenek elemek a Saját elemekben."
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Nincsenek elemek $VAULT_NAME$ széfben.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Nincsenek elemek $VAULT_NAME$ széfben.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "A széfek üresek."
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Nincs a kiválasztott szűrőkkel egyező elem."
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Nincsenek \"$SEARCH_TERM$\" kereséssel egyező elemek.",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Hossz"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Importálás",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Elemek importálása"
   },
   "fileFormat": {
     "message": "Fájlformátum"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Keresés törlése"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
   },
+  "noItemsInTrashDescription": {
+    "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
+  },
   "trashWarning": {
     "message": "A 30 napnál régebben lomtárba került elemek automatikusan törlésre kerülnek."
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "A széf többre alkalmas, mint a jelszavak mentése. Menthetünk belépéseket, azonosítókat, kártyákat és feljegyzéseket teljes biztonságban."
+  },
+  "emptyVaultsDescription": {
+    "message": "A kezdéshez adjunk hozzá bejelentkezéseket, azonosítókat, kártyákat és egyéb elemeket."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Adjunk hozzá elemeket ehhez a megosztott mappához, majd adjunk hozzáférést a többi $VAULT_NAME$ tagnak.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "A Saját elemek egy személyes terület olyan elemek tárolására, amelyek $VAULT_NAME$  széfhez tartoznak, de nem láthatók a többi tag számára.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nincsenek mappák."
+  },
+  "emptyFoldersDescription": {
+    "message": "Használjunk mappákat a széf elemek rendszerezéséhez. Ezek sajátok — senki más nem látja vagy használhatja aezeket."
   },
   "introCarouselLabel": {
     "message": "Üdvözlet a Bitwardenben"
