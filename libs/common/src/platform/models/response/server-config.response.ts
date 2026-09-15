@@ -37,6 +37,7 @@ export class ServerConfigResponse extends BaseResponse {
 export class ServerSettingsResponse extends BaseResponse {
   disableUserRegistration: boolean = false;
   suppressOnboardingInterstitials: boolean = false;
+  enableEmailVerification: boolean = false;
 
   constructor(response: any) {
     super(response);
@@ -48,6 +49,7 @@ export class ServerSettingsResponse extends BaseResponse {
     this.disableUserRegistration = this.getResponseProperty("DisableUserRegistration") ?? false;
     this.suppressOnboardingInterstitials =
       this.getResponseProperty("SuppressOnboardingInterstitials") ?? false;
+    this.enableEmailVerification = this.getResponseProperty("EnableEmailVerification") ?? false;
   }
 }
 
