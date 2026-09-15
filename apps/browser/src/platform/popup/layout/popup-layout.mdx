@@ -40,7 +40,8 @@ page looks nice when the extension is popped out.
   - Not every page will have a footer.
 - `above-scroll-area`
   - When the page content overflows, this content will be "stuck" to the top of the page upon
-    scrolling.
+    scrolling. Set `collapseAboveScrollArea` to have it collapse on scroll instead — see
+    [Scrolling](#scrolling).
 - `full-width-notice`
   - Similar to `above-scroll-area`, this content will display before `above-scroll-area` without
     container margin or padding.
@@ -117,12 +118,12 @@ Usage example:
 Behind the `vfo1-foundation` feature flag, `popup-header` renders two stacked bars inside its banner
 landmark instead of one:
 
-- an **app bar** — dark, branded, carrying the Bitwarden logo plus the chrome that belongs to the
+- an **app bar** — dark, branded, carrying the Bitwarden logo plus the controls that belong to the
   extension rather than the page (pop out button, account switcher)
 - a **page title bar** — the familiar header, carrying the back button, a leading icon tile, the
   title, and an item count
 
-The app bar is extension chrome rather than page content, so it renders on every screen that uses
+The app bar belongs to the extension rather than the page, so it renders on every screen that uses
 `popup-header` — dialogs and onboarding pages included. Because it owns the branding, the legacy
 default slot is dropped while the flag is on: a page that used it to project its own logo would
 otherwise render the logo twice. Content that still belongs in the title bar goes in `title-start`,
@@ -166,8 +167,50 @@ back into the back button or the `title-end` slot brings it into view rather tha
 ring clipped. It is only ever visually clipped, never removed from the accessibility tree. Under
 `prefers-reduced-motion: reduce` the collapse is instant rather than animated.
 
-The behavior comes from the `scrollDirection` util reading `ScrollLayoutService`, so a page whose
-content sits outside a `bitScrollLayoutHost` region simply never collapses its title bar.
+**Which element is scrolling**
+
+The direction comes from `ScrollCollapseService`, which watches the element reported by
+`bitScrollCollapseSource` and falls back to the `bitScrollLayoutHost` region when nothing reports
+one. A page whose content scrolls its own `popup-page` region needs no opt-in. A page whose content
+owns its own scroller — a `bit-table-v2` with `height="fill"`, say — leaves that region with nothing
+to report, so put `bitScrollCollapseSource` on the container holding the real scroller; it listens
+in the capture phase, so the scrolling descendant identifies itself as the DOM changes.
+
+**Collapsing more than the title bar**
+
+Any element can collapse alongside it with `bitCollapseOnScroll`, and `popup-page` wires it to the
+`above-scroll-area` region behind the `collapseAboveScrollArea` input. Every collapsing region on a
+page shares one direction signal, since each collapse gives its height back to the scroller and
+per-region signals would fight each other.
+
+The element must have exactly one element child, which becomes the collapsing row. Put block padding
+on that child rather than on the element itself, so it collapses with the row.
+
+Collapsing regions are only ever visually clipped, never removed from the accessibility tree, so
+tabbing into one brings it into view and holds it open. If a region already holds focus when the
+collapse comes due — the vault's search is autofocused and keeps focus through a wheel scroll —
+focus moves out to the nearest focusable ancestor rather than being hidden.
+
+A restored scroll position collapses every region on the page, not just the title bar, so the page
+arrives collapsed rather than animating into it — as long as the list has more left to scroll than
+the collapse would hand back. The regions are handed back on the user's first scroll.
+
+**The page's seam**
+
+A page shows two rules: the title bar's bottom border, always drawn, and one seam dividing the
+regions above the scroll area from the scrolled content. Regions between them stay borderless and
+separate by background.
+
+`bitCollapseOnScroll` draws the seam, so the host's bottom border belongs to the directive — put a
+border of your own on a wrapper instead. One region draws it: the bottom-most expanded one, while
+the scroller is away from the top.
+
+A collapsed region keeps its border box, so a seam there would stack against the region above it.
+Scrolled fully down, nothing draws one and the title bar's border is the boundary; scrolling back up
+brings the seam in under the bottom-most region as it opens.
+
+`bit-table-toolbar` draws no border of its own inside a collapsing region, since two `border-color`
+utilities on one element resolve by stylesheet order.
 
 <Canvas of={stories.HeaderV2ScrollingTitleBar} />
 
