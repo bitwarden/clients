@@ -47,6 +47,12 @@ describe("ExtensionAuthRequestAnsweringService", () => {
     ...userAccountInfo,
   };
 
+  const otherUserId = "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d" as UserId;
+  const otherUserAccountInfo = mockAccountInfoWith({
+    name: "Other User",
+    email: "other@example.com",
+  });
+
   const authRequestId = "auth-request-id-123";
 
   beforeEach(() => {
@@ -170,7 +176,7 @@ describe("ExtensionAuthRequestAnsweringService", () => {
           expect(i18nService.t).toHaveBeenCalledWith("accountAccessRequested");
           expect(i18nService.t).toHaveBeenCalledWith("confirmAccessAttempt", "user@example.com");
           expect(systemNotificationsService.create).toHaveBeenCalledWith({
-            id: `${AuthServerNotificationTags.AuthRequest}_${authRequestId}`,
+            id: `${AuthServerNotificationTags.AuthRequest}_${userId}_${authRequestId}`,
             title: "accountAccessRequested",
             body: "confirmAccessAttempt:user@example.com",
             buttons: [],
@@ -209,7 +215,105 @@ describe("ExtensionAuthRequestAnsweringService", () => {
   });
 
   describe("handleAuthRequestNotificationClicked()", () => {
-    it("should clear notification and open popup when notification body is clicked", async () => {
+    const notificationIdFor = (targetUserId: UserId) =>
+      `${AuthServerNotificationTags.AuthRequest}_${targetUserId}_${authRequestId}`;
+
+    beforeEach(() => {
+      // Active user is `userId`; `otherUserId` is a second known, logged-in account.
+      accountService.accounts$ = of({
+        [userId]: userAccountInfo,
+        [otherUserId]: otherUserAccountInfo,
+      });
+    });
+
+    it("should do nothing when an optional notification button is clicked", async () => {
+      // Arrange
+      const event: SystemNotificationEvent = {
+        id: notificationIdFor(otherUserId),
+        buttonIdentifier: ButtonLocation.FirstOptionalButton,
+      };
+
+      // Act
+      await sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      expect(systemNotificationsService.clear).not.toHaveBeenCalled();
+      expect(actionService.openPopup).not.toHaveBeenCalled();
+      expect(messagingService.send).not.toHaveBeenCalled();
+    });
+
+    it("should switch to the target account then open the popup when the request is for a different account", async () => {
+      // Arrange
+      const event: SystemNotificationEvent = {
+        id: notificationIdFor(otherUserId),
+        buttonIdentifier: ButtonLocation.NotificationButton,
+      };
+
+      // Act
+      await sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      expect(systemNotificationsService.clear).toHaveBeenCalledWith({ id: event.id });
+      expect(messagingService.send).toHaveBeenCalledWith("switchAccount", {
+        userId: otherUserId,
+      });
+      expect(actionService.openPopup).toHaveBeenCalledTimes(1);
+    });
+
+    it("should switch to a locked target account then open the popup (routing handled downstream)", async () => {
+      // Arrange
+      accountService.activeAccount$ = of(userAccount);
+      const event: SystemNotificationEvent = {
+        id: notificationIdFor(otherUserId),
+        buttonIdentifier: ButtonLocation.NotificationButton,
+      };
+
+      // Act
+      await sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      expect(messagingService.send).toHaveBeenCalledWith("switchAccount", {
+        userId: otherUserId,
+      });
+      expect(actionService.openPopup).toHaveBeenCalledTimes(1);
+    });
+
+    it("should open the popup without switching when the request is for the active account", async () => {
+      // Arrange
+      const event: SystemNotificationEvent = {
+        id: notificationIdFor(userId),
+        buttonIdentifier: ButtonLocation.NotificationButton,
+      };
+
+      // Act
+      await sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      expect(systemNotificationsService.clear).toHaveBeenCalledWith({ id: event.id });
+      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
+      expect(actionService.openPopup).toHaveBeenCalledTimes(1);
+    });
+
+    it("should open the popup without switching when the target account is unknown (logged out or pruned)", async () => {
+      // Arrange: notification for an account no longer present in accounts$.
+      accountService.accounts$ = of({
+        [userId]: userAccountInfo,
+      });
+      const event: SystemNotificationEvent = {
+        id: notificationIdFor(otherUserId),
+        buttonIdentifier: ButtonLocation.NotificationButton,
+      };
+
+      // Act
+      await sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      expect(systemNotificationsService.clear).toHaveBeenCalledWith({ id: event.id });
+      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
+      expect(actionService.openPopup).toHaveBeenCalledTimes(1);
+    });
+
+    it("should open the popup without switching when the notification id is malformed", async () => {
       // Arrange
       const event: SystemNotificationEvent = {
         id: "123",
@@ -221,22 +325,8 @@ describe("ExtensionAuthRequestAnsweringService", () => {
 
       // Assert
       expect(systemNotificationsService.clear).toHaveBeenCalledWith({ id: "123" });
+      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
       expect(actionService.openPopup).toHaveBeenCalledTimes(1);
-    });
-
-    it("should do nothing when an optional notification button is clicked", async () => {
-      // Arrange
-      const event: SystemNotificationEvent = {
-        id: "123",
-        buttonIdentifier: ButtonLocation.FirstOptionalButton,
-      };
-
-      // Act
-      await sut.handleAuthRequestNotificationClicked(event);
-
-      // Assert
-      expect(systemNotificationsService.clear).not.toHaveBeenCalled();
-      expect(actionService.openPopup).not.toHaveBeenCalled();
     });
   });
 });
