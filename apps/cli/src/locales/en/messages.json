@@ -274,5 +274,14 @@
   },
   "confirm": {
     "message": "Confirm"
+  },
+  "password": {
+    "message": "Password"
+  },
+  "security": {
+    "message": "Security"
+  },
+  "unknown": {
+    "message": "Unknown"
   }
 }
