@@ -463,6 +463,7 @@ const buildProviders = (args: StoryArgs) => {
           search: "Search",
           searchResults: "Search results",
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           autofillSuggestionsTip: "Save a login item for this site to autofill",
