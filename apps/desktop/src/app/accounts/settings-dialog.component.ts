@@ -275,21 +275,10 @@ export class SettingsDialogComponent implements OnInit {
     // Autotype is for Windows initially
     if (this.isWindows) {
       autotypeFeatureFlagState$(this.configService)
-        .pipe(
-          map((state) => state === AutotypeFeatureFlagState.Mvp),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe((enabled) => {
-          this.showEnableAutotype.set(enabled);
-        });
-
-      autotypeFeatureFlagState$(this.configService)
-        .pipe(
-          map((state) => state === AutotypeFeatureFlagState.Ga),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe((enabled) => {
-          this.showEnableAutotypeGa.set(enabled);
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((state) => {
+          this.showEnableAutotype.set(state === AutotypeFeatureFlagState.Mvp);
+          this.showEnableAutotypeGa.set(state === AutotypeFeatureFlagState.Ga);
         });
     }
 
