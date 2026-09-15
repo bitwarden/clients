@@ -43,6 +43,14 @@
             [emphasis]="vaultTile.emphasis ?? 'subtle'"
             size="sm"
           />
+          @if (!vault.enabled) {
+            <bit-icon
+              slot="end"
+              name="bwi-exclamation-triangle"
+              [ariaLabel]="'organizationIsDisabled' | i18n"
+              appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
+            ></bit-icon>
+          }
           <bit-nav-item
             icon="bwi-list-alt"
             [text]="'allVaultItems' | i18n"

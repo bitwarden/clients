@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "Žádné položky v trezoru"
   },
+  "noItemsInMyVault": {
+    "message": "Žádné položky v mém trezoru"
+  },
+  "emptyMyItems": {
+    "message": "Žádné položky v mých položkách"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Žádné položky ve $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Žádné položky ve $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Vaše trezory jsou prázdné"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Vybraným filtrům neodpovídají žádné položky"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Žádné položky neodpovídají \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Délka"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Importovat",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Importovat položky"
   },
   "fileFormat": {
     "message": "Formát souboru"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 výsledek",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ výsledků",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Žádné filtry neodpovídají \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Vymazat hledání"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Zde budou zobrazeny položky, které smažete. Po 30 dnech budou smazány trvale."
   },
+  "noItemsInTrashDescription": {
+    "message": "Položky, které smažete, se zobrazí zde a budou trvale smazány po 30 dnech."
+  },
   "trashWarning": {
     "message": "Položky, které byly v koši déle než 30 dnů, budou automaticky smazány."
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyVaultsDescription": {
+    "message": "Chcete-li začít, přidejte přihlašovací údaje, průkazy, karty a další položky."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Přidejte položky do této sdílené složky a poté povolte přístup ostatním členům k $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Moje položky jsou Vaše soukromé prostory pro ukládání položek, které zůstávají ve vlastnictví $VAULT_NAME$, ale nejsou viditelné pro ostatní členy.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nemáte žádné složky."
+  },
+  "emptyFoldersDescription": {
+    "message": "Používejte složky k organizaci předmětů v trezoru. Jsou jen pro Vás - nikdo jiný je nebude vidět ani používat."
   },
   "introCarouselLabel": {
     "message": "Vítejte v Bitwardenu"

@@ -267,7 +267,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(data);
   }
 
-  private async mutateSend(
+  async mutateSend(
     sendView: SendView,
     userId: UserId,
     plaintextPassword?: string,
@@ -404,7 +404,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * to local state (the send repository registered in `initializeClientManagedState`), and only
    * rethrow if neither source can produce it.
    */
-  private async refreshAfterMutation(sendId: string): Promise<Send> {
+  async refreshAfterMutation(sendId: string): Promise<Send> {
     try {
       return await this.refreshSendFromServer(sendId);
     } catch (error) {
@@ -506,6 +506,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           fileName: resolvedFileName,
           size: sendView.file?.size?.toString() ?? undefined,
           sizeName: sendView.file?.sizeName ?? undefined,
+        },
+      };
+    } else if (sendView.type === SendType.Item) {
+      if (!sendView.data?.data) {
+        throw new Error("Item Send is missing data");
+      }
+      return {
+        Item: {
+          data: sendView.data.data.toSdkCipherView(),
         },
       };
     }

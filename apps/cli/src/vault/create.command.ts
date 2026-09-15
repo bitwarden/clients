@@ -271,7 +271,7 @@ export class CreateCommand {
             );
       const request = new CreateCollectionRequest({
         name: await this.encryptService.encryptString(req.name, orgKey),
-        externalId: req.externalId,
+        externalId: req.externalId ?? undefined,
         groups,
         users,
       });

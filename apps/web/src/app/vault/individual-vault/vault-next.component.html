@@ -1,3 +1,6 @@
+<vault-organization-user-notifications></vault-organization-user-notifications>
+<app-vault-banners [organizations]="organizations()"></app-vault-banners>
+
 <app-header [title]="title()">
   @if (showBreadcrumbs()) {
     <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
@@ -14,8 +17,14 @@
   }
 </app-header>
 
-<vault-organization-user-notifications></vault-organization-user-notifications>
-<app-vault-banners [organizations]="organizations()"></app-vault-banners>
+@if (showSubscriptionEndedMessaging()) {
+  <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
+    <div>{{ "premiumSubscriptionEndedDesc" | i18n }}</div>
+    <a bitLink [routerLink]="['/settings/subscription/premium']">
+      {{ "restartPremium" | i18n }}
+    </a>
+  </bit-callout>
+}
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
@@ -49,7 +58,7 @@
       [canCreateFolder]="false"
       [canCreateCollection]="false"
       (cipherAdded)="addCipher($event)"
-      (onAddItemDialog)="openAddItemDialog()"
+      (onAddItemDialog)="openAddItemDialog('empty')"
       id="vault-next_empty-new-cipher-menu"
     />
   }
@@ -69,9 +78,15 @@
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
+        [canCreateFolder]="true"
+        [canCreateCollection]="canCreateCollections()"
         (cipherAdded)="addCipher($event)"
-        (onAddItemDialog)="openAddItemDialog()"
+        (onAddItemDialog)="openAddItemDialog('toolbar')"
+        (folderAdded)="addFolder()"
+        (collectionAdded)="addCollection()"
       />
     }
   </div>
 </vault-items-table>
+
+<bit-vault-batch-action />
