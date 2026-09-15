@@ -119,13 +119,14 @@ export class BitTableToolbarComponent {
   );
 
   /**
-   * A `bitCollapseOnScroll` on this element draws the page's seam, so the toolbar leaves the
-   * border to it — two `border-color` utilities on one host resolve by stylesheet order.
+   * An enabled `bitCollapseOnScroll` on this element draws the page's seam, so the toolbar leaves
+   * the border to it — two `border-color` utilities on one host resolve by stylesheet order. Opted
+   * out, the directive draws nothing and the toolbar keeps its own divider.
    */
   private readonly collapse = inject(CollapseOnScrollDirective, { optional: true, self: true });
 
   protected readonly hostClasses = computed(() => {
-    if (this.collapse) {
+    if (this.collapse?.bitCollapseOnScroll()) {
       return "";
     }
 

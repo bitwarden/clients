@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { DialogService } from "../../dialog";
 import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component";
+import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import { SearchComponent } from "../../search/search.component";
 import { TooltipDirective } from "../../tooltip";
 import { I18nMockService } from "../../utils/i18n-mock.service";
@@ -45,6 +46,20 @@ class HostComponent {
 })
 class SearchOnlyHostComponent {}
 
+/** A toolbar carrying `bitCollapseOnScroll`, whose enabled state decides who draws the divider. */
+@Component({
+  imports: [BitTableToolbarComponent, CollapseOnScrollDirective, SearchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-toolbar [bitCollapseOnScroll]="collapse()">
+      <bit-search placeholder="Search"></bit-search>
+    </bit-table-toolbar>
+  `,
+})
+class CollapsingHostComponent {
+  readonly collapse = signal(true);
+}
+
 describe("BitTableToolbarComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
@@ -63,7 +78,7 @@ describe("BitTableToolbarComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent, SearchOnlyHostComponent],
+      imports: [HostComponent, SearchOnlyHostComponent, CollapsingHostComponent],
       providers: [
         {
           provide: I18nService,
@@ -129,5 +144,30 @@ describe("BitTableToolbarComponent", () => {
     const filterRow = searchOnly.nativeElement.querySelector("[bitOverflowList]") as HTMLElement;
     expect(filterRow).not.toBeNull();
     expect(filterRow.childElementCount).toBe(0);
+  });
+
+  describe("with bitCollapseOnScroll", () => {
+    let collapsing: ComponentFixture<CollapsingHostComponent>;
+
+    const toolbar = () =>
+      collapsing.nativeElement.querySelector("bit-table-toolbar") as HTMLElement;
+
+    beforeEach(() => {
+      collapsing = TestBed.createComponent(CollapsingHostComponent);
+      collapsing.detectChanges();
+    });
+
+    it("leaves the divider to the directive while it is enabled", () => {
+      // The directive draws the page's seam on this same host, and two `border-color` utilities
+      // there would resolve by stylesheet order rather than by either one's intent.
+      expect(toolbar().className).not.toContain("tw-border-border-base");
+    });
+
+    it("keeps its own divider when the directive is opted out", () => {
+      collapsing.componentInstance.collapse.set(false);
+      collapsing.detectChanges();
+
+      expect(toolbar().className).toContain("tw-border-b");
+    });
   });
 });
