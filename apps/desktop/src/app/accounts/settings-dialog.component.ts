@@ -69,6 +69,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -126,6 +127,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly userVerificationService = inject(UserVerificationServiceAbstraction);
   private readonly desktopSettingsService = inject(DesktopSettingsService);
   private readonly desktopAutotypeMvpService = inject(DesktopAutotypeMvpService);
+  private readonly desktopAutotypeService = inject(DesktopAutotypeService);
   private readonly biometricStateService = inject(BiometricStateService);
   private readonly biometricsService = inject(DesktopBiometricsService);
   private readonly desktopAutofillSettingsService = inject(DesktopAutofillSettingsService);
@@ -153,6 +155,7 @@ export class SettingsDialogComponent implements OnInit {
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
+  protected readonly showEnableAutotypeGa = signal(false);
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -204,6 +207,11 @@ export class SettingsDialogComponent implements OnInit {
       disabled: true,
     }),
     autotypeShortcut: [null as string | null],
+    enableAutotypeGa: this.formBuilder.control<boolean>({
+      value: false,
+      disabled: true,
+    }),
+    autotypeGaShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -274,6 +282,15 @@ export class SettingsDialogComponent implements OnInit {
         .subscribe((enabled) => {
           this.showEnableAutotype.set(enabled);
         });
+
+      autotypeFeatureFlagState$(this.configService)
+        .pipe(
+          map((state) => state === AutotypeFeatureFlagState.Ga),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe((enabled) => {
+          this.showEnableAutotypeGa.set(enabled);
+        });
     }
 
     this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
@@ -314,6 +331,12 @@ export class SettingsDialogComponent implements OnInit {
       autotypeShortcut: this.getFormattedAutotypeShortcutText(
         (await firstValueFrom(this.desktopAutotypeMvpService.autotypeKeyboardShortcut$)) ?? [],
       ),
+      enableAutotypeGa: await firstValueFrom(
+        this.desktopAutotypeService.autotypeEnabledUserSetting$,
+      ),
+      autotypeGaShortcut: this.getFormattedAutotypeShortcutText(
+        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+      ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -326,6 +349,15 @@ export class SettingsDialogComponent implements OnInit {
         .subscribe((hasPremium) => {
           if (hasPremium) {
             this.form.controls.enableAutotype.enable();
+          }
+        });
+
+      this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(this.currentUserId())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((hasPremium) => {
+          if (hasPremium) {
+            this.form.controls.enableAutotypeGa.enable();
           }
         });
     }
@@ -694,6 +726,43 @@ export class SettingsDialogComponent implements OnInit {
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
     await this.desktopAutotypeMvpService.setAutotypeKeyboardShortcutState(newShortcutArray);
+  }
+
+  protected async saveEnableAutotypeGa() {
+    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotypeGa);
+    const currentShortcut = await firstValueFrom(
+      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+    );
+    if (currentShortcut) {
+      this.form.controls.autotypeGaShortcut.setValue(
+        this.getFormattedAutotypeShortcutText(currentShortcut),
+      );
+    }
+  }
+
+  protected async saveAutotypeGaShortcut() {
+    // disable the shortcut so that the user can't re-enter the existing
+    // shortcut and trigger the feature during the settings menu.
+    // it is not necessary to check if it's already enabled, because
+    // the edit shortcut is only available if the feature is enabled
+    // in the settings.
+    await this.desktopAutotypeService.setAutotypeEnabledState(false);
+
+    const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
+
+    const newShortcutArray = await firstValueFrom(dialogRef.closed);
+
+    // re-enable
+    await this.desktopAutotypeService.setAutotypeEnabledState(true);
+
+    if (!newShortcutArray) {
+      return;
+    }
+
+    this.form.controls.autotypeGaShortcut.setValue(
+      this.getFormattedAutotypeShortcutText(newShortcutArray),
+    );
+    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
   protected get biometricText() {
