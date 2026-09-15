@@ -18742,9 +18742,6 @@
       }
     }
   },
-  "requestAccessModalReasonRequired": {
-    "message": "Reason"
-  },
   "requestAccessModalReasonOptional": {
     "message": "Reason (optional)"
   },
@@ -19984,8 +19981,8 @@
       }
     }
   },
-  "requestAccessModalReasonHint": {
-    "message": "Approvers will see this reason when reviewing your request."
+  "requestAccessModalReasonRequired": {
+    "message": "Reason"
   },
   "requestAccessModalGenericError": {
     "message": "Could not request access."
