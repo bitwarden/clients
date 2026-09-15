@@ -104,6 +104,7 @@ export default class RuntimeBackground {
         "getUserPremiumStatus",
         "getUrlAutofillTargetingRules",
         "getBitwardenAutofillAttributeSettings",
+        VaultMessages.checkBwInstalled,
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -234,6 +235,11 @@ export default class RuntimeBackground {
         ]);
 
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
+      }
+      case VaultMessages.checkBwInstalled: {
+        const referrer =
+          Utils.getHostname(sender.origin) || Utils.getHostname(sender.url) || msg.referrer;
+        return await this.isValidVaultReferrer(referrer);
       }
       case "authResult": {
         if (!(await this.isValidVaultReferrer(msg.referrer))) {

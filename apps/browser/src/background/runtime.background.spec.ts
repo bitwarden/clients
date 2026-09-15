@@ -1,13 +1,16 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
+import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
@@ -38,12 +41,20 @@ describe("RuntimeBackground collectPageDetailsResponse routing", () => {
 
     autofillOrchestrator = mock<AutofillOrchestrator>();
 
+    const environmentService = mock<BrowserEnvironmentService>();
+    environmentService.availableRegions.mockReturnValue([
+      { urls: { webVault: "https://vault.bitwarden.com" } } as any,
+    ]);
+    environmentService.environment$ = of({
+      getWebVaultUrl: () => "https://vault.bitwarden.com",
+    } as any);
+
     runtimeBackground = new RuntimeBackground(
       mock<MainBackground>(),
       mock<AutofillService>(),
       mock<BrowserPlatformUtilsService>(),
       undefined as any,
-      undefined as any,
+      environmentService,
       undefined as any,
       mock<LogService>(),
       undefined as any,
@@ -114,6 +125,21 @@ describe("RuntimeBackground collectPageDetailsResponse routing", () => {
 
     expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
+  });
+
+  describe("checkIfBWExtensionInstalled", () => {
+    it.each([
+      ["vault sender origin", { origin: "https://vault.bitwarden.com" }, undefined, true],
+      ["non-vault sender origin", { origin: "https://example.com" }, undefined, false],
+      ["referrer fallback", {}, "vault.bitwarden.com", true],
+    ] as const)("%s", async (_name, messageSender, referrer, expected) => {
+      await expect(
+        runtimeBackground.processMessageWithSender(
+          { command: VaultMessages.checkBwInstalled, referrer },
+          messageSender as chrome.runtime.MessageSender,
+        ),
+      ).resolves.toBe(expected);
+    });
   });
 });
 
