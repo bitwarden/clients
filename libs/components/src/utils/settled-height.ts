@@ -44,8 +44,10 @@ export const settledHeight = (
       settled = host.offsetHeight;
     }
 
-    const onTransitionEnd = () => {
-      if (untracked(expanded)) {
+    const onTransitionEnd = (event: TransitionEvent) => {
+      // `transitionend` bubbles, and a descendant's transition (a chip's colors) can land while the
+      // region is still animating open, when the host height is only an intermediate value.
+      if (event.target === host && untracked(expanded)) {
         settled = host.offsetHeight;
       }
     };

@@ -93,6 +93,20 @@ describe("settledHeight", () => {
     expect(height()).toBe(64);
   });
 
+  it("ignores a transition that finished on a descendant", () => {
+    const element = createElement(48);
+    const child = element.appendChild(document.createElement("div"));
+    const height = create(signal(element), signal(true));
+    TestBed.tick();
+
+    // A chip's color transition landing mid-expand, while the host height is still intermediate.
+    setHeight(element, 12);
+    endTransition(child);
+    TestBed.tick();
+
+    expect(height()).toBe(48);
+  });
+
   it("does not adopt a height measured while collapsed", () => {
     const element = createElement(48);
     const expanded = signal(false);
