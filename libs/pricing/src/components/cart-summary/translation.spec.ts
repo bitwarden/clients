@@ -5,7 +5,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlanTier, PurchasableReference } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
-import { getCartItemTranslationKey, getCreditTranslationKey } from "./translation";
+import {
+  getCartItemTranslationKey,
+  getCreditTranslationKey,
+  getProrationChargeTranslationKey,
+} from "./translation";
 
 describe("getCartItemTranslationKey", () => {
   let logService: LogService;
@@ -202,6 +206,41 @@ describe("getCreditTranslationKey", () => {
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
     expect(getCreditTranslationKey(flowContext)).toBeUndefined();
+  });
+});
+
+describe("getProrationChargeTranslationKey", () => {
+  it("should resolve each purchasable reference to its product charge label", () => {
+    expect(getProrationChargeTranslationKey("pm-seat", "pm-seat")).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("pm-storage", "pm-seat")).toBe("storageProratedCharge");
+    expect(getProrationChargeTranslationKey("sm-seat", "sm-seat")).toBe(
+      "secretsManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("sm-service-account", "sm-seat")).toBe(
+      "serviceAccountsProratedCharge",
+    );
+  });
+
+  it("should fall back to the group's seat reference when the reference is absent", () => {
+    expect(getProrationChargeTranslationKey(undefined, "pm-seat")).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey(undefined, "sm-seat")).toBe(
+      "secretsManagerProratedCharge",
+    );
+  });
+
+  it("should fall back to the group's charge key for a reference outside the union", () => {
+    // The response parser deliberately tolerates unknown purchasable references, so an unknown
+    // value can reach this resolver at runtime.
+    expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "pm-seat")).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "sm-seat")).toBe(
+      "secretsManagerProratedCharge",
+    );
   });
 });
 
