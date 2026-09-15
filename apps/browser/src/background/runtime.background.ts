@@ -286,7 +286,7 @@ export default class RuntimeBackground {
       case VaultMessages.checkBwInstalled: {
         const referrer =
           Utils.getHostname(sender.origin) || Utils.getHostname(sender.url) || msg.referrer;
-        return await this.isValidVaultReferrer(referrer);
+        return await isValidVaultReferrer(this.environmentService, referrer);
       }
       case "authResult": {
         if (!(await isValidVaultReferrer(this.environmentService, msg.referrer))) {
