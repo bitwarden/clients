@@ -109,8 +109,8 @@ export class PopupHeaderComponent {
   private readonly titleBar = viewChild<ElementRef<HTMLElement>>("titleBar");
 
   /**
-   * The bar's height as chrome, which gates every region's collapse on this page. Settled rather
-   * than live, since the height moves with compact mode and with a title that wraps.
+   * The bar's collapsible height, which gates every region's collapse on this page. Settled
+   * rather than live, since the height moves with compact mode and with a title that wraps.
    */
   private readonly height = settledHeight(
     this.titleBar,
@@ -124,8 +124,8 @@ export class PopupHeaderComponent {
   private readonly region: CollapseRegion = { height: this.height };
 
   constructor() {
-    // Counted only while the bar can actually collapse, so it doesn't inflate the chrome height
-    // for the regions that can.
+    // Counted only while the bar can actually collapse, so it doesn't inflate the collapsible
+    // height for the regions that can.
     effect((onCleanup) => {
       if (!this.vfo1Enabled() || this.hideTitleBar()) {
         return;

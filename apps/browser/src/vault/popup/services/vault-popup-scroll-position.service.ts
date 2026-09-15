@@ -49,14 +49,14 @@ export class VaultPopupScrollPositionService {
 
     if (restoring) {
       // Gated on the scroller affording the collapse: handing back more height than it has left to
-      // scroll would clamp the offset and reopen the chrome against the user (CL-1318).
+      // scroll would clamp the offset and reopen the regions against the user (CL-1318).
       //
-      // Measured once, while the chrome is still expanded. The collapse gives its height to the
+      // Measured once, while the regions are still expanded. The collapse gives its height to the
       // scroller, so measuring again afterwards tests a range the collapse itself shrank — the
       // same reason `scrollDirection` gates the flip to `"down"` and never re-tests it.
       const affordsCollapse = this.scrollCollapse.affordsCollapse(scrollElement);
 
-      // Before the jump paints, so collapsing chrome arrives collapsed rather than animating.
+      // Before the jump paints, so the collapsing regions arrive collapsed rather than animating.
       this.scrollLayout.restoredScrolled.set(target! > 0 && affordsCollapse);
 
       // Use `setTimeout` to scroll after rendering is complete

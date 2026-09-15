@@ -43,8 +43,8 @@ const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows,borde
 /**
  * Collapses this element while the user scrolls down the page's scroll region — the layout's
  * `bitScrollLayoutHost`, or a `bitScrollCollapseSource` where one reports — and restores it as soon
- * as they scroll back up. For short viewports — the extension popup especially — where chrome is
- * worth more as content space.
+ * as they scroll back up. For short viewports — the extension popup especially — where that space
+ * is worth more as content.
  *
  * The element must have exactly one element child, which becomes the collapsing row; further
  * children would land in implicit rows and wouldn't collapse. Put block padding on that child
@@ -54,8 +54,8 @@ const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows,borde
  * into it brings it into view. Under `prefers-reduced-motion: reduce` the collapse is instant.
  *
  * The host's bottom border belongs to this directive: the bottom-most expanded region on a page
- * draws its seam, the one rule dividing chrome from scrolled content. A consumer wanting a border
- * of its own there should put it on a wrapper.
+ * draws its seam, the one rule dividing the regions above the scroll area from the scrolled
+ * content. A consumer wanting a border of its own there should put it on a wrapper.
  */
 @Directive({
   selector: "[bitCollapseOnScroll]",
@@ -112,14 +112,14 @@ export class CollapseOnScrollDirective {
     ].join(" ");
   });
 
-  /** This region's height as chrome, which is what gates every region's collapse. */
+  /** This region's collapsible height, which is what gates every region's collapse. */
   private readonly height = settledHeight(signal(this.host), this.expanded);
 
   /** One stable object, since the service registers regions by identity. */
   private readonly region: CollapseRegion = {
     height: this.height,
     // Collapsed, the region offers no seam: it holds its border box, so one drawn there would
-    // stack against the chrome above it.
+    // stack against the region above it.
     seam: computed(() => (this.expanded() ? this.host.nativeElement : null)),
   };
 
@@ -127,7 +127,7 @@ export class CollapseOnScrollDirective {
 
   constructor() {
     // Registered only while it can actually collapse, so a disabled region doesn't inflate the
-    // chrome height gating every other region.
+    // collapsible height gating every other region.
     effect((onCleanup) => {
       if (!this.bitCollapseOnScroll()) {
         return;

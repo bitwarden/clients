@@ -11,7 +11,7 @@ const nativeElement = (
 };
 
 /**
- * An element's height as collapsing chrome, which never reports less than its expanded height.
+ * An element's height as a collapsing region, which never reports less than its expanded height.
  *
  * `scrollDirection`'s `minScrollable` gates a collapse on the scroller being able to afford it, so
  * under-reporting is the dangerous direction — a plain `offsetHeight` measures ~0 once collapsed and

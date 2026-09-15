@@ -40,7 +40,7 @@ export class ScrollCollapseService {
   );
 
   /** The height the registered regions would hand back to the scroller by collapsing. */
-  private readonly chromeHeight = () =>
+  private readonly collapsibleHeight = () =>
     this.collapsibles().reduce((total, region) => total + region.height(), 0);
 
   /**
@@ -49,7 +49,7 @@ export class ScrollCollapseService {
    * its `scrollHeight` instead, moving `maxTop` the opposite way.
    */
   private readonly scrolling = scrollDirection(this.source, {
-    minScrollable: this.chromeHeight,
+    minScrollable: this.collapsibleHeight,
   });
 
   /**
@@ -74,8 +74,8 @@ export class ScrollCollapseService {
    * Which way the page is being scrolled. One signal for the whole page: every collapse gives its
    * height back to the scroller, so per-region signals would fight each other.
    *
-   * A restored scroll position reports `"down"`, so collapsing chrome arrives collapsed rather than
-   * animating into it; whoever restores it clears the flag on the user's first real scroll.
+   * A restored scroll position reports `"down"`, so the collapsing regions arrive collapsed rather
+   * than animating into it; whoever restores it clears the flag on the user's first real scroll.
    */
   readonly direction: Signal<ScrollDirection> = computed(() =>
     this.scrollLayout.restoredScrolled() ? "down" : this.scrolling(),
@@ -89,8 +89,9 @@ export class ScrollCollapseService {
   readonly restoring: Signal<boolean> = this.scrollLayout.restoredScrolled;
 
   /**
-   * The region drawing the page's seam — the one rule dividing chrome from scrolled content. The
-   * bottom-most region offering one, by document position rather than registration order.
+   * The region drawing the page's seam — the one rule dividing the regions above the scroll area
+   * from the scrolled content. The bottom-most region offering one, by document position rather
+   * than registration order.
    */
   private readonly seamOwner = computed<CollapseRegion | null>(() => {
     let owner: CollapseRegion | null = null;
@@ -125,12 +126,12 @@ export class ScrollCollapseService {
    *
    * The floor `minScrollable` applies to a direction flip, which a restored scroll position never
    * makes, so a restore has to ask before declaring itself: collapsing more than the scroller can
-   * afford lets the browser clamp the offset, which reads as `"up"` and reopens the chrome
+   * afford lets the browser clamp the offset, which reads as `"up"` and reopens the regions
    * (CL-1318). A plain method rather than a signal, since the regions' heights consult their own
    * collapse state — reading them inside a `computed` that feeds `direction` would be a cycle.
    */
   affordsCollapse(element: HTMLElement): boolean {
-    return element.scrollHeight - element.clientHeight > this.chromeHeight();
+    return element.scrollHeight - element.clientHeight > this.collapsibleHeight();
   }
 
   /** Report the element being scrolled. */
@@ -147,8 +148,8 @@ export class ScrollCollapseService {
   }
 
   /**
-   * Count a region towards the chrome total that gates the collapse, and towards the page's seam
-   * where it offers one. Hold one stable object per region; registration compares by identity.
+   * Count a region towards the collapsible height that gates the collapse, and towards the page's
+   * seam where it offers one. Hold one stable object per region; registration compares by identity.
    */
   register(region: CollapseRegion): void {
     this.collapsibles.update((current) =>

@@ -62,7 +62,7 @@ describe("scroll collapse", () => {
     host = fixture.componentInstance;
     fixture.detectChanges();
 
-    // Stands in for collapsing chrome, so `minScrollable` is satisfied and "down" is reported.
+    // Stands in for a collapsing region, so `minScrollable` is satisfied and "down" is reported.
     Object.defineProperty(region(), "offsetHeight", { value: 40, configurable: true });
     stubGeometry(el("scroller"), 1000, 500);
   });
@@ -242,14 +242,14 @@ describe("scroll collapse", () => {
     });
   });
 
-  describe("the chrome height that gates the collapse", () => {
-    /** Mirrors a consumer collapsing: the scroller takes the height the chrome gives up. */
+  describe("the collapsible height that gates the collapse", () => {
+    /** Mirrors a consumer collapsing: the scroller takes the height the region gives up. */
     const setClientHeight = (element: HTMLElement, clientHeight: number) =>
       Object.defineProperty(element, "clientHeight", { value: clientHeight, configurable: true });
 
-    it("leaves a list that scrolls by less than the chrome alone", async () => {
+    it("leaves a list that scrolls by less than the collapsible height alone", async () => {
       // The `VaultPageShortScroll` geometry from the CL-1318 report: 104px of overflow is less
-      // than the 130px of chrome collapsing would hand back, so it would clamp and reopen.
+      // than the 130px collapsing would hand back, so it would clamp and reopen.
       Object.defineProperty(region(), "offsetHeight", { value: 130, configurable: true });
       stubGeometry(el("scroller"), 453, 349);
 
@@ -263,7 +263,7 @@ describe("scroll collapse", () => {
       }
     });
 
-    it("collapses once the list scrolls by more than the chrome", async () => {
+    it("collapses once the list scrolls by more than the collapsible height", async () => {
       // The same page one row taller, which is all it takes to clear the floor.
       Object.defineProperty(region(), "offsetHeight", { value: 130, configurable: true });
       stubGeometry(el("scroller"), 512, 349);
@@ -320,8 +320,8 @@ describe("scroll collapse", () => {
     });
 
     it("tells a would-be restore when the scroller cannot afford the collapse", async () => {
-      // The `VaultPageShortScroll` geometry again: 104px of overflow against 130px of chrome. The
-      // floor `minScrollable` applies to a direction flip has to be asked for explicitly here.
+      // The `VaultPageShortScroll` geometry again: 104px of overflow against 130px of collapsible
+      // height. The floor `minScrollable` applies to a flip has to be asked for explicitly here.
       Object.defineProperty(region(), "offsetHeight", { value: 130, configurable: true });
       await scrollTo(0);
 
@@ -331,12 +331,12 @@ describe("scroll collapse", () => {
       expect(service.affordsCollapse(stubGeometry(el("scroller"), 512, 349))).toBe(true);
     });
 
-    it("stops counting a region towards the chrome height once it is destroyed", async () => {
+    it("stops counting a region towards the collapsible height once it is destroyed", async () => {
       const service = TestBed.inject(ScrollCollapseService);
       host.showRegion.set(false);
       fixture.detectChanges();
 
-      // With no chrome left to collapse, `minScrollable` is 0 and the scroll still reads down.
+      // With nothing left to collapse, `minScrollable` is 0 and the scroll still reads down.
       await scrollTo(200);
 
       expect(service.direction()).toBe("down");
@@ -362,7 +362,7 @@ class SeamHostComponent {
   readonly showLower = signal(true);
 }
 
-/** The page draws one rule between its chrome and its scrolled content. */
+/** The page draws one rule between the regions above the scroll area and its scrolled content. */
 describe("the page's seam", () => {
   let fixture: ComponentFixture<SeamHostComponent>;
   let host: SeamHostComponent;
@@ -408,7 +408,7 @@ describe("the page's seam", () => {
   });
 
   it("draws nothing while every region is collapsed", async () => {
-    // Collapsed regions hold their border box, so a seam here would stack against the chrome above.
+    // Collapsed regions hold their border box, so a seam here would stack against the one above.
     await scrollTo(200);
 
     expect(draws("upper")).toBe(false);

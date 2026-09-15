@@ -458,7 +458,7 @@ class MockVaultSubpageFloatingActionComponent {}
 
 // --- Table V2 list-presentation exploration -------------------------------------
 // Duplicated from libs/components Table V2 "Filterable" story so we can iterate on
-// the responsive table/list presentation inside the real extension popup chrome.
+// the responsive table/list presentation inside the real extension popup layout.
 
 type TableVaultRow = {
   id: number;
@@ -1128,7 +1128,7 @@ export const PopupPage: Story = {
 };
 
 /**
- * Table V2 in `list` presentation inside the real popup chrome. Duplicated from the
+ * Table V2 in `list` presentation inside the real popup layout. Duplicated from the
  * libs/components "Filterable" story; toggle `presentation` to compare table vs list.
  * The table uses `fill`, so its toolbar/header stay pinned while the rows scroll.
  */

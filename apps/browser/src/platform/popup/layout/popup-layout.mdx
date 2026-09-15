@@ -118,12 +118,12 @@ Usage example:
 Behind the `vfo1-foundation` feature flag, `popup-header` renders two stacked bars inside its banner
 landmark instead of one:
 
-- an **app bar** — dark, branded, carrying the Bitwarden logo plus the chrome that belongs to the
+- an **app bar** — dark, branded, carrying the Bitwarden logo plus the controls that belong to the
   extension rather than the page (pop out button, account switcher)
 - a **page title bar** — the familiar header, carrying the back button, a leading icon tile, the
   title, and an item count
 
-The app bar is extension chrome rather than page content, so it renders on every screen that uses
+The app bar belongs to the extension rather than the page, so it renders on every screen that uses
 `popup-header` — dialogs and onboarding pages included. Because it owns the branding, the legacy
 default slot is dropped while the flag is on: a page that used it to project its own logo would
 otherwise render the logo twice. Content that still belongs in the title bar goes in `title-start`,
@@ -198,13 +198,14 @@ the collapse would hand back. The regions are handed back on the user's first sc
 **The page's seam**
 
 A page shows two rules: the title bar's bottom border, always drawn, and one seam dividing the
-chrome from the scrolled content. Regions between them stay borderless and separate by background.
+regions above the scroll area from the scrolled content. Regions between them stay borderless and
+separate by background.
 
 `bitCollapseOnScroll` draws the seam, so the host's bottom border belongs to the directive — put a
 border of your own on a wrapper instead. One region draws it: the bottom-most expanded one, while
 the scroller is away from the top.
 
-A collapsed region keeps its border box, so a seam there would stack against the chrome above it.
+A collapsed region keeps its border box, so a seam there would stack against the region above it.
 Scrolled fully down, nothing draws one and the title bar's border is the boundary; scrolling back up
 brings the seam in under the bottom-most region as it opens.
 

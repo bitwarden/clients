@@ -471,7 +471,7 @@ const buildProviders = (args: StoryArgs) => {
         new I18nMockService({
           search: "Search",
           searchResults: "Search results",
-          // `popup-page` / `popup-header` chrome, for the stories that render the full page.
+          // `popup-page` / `popup-header` strings, for the stories that render the full page.
           // `back` and `vault` are already defined below for the filter chips.
           loading: "Loading",
           appLogoLabel: "Bitwarden",
@@ -633,7 +633,7 @@ const buildProviders = (args: StoryArgs) => {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
     },
-    // `popup-header`'s back button, for the stories that render the full page chrome.
+    // `popup-header`'s back button, for the stories that render the full page layout.
     { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve(true) } },
   ];
 };
@@ -715,7 +715,7 @@ export const VaultPageShortScroll: Story = {
     moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent] }),
   ],
   render: () => ({
-    // Deliberately shorter than `VaultPage`, to land the overflow under the chrome height.
+    // Deliberately shorter than `VaultPage`, to land the overflow under the collapsible height.
     template: /* HTML */ `
       <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 520px">
         <popup-page [collapseAboveScrollArea]="true">

@@ -133,7 +133,7 @@ describe("scrollDirection", () => {
     expect(direction()).toBe("up");
   });
 
-  it("holds down near the bottom, where collapsing chrome clamps the offset", async () => {
+  it("holds down near the bottom, where a collapsing region clamps the offset", async () => {
     const element = createScrollable();
     const direction = create(signal(element), { bottomOffset: 24 });
 
@@ -148,13 +148,13 @@ describe("scrollDirection", () => {
 
   describe("minScrollable", () => {
     /**
-     * Redefinable because collapsing chrome hands its height back to the scroll region, which is
-     * the whole reason a floor is needed.
+     * Redefinable because a collapsing region hands its height back to the scroll region, which
+     * is the whole reason a floor is needed.
      */
     const setClientHeight = (element: HTMLElement, clientHeight: number) =>
       Object.defineProperty(element, "clientHeight", { value: clientHeight, configurable: true });
 
-    it("holds up when the region cannot outscroll the chrome a consumer would collapse", async () => {
+    it("holds up when the region cannot outscroll what a consumer would collapse", async () => {
       // 40px of overflow against a 48px title bar: collapsing it would leave nothing to scroll, so
       // the browser would clamp the offset back to the top and the bar would expand again.
       const element = createScrollable(540, 500);
@@ -164,7 +164,7 @@ describe("scrollDirection", () => {
       expect(direction()).toBe("up");
     });
 
-    it("flips once the region can outscroll that chrome", async () => {
+    it("flips once the region can outscroll that height", async () => {
       const element = createScrollable(600, 500);
       const direction = create(signal(element), { minScrollable: 48 });
 
@@ -176,18 +176,18 @@ describe("scrollDirection", () => {
       const element = createScrollable(560, 500);
       const direction = create(signal(element), { minScrollable: 48 });
 
-      // maxTop is 60, which clears the floor, so the consumer collapses its chrome.
+      // maxTop is 60, which clears the floor, so the consumer collapses its header.
       await scrollTo(element, 55);
       expect(direction()).toBe("down");
 
       // That hands 48px back to the scroll region, leaving 12px of overflow and clamping the
-      // offset. Re-testing the floor here would expand the chrome and start the cycle over.
+      // offset. Re-testing the floor here would expand the header and start the cycle over.
       setClientHeight(element, 548);
       await scrollTo(element, 12);
       expect(direction()).toBe("down");
     });
 
-    it("holds up when the region can scroll exactly as far as the chrome is tall", async () => {
+    it("holds up when the region can scroll exactly as far as the collapsible height", async () => {
       // The boundary the gate's `<=` is written for: exactly `maxTop` leaves nothing to scroll.
       const element = createScrollable(548, 500);
       const direction = create(signal(element), { minScrollable: 48 });
@@ -198,19 +198,19 @@ describe("scrollDirection", () => {
     });
 
     it("does not flap when a collapse clamps the offset back to the top", async () => {
-      // The CL-1318 loop end to end: less overflow than the chrome it would collapse, with
-      // `clientHeight` and the floor moving together as they do when the chrome animates.
-      const chrome = 48;
+      // The CL-1318 loop end to end: less overflow than the region it would collapse, with
+      // `clientHeight` and the floor moving together as they do when the region animates.
+      const collapsible = 48;
       const element = createScrollable(530, 500);
       let collapsed = false;
       const direction = create(signal(element), {
-        minScrollable: () => chrome,
+        minScrollable: () => collapsible,
       });
 
-      /** Mirrors a consumer collapsing on `"down"`: the scroller takes the chrome's height. */
+      /** Mirrors a consumer collapsing on `"down"`: the scroller takes the region's height. */
       const applyCollapse = () => {
         collapsed = direction() === "down";
-        setClientHeight(element, collapsed ? 500 + chrome : 500);
+        setClientHeight(element, collapsed ? 500 + collapsible : 500);
 
         // The browser clamps an offset past the shortened content.
         const maxTop = element.scrollHeight - element.clientHeight;
@@ -231,9 +231,9 @@ describe("scrollDirection", () => {
 
     it("stays down through the clamp once the region could afford the collapse", async () => {
       // The other side: enough overflow to clear the floor, so the clamp must not undo it.
-      const chrome = 48;
+      const collapsible = 48;
       const element = createScrollable(560, 500);
-      const direction = create(signal(element), { minScrollable: () => chrome });
+      const direction = create(signal(element), { minScrollable: () => collapsible });
 
       await scrollTo(element, 55);
       expect(direction()).toBe("down");
@@ -248,10 +248,10 @@ describe("scrollDirection", () => {
       expect(direction()).toBe("down");
     });
 
-    it("reads a callback floor on each flip, for chrome that is measured after the first render", async () => {
+    it("reads a callback floor on each flip, for a height measured after the first render", async () => {
       const element = createScrollable(540, 500);
-      let chromeHeight = 0;
-      const direction = create(signal(element), { minScrollable: () => chromeHeight });
+      let collapsibleHeight = 0;
+      const direction = create(signal(element), { minScrollable: () => collapsibleHeight });
 
       await scrollTo(element, 30);
       expect(direction()).toBe("down");
@@ -259,7 +259,7 @@ describe("scrollDirection", () => {
       await scrollTo(element, 0);
       expect(direction()).toBe("up");
 
-      chromeHeight = 48;
+      collapsibleHeight = 48;
 
       await scrollTo(element, 30);
       expect(direction()).toBe("up");
