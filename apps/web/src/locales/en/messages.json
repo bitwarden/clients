@@ -17792,6 +17792,6 @@
     "message": "Secrets Manager prorated charge"
   },
   "serviceAccountsProratedCharge": {
-    "message": "Service Accounts prorated charge"
+    "message": "Service accounts prorated charge"
   }
 }
