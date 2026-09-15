@@ -1,6 +1,7 @@
 ignore:
   - "**/*.spec.ts" # Tests
   - "**/*.stories.ts" # Storybook stories
+  - "bitwarden_license/bit-browser/src/popup/app.module.ts" # Bootstrap module wiring, never imported by a unit test
 
 component_management:
   default_rules:
