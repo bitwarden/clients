@@ -301,11 +301,16 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   private handleWebRequestOnBeforeRedirect = (
     details: chrome.webRequest.OnBeforeRedirectDetails,
   ) => {
-    if (
-      !this.isRequestInMainFrame(details) ||
-      !this.urlContainsAutoSubmitHash(details.redirectUrl) ||
-      !this.isValidInitiator(details.url)
-    ) {
+    if (!this.isRequestInMainFrame(details)) {
+      this.logService.mark("[AutoSubmitLogin] Redirect skipped: not main frame");
+      return;
+    }
+    if (!this.urlContainsAutoSubmitHash(details.redirectUrl)) {
+      this.logService.mark("[AutoSubmitLogin] Redirect skipped: no auto-submit hash");
+      return;
+    }
+    if (!this.isValidInitiator(details.url)) {
+      this.logService.mark("[AutoSubmitLogin] Redirect skipped: untrusted initiator");
       return;
     }
 
