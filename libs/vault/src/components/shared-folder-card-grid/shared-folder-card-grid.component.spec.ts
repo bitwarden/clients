@@ -187,7 +187,9 @@ describe("SharedFolderCardGridComponent", () => {
       expect(cards().map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
 
       cards().forEach((card) => {
-        expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-shared-folder");
+        expect(card.querySelector("bit-icon-tile bit-icon")?.classList).toContain(
+          "bwi-shared-folder",
+        );
         expect(card.querySelector(".bwi-angle-right")).not.toBeNull();
       });
     });

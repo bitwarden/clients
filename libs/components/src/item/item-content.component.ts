@@ -25,6 +25,9 @@ import { ITEM_END_SLOT_TRAILING_OVERRIDES, ITEM_PADDING, ItemComponent } from ".
        * Leading and y-axis padding are both driven by the parent `bit-item`'s `size` input via
        * `sizeClass`. Compact mode is marked `!important` so it always wins over the size-derived
        * padding.
+       *
+       * Only `i` is dimmed when disabled, which reaches icon buttons. An icon tile keeps its own
+       * variant colors so the tile does not read as half-disabled.
        */
       "tw-outline-none tw-text-main hover:tw-text-main tw-no-underline hover:tw-no-underline tw-text-base bit-compact:!tw-ps-2 bit-compact:!tw-py-1.5 tw-bg-transparent tw-w-full tw-border-none tw-flex tw-gap-4 tw-items-center tw-justify-between disabled:tw-cursor-not-allowed [&[disabled]_[bittypography]]:!tw-text-fg-inactive [&[disabled]_i]:!tw-text-fg-inactive",
     "[class]": "sizeClass()",

@@ -30,7 +30,7 @@ describe("IconTileComponent", () => {
   });
 
   it("has aria-hidden on icon element", () => {
-    const icon = fixture.nativeElement.querySelector("i");
+    const icon = fixture.nativeElement.querySelector("bit-icon");
     expect(icon.getAttribute("aria-hidden")).toBe("true");
   });
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from "@ang
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+import { IconComponent } from "../icon";
 import {
   DecorativeColors,
   DecorativeEmphasis,
@@ -80,6 +81,7 @@ const borderRadius: Record<IconTileSize, string[]> = {
 @Component({
   selector: "bit-icon-tile",
   templateUrl: "icon-tile.component.html",
+  imports: [IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-inline-flex",
@@ -167,9 +169,5 @@ export class IconTileComponent {
     ];
   });
 
-  protected readonly iconClasses = computed(() => {
-    const size = this.size();
-
-    return ["bwi", this.icon(), ...sizeStyles[size].icon];
-  });
+  protected readonly iconSizeStyles = computed(() => sizeStyles[this.size()].icon);
 }
