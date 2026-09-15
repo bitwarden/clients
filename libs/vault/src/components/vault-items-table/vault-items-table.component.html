@@ -89,14 +89,18 @@
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
             <bit-filter-section [label]="group.name" collapsible>
-              @for (collection of group.collections; track collection.id) {
-                <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+              @for (sharedFolder of group.collections; track sharedFolder.value) {
+                <bit-filter-option [value]="sharedFolder.value" [nested]="sharedFolder.nested">
+                  {{ sharedFolder.label }}
+                </bit-filter-option>
               }
             </bit-filter-section>
           }
         } @else {
-          @for (collection of sortedCollections(); track collection.id) {
-            <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+          @for (sharedFolder of nestedSharedFolders(); track sharedFolder.value) {
+            <bit-filter-option [value]="sharedFolder.value" [nested]="sharedFolder.nested">
+              {{ sharedFolder.label }}
+            </bit-filter-option>
           }
         }
       </bit-filter-menu>
@@ -111,8 +115,10 @@
       [style.pointer-events]="'auto'"
     >
       <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
-      @for (folder of sortedFolders(); track folder.id) {
-        <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
+      @for (folder of nestedFolders(); track folder.value) {
+        <bit-filter-option [value]="folder.value" [nested]="folder.nested">{{
+          folder.label
+        }}</bit-filter-option>
       }
     </bit-filter-menu>
   </bit-table-toolbar>
