@@ -88,6 +88,28 @@ export class BitwardenPasswordProtectedImporter
         ? new PBKDF2KdfConfig(jdoc.kdfIterations)
         : new Argon2KdfConfig(jdoc.kdfIterations, jdoc.kdfMemory, jdoc.kdfParallelism);
 
+    // Reject attacker-controlled KDF parameters that would cause DoS via
+    // excessive memory or CPU allocation. Use prelogin minimums (permissive
+    // lower bound) plus the setting maximums as the upper bound.
+    try {
+      kdfConfig.validateKdfConfigForPrelogin();
+    } catch {
+      return false;
+    }
+    if (kdfConfig instanceof PBKDF2KdfConfig) {
+      if (kdfConfig.iterations > PBKDF2KdfConfig.ITERATIONS.max) {
+        return false;
+      }
+    } else if (kdfConfig instanceof Argon2KdfConfig) {
+      if (
+        kdfConfig.iterations > Argon2KdfConfig.ITERATIONS.max ||
+        kdfConfig.memory > Argon2KdfConfig.MEMORY.max ||
+        kdfConfig.parallelism > Argon2KdfConfig.PARALLELISM.max
+      ) {
+        return false;
+      }
+    }
+
     this.key = await this.keyGenerationService.deriveVaultExportKey(password, jdoc.salt, kdfConfig);
 
     const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
