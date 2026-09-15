@@ -49,6 +49,7 @@ import {
   ItemModule,
   ToastService,
 } from "@bitwarden/components";
+import { ShareButtonComponent } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
@@ -135,6 +136,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
+    ShareButtonComponent,
   ],
   providers: [{ provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService }],
 })

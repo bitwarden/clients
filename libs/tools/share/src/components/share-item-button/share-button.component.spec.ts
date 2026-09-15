@@ -62,7 +62,7 @@ describe("ShareButtonComponent", () => {
 
     expect(shareLinkService.openShareForm).toHaveBeenCalledWith(
       fixture.componentInstance.cipher(),
-      null,
+      false,
     );
   });
 });

@@ -32,6 +32,7 @@ import {
   ToastService,
   IconModule,
 } from "@bitwarden/components";
+import { ShareItemLinkComponent } from "@bitwarden/tools-share";
 import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -56,6 +57,7 @@ import {
     PremiumBadgeComponent,
     IconModule,
     Vfo1I18nPipe,
+    ShareItemLinkComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },

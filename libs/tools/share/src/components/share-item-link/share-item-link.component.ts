@@ -30,6 +30,8 @@ export class ShareItemLinkComponent {
   readonly cipher = input.required<CipherViewLike>();
   /** Whether to show the leading icon */
   readonly showIcon = input<boolean>(true);
+  /** Whether to skip the master password reprompt when opening the share form */
+  readonly skipPasswordPrompt = input<boolean>(false);
 
   private readonly shareLinkService = inject(ShareLinkService);
 
@@ -41,6 +43,6 @@ export class ShareItemLinkComponent {
   );
 
   protected async share(): Promise<void> {
-    await this.shareLinkService.openShareForm(this.cipher(), null);
+    await this.shareLinkService.openShareForm(this.cipher(), this.skipPasswordPrompt());
   }
 }

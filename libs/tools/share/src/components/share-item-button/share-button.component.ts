@@ -28,6 +28,8 @@ import { ShareLinkService } from "../../services/share-link.service";
 export class ShareButtonComponent {
   /** The item to share. */
   readonly cipher = input.required<CipherViewLike>();
+  /** Whether to skip the master password reprompt when opening the share form */
+  readonly skipPasswordPrompt = input<boolean>(false);
 
   private readonly shareLinkService = inject(ShareLinkService);
 
@@ -42,6 +44,9 @@ export class ShareButtonComponent {
   );
 
   protected async share(): Promise<void> {
-    await this.shareLinkService.openShareForm(this.cipher(), this.hostDialog);
+    await this.shareLinkService.openShareForm(this.cipher(), this.skipPasswordPrompt());
+    if (this.hostDialog) {
+      await this.hostDialog.close();
+    }
   }
 }

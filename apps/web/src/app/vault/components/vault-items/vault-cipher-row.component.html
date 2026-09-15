@@ -305,6 +305,7 @@
             {{ "edit" | i18n }}
           </button>
         }
+        <app-share-link [cipher]="cipher"></app-share-link>
         @if (showAttachments) {
           <button bitMenuItem type="button" (click)="attachments()">
             <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
