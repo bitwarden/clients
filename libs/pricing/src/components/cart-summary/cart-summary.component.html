@@ -281,22 +281,6 @@
             </div>
           }
 
-          <!-- Proration charges -->
-          @for (prorationCharge of cart.secretsManager.prorationCharges; track $index) {
-            <div class="tw-flex tw-justify-between" data-testid="secrets-manager-proration-charge">
-              <div bitTypography="body1" class="tw-text-muted tw-font-normal">
-                {{ translateWithParams(prorationCharge.translationKey) }}
-              </div>
-              <div
-                bitTypography="body1"
-                class="tw-text-muted tw-font-normal"
-                data-testid="secrets-manager-proration-charge-total"
-              >
-                {{ prorationCharge.cost | currency: "USD" : "symbol" }}
-              </div>
-            </div>
-          }
-
           <!-- Additional Service Accounts Discounts -->
           @for (discountRow of additionalServiceAccountsDiscountRows(); track $index) {
             @if (discountRow.amount > 0) {
@@ -320,6 +304,22 @@
                 </div>
               </div>
             }
+          }
+
+          <!-- Proration charges -->
+          @for (prorationCharge of cart.secretsManager.prorationCharges; track $index) {
+            <div class="tw-flex tw-justify-between" data-testid="secrets-manager-proration-charge">
+              <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+                {{ translateWithParams(prorationCharge.translationKey) }}
+              </div>
+              <div
+                bitTypography="body1"
+                class="tw-text-muted tw-font-normal"
+                data-testid="secrets-manager-proration-charge-total"
+              >
+                {{ prorationCharge.cost | currency: "USD" : "symbol" }}
+              </div>
+            </div>
           }
         </div>
       }
