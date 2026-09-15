@@ -348,15 +348,7 @@ export class SettingsDialogComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((hasPremium) => {
           if (hasPremium) {
-            this.form.controls.enableAutotype.enable();
-          }
-        });
-
-      this.billingAccountProfileStateService
-        .hasPremiumFromAnySource$(this.currentUserId())
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((hasPremium) => {
-          if (hasPremium) {
+            this.form.controls.enableAutotype.enable(); // MVP, delete with PM-41067
             this.form.controls.enableAutotypeGa.enable();
           }
         });
