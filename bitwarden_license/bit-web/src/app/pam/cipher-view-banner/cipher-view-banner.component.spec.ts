@@ -190,6 +190,11 @@ describe("CipherViewBannerComponent", () => {
     fixture.detectChanges();
   }
 
+  function reasonHint(textareaId: string): HTMLElement | null {
+    return (query(textareaId)?.closest("bit-form-field")?.querySelector("bit-hint") ??
+      null) as HTMLElement | null;
+  }
+
   function endFieldError(): HTMLElement | null {
     return (query("#pam-cipher-view-banner_input_end")
       ?.closest("bit-form-field")
@@ -961,6 +966,20 @@ describe("CipherViewBannerComponent", () => {
       expect(reason?.getAttribute("rows")).toBe("3");
     });
 
+    // Nothing reviews an automatic request, so its hint must not promise an approver will read
+    // the reason. Only the human path gets that copy.
+    it("hints the automatic path's Reason without naming an approver", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(
+        reasonHint("#pam-cipher-view-banner_textarea_automatic-reason")?.textContent,
+      ).toContain("requestAccessModalAutomaticReasonHint");
+    });
+
     it("renders the human path's Reason field as a multi-line textarea", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
@@ -971,6 +990,18 @@ describe("CipherViewBannerComponent", () => {
       const reason = query("#pam-cipher-view-banner_textarea_human-reason");
       expect(reason?.tagName).toBe("TEXTAREA");
       expect(reason?.getAttribute("rows")).toBe("3");
+    });
+
+    it("keeps the approver hint on the human path's Reason", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(reasonHint("#pam-cipher-view-banner_textarea_human-reason")?.textContent).toContain(
+        "requestAccessModalHumanReasonHint",
+      );
     });
 
     // Presets and default come from the pre-check's bounds, not a hardcoded list.
