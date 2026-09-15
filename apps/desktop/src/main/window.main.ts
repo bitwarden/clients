@@ -461,7 +461,7 @@ export class WindowMain {
         preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
         nodeIntegration: false,
-        backgroundThrottling: false,
+        backgroundThrottling: true,
         contextIsolation: true,
         session: this.session,
         devTools: isDev(),
