@@ -110,6 +110,36 @@ describe("InlineMenuFieldQualificationService", () => {
           });
         });
 
+        it("disqualifies an ASPEED H5Viewer KVM console text capture field", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: "kvm_textbox",
+            htmlName: "password",
+            placeholder: "",
+            autoCompleteType: "",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            false,
+          );
+        });
+
+        it("does not disqualify fields whose attribute is only a substring of a FieldIgnoreList entry", () => {
+          // Regression guard: "textbox" is a substring of the "kvmtextbox"
+          // ignore-list entry but must not itself trigger disqualification.
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: "textbox",
+            htmlName: "",
+            placeholder: "",
+            autoCompleteType: "",
+          });
+
+          expect(
+            inlineMenuFieldQualificationService["fieldHasDisqualifyingAttributeValue"](field),
+          ).toBe(false);
+        });
+
         it("has a type other than `password` or `text`", () => {
           const field = mock<AutofillField>({
             type: "number",
