@@ -155,6 +155,8 @@ export const getProrationChargeTranslationKey = (
   reference: PurchasableReference | undefined,
   seatReference: PurchasableReference,
 ): string => {
+  // `reference` passes through the response unvalidated, so an unknown server value is possible;
+  // fall back to the group's charge key rather than rendering a blank label.
   switch (reference ?? seatReference) {
     case "pm-seat":
       return "passwordManagerProratedCharge";
@@ -164,5 +166,9 @@ export const getProrationChargeTranslationKey = (
       return "secretsManagerProratedCharge";
     case "sm-service-account":
       return "serviceAccountsProratedCharge";
+    default:
+      return seatReference === "pm-seat"
+        ? "passwordManagerProratedCharge"
+        : "secretsManagerProratedCharge";
   }
 };
