@@ -109,8 +109,8 @@ export class CollapseOnScrollDirective {
 
   /**
    * Hands focus to the nearest focusable ancestor when the collapse comes due while this region
-   * holds it — the vault's search is autofocused and keeps focus through a wheel scroll. Keyboard
-   * users tabbing onward move focus out themselves, so this only fires for pointer scrolling.
+   * holds it, so an autofocused control inside it isn't left focused but clipped. Keyboard users
+   * tabbing onward move focus out themselves, so this only fires for pointer scrolling.
    */
   private releaseFocus(): void {
     const host = this.host.nativeElement;
