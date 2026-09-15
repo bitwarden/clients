@@ -906,8 +906,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Builds the shared folder tree via {@link getNestedCollectionTree}, the same name-delimited
    * nesting used for the collections sidebar — so a collection whose parent path is missing
    * (or belongs to a different organization) nests and sorts identically here and there, rather
-   * than diverging with bespoke logic. That helper groups by organization internally, so it's
-   * safe to call with collections spanning more than one org (see {@link nestedSharedFolders}).
+   * than diverging with bespoke logic. That helper buckets its return by organization, so the
+   * top level is re-sorted by label here to restore one global alphabetical list — safe to call
+   * with collections spanning more than one org (see {@link nestedSharedFolders}), where the
+   * per-org clusters would otherwise stay grouped with no section header to explain why.
    *
    * Shaped as {@link FilterOptionNode} so it binds directly to `bit-filter-option`'s `nested`
    * input — the collection tree is data-driven and can nest arbitrarily deep, which is exactly
@@ -921,7 +923,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       label: node.node.name,
       nested: node.children.map(toNode),
     });
-    return getNestedCollectionTree([...sharedFolders]).map(toNode);
+    return getNestedCollectionTree([...sharedFolders])
+      .map(toNode)
+      .sort((a, b) => a.label.localeCompare(b.label));
   }
 
   /**

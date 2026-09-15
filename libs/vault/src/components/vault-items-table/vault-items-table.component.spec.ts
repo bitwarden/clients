@@ -1466,6 +1466,16 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
+    it("returns top-level collections spanning multiple organizations in one global alphabetical order, not clustered by organization", () => {
+      const zeta = { id: "zeta", organizationId: "org-a", name: "Zeta" } as CollectionView;
+      const alpha = { id: "alpha", organizationId: "org-a", name: "Alpha" } as CollectionView;
+      const beta = { id: "beta", organizationId: "org-b", name: "Beta" } as CollectionView;
+
+      const result = component["buildNestedSharedFolders"]([zeta, alpha, beta]);
+
+      expect(result.map((o) => o.value)).toEqual(["alpha", "beta", "zeta"]);
+    });
+
     describe("rendering the nested tree", () => {
       /** Every `bit-filter-option` the shared folders chip actually rendered, by value. */
       function renderedOptions(): FilterOptionComponent[] {
