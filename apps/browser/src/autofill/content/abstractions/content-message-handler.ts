@@ -19,7 +19,7 @@ type ContentMessageWindowEventHandlers = {
   authResult: ({ data, referrer }: ContentMessageWindowEventParams) => void;
   webAuthnResult: ({ data, referrer }: ContentMessageWindowEventParams) => void;
   duoResult: ({ data, referrer }: ContentMessageWindowEventParams) => void;
-  checkIfBWExtensionInstalled: () => void;
+  checkIfBWExtensionInstalled: ({ referrer }: ContentMessageWindowEventParams) => void;
 };
 
 export {
