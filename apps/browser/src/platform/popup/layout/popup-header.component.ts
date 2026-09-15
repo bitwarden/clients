@@ -21,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import {
   AsyncActionsModule,
   ButtonType,
+  CollapseRegion,
   FunctionReturningAwaitable,
   IconButtonModule,
   ScrollCollapseService,
@@ -116,6 +117,12 @@ export class PopupHeaderComponent {
     computed(() => !this.titleBarHidden()),
   );
 
+  /**
+   * No `seam`: the bar's bottom border is its structural edge rather than a scroll affordance, so
+   * it draws unconditionally and the page's seam belongs to a region below.
+   */
+  private readonly region: CollapseRegion = { height: this.height };
+
   constructor() {
     // Counted only while the bar can actually collapse, so it doesn't inflate the chrome height
     // for the regions that can.
@@ -124,8 +131,8 @@ export class PopupHeaderComponent {
         return;
       }
 
-      this.scrollCollapse.register(this.height);
-      onCleanup(() => this.scrollCollapse.unregister(this.height));
+      this.scrollCollapse.register(this.region);
+      onCleanup(() => this.scrollCollapse.unregister(this.region));
     });
   }
 

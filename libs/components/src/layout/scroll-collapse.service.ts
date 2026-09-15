@@ -1,8 +1,22 @@
 import { Injectable, Signal, computed, inject, signal } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { fromEvent, map, of, startWith, switchMap } from "rxjs";
 
 import { ScrollDirection, scrollDirection } from "../utils/scroll-direction";
 
 import { ScrollLayoutService } from "./scroll-layout.directive";
+
+/** A region that collapses with the page. */
+export type CollapseRegion = {
+  /** Never under-report while collapsed or animating — see `settledHeight`. */
+  height: () => number;
+
+  /**
+   * The element to draw the page's seam on, or `null` while this region shouldn't. Left off by a
+   * region that only lends its height — one that keeps a border of its own.
+   */
+  seam?: Signal<HTMLElement | null>;
+};
 
 /**
  * Tracks which element the page is scrolling and which regions collapse with it. A service because
@@ -15,8 +29,7 @@ export class ScrollCollapseService {
   /** The element last reported by `ScrollCollapseSourceDirective`. */
   private readonly reportedSource = signal<HTMLElement | null>(null);
 
-  /** The registered regions' chrome heights, whose total gates the collapse. */
-  private readonly collapsibles = signal<readonly (() => number)[]>([]);
+  private readonly collapsibles = signal<readonly CollapseRegion[]>([]);
 
   /**
    * A reported source wins over the layout's scroll host, since a page whose content owns its own
@@ -28,7 +41,7 @@ export class ScrollCollapseService {
 
   /** The height the registered regions would hand back to the scroller by collapsing. */
   private readonly chromeHeight = () =>
-    this.collapsibles().reduce((total, height) => total + height(), 0);
+    this.collapsibles().reduce((total, region) => total + region.height(), 0);
 
   /**
    * Summing heights into `minScrollable` only stays comparable to the scroller's `maxTop` while
@@ -38,6 +51,24 @@ export class ScrollCollapseService {
   private readonly scrolling = scrollDirection(this.source, {
     minScrollable: this.chromeHeight,
   });
+
+  /**
+   * Whether the page's scroll region is away from the top. `direction` can't stand in: it reports
+   * `"up"` both at the top and while scrolling back up from further down.
+   */
+  readonly scrolled: Signal<boolean> = toSignal(
+    toObservable(this.source).pipe(
+      switchMap((element) =>
+        element
+          ? fromEvent(element, "scroll").pipe(
+              startWith(null),
+              map(() => element.scrollTop !== 0),
+            )
+          : of(false),
+      ),
+    ),
+    { initialValue: false },
+  );
 
   /**
    * Which way the page is being scrolled. One signal for the whole page: every collapse gives its
@@ -56,6 +87,38 @@ export class ScrollCollapseService {
    * animating into it.
    */
   readonly restoring: Signal<boolean> = this.scrollLayout.restoredScrolled;
+
+  /**
+   * The region drawing the page's seam — the one rule dividing chrome from scrolled content. The
+   * bottom-most region offering one, by document position rather than registration order.
+   */
+  private readonly seamOwner = computed<CollapseRegion | null>(() => {
+    let owner: CollapseRegion | null = null;
+    let ownerElement: HTMLElement | null = null;
+
+    for (const region of this.collapsibles()) {
+      const element = region.seam?.();
+      if (!element) {
+        continue;
+      }
+
+      const below =
+        ownerElement === null ||
+        (ownerElement.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+
+      if (below) {
+        owner = region;
+        ownerElement = element;
+      }
+    }
+
+    return owner;
+  });
+
+  /** Whether `region` draws the page's seam right now. @see {@link seamOwner} */
+  ownsSeam(region: CollapseRegion): Signal<boolean> {
+    return computed(() => this.scrolled() && this.seamOwner() === region);
+  }
 
   /**
    * Whether `element` has more left to scroll than collapsing every region would hand back to it.
@@ -84,17 +147,17 @@ export class ScrollCollapseService {
   }
 
   /**
-   * Count a region's height towards the chrome total that gates the collapse. Pass a height that
-   * never under-reports while collapsed or animating — see `settledHeight`.
+   * Count a region towards the chrome total that gates the collapse, and towards the page's seam
+   * where it offers one. Hold one stable object per region; registration compares by identity.
    */
-  register(height: () => number): void {
+  register(region: CollapseRegion): void {
     this.collapsibles.update((current) =>
-      current.includes(height) ? current : [...current, height],
+      current.includes(region) ? current : [...current, region],
     );
   }
 
   /** @see {@link register} */
-  unregister(height: () => number): void {
-    this.collapsibles.update((current) => current.filter((candidate) => candidate !== height));
+  unregister(region: CollapseRegion): void {
+    this.collapsibles.update((current) => current.filter((candidate) => candidate !== region));
   }
 }

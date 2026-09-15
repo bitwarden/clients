@@ -36,6 +36,10 @@ describe("PopupPageComponent", () => {
   const collapsingRegion = (): HTMLElement => fixture.nativeElement.querySelector("[data-state]");
   const floatingAction = (): HTMLElement | null =>
     fixture.nativeElement.querySelector("[data-testid=floating-action]");
+  const collapseDirective = (): CollapseOnScrollDirective =>
+    fixture.debugElement
+      .query(By.directive(CollapseOnScrollDirective))
+      .injector.get(CollapseOnScrollDirective);
   /** The positioning wrapper `popup-page` puts around the projected action. */
   const floatingActionWrapper = (): HTMLElement =>
     floatingAction()!.closest(".tw-absolute") as HTMLElement;
@@ -66,11 +70,7 @@ describe("PopupPageComponent", () => {
       host.collapse.set(false);
       fixture.detectChanges();
 
-      const directive = fixture.debugElement
-        .query(By.directive(CollapseOnScrollDirective))
-        .injector.get(CollapseOnScrollDirective);
-
-      expect(directive.bitCollapseOnScroll()).toBe(false);
+      expect(collapseDirective().bitCollapseOnScroll()).toBe(false);
     });
 
     it("keeps the projected content inside the collapsing row", () => {

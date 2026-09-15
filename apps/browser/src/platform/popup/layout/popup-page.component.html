@@ -7,12 +7,8 @@
     640px in width (equivalent to tailwind's `sm` breakpoint)
   -->
   @let hideNonScrollable = loading() || aboveScrollArea.childElementCount === 0;
-  <div
-    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent"
-    [class.tw-invisible]="hideNonScrollable"
-    [class.!tw-border-none]="hideNonScrollable"
-    [class.!tw-border-border-base]="scrolled()"
-  >
+  <!-- `tw-invisible` hides an empty region's seam too, so it can't leave a stray rule. -->
+  <div [class.tw-invisible]="hideNonScrollable">
     <div [bitCollapseOnScroll]="collapseAboveScrollArea()">
       <div
         #aboveScrollArea

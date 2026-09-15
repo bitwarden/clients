@@ -1,23 +1,12 @@
 import { CommonModule } from "@angular/common";
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
-  inject,
-  input,
-  signal,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { filter, switchMap, fromEvent, startWith, map } from "rxjs";
+import { booleanAttribute, ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CollapseOnScrollDirective,
   IconModule,
+  ScrollCollapseService,
   ScrollLayoutHostDirective,
-  ScrollLayoutService,
 } from "@bitwarden/components";
 
 @Component({
@@ -31,8 +20,7 @@ import {
 })
 export class PopupPageComponent {
   protected readonly i18nService = inject(I18nService);
-  private readonly scrollLayout = inject(ScrollLayoutService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly scrollCollapse = inject(ScrollCollapseService);
 
   readonly loading = input<boolean>(false);
 
@@ -47,25 +35,8 @@ export class PopupPageComponent {
    */
   readonly collapseAboveScrollArea = input(false, { transform: booleanAttribute });
 
-  protected readonly scrolled = signal(false);
-
   /** Whether the page content has been scrolled away from the top. Read by `popup-header`. */
-  readonly isScrolled = this.scrolled.asReadonly();
-
-  constructor() {
-    this.scrollLayout.scrollableRef$
-      .pipe(
-        filter((ref): ref is ElementRef<HTMLElement> => ref != null),
-        switchMap((ref) =>
-          fromEvent(ref.nativeElement, "scroll").pipe(
-            startWith(null),
-            map(() => ref.nativeElement.scrollTop !== 0),
-          ),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((isScrolled) => this.scrolled.set(isScrolled));
-  }
+  readonly isScrolled = this.scrollCollapse.scrolled;
 
   /** Accessible loading label for the spinner. Defaults to "loading" */
   readonly loadingText = input<string | undefined>(this.i18nService.t("loading"));

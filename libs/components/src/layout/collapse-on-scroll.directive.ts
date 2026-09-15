@@ -12,7 +12,7 @@ import {
 
 import { settledHeight } from "../utils/settled-height";
 
-import { ScrollCollapseService } from "./scroll-collapse.service";
+import { CollapseRegion, ScrollCollapseService } from "./scroll-collapse.service";
 
 /** Where a collapsing region currently sits. Published on `data-state`. */
 export type CollapseOnScrollState = "collapsed" | "expanded";
@@ -33,8 +33,12 @@ const COLLAPSE_CLASSES = [
   "tw-ease-out",
 ].join(" ");
 
-/** Declared separately so a restore can arrive collapsed rather than animating into it. */
-const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows]";
+/**
+ * Declared separately so a restore can arrive collapsed rather than animating into it. One property
+ * list, since a `tw-transition-colors` alongside it would set `transition-property` twice and the
+ * winner would come down to stylesheet order.
+ */
+const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows,border-color]";
 
 /**
  * Collapses this element while the user scrolls down the page's scroll region — the layout's
@@ -48,6 +52,10 @@ const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows]";
  *
  * The region is only ever visually clipped, never removed from the accessibility tree, so tabbing
  * into it brings it into view. Under `prefers-reduced-motion: reduce` the collapse is instant.
+ *
+ * The host's bottom border belongs to this directive: the bottom-most expanded region on a page
+ * draws its seam, the one rule dividing chrome from scrolled content. A consumer wanting a border
+ * of its own there should put it on a wrapper.
  */
 @Directive({
   selector: "[bitCollapseOnScroll]",
@@ -77,6 +85,8 @@ export class CollapseOnScrollDirective {
       : "expanded",
   );
 
+  private readonly expanded = computed(() => this.state() === "expanded");
+
   protected readonly collapseClasses = computed(() => {
     // `popup-page` instantiates this unconditionally, so an opted-out page must keep its own box
     // rather than gain a grid and clipping it never asked for.
@@ -94,14 +104,26 @@ export class CollapseOnScrollDirective {
       ...(this.state() === "collapsed"
         ? ["tw-grid-rows-[0fr]", "[&>*]:!tw-py-0"]
         : ["tw-grid-rows-[1fr]"]),
+      // The border box is kept either way, so drawing the seam doesn't change the region's height.
+      "tw-border-0",
+      "tw-border-b",
+      "tw-border-solid",
+      this.ownsSeam() ? "tw-border-border-base" : "tw-border-transparent",
     ].join(" ");
   });
 
   /** This region's height as chrome, which is what gates every region's collapse. */
-  private readonly height = settledHeight(
-    signal(this.host),
-    computed(() => this.state() === "expanded"),
-  );
+  private readonly height = settledHeight(signal(this.host), this.expanded);
+
+  /** One stable object, since the service registers regions by identity. */
+  private readonly region: CollapseRegion = {
+    height: this.height,
+    // Collapsed, the region offers no seam: it holds its border box, so one drawn there would
+    // stack against the chrome above it.
+    seam: computed(() => (this.expanded() ? this.host.nativeElement : null)),
+  };
+
+  protected readonly ownsSeam = this.service.ownsSeam(this.region);
 
   constructor() {
     // Registered only while it can actually collapse, so a disabled region doesn't inflate the
@@ -111,8 +133,8 @@ export class CollapseOnScrollDirective {
         return;
       }
 
-      this.service.register(this.height);
-      onCleanup(() => this.service.unregister(this.height));
+      this.service.register(this.region);
+      onCleanup(() => this.service.unregister(this.region));
     });
 
     // `hasFocus` read untracked: the hand-off belongs to the collapse coming due, not to focus

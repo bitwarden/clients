@@ -280,7 +280,7 @@ describe("VaultPopupScrollPositionService", () => {
         // The collapse gives its height to the scroller, so the range left to scroll shrinks by
         // exactly the chrome. Re-measuring after it closes would read that as too short and hand
         // the chrome straight back, animating it open under the user.
-        TestBed.inject(ScrollCollapseService).register(() => 130);
+        TestBed.inject(ScrollCollapseService).register({ height: () => 130 });
         stubScrollTo(scrollElement, 200);
         const scrollLayout = TestBed.inject(ScrollLayoutService);
         service["scrollPosition"] = 200;
@@ -298,7 +298,7 @@ describe("VaultPopupScrollPositionService", () => {
       it("does not declare the state when the list is too short to afford the collapse", fakeAsync(() => {
         // 104px left to scroll against 130px of chrome: collapsing would clamp the offset and
         // reopen the chrome against the user (CL-1318).
-        TestBed.inject(ScrollCollapseService).register(() => 130);
+        TestBed.inject(ScrollCollapseService).register({ height: () => 130 });
         stubScrollTo(scrollElement, 104);
         const scrollLayout = TestBed.inject(ScrollLayoutService);
         service["scrollPosition"] = 100;

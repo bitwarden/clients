@@ -195,6 +195,22 @@ A restored scroll position collapses every region on the page, not just the titl
 arrives collapsed rather than animating into it — as long as the list has more left to scroll than
 the collapse would hand back. The regions are handed back on the user's first scroll.
 
+**The page's seam**
+
+A page shows two rules: the title bar's bottom border, always drawn, and one seam dividing the
+chrome from the scrolled content. Regions between them stay borderless and separate by background.
+
+`bitCollapseOnScroll` draws the seam, so the host's bottom border belongs to the directive — put a
+border of your own on a wrapper instead. One region draws it: the bottom-most expanded one, while
+the scroller is away from the top.
+
+A collapsed region keeps its border box, so a seam there would stack against the chrome above it.
+Scrolled fully down, nothing draws one and the title bar's border is the boundary; scrolling back up
+brings the seam in under the bottom-most region as it opens.
+
+`bit-table-toolbar` draws no border of its own inside a collapsing region, since two `border-color`
+utilities on one element resolve by stylesheet order.
+
 <Canvas of={stories.HeaderV2ScrollingTitleBar} />
 
 #### Controls alongside the title

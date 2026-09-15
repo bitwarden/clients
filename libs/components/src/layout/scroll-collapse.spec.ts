@@ -216,7 +216,9 @@ describe("scroll collapse", () => {
   });
 
   it("only animates the collapse when motion is not reduced", () => {
-    expect(region().className).toContain("motion-safe:tw-transition-[grid-template-rows]");
+    expect(region().className).toContain(
+      "motion-safe:tw-transition-[grid-template-rows,border-color]",
+    );
   });
 
   describe("choosing the scroll source", () => {
@@ -339,5 +341,122 @@ describe("scroll collapse", () => {
 
       expect(service.direction()).toBe("down");
     });
+  });
+});
+
+@Component({
+  template: `
+    <div bitScrollCollapseSource data-testid="source">
+      <div #scroller data-testid="scroller">Rows</div>
+    </div>
+    <div bitCollapseOnScroll data-testid="upper"><div>Callout</div></div>
+    @if (showLower()) {
+      <div [bitCollapseOnScroll]="lower()" data-testid="lower"><div>Search</div></div>
+    }
+  `,
+  imports: [ScrollCollapseSourceDirective, CollapseOnScrollDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class SeamHostComponent {
+  readonly lower = signal(true);
+  readonly showLower = signal(true);
+}
+
+/** The page draws one rule between its chrome and its scrolled content. */
+describe("the page's seam", () => {
+  let fixture: ComponentFixture<SeamHostComponent>;
+  let host: SeamHostComponent;
+
+  const el = (testid: string): HTMLElement =>
+    fixture.nativeElement.querySelector(`[data-testid=${testid}]`);
+
+  /** Whether a region is the one drawing the rule, rather than reserving a transparent box. */
+  const draws = (testid: string) => el(testid)?.className.includes("tw-border-border-base");
+
+  const scrollTo = async (top: number) => {
+    const scroller = el("scroller");
+    scroller.scrollTop = top;
+    scroller.dispatchEvent(new Event("scroll"));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({ imports: [SeamHostComponent] }).compileComponents();
+
+    fixture = TestBed.createComponent(SeamHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+
+    Object.defineProperty(el("upper"), "offsetHeight", { value: 40, configurable: true });
+    Object.defineProperty(el("lower"), "offsetHeight", { value: 40, configurable: true });
+    stubGeometry(el("scroller"), 1000, 500);
+  });
+
+  it("draws nothing while the scroller sits at the top", () => {
+    expect(draws("upper")).toBe(false);
+    expect(draws("lower")).toBe(false);
+  });
+
+  it("gives the seam to the bottom-most region on the way back up", async () => {
+    await scrollTo(200);
+    // Scrolling back up re-expands both regions while the scroller is still off the top.
+    await scrollTo(150);
+
+    expect(draws("lower")).toBe(true);
+    expect(draws("upper")).toBe(false);
+  });
+
+  it("draws nothing while every region is collapsed", async () => {
+    // Collapsed regions hold their border box, so a seam here would stack against the chrome above.
+    await scrollTo(200);
+
+    expect(draws("upper")).toBe(false);
+    expect(draws("lower")).toBe(false);
+  });
+
+  it("hands the seam up when the bottom-most region opts out", async () => {
+    host.lower.set(false);
+    fixture.detectChanges();
+
+    await scrollTo(200);
+    await scrollTo(150);
+
+    expect(draws("upper")).toBe(true);
+  });
+
+  it("hands the seam up when the bottom-most region is destroyed", async () => {
+    await scrollTo(200);
+    await scrollTo(150);
+    expect(draws("upper")).toBe(false);
+
+    host.showLower.set(false);
+    fixture.detectChanges();
+
+    expect(draws("upper")).toBe(true);
+  });
+
+  it("never gives the seam to a region that only lends its height", async () => {
+    // How `popup-header` registers: the title bar draws its border unconditionally.
+    const service = TestBed.inject(ScrollCollapseService);
+    const heightOnly = { height: () => 40 };
+    service.register(heightOnly);
+
+    await scrollTo(200);
+    await scrollTo(150);
+
+    expect(service.ownsSeam(heightOnly)()).toBe(false);
+    expect(draws("lower")).toBe(true);
+  });
+
+  it("keeps the seam on a region held open by focus", async () => {
+    await scrollTo(200);
+    expect(draws("lower")).toBe(false);
+
+    // Tabbing in opens the region, and an open region needs its rule back.
+    el("lower").dispatchEvent(new Event("focusin"));
+    fixture.detectChanges();
+
+    expect(draws("lower")).toBe(true);
   });
 });
