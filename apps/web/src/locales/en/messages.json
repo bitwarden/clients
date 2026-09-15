@@ -19548,8 +19548,14 @@
   "pamRotationConfigRotateNowDisabledTitle": {
     "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
   },
-  "pamRotationConfigRotateNowUnavailableTitle": {
-    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
+  "pamRotationConfigRotateNowDisabledActiveJob": {
+    "message": "Cannot rotate now. This becomes available when the current job finishes or times out."
+  },
+  "pamRotationConfigRotateNowDisabledPaused": {
+    "message": "Cannot rotate now. The rotation is paused."
+  },
+  "pamRotationConfigRotateNowDisabledTargetInactive": {
+    "message": "Cannot rotate now. The target system is inactive."
   },
   "pamRotationConfigRotateNowSuccess": {
     "message": "Rotation dispatched."

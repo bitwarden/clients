@@ -468,6 +468,10 @@ export class TargetSystemEditComponent {
   /**
    * The setup steps this target has genuinely not had done yet, in the order they are worked
    * through. Empty means rotation is set up, or that nothing can be said about it yet.
+   *
+   * A step the admin cannot actually take here is not outstanding: with no active connector in
+   * the org there is nothing to assign, and the picker's own hint is the one place that says so
+   * and where to go to fix it.
    */
   protected readonly outstandingSetupSteps = computed<readonly string[]>(() => {
     const credentials = this.managedCredentials();
@@ -479,6 +483,7 @@ export class TargetSystemEditComponent {
     if (
       this.canAssignConnectors() &&
       !this.connectorsUnavailable() &&
+      !this.noConnectorsEligible() &&
       this.effectiveAssignedIds().size === 0
     ) {
       steps.push("pamTargetSystemSetupGuidanceAutomaticConnector");

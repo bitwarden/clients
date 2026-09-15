@@ -27,7 +27,6 @@ function attempt(ordinal: number, overrides: Partial<AttemptView> = {}): Attempt
     ordinal,
     startedAt: `2026-01-01T00:0${ordinal}:00Z`,
     duration: { hours: 0, minutes: 0, seconds: 16 },
-    running: false,
     statusLabelKey: "pamRotationAttemptStatusErrored",
     divergentFailureReason: null,
     ...overrides,
@@ -111,6 +110,12 @@ describe("RotationJobDrawerComponent", () => {
 
   function query(testId: string) {
     return fixture.debugElement.query(By.css(`[data-testid='${testId}']`));
+  }
+
+  /** How many times the whole drawer renders `phrase`. */
+  function timesSaid(phrase: string): number {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
+    return text.split(phrase).length - 1;
   }
 
   it("names the outcome on a badge rather than in prose", async () => {
@@ -232,14 +237,33 @@ describe("RotationJobDrawerComponent", () => {
       );
     });
 
-    it("shows in progress for an attempt that has not ended", async () => {
+    it("leaves the job's own duration the one place the drawer says a rotation is running", async () => {
       await render(
         retriedFailure({
-          attempts: [attempt(1, { duration: null, running: true })],
+          duration: null,
+          running: true,
+          attempts: [attempt(1, { duration: null })],
         }),
       );
 
-      expect(attemptRows()[0].nativeElement.textContent).toContain("pamRotationAttemptInProgress");
+      expect(query("drawer-duration").nativeElement.textContent).toContain(
+        "pamRotationAttemptInProgress",
+      );
+      expect(timesSaid("pamRotationAttemptInProgress")).toBe(1);
+    });
+
+    it("leaves a running attempt its start time and an empty duration", async () => {
+      await render(
+        retriedFailure({
+          duration: null,
+          running: true,
+          attempts: [attempt(1, { duration: null })],
+        }),
+      );
+
+      const cells = attemptRows()[0].queryAll(By.css("td"));
+      expect(cells[0].nativeElement.textContent.trim()).not.toBe("");
+      expect(cells[1].nativeElement.textContent.trim()).toBe("");
     });
 
     it("leaves the duration blank for a finished attempt with no measurable span", async () => {
@@ -248,7 +272,6 @@ describe("RotationJobDrawerComponent", () => {
           attempts: [
             attempt(1, {
               duration: null,
-              running: false,
               statusLabelKey: "pamRotationAttemptStatusAbandoned",
             }),
           ],

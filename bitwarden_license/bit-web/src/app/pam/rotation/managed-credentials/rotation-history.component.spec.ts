@@ -396,7 +396,6 @@ describe("RotationHistoryComponent", () => {
       );
       expect(view.duration).toBeNull();
       expect(view.running).toBe(true);
-      expect(view.attempts[0].running).toBe(true);
     });
 
     it("does not call a job that timed out before it was claimed running", () => {
@@ -409,7 +408,7 @@ describe("RotationHistoryComponent", () => {
       expect(view.failed).toBe(true);
     });
 
-    it("does not call an abandoned attempt with no recorded end running", () => {
+    it("leaves the duration null for an abandoned attempt with no recorded end", () => {
       setup([]);
       const view = (component as any).toJobView(
         rotationJob({
@@ -424,7 +423,6 @@ describe("RotationHistoryComponent", () => {
         }),
       );
       expect(view.attempts[0].duration).toBeNull();
-      expect(view.attempts[0].running).toBe(false);
     });
 
     it("numbers attempts in the order the server returned them", () => {
@@ -744,12 +742,15 @@ describe("RotationHistoryComponent rendering", () => {
       }),
     ]);
 
-    expect(jobRows(fixture)[0].nativeElement.textContent).toContain(
+    const row = jobRows(fixture)[0].nativeElement as HTMLElement;
+    const cell = resultCell(fixture).nativeElement as HTMLElement;
+
+    expect(row.textContent!.split("pamRotationSessionTerminationTermFailed").length - 1).toBe(1);
+    expect(cell.getAttribute("aria-label")).not.toContain(
       "pamRotationSessionTerminationTermFailed",
     );
-    expect(resultCell(fixture).nativeElement.getAttribute("aria-label")).toContain(
-      "pamRotationSessionTerminationTermFailed",
-    );
+    const note = cell.querySelector(`#${cell.getAttribute("aria-describedby")}`)!;
+    expect(note.textContent).toContain("pamRotationSessionTerminationTermFailed");
   });
 
   it("leaves an ordinary session termination to the drawer", () => {
@@ -767,6 +768,7 @@ describe("RotationHistoryComponent rendering", () => {
     expect(fixture.nativeElement.textContent).not.toContain(
       "pamRotationSessionTerminationTerminated",
     );
+    expect(resultCell(fixture).nativeElement.getAttribute("aria-describedby")).toBeNull();
   });
 
   describe("the credential column", () => {

@@ -17,13 +17,6 @@ export interface AttemptView {
   ordinal: number;
   startedAt: string;
   duration: DurationParts | null;
-  /**
-   * Whether the attempt is still executing.
-   *
-   * A `null` {@link duration} does not imply it: an attempt abandoned without an end recorded,
-   * or one whose timestamps cannot be measured, has no duration either.
-   */
-  running: boolean;
   statusLabelKey: string;
   /** The attempt's own failure reason, set only when it differs from the job-level cause. */
   divergentFailureReason: string | null;
