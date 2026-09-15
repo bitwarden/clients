@@ -29,8 +29,9 @@ export interface SecretsManagerSubscriptionOptions {
 
   /**
    * Optional auto-scaling limit for the number of seats the organization can subscribe to.
+   * Undefined when the organization has no autoscale limit; consumers check for null.
    */
-  maxAutoscaleSeats: number;
+  maxAutoscaleSeats: number | undefined;
 
   /**
    * The price per seat for the subscription.
@@ -55,8 +56,9 @@ export interface SecretsManagerSubscriptionOptions {
 
   /**
    * Optional auto-scaling limit for the number of additional service accounts the organization can subscribe to.
+   * Undefined when there is no limit; consumers check for null.
    */
-  maxAutoscaleServiceAccounts: number;
+  maxAutoscaleServiceAccounts: number | undefined;
 
   /**
    * The price per additional service account for the subscription.
