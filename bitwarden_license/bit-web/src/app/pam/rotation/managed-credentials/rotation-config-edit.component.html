@@ -272,6 +272,12 @@
 
           <!-- Schedule + account: one form; the server takes them in a single write. -->
           <form [formGroup]="editForm" [bitSubmit]="submitEdit">
+            @if (accountFormLocked()) {
+              <bit-callout type="info" title="{{ 'pamRotationConfigJobInProgressTitle' | i18n }}">
+                {{ "pamRotationConfigJobInProgressContent" | i18n }}
+              </bit-callout>
+            }
+
             <bit-section>
               <bit-section-header>
                 <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
@@ -300,12 +306,6 @@
               <bit-section-header>
                 <h2 bitTypography="h5">{{ "pamRotationConfigAccountHeading" | i18n }}</h2>
               </bit-section-header>
-
-              @if (accountFormLocked()) {
-                <bit-callout type="info" title="{{ 'pamRotationConfigAccountLockedTitle' | i18n }}">
-                  {{ "pamRotationConfigAccountLockedContent" | i18n }}
-                </bit-callout>
-              }
 
               <bit-card formGroupName="account">
                 <fieldset [disabled]="accountFormLocked()">
@@ -336,12 +336,6 @@
               </bit-card>
             </bit-section>
 
-            @if (detail.config.hasActiveJob) {
-              <bit-callout type="info">
-                {{ "pamRotationConfigRemoveLockedContentConnector" | i18n }}
-              </bit-callout>
-            }
-
             <div class="tw-flex tw-items-center tw-gap-2">
               <button
                 type="submit"
@@ -359,6 +353,10 @@
                 bitFormButton
                 [bitAction]="removeRotation"
                 [disabled]="detail.config.hasActiveJob"
+                [bitTooltip]="
+                  detail.config.hasActiveJob ? ('pamRotationConfigDeleteLockedTitle' | i18n) : ''
+                "
+                [addTooltipToDescribedby]="detail.config.hasActiveJob"
                 class="tw-ms-auto"
                 id="rotation-config-edit_button_delete"
               >
