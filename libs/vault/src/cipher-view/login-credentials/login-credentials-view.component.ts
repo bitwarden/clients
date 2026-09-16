@@ -18,12 +18,10 @@ import { Observable, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
@@ -104,9 +102,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private i18nService: I18nService,
-    private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
-    private accountService: AccountService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {

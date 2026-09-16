@@ -293,15 +293,7 @@ export class CipherViewComponent {
   readonly passwordIsAtRisk = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) => {
-        // If the userId is unknown then the password cannot be checked for risk, regardless of
-        // whether the anonymous user is given premium status by the `hasAnonymousPremium` input
-        if (
-          !cipher.hasLoginPassword ||
-          !cipher.edit ||
-          cipher.organizationId ||
-          cipher.isDeleted ||
-          !userId
-        ) {
+        if (!cipher.hasLoginPassword || !cipher.edit || cipher.organizationId || cipher.isDeleted) {
           return of(false);
         }
         return this.switchPremium$(

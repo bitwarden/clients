@@ -10,7 +10,7 @@ import {
   TooltipDirective,
   IconModule,
 } from "@bitwarden/components";
-import { ShareItemLinkComponent } from "@bitwarden/tools-share";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
 import {
   CopyCipherFieldDirective,
   VaultItemCopyActionsComponent,
@@ -47,7 +47,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     IconModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
-    ShareItemLinkComponent,
+    ShareLinkMenuItemDirective,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultItemsComponent],

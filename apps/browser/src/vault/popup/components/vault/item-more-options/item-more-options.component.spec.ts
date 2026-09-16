@@ -13,6 +13,7 @@ import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -62,10 +63,6 @@ describe("ItemMoreOptionsComponent", () => {
   const domainSettingsService = {
     resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
     getUrlEquivalentDomains: jest.fn().mockReturnValue(of(new Set<string>())),
-  };
-
-  const shareLinkService = {
-    cipherCanBeShared$: jest.fn().mockReturnValue(of(false)),
   };
 
   const baseCipher = {
@@ -122,8 +119,12 @@ describe("ItemMoreOptionsComponent", () => {
           useValue: mock<VaultPopupItemsService>({}),
         },
         {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => of(false) },
+        },
+        {
           provide: ShareLinkService,
-          useValue: shareLinkService,
+          useValue: { cipherCanBeShared$: () => of(false) },
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

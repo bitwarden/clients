@@ -26,7 +26,6 @@
           {{ "edit" | i18n }}
         </button>
       }
-      <app-share-link [cipher]="cipher" [showIcon]="false"></app-share-link>
       @if (canEdit && canViewPassword) {
         @if (canClone$ | async) {
           <a bitMenuItem (click)="clone()">
@@ -39,6 +38,9 @@
           </a>
         }
       }
+      <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
+        {{ "shareViaLink" | i18n }}
+      </a>
       @if (canArchive$ | async) {
         <button type="button" bitMenuItem (click)="archive()">
           {{ "archiveVerb" | i18n }}

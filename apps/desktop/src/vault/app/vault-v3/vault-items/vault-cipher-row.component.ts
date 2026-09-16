@@ -24,7 +24,7 @@ import {
   LinkModule,
   IconModule,
 } from "@bitwarden/components";
-import { ShareItemLinkComponent } from "@bitwarden/tools-share";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
@@ -58,7 +58,7 @@ import { VaultItemEvent } from "./vault-item-event";
     CheckboxModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
-    ShareItemLinkComponent,
+    ShareLinkMenuItemDirective,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {

@@ -150,6 +150,11 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import {
+  SHARE_ITEM_PRESENTER,
+  SHARE_PASSWORD_REPROMPT,
+  ShareButtonComponent,
+} from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
@@ -164,6 +169,7 @@ import {
   VAULT_FILTER_BASE_ROUTE,
   Vfo1TerminologyService,
   PasswordRepromptService,
+  SHARE_ITEM_ENTRY_POINT,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -209,6 +215,7 @@ import { DesktopDeviceManagementComponentService } from "../../services/desktop-
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+import { DesktopShareItemPresenter } from "../tools/share-item/desktop-share-item.presenter";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
@@ -745,6 +752,25 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: IpcService,
     useClass: IpcRendererService,
+    deps: [],
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_ITEM_ENTRY_POINT,
+    useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider(DesktopShareItemPresenter),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: DesktopShareItemPresenter,
     deps: [],
   }),
 ];

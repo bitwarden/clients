@@ -168,15 +168,22 @@ export class SendDetailsComponent implements OnInit {
       /** Show the password auth type if EITHER
        * 1. There is an enterprise policy that mandates the password auth type
        * 2. There are no policies dictating required auth types
-       * 3. The Send currently uses the password auth type */
+       * 3. The Send currently uses the password auth type
+       * AND
+       * The Send is not of type Item */
       const includePassword =
-        whoCanAccess === WhoCanAccessType.PasswordProtected ||
-        anyAuthTypeAllowed ||
-        originalSendView?.authType === AuthType.Password;
+        (whoCanAccess === WhoCanAccessType.PasswordProtected ||
+          anyAuthTypeAllowed ||
+          originalSendView?.authType === AuthType.Password) &&
+        originalSendView?.type !== SendType.Item;
       /** Show the "Anyone with the link" auth type if EITHER
        * 1. There are no enterprise policies that dictate required auth types
-       * 2. The Send currently uses the "Anyone with the link" auth type */
-      const includeAny = anyAuthTypeAllowed || originalSendView?.authType === AuthType.None;
+       * 2. The Send currently uses the "Anyone with the link" auth type
+       * AND
+       * The Send is not of type Item */
+      const includeAny =
+        (anyAuthTypeAllowed || originalSendView?.authType === AuthType.None) &&
+        originalSendView?.type !== SendType.Item;
       return sendAuthTypes.filter(
         (at) =>
           (includeEmail && at.value === AuthType.Email) ||

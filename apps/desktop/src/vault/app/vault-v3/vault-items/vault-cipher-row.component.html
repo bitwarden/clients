@@ -114,7 +114,6 @@
           {{ "edit" | i18n }}
         </button>
       }
-      <app-share-link [cipher]="cipher()"></app-share-link>
       @if (showAttachments()) {
         <button bitMenuItem type="button" (click)="attachments()">
           <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
@@ -133,6 +132,15 @@
           {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
         </button>
       }
+      <button
+        bitMenuItem
+        type="button"
+        *appShareLinkMenuItem="cipher(); let share = share"
+        (click)="share()"
+      >
+        <bit-icon name="bwi-share-link" fixedWidth />
+        {{ "shareViaLink" | i18n }}
+      </button>
       @if (showArchiveButton()) {
         @if (userCanArchive()) {
           <button bitMenuItem (click)="archive()" type="button">

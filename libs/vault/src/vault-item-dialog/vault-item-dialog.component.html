@@ -14,11 +14,16 @@
         [collections]="collections"
         [isAdminConsole]="formConfig.isAdminConsole"
       >
-        <app-share-button
-          [cipher]="cipher"
-          slot="button"
-          [skipPasswordPrompt]="true"
-        ></app-share-button>
+        @if (shareItemEntryPoint) {
+          <div slot="button">
+            <ng-container
+              *ngComponentOutlet="
+                shareItemEntryPoint;
+                inputs: { cipher: cipher, skipPasswordPrompt: true }
+              "
+            ></ng-container>
+          </div>
+        }
       </app-cipher-view>
     }
 
