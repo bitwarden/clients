@@ -26,7 +26,7 @@ import {
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
+import { UserKey, ProviderKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -537,24 +537,19 @@ describe("keyService", () => {
 
   describe("userEncryptionKeyPair$", () => {
     type SetupKeysParams = {
-      makeMasterKey: boolean;
       makeUserKey: boolean;
     };
 
-    function setupKeys({
-      makeMasterKey,
-      makeUserKey,
-    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
+    function setupKeys({ makeUserKey }: SetupKeysParams): UserKey | null {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64, 0) : null;
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64, 1) : null;
       userKeyState.nextState(fakeUserKey);
-      return [fakeUserKey, fakeMasterKey];
+      return fakeUserKey;
     }
 
     it("returns null when private key is null", async () => {
-      setupKeys({ makeMasterKey: false, makeUserKey: false });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -562,7 +557,7 @@ describe("keyService", () => {
     });
 
     it("returns null when private key is undefined", async () => {
-      setupKeys({ makeUserKey: true, makeMasterKey: false });
+      setupKeys({ makeUserKey: true });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -570,7 +565,7 @@ describe("keyService", () => {
     });
 
     it("returns keys when private key is defined", async () => {
-      setupKeys({ makeUserKey: false, makeMasterKey: true });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(
