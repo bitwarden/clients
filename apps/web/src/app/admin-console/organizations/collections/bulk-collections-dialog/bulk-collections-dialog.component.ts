@@ -7,10 +7,7 @@ import {
   CollectionAdminService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionAdminView,
   CollectionView,
@@ -20,6 +17,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -74,22 +72,17 @@ export class BulkCollectionsDialogComponent {
   private readonly toastService = inject(ToastService);
   private readonly configService = inject(ConfigService);
 
-  protected readonly PermissionMode = PermissionMode;
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
+  protected readonly PermissionMode = PermissionMode;
   protected readonly formGroup = this.formBuilder.group({
     access: [[] as AccessItemValue[]],
   });
   protected readonly numCollections = this.params.collections.length;
-
-  protected readonly organization$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) =>
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.params.organizationId)),
-    ),
+  protected readonly organization$ = this.userId$.pipe(
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+    getById(this.params.organizationId),
   );
-
   private readonly groups$ = this.organization$.pipe(
     switchMap((organization) => {
       if (organization == null || !organization.useGroups) {
@@ -98,14 +91,11 @@ export class BulkCollectionsDialogComponent {
       return this.groupService.getAll(organization.id);
     }),
   );
-
-  private readonly collections$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+  private readonly collections$ = this.userId$.pipe(
     switchMap((userId) =>
       this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
     ),
   );
-
   readonly formData$ = combineLatest([
     this.collections$,
     this.groups$,
