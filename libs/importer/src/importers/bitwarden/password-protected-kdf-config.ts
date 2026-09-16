@@ -4,6 +4,15 @@ import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden
 import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/vault-export-core";
 
 /**
+ * Floor for PBKDF2 iteration counts accepted on password-protected import files.
+ *
+ * Kept separate from {@link PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN} so raising the
+ * prelogin minimum (e.g. PM-23253) does not break importing older exports that used
+ * lower iteration counts.
+ */
+const PBKDF2_IMPORT_ITERATIONS_MIN = 5000;
+
+/**
  * Iteration bounds accepted for a PBKDF2 import file.
  *
  * Wider than {@link PBKDF2KdfConfig.ITERATIONS} on the low end, because an export carries the
@@ -11,7 +20,7 @@ import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/vault-export-co
  * iteration counts. The upper bound is the same one the settings UI enforces.
  */
 const PBKDF2_IMPORT_ITERATIONS = new RangeWithDefault(
-  PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+  PBKDF2_IMPORT_ITERATIONS_MIN,
   PBKDF2KdfConfig.ITERATIONS.max,
   PBKDF2KdfConfig.ITERATIONS.defaultValue,
 );
