@@ -24,6 +24,7 @@ import { DialogCloseRef, DialogRef, DialogService, ToastService } from "@bitward
 import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 
 import { SendFormConfig } from "../send-form/abstractions/send-form-config.service";
+import { SendFormService } from "../send-form/abstractions/send-form.service";
 import { DefaultSendFormService } from "../send-form/services/default-send-form.service";
 import { SendPolicyService } from "../services/send-policy.service";
 
@@ -75,7 +76,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
   let fileUploadService: MockProxy<FileUploadService>;
   let sendService: MockProxy<InternalSendService>;
   let sendDecryptionService: MockProxy<SendDecryptionService>;
-  let sendFormService: DefaultSendFormService;
+  let sendFormService: SendFormService;
   let resolveUpload: () => void;
 
   const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -106,6 +107,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
     await TestBed.configureTestingModule({
       providers: [
         DefaultSendFormService,
+        { provide: SendFormService, useExisting: DefaultSendFormService },
         { provide: FormBuilder, useValue: new FormBuilder() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
@@ -129,7 +131,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
       ],
     }).compileComponents();
 
-    sendFormService = TestBed.inject(DefaultSendFormService);
+    sendFormService = TestBed.inject(SendFormService);
     await sendFormService.initializeSendForm({
       mode: "add",
       sendType: SendType.File,
