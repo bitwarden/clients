@@ -70,7 +70,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(cart.passwordManager.additionalStorage).toEqual({
-        translationKey: "additionalStorageGb",
+        translationKey: "additionalStorageGbLower",
         quantity: 2,
         cost: 10,
       });
@@ -80,7 +80,7 @@ describe("adaptInvoicePreviewToCart", () => {
         cost: 30,
       });
       expect(cart.secretsManager!.additionalServiceAccounts).toEqual({
-        translationKey: "additionalServiceAccounts",
+        translationKey: "additionalServiceAccountsLower",
         quantity: 4,
         cost: 3,
       });
@@ -101,7 +101,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.secretsManager!.seats).toBeUndefined();
       expect(cart.secretsManager!.additionalServiceAccounts).toEqual({
-        translationKey: "additionalServiceAccounts",
+        translationKey: "additionalServiceAccountsLower",
         quantity: 4,
         cost: 3,
       });
@@ -234,6 +234,7 @@ describe("adaptInvoicePreviewToCart", () => {
     it.each([
       [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premiumSubscriptionCredit"],
       [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedSubscriptionCredits"],
+      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "appliedSubscriptionCredits"],
     ])("should emit a credit row for %s", (flowContext, expectedKey) => {
       const preview = basePreview({
         passwordManager: {
@@ -248,11 +249,135 @@ describe("adaptInvoicePreviewToCart", () => {
       expect(cart.credit).toEqual({ translationKey: expectedKey, value: 25 });
     });
 
+    describe("subscription page", () => {
+      it("should render a seatless transition invoice's charge as its own line", () => {
+        // The server emits no seat line when the invoice is all prorations; the charge renders
+        // as its own line under the Password Manager section.
+        const preview = basePreview({
+          passwordManager: {
+            prorations: [{ credit: 37.64, charge: 188.22, tax: 12.05, total: 150.58, months: 6 }],
+          },
+          planTier: "enterprise",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+          logService,
+        );
+
+        expect(cart.passwordManager.seats).toBeUndefined();
+        expect(cart.passwordManager.prorationCharges).toEqual([
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 188.22,
+            hideBreakdown: true,
+          },
+        ]);
+        expect(cart.credit).toEqual({
+          translationKey: "appliedSubscriptionCredits",
+          value: 37.64,
+        });
+      });
+
+      it("should render a single seat with the singular unit", () => {
+        const preview = basePreview({
+          passwordManager: { seats: { reference: "pm-seat", quantity: 1, cost: 48 } },
+          planTier: "teams",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+          logService,
+        );
+
+        expect(cart.passwordManager.seats!.translationKey).toBe("memberLower");
+      });
+
+      it("should render charged prorations as their own lines beside a real seat line", () => {
+        // Renewal + mid-cycle change: the seat line is the per-unit renewal price, so the
+        // proration charge cannot merge into it.
+        const preview = basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 3, cost: 48 },
+            additionalStorage: { reference: "pm-storage", quantity: 5, cost: 3 },
+            prorations: [
+              {
+                reference: "pm-seat",
+                credit: 9.02,
+                charge: 13.52,
+                tax: 0.36,
+                total: 4.5,
+                months: 1,
+              },
+            ],
+          },
+          planTier: "teams",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+          logService,
+        );
+
+        expect(cart.passwordManager.seats).toEqual({
+          translationKey: "membersLower",
+          quantity: 3,
+          cost: 48,
+        });
+        expect(cart.passwordManager.prorationCharges).toEqual([
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 13.52,
+            hideBreakdown: true,
+          },
+        ]);
+        expect(cart.credit).toEqual({
+          translationKey: "appliedSubscriptionCredits",
+          value: 9.02,
+        });
+      });
+
+      it("should emit no charge lines for a pure-credit proration", () => {
+        const preview = basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 3, cost: 48 },
+            prorations: [
+              {
+                reference: "pm-seat",
+                credit: 9.02,
+                charge: 0,
+                tax: 0,
+                total: -9.02,
+                months: 1,
+              },
+            ],
+          },
+          planTier: "teams",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+          logService,
+        );
+
+        expect(cart.passwordManager.prorationCharges).toBeUndefined();
+        expect(cart.credit).toEqual({
+          translationKey: "appliedSubscriptionCredits",
+          value: 9.02,
+        });
+      });
+    });
+
     it.each([
       InvoicePreviewFlowContext.PremiumSubscriptionPage,
       InvoicePreviewFlowContext.PersonalCheckout,
       InvoicePreviewFlowContext.OrganizationCheckout,
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
     ])("should emit no credit row for %s even when prorations exist", (flowContext) => {
       const preview = basePreview({
         passwordManager: {
@@ -309,15 +434,56 @@ describe("adaptInvoicePreviewToCart", () => {
         logService,
       );
 
-      expect(cart.passwordManager.seats.cost).toBe(0.3);
+      expect(cart.passwordManager.seats!.cost).toBe(0.3);
     });
 
-    it("should throw when the preview has neither a seats line nor a proration", () => {
-      const preview = basePreview({ passwordManager: {} });
+    it("should emit no seat line when the preview has neither a seats line nor a proration", () => {
+      // The server enforces the seats-or-proration invariant; the client keeps the seat line
+      // optional rather than throwing on a shape it should never receive.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ passwordManager: {} }),
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
 
-      expect(() =>
-        adaptInvoicePreviewToCart(preview, InvoicePreviewFlowContext.PremiumOrgUpgrade, logService),
-      ).toThrow("neither a Password Manager seats line nor a proration");
+      expect(cart.passwordManager.seats).toBeUndefined();
+    });
+
+    it("should emit no seat line for a credit-only proration group without a seats line", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({
+          passwordManager: {
+            prorations: [{ credit: 5, charge: 0, tax: 0, total: -5, months: 3 }],
+          },
+        }),
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
+
+      expect(cart.passwordManager.seats).toBeUndefined();
+      expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 5 });
+    });
+
+    it("should derive a Secrets Manager seat line from its charge on a seat-line placement", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({
+          planTier: "teams",
+          passwordManager: { seats: { reference: "pm-seat", quantity: 3, cost: 48 } },
+          secretsManager: {
+            prorations: [{ credit: 2, charge: 18, tax: 0, total: 16, months: 6 }],
+          },
+        }),
+        InvoicePreviewFlowContext.OrganizationPlanChange,
+        logService,
+      );
+
+      expect(cart.secretsManager!.seats).toEqual({
+        translationKey: "secretsManagerPlanPrice",
+        quantity: 1,
+        cost: 18,
+        hideBreakdown: true,
+      });
+      expect(cart.secretsManager!.prorationCharges).toBeUndefined();
     });
   });
 
@@ -633,7 +799,7 @@ describe("adaptInvoicePreviewToCart", () => {
         { planName: "Families" },
       );
 
-      expect(cart.passwordManager.seats.translationParams).toEqual(["Families", "1 month"]);
+      expect(cart.passwordManager.seats!.translationParams).toEqual(["Families", "1 month"]);
     });
 
     it("should also relabel a real seats line when the group is prorated", () => {
@@ -652,8 +818,8 @@ describe("adaptInvoicePreviewToCart", () => {
         { planName: "Teams" },
       );
 
-      expect(cart.passwordManager.seats.translationKey).toBe("planProratedMembershipInMonths");
-      expect(cart.passwordManager.seats.translationParams).toEqual(["Teams", "8 months"]);
+      expect(cart.passwordManager.seats!.translationKey).toBe("planProratedMembershipInMonths");
+      expect(cart.passwordManager.seats!.translationParams).toEqual(["Teams", "8 months"]);
     });
 
     it("should keep the plain membership label when no plan name is supplied", () => {

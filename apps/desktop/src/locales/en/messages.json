@@ -6000,6 +6000,9 @@
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
   },
+  "enableAutotypeGaShortcut": {
+    "message": "Enable autotype shortcut"
+  },
   "enableAutotypeShortcutDescription": {
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },

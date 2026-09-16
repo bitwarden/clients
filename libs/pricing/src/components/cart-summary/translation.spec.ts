@@ -8,6 +8,7 @@ import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 import {
   getCartItemTranslationKey,
   getCreditTranslationKey,
+  getProrationChargeTranslationKey,
   getProratedSeatTranslationKey,
 } from "./translation";
 
@@ -52,19 +53,14 @@ describe("getCartItemTranslationKey", () => {
       "families",
       "passwordManagerPlanPrice",
     ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
-      "teams",
-      "passwordManagerPlanPrice",
-    ],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       "enterprise",
-      "passwordManagerPlanPrice",
+      "membersLower",
     ],
-    // Plan-change follows the other org-scoped surfaces; rationale in translation.ts.
+    // Plan-change follows checkout (per-seat plan price), not the subscription page.
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationPlanChange,
@@ -83,6 +79,26 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
+    ["sm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "secretsManagerPlanPrice"],
+    [
+      "sm-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "enterprise",
+      "secretsManagerPlanPrice",
+    ],
+    ["sm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
+    [
+      "sm-service-account",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "teams",
+      "additionalServiceAccountsLower",
+    ],
+    [
+      "sm-service-account",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "teams",
+      "additionalServiceAccountsLower",
+    ],
   ];
 
   it.each(fanOut)(
@@ -99,9 +115,7 @@ describe("getCartItemTranslationKey", () => {
   const allTiers: PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
   const tierAgnostic: Array<[PurchasableReference, string]> = [
-    ["pm-storage", "additionalStorageGb"],
-    ["sm-seat", "secretsManagerPlanPrice"],
-    ["sm-service-account", "additionalServiceAccounts"],
+    ["pm-storage", "additionalStorageGbLower"],
   ];
 
   describe.each(tierAgnostic)("%s", (reference, expected) => {
@@ -179,15 +193,55 @@ describe("getCreditTranslationKey", () => {
     );
   });
 
+  it("should map organization-subscription-page to appliedSubscriptionCredits", () => {
+    expect(getCreditTranslationKey(InvoicePreviewFlowContext.OrganizationSubscriptionPage)).toBe(
+      "appliedSubscriptionCredits",
+    );
+  });
+
   const noCreditContexts = [
     InvoicePreviewFlowContext.PremiumSubscriptionPage,
     InvoicePreviewFlowContext.PersonalCheckout,
     InvoicePreviewFlowContext.OrganizationCheckout,
-    InvoicePreviewFlowContext.OrganizationSubscriptionPage,
   ];
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
     expect(getCreditTranslationKey(flowContext)).toBeUndefined();
+  });
+});
+
+describe("getProrationChargeTranslationKey", () => {
+  it("should resolve each purchasable reference to its product charge label", () => {
+    expect(getProrationChargeTranslationKey("pm-seat", "pm-seat")).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("pm-storage", "pm-seat")).toBe("storageProratedCharge");
+    expect(getProrationChargeTranslationKey("sm-seat", "sm-seat")).toBe(
+      "secretsManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("sm-service-account", "sm-seat")).toBe(
+      "serviceAccountsProratedCharge",
+    );
+  });
+
+  it("should fall back to the group's seat reference when the reference is absent", () => {
+    expect(getProrationChargeTranslationKey(undefined, "pm-seat")).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey(undefined, "sm-seat")).toBe(
+      "secretsManagerProratedCharge",
+    );
+  });
+
+  it("should fall back to the group's charge key for a reference outside the union", () => {
+    // The response parser deliberately tolerates unknown purchasable references, so an unknown
+    // value can reach this resolver at runtime.
+    expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "pm-seat")).toBe(
+      "passwordManagerProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "sm-seat")).toBe(
+      "secretsManagerProratedCharge",
+    );
   });
 });
 

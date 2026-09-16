@@ -5,6 +5,7 @@ import {
   InvoicePreview,
   InvoicePreviewItem,
   PurchasableProration,
+  PurchasableReference,
 } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
@@ -12,10 +13,41 @@ import {
   getCartItemTranslationKey,
   getCreditTranslationKey,
   getProratedSeatTranslationKey,
+  getProrationChargeTranslationKey,
 } from "./translation";
 
 export type AdaptInvoicePreviewOptions = {
   planName?: string;
+};
+
+/**
+ * Where a proration charge appears in the cart.
+ *
+ * - SeatLine (upgrade, plan-change): the server bakes each proration charge into its seat line —
+ *   the seat line is the charge. No separate charge row renders, and the seat line's quantity x
+ *   cost breakdown hides because its cost is a lump, not a per-unit price. When the invoice is all
+ *   prorations (the Premium upgrade's `always_invoice` preview), there is no seat line on the wire,
+ *   so the summed charge becomes the seat line.
+ * - ProrationLine (subscription page): the seat line is a real per-unit renewal price, or absent
+ *   entirely on an all-proration transition invoice — where no seat quantity exists, so a seat
+ *   line can't be built. Charged prorations render as their own lines either way.
+ */
+const ProrationChargePlacements = {
+  SeatLine: "seat-line",
+  ProrationLine: "proration-line",
+} as const;
+type ProrationChargePlacement =
+  (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
+
+const getProrationChargePlacement = (
+  flowContext: InvoicePreviewFlowContext,
+): ProrationChargePlacement => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+      return ProrationChargePlacements.ProrationLine;
+    default:
+      return ProrationChargePlacements.SeatLine;
+  }
 };
 
 /**
@@ -35,7 +67,13 @@ export const adaptInvoicePreviewToCart = (
   const { passwordManager, secretsManager, planTier } = preview;
 
   const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
-    translationKey: getCartItemTranslationKey(item.reference, planTier, flowContext, logService),
+    translationKey: getCartItemTranslationKey(
+      item.reference,
+      planTier,
+      flowContext,
+      logService,
+      item.quantity,
+    ),
     quantity: item.quantity,
     cost: item.cost,
     // Discounts pass through untouched: the server's `amount` is authoritative and the renderer
@@ -44,27 +82,86 @@ export const adaptInvoicePreviewToCart = (
     ...(hideBreakdown ? { hideBreakdown: true } : {}),
   });
 
-  // A prorated group's seat line is a prorated charge, not a per-unit price, so its quantity x cost
-  // breakdown would be misleading. Applies to the seat line of that group only.
-  const passwordManagerProrated = hasProrations(passwordManager.prorations);
-  const secretsManagerProrated = hasProrations(secretsManager?.prorations);
+  /**
+   * Constructs a proration charge line for the cart.
+   */
+  const chargeLine = (
+    proration: PurchasableProration,
+    seatReference: PurchasableReference,
+  ): CartItem => ({
+    translationKey: getProrationChargeTranslationKey(proration.reference, seatReference),
+    quantity: 1,
+    cost: proration.charge,
+    hideBreakdown: true,
+  });
 
-  const passwordManagerSeats = (): CartItem => {
-    if (passwordManager.seats) {
-      return toCartItem(passwordManager.seats, passwordManagerProrated);
-    }
-
-    if (!passwordManagerProrated) {
-      throw new Error("Invoice preview has neither a Password Manager seats line nor a proration.");
+  /**
+   * Stands in for a missing seat line on SeatLine placements: the group's summed proration charge
+   * at quantity 1, with the breakdown hidden because the cost is a lump. Returns `undefined` when
+   * nothing was charged, so a credit-only group renders no seat row.
+   */
+  const derivedSeatLine = (
+    prorations: PurchasableProration[] | undefined,
+    seatReference: PurchasableReference,
+  ): CartItem | undefined => {
+    const cost = sumInCents((prorations ?? []).map((proration) => proration.charge));
+    if (cost <= 0) {
+      return undefined;
     }
 
     return {
-      translationKey: getCartItemTranslationKey("pm-seat", planTier, flowContext, logService),
+      translationKey: getCartItemTranslationKey(
+        seatReference,
+        planTier,
+        flowContext,
+        logService,
+        1,
+      ),
       quantity: 1,
-      cost: sumInCents(passwordManager.prorations!.map((proration) => proration.charge)),
+      cost,
       hideBreakdown: true,
     };
   };
+
+  /**
+   * Builds one product group's rows: its seat line, if the invoice carries one (or can stand in
+   * for it), plus the group's charged prorations, placed per the flow's charge placement.
+   */
+  const buildGroup = (
+    item: InvoicePreviewItem | undefined,
+    prorations: PurchasableProration[] | undefined,
+    seatReference: PurchasableReference,
+  ): { seats?: CartItem; prorationCharges?: CartItem[] } => {
+    const placement = getProrationChargePlacement(flowContext);
+
+    // On SeatLine placements the seat line's cost is the proration charge itself — a lump, not a
+    // per-unit price — so its quantity x cost breakdown would read false.
+    const shouldHideBreakdown =
+      placement === ProrationChargePlacements.SeatLine && hasProrations(prorations);
+
+    const seats = item
+      ? toCartItem(item, shouldHideBreakdown)
+      : placement === ProrationChargePlacements.SeatLine
+        ? derivedSeatLine(prorations, seatReference)
+        : undefined;
+
+    let prorationCharges: CartItem[] | undefined;
+    if (placement === ProrationChargePlacements.ProrationLine && prorations != null) {
+      prorationCharges = prorations
+        .filter((proration) => proration.charge > 0)
+        .map((proration) => chargeLine(proration, seatReference));
+    }
+
+    return {
+      seats,
+      prorationCharges: prorationCharges?.length ? prorationCharges : undefined,
+    };
+  };
+
+  const pm = buildGroup(passwordManager.seats, passwordManager.prorations, "pm-seat");
+  const sm = secretsManager
+    ? buildGroup(secretsManager.seats, secretsManager.prorations, "sm-seat")
+    : {};
 
   const proratedMonths = passwordManager.prorations?.[0]?.months ?? 0;
 
@@ -83,22 +180,23 @@ export const adaptInvoicePreviewToCart = (
 
   const cart: Cart = {
     passwordManager: {
-      seats: labelProratedMonths(passwordManagerSeats()),
+      ...(pm.seats ? { seats: labelProratedMonths(pm.seats) } : {}),
       ...(passwordManager.additionalStorage
         ? { additionalStorage: toCartItem(passwordManager.additionalStorage) }
         : {}),
+      ...(pm.prorationCharges ? { prorationCharges: pm.prorationCharges } : {}),
     },
-    ...(secretsManager && (secretsManager.seats || secretsManager.additionalServiceAccounts)
+    ...(secretsManager &&
+    (sm.seats || secretsManager.additionalServiceAccounts || sm.prorationCharges)
       ? {
           secretsManager: {
-            ...(secretsManager.seats
-              ? { seats: toCartItem(secretsManager.seats, secretsManagerProrated) }
-              : {}),
+            ...(sm.seats ? { seats: sm.seats } : {}),
             ...(secretsManager.additionalServiceAccounts
               ? {
                   additionalServiceAccounts: toCartItem(secretsManager.additionalServiceAccounts),
                 }
               : {}),
+            ...(sm.prorationCharges ? { prorationCharges: sm.prorationCharges } : {}),
           },
         }
       : {}),
@@ -136,8 +234,7 @@ const sumInCents = (amounts: number[]): number =>
 
 /**
  * Collapses every proration across both product groups into at most one credit row. The row is
- * emitted only when the total is positive AND the flow context actually renders credit — only two
- * surfaces do.
+ * emitted only when the total is positive AND the flow context actually renders credit.
  */
 const buildCreditRow = (
   preview: InvoicePreview,
@@ -162,6 +259,15 @@ const buildCreditRow = (
   return { translationKey, value };
 };
 
+/**
+ * Emits the account balance Stripe applied to the invoice as its own row, so the line items still
+ * sum to the rendered `amountDue`.
+ *
+ * The row's value is `total - amountDue` rather than `startingBalance`: a balance larger than the
+ * invoice is only applied up to the invoice total, and the difference between the two
+ * server-supplied figures is exactly what Stripe consumed. `startingBalance` gates the row so the
+ * "Account credit" label is only shown when a credit balance is what closed the gap.
+ */
 const buildAccountCreditRow = (preview: InvoicePreview): Cart["accountCredit"] => {
   if (preview.startingBalance === undefined || preview.startingBalance >= 0) {
     return undefined;

@@ -48,6 +48,8 @@ export type InvoicePreviewDiscount = {
   amount: number;
   /** The coupon name. */
   label?: string;
+  /** Number of months the coupon repeats for; absent for perpetual or once-only coupons. */
+  durationInMonths?: number;
 };
 
 export type InvoicePreviewItem = {
@@ -59,11 +61,12 @@ export type InvoicePreviewItem = {
 
 /**
  * A single proration entry. Retained in full for parity with the server contract. The cart adapter
- * renders the summed `credit` as one collapsed credit row and, when the group carries no seats line,
- * the summed `charge` as the seat line; `months` is additionally read by the Premium-to-organization
- * upgrade screen to label the prorated seat line. `tax` and `total` are unused client-side.
+ * renders the summed `credit` as one collapsed credit row and the `charge` either as its own line
+ * or, when the group carries no seats line, as the seat line; `months` labels the prorated seat
+ * line on the Premium-to-organization upgrade. `tax` and `total` are unused client-side.
  */
 export type PurchasableProration = {
+  reference?: PurchasableReference;
   credit: number;
   charge: number;
   tax: number;
@@ -73,6 +76,7 @@ export type PurchasableProration = {
 
 export type InvoicePreview = {
   passwordManager: {
+    /** Absent on a transition invoice whose only lines are prorations. */
     seats?: InvoicePreviewItem;
     additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];

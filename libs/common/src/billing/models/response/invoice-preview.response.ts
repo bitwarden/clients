@@ -37,6 +37,7 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
 }
 
 export class PurchasableProrationResponse extends BaseResponse implements PurchasableProration {
+  reference?: PurchasableReference;
   credit: number;
   charge: number;
   tax: number;
@@ -45,6 +46,11 @@ export class PurchasableProrationResponse extends BaseResponse implements Purcha
 
   constructor(response: any) {
     super(response);
+
+    const reference = this.getResponseProperty("Reference");
+    if (reference != null) {
+      this.reference = reference;
+    }
 
     this.credit = this.getResponseProperty("Credit");
     this.charge = this.getResponseProperty("Charge");

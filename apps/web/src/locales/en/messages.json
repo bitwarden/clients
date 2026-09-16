@@ -1805,9 +1805,6 @@
   "launchWebsite": {
     "message": "Launch website"
   },
-  "launchWebsite": {
-    "message": "Launch website"
-  },
   "me": {
     "message": "Me"
   },
@@ -1890,9 +1887,6 @@
   },
   "clearAll": {
     "message": "Clear all"
-  },
-  "done": {
-    "message": "Done"
   },
   "filtersSelected": {
     "message": "$COUNT$ selected",
@@ -4701,6 +4695,15 @@
   },
   "reinstateSubscription": {
     "message": "Reinstate subscription"
+  },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
   },
   "reinstateConfirmation": {
     "message": "Are you sure you want to remove the pending cancellation request and reinstate your subscription?"
@@ -17775,5 +17778,29 @@
         "example": "Test Login"
       }
     }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "additional service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
+  "membersLower": {
+    "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager prorated charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage prorated charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager prorated charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service accounts prorated charge"
   }
 }
