@@ -301,12 +301,13 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   private handleWebRequestOnBeforeRedirect = (
     details: chrome.webRequest.OnBeforeRedirectDetails,
   ) => {
-    if (!this.isRequestInMainFrame(details)) {
-      this.logService.mark("[AutoSubmitLogin] Redirect skipped: not main frame");
+    // Hash check runs first so unrelated redirects short-circuit
+    // silently and don't accumulate performance timeline marks.
+    if (!this.urlContainsAutoSubmitHash(details.redirectUrl)) {
       return;
     }
-    if (!this.urlContainsAutoSubmitHash(details.redirectUrl)) {
-      this.logService.mark("[AutoSubmitLogin] Redirect skipped: no auto-submit hash");
+    if (!this.isRequestInMainFrame(details)) {
+      this.logService.mark("[AutoSubmitLogin] Redirect skipped: not main frame");
       return;
     }
     if (!this.isValidInitiator(details.url)) {
