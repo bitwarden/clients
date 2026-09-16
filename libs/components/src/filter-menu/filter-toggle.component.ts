@@ -16,6 +16,7 @@ import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { OverflowItemDirective } from "../overflow-list";
 import { BitwardenIcon } from "../shared/icon";
+import { TooltipDirective } from "../tooltip";
 
 import {
   FILTER_CONTROL,
@@ -41,7 +42,7 @@ import {
 @Component({
   selector: "bit-filter-toggle",
   templateUrl: "./filter-toggle.component.html",
-  imports: [ChipContentComponent],
+  imports: [ChipContentComponent, TooltipDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterToggleComponent) },
@@ -68,6 +69,12 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
    * back to {@link icon} when omitted.
    */
   readonly iconActive = input<BitwardenIcon>();
+
+  /**
+   * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
+   * {@link disabled} is true. Pass an already-localized string.
+   */
+  readonly disabledTooltip = input("");
 
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
@@ -101,6 +108,16 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   );
 
   protected readonly disabled = computed(() => this.baseChip.disabled());
+
+  /** Whether a {@link disabledTooltip} is in play, i.e. the chip is disabled and has a reason. */
+  protected readonly showDisabledReason = computed(
+    () => this.disabled() && this.disabledTooltip().length > 0,
+  );
+
+  /** The chip's tooltip: the disabled reason when there is one, else the label. */
+  protected readonly chipTooltip = computed(() =>
+    this.showDisabledReason() ? this.disabledTooltip() : this.label(),
+  );
 
   constructor() {
     // The base chip defaults to `primary`, which it only draws while selected.

@@ -27,6 +27,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   of,
+  skip,
 } from "rxjs";
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
@@ -135,6 +136,7 @@ import {
   VaultBreadcrumbsComponent,
   sharedFolderNameForScope,
   VaultNavService,
+  vaultScopeCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   VaultScopeType,
@@ -287,7 +289,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
-    switchMap((id) => this.organizationService.organizations$(id)),
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
   /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
@@ -648,6 +650,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const filter$ = this.routedVaultFilterService.filter$;
 
+    /** Whether the current view is Trash, from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const inTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]) =>
+        vfo1Foundation ? scope.type === VaultScopeType.Trash : filter.type === "trash",
+      ),
+    );
+
     /** Rows come from the route's scope under VFO1, and from the query-param filter otherwise. */
     const rowFilter$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
       map(([vfo1Foundation, scope, filter]): FilterFunction =>
@@ -791,17 +800,30 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.performingInitialLoad = false;
           this.refreshing = false;
 
-          // Explicitly mark for check to ensure the view is updated
-          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
-          this.changeDetectorRef.markForCheck();
+          // WS server notifications emit outside the Angular zone; force change detection so the list updates.
+          this.changeDetectorRef.detectChanges();
         },
       );
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers]) =>
-        this.vaultBatchBarService?.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      .subscribe(([allCollections, hasCiphers, inTrash]) =>
+        this.vaultBatchBarService?.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          inTrash,
+        }),
       );
+
+    this.vaultScope$
+      .pipe(
+        map((scope) => vaultScopeCommands(scope).join("/")),
+        distinctUntilChanged(),
+        skip(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.vaultBatchBarService?.clearSelection());
 
     this.vaultBatchBarService?.completed$
       .pipe(takeUntil(this.destroy$))

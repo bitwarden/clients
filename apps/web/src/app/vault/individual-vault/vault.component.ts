@@ -659,10 +659,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), filter$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers]) =>
-        this.vaultBatchBarService.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      .subscribe(([allCollections, hasCiphers, filter]) =>
+        this.vaultBatchBarService.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          inTrash: filter.type === "trash",
+        }),
       );
   }
 

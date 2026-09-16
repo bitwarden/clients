@@ -11,9 +11,10 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  GenerateInviteLink = "pm-32497-generate-invite-link",
   CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   StagedStatus = "pm-34423-staged-status",
+  InviteLinkNotification = "pm-39601-invite-link-notification",
+  InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -123,6 +124,9 @@ export enum FeatureFlag {
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
+  /* Secrets Manager */
+  SecretVersioning = "sm-1587-secrets-versioning",
+
   /* PAM */
   Pam = "pm-37044-pam-v-0",
 
@@ -145,9 +149,10 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
+  [FeatureFlag.InviteLinkNotification]: FALSE,
+  [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -250,6 +255,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
+
+  /* Secrets Manager */
+  [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
