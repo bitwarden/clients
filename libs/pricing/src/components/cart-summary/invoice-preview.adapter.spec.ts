@@ -477,8 +477,99 @@ describe("adaptInvoicePreviewToCart", () => {
     });
   });
 
+  describe("account credit row", () => {
+    it("should render the applied account balance as its own row so the rows sum to the amount due", () => {
+      // The $50 balance closes the gap between the invoice total and what the customer is charged.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 412.75, amountDue: 362.75, startingBalance: -50 }),
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 50 });
+      expect(cart.total).toBe(362.75);
+    });
+
+    it("should cap the row at the invoice total when the balance exceeds it", () => {
+      // Only $12 of the $500 balance is consumed; the rest stays on the customer's account.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 12, amountDue: 0, startingBalance: -500 }),
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 12 });
+      expect(cart.total).toBe(0);
+    });
+
+    it("should sum in integer cents so the row matches the server's figures exactly", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 0.3, amountDue: 0.1, startingBalance: -0.2 }),
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.accountCredit!.value).toBe(0.2);
+    });
+
+    it("should emit no row when the preview carries no starting balance", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 259.6, amountDue: 259.6 }),
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.accountCredit).toBeUndefined();
+    });
+
+    it("should emit no row when the balance was not applied to the invoice", () => {
+      // A negative balance with nothing consumed (total equals amount due) has nothing to show.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 100, amountDue: 100, startingBalance: -50 }),
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.accountCredit).toBeUndefined();
+    });
+
+    it("should render alongside a proration credit row without merging the two", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 1, cost: 40 },
+            prorations: [{ credit: 6.67, charge: 0, tax: 0, total: -6.67, months: 8 }],
+          },
+          total: 33.33,
+          amountDue: 23.33,
+          startingBalance: -10,
+        }),
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
+
+      expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 6.67 });
+      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 10 });
+    });
+
+    it.each([
+      InvoicePreviewFlowContext.OrganizationCheckout,
+      InvoicePreviewFlowContext.PersonalCheckout,
+      InvoicePreviewFlowContext.PremiumSubscriptionPage,
+    ])("should render for %s, which has no proration credit copy", (flowContext) => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 100, amountDue: 75, startingBalance: -25 }),
+        flowContext,
+        logService,
+      );
+
+      expect(cart.credit).toBeUndefined();
+      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 25 });
+    });
+  });
+
   describe("fields that are deliberately not mapped", () => {
-    it("should not map startingBalance onto the cart", () => {
+    it("should not map startingBalance onto the cart as its own field", () => {
       const cart = adaptInvoicePreviewToCart(
         basePreview({ startingBalance: -500 }),
         InvoicePreviewFlowContext.OrganizationCheckout,

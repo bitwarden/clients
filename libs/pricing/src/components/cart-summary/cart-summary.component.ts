@@ -245,8 +245,10 @@ export class CartSummaryComponent {
     return credit.value;
   });
 
+  readonly accountCreditAmount = computed<number>(() => this.cart().accountCredit?.value ?? 0);
+
   /**
-   * Calculates the total of all line items including discounts, credit and tax
+   * Calculates the total of all line items including discounts, credits and tax
    */
   private readonly computedTotal = computed<number>(
     () =>
@@ -254,7 +256,8 @@ export class CartSummaryComponent {
       this.discountAmount() -
       this.lineDiscountTotal() -
       this.creditAmount() +
-      this.estimatedTax(),
+      this.estimatedTax() -
+      this.accountCreditAmount(),
   );
 
   /**

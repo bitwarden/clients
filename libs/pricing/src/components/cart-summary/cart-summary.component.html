@@ -347,6 +347,31 @@
         </div>
       </div>
 
+      <!-- Account credit (applied to the taxed total, so it sits between tax and total) -->
+      @if (accountCreditAmount() > 0) {
+        <div
+          id="account-credit-section"
+          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+          data-testid="account-credit-section"
+        >
+          <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+            {{
+              translateWithParams(
+                cart.accountCredit!.translationKey,
+                cart.accountCredit!.translationParams
+              )
+            }}
+          </div>
+          <div
+            bitTypography="body1"
+            class="tw-text-muted tw-font-normal"
+            data-testid="account-credit-amount"
+          >
+            -{{ accountCreditAmount() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+      }
+
       <!-- Total -->
       <div id="total-section" class="tw-flex tw-justify-between tw-items-center tw-pt-2">
         <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">{{ "total" | i18n }}</h3>

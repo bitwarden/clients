@@ -61,6 +61,8 @@ export default {
                   return "due on";
                 case "premiumSubscriptionCredit":
                   return "Premium subscription credit";
+                case "accountCredit":
+                  return "Account credit";
                 case "discount":
                   return "discount";
                 default:
@@ -410,6 +412,33 @@ export const WithCredit: Story = {
       },
       estimatedTax: 10.0,
     } satisfies Cart,
+  },
+};
+
+export const WithAppliedAccountBalance: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          translationKey: "familiesMembership",
+          cost: 40.0,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "premiumSubscriptionCredit",
+        value: 6.67,
+      },
+      estimatedTax: 2.0,
+      accountCredit: {
+        translationKey: "accountCredit",
+        value: 10.0,
+      },
+      total: 25.33,
+    } satisfies Cart,
+    hidePricingTerm: true,
   },
 };
 

@@ -113,9 +113,14 @@ export const adaptInvoicePreviewToCart = (
     cart.credit = credit;
   }
 
-  // Deliberately NOT mapped:
-  // - `total`: superseded by `amountDue` above.
-  // - `startingBalance`: the cart summary does not render account balance.
+  const accountCredit = buildAccountCreditRow(preview);
+  if (accountCredit) {
+    cart.accountCredit = accountCredit;
+  }
+
+  // Deliberately NOT mapped as their own fields:
+  // - `total`: rendered indirectly, as `amountDue` plus the account credit row.
+  // - `startingBalance`: rendered indirectly, as the account credit row.
   // - `nextPaymentAttempt`: no corresponding `Cart` field.
   return cart;
 };
@@ -155,4 +160,17 @@ const buildCreditRow = (
   }
 
   return { translationKey, value };
+};
+
+const buildAccountCreditRow = (preview: InvoicePreview): Cart["accountCredit"] => {
+  if (preview.startingBalance === undefined || preview.startingBalance >= 0) {
+    return undefined;
+  }
+
+  const value = sumInCents([preview.total, -preview.amountDue]);
+  if (value <= 0) {
+    return undefined;
+  }
+
+  return { translationKey: "accountCredit", value };
 };
