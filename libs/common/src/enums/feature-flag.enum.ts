@@ -134,6 +134,7 @@ export type AllowedFeatureFlagTypes = boolean | number | string;
 
 // Helper to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
+const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -186,7 +187,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
-  [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
+  // pam/uat only - do not carry this to main. On by default so a branch build works
+  // against a server that does not report the flag; a server that reports it still wins.
+  [FeatureFlag.PM28191CipherAdminOpsToSdk]: TRUE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
@@ -251,7 +254,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* PAM */
-  [FeatureFlag.Pam]: FALSE,
+  // pam/uat only - do not carry this to main. On by default so a branch build works
+  // against a server that does not report the flag; a server that reports it still wins.
+  [FeatureFlag.Pam]: TRUE,
   [FeatureFlag.PamRotation]: FALSE,
 
   /* VFO */
