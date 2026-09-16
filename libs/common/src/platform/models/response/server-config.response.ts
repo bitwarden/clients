@@ -49,7 +49,7 @@ export class ServerSettingsResponse extends BaseResponse {
     this.disableUserRegistration = this.getResponseProperty("DisableUserRegistration") ?? false;
     this.suppressOnboardingInterstitials =
       this.getResponseProperty("SuppressOnboardingInterstitials") ?? false;
-    this.disableEmailVerification = !(this.getResponseProperty("EnableEmailVerification") ?? true);
+    this.disableEmailVerification = !(this.getResponseProperty("EnableEmailVerification") ?? false);
   }
 }
 
