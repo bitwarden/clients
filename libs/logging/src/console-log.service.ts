@@ -1,4 +1,5 @@
 import { LogLevel } from "./log-level";
+import { LogRecorder } from "./log-recorder";
 import { LogService } from "./log.service";
 
 export class ConsoleLogService implements LogService {
@@ -7,6 +8,7 @@ export class ConsoleLogService implements LogService {
   constructor(
     protected isDev: boolean,
     protected filter: ((level: LogLevel) => boolean) | null = null,
+    protected recorder: LogRecorder | null = null,
   ) {}
 
   debug(message?: any, ...optionalParams: any[]) {
@@ -29,6 +31,12 @@ export class ConsoleLogService implements LogService {
   }
 
   write(level: LogLevel, message?: any, ...optionalParams: any[]) {
+    try {
+      this.recorder?.record(level, message, ...optionalParams);
+    } catch {
+      // Ignore error
+    }
+
     if (this.filter != null && this.filter(level)) {
       return;
     }
@@ -76,7 +84,7 @@ export class ConsoleLogService implements LogService {
       },
     });
 
-    this.info(`${measureName} took ${measure.duration}`, properties);
+    this.debug(`${measureName} took ${measure.duration}`, properties);
     return measure;
   }
 
@@ -89,7 +97,7 @@ export class ConsoleLogService implements LogService {
       },
     });
 
-    this.info(mark.name, new Date().toISOString());
+    this.debug(mark.name, new Date().toISOString());
 
     return mark;
   }

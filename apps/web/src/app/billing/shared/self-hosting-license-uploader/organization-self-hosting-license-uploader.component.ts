@@ -11,7 +11,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,7 +18,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-hosting-license-uploader/abstract-self-hosting-license-uploader.component";
 

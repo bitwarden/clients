@@ -6,7 +6,6 @@ import {
   EMPTY,
   NEVER,
   Observable,
-  Subject,
   concatMap,
   concat,
   filter,
@@ -36,7 +35,6 @@ import {
   DefaultAuthRequestApiService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailServiceAbstraction,
   DefaultLoginStrategyCacheService,
   DefaultLoginStrategySessionTimeoutService,
@@ -111,8 +109,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -125,15 +121,13 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import {
-  SharedUnlockLeaderService,
-  SharedUnlockFollowerService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
-import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
@@ -170,9 +164,11 @@ import {
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
-// eslint-disable-next-line no-restricted-imports -- Used for dependency creation
-import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
+import {
+  IntraprocessMessageSender,
+  MessageListener,
+  MessageSender,
+} from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -200,7 +196,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -222,6 +217,7 @@ import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -302,6 +298,11 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   ActiveUserStateProvider,
@@ -321,7 +322,7 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import { AutoUnlockService, DefaultAutoUnlockService, LockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -375,15 +376,15 @@ import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserProcessReloadService } from "../key-management/browser-process-reload.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
-import { SHARED_UNLOCK_EXTERNAL } from "../key-management/shared-unlock-messages";
+import { BackgroundUnlockService } from "../key-management/unlock/background-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 /* eslint-disable no-restricted-imports */
@@ -395,6 +396,7 @@ import { BrowserTaskSchedulerService } from "../platform/services/abstractions/b
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
+import { BrowserManagedConfigReader } from "../platform/services/browser-managed-config-reader";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
@@ -497,6 +499,7 @@ export default class MainBackground {
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
+  sendDecryptionService: SendDecryptionService;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<BrowserFido2ParentWindowReference>;
@@ -533,9 +536,9 @@ export default class MainBackground {
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
-  // eslint-disable-next-line rxjs/no-exposed-subjects -- Needed to give access to services module
-  intraprocessMessagingSubject: Subject<Message<Record<string, unknown>>>;
-  userAutoUnlockKeyService: UserAutoUnlockKeyService;
+  // `#` rather than `private` because `BitwardenMain` is assigned to a worker property,
+  // where an erased annotation would leave the channel ambient
+  readonly #intraprocessMessageSender: IntraprocessMessageSender;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -553,6 +556,8 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  managedSettingsService: ManagedSettingsService;
+  private managedConfigReader?: BrowserManagedConfigReader;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -564,10 +569,10 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
-  sharedUnlockLeaderService: SharedUnlockLeaderService;
-  sharedUnlockFollowerService: SharedUnlockFollowerService;
+  sharedUnlockPeerService: SharedUnlockPeerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
-  unlockService: UnlockService;
+  unlockService: BackgroundUnlockService;
+  autoUnlockService: AutoUnlockService;
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
@@ -628,18 +633,15 @@ export default class MainBackground {
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
 
-    this.intraprocessMessagingSubject = new Subject<Message<Record<string, unknown>>>();
+    this.#intraprocessMessageSender = new IntraprocessMessageSender();
 
     this.messagingService = MessageSender.combine(
-      new SubjectMessageSender(this.intraprocessMessagingSubject),
+      this.#intraprocessMessageSender,
       new ChromeMessageSender(this.logService),
     );
 
     const messageListener = new MessageListener(
-      merge(
-        this.intraprocessMessagingSubject.asObservable(), // For messages from the same context
-        fromChromeRuntimeMessaging(), // For messages from other contexts
-      ),
+      this.#intraprocessMessageSender.messages$({ external$: fromChromeRuntimeMessaging() }),
     );
 
     this.offscreenDocumentService = new DefaultOffscreenDocumentService(this.logService);
@@ -800,6 +802,21 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
+    // Constructed before the key service, which depends on it to delete platform-specific copies of
+    // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.
+    const browserBiometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      () => this.configService,
+      this.logService,
+      () => this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      () => this.vaultTimeoutSettingsService,
+      () => this.ipcService,
+    );
+    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
+    this.biometricsService = browserBiometricsService;
+
     this.keyService = new DefaultKeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -808,6 +825,15 @@ export default class MainBackground {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      browserBiometricsService,
+    );
+
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
@@ -851,7 +877,7 @@ export default class MainBackground {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -940,6 +966,23 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -952,6 +995,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -962,6 +1006,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.managedSettingsService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
@@ -977,10 +1022,35 @@ export default class MainBackground {
       this.collectionEncryptionService,
     );
 
+    this.pinService = new PinService(this.sdkService);
+
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
+
+    this.unlockService = new BackgroundUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.stateProvider,
+      this.logService,
+      this.biometricsService,
+      this.biometricStateService,
+      this.v2UpgradeTokenStateService,
+      this.autoUnlockService,
+      this.messagingService,
+      messageListener,
+    );
+    // Started here rather than in bootstrap so an unlock the popup performs while the service
+    // worker is starting up is not missed.
+    this.unlockService.init();
+    void browserBiometricsService.setUnlockService(this.unlockService);
+
+    // Constructed after the unlock service, which it depends on.
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
-      this.keyService,
       this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
@@ -993,40 +1063,8 @@ export default class MainBackground {
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
+      this.unlockService,
     );
-
-    this.pinService = new PinService(this.sdkService);
-
-    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
-
-    const browserBiometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      () => this.configService,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-      this.vaultTimeoutSettingsService,
-      () => this.ipcService,
-    );
-    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
-    this.biometricsService = browserBiometricsService;
-    this.unlockService = new DefaultUnlockService(
-      this.registerSdkService,
-      this.accountCryptographicStateService,
-      this.kdfConfigService,
-      this.accountService,
-      this.masterPasswordService,
-      this.stateProvider,
-      this.logService,
-      this.biometricsService,
-      this.platformUtilsService,
-      this.stateService,
-      this.biometricStateService,
-      this.v2UpgradeTokenStateService,
-    );
-    void browserBiometricsService.setUnlockService(this.unlockService);
 
     this.passwordStrengthService = new PasswordStrengthService();
 
@@ -1196,6 +1234,11 @@ export default class MainBackground {
       this.legacyCompatKeyService,
     );
 
+    this.sendDecryptionService = new SendDecryptionService(
+      this.sdkService,
+      this.configService,
+      this.legacyCompatKeyService,
+    );
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
       this.accountService,
@@ -1205,6 +1248,8 @@ export default class MainBackground {
       this.sendStateProvider,
       this.encryptService,
       this.configService,
+      this.sdkService,
+      this.sendDecryptionService,
     );
     const legacySendApiService = new SendApiService(
       this.apiService,
@@ -1220,6 +1265,7 @@ export default class MainBackground {
         this.sendService,
         this.accountService,
         this.logService,
+        this.sendDecryptionService,
       ),
     );
 
@@ -1351,6 +1397,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
       this.sdkService,
     );
 
@@ -1470,32 +1517,20 @@ export default class MainBackground {
       this.logService,
     );
 
-    const systemUtilsServiceReloadCallback = async () => {
-      await this.taskSchedulerService.clearAllScheduledTasks();
-
-      // Close browser action popup before reloading to prevent zombie popup with invalidated context.
-      // The 'reloadProcess' message is sent by ProcessReloadService before this callback runs,
-      // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
-      await BrowserPopupUtils.waitForAllPopupsClose();
-
-      BrowserApi.reloadExtension();
-    };
-
     this.systemService = new SystemService(
       this.platformUtilsService,
       this.autofillSettingsService,
       this.taskSchedulerService,
     );
 
-    this.processReloadService = new DefaultProcessReloadService(
+    this.processReloadService = new BrowserProcessReloadService(
       this.pinService,
       this.messagingService,
-      systemUtilsServiceReloadCallback,
       this.vaultTimeoutSettingsService,
-      this.biometricStateService,
       this.accountService,
       this.logService,
       this.authService,
+      this.taskSchedulerService,
     );
 
     // Background
@@ -1523,9 +1558,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
-      this.searchService,
       this.folderService,
-      this.masterPasswordService,
       this.stateEventRunnerService,
       this.cipherService,
       this.authService,
@@ -1552,7 +1585,6 @@ export default class MainBackground {
       this.autofillService,
       this.platformUtilsService as BrowserPlatformUtilsService,
       this.autofillSettingsService,
-      this.processReloadService,
       this.environmentService,
       this.messagingService,
       this.logService,
@@ -1567,15 +1599,11 @@ export default class MainBackground {
       this.autofillOrchestrator,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
-      this.keyService,
-      this.legacyCompatKeyService,
       this.encryptService,
       this.cryptoFunctionService,
-      this.messagingService,
       this.appIdService,
       this.platformUtilsService,
       this.logService,
-      this.biometricStateService,
       this.accountService,
     );
     this.commandsBackground = new CommandsBackground(
@@ -1718,10 +1746,9 @@ export default class MainBackground {
         this.authService,
         this.accountService,
         chrome.webRequest,
+        this.configService,
       );
     }
-
-    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
 
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
@@ -1758,27 +1785,16 @@ export default class MainBackground {
     );
 
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
-    this.sharedUnlockLeaderService = new DefaultSharedUnlockLeaderService(
+    this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
       this.ipcService,
       this.accountService,
       this.lockService,
-      this.keyService,
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
       this.sharedUnlockSettingsService,
       this.unlockService,
-    );
-    this.sharedUnlockFollowerService = new DefaultSharedUnlockFollowerService(
-      this.ipcService,
-      this.accountService,
-      this.lockService,
-      this.keyService,
-      this.platformUtilsService,
-      this.vaultTimeoutSettingsService,
-      this.environmentService,
-      this.sharedUnlockSettingsService,
-      this.unlockService,
+      this.configService,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
@@ -1812,6 +1828,11 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
+    // Acquired first so no consumer can observe an empty profile that acquisition would have
+    // filled. Pushing before the SDK loads is safe: the profile is mirrored into the SDK handle
+    // lazily, once the WASM module is ready. Absent when a dev source supplies the profile instead.
+    await this.managedConfigReader?.init();
+
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
@@ -1822,16 +1843,13 @@ export default class MainBackground {
     const userIds = Object.keys(accounts) as UserId[];
     await this.tokenService.cleanupTokenStorage(userIds);
 
-    const setUserKeyInMemoryPromises = [];
     for (const userId of userIds) {
-      // For each acct, we must await the process of setting the user key in memory
-      // if the auto user key is set to avoid race conditions of any code trying to access
-      // the user key from mem.
-      setUserKeyInMemoryPromises.push(
-        this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId),
-      );
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(userId);
+      } catch (e) {
+        this.logService.error("Failed to auto-unlock user on bootstrap", e);
+      }
     }
-    await Promise.all(setUserKeyInMemoryPromises);
 
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
@@ -1845,8 +1863,8 @@ export default class MainBackground {
     // injection, so the onConnect listener is registered before any frame
     // connects.
     this.autofillLifecycleService.init();
-    this.autofillOrchestrator.init();
     await this.runtimeBackground.init();
+    this.autofillOrchestrator.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
@@ -1858,7 +1876,7 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    this.webRequestBackground?.startListening();
+    await this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();
@@ -1878,15 +1896,7 @@ export default class MainBackground {
     await this.initOverlayAndTabsBackground();
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
-      await this.sharedUnlockLeaderService.start();
-    }
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
-      await this.sharedUnlockFollowerService.start();
-      this.sharedUnlockFollowerService.externalUnlock$.subscribe((userId) => {
-        this.messagingService.send(SHARED_UNLOCK_EXTERNAL, { userId });
-      });
-    }
+    await this.sharedUnlockPeerService.start();
     this.badgeService.startListening();
 
     return new Promise<void>((resolve) => {
@@ -2083,7 +2093,7 @@ export default class MainBackground {
     }
     await this.mainContextMenuHandler?.noAccess();
     await this.systemService.clearPendingClipboard();
-    await this.processReloadService.startProcessReload();
+    await this.processReloadService.reloadProcess();
   }
 
   private async needsStorageReseed(userId: UserId): Promise<boolean> {

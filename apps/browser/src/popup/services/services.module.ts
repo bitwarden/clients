@@ -39,7 +39,6 @@ import {
   NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
 import {
-  LockService,
   LoginEmailService,
   SsoUrlService,
   LogoutService,
@@ -49,6 +48,7 @@ import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
+import { BrowserShareItemPresenter } from "@bitwarden/browser/tools/popup/share/browser-share-item.presenter";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
@@ -98,6 +98,7 @@ import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -116,6 +117,7 @@ import {
   MessagingService as MessagingServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -184,14 +186,23 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
+import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
+import {
+  AutoUnlockService,
+  ForegroundLockService,
+  LockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   PasswordRepromptService,
   SshImportPromptService,
+  VAULT_BASE_ROUTE,
+  VaultNavService,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
-import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionLoginViaWebAuthnComponentService } from "../../auth/popup/login/extension-login-via-webauthn-component.service";
@@ -212,6 +223,7 @@ import { ForegroundBrowserBiometricsService } from "../../key-management/biometr
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
 import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
+import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -325,6 +337,7 @@ const safeProviders: SafeProvider[] = [
       StateService,
       StateProvider,
       AccountCryptographicStateService,
+      BiometricsService,
     ],
   }),
   safeProvider({
@@ -415,6 +428,8 @@ const safeProviders: SafeProvider[] = [
       SendApiService,
       MessageListener,
       StateProvider,
+      ConfigService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -647,7 +662,6 @@ const safeProviders: SafeProvider[] = [
       WebAuthnPrfUnlockService,
       SharedUnlockSettingsService,
       ConfigService,
-      MessageListener,
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
@@ -709,6 +723,29 @@ const safeProviders: SafeProvider[] = [
       WINDOW,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: ForegroundUnlockService,
+    useClass: ForegroundUnlockService,
+    deps: [
+      RegisterSdkService,
+      AccountCryptographicStateService,
+      KdfConfigService,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      StateProvider,
+      LogService,
+      BiometricsService,
+      BiometricStateService,
+      V2UpgradeTokenStateService,
+      AutoUnlockService,
+      MessageSender,
+      MessageListener,
+    ],
+  }),
+  safeProvider({
+    provide: UnlockService,
+    useExisting: ForegroundUnlockService,
   }),
   safeProvider({
     provide: AnimationControlService,
@@ -867,6 +904,31 @@ const safeProviders: SafeProvider[] = [
     provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
     useClass: AutoConfirmNudgeService,
     deps: [StateProvider, AutomaticUserConfirmationService],
+  }),
+  safeProvider({
+    // Reads the account's vaults for the header switcher and for `vaultScopeGuard`.
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VAULT_BASE_ROUTE as SafeInjectionToken<string>,
+    useValue: "/tabs/vault",
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider(BrowserShareItemPresenter),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: BrowserShareItemPresenter,
+    deps: [],
   }),
 ];
 

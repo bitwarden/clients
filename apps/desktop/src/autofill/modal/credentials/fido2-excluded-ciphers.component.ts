@@ -2,15 +2,16 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 
-import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   BadgeModule,
   ButtonModule,
   DialogModule,
-  SvgModule,
   ItemModule,
   SectionComponent,
+  StatusLockupComponent,
+  SvgComponent,
   TableModule,
   SectionHeaderComponent,
   BitIconButtonComponent,
@@ -29,7 +30,8 @@ import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-u
     BitIconButtonComponent,
     TableModule,
     I18nPipe,
-    SvgModule,
+    StatusLockupComponent,
+    SvgComponent,
     ButtonModule,
     DialogModule,
     SectionComponent,
@@ -46,7 +48,7 @@ export class Fido2ExcludedCiphersComponent implements OnDestroy {
   private readonly router = inject(Router);
 
   readonly session = this.fido2UserInterfaceService.getCurrentSession();
-  readonly Icons = { BitwardenShield, NoResults };
+  readonly Icons = { NoResults };
 
   async ngOnDestroy(): Promise<void> {
     await this.closeModal();

@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
@@ -9,6 +9,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { LockService, LockSource } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 const IdleInterval = 60 * 5; // 5 minutes
@@ -74,7 +75,7 @@ export default class IdleBackground {
                 if (action === VaultTimeoutAction.LogOut) {
                   await this.logoutService.logout(userId as UserId, "vaultTimeout");
                 } else {
-                  await this.lockService.lock(userId as UserId);
+                  await this.lockService.lock(userId as UserId, LockSource.VaultTimeout);
                 }
               }
             }

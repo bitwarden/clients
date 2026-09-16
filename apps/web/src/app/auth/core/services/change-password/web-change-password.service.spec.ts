@@ -15,7 +15,9 @@ import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-pass
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
 

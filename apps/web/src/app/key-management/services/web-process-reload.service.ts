@@ -1,13 +1,9 @@
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 
 export class WebProcessReloadService implements ProcessReloadServiceAbstraction {
   constructor(private window: Window) {}
 
-  async startProcessReload(): Promise<void> {
+  async reloadProcess(): Promise<void> {
     this.window.location.reload();
-  }
-
-  cancelProcessReload(): void {
-    return;
   }
 }

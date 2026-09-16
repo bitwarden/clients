@@ -1,4 +1,4 @@
-import { CryptoSyncUserDecryption } from "@bitwarden/sdk-internal";
+import { CryptoSyncUserDecryption, KeyId } from "@bitwarden/sdk-internal";
 
 import { WebAuthnPrfDecryptionOptionResponse } from "../../../auth/models/response/user-decryption-options/webauthn-prf-decryption-option.response";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -14,6 +14,8 @@ export class UserDecryptionResponse extends BaseResponse {
   webAuthnPrfOptions?: WebAuthnPrfDecryptionOptionResponse[];
 
   v2UpgradeToken?: V2UpgradeTokenResponse;
+
+  userKeyId?: KeyId;
 
   constructor(response: unknown) {
     super(response);
@@ -34,6 +36,11 @@ export class UserDecryptionResponse extends BaseResponse {
     if (v2UpgradeToken != null && typeof v2UpgradeToken === "object") {
       this.v2UpgradeToken = new V2UpgradeTokenResponse(v2UpgradeToken);
     }
+
+    const userKeyId = this.getResponseProperty("UserKeyId");
+    if (userKeyId != null && typeof userKeyId === "string") {
+      this.userKeyId = userKeyId as KeyId;
+    }
   }
 
   /**
@@ -52,6 +59,7 @@ export class UserDecryptionResponse extends BaseResponse {
           : this.webAuthnPrfOptions
               .map((option) => option.toWebAuthnPrfUnlockOption())
               .filter((option) => option != null),
+      userKeyId: this.userKeyId,
     };
   }
 }

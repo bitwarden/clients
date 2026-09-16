@@ -1,42 +1,28 @@
 <ng-template>
-  <section
-    cdkTrapFocus
-    cdkTrapFocusAutoCapture
-    class="tw-relative"
-    role="dialog"
-    aria-modal="true"
-    [attr.aria-label]="title()"
-  >
-    <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-md tw-border tw-border-border-base">
-      <div
-        class="tw-relative tw-z-20 tw-max-w-[22.5rem] tw-break-words tw-bg-bg-primary tw-text-fg-body"
-      >
-        <ng-content select="bit-popover-header"></ng-content>
-        <div class="tw-p-6">
-          <div class="tw-absolute tw-top-3 tw-right-3">
-            <button
-              type="button"
-              bitIconButton="bwi-close"
-              [buttonType]="closeButtonType()"
-              [label]="'close' | i18n"
-              (click)="closed.emit()"
-              size="small"
-            ></button>
-          </div>
-          <div class="tw-flex tw-flex-col tw-gap-6">
-            <div class="tw-flex tw-flex-col tw-gap-3">
-              <h2 bitTypography="h4" [class]="titleClasses()">
-                {{ title() }}
-              </h2>
-              <div bitTypography="body2" class="tw-text-fg-body">
-                <ng-content></ng-content>
-              </div>
-            </div>
-            <ng-content select="bit-popover-footer"></ng-content>
+  <bit-popover-base [accessibleName]="title()">
+    <ng-content select="bit-popover-header"></ng-content>
+    <div class="tw-p-6">
+      <div class="tw-absolute tw-top-3 tw-right-3">
+        <button
+          type="button"
+          bitIconButton="bwi-close"
+          [buttonType]="closeButtonType()"
+          [label]="'close' | i18n"
+          (click)="closed.emit()"
+          size="small"
+        ></button>
+      </div>
+      <div class="tw-flex tw-flex-col tw-gap-6">
+        <div class="tw-flex tw-flex-col tw-gap-3">
+          <h2 bitTypography="h4" [class]="titleClasses()">
+            {{ title() }}
+          </h2>
+          <div bitTypography="body2" class="tw-text-fg-body">
+            <ng-content></ng-content>
           </div>
         </div>
+        <ng-content select="bit-popover-footer"></ng-content>
       </div>
     </div>
-    <div class="bit-popover-arrow"></div>
-  </section>
+  </bit-popover-base>
 </ng-template>

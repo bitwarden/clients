@@ -37,4 +37,5 @@ export class CliBiometricsService extends BiometricsService {
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return false;
   }
+  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {}
 }

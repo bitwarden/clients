@@ -31,9 +31,10 @@ import {
   MenuModule,
   ButtonModule,
   IconButtonModule,
-  NoItemsModule,
+  StatusLockupComponent,
   CalloutComponent,
   CheckboxModule,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -101,10 +102,11 @@ type EmptyStateItem = {
     IconButtonModule,
     VaultCollectionRowComponent,
     VaultCipherRowComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     NewCipherMenuComponent,
     CalloutComponent,
     CheckboxModule,
+    SvgComponent,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {

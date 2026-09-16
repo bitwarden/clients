@@ -8,7 +8,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import {
+  FieldType,
+  SecureNoteType,
+  CipherType,
+  BankAccountType,
+} from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -408,26 +413,92 @@ export abstract class BaseImporter {
     }
   }
 
+  /** Parse a string that contains a name and set a cipher's `identity` fields accordingly */
   protected processFullName(cipher: CipherView, fullName: string) {
+    const [firstName, middleName, lastName] = this.getFullName(fullName);
+
+    if (!this.isNullOrWhitespace(firstName)) {
+      cipher.identity.firstName = firstName;
+    }
+    if (!this.isNullOrWhitespace(middleName)) {
+      cipher.identity.middleName = middleName;
+    }
+    if (!this.isNullOrWhitespace(lastName)) {
+      cipher.identity.lastName = lastName;
+    }
+  }
+
+  /**
+   * Returns the parsed name as an array of the form `[first name, middle name, last name]`
+   * Name parts that were unable to be parsed are returned as undefined
+   */
+  protected getFullName(fullName: string) {
+    const result: (string | undefined)[] = [undefined, undefined, undefined];
     if (this.isNullOrWhitespace(fullName)) {
-      return;
+      return result;
     }
 
     const nameParts = fullName.split(" ");
     if (nameParts.length > 0) {
-      cipher.identity.firstName = this.getValueOrDefault(nameParts[0]);
+      result[0] = this.getValueOrDefault(nameParts[0]);
     }
     if (nameParts.length === 2) {
-      cipher.identity.lastName = this.getValueOrDefault(nameParts[1]);
+      result[2] = this.getValueOrDefault(nameParts[1]);
     } else if (nameParts.length >= 3) {
-      cipher.identity.middleName = this.getValueOrDefault(nameParts[1]);
-      cipher.identity.lastName = nameParts.slice(2, nameParts.length).join(" ");
+      result[1] = this.getValueOrDefault(nameParts[1]);
+      result[2] = nameParts.slice(2, nameParts.length).join(" ");
     }
+    return result;
   }
 
   private validateNoExternalEntities(data: string): boolean {
     const regex = new RegExp("<!ENTITY", "i");
     const hasExternalEntities = regex.test(data);
     return !hasExternalEntities;
+  }
+
+  /** Parses a date from a string and returns its representation in
+   * `YYYY-MM-DD` format or null if the string isn't a valid date */
+  protected parseDateString(dateString: string): string | undefined {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return;
+    }
+    return this.formatDateString(date);
+  }
+
+  /** Converts a Date to a string with format `YYYY-MM-DD`. Returns
+   * `undefined` if the input Date is nullish or invalid */
+  protected formatDateString(date: Date | undefined): string {
+    if (!date || isNaN(date.getTime())) {
+      return;
+    }
+    return [
+      date.getUTCFullYear().toString(),
+      (date.getUTCMonth() + 1).toString().padStart(2, "0"),
+      date.getUTCDate().toString().padStart(2, "0"),
+    ].join("-");
+  }
+
+  protected processBankAccountType(type: string | undefined): BankAccountType {
+    if (!type) {
+      return BankAccountType.Other;
+    }
+    switch (type.toLowerCase()) {
+      case BankAccountType.CertificateOfDeposit.toLowerCase():
+        return BankAccountType.CertificateOfDeposit;
+      case BankAccountType.Checking.toLowerCase():
+        return BankAccountType.Checking;
+      case BankAccountType.InvestmentBrokerage.toLowerCase():
+        return BankAccountType.InvestmentBrokerage;
+      case BankAccountType.LineOfCredit.toLowerCase():
+        return BankAccountType.LineOfCredit;
+      case BankAccountType.MoneyMarket.toLowerCase():
+        return BankAccountType.MoneyMarket;
+      case BankAccountType.Savings.toLowerCase():
+        return BankAccountType.Savings;
+      default:
+        return BankAccountType.Other;
+    }
   }
 }

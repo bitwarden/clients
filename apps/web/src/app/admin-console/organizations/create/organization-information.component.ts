@@ -1,10 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
 import { UntypedFormGroup } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -28,10 +27,12 @@ export class OrganizationInformationComponent implements OnInit {
   @Input() acceptingSponsorship = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() formGroup: UntypedFormGroup;
+  @Input() formGroup?: UntypedFormGroup;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() changedBusinessOwned = new EventEmitter<void>();
+
+  protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
 
   constructor(private accountService: AccountService) {}
 
@@ -43,7 +44,7 @@ export class OrganizationInformationComponent implements OnInit {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     if (activeAccount?.email) {
-      this.formGroup.controls.billingEmail.setValue(activeAccount.email);
+      this.formGroup?.controls.billingEmail.setValue(activeAccount.email);
     }
   }
 }

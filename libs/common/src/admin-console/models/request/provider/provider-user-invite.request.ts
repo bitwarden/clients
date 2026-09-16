@@ -1,8 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ProviderUserType } from "../../../enums";
 
 export class ProviderUserInviteRequest {
-  emails: string[] = [];
+  emails: string[];
   type: ProviderUserType;
+
+  constructor(c: { emails: string[]; type: ProviderUserType }) {
+    this.emails = c.emails;
+    this.type = c.type;
+  }
 }

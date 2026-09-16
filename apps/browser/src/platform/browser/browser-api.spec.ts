@@ -118,6 +118,43 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getManagedStorage", () => {
+    afterEach(() => {
+      delete (global.chrome as any).storage.managed;
+      (chrome.runtime.lastError as any) = undefined;
+    });
+
+    it("resolves the managed storage contents", async () => {
+      const managed = { environment: { base: "https://vault.example.com" } };
+      (global.chrome as any).storage.managed = {
+        get: jest.fn().mockImplementation((_keys, callback) => callback(managed)),
+      };
+
+      const result = await BrowserApi.getManagedStorage();
+
+      expect(result).toEqual(managed);
+    });
+
+    it("resolves undefined when the browser has no managed storage area", async () => {
+      const result = await BrowserApi.getManagedStorage();
+
+      expect(result).toBeUndefined();
+    });
+
+    it("rejects with the runtime error when the read fails", async () => {
+      (global.chrome as any).storage.managed = {
+        get: jest.fn().mockImplementation((_keys, callback) => {
+          (chrome.runtime.lastError as any) = { message: "Managed storage manifest not found" };
+          callback(undefined);
+        }),
+      };
+
+      await expect(BrowserApi.getManagedStorage()).rejects.toEqual({
+        message: "Managed storage manifest not found",
+      });
+    });
+  });
+
   describe("senderIsInternal", () => {
     const EXTENSION_ORIGIN = "chrome-extension://id";
 
@@ -1107,6 +1144,25 @@ describe("BrowserApi", () => {
       jest.spyOn(BrowserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
 
       expect(BrowserApi.getBrowserClientVendor(window)).toBe(expected);
+    });
+
+    // A DuckDuckGo extension implies the Windows (WebView2) build, which is Chromium.
+    it("returns Chrome for DuckDuckGoExtension device", () => {
+      jest
+        .spyOn(BrowserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoExtension);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(BrowserClientVendors.Chrome);
+    });
+
+    // DuckDuckGoBrowser spans both the Windows Chromium build and the WebKit macOS build, so
+    // it must not be assumed Chromium.
+    it("returns Unknown for DuckDuckGoBrowser device", () => {
+      jest
+        .spyOn(BrowserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoBrowser);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(BrowserClientVendors.Unknown);
     });
   });
 

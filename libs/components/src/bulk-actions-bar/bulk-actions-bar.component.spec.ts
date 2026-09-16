@@ -10,14 +10,37 @@ import { BulkActionComponent } from "./bulk-action.component";
 import { BulkActionsBarComponent } from "./bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "./bulk-additional-action.component";
 
-// JSDOM does not implement ResizeObserver — provide a no-op stub so the
-// component can construct without throwing.
+// JSDOM does not implement ResizeObserver. This stub records which element each
+// observer watches so a test can dispatch a resize for a specific element via
+// `emitResize` — the bar's wrapper width is only reachable that way, since it's
+// a readonly signal fed by `observedWidth`.
 class ResizeObserverStub {
-  observe() {}
+  static instances: ResizeObserverStub[] = [];
+  readonly observed: Element[] = [];
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    ResizeObserverStub.instances.push(this);
+  }
+
+  observe(el: Element) {
+    this.observed.push(el);
+  }
   unobserve() {}
   disconnect() {}
+
+  emit(entry: ResizeObserverEntry) {
+    this.callback([entry], this as unknown as ResizeObserver);
+  }
 }
 global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+
+/** Dispatch a content-box resize for `el`, as the browser's ResizeObserver would. */
+function emitResize(el: Element, width: number): void {
+  const observer = ResizeObserverStub.instances.find((instance) => instance.observed.includes(el));
+  observer?.emit({
+    contentBoxSize: [{ inlineSize: width, blockSize: 0 }],
+  } as unknown as ResizeObserverEntry);
+}
 
 @Component({
   imports: [BulkActionsBarComponent, BulkActionComponent],
@@ -52,6 +75,7 @@ describe("BulkActionsBarComponent", () => {
 
   const innerBar = () =>
     fixture.debugElement.query(By.css('[role="toolbar"]')).nativeElement as HTMLElement;
+  const wrapper = () => innerBar().parentElement as HTMLElement;
   const outside = () => fixture.nativeElement.querySelector("#outside") as HTMLButtonElement;
   const primaryButtons = (): HTMLButtonElement[] =>
     Array.from(
@@ -129,6 +153,17 @@ describe("BulkActionsBarComponent", () => {
     expect(liveRegion().textContent?.trim()).toBe(
       "3 items selected. The bulk actions bar is now available at the bottom of the screen. Press Ctrl+B to toggle focus to the bulk action bar.",
     );
+  });
+
+  it("keeps hit-testing off the wrapper and on the bar only while visible", () => {
+    expect(wrapper().classList).toContain("tw-pointer-events-none");
+    expect(innerBar().classList).not.toContain("tw-pointer-events-auto");
+
+    host.count.set(1);
+    fixture.detectChanges();
+
+    expect(wrapper().classList).toContain("tw-pointer-events-none");
+    expect(innerBar().classList).toContain("tw-pointer-events-auto");
   });
 
   it("renders one toolbar button per projected <bit-bulk-action>", () => {
@@ -499,8 +534,8 @@ describe("BulkActionsBarComponent", () => {
       const bar = host.bar();
       // 208 - 100 = 108 available: the first action (100) fits, the second
       // (100 + 8 gap) does not.
-      bar["wrapperWidth"].set(208);
       bar["reservedShellWidth"].set(100);
+      emitResize(bar["wrapper"]().nativeElement, 208);
       fixture.detectChanges();
 
       expect(bar["overflowList"]().overflow()).toEqual([1]);
