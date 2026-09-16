@@ -1,17 +1,33 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  Environment,
+  Region,
+  RegionConfig,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import {
+  openSsoAuthResultPopout,
+  openTwoFactorAuthWebAuthnPopout,
+} from "../auth/popup/utils/auth-popout-window";
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
+import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
 import RuntimeBackground from "./runtime.background";
+
+jest.mock("../auth/popup/utils/auth-popout-window");
 
 // The `collectPageDetailsResponse` handler is the seam Step 5 rewired: the
 // page-load ("autofiller") sender no longer routes here, and the user-initiated
@@ -243,5 +259,133 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(result).toBe(rules);
+  });
+});
+
+describe("RuntimeBackground vault referrer gating", () => {
+  const environmentWebVaultUrl = "https://vault.selfhosted.test";
+  const regionWebVaultUrl = "https://vault.bitwarden.com";
+
+  let runtimeBackground: RuntimeBackground;
+  let environmentService: MockProxy<BrowserEnvironmentService>;
+
+  const buildRuntimeBackground = () =>
+    new RuntimeBackground(
+      mock<MainBackground>(),
+      mock<AutofillService>(),
+      mock<BrowserPlatformUtilsService>(),
+      undefined as any,
+      environmentService,
+      mock<MessagingService>(),
+      mock<LogService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<AutofillOrchestrator>(),
+    );
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    environmentService = mock<BrowserEnvironmentService>();
+    environmentService.environment$ = new BehaviorSubject({
+      getWebVaultUrl: () => environmentWebVaultUrl,
+    } as Environment);
+    environmentService.availableRegions.mockReturnValue([
+      { key: Region.US, domain: "bitwarden.com", urls: { webVault: regionWebVaultUrl } },
+    ] as RegionConfig[]);
+
+    runtimeBackground = buildRuntimeBackground();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("authResult", () => {
+    const message = (referrer: string) => ({
+      command: "authResult",
+      code: "code",
+      state: "state",
+      referrer,
+    });
+
+    it("opens the SSO popout when the referrer is the configured web vault", async () => {
+      await runtimeBackground.processMessageWithSender(
+        message("vault.selfhosted.test"),
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).toHaveBeenCalled();
+    });
+
+    it("opens the SSO popout when the referrer is a known region's web vault", async () => {
+      await runtimeBackground.processMessageWithSender(
+        message("vault.bitwarden.com"),
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).toHaveBeenCalled();
+    });
+
+    it("ignores a referrer that is not a known vault", async () => {
+      await runtimeBackground.processMessageWithSender(
+        message("attacker.test"),
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).not.toHaveBeenCalled();
+    });
+
+    it("ignores a message with no referrer", async () => {
+      await runtimeBackground.processMessageWithSender(
+        { command: "authResult", code: "code", state: "state" },
+        {} as chrome.runtime.MessageSender,
+      );
+
+      expect(openSsoAuthResultPopout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("webAuthnResult", () => {
+    const message = (referrer: string) => ({
+      command: "webAuthnResult",
+      data: "data",
+      remember: true,
+      referrer,
+    });
+
+    it("opens the WebAuthn popout when the referrer is the configured web vault", async () => {
+      await runtimeBackground.processMessage(message("vault.selfhosted.test"));
+
+      expect(openTwoFactorAuthWebAuthnPopout).toHaveBeenCalled();
+    });
+
+    it("opens the WebAuthn popout when the referrer is a known region's web vault", async () => {
+      await runtimeBackground.processMessage(message("vault.bitwarden.com"));
+
+      expect(openTwoFactorAuthWebAuthnPopout).toHaveBeenCalled();
+    });
+
+    it("ignores a referrer that is not a known vault", async () => {
+      await runtimeBackground.processMessage(message("attacker.test"));
+
+      expect(openTwoFactorAuthWebAuthnPopout).not.toHaveBeenCalled();
+    });
+
+    it("ignores a message with no referrer", async () => {
+      await runtimeBackground.processMessage({
+        command: "webAuthnResult",
+        data: "data",
+        remember: true,
+      });
+
+      expect(openTwoFactorAuthWebAuthnPopout).not.toHaveBeenCalled();
+    });
   });
 });
