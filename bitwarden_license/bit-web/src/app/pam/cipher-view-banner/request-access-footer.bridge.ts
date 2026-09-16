@@ -3,18 +3,15 @@ import { Injectable, Signal, signal } from "@angular/core";
 /**
  * The request-access flow as the vault item dialog's FOOTER needs to see it.
  *
- * PM-43662 moved the request affordance out of the in-body card and into the dialog footer, to
- * follow the standard footer pattern for primary and secondary actions. That splits one flow
- * across two components mounted in different seams — the card
- * ({@link CipherViewBannerComponent}, `CIPHER_VIEW_BANNER`) still owns the form, while the
- * buttons that drive it live in the footer (`CIPHER_VIEW_FOOTER_ACTIONS`) — so the two need a
- * shared handle.
+ * One flow spans two seams: the card ({@link CipherViewBannerComponent}, `CIPHER_VIEW_BANNER`)
+ * owns the form, the footer (`CIPHER_VIEW_FOOTER_ACTIONS`) owns the buttons that drive it, so
+ * the two share a handle.
  *
  * Deliberately NOT the component class: the footer depends on this interface alone, so neither
  * seam imports the other's component and the card stays free to change how it renders the form.
  *
- * Each side keeps the DOM it owns. The card focuses its fold-out when the form opens; the footer
- * refocuses its own toggle when the form collapses. Do not route focus across the bridge — a
+ * Each side keeps the DOM it owns — the card focuses its fold-out when the form opens, the
+ * footer refocuses its own toggle when it collapses. Do not route focus across the bridge; a
  * component reaching for another's element is what the two seams exist to avoid.
  */
 export interface RequestAccessFooterActions {
@@ -50,8 +47,8 @@ export interface RequestAccessFooterActions {
  *
  * Root-provided and single-valued: the vault item dialog is a singleton surface, so at most one
  * gated cipher is ever open. The card publishes on init and withdraws on destroy, and
- * {@link withdraw} is identity-checked so a card being torn down after its replacement has
- * already published cannot blank out the live handle.
+ * {@link withdraw} is identity-checked so a card torn down after its replacement has already
+ * published cannot blank out the live handle.
  */
 @Injectable({ providedIn: "root" })
 export class RequestAccessFooterBridge {

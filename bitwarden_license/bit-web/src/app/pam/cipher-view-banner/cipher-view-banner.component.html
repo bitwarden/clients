@@ -186,11 +186,8 @@
     </div>
   </bit-card>
 
-  <!--
-    Its own section, a sibling of the card above rather than folded inside it (PM-43662) — the
-    request/submit/cancel buttons that used to live in this card's action row now live in the
-    dialog footer, driven through `RequestAccessFooterBridge`.
-  -->
+  <!-- Its own section, a sibling of the card above: the buttons that drive it are in the
+       dialog footer, reached through `RequestAccessFooterBridge`. -->
   @if (requestFormExpanded()) {
     <bit-section class="tw-mb-5 bit-compact:tw-mb-4">
       <bit-card>
@@ -260,7 +257,7 @@
                     [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
                     id="pam-cipher-view-banner_textarea_automatic-reason"
                   ></textarea>
-                  <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+                  <bit-hint>{{ "requestAccessModalAutomaticReasonHint" | i18n }}</bit-hint>
                 </bit-form-field>
               </form>
             } @else {
@@ -311,7 +308,7 @@
                     [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
                     id="pam-cipher-view-banner_textarea_human-reason"
                   ></textarea>
-                  <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+                  <bit-hint>{{ "requestAccessModalHumanReasonHint" | i18n }}</bit-hint>
                 </bit-form-field>
               </form>
             }

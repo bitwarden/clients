@@ -455,10 +455,9 @@ export class CipherViewBannerComponent implements OnInit {
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
 
-    // PM-43662: the request-access buttons moved to the dialog footer. This card still owns the
-    // form, so it publishes the flow's state and behaviour for the footer to drive; the footer
-    // renders the handle only against a matching cipher, so a stale one left after this component
-    // is torn down needs to be withdrawn, not merely left unread.
+    // This card owns the form; the dialog footer owns the buttons that drive it, so the flow's
+    // state and behaviour are published for the footer to read. Withdraw on destroy rather than
+    // leaving a stale handle behind — it holds this component and its decrypted cipher.
     const footerActions: RequestAccessFooterActions = {
       cipherId: String(this.cipher().id),
       visible: this.canRequestAccess,

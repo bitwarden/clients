@@ -208,11 +208,9 @@ type Story = StoryObj<CipherViewComponent>;
 /**
  * The resting state: the "Privileged" badge on the name row, the access card under the identity.
  *
- * Renders the footer actions below the view, standing in for the dialog footer that hosts them in
- * the real surface (`CIPHER_VIEW_FOOTER_ACTIONS`). PM-43662 moved the request buttons out of the
- * card, so this is the only story where the two halves of that flow can be seen together — the
- * card publishes its handle on init and the footer picks it up through the shared bridge. Without
- * the footer the story would show a card describing an action with no way to take it.
+ * The footer actions render below the view, standing in for the dialog footer that hosts them
+ * (`CIPHER_VIEW_FOOTER_ACTIONS`) — the one story showing both halves of the request flow, the
+ * card publishing its handle and the footer reading it through the shared bridge.
  */
 export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],

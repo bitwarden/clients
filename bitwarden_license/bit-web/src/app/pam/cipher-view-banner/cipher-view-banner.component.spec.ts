@@ -959,9 +959,6 @@ describe("CipherViewBannerComponent", () => {
       expect(focused?.getAttribute("aria-label")?.trim()).toBe("pamRequestAccessButton");
     });
 
-    // "returns focus to the toggle when Cancel unmounts itself" moved: the toggle is now the
-    // footer's own button, so returning focus to it on collapse belongs in the footer's spec.
-
     it("leaves focus where it is across a state change, whatever the handle's visibility does", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
