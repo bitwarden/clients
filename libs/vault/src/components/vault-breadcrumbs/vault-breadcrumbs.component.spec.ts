@@ -86,10 +86,36 @@ describe("VaultBreadcrumbsComponent", () => {
     expect(component().orgRootCrumbRoute()).toEqual(["/vault", organizationId]);
   });
 
-  it("trails nothing for a scope that names no shared folder", () => {
+  it("trails All vault items for an organization's whole vault", () => {
     scopeTo({ type: VaultScopeType.Organization, organizationId });
 
-    expect(component().trailCrumbs()).toEqual([]);
+    expect(component().trailCrumbs()).toEqual([
+      {
+        key: "all-vault-items",
+        icon: "bwi-list-alt",
+        label: "allVaultItems",
+        route: [],
+        queryParamsHandling: "preserve",
+      },
+    ]);
+  });
+
+  it("trails My items for an organization's default collection", () => {
+    scopeTo({
+      type: VaultScopeType.Organization,
+      organizationId,
+      collectionId: myItemsCollectionId,
+    });
+
+    expect(component().trailCrumbs()).toEqual([
+      {
+        key: "my-items",
+        icon: "bwi-user",
+        label: "myItemsV2",
+        route: [],
+        queryParamsHandling: "preserve",
+      },
+    ]);
   });
 
   it("trails a shared folder through its ancestors to the folder in view", () => {

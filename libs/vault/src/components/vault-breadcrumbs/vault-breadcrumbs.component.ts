@@ -20,6 +20,8 @@ import {
 
 import { navIconTile } from "../../models/vault-icon-tile";
 import {
+  organizationVaultPage,
+  OrganizationVaultPage,
   sharedFoldersCommands,
   vaultScopeCommands,
   VaultScope,
@@ -140,6 +142,21 @@ export class VaultBreadcrumbsComponent {
   });
 
   protected readonly trailCrumbs = computed((): TrailCrumb[] => {
+    switch (organizationVaultPage(this.scope(), this.vaultNav())) {
+      case OrganizationVaultPage.AllVaultItems:
+        return [
+          this.currentCrumb("all-vault-items", "bwi-list-alt", this.i18nService.t("allVaultItems")),
+        ];
+      case OrganizationVaultPage.MyItems:
+        return [this.currentCrumb("my-items", "bwi-user", this.i18nService.t("myItemsV2"))];
+      case OrganizationVaultPage.SharedFolder:
+        return this.sharedFolderTrail();
+      default:
+        return [];
+    }
+  });
+
+  private sharedFolderTrail(): TrailCrumb[] {
     if (this.sharedFolderNode() == null) {
       return [];
     }
@@ -159,7 +176,7 @@ export class VaultBreadcrumbsComponent {
       })),
       this.currentCrumb("shared-folder", "bwi-shared-folder", this.sharedFolderName()),
     ];
-  });
+  }
 
   private currentCrumb(key: string, icon: BitwardenIcon, label: string): TrailCrumb {
     return { key, icon, label, route: [], queryParamsHandling: "preserve" };
