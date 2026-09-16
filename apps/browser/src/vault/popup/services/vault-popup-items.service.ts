@@ -1,5 +1,5 @@
 import { inject, Injectable, NgZone } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   debounceTime,
@@ -11,6 +11,7 @@ import {
   Observable,
   of,
   shareReplay,
+  skip,
   startWith,
   Subject,
   switchMap,
@@ -291,6 +292,12 @@ export class VaultPopupItemsService {
   cipherCount$: Observable<number> = this._activeCipherList$.pipe(map((ciphers) => ciphers.length));
 
   /**
+   * Every active cipher, before the search and chips narrow it — the chip options describe what
+   * the vault holds, not what the search matches.
+   */
+  activeCiphers$: Observable<PopupCipherViewLike[]> = this._activeCipherList$;
+
+  /**
    * Observable that indicates whether there are no ciphers to show with the current filter.
    */
   noFilteredResults$: Observable<boolean> = this._filteredCipherList$.pipe(
@@ -363,7 +370,19 @@ export class VaultPopupItemsService {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
     private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
-  ) {}
+  ) {
+    // VFO1 intentionally persists search text across navigating.
+    // But switching the active account must always clear the search text.
+    // This service is `providedIn: "root"` and lives through the switch, manual clearing is necessary.
+    this.activeUserId$
+      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
+      .subscribe(() => this.clearSearchText());
+  }
+
+  /** Clears the persisted search text. Called when the active account changes. */
+  private clearSearchText(): void {
+    this.cachedSearchText.set("");
+  }
 
   applyFilter(newSearchText: string) {
     this.cachedSearchText.set(newSearchText);

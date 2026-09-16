@@ -77,9 +77,12 @@ jobs:
           persist-credentials: false
           allow-unsafe-pr-checkout: true
 
-      - name: Get GitHub sha as version
+      - name: Get checked-out commit as version
         id: version
-        run: echo "value=${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+        run: |
+          sha="$(git rev-parse HEAD)"
+          echo "value=${sha:0:7}" >> "$GITHUB_OUTPUT"
+          echo "### Build git hash: \`${sha:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -139,6 +142,12 @@ jobs:
             npm_command: build:bit:usqa2
             git_metadata: true
             description: Web vault for the US QA2 cloud
+          - artifact_name: cloud-uat
+            license_type: "commercial"
+            image_name: web-uat-cloud
+            npm_command: build:bit:uat
+            git_metadata: true
+            description: Web vault for the UAT cloud
           - artifact_name: ee
             license_type: "commercial"
             image_name: web-ee
@@ -249,7 +258,7 @@ jobs:
         if: matrix.git_metadata
         run: |
           VERSION=$( jq -r ".version" package.json)
-          jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
+          jq --arg version "$VERSION+$_VERSION" '.version = $version' package.json > package.json.tmp
           mv package.json.tmp package.json
 
       ########## Set up Docker ##########

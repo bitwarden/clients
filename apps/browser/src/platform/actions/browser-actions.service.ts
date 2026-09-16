@@ -18,6 +18,7 @@ export class BrowserActionsService implements ActionsService {
     try {
       switch (deviceType) {
         case DeviceType.FirefoxExtension:
+        case DeviceType.DuckDuckGoExtension:
         case DeviceType.ChromeExtension: {
           const browserAction = BrowserApi.getBrowserAction();
 

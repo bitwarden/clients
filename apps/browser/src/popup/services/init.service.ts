@@ -1,6 +1,7 @@
 import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,6 +17,7 @@ import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-vie
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
+  private automationDriver = inject(AutomationDriver);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -39,6 +41,8 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+
+      this.automationDriver.attachToGlobal(self);
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);

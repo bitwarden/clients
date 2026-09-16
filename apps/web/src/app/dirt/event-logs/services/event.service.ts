@@ -1379,6 +1379,8 @@ export class EventService {
         return ["bwi-puzzle", this.i18nService.t("extension") + " - Vivaldi"];
       case DeviceType.SafariExtension:
         return ["bwi-puzzle", this.i18nService.t("extension") + " - Safari"];
+      case DeviceType.DuckDuckGoExtension:
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - DuckDuckGo"];
       case DeviceType.WindowsDesktop:
         return ["bwi-desktop", this.i18nService.t("desktop") + " - Windows"];
       case DeviceType.MacOsDesktop:

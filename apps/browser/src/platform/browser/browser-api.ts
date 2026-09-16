@@ -222,8 +222,13 @@ export class BrowserApi {
     const device = BrowserPlatformUtilsService.getDevice(clientWindow);
 
     switch (device) {
+      // DuckDuckGoExtension implies the Windows (WebView2) build, since detection relies on
+      // userAgentData, which only Chromium exposes. That build uses the Chrome Web Store and
+      // Chromium's settings URIs. DuckDuckGoBrowser is deliberately absent: it spans both the
+      // Windows Chromium build and the WebKit-based macOS build, so it cannot be mapped here.
       case DeviceType.ChromeExtension:
       case DeviceType.ChromeBrowser:
+      case DeviceType.DuckDuckGoExtension:
         return BrowserClientVendors.Chrome;
       case DeviceType.OperaExtension:
       case DeviceType.OperaBrowser:
@@ -838,6 +843,35 @@ export class BrowserApi {
     return new Promise((resolve) =>
       chrome.permissions.contains({ permissions }, (result) => resolve(result)),
     );
+  }
+
+  /**
+   * Every value the host operating system's Unified Endpoint Management (UEM/MDM) channel exposes
+   * to this extension, or `undefined` where the browser has no managed storage area at all
+   * (Safari). An empty object means the area exists but an administrator has set no policy.
+   *
+   * Only keys declared in `managed_schema.json` are surfaced. These are administrator
+   * configuration rather than vault data, but they must not be logged: a value can disclose an
+   * organization's self-hosted infrastructure.
+   *
+   * Rejects with `chrome.runtime.lastError` when the area exists but the read fails, notably on
+   * Firefox where no native managed manifest is installed. Callers decide whether that is
+   * exceptional; on most installations it is the normal case.
+   */
+  static getManagedStorage(): Promise<Record<string, unknown> | undefined> {
+    if (chrome.storage?.managed == null) {
+      return Promise.resolve(undefined);
+    }
+
+    return new Promise((resolve, reject) => {
+      chrome.storage.managed.get(null, (items) => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+
+        resolve(items);
+      });
+    });
   }
 
   static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {

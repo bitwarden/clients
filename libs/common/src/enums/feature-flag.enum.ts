@@ -11,9 +11,9 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  GenerateInviteLink = "pm-32497-generate-invite-link",
   StagedStatus = "pm-34423-staged-status",
-  PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
+  InviteLinkNotification = "pm-39601-invite-link-notification",
+  InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -41,7 +41,6 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   WindowsNativeCredentialSync = "windows-native-credential-sync",
-  SSHAgentV2 = "ssh-agent-v2",
   SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
@@ -78,6 +77,7 @@ export enum FeatureFlag {
   /* Tools */
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
+  PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -145,9 +145,9 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
+  [FeatureFlag.InviteLinkNotification]: FALSE,
+  [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -162,12 +162,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
-  [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
+  [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
