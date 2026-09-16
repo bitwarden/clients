@@ -4,6 +4,7 @@ import { NgModule } from "@angular/core";
 import { AuthModule } from "./auth";
 import { TrialInitiationModule } from "./billing/trial-initiation/trial-initiation.module";
 import { HeaderModule } from "./layouts/header/header.module";
+import { PrivateAccessBannerComponent } from "./layouts/private-access-banner.component";
 import { SharedModule } from "./shared";
 import { AccessComponent } from "./tools/send/send-access/access.component";
 import { OrganizationBadgeModule } from "./vault/individual-vault/organization-badge/organization-badge.module";
@@ -21,6 +22,7 @@ import "./shared/locales";
     OrganizationBadgeModule,
     AuthModule,
     AccessComponent,
+    PrivateAccessBannerComponent,
   ],
   exports: [
     SharedModule,
@@ -29,6 +31,7 @@ import "./shared/locales";
     VaultFilterModule,
     OrganizationBadgeModule,
     AccessComponent,
+    PrivateAccessBannerComponent,
   ],
   bootstrap: [],
   providers: [{ provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } }],
