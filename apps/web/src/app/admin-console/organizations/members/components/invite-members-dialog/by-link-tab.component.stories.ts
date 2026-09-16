@@ -2,7 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -145,14 +145,11 @@ const makeRender =
             useValue: { showError: () => {} },
           },
           {
-            provide: OrgDomainApiServiceAbstraction,
+            provide: OrganizationDomainsService,
             useValue: {
-              getAllMiniByOrgId: () =>
+              claimedDomains: () =>
                 Promise.resolve(
-                  verifiedDomainNames.map((name) => ({
-                    domainName: name,
-                    verifiedDate: "2025-01-01T00:00:00Z",
-                  })),
+                  verifiedDomainNames.map((name) => ({ domainName: name, verified: true })),
                 ),
             },
           },

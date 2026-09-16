@@ -4,7 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -247,8 +247,8 @@ export default {
         { provide: EventCollectionService, useValue: mockEventCollectionService },
         { provide: LogService, useValue: mockLogService },
         {
-          provide: OrgDomainApiServiceAbstraction,
-          useValue: { getAllMiniByOrgId: () => Promise.resolve([]) },
+          provide: OrganizationDomainsService,
+          useValue: { claimedDomains: () => Promise.resolve([]) },
         },
       ],
     }),
