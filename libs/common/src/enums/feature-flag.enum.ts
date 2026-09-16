@@ -262,24 +262,10 @@ export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
 
 export type FeatureFlagValueType<Flag extends FeatureFlag> = DefaultFeatureFlagValueType[Flag];
 
-/**
- * TEMPORARY local development overrides. Values here win over both the server config and
- * {@link DefaultFeatureFlagValue}.
- *
- * DO NOT COMMIT entries in this object.
- */
-const LocalFeatureFlagOverrides: Partial<DefaultFeatureFlagValueType> = {
-  [FeatureFlag.VFO1Foundation]: true,
-};
-
 export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  if (LocalFeatureFlagOverrides[flag] != null) {
-    return LocalFeatureFlagOverrides[flag] as FeatureFlagValueType<Flag>;
-  }
-
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
