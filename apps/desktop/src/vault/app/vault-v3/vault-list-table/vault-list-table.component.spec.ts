@@ -2,16 +2,19 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherRowMenuService, VaultCopyButtonsService } from "@bitwarden/vault";
+import { CipherRowMenuService, VaultScopeType, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultListTableComponent } from "./vault-list-table.component";
 
@@ -29,16 +32,28 @@ describe("VaultListTableComponent", () => {
   let fixture: ComponentFixture<VaultListTableComponent<CipherViewLike>>;
   let component: VaultListTableComponent<CipherViewLike>;
   let mockGetRowActions: jest.Mock;
+  let cipherArchiveService: MockProxy<CipherArchiveService>;
+  let showSubscriptionEndedMessaging$: Subject<boolean>;
   let configService: MockProxy<ConfigService>;
 
   async function setup(extraProviders: unknown[] = []) {
     mockGetRowActions = jest.fn(() => []);
+    showSubscriptionEndedMessaging$ = new Subject<boolean>();
+    cipherArchiveService = mock<CipherArchiveService>();
+    cipherArchiveService.showSubscriptionEndedMessaging$.mockReturnValue(
+      showSubscriptionEndedMessaging$,
+    );
+
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: "user-1" as UserId } as Account);
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [VaultListTableComponent],
       providers: [
+        { provide: AccountService, useValue: accountService },
+        { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: CipherRowMenuService, useValue: { getRowActions: mockGetRowActions } },
@@ -123,15 +138,25 @@ describe("VaultListTableComponent", () => {
   });
 
   describe("premium callout", () => {
-    it("renders when showPremiumCallout is true", () => {
-      fixture.componentRef.setInput("showPremiumCallout", true);
+    it("renders when scope is Archive and subscription has ended", () => {
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.Archive });
+      showSubscriptionEndedMessaging$.next(true);
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.css("bit-callout"))).not.toBeNull();
     });
 
-    it("is absent when showPremiumCallout is false", () => {
-      fixture.componentRef.setInput("showPremiumCallout", false);
+    it("is absent when scope is not Archive", () => {
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.Trash });
+      showSubscriptionEndedMessaging$.next(true);
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
+    });
+
+    it("is absent when scope is Archive but subscription is active", () => {
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.Archive });
+      showSubscriptionEndedMessaging$.next(false);
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();

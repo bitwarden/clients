@@ -99,6 +99,8 @@ describe("VaultPopupListTableComponent", () => {
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
   const emptyVault$ = new BehaviorSubject<boolean>(false);
+  const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
+  const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const liveAnnouncer = mock<LiveAnnouncer>();
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
@@ -113,6 +115,7 @@ describe("VaultPopupListTableComponent", () => {
 
   const vaultPopupAutofillService = {
     currentTabIsOnBlocklist$: currentTabIsOnBlocklist$.asObservable(),
+    autofillAllowed$: autofillAllowed$.asObservable(),
     doAutofill: jest.fn(),
   };
 
@@ -129,6 +132,7 @@ describe("VaultPopupListTableComponent", () => {
     hasSearchText$: hasSearchText$.asObservable(),
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     emptyVault$: emptyVault$.asObservable(),
+    hasFilterApplied$: hasFilterApplied$.asObservable(),
     applyFilter: jest.fn(),
   };
 
@@ -221,6 +225,8 @@ describe("VaultPopupListTableComponent", () => {
     searchText$.next("");
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
+    hasFilterApplied$.next(false);
+    autofillAllowed$.next(true);
     compactModeEnabled$.next(false);
     cipherTypes$.next([]);
     organizations$.next([]);
@@ -359,6 +365,55 @@ describe("VaultPopupListTableComponent", () => {
         "favorites",
         true,
       );
+    });
+  });
+
+  describe("empty autofill tip", () => {
+    /** See the note on the collapsible sections' `render` — the virtualized viewport needs a height. */
+    const render = async () => {
+      filteredCiphers$.next([makeCipher({ id: "all-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    /** Group headers render as `columnheader`; a group description renders as a `cell`. */
+    const sectionHeaders = (): string[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("[role=row] [role=columnheader]")).map(
+        (header) => (header as HTMLElement).textContent ?? "",
+      );
+
+    const descriptions = (): string[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("[role=row] [role=cell]")).map(
+        (cell) => (cell as HTMLElement).textContent ?? "",
+      );
+
+    it("keeps the empty autofill section and shows the tip", async () => {
+      await render();
+
+      expect(component["showEmptyAutofillTip"]()).toBe(true);
+      expect(component["autofillDescription"]()).toBe("autofillSuggestionsTip");
+      expect(sectionHeaders().some((text) => text.includes("autofillSuggestions"))).toBe(true);
+      expect(descriptions().some((text) => text.includes("autofillSuggestionsTip"))).toBe(true);
+    });
+
+    it("hides the empty autofill section when a filter is applied", async () => {
+      hasFilterApplied$.next(true);
+      await render();
+
+      expect(component["showEmptyAutofillTip"]()).toBe(false);
+      expect(component["autofillDescription"]()).toBeUndefined();
+      expect(sectionHeaders().some((text) => text.includes("autofillSuggestions"))).toBe(false);
+    });
+
+    it("drops the tip once a login is suggested", async () => {
+      autoFillCiphers$.next([makeCipher({ id: "autofill-1" })]);
+      await render();
+
+      expect(component["showEmptyAutofillTip"]()).toBe(false);
+      expect(sectionHeaders().some((text) => text.includes("autofillSuggestions"))).toBe(true);
+      expect(descriptions().some((text) => text.includes("autofillSuggestionsTip"))).toBe(false);
     });
   });
 

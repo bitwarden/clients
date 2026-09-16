@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
@@ -10,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
+import { SideNavService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
@@ -28,6 +30,7 @@ describe("CoachmarkService", () => {
   const decryptedCollections$ = jest.fn().mockReturnValue(of([{} as CollectionView]));
   const t = jest.fn((key: string) => key);
   const vfo1Enabled = jest.fn().mockReturnValue(false);
+  const sideNavOpen = signal(false);
 
   let activeAccount$: BehaviorSubject<Account | null>;
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
@@ -44,6 +47,7 @@ describe("CoachmarkService", () => {
     jest.clearAllMocks();
     vfo1Enabled.mockReturnValue(false);
     decryptedCollections$.mockReturnValue(of([{} as CollectionView]));
+    sideNavOpen.set(false);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
@@ -59,6 +63,7 @@ describe("CoachmarkService", () => {
         { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
         { provide: CollectionService, useValue: { decryptedCollections$ } },
+        { provide: SideNavService, useValue: { open: sideNavOpen } },
       ],
     });
 
@@ -192,6 +197,38 @@ describe("CoachmarkService", () => {
       expect(service.activeStepId()).toBe("importData");
       expect(service.isRunning()).toBe(true);
       expect(service.currentStepNumber()).toBe(1);
+    }));
+
+    it("should navigate to the vault for the import step when VFO1 is enabled", fakeAsync(() => {
+      getUserState$.mockReturnValue(of(false));
+      hasOrganizations.mockReturnValue(of(false));
+      vfo1Enabled.mockReturnValue(true);
+
+      void service.startTour();
+      tick(200);
+
+      expect(navigate).toHaveBeenCalledWith(["/vault"]);
+      expect(service.activeStepId()).toBe("importData");
+    }));
+
+    it("should open the side nav before a step that anchors a nav entry", fakeAsync(() => {
+      // See {@link CoachmarkStep.opensSideNav}.
+      getUserState$.mockReturnValue(of(false));
+      hasOrganizations.mockReturnValue(of(true));
+
+      void service.startTour();
+      tick(200);
+
+      // The tour starts on importData, which anchors the vault page rather than the nav.
+      expect(sideNavOpen()).toBe(false);
+
+      void service.nextStep();
+      tick(200);
+      void service.nextStep();
+      tick(200);
+
+      expect(service.activeStepId()).toBe("shareWithCollections");
+      expect(sideNavOpen()).toBe(true);
     }));
 
     it("should include org-only steps for org users", fakeAsync(() => {
