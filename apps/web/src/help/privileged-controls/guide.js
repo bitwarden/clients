@@ -1,7 +1,7 @@
 (function () {
-  var toggle = document.getElementById("nav-toggle");
-  var sidebar = document.getElementById("sidebar");
-  var backdrop = document.getElementById("sidebar-backdrop");
+  const toggle = document.getElementById("nav-toggle");
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
 
   function openDrawer() {
     sidebar.classList.add("open");
@@ -22,22 +22,28 @@
   });
   backdrop.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape" || !sidebar.classList.contains("open")) return;
-    var focusWasInDrawer = sidebar.contains(document.activeElement);
+    if (e.key !== "Escape" || !sidebar.classList.contains("open")) {
+      return;
+    }
+    const focusWasInDrawer = sidebar.contains(document.activeElement);
     closeDrawer();
-    if (focusWasInDrawer) toggle.focus();
+    if (focusWasInDrawer) {
+      toggle.focus();
+    }
   });
   sidebar.querySelectorAll("a").forEach(function (a) {
     a.addEventListener("click", function () {
-      if (window.matchMedia("(max-width: 899.98px)").matches) closeDrawer();
+      if (window.matchMedia("(max-width: 899.98px)").matches) {
+        closeDrawer();
+      }
     });
   });
 
-  var sections = Array.prototype.slice.call(document.querySelectorAll("main > section[id]"));
-  var navLinks = Array.prototype.slice.call(document.querySelectorAll(".chapter-list a"));
-  var railList = document.getElementById("rail-list");
+  const sections = Array.prototype.slice.call(document.querySelectorAll("main > section[id]"));
+  const navLinks = Array.prototype.slice.call(document.querySelectorAll(".chapter-list a"));
+  const railList = document.getElementById("rail-list");
 
-  var chapters = sections.map(function (sec) {
+  const chapters = sections.map(function (sec) {
     return {
       id: sec.id,
       el: sec,
@@ -52,14 +58,16 @@
     };
   });
 
-  var currentActiveId = null;
+  let currentActiveId = null;
 
   function renderRail(chapter) {
     railList.innerHTML = "";
-    if (!chapter || !chapter.subheads.length) return;
+    if (!chapter || !chapter.subheads.length) {
+      return;
+    }
     chapter.subheads.forEach(function (h) {
-      var li = document.createElement("li");
-      var a = document.createElement("a");
+      const li = document.createElement("li");
+      const a = document.createElement("a");
       a.href = "#" + h.id;
       a.textContent = h.text;
       li.appendChild(a);
@@ -68,17 +76,21 @@
   }
 
   function spy() {
-    var offset = 96;
-    var active = chapters[0];
-    for (var i = 0; i < chapters.length; i++) {
-      if (chapters[i].el.getBoundingClientRect().top <= offset) active = chapters[i];
+    const offset = 96;
+    let active = chapters[0];
+    for (let i = 0; i < chapters.length; i++) {
+      if (chapters[i].el.getBoundingClientRect().top <= offset) {
+        active = chapters[i];
+      }
     }
     if (active && active.id !== currentActiveId) {
       currentActiveId = active.id;
       navLinks.forEach(function (a) {
         a.classList.remove("active");
       });
-      if (active.navLink) active.navLink.classList.add("active");
+      if (active.navLink) {
+        active.navLink.classList.add("active");
+      }
       renderRail(active);
     }
   }
