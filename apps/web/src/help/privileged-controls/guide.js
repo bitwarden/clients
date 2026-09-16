@@ -22,7 +22,10 @@
   });
   backdrop.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeDrawer();
+    if (e.key !== "Escape" || !sidebar.classList.contains("open")) return;
+    var focusWasInDrawer = sidebar.contains(document.activeElement);
+    closeDrawer();
+    if (focusWasInDrawer) toggle.focus();
   });
   sidebar.querySelectorAll("a").forEach(function (a) {
     a.addEventListener("click", function () {
