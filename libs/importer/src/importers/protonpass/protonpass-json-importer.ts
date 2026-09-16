@@ -1,12 +1,22 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
+import {
+  BankAccountView as SdkBankAccountView,
+  PassportView as SdkPassportView,
+  DriversLicenseView as SdkDriversLicenseView,
+} from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -18,6 +28,7 @@ import {
   ProtonPassCustomItemContent,
   ProtonPassIdentityItemContent,
   ProtonPassIdentityItemExtraSection,
+  ProtonPassItem,
   ProtonPassItemExtraField,
   ProtonPassItemState,
   ProtonPassJsonFile,
@@ -55,7 +66,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     "extraSections",
   ];
 
-  constructor(private i18nService: I18nService) {
+  constructor(
+    private i18nService: I18nService,
+    private configService: ConfigService,
+  ) {
     super();
   }
 
@@ -64,10 +78,8 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
       this.processKvp(
         cipher,
         extraField.fieldName,
-        extraField.type == "totp" ? extraField.data.totpUri : extraField.data.content,
-        extraField.type == "hidden" || extraField.type == "totp"
-          ? FieldType.Hidden
-          : FieldType.Text,
+        this.getExtraFieldValue(extraField),
+        this.getExtraFieldType(extraField),
       );
     }
   }
@@ -115,14 +127,17 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
         this.processKvp(
           cipher,
           field.fieldName,
-          field.data.content,
+          this.getExtraFieldValue(field),
           field.type === "hidden" ? FieldType.Hidden : FieldType.Text,
         );
       });
     });
   }
 
-  parse(data: string): Promise<ImportResult> {
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const result = new ImportResult();
     const results: ProtonPassJsonFile = JSON.parse(data);
     if (results == null || results.vaults == null) {
@@ -212,8 +227,36 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             cipher.identity.phone = this.getValueOrDefault(identityContent.phoneNumber);
             cipher.identity.company = this.getValueOrDefault(identityContent.company);
             cipher.identity.ssn = this.getValueOrDefault(identityContent.socialSecurityNumber);
-            cipher.identity.passportNumber = this.getValueOrDefault(identityContent.passportNumber);
-            cipher.identity.licenseNumber = this.getValueOrDefault(identityContent.licenseNumber);
+            const licenseNumber = this.getValueOrDefault(identityContent.licenseNumber);
+            if (useNewDedicatedTypes) {
+              if (licenseNumber) {
+                const licenseCipher = this.initLoginCipher();
+                licenseCipher.name = cipher.name;
+                licenseCipher.type = CipherType.DriversLicense;
+                licenseCipher.driversLicense = new DriversLicenseView();
+                licenseCipher.driversLicense.licenseNumber = licenseNumber;
+                this.processFolder(result, vault.name);
+                this.cleanupCipher(licenseCipher);
+                result.ciphers.push(licenseCipher);
+              }
+            } else {
+              cipher.identity.licenseNumber = licenseNumber;
+            }
+            const passportNumber = this.getValueOrDefault(identityContent.passportNumber);
+            if (useNewDedicatedTypes) {
+              if (passportNumber) {
+                const passportCipher = this.initLoginCipher();
+                passportCipher.name = cipher.name;
+                passportCipher.type = CipherType.Passport;
+                passportCipher.passport = new PassportView();
+                passportCipher.passport.passportNumber = passportNumber;
+                this.processFolder(result, vault.name);
+                this.cleanupCipher(passportCipher);
+                result.ciphers.push(passportCipher);
+              }
+            } else {
+              cipher.identity.passportNumber = passportNumber;
+            }
 
             const address3 =
               `${identityContent.floor ?? ""} ${identityContent.county ?? ""}`.trim();
@@ -249,11 +292,28 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
           }
           case "custom": {
             const customContent = item.data.content as ProtonPassCustomItemContent;
-            cipher.type = CipherType.SecureNote;
-            cipher.secureNote = new SecureNoteView();
-            cipher.secureNote.type = SecureNoteType.Generic;
-            this.processExtraFields(cipher, item.data.extraFields);
-            this.processSections(cipher, customContent.sections);
+            if (
+              useNewDedicatedTypes &&
+              this.hasExtraFields(["Bank Name", "Account Number"], item)
+            ) {
+              cipher.type = CipherType.BankAccount;
+              cipher.bankAccount = new BankAccountView();
+              this.processBankAccountExtraFields(cipher, item.data.extraFields);
+            } else if (useNewDedicatedTypes && this.hasExtraFields(["Passport Number"], item)) {
+              cipher.type = CipherType.Passport;
+              cipher.passport = new PassportView();
+              this.processPassportExtraFields(cipher, item.data.extraFields);
+            } else if (useNewDedicatedTypes && this.hasExtraFields(["License Number"], item)) {
+              cipher.type = CipherType.DriversLicense;
+              cipher.driversLicense = new DriversLicenseView();
+              this.processDriversLicenseExtraFields(cipher, item.data.extraFields);
+            } else {
+              cipher.type = CipherType.SecureNote;
+              cipher.secureNote = new SecureNoteView();
+              cipher.secureNote.type = SecureNoteType.Generic;
+              this.processExtraFields(cipher, item.data.extraFields);
+              this.processSections(cipher, customContent.sections);
+            }
             break;
           }
           default:
@@ -270,5 +330,102 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     }
     result.success = true;
     return Promise.resolve(result);
+  }
+
+  private getExtraFieldValue(field: ProtonPassItemExtraField) {
+    return field.type === "totp"
+      ? field.data.totpUri
+      : field.type === "timestamp"
+        ? field.data.timestamp
+        : field.data.content;
+  }
+
+  private getExtraFieldType(field: ProtonPassItemExtraField) {
+    return field.type === "totp" || field.type === "hidden" ? FieldType.Hidden : FieldType.Text;
+  }
+
+  private hasExtraFields(fieldNames: string[], item: ProtonPassItem) {
+    return fieldNames.every((fn) => item.data.extraFields.some((f) => f.fieldName === fn));
+  }
+
+  private bankAccountFieldMap = new Map<string, keyof SdkBankAccountView>([
+    ["Bank Name", "bankName"],
+    ["Account Number", "accountNumber"],
+    ["Routing Number", "routingNumber"],
+    ["Account Type", "accountType"],
+    ["IBAN", "iban"],
+    ["SWIFT/BIC", "swiftCode"],
+    ["Holder Name", "nameOnAccount"],
+  ]);
+  private processBankAccountExtraFields(
+    cipher: CipherView,
+    extraFields: ProtonPassItemExtraField[],
+  ) {
+    for (const field of extraFields) {
+      const fieldMapValue = this.bankAccountFieldMap.get(field.fieldName);
+      const fieldValue = this.getExtraFieldValue(field);
+      if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
+        if (fieldMapValue === "accountType") {
+          cipher.bankAccount[fieldMapValue] = this.processBankAccountType(fieldValue);
+        } else {
+          cipher.bankAccount[fieldMapValue] = fieldValue;
+        }
+      } else {
+        this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
+      }
+    }
+  }
+
+  private driversLicenseFieldMap = new Map<string, keyof SdkDriversLicenseView>([
+    ["License Number", "licenseNumber"],
+    ["Issuing State/Country", "issuingState"],
+    ["Expiry Date", "expirationDate"],
+    ["Date of Birth", "dateOfBirth"],
+    ["Class", "licenseClass"],
+  ]);
+  private processDriversLicenseExtraFields(
+    cipher: CipherView,
+    extraFields: ProtonPassItemExtraField[],
+  ) {
+    for (const field of extraFields) {
+      const fieldMapValue = this.driversLicenseFieldMap.get(field.fieldName);
+      const fieldValue = this.getExtraFieldValue(field);
+      if (field.fieldName === "Full Name" && !this.isNullOrWhitespace(fieldValue)) {
+        const [firstName, middleName, lastName] = this.getFullName(fieldValue);
+        cipher.driversLicense.firstName = firstName;
+        cipher.driversLicense.middleName = middleName;
+        cipher.driversLicense.lastName = lastName;
+      } else if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
+        cipher.driversLicense[fieldMapValue] = fieldValue;
+      } else {
+        this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
+      }
+    }
+  }
+
+  private passportFieldMap = new Map<string, keyof SdkPassportView>([
+    ["Passport Number", "passportNumber"],
+    ["Country", "issuingCountry"],
+    ["Expiry Date", "expirationDate"],
+    ["Date of Birth", "dateOfBirth"],
+    ["Issuing Authority", "issuingAuthority"],
+  ]);
+  private processPassportExtraFields(cipher: CipherView, extraFields: ProtonPassItemExtraField[]) {
+    for (const field of extraFields) {
+      const fieldMapValue = this.passportFieldMap.get(field.fieldName);
+      const fieldValue = this.getExtraFieldValue(field);
+      if (field.fieldName === "Full Name" && !this.isNullOrWhitespace(fieldValue)) {
+        const [firstName, middleName, lastName] = this.getFullName(fieldValue);
+        cipher.passport.givenName = firstName;
+        if (!this.isNullOrWhitespace(middleName)) {
+          cipher.passport.givenName += ` ${middleName}`;
+        }
+        cipher.passport.surname = lastName;
+      } else if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
+        cipher.passport[fieldMapValue] = fieldValue;
+      } else {
+        this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
+      }
+    }
   }
 }

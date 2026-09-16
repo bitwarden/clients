@@ -13,6 +13,23 @@ export type Discount = {
 };
 
 /**
+ * The discount shape the cart renderer consumes — the structural union of what its two
+ * producers supply.
+ *
+ * Legacy flag-OFF carts carry plain {@link Discount}s, so the renderer derives `amount` and
+ * `label` via {@link getAmount} / {@link getLabel}. Preview-driven carts carry
+ * `InvoicePreviewDiscount`s, whose required `amount` (the server's authoritative applied amount
+ * in dollars) and `label` (the coupon name) take precedence over derivation. Both types are
+ * assignable to this one.
+ */
+export type CartDiscount = {
+  type: DiscountType;
+  value: number;
+  amount?: number;
+  label?: string;
+};
+
+/**
  * Calculates the discount amount in currency.
  *
  * For `PercentOff`, values < 1 are treated as decimal multipliers (e.g., 0.25 = 25%),
@@ -34,7 +51,16 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
   }
 };
 
-export const getLabel = (i18nService: I18nService, discount: Discount): string => {
+/**
+ * Resolves the display label for a discount, preferring the server-supplied
+ * {@link CartDiscount.label} (the coupon name) when present and otherwise deriving
+ * one from the discount's type and value.
+ */
+export const getLabel = (i18nService: I18nService, discount: CartDiscount): string => {
+  if (discount.label) {
+    return discount.label;
+  }
+
   switch (discount.type) {
     case DiscountTypes.AmountOff: {
       const formattedAmount = new Intl.NumberFormat("en-US", {

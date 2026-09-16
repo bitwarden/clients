@@ -16,9 +16,11 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// FIXME: migrate to a non-legacy service
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 
@@ -29,7 +31,7 @@ import { PolicyEditDialogData, PolicyEditDrawerComponent } from "./policy-edit-d
 
 const ORG_ID = "test-org-id";
 
-export type PolicyDialogStoryArgs = { enabled: boolean };
+export type PolicyDialogStoryArgs = { enabled: boolean; isCloud?: boolean };
 
 /** @deprecated Use {@link PolicyDialogStoryArgs}. Kept as an alias for existing story files. */
 export type PolicyDrawerStoryArgs = PolicyDialogStoryArgs;
@@ -170,6 +172,14 @@ export function policyDrawerMeta(
                   }),
                 ),
               putPolicy: () => Promise.resolve(),
+            },
+          },
+          {
+            // Default to cloud so policies that gate UI on isCloud() render their
+            // full form in the story unless a story explicitly sets `isCloud: false`.
+            provide: EnvironmentService,
+            useValue: {
+              environment$: of({ isCloud: () => args.isCloud ?? true }),
             },
           },
         ],

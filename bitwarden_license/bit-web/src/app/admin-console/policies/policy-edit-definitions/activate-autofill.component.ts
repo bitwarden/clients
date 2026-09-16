@@ -21,6 +21,7 @@ import {
 export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   name = "enableAutofillOnPageLoad";
   description = "activateAutofillPolicyDescription";
+  descriptionVfo1 = "activateAutofillPolicyDescriptionListVfo1";
   type = PolicyType.ActivateAutofill;
   category = PolicyCategory.VaultManagement;
   priority = 40;

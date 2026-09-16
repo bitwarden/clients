@@ -64,7 +64,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import {
   BannerModule,
   DialogService,
-  NoItemsModule,
+  StatusLockupComponent,
   ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
@@ -125,7 +125,7 @@ const SearchTextDebounceInterval = 200;
     VaultItemsModule,
     SharedModule,
     BannerModule,
-    NoItemsModule,
+    StatusLockupComponent,
     OrganizationFreeTrialWarningComponent,
     OrganizationResellerRenewalWarningComponent,
     VaultBatchActionComponent,
@@ -422,14 +422,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.vaultBatchBarService.completed$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
-    combineLatest([this.organization$, this.allCollections$, this.ciphers$])
+    combineLatest([this.organization$, this.allCollections$, this.ciphers$, this.filter$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([organization, allCollections, ciphers]) => {
+      .subscribe(([organization, allCollections, ciphers, filter]) => {
         this.vaultBatchBarService.setConfig({
           isOrgVault: true,
           organization,
           allCollections,
           hasCiphers: ciphers.length > 0,
+          inTrash: filter.type === "trash",
         });
       });
 

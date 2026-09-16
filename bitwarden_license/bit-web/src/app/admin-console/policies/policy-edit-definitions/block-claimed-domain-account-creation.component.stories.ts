@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { enabledFlags } from "@bitwarden/storybook";
 import {
   PolicyDrawerStoryArgs,
   policyDrawerMeta,
@@ -18,4 +20,13 @@ export const PolicyOff: Story = {};
 
 export const PolicyOn: Story = {
   args: { enabled: true },
+};
+
+/**
+ * The drawer with the VFO1 terminology flag on — the description renders "organization vault"
+ * terminology per Figma.
+ */
+export const PolicyOnVfo1Enabled: Story = {
+  args: { enabled: true },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };

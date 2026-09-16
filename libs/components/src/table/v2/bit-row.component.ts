@@ -17,6 +17,8 @@ import { BitTableV2Component } from "./table-v2.component";
  * - In manual mode (no `<bit-column>`), `grid-template-columns` is unset and
  *   the row falls back to `grid-auto-flow: column; grid-auto-columns: 1fr`
  *   so projected `<bit-cell>` children each get an equal share.
+ *
+ * In `list`, `<bit-table-v2>` wraps the row in a `<bit-item>` that owns the chrome.
  */
 @Component({
   selector: "bit-row",
@@ -37,17 +39,14 @@ export class BitRowComponent {
 
   protected readonly gridTemplateColumns = computed(() => this.table?.gridTemplateColumns());
 
+  private readonly isList = computed(() => this.table?.presentation() === "list");
+
   /** Virtualized rows are positioned by offset, so they must render at exactly the height the scroll strategy assumed. */
   protected readonly fixedHeight = computed(() =>
-    this.table?.presentation() === "list" ? undefined : this.table?.virtualRowHeight(),
+    this.isList() ? undefined : this.table?.virtualRowHeight(),
   );
 
-  /**
-   * Row chrome. The grid classes lay the cells out in both presentations; the
-   * rest is presentation-specific: `table` connects rows with a bottom divider,
-   * `list` renders each row as a standalone `bit-item`-style card (background,
-   * rounded corners, spacing, hover).
-   */
+  /** Row chrome. Grid in both presentations; the rest is `table`-only. */
   protected readonly hostClasses = computed(() =>
     [
       // `group/row` lets cell templates reveal row-hover affordances (e.g. quick
@@ -57,21 +56,11 @@ export class BitRowComponent {
       "tw-grid",
       "tw-grid-flow-col",
       "tw-auto-cols-fr",
-      // A fixed height can't absorb a tall cell, so clip it rather than let it overlap the next row.
-      ...(this.fixedHeight() != null ? ["tw-overflow-clip"] : []),
-      ...(this.table?.presentation() === "list"
-        ? // `list` rows size to content off a `bit-item`-style minimum height.
-          [
-            "tw-min-h-9",
-            "tw-mb-1.5",
-            "tw-rounded-lg",
-            "tw-bg-background",
-            "tw-border-0",
-            "tw-border-b",
-            "tw-border-solid",
-            "tw-border-b-shadow",
-            "hover:tw-bg-hover-default",
-          ]
+      // If the row is fixed height, tall cell overflow should be clipped and the row should not
+      // expand its height to fit the tall cell's content
+      ...(this.fixedHeight() != null ? ["tw-grid-rows-1", "tw-overflow-clip"] : []),
+      ...(this.isList()
+        ? ["tw-w-full", "tw-min-w-0"]
         : [
             // Omitted when virtualized: a min-height would clamp a `virtualRowHeight`
             // below it, breaking the offsets the scroll strategy positions rows at.
@@ -81,7 +70,13 @@ export class BitRowComponent {
             "tw-border-solid",
             "tw-border-border-base",
             "hover:tw-bg-bg-brand-softer",
-            // Outranks the hover rule above on specificity.
+            // Focus carries the hover fill plus a ring. Inset so it isn't clipped by
+            // the body's scroll container or by a fixed-height row's `overflow-clip`.
+            "has-[:focus-visible]:tw-bg-bg-brand-softer",
+            "has-[:focus-visible]:tw-ring-2",
+            "has-[:focus-visible]:tw-ring-inset",
+            "has-[:focus-visible]:tw-ring-border-focus",
+            // Outranks the hover and focus rules above on specificity.
             "has-[[data-selection-input]:checked]:tw-bg-bg-brand-soft",
           ]),
     ].join(" "),

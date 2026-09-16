@@ -27,6 +27,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   AutoConfirmPolicy,
@@ -92,6 +93,7 @@ describe("MultiStepPolicyEditModalComponent", () => {
           useValue: mock<AutomaticUserConfirmationService>(),
         },
         { provide: Router, useValue: router },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

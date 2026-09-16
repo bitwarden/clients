@@ -140,4 +140,5 @@ export abstract class AutofillService {
     tab: chrome.tabs.Tab,
     action?: string,
   ) => Promise<boolean>;
+  getTotpCopyCode!: (cipher: CipherView) => Promise<string | undefined>;
 }

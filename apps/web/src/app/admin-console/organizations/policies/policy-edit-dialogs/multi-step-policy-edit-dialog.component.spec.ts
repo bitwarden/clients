@@ -27,6 +27,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
 import {
@@ -86,6 +87,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -280,6 +282,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
             useValue: mock<AutomaticUserConfirmationService>(),
           },
           { provide: Router, useValue: router },
+          { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
         ],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();

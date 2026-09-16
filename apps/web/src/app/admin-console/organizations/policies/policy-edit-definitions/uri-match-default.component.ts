@@ -18,11 +18,14 @@ import { PolicyCategory } from "../pipes/policy-category";
 export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
   description = "uriMatchDetectionPolicyDescV2";
+  descriptionVfo1 = "uriMatchDetectionPolicyDescVfo1";
+  drawerDescriptionVfo1 = "uriMatchDetectionPolicyDescV2";
   type = PolicyType.UriMatchDefaults;
   category = PolicyCategory.VaultManagement;
   priority = 20;
   component = UriMatchDefaultPolicyComponent;
   prerequisiteKey = "requireSsoPolicyReqV2";
+  prerequisiteKeyVfo1 = "requireSsoPolicyReqV2Vfo1";
 }
 @Component({
   selector: "uri-match-default-policy-edit",

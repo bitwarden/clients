@@ -19,7 +19,7 @@ import {
   BiometricsUnlock,
   BiometricsStatus as SdkBiometricsStatus,
 } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
@@ -52,7 +52,11 @@ class BiometricsUnlockDriver implements BiometricsUnlock {
     }
 
     if (SET_USERKEY_UNLOCK) {
-      await this.unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
+      await this.unlockService.unlockWithDecryptedUserKey(
+        fromSdkUserId(user_id),
+        key,
+        UnlockMethod.Biometrics,
+      );
     }
     return key.toSdk();
   }

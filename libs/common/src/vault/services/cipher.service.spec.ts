@@ -403,6 +403,37 @@ describe("Cipher Service", () => {
       expect(spy).toHaveBeenCalledWith(expectedObj);
     });
 
+    it("should send the key id the cipher was encrypted under", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      encryptionContext.encryptedByKeyId = "000102030405060708090a0b0c0d0e0f";
+      const spy = jest
+        .spyOn(apiService, "postCipher")
+        .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
+      const cipherView = new CipherView(encryptionContext.cipher);
+
+      await cipherService.createWithServer(cipherView, userId);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ encryptedByKeyId: "000102030405060708090a0b0c0d0e0f" }),
+      );
+    });
+
+    it("should omit the key id when the cipher was encrypted under a key without one", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      const spy = jest
+        .spyOn(apiService, "postCipher")
+        .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
+      const cipherView = new CipherView(encryptionContext.cipher);
+
+      await cipherService.createWithServer(cipherView, userId);
+
+      expect(spy.mock.calls[0][0].encryptedByKeyId).toBeUndefined();
+    });
+
     it("should delegate to cipherSdkService when feature flag is enabled", async () => {
       sdkCrudFeatureFlag$.next(true);
 
@@ -471,6 +502,25 @@ describe("Cipher Service", () => {
 
       expect(spy).toHaveBeenCalled();
       expect(spy).toHaveBeenCalledWith(encryptionContext.cipher.id, expectedObj);
+    });
+
+    it("should send the key id the cipher was encrypted under", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      encryptionContext.cipher.edit = true;
+      encryptionContext.encryptedByKeyId = "000102030405060708090a0b0c0d0e0f";
+      const spy = jest
+        .spyOn(apiService, "putCipher")
+        .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
+      const cipherView = new CipherView(encryptionContext.cipher);
+
+      await cipherService.updateWithServer(cipherView, userId);
+
+      expect(spy).toHaveBeenCalledWith(
+        encryptionContext.cipher.id,
+        expect.objectContaining({ encryptedByKeyId: "000102030405060708090a0b0c0d0e0f" }),
+      );
     });
 
     it("should call apiService.putPartialCipher when orgAdmin, and edit are false", async () => {

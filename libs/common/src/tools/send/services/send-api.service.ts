@@ -17,6 +17,7 @@ import { SendFileDownloadDataResponse } from "../models/response/send-file-downl
 import { SendFileUploadDataResponse } from "../models/response/send-file-upload-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
+import { SendView } from "../models/view/send.view";
 import { SendType } from "../types/send-type";
 
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
@@ -100,6 +101,18 @@ export class SendApiService implements SendApiServiceAbstraction {
     const data = new SendData(response);
     await this.sendService.upsert(data);
     return new Send(data);
+  }
+
+  // Encrypts client-side and then defers to `save`, which is exactly what callers used to do
+  // themselves. Behavior is unchanged; the encryption step simply moved inside the service so
+  // that callers no longer have to pre-encrypt for a path (the SDK's) that cannot use it.
+  async saveView(
+    view: SendView,
+    file: File | ArrayBuffer | null,
+    plaintextPassword?: string,
+  ): Promise<Send> {
+    const sendData = await this.sendService.encrypt(view, file, plaintextPassword);
+    return await this.save(sendData, plaintextPassword);
   }
 
   async delete(id: string): Promise<any> {
