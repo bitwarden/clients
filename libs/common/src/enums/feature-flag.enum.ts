@@ -122,6 +122,7 @@ export type AllowedFeatureFlagTypes = boolean | number | string;
 
 // Helper to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
+const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -227,7 +228,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
-  [FeatureFlag.Pam]: FALSE,
+  // pam/uat only - do not carry this to main. On by default so a branch build works
+  // against a server that does not report the flag; a server that reports it still wins.
+  [FeatureFlag.Pam]: TRUE,
   [FeatureFlag.PamRotation]: FALSE,
 
   /* VFO */
