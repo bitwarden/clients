@@ -199,13 +199,14 @@ describe("ConnectHuntressDialogComponent", () => {
   describe("with saveCallback", () => {
     let toastServiceMock: MockProxy<ToastService>;
     let dialogRefWithCallback: MockProxy<DialogRef<ConnectViaHecTokenDialogResult>>;
+    let connectInfoWithCallback: ConnectViaHecTokenDialogParams;
 
     beforeEach(async () => {
       TestBed.resetTestingModule();
       toastServiceMock = mock<ToastService>();
       dialogRefWithCallback = mock<DialogRef<ConnectViaHecTokenDialogResult>>();
 
-      const connectInfoWithCallback: ConnectViaHecTokenDialogParams = {
+      connectInfoWithCallback = {
         settings: integrationMock,
         saveCallback: jest.fn(),
       };
@@ -229,7 +230,7 @@ describe("ConnectHuntressDialogComponent", () => {
     });
 
     it("should show error toast and keep dialog open when saveCallback returns an error string", async () => {
-      (component.connectInfo.saveCallback as jest.Mock).mockResolvedValue(
+      (connectInfoWithCallback.saveCallback as jest.Mock).mockResolvedValue(
         "Authentication failed: invalid token.",
       );
       component.formGroup.setValue({
@@ -249,7 +250,7 @@ describe("ConnectHuntressDialogComponent", () => {
     });
 
     it("should close dialog with SavedViaCallback when saveCallback returns null", async () => {
-      (component.connectInfo.saveCallback as jest.Mock).mockResolvedValue(null);
+      (connectInfoWithCallback.saveCallback as jest.Mock).mockResolvedValue(null);
       component.formGroup.setValue({
         url: "https://hec.huntress.io/services/collector",
         token: "valid-token",
@@ -265,7 +266,7 @@ describe("ConnectHuntressDialogComponent", () => {
     });
 
     it("should close dialog without result when saveCallback throws", async () => {
-      (component.connectInfo.saveCallback as jest.Mock).mockRejectedValue(new Error("fail"));
+      (connectInfoWithCallback.saveCallback as jest.Mock).mockRejectedValue(new Error("fail"));
       component.formGroup.setValue({
         url: "https://hec.huntress.io/services/collector",
         token: "bad-token",

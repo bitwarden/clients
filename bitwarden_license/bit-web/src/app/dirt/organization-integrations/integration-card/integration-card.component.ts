@@ -38,9 +38,7 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
-  HecConnectDialogResult,
   DatadogConnectDialogResult,
-  ConnectViaHecTokenDialogResult,
   IntegrationDialogResultStatus,
   openDatadogConnectDialog,
   openHecConnectDialog,
@@ -212,10 +210,8 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
       const result = await lastValueFrom(dialog.closed);
 
-      await this.handleIntegrationDialogResult(
-        result,
-        () => this.deleteConnectViaHecTokenIntegration(),
-        (res) => this.saveConnectViaHecTokenIntegration(res),
+      await this.handleIntegrationDialogResult(result, () =>
+        this.deleteConnectViaHecTokenIntegration(),
       );
     } else {
       // The current Crowdstrike configuration.
@@ -235,11 +231,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
       const result = await lastValueFrom(dialog.closed);
 
-      await this.handleIntegrationDialogResult(
-        result,
-        () => this.deleteHec(),
-        (res) => this.saveHec(res),
-      );
+      await this.handleIntegrationDialogResult(result, () => this.deleteHec());
     }
   }
 
@@ -435,7 +427,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   private async handleIntegrationDialogResult<T extends { success: string | null }>(
     result: T | undefined,
     deleteCallback: () => Promise<void>,
-    saveCallback: (result: T) => Promise<void>,
+    saveCallback?: (result: T) => Promise<void>,
   ): Promise<void> {
     // User cancelled the dialog or closed it without saving
     if (!result || !result.success) {
@@ -462,7 +454,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     // Handle edit/save action
-    if (result.success === IntegrationDialogResultStatus.Edited) {
+    if (result.success === IntegrationDialogResultStatus.Edited && saveCallback) {
       try {
         await saveCallback(result);
       } catch {
@@ -475,40 +467,8 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  async saveHec(result: HecConnectDialogResult) {
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      result.url,
-      result.bearerToken,
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-    );
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      result.index,
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-    );
-
-    await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
-  }
-
   async deleteHec() {
     await this.deleteIntegration();
-  }
-
-  async saveConnectViaHecTokenIntegration(result: ConnectViaHecTokenDialogResult) {
-    // create the Hec configuration
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      result.url,
-      result.token,
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-      Schemas.Splunk,
-    );
-
-    // create a template
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      "",
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-    );
-
-    await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
   }
 
   async deleteConnectViaHecTokenIntegration() {

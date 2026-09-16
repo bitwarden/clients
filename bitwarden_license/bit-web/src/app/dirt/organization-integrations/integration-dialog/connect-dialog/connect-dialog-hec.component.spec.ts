@@ -171,13 +171,14 @@ describe("ConnectDialogHecComponent", () => {
   describe("with saveCallback", () => {
     let toastServiceMock: MockProxy<ToastService>;
     let dialogRefWithCallback: MockProxy<DialogRef<HecConnectDialogResult>>;
+    let connectInfoWithCallback: HecConnectDialogParams;
 
     beforeEach(async () => {
       TestBed.resetTestingModule();
       toastServiceMock = mock<ToastService>();
       dialogRefWithCallback = mock<DialogRef<HecConnectDialogResult>>();
 
-      const connectInfoWithCallback: HecConnectDialogParams = {
+      connectInfoWithCallback = {
         settings: integrationMock,
         saveCallback: jest.fn(),
       };
@@ -201,7 +202,7 @@ describe("ConnectDialogHecComponent", () => {
     });
 
     it("should show error toast and keep dialog open when saveCallback returns an error string", async () => {
-      (component.connectInfo.saveCallback as jest.Mock).mockResolvedValue(
+      (connectInfoWithCallback.saveCallback as jest.Mock).mockResolvedValue(
         "Authentication failed: invalid token.",
       );
       component.formGroup.setValue({
@@ -222,7 +223,7 @@ describe("ConnectDialogHecComponent", () => {
     });
 
     it("should close dialog with SavedViaCallback when saveCallback returns null", async () => {
-      (component.connectInfo.saveCallback as jest.Mock).mockResolvedValue(null);
+      (connectInfoWithCallback.saveCallback as jest.Mock).mockResolvedValue(null);
       component.formGroup.setValue({
         url: "https://test.com",
         bearerToken: "valid-token",
@@ -239,7 +240,7 @@ describe("ConnectDialogHecComponent", () => {
     });
 
     it("should close dialog without result when saveCallback throws", async () => {
-      (component.connectInfo.saveCallback as jest.Mock).mockRejectedValue(new Error("fail"));
+      (connectInfoWithCallback.saveCallback as jest.Mock).mockRejectedValue(new Error("fail"));
       component.formGroup.setValue({
         url: "https://test.com",
         bearerToken: "bad-token",
