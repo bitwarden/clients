@@ -560,9 +560,8 @@ export class CipherViewBannerComponent implements OnInit {
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
 
-    // This card owns the form; the dialog footer owns the buttons that drive it, so the flow's
-    // state and behaviour are published for the footer to read. Withdraw on destroy rather than
-    // leaving a stale handle behind — it holds this component and its decrypted cipher.
+    // The footer owns the buttons driving this card's form, so publish the flow for it to read.
+    // Withdraw on destroy: the handle holds this component and its decrypted cipher.
     const footerActions: RequestAccessFooterActions = {
       cipherId: String(this.cipher().id),
       visible: this.canRequestAccess,
@@ -579,8 +578,8 @@ export class CipherViewBannerComponent implements OnInit {
    * On open, resets the form and resolves the approval path with a side-effect-free pre-check. A
    * lease that raced in collapses the fold-out and lets the state stream reveal it.
    *
-   * Focus only moves on open, into the fold-out this card owns. Returning focus to the toggle on
-   * collapse is the footer's job now that the buttons live there.
+   * Focus only moves on open, into the fold-out this card owns; the footer refocuses its own
+   * toggle on collapse. Do not reach across the bridge for another component's DOM.
    */
   protected async toggleRequestForm(): Promise<void> {
     const next = !this.requestFormExpanded();
