@@ -121,7 +121,7 @@ export class SsoLoginStrategy extends LoginStrategy {
    * @param tokenResponse
    * @returns `true` if the master key can be set from Key Connector, `false` otherwise
    */
-  private shouldSetMasterKeyFromKeyConnector(tokenResponse: IdentityTokenResponse): boolean {
+  private isKeyConnectorAvailable(tokenResponse: IdentityTokenResponse): boolean {
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions != null) {
@@ -151,7 +151,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     // nothing here; the unlock service fetches their key material from Key Connector below.
     const newSsoUser = tokenResponse.key == null;
 
-    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse) && newSsoUser) {
+    if (this.isKeyConnectorAvailable(tokenResponse) && newSsoUser) {
       // Store Key Connector domain confirmation data in state instead of AuthResult
       await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
         {
