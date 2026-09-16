@@ -217,11 +217,10 @@ export class BitTableToolbarComponent {
   }
 
   /**
-   * The tooltip for a per-option chip. The chip shows only the option's name, so the tooltip
-   * names the filter too. Built here rather than in the template so no whitespace lands
-   * around the colon.
+   * A per-option chip's `filter: option` label, used as both its tooltip and its accessible
+   * name. Built here rather than in the template so no whitespace lands around the colon.
    */
-  protected selectionTooltip(filter: FilterPresenter, selection: FilterSelection): string {
+  protected accessibleLabel(filter: FilterPresenter, selection: FilterSelection): string {
     return `${filter.label()}: ${selection.label}`;
   }
 

@@ -171,17 +171,18 @@ describe("BitTableToolbarComponent active filter chips", () => {
 
   const chipLabels = () => chips().map((chip) => chip.label());
 
-  const groups = () =>
-    Array.from(fixture.nativeElement.querySelectorAll("[role=group]") as NodeListOf<HTMLElement>);
-
   // Scoped to `bit-chip`: every `bit-filter-menu` has its own dismiss button on the hidden
   // wide-viewport row, and that one clears the whole filter.
-  const dismiss = (index: number) =>
-    (
+  const dismissButtons = () =>
+    Array.from(
       fixture.nativeElement.querySelectorAll(
         "bit-chip button[bit-chip-dismiss-button]",
-      ) as NodeListOf<HTMLButtonElement>
-    )[index].click();
+      ) as NodeListOf<HTMLButtonElement>,
+    );
+
+  const dismissLabels = () => dismissButtons().map((button) => button.getAttribute("aria-label"));
+
+  const dismiss = (index: number) => dismissButtons()[index].click();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -225,13 +226,13 @@ describe("BitTableToolbarComponent active filter chips", () => {
     expect(chips()[0].startIcon()).toBe("bwi-list");
   });
 
-  it("names the run of chips with the filter they came from", () => {
+  it("names each chip's dismiss button with the filter and the option", () => {
     host.type().setValue(["login", "card"]);
     fixture.detectChanges();
 
-    // The chips show only the option name, so the group's label is what identifies the
-    // filter to a screen reader.
-    expect(groups().map((group) => group.getAttribute("aria-label"))).toEqual(["Type"]);
+    // The chips show only the option name, and the dismiss button is the only focusable node
+    // in them, so its name is what identifies the filter to a screen reader.
+    expect(dismissLabels()).toEqual(["Remove Type: Login", "Remove Type: Card"]);
   });
 
   it("spells the filter out in each chip's tooltip", () => {
@@ -259,7 +260,7 @@ describe("BitTableToolbarComponent active filter chips", () => {
     fixture.detectChanges();
 
     expect(chipLabels()).toEqual(["Vault: My vault"]);
-    expect(groups()).toHaveLength(0);
+    expect(dismissLabels()).toEqual(["Remove Vault: My vault"]);
 
     dismiss(0);
     fixture.detectChanges();

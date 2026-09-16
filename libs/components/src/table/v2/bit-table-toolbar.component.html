@@ -80,24 +80,21 @@
         @if (filter.multiple() && filter.selections().length) {
           <!--
             A multi-select draws one chip per selected option, so each can be removed on its
-            own. The chips show only the option's name: the filter's icon identifies it
-            visually, and the group's aria-label does the same for screen readers.
-            `tw-contents` so the chips are flex items of the row itself: a wrapper with its
-            own box is a single atomic flex item, so the whole group drops to the next line
-            when it doesn't fit, even if its first chips would have fit alongside the
-            preceding one. The row's own gap then spaces them, unchanged.
+            own. The chips show only the option's name — the filter's icon identifies it
+            visually, and each chip's accessible name spells it out for screen readers. No
+            wrapper element, so every chip is a flex item of the row and wraps on its own.
           -->
-          <div role="group" [attr.aria-label]="filter.label()" class="tw-contents">
-            @for (selection of filter.selections(); track selection.value) {
-              <bit-chip
-                [label]="selection.label"
-                [startIcon]="filter.icon()"
-                [bitTooltip]="selectionTooltip(filter, selection)"
-                (click)="filter.deselect(selection.value)"
-                (dismissed)="filter.deselect(selection.value)"
-              ></bit-chip>
-            }
-          </div>
+          @for (selection of filter.selections(); track selection.value) {
+            @let name = accessibleLabel(filter, selection);
+            <bit-chip
+              [label]="selection.label"
+              [accessibleName]="name"
+              [startIcon]="filter.icon()"
+              [bitTooltip]="name"
+              (click)="filter.deselect(selection.value)"
+              (dismissed)="filter.deselect(selection.value)"
+            ></bit-chip>
+          }
         } @else {
           <bit-chip
             [label]="appliedLabel(filter)"
