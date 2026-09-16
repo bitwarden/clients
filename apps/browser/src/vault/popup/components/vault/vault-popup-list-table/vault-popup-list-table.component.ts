@@ -99,8 +99,8 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
 }
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
-function subtreeValues(nodes: FilterOptionNode<string>[]): string[] {
-  return nodes.flatMap((n) => [n.value, ...subtreeValues(n.nested ?? [])]);
+function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
+  return nodes.flatMap((n) => [n.value, ...subtreeValues(n.options ?? [])]);
 }
 
 /** The chips a vault switch invalidates. Type is absent: item types span vaults. */
@@ -355,26 +355,34 @@ export class VaultPopupListTableComponent {
     });
   });
 
-  /** Exposed for the folder chip's `[value]`, which falls back to this sentinel for "no folder". */
-  protected readonly NO_FOLDER = NO_FOLDER;
-
-  /** The "no folder" option, pinned first with its own divider — see {@link nestedFolderOptions}. */
-  protected readonly noFolderOption = computed(() =>
-    this.folderOptions().find((option) => !option.value?.id),
-  );
-
   /**
    * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,
-   * since each node's name is already truncated to its own path segment. Excludes
-   * {@link noFolderOption} (rendered separately, pinned first).
+   * since each node's name is already truncated to its own path segment. The "no folder" pseudo
+   * option leads the tree as its own node, rather than projected content, since a chip can only
+   * take its options as `options` or as projected content, never both; its `dividerBefore` marks
+   * where the real folders start, standing in for a projected `bit-filter-option-divider`.
    */
-  protected readonly nestedFolderOptions = computed(() => {
+  protected readonly nestedFolderOptions = computed<FilterOptionNode<string>[]>(() => {
     const visibleIds = new Set(
       this.folderOptions()
         .map((option) => option.value?.id)
         .filter((id): id is string => !!id),
     );
-    return this.toFilterOptionNodes(this.folderTree(), visibleIds, "folder");
+    const folders = this.toFilterOptionNodes(this.folderTree(), visibleIds, "folder");
+
+    const noFolder = this.folderOptions().find((option) => !option.value?.id);
+    if (!noFolder) {
+      return folders;
+    }
+    const pinned: FilterOptionNode<string> = {
+      value: NO_FOLDER,
+      label: noFolder.label ?? "",
+      count: this.optionCount("folder", [NO_FOLDER]),
+    };
+    if (folders.length === 0) {
+      return [pinned];
+    }
+    return [pinned, { ...folders[0], dividerBefore: true }, ...folders.slice(1)];
   });
 
   /** True when collections span more than one organization — switches to org-sectioned layout. */
@@ -449,7 +457,7 @@ export class VaultPopupListTableComponent {
    * Prunes a `ChipFilterOption` tree to nodes in `visibleIds`, keeping ancestors with a visible
    * descendant so nesting survives narrowing even when the ancestor itself didn't pass (e.g. a
    * folder with no directly-scoped items). Converts to {@link FilterOptionNode} for
-   * `bit-filter-option`'s `nested` input — each node's `count` includes its full subtree so it
+   * `bit-filter-menu`'s `options` input — each node's `count` includes its full subtree so it
    * matches the item set that clicking the parent actually selects.
    */
   private toFilterOptionNodes<T extends { id: string }>(
@@ -470,7 +478,7 @@ export class VaultPopupListTableComponent {
         value: id,
         label: option.label ?? "",
         count: this.optionCount(key, [id, ...subtreeValues(children)]),
-        nested: children,
+        options: children,
       };
       return [node];
     });

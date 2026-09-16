@@ -74,22 +74,15 @@
         multiple
         [disabled]="noSharedFolderOptions()"
         [disabledTooltip]="sharedFolderDisabledTooltip()"
+        [options]="groupSharedFolders() ? [] : nestedSharedFolders()"
       >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
-            <bit-filter-section [label]="group.name" collapsible>
-              @for (sharedFolder of group.collections; track sharedFolder.value) {
-                <bit-filter-option [value]="sharedFolder.value" [nested]="sharedFolder.nested">
-                  {{ sharedFolder.label }}
-                </bit-filter-option>
-              }
-            </bit-filter-section>
-          }
-        } @else {
-          @for (sharedFolder of nestedSharedFolders(); track sharedFolder.value) {
-            <bit-filter-option [value]="sharedFolder.value" [nested]="sharedFolder.nested">
-              {{ sharedFolder.label }}
-            </bit-filter-option>
+            <bit-filter-section
+              [label]="group.name"
+              collapsible
+              [options]="group.collections"
+            ></bit-filter-section>
           }
         }
       </bit-filter-menu>
@@ -101,14 +94,8 @@
       multiple
       [disabled]="noFolders()"
       [disabledTooltip]="foldersDisabledTooltip()"
-    >
-      <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
-      @for (folder of nestedFolders(); track folder.value) {
-        <bit-filter-option [value]="folder.value" [nested]="folder.nested">{{
-          folder.label
-        }}</bit-filter-option>
-      }
-    </bit-filter-menu>
+      [options]="nestedFolders()"
+    ></bit-filter-menu>
   </bit-table-toolbar>
 
   <vault-empty-vault

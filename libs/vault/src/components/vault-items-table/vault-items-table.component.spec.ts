@@ -34,7 +34,8 @@ import {
   ButtonModule,
   DialogService,
   FilterControl,
-  FilterOptionComponent,
+  FilterMenuComponent,
+  FilterOptionRow,
   FilterSectionComponent,
   SelectionConfig,
 } from "@bitwarden/components";
@@ -239,6 +240,11 @@ describe("VaultItemsTableComponent", () => {
       throw new Error(`No FilterControl registered under key "${key}"`);
     }
     return control;
+  }
+
+  /** The `bit-filter-menu` registered under `key` — every `FilterControl` here is one. */
+  function filterMenu(key: string): FilterMenuComponent {
+    return filterControl(key) as unknown as FilterMenuComponent;
   }
 
   /**
@@ -1401,15 +1407,15 @@ describe("VaultItemsTableComponent", () => {
         {
           value: "parent",
           label: "Engineering",
-          nested: [
+          options: [
             {
               value: "child",
               label: "Backend",
-              nested: [
+              options: [
                 {
                   value: "grandchild",
                   label: "Infrastructure",
-                  nested: [],
+                  options: [],
                 },
               ],
             },
@@ -1422,7 +1428,7 @@ describe("VaultItemsTableComponent", () => {
       const collection = { id: "child", name: "Engineering/Backend" } as CollectionView;
 
       expect(component["buildNestedSharedFolders"]([collection])).toEqual([
-        { value: "child", label: "Engineering/Backend", nested: [] },
+        { value: "child", label: "Engineering/Backend", options: [] },
       ]);
     });
 
@@ -1437,11 +1443,11 @@ describe("VaultItemsTableComponent", () => {
         {
           value: "parent",
           label: "Engineering",
-          nested: [
+          options: [
             {
               value: "descendant",
               label: "Backend/Infrastructure",
-              nested: [],
+              options: [],
             },
           ],
         },
@@ -1461,8 +1467,8 @@ describe("VaultItemsTableComponent", () => {
       } as CollectionView;
 
       expect(component["buildNestedSharedFolders"]([orgAParent, orgBChild])).toEqual([
-        { value: "org-a-parent", label: "Finance", nested: [] },
-        { value: "org-b-child", label: "Finance/Reports", nested: [] },
+        { value: "org-a-parent", label: "Finance", options: [] },
+        { value: "org-b-child", label: "Finance/Reports", options: [] },
       ]);
     });
 
@@ -1477,17 +1483,16 @@ describe("VaultItemsTableComponent", () => {
     });
 
     describe("rendering the nested tree", () => {
-      /** Every `bit-filter-option` the shared folders chip actually rendered, by value. */
-      function renderedOptions(): FilterOptionComponent[] {
-        return fixture.debugElement
-          .queryAll(By.directive(FilterOptionComponent))
-          .map((el) => el.componentInstance as FilterOptionComponent);
-      }
-
-      function findOption(value: string): FilterOptionComponent {
-        const option = renderedOptions().find((o) => o.value() === value);
+      /**
+       * A shared folder option by value, read from the chip's own option tree — data-driven
+       * options are plain rows, never stamped as `bit-filter-option` components.
+       */
+      function findOption(value: string): FilterOptionRow {
+        const option = (filterMenu("sharedFolder")["allOptions"]() as FilterOptionRow[]).find(
+          (o) => o.value() === value,
+        );
         if (!option) {
-          throw new Error(`No rendered option for value ${value}`);
+          throw new Error(`No option found for value ${value}`);
         }
         return option;
       }
@@ -1521,8 +1526,8 @@ describe("VaultItemsTableComponent", () => {
           .map((el) => el.componentInstance as FilterSectionComponent)
           .find((s) => s.label() === "Acme corporation");
 
-        expect(section?.options().map((o) => o.value())).toContain("parent");
-        expect(section?.options().map((o) => o.value())).not.toContain("child");
+        expect(section?.children().map((o) => o.value())).toContain("parent");
+        expect(section?.children().map((o) => o.value())).not.toContain("child");
         expect(
           findOption("parent")
             .children()
@@ -1547,15 +1552,15 @@ describe("VaultItemsTableComponent", () => {
         {
           value: "parent",
           label: "Travel",
-          nested: [
+          options: [
             {
               value: "child",
               label: "Flights",
-              nested: [
+              options: [
                 {
                   value: "grandchild",
                   label: "Domestic",
-                  nested: [],
+                  options: [],
                 },
               ],
             },
@@ -1568,7 +1573,7 @@ describe("VaultItemsTableComponent", () => {
       const folder = { id: "child", name: "Travel/Flights" } as FolderView;
 
       expect(component["buildNestedFolders"]([folder])).toEqual([
-        { value: "child", label: "Travel/Flights", nested: [] },
+        { value: "child", label: "Travel/Flights", options: [] },
       ]);
     });
 
@@ -1579,10 +1584,9 @@ describe("VaultItemsTableComponent", () => {
       ]);
       fixture.detectChanges();
 
-      const parentOption = fixture.debugElement
-        .queryAll(By.directive(FilterOptionComponent))
-        .map((el) => el.componentInstance as FilterOptionComponent)
-        .find((o) => o.value() === "parent");
+      const parentOption = (filterMenu("folder")["allOptions"]() as FilterOptionRow[]).find(
+        (o) => o.value() === "parent",
+      );
 
       expect(parentOption?.children().map((c) => c.value())).toEqual(["child"]);
     });

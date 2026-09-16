@@ -18,5 +18,6 @@ export {
   type FilterControl,
   type FilterGroup,
   type FilterHost,
+  type FilterOptionRow,
   type FilterPresenter,
 } from "./filter-tokens";

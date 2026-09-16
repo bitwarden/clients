@@ -57,29 +57,15 @@
         [unsetLabel]="'all' | i18n"
         multiple
         icon="bwi-shared-folder"
+        [options]="groupCollectionsByOrg() ? [] : nestedCollectionOptions()"
       >
         @if (groupCollectionsByOrg()) {
           @for (org of nestedCollectionsByOrg(); track org.id) {
-            <bit-filter-section [label]="org.name" collapsible>
-              @for (option of org.collections; track option.value) {
-                <bit-filter-option
-                  [value]="option.value"
-                  [nested]="option.nested"
-                  [count]="option.count"
-                >
-                  {{ option.label }}
-                </bit-filter-option>
-              }
-            </bit-filter-section>
-          }
-        } @else {
-          @for (option of nestedCollectionOptions(); track option.value) {
-            <bit-filter-option
-              [value]="option.value"
-              [nested]="option.nested"
-              [count]="option.count"
-              >{{ option.label }}</bit-filter-option
-            >
+            <bit-filter-section
+              [label]="org.name"
+              collapsible
+              [options]="org.collections"
+            ></bit-filter-section>
           }
         }
       </bit-filter-menu>
@@ -91,23 +77,8 @@
         [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
         multiple
         icon="bwi-folder"
-      >
-        @if (noFolderOption(); as noFolder) {
-          <bit-filter-option [value]="NO_FOLDER" [count]="optionCount('folder', [NO_FOLDER])">{{
-            noFolder.label
-          }}</bit-filter-option>
-          <!-- "No folders" leads the list and stands apart from the real folders. -->
-          <bit-filter-option-divider></bit-filter-option-divider>
-        }
-        @for (folder of nestedFolderOptions(); track folder.value) {
-          <bit-filter-option
-            [value]="folder.value"
-            [nested]="folder.nested"
-            [count]="folder.count"
-            >{{ folder.label }}</bit-filter-option
-          >
-        }
-      </bit-filter-menu>
+        [options]="nestedFolderOptions()"
+      ></bit-filter-menu>
     }
   </bit-table-toolbar>
   <!--

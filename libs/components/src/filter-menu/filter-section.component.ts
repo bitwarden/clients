@@ -10,8 +10,15 @@ import {
   signal,
 } from "@angular/core";
 
-import { FilterOptionComponent } from "./filter-option.component";
-import { FILTER_ENTRY, FilterRow, flattenFilterOptions } from "./filter-tokens";
+import { FilterOptionComponent, FilterOptionNode } from "./filter-option.component";
+import {
+  FILTER_ENTRY,
+  FilterOptionRow,
+  FilterRow,
+  buildOptionRows,
+  createFilterOptionOpenState,
+  flattenFilterOptions,
+} from "./filter-tokens";
 
 /** A labelled group of options within a `bit-filter-menu`. */
 @Component({
@@ -40,14 +47,32 @@ export class FilterSectionComponent implements FilterRow {
   /** Whether the section starts expanded (only meaningful when collapsible). */
   readonly expanded = input(true, { transform: booleanAttribute });
 
-  /** Not `descendants`, or nested options would also be drawn flat at this level. */
-  readonly options = contentChildren(FilterOptionComponent);
+  /**
+   * A data-driven option tree for this section — renders the full nested structure without
+   * any `bit-filter-option` markup in the consumer's template.
+   */
+  readonly options = input<FilterOptionNode<unknown>[]>([]);
+
+  // Default `descendants: false` — nested options are reached through each option's own
+  // `children()`, not this query, so a nested option is never also drawn flat at this level.
+  private readonly _contentOptions = contentChildren(FilterOptionComponent);
+
+  /** Persists each data-driven row's expanded state across rebuilds of {@link _dataOptions}. */
+  private readonly _openState = createFilterOptionOpenState();
+
+  private readonly _dataOptions = computed(() => buildOptionRows(this.options(), this._openState));
 
   /** @see FilterRow.children */
-  readonly children = this.options;
+  readonly children = computed<readonly FilterOptionRow[]>(() => {
+    if (this._dataOptions().length > 0) {
+      return this._dataOptions();
+    }
+
+    return this._contentOptions();
+  });
 
   /** Every option in the section, nesting included — for the header's selected count. */
-  readonly allOptions = computed(() => flattenFilterOptions(this.options()));
+  readonly allOptions = computed(() => flattenFilterOptions(this.children()));
 
   /** Open state, seeded from `expanded` and thereafter driven by the chip's header. */
   readonly open = linkedSignal(() => this.expanded());

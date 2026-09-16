@@ -36,7 +36,7 @@ import {
   CompactModeService,
   DialogService,
   FilterMenuComponent,
-  FilterOptionComponent,
+  FilterOptionRow,
   FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
@@ -622,14 +622,13 @@ describe("VaultPopupListTableComponent", () => {
       fixture.nativeElement.style.height = "600px";
       fixture.detectChanges();
 
-      const folderMenu = fixture.debugElement
-        .queryAll(By.directive(FilterMenuComponent))
-        .find((de) => de.componentInstance.key() === "folder");
-      const noFolderOption = folderMenu!.query(By.directive(FilterOptionComponent))
-        .componentInstance as FilterOptionComponent;
+      const folderMenu = chipFor("folder") as FilterMenuComponent;
+      const noFolderOption = (folderMenu["allOptions"]() as FilterOptionRow[]).find(
+        (o) => o.value() === NO_FOLDER,
+      );
 
-      expect(noFolderOption.value()).toBe(NO_FOLDER);
-      expect(noFolderOption.count()).toBe(1);
+      expect(noFolderOption?.value()).toBe(NO_FOLDER);
+      expect(noFolderOption?.count()).toBe(1);
     });
 
     it("flattens nested folder options into one option per node", () => {
@@ -942,19 +941,21 @@ describe("VaultPopupListTableComponent", () => {
     });
 
     describe("nesting collections and folders", () => {
-      /** Every `bit-filter-option` actually rendered, by value. */
-      function renderedOptions(): FilterOptionComponent[] {
-        return fixture.debugElement
-          .queryAll(By.directive(FilterOptionComponent))
-          .map((el) => el.componentInstance as FilterOptionComponent);
-      }
-
-      function findOption(value: unknown): FilterOptionComponent {
-        const option = renderedOptions().find((o) => o.value() === value);
-        if (!option) {
-          throw new Error(`No rendered option for value ${JSON.stringify(value)}`);
+      /** An option by value, read from any chip's own option tree — plain rows, never stamped
+       * as `bit-filter-option` components. */
+      function findOption(value: unknown): FilterOptionRow {
+        const menus = fixture.debugElement
+          .queryAll(By.directive(FilterMenuComponent))
+          .map((el) => el.componentInstance as FilterMenuComponent);
+        for (const menu of menus) {
+          const option = (menu["allOptions"]() as FilterOptionRow[]).find(
+            (o) => o.value() === value,
+          );
+          if (option) {
+            return option;
+          }
         }
-        return option;
+        throw new Error(`No option found for value ${JSON.stringify(value)}`);
       }
 
       // The service builds `children` itself (`getAllNested`/`getAllFoldersNested`), truncating
@@ -1034,7 +1035,7 @@ describe("VaultPopupListTableComponent", () => {
         ]);
         fixture.detectChanges();
 
-        expect(findOption(NO_FOLDER).hasChildren()).toBe(false);
+        expect(findOption(NO_FOLDER).expandable()).toBe(false);
         expect(
           findOption("f-1")
             .children()

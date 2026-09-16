@@ -422,7 +422,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly MY_VAULT = MY_VAULT;
-  protected readonly NO_FOLDER = NO_FOLDER;
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 
@@ -640,9 +639,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * The My folders chip's nested options; {@link NO_FOLDER} stays pinned first, outside the tree.
+   * The My folders chip's nested options, {@link NO_FOLDER} pinned first. A chip can only take
+   * `options` as an array input or as projected content, never both, so the pinned row has to be
+   * part of the tree rather than projected `bit-filter-option` markup alongside it.
    */
-  protected readonly nestedFolders = computed(() => this.buildNestedFolders(this.folders()));
+  protected readonly nestedFolders = computed<FilterOptionNode<string>[]>(() => [
+    { value: NO_FOLDER, label: this.i18nService.t("noneFolder"), options: [] },
+    ...this.buildNestedFolders(this.folders()),
+  ]);
 
   /** The owning vault's display name: the organization's name, or "My vault". */
   protected vaultName(cipher: C): string {
@@ -911,7 +915,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * with collections spanning more than one org (see {@link nestedSharedFolders}), where the
    * per-org clusters would otherwise stay grouped with no section header to explain why.
    *
-   * Shaped as {@link FilterOptionNode} so it binds directly to `bit-filter-option`'s `nested`
+   * Shaped as {@link FilterOptionNode} so it binds directly to `bit-filter-menu`'s `options`
    * input — the collection tree is data-driven and can nest arbitrarily deep, which is exactly
    * what that input is for.
    */
@@ -921,7 +925,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
       label: node.node.name,
-      nested: node.children.map(toNode),
+      options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])
       .map(toNode)
@@ -937,7 +941,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     const toNode = (node: TreeNode<FolderView>): FilterOptionNode<string> => ({
       value: node.node.id,
       label: node.node.name,
-      nested: node.children.map(toNode),
+      options: node.children.map(toNode),
     });
     return getNestedFolderTree([...folders]).map(toNode);
   }

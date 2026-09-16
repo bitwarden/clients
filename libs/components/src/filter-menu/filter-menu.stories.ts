@@ -102,8 +102,9 @@ class FilterMenuDividerDemoComponent {}
 class FilterMenuNestedDemoComponent {}
 
 /**
- * The same tree as {@link FilterMenuNestedDemoComponent}, built from data via `nested` instead of
- * literal markup — the depth-unknown-ahead-of-time path a collection/folder tree needs.
+ * The same tree as {@link FilterMenuNestedDemoComponent}, built from data via `[options]` on the
+ * menu instead of literal markup — the depth-unknown-ahead-of-time path a collection/folder tree
+ * needs.
  */
 @Component({
   selector: "filter-menu-data-driven-nested-demo",
@@ -111,12 +112,7 @@ class FilterMenuNestedDemoComponent {}
   imports: [FilterMenuModule],
   template: `
     <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
-      <bit-filter-menu key="collection" placeholderText="Collections" multiple>
-        @for (option of tree; track option.value) {
-          <bit-filter-option [value]="option.value" [nested]="option.nested ?? []">{{
-            option.label
-          }}</bit-filter-option>
-        }
+      <bit-filter-menu key="collection" placeholderText="Collections" multiple [options]="tree">
       </bit-filter-menu>
     </div>
   `,
@@ -127,13 +123,13 @@ class FilterMenuDataDrivenNestedDemoComponent {
       value: "eng",
       label: "Engineering",
       count: 15,
-      nested: [
+      options: [
         { value: "monitoring", label: "Monitoring", count: 20 },
         {
           value: "infra",
           label: "Infrastructure",
           count: 6,
-          nested: [{ value: "cicd", label: "CI/CD", count: 2 }],
+          options: [{ value: "cicd", label: "CI/CD", count: 2 }],
         },
       ],
     },
@@ -362,8 +358,9 @@ export const NestedOptions: Story = {
 };
 
 /**
- * The same tree as {@link NestedOptions}, built from data via `[nested]` instead of literal
- * markup — for a tree whose depth isn't known ahead of time, like a collection or folder list.
+ * The same tree as {@link NestedOptions}, built from data via `[options]` on the menu instead of
+ * literal markup — for a tree whose depth isn't known ahead of time, like a collection or folder
+ * list.
  */
 export const DataDrivenNestedOptions: Story = {
   render: () => ({

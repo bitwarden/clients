@@ -1,10 +1,17 @@
-import { InjectionToken, Signal, TemplateRef } from "@angular/core";
+import {
+  InjectionToken,
+  Signal,
+  TemplateRef,
+  WritableSignal,
+  computed,
+  signal,
+} from "@angular/core";
 
 import { BitwardenIcon } from "../shared/icon";
 
 // Type-only: the components import this module for their tokens, so a value import
 // would close a cycle.
-import type { FilterOptionComponent } from "./filter-option.component";
+import type { FilterOptionIconTile, FilterOptionNode } from "./filter-option.component";
 
 /** What a chip exposes to a host bridge: a keyed, aggregated value. */
 export interface FilterControl {
@@ -99,8 +106,113 @@ export interface FilterRow extends FilterEntry {
   readonly expandable: Signal<boolean>;
   readonly open: Signal<boolean>;
   /** The rows directly beneath this one. */
-  readonly children: Signal<readonly FilterOptionComponent[]>;
+  readonly children: Signal<readonly FilterOptionRow[]>;
   toggleExpanded(): void;
+}
+
+/**
+ * The uniform face an option-kind row presents, whether it's a content-projected
+ * `bit-filter-option` or a data-driven {@link FilterOptionDataRow} built from a
+ * {@link FilterOptionNode}. `treeNodes`, `allOptions`, and the option templates all read
+ * through this rather than `FilterOptionComponent` directly, so either source draws the same way.
+ */
+export interface FilterOptionRow extends FilterRow {
+  readonly kind: "option";
+  value(): unknown;
+  count(): number | undefined;
+  readonly iconTile: Signal<FilterOptionIconTile | undefined>;
+}
+
+/**
+ * Persists a {@link FilterOptionDataRow}'s expanded state across tree rebuilds, keyed by the
+ * node's value. A new {@link FilterOptionDataRow} is built every time the {@link FilterMenuComponent.options}
+ * / {@link FilterSectionComponent.options} array is recomputed (e.g. a consumer rebuilding its tree
+ * off other reactive state), which would otherwise drop the row back to collapsed on every rebuild.
+ * A menu/section owns one store for its own lifetime and threads it through every
+ * {@link buildOptionRows} / {@link buildDataEntries} call it makes.
+ */
+export type FilterOptionOpenState = Map<unknown, WritableSignal<boolean>>;
+
+/** Creates a store for {@link FilterOptionOpenState} — one per `bit-filter-menu`/`bit-filter-section` instance. */
+export function createFilterOptionOpenState(): FilterOptionOpenState {
+  return new Map();
+}
+
+/**
+ * A {@link FilterOptionRow} built from plain data rather than a projected component —
+ * the node tree passed to {@link FilterMenuComponent.options} or
+ * {@link FilterSectionComponent.options}.
+ */
+export class FilterOptionDataRow implements FilterOptionRow {
+  readonly kind = "option" as const;
+
+  readonly disabled = signal(false).asReadonly();
+  readonly iconTile = signal<FilterOptionIconTile | undefined>(undefined).asReadonly();
+
+  private readonly _open: WritableSignal<boolean>;
+  readonly open: Signal<boolean>;
+
+  readonly children: Signal<readonly FilterOptionRow[]>;
+  readonly expandable: Signal<boolean>;
+
+  constructor(
+    private readonly node: FilterOptionNode<unknown>,
+    openState: FilterOptionOpenState,
+  ) {
+    let open = openState.get(node.value);
+    if (!open) {
+      open = signal(false);
+      openState.set(node.value, open);
+    }
+    this._open = open;
+    this.open = open.asReadonly();
+    this.children = computed(() => buildOptionRows(this.node.options, openState));
+    this.expandable = computed(() => this.children().length > 0);
+  }
+
+  value(): unknown {
+    return this.node.value;
+  }
+
+  count(): number | undefined {
+    return this.node.count;
+  }
+
+  label(): string {
+    return this.node.label;
+  }
+
+  toggleExpanded(): void {
+    this._open.update((open) => !open);
+  }
+}
+
+/** Builds the top-level {@link FilterOptionRow}s for a data-driven option tree. */
+export function buildOptionRows(
+  nodes: readonly FilterOptionNode<unknown>[] | undefined,
+  openState: FilterOptionOpenState,
+): FilterOptionRow[] {
+  return (nodes ?? []).map((node) => new FilterOptionDataRow(node, openState));
+}
+
+/**
+ * Builds a `bit-filter-menu`'s top-level data-driven entries — {@link FilterOptionRow}s, with a
+ * synthetic divider entry wherever a node sets {@link FilterOptionNode.dividerBefore}. Dividers
+ * are top-level only: a node's own nested subtree is built by {@link buildOptionRows}, which
+ * never looks at the flag, matching `bit-filter-option-divider` having no effect inside a section.
+ */
+export function buildDataEntries(
+  nodes: readonly FilterOptionNode<unknown>[] | undefined,
+  openState: FilterOptionOpenState,
+): FilterEntry[] {
+  const entries: FilterEntry[] = [];
+  for (const node of nodes ?? []) {
+    if (node.dividerBefore) {
+      entries.push({ kind: "divider" });
+    }
+    entries.push(new FilterOptionDataRow(node, openState));
+  }
+  return entries;
 }
 
 /** One row of a multi-select menu's flattened tree. */
@@ -155,12 +267,9 @@ export const FILTER_ENTRY = new InjectionToken<FilterEntry>("FilterEntry");
  * An option together with every option nested under it, at any depth, depth-first.
  *
  * Reads each option's own {@link FilterRow.children} rather than a `descendants` content query,
- * so it also reaches an option's data-driven subtree (`FilterOptionComponent.nested`) — those
- * options live in their parent's own view, not its projected content, which a content query
- * can't see into.
+ * so it also reaches a data-driven subtree (a {@link FilterOptionDataRow}'s children) — those
+ * are plain objects, not projected content, which a content query can't see into.
  */
-export function flattenFilterOptions(
-  options: readonly FilterOptionComponent[],
-): FilterOptionComponent[] {
+export function flattenFilterOptions(options: readonly FilterOptionRow[]): FilterOptionRow[] {
   return options.flatMap((option) => [option, ...flattenFilterOptions(option.children())]);
 }
