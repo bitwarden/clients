@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map, of, shareReplay, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -14,7 +15,6 @@ import {
   CollectionAdminView,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -34,7 +34,6 @@ import { GroupApiService, GroupView } from "../../core";
 import {
   AccessItemType,
   AccessItemValue,
-  AccessItemView,
   AccessSelectorModule,
   convertToPermission,
   convertToSelectionView,
@@ -61,7 +60,7 @@ export type BulkCollectionsDialogResult =
   selector: "app-bulk-collections-dialog",
   templateUrl: "bulk-collections-dialog.component.html",
 })
-export class BulkCollectionsDialogComponent implements OnDestroy {
+export class BulkCollectionsDialogComponent {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly params = inject<BulkCollectionsDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef<BulkCollectionsDialogResult>>(DialogRef);
@@ -80,67 +79,66 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
   protected readonly formGroup = this.formBuilder.group({
     access: [[] as AccessItemValue[]],
   });
-  protected readonly loading = signal(true);
-  protected readonly organization = signal<Organization | undefined>(undefined);
-  protected readonly accessItems = signal<AccessItemView[]>([]);
   protected readonly numCollections = this.params.collections.length;
 
-  private readonly destroy$ = new Subject<void>();
+  protected readonly organization$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.params.organizationId)),
+    ),
+  );
+
+  private readonly groups$ = this.organization$.pipe(
+    switchMap((organization) => {
+      if (organization == null || !organization.useGroups) {
+        return of([] as GroupView[]);
+      }
+      return this.groupService.getAll(organization.id);
+    }),
+  );
+
+  private readonly collections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+    ),
+  );
+
+  readonly formData$ = combineLatest([
+    this.collections$,
+    this.groups$,
+    this.organizationUserApiService.getAllMiniUserDetails(this.params.organizationId),
+  ]).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+
+  protected readonly loading$ = this.formData$.pipe(map((formData) => formData == null));
+  protected readonly accessItems$ = this.formData$.pipe(
+    map((formData) => {
+      if (formData == null) {
+        return [];
+      }
+      const [, groups, users] = formData;
+      return [...groups.map(mapGroupToAccessItemView), ...users.data.map(mapUserToAccessItemView)];
+    }),
+  );
 
   constructor() {
-    const organization$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.params.organizationId)),
-      ),
-    );
-    const groups$ = organization$.pipe(
-      switchMap((organization) => {
-        if (organization == null || !organization.useGroups) {
-          return of([] as GroupView[]);
-        }
-        return this.groupService.getAll(organization.id);
-      }),
-    );
-    const collections$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
-      ),
-    );
-
-    combineLatest([
-      organization$,
-      groups$,
-      this.organizationUserApiService.getAllMiniUserDetails(this.params.organizationId),
-      collections$,
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([organization, groups, users, collections]) => {
-        this.organization.set(organization);
-
-        this.accessItems.set([
-          ...groups.map(mapGroupToAccessItemView),
-          ...users.data.map(mapUserToAccessItemView),
-        ]);
-
-        const selectedIds = new Set(this.params.collections.map((c) => c.id));
-        const selectedCollections = collections.filter((c) => selectedIds.has(c.id));
+    this.formData$
+      .pipe(
+        map(([collections]) => {
+          const selectedIds = new Set(this.params.collections.map((c) => c.id));
+          return collections.filter((c) => selectedIds.has(c.id));
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((selectedCollections) => {
         this.formGroup.controls.access.setValue(sharedAccess(selectedCollections));
-
-        this.loading.set(false);
       });
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   readonly submit = async () => {
-    const organization = this.organization();
+    const organization = await firstValueFrom(this.organization$);
     if (organization == null) {
       return;
     }

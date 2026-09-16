@@ -2,7 +2,7 @@
   [formGroup]="formGroup"
   [bitSubmit]="submit"
   bit-dialog
-  [loading]="loading()"
+  [loading]="loading$ | async"
   dialogSize="large"
 >
   <span bitDialogTitle>
@@ -17,11 +17,12 @@
   </span>
 
   <div bitDialogContent>
-    @if (organization()?.useGroups) {
+    @let organization = organization$ | async;
+    @if (organization?.useGroups) {
       <bit-access-selector
         [permissionMode]="PermissionMode.Edit"
         formControlName="access"
-        [items]="accessItems()"
+        [items]="accessItems$ | async"
         [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
         [selectorLabelText]="'selectGroupsAndMembers' | i18n"
         [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
@@ -31,7 +32,7 @@
       <bit-access-selector
         [permissionMode]="PermissionMode.Edit"
         formControlName="access"
-        [items]="accessItems()"
+        [items]="accessItems$ | async"
         [columnHeader]="'memberColumnHeader' | i18n"
         [selectorLabelText]="'selectMembers' | i18n"
         [emptySelectionText]="'noMembersAdded' | i18n"
