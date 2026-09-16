@@ -116,25 +116,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     return ssoAuthResult;
   }
 
-  protected override async setMasterKey(tokenResponse: IdentityTokenResponse, userId: UserId) {
-    // The absence of a masterKeyEncryptedUserKey means the user has not been provisioned in Key
-    // Connector yet, so their conversion has to be scheduled. An already provisioned user needs
-    // nothing here; the unlock service fetches their key material from Key Connector.
-    const newSsoUser = tokenResponse.key == null;
-
-    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse) && newSsoUser) {
-      // Store Key Connector domain confirmation data in state instead of AuthResult
-      await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
-        {
-          kdfConfig: tokenResponse.kdfConfig,
-          keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
-          organizationId: this.cache.value.orgId,
-        },
-        userId,
-      );
-    }
-  }
-
   /**
    * Determines if it is possible set the `masterKey` from Key Connector.
    * @param tokenResponse
@@ -165,6 +146,23 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
+    // The absence of a masterKeyEncryptedUserKey means the user has not been provisioned in Key
+    // Connector yet, so their conversion has to be scheduled. An already provisioned user needs
+    // nothing here; the unlock service fetches their key material from Key Connector below.
+    const newSsoUser = tokenResponse.key == null;
+
+    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse) && newSsoUser) {
+      // Store Key Connector domain confirmation data in state instead of AuthResult
+      await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
+        {
+          kdfConfig: tokenResponse.kdfConfig,
+          keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
+          organizationId: this.cache.value.orgId,
+        },
+        userId,
+      );
+    }
+
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
     if (tokenResponse.canUnlockWithKeyConnector()) {

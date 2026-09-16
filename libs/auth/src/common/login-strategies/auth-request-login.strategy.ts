@@ -73,10 +73,6 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     return super.logInTwoFactor(twoFactor);
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    // This login strategy does not use a master key
-  }
-
   protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     // Login with device: the approving device supplies an already-decrypted user key.

@@ -51,8 +51,6 @@ export class UserApiLoginStrategy extends LoginStrategy {
     return authResult;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
-
   protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     if (response.canUnlockWithKeyConnector()) {
       await this.unlockService.unlockWithKeyConnector(
