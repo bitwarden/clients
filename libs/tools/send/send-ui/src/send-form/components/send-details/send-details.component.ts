@@ -22,7 +22,6 @@ import {
 } from "@angular/forms";
 import { combineLatest, map, startWith, switchMap, tap } from "rxjs";
 
-import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -55,7 +54,7 @@ import {
   Option,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherViewComponent } from "@bitwarden/vault";
+import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";

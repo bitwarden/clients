@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
-import { CipherViewComponent } from "@bitwarden/vault";
+import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
 
