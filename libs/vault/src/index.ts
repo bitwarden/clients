@@ -37,6 +37,7 @@ export { PasswordHistoryViewComponent } from "./components/password-history-view
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
+export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
 export * from "./components/delete-shared-folder-dialog/delete-shared-folder-dialog.component";

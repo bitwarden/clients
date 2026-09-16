@@ -3,13 +3,12 @@ import { TestBed } from "@angular/core/testing";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { openPasswordHistoryDialog } from "@bitwarden/vault";
+
+import { openPasswordHistoryDialog } from "../components/password-history/password-history.component";
 
 import { VaultViewPasswordHistoryService } from "./view-password-history.service";
 
-jest.mock("@bitwarden/vault", () => ({
+jest.mock("../components/password-history/password-history.component", () => ({
   openPasswordHistoryDialog: jest.fn(),
 }));
 
