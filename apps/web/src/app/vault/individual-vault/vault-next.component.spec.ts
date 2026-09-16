@@ -4,11 +4,11 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
   openCollectionDialog: jest.fn(),
 }));
 
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -19,15 +19,17 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AddEditFolderDialogComponent,
@@ -43,7 +45,9 @@ import {
   VaultCopyButtonsService,
   VaultNavItemType,
   VaultNavItemViewModel,
+  VaultBatchBarService,
   VaultNavService,
+  VaultRemountOnDirective,
   VaultsNavViewModel,
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
@@ -53,7 +57,9 @@ import {
   CollectionDialogResult,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
+import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { VaultNextComponent } from "./vault-next.component";
 
@@ -70,8 +76,18 @@ describe("VaultNextComponent", () => {
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
+  let cipherArchiveService: MockProxy<CipherArchiveService>;
+  let batchBarService: {
+    setConfig: jest.Mock;
+    clearSelection: jest.Mock;
+    completed$: Observable<void>;
+    barVisible: () => boolean;
+  };
+  let configService: MockProxy<ConfigService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let webVaultPromptService: MockProxy<WebVaultPromptService>;
+  let coachmarkService: MockProxy<CoachmarkService>;
   let collectionService: MockProxy<CollectionService>;
   let addItemDialogOpen: jest.SpyInstance;
   let addEditFolderDialogOpen: jest.SpyInstance;
@@ -81,6 +97,7 @@ describe("VaultNextComponent", () => {
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
+  let showSubscriptionEndedMessaging$: Subject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
   let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
@@ -164,11 +181,6 @@ describe("VaultNextComponent", () => {
     return folder;
   };
 
-  /**
-   * The child components are stripped from the harness (see `overrideComponent` below) so this suite
-   * stays small, which means assertions read the signals the template binds rather than the
-   * rendered table. The bindings themselves are covered by the Angular template type-check.
-   */
   const component = () => fixture.componentInstance as any;
 
   /** The row menu handlers the component hands `CipherRowMenuService`. */
@@ -183,6 +195,7 @@ describe("VaultNextComponent", () => {
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+    showSubscriptionEndedMessaging$ = new Subject<boolean>();
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
     routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.
@@ -196,6 +209,19 @@ describe("VaultNextComponent", () => {
     });
 
     itemActions = mock<WebVaultItemActionsService>();
+    batchBarService = {
+      setConfig: jest.fn(),
+      clearSelection: jest.fn(),
+      completed$: new Subject<void>(),
+      barVisible: () => false,
+    };
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
+    cipherArchiveService = mock<CipherArchiveService>();
+    cipherArchiveService.showSubscriptionEndedMessaging$.mockReturnValue(
+      showSubscriptionEndedMessaging$,
+    );
 
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
@@ -225,7 +251,7 @@ describe("VaultNextComponent", () => {
     i18nService.collator = undefined;
 
     const organizationService = mock<OrganizationService>();
-    organizationService.organizations$.mockReturnValue(organizations$);
+    organizationService.memberOrganizations$.mockReturnValue(organizations$);
 
     const policyService = mock<PolicyService>();
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
@@ -235,6 +261,12 @@ describe("VaultNextComponent", () => {
     Object.defineProperty(copyButtonsService, "showQuickCopyActions$", {
       value: showQuickCopyActions$,
     });
+
+    webVaultPromptService = mock<WebVaultPromptService>();
+    webVaultPromptService.conditionallyPromptUser.mockResolvedValue(undefined);
+
+    coachmarkService = mock<CoachmarkService>();
+    Object.defineProperty(coachmarkService, "activeStepId", { value: signal(null) });
 
     // `jest.spyOn` returns the existing mock (rather than a fresh one) once a static method is
     // already spied, so its call history survives across tests unless cleared explicitly here.
@@ -260,7 +292,9 @@ describe("VaultNextComponent", () => {
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
+        { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
+        { provide: CoachmarkService, useValue: coachmarkService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -270,7 +304,9 @@ describe("VaultNextComponent", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
+        // `viewModel$` takes a userId and returns the stream, so the double is a function.
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -279,16 +315,35 @@ describe("VaultNextComponent", () => {
           // table needs search and copy services), so NO_ERRORS_SCHEMA stands in for them. It has to
           // be declared here rather than on the TestBed module — a standalone component resolves
           // schemas from its own metadata. The i18n pipe stays, since a schema does not cover an
-          // unresolved pipe.
-          imports: [I18nPipe, Vfo1I18nPipe],
+          // unresolved pipe, and neither does it cover a structural directive — without
+          // `VaultRemountOnDirective` the table's template would never be instantiated.
+          // `CoachmarkComponent` stays for the same reason the pipes do: the toolbar reads
+          // `#importCoachmark.popover()`, which a schema-stubbed element cannot answer.
+          imports: [
+            I18nPipe,
+            Vfo1I18nPipe,
+            VaultRemountOnDirective,
+            CoachmarkComponent,
+            PopoverModule,
+          ],
           schemas: [NO_ERRORS_SCHEMA],
-          providers: [{ provide: WebVaultItemActionsService, useValue: itemActions }],
+          providers: [
+            { provide: WebVaultItemActionsService, useValue: itemActions },
+            { provide: WebVaultPromptService, useValue: webVaultPromptService },
+            { provide: VaultBatchBarService, useValue: batchBarService },
+          ],
         },
       })
       .compileComponents();
 
     fixture = TestBed.createComponent(VaultNextComponent);
     fixture.detectChanges();
+  });
+
+  describe("onboarding prompts", () => {
+    it("starts them once the page loads", () => {
+      expect(webVaultPromptService.conditionallyPromptUser).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("ciphers", () => {
@@ -510,6 +565,37 @@ describe("VaultNextComponent", () => {
       });
     });
 
+    describe("subscription ended callout", () => {
+      beforeEach(() => {
+        ciphers$.next([]);
+        fixture.detectChanges();
+      });
+
+      it("shows when scope is Archive and subscription has ended", () => {
+        scopeTo(ARCHIVE_ROUTE);
+        showSubscriptionEndedMessaging$.next(true);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-callout")).not.toBeNull();
+      });
+
+      it("hides when scope is not Archive", () => {
+        scopeTo(TRASH_ROUTE);
+        showSubscriptionEndedMessaging$.next(true);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
+      });
+
+      it("hides when scope is Archive but subscription is active", () => {
+        scopeTo(ARCHIVE_ROUTE);
+        showSubscriptionEndedMessaging$.next(false);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
+      });
+    });
+
     describe("scoped to an organization vault", () => {
       beforeEach(() => scopeTo(organizationId));
 
@@ -612,6 +698,58 @@ describe("VaultNextComponent", () => {
         orgCollection,
         otherOrgCollection,
       ]);
+    });
+  });
+
+  describe("filterScopeKey", () => {
+    const sharedFolderId = "cccc3333-dddd-4eee-8fff-aaaa44445555";
+    const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+
+    it("changes when the route moves to another vault", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      const myVault = component().filterScopeKey();
+
+      scopeTo(organizationId);
+
+      expect(component().filterScopeKey()).not.toBe(myVault);
+    });
+
+    it("changes when the route drills into a shared folder", () => {
+      scopeTo(organizationId);
+      const organizationVault = component().filterScopeKey();
+
+      scopeTo(organizationId, sharedFolderId);
+
+      expect(component().filterScopeKey()).not.toBe(organizationVault);
+    });
+
+    it("holds steady when the nav resolves a my-items segment to its collection", () => {
+      scopeTo(organizationId, MY_ITEMS_ROUTE);
+      const key = component().filterScopeKey();
+
+      vaultNav$.next({
+        vaults: [
+          personalNavItem,
+          {
+            ...buildOrgNavItem(organizationId, "Acme corporation"),
+            defaultUserCollectionId: myItemsId,
+          },
+        ],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+
+      expect(component().filterScopeKey()).toBe(key);
+    });
+
+    it("holds steady across a route change that names the same scope", () => {
+      scopeTo(organizationId);
+      const key = component().filterScopeKey();
+
+      paramMap$.next(convertToParamMap({ vaultId: organizationId, itemId: "an-item" }));
+      fixture.detectChanges();
+
+      expect(component().filterScopeKey()).toBe(key);
     });
   });
 
@@ -1058,6 +1196,98 @@ describe("VaultNextComponent", () => {
       await component().addCollection();
 
       expect(collectionService.upsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("bulk actions", () => {
+    it("feeds the batch bar the vault context", () => {
+      fixture.detectChanges();
+
+      expect(batchBarService.setConfig).toHaveBeenCalledWith(
+        expect.objectContaining({ isOrgVault: false }),
+      );
+    });
+
+    it("reports whether the page has ciphers, which gates assign-to-collections", () => {
+      fixture.detectChanges();
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.hasCiphers).toBe(component().ciphers().length > 0);
+    });
+
+    it("tells the batch bar when the page is scoped to the trash", () => {
+      scopeTo(TRASH_ROUTE);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.inTrash).toBe(true);
+    });
+
+    it("reports not-trash for every other scope", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.inTrash).toBe(false);
+    });
+
+    it("tells the batch bar which shared folder the page has drilled into", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      scopeTo(organizationId, engineeringId);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBe(engineeringId);
+    });
+
+    it("names no shared folder when the page is scoped to a whole vault", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      scopeTo(organizationId);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBeUndefined();
+    });
+
+    it("names no shared folder while the sentinel is still unresolved", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      // The nav hasn't loaded, so `resolveVaultScope` leaves the sentinel in place.
+      vaultNav$.next(undefined as unknown as VaultsNavViewModel);
+      scopeTo(organizationId, MY_ITEMS_ROUTE);
+
+      expect(component().vaultScope()).toEqual({
+        type: "organization",
+        organizationId,
+        collectionId: MY_ITEMS_ROUTE,
+      });
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBeUndefined();
+    });
+
+    it("clears the selection when the side nav scopes the page elsewhere", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      batchBarService.clearSelection.mockClear();
+
+      scopeTo(TRASH_ROUTE);
+
+      expect(batchBarService.clearSelection).toHaveBeenCalled();
+    });
+
+    it("does not clear on the page's initial render", () => {
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+    });
+
+    it("does not clear when the same scope re-emits", () => {
+      scopeTo(TRASH_ROUTE);
+      batchBarService.clearSelection.mockClear();
+
+      scopeTo(TRASH_ROUTE);
+
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+    });
+
+    it("passes the unscoped collections", () => {
+      fixture.detectChanges();
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.allCollections).toEqual(component().collections());
     });
   });
 });

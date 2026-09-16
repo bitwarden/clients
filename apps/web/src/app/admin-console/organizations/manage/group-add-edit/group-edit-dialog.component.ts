@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  CopyClickDirective,
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
@@ -51,7 +53,7 @@ function mapToAccessSelections(
 @Component({
   selector: "app-group-edit-dialog",
   templateUrl: "group-edit-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, Vfo1I18nPipe],
+  imports: [SharedModule, AccessSelectorModule, Vfo1I18nPipe, CopyClickDirective],
   providers: [GroupAddEditService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -115,9 +117,11 @@ export class GroupEditDialogComponent {
     });
   }
 
-  protected get isExternalIdVisible(): boolean {
-    return !!this.groupForm.get("externalId")?.value;
-  }
+  /** The external ID, shown read-only when the group was provisioned externally. */
+  protected readonly externalId = toSignal(
+    this.groupForm.controls.externalId.valueChanges.pipe(map((value) => value || undefined)),
+    { initialValue: this.groupForm.controls.externalId.value || undefined },
+  );
 
   readonly submit = async (): Promise<void> => {
     this.groupForm.markAllAsTouched();

@@ -18,7 +18,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  CopyClickDirective,
+  DIALOG_DATA,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
@@ -99,11 +105,19 @@ const mockGroupDetails = new GroupDetailsView({
   collections: [{ id: "col-1", readOnly: false, hidePasswords: false, manage: true }],
 });
 
+const mockGroupDetailsWithExternalId = new GroupDetailsView({
+  id: GROUP_ID,
+  organizationId: ORG_ID,
+  name: "Engineering Team",
+  externalId: "1308a41a-5c5b-46d3-9573-abad9b0608dc",
+  collections: [{ id: "col-1", readOnly: false, hidePasswords: false, manage: true }],
+});
+
 const mockDialogRef = { close: () => {} };
 const mockDialogService = { openSimpleDialog: () => Promise.resolve(false) };
 const mockToastService = { showToast: () => {} };
 const mockLogService = { error: () => {} };
-const mockPlatformUtilsService = { isSelfHost: () => false };
+const mockPlatformUtilsService = { isSelfHost: () => false, copyToClipboard: () => {} };
 
 const mockApiService = {
   getGroupUsers: () => Promise.resolve(["u-1"]),
@@ -152,6 +166,7 @@ export default {
       imports: [
         SharedOrganizationModule,
         Vfo1I18nPipe,
+        CopyClickDirective,
         GroupAddDialogComponent,
         GroupEditDialogComponent,
       ],
@@ -218,6 +233,18 @@ export const EditGroup: EditStory = {
     { organizationId: ORG_ID, groupId: GROUP_ID },
     mockOrganization(),
     mockGroupDetails,
+  ),
+};
+
+/**
+ * Group provisioned through Directory Connector — the read-only External ID field is shown on the
+ * Group info tab with a copy button.
+ */
+export const EditGroupWithExternalId: Story = {
+  render: makeRender(
+    { organizationId: ORG_ID, groupId: GROUP_ID },
+    mockOrganization(),
+    mockGroupDetailsWithExternalId,
   ),
 };
 

@@ -96,6 +96,10 @@
             [count]="optionCount('folder', [option.value.id || NO_FOLDER])"
             >{{ option.label }}</bit-filter-option
           >
+          <!-- "No folders" leads the list and stands apart from the real folders. -->
+          @if (!option.value.id) {
+            <bit-filter-option-divider></bit-filter-option-divider>
+          }
         }
       </bit-filter-menu>
     }
@@ -220,7 +224,12 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group collapsible [match]="isAutofill">
+  <bit-row-group
+    collapsible
+    [match]="isAutofill"
+    [description]="autofillDescription()"
+    [hideOnEmpty]="!showEmptyAutofillTip()"
+  >
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {

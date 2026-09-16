@@ -680,22 +680,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Returns the open-org-invite if one is in state; otherwise `null`. Centralizes the
-   * "should we apply open-org-invite chrome here?" predicate so the kind guard isn't
-   * restated at every override site.
-   */
-  private async getActiveOpenOrgInvite(): Promise<{ organizationName: string } | null> {
-    return await this.organizationInviteService.getOpenOrgInvite();
-  }
-
-  /**
    * Pushes the "Join <organizationName>" title for the email-entry surface when an
    * open org invite is in state. The override is the last write to the anon-layout
    * wrapper data on this surface, so it survives until the next state transition
    * (which is expected to re-apply it where needed — see `toggleLoginUiState`).
    */
   private async applyOpenOrgInviteTitleOverride(): Promise<void> {
-    const invite = await this.getActiveOpenOrgInvite();
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return;
     }
@@ -714,7 +705,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async buildOpenOrgInviteMpEntryOverride(): Promise<
     Partial<AnonLayoutWrapperData> | undefined
   > {
-    const invite = await this.getActiveOpenOrgInvite();
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return undefined;
     }
