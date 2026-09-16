@@ -54,8 +54,7 @@ export class PrivateAccessBannerPlacementService {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivateAccessBannerComponent implements OnInit, AfterViewInit, OnDestroy {
-  // TODO(PM-43667): point at the private preview user guide once it exists.
-  protected readonly helpUrl = "https://bitwarden.com/help/private-preview-user-guide";
+  protected readonly helpUrl = "/help/privileged-controls/index.html";
 
   readonly placement = input<PrivateAccessBannerPlacement>("app");
 
