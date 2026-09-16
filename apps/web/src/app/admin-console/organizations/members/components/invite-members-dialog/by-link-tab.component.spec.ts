@@ -3,7 +3,8 @@ import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainMiniResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-mini.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -18,7 +19,7 @@ import {
   OrganizationInviteLink,
   OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
-import { ClaimedDomain, Invite } from "@bitwarden/sdk-internal";
+import { Invite } from "@bitwarden/sdk-internal";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
 
@@ -37,8 +38,11 @@ function makeInviteLink(supportsConfirmation: boolean): OrganizationInviteLink {
   });
 }
 
-function buildDomain(domainName: string, verified: boolean): ClaimedDomain {
-  return { domainName, verified };
+function buildDomain(domainName: string, verified: boolean): OrganizationDomainMiniResponse {
+  return {
+    domainName,
+    verifiedDate: verified ? "2025-01-01T00:00:00Z" : null,
+  } as unknown as OrganizationDomainMiniResponse;
 }
 
 interface Harness {
@@ -47,14 +51,14 @@ interface Harness {
   inviteLink$: BehaviorSubject<OrganizationInviteLink | undefined>;
   inviteLinkService: MockProxy<OrganizationInviteLinkService>;
   validationService: MockProxy<ValidationService>;
-  organizationDomainsService: MockProxy<OrganizationDomainsService>;
+  orgDomainApiService: MockProxy<OrgDomainApiServiceAbstraction>;
 }
 
 async function createComponent(
   options: {
     initialLink?: OrganizationInviteLink;
     autoConfirmEnabled?: boolean;
-    domains?: ClaimedDomain[];
+    domains?: OrganizationDomainMiniResponse[];
     domainsError?: unknown;
   } = {},
 ): Promise<Harness> {
@@ -69,11 +73,11 @@ async function createComponent(
   const accountService = mock<AccountService>();
   accountService.activeAccount$ = of({ id: USER_ID } as any);
 
-  const organizationDomainsService = mock<OrganizationDomainsService>();
+  const orgDomainApiService = mock<OrgDomainApiServiceAbstraction>();
   if (options.domainsError != null) {
-    organizationDomainsService.claimedDomains.mockRejectedValue(options.domainsError);
+    orgDomainApiService.getAllMiniByOrgId.mockRejectedValue(options.domainsError);
   } else {
-    organizationDomainsService.claimedDomains.mockResolvedValue(options.domains ?? []);
+    orgDomainApiService.getAllMiniByOrgId.mockResolvedValue(options.domains ?? []);
   }
 
   const configService = mock<ConfigService>();
@@ -92,7 +96,7 @@ async function createComponent(
       provideNoopAnimations(),
       { provide: OrganizationInviteLinkService, useValue: inviteLinkService },
       { provide: AccountService, useValue: accountService },
-      { provide: OrganizationDomainsService, useValue: organizationDomainsService },
+      { provide: OrgDomainApiServiceAbstraction, useValue: orgDomainApiService },
       { provide: ConfigService, useValue: configService },
       { provide: I18nService, useValue: i18nService },
       { provide: ValidationService, useValue: validationService },
@@ -114,7 +118,7 @@ async function createComponent(
     inviteLink$,
     inviteLinkService,
     validationService,
-    organizationDomainsService,
+    orgDomainApiService,
   };
 }
 
@@ -127,17 +131,24 @@ function switchRendered(fixture: ComponentFixture<ByLinkTabComponent>): boolean 
 
 describe("ByLinkTabComponent", () => {
   describe("prefilling domains from verified org domains", () => {
-    // Reads through the SDK-backed service rather than the full domains endpoint, which requires
-    // Manage SSO: requesting that without the permission returns a 401, which logs the user out of
-    // the vault entirely. This path also accepts Manage Users, so members who can only manage
-    // users still get the prefill.
     it("prefills verified domains and ignores unverified ones", async () => {
-      const { component, organizationDomainsService } = await createComponent({
+      const { component, orgDomainApiService } = await createComponent({
         domains: [buildDomain("example.com", true), buildDomain("unverified.com", false)],
       });
 
-      expect(organizationDomainsService.claimedDomains).toHaveBeenCalledWith(USER_ID, ORG_ID);
+      expect(orgDomainApiService.getAllMiniByOrgId).toHaveBeenCalledWith(ORG_ID);
       expect(component.form.controls.domains.value).toBe("example.com");
+    });
+
+    // The full domains endpoint requires the Manage SSO permission. Requesting it without that
+    // permission returns a 401, which logs the user out of the vault entirely. The mini endpoint
+    // also accepts Manage Users, so members who can only manage users still get the prefill.
+    it("reads domains from the mini endpoint rather than the Manage SSO one", async () => {
+      const { orgDomainApiService } = await createComponent({
+        domains: [buildDomain("example.com", true)],
+      });
+
+      expect(orgDomainApiService.getAllByOrgId).not.toHaveBeenCalled();
     });
 
     it("leaves the field empty when the org has no verified domains", async () => {
@@ -148,8 +159,8 @@ describe("ByLinkTabComponent", () => {
       expect(component.form.controls.domains.value).toBe("");
     });
 
-    // Prefilling is a convenience, so the dialog must stay usable rather than blowing up with an
-    // unhandled rejection.
+    // Servers predating the mini endpoint answer with a 404. Prefilling is a convenience, so the
+    // dialog must stay usable rather than blowing up with an unhandled rejection.
     it("leaves the field empty when the domains request fails", async () => {
       const { component } = await createComponent({
         domainsError: new Error("404 Not Found"),
@@ -159,11 +170,11 @@ describe("ByLinkTabComponent", () => {
     });
 
     it("does not request org domains when an invite link already exists", async () => {
-      const { component, organizationDomainsService } = await createComponent({
+      const { component, orgDomainApiService } = await createComponent({
         initialLink: makeInviteLink(true),
       });
 
-      expect(organizationDomainsService.claimedDomains).not.toHaveBeenCalled();
+      expect(orgDomainApiService.getAllMiniByOrgId).not.toHaveBeenCalled();
       expect(component.form.controls.domains.value).toBe("example.com");
     });
   });
