@@ -245,8 +245,6 @@ describe("WebAuthnLoginStrategy", () => {
     await webAuthnLoginStrategy.logIn(webAuthnCredentials);
 
     // Assert
-    // Master key encrypted user key should be set
-
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledTimes(1);
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
       idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedPrivateKey,
@@ -262,8 +260,6 @@ describe("WebAuthnLoginStrategy", () => {
       { V1: { private_key: idTokenResponse.privateKey } },
       userId,
     );
-
-    // Master key and private key should not be set
   });
 
   it("does not try to set the user key when prfKey is missing", async () => {

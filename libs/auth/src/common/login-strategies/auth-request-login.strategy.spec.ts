@@ -160,8 +160,6 @@ describe("AuthRequestLoginStrategy", () => {
     // Call logIn
     await authRequestLoginStrategy.logIn(credentials);
 
-    // setMasterKey and setMasterKeyHash should not be called
-
     expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(mockUserId, decUserKey);
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
       { V1: { private_key: tokenResponse.privateKey } },

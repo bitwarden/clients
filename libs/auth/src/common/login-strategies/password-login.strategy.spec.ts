@@ -231,8 +231,6 @@ describe("PasswordLoginStrategy", () => {
       { V1: { private_key: tokenResponse.privateKey } },
       userId,
     );
-
-    // The unlock service owns key setup, so the strategy must not set keys directly.
   });
 
   describe("makePasswordPreloginMasterKey", () => {

@@ -204,17 +204,6 @@ describe("SsoLoginStrategy", () => {
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
-  it("sets master key encrypted user key for existing SSO users", async () => {
-    // Arrange
-    const tokenResponse = identityTokenResponseFactory();
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-    // Act
-    await ssoLoginStrategy.logIn(credentials);
-
-    // Assert
-  });
-
   describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
     it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
       // Arrange
