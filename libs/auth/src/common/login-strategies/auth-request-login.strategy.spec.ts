@@ -165,13 +165,7 @@ describe("AuthRequestLoginStrategy", () => {
     await authRequestLoginStrategy.logIn(credentials);
 
     // setMasterKey and setMasterKeyHash should not be called
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
 
-    // setMasterKeyEncryptedUserKey, the unlock, and setPrivateKey should still be called
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      mockUserId,
-    );
     expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(mockUserId, decUserKey);
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
       { V1: { private_key: tokenResponse.privateKey } },
@@ -203,7 +197,6 @@ describe("AuthRequestLoginStrategy", () => {
     };
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(decUserKey);
 
     await authRequestLoginStrategy.logIn(credentials);
 

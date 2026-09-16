@@ -3,7 +3,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -57,11 +56,9 @@ describe("keyService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let masterPasswordService: FakeMasterPasswordService;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
-    masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
 
     await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
@@ -550,7 +547,6 @@ describe("keyService", () => {
     }: SetupKeysParams): [UserKey | null, MasterKey | null] {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
       const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64, 0) : null;
-      masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64, 1) : null;
       userKeyState.nextState(fakeUserKey);

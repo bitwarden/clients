@@ -838,7 +838,6 @@ export default class MainBackground {
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,

@@ -250,11 +250,6 @@ describe("WebAuthnLoginStrategy", () => {
 
     // Assert
     // Master key encrypted user key should be set
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      idTokenResponse.key,
-      userId,
-    );
 
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledTimes(1);
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
@@ -273,7 +268,6 @@ describe("WebAuthnLoginStrategy", () => {
     );
 
     // Master key and private key should not be set
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
   });
 
   it("does not try to set the user key when prfKey is missing", async () => {

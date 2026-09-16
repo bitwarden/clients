@@ -79,7 +79,6 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
 
   protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     // Login with device: the approving device supplies an already-decrypted user key.
     await this.unlockService.unlockWithDecryptedUserKey(
       userId,

@@ -114,7 +114,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
       );
     });
 
-    it("sets legacy state on success", async () => {
+    it("unwraps the user key from the persisted unlock data", async () => {
       const result = await sut.unlockWithMasterPassword(mockMasterPassword, mockUserId);
 
       expect(result).toEqual(mockUserKey);
@@ -123,35 +123,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPassword,
         mockMasterPasswordUnlockData,
       );
-
-      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData.salt,
-        mockMasterPasswordUnlockData.kdf,
-      );
-      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
-    });
-
-    it("throws an error if masterKey construction fails", async () => {
-      legacyCompatKeyService.makeMasterKey.mockResolvedValue(null as unknown as MasterKey);
-
-      await expect(sut.unlockWithMasterPassword(mockMasterPassword, mockUserId)).rejects.toThrow(
-        "Master key could not be created to set legacy master password state.",
-      );
-
-      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
-      expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData,
-      );
-
-      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData.salt,
-        mockMasterPasswordUnlockData.kdf,
-      );
-      expect(legacyCompatKeyService.hashMasterKey).not.toHaveBeenCalled();
-      expect(masterPasswordService.setMasterKey).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
     });
   });
 

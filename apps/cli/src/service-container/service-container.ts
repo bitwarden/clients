@@ -561,7 +561,6 @@ export class ServiceContainer {
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,

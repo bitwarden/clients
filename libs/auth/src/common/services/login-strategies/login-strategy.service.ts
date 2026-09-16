@@ -350,7 +350,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.keyConnectorService,
               this.unlockService,
               ...sharedDeps,
             );

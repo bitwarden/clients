@@ -35,7 +35,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -237,9 +237,6 @@ describe("PasswordLoginStrategy", () => {
     );
 
     // The unlock service owns key setup, so the strategy must not set keys directly.
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
   });
 
   describe("makePasswordPreloginMasterKey", () => {
@@ -685,10 +682,6 @@ describe("PasswordLoginStrategy", () => {
     };
 
     apiService.postIdentityToken.mockResolvedValue(accountKeysTokenResponse);
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(
-      new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-    );
 
     await passwordLoginStrategy.logIn(credentials);
 

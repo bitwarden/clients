@@ -9,7 +9,6 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -24,8 +23,6 @@ import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
   tokenRequest: SsoTokenRequest;
-  /** Whether unlock service should be used for Key Connector in this login flow. */
-  unlockServiceForKeyConnectorLogin = false;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
    */
@@ -87,9 +84,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   async logIn(credentials: SsoLoginCredentials): Promise<AuthResult> {
     const data = new SsoLoginStrategyData();
-    data.unlockServiceForKeyConnectorLogin = await this.configService.getFeatureFlag(
-      FeatureFlag.UnlockKeyConnectorWithSdk,
-    );
     data.orgId = credentials.orgId;
 
     data.userEnteredEmail = credentials.email;
@@ -123,29 +117,21 @@ export class SsoLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(tokenResponse: IdentityTokenResponse, userId: UserId) {
-    // The only way we can be setting a master key at this point is if we are using Key Connector.
-    // First, check to make sure that we should do so based on the token response.
-    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse)) {
-      // If we're here, we know that the user should use Key Connector (they have a KeyConnectorUrl) and does not have a master password.
-      // We can now check the key on the token response to see whether they are a brand new user or an existing user.
-      // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
-      const newSsoUser = tokenResponse.key == null;
-      if (newSsoUser) {
-        // Store Key Connector domain confirmation data in state instead of AuthResult
-        await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
-          {
-            kdfConfig: tokenResponse.kdfConfig,
-            keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
-            organizationId: this.cache.value.orgId,
-          },
-          userId,
-        );
-      } else {
-        const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        if (!this.cache.value.unlockServiceForKeyConnectorLogin) {
-          await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
-        }
-      }
+    // The absence of a masterKeyEncryptedUserKey means the user has not been provisioned in Key
+    // Connector yet, so their conversion has to be scheduled. An already provisioned user needs
+    // nothing here; the unlock service fetches their key material from Key Connector.
+    const newSsoUser = tokenResponse.key == null;
+
+    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse) && newSsoUser) {
+      // Store Key Connector domain confirmation data in state instead of AuthResult
+      await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
+        {
+          kdfConfig: tokenResponse.kdfConfig,
+          keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
+          organizationId: this.cache.value.orgId,
+        },
+        userId,
+      );
     }
   }
 
@@ -179,26 +165,9 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    const masterKeyEncryptedUserKey = tokenResponse.key;
-
-    // Note: masterKeyEncryptedUserKey is undefined for SSO JIT provisioned users
-    // on account creation and subsequent logins (confirmed or unconfirmed)
-    // but that is fine for TDE so we cannot return if it is undefined
-
-    if (masterKeyEncryptedUserKey) {
-      // set the master key encrypted user key if it exists
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-        masterKeyEncryptedUserKey,
-        userId,
-      );
-    }
-
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
-    if (
-      tokenResponse.canUnlockWithKeyConnector() &&
-      this.cache.value.unlockServiceForKeyConnectorLogin
-    ) {
+    if (tokenResponse.canUnlockWithKeyConnector()) {
       await this.unlockService.unlockWithKeyConnector(
         userId,
         tokenResponse.intoKeyConnectorUnlockData(),
@@ -222,13 +191,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
-    } else if (
-      masterKeyEncryptedUserKey != null &&
-      this.getKeyConnectorUrl(tokenResponse) != null &&
-      !this.cache.value.unlockServiceForKeyConnectorLogin
-    ) {
-      // Key connector enabled for user
-      await this.trySetUserKeyWithMasterKey(userId);
     }
 
     // Note: In the traditional SSO flow with MP without key connector, the lock component
@@ -325,23 +287,6 @@ export class SsoLoginStrategy extends LoginStrategy {
       // TDE unlock during SSO login; the user key comes from DeviceTrustService.decryptUserKeyWithDeviceKey.
       await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
     }
-  }
-
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-
-    // There are two scenarios in which the master key is not set here:
-    // 1. If the user has a master password and is using Key Connector. In that case, we cannot set the master key
-    // because the user hasn't entered their master password yet.
-    // 2. For new users with Key Connector, we will not have a master key yet, since Key Connector domain
-    // has to be confirmed first.
-    // In both cases, we'll return here and let the migration to Key Connector handle setting the master key.
-    if (!masterKey) {
-      return;
-    }
-
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   exportCache(): CacheData {

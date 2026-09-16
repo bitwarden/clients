@@ -901,7 +901,6 @@ const safeProviders: SafeProvider[] = [
     provide: LegacyCompatKeyService,
     useClass: DefaultLegacyCompatKeyService,
     deps: [
-      InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionServiceAbstraction,
       EncryptService,

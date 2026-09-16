@@ -343,7 +343,6 @@ const safeProviders: SafeProvider[] = [
     // services the container needs are first available together.
     provide: LegacyCompatKeyService,
     useFactory: (
-      masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
       encryptService: EncryptService,
@@ -353,7 +352,6 @@ const safeProviders: SafeProvider[] = [
       keyService: KeyService,
     ) => {
       const legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-        masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
         encryptService,
@@ -366,7 +364,6 @@ const safeProviders: SafeProvider[] = [
       return legacyCompatKeyService;
     },
     deps: [
-      InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
       EncryptService,
