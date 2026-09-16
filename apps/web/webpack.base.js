@@ -173,6 +173,11 @@ module.exports.buildConfig = function buildConfig(params) {
         { from: path.resolve(__dirname, "src/images"), to: "images" },
         { from: path.resolve(__dirname, "src/images/icons"), to: "images" },
         { from: path.resolve(__dirname, "src/videos"), to: "videos" },
+        { from: path.resolve(__dirname, "src/help"), to: "help" },
+        {
+          from: path.resolve(__dirname, "../../libs/components/src/webfonts/inter.woff2"),
+          to: "help/privileged-controls/fonts",
+        },
         { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         {
           from: path.resolve(__dirname, "../../node_modules/qrious/dist/qrious.min.js"),
