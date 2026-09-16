@@ -34,6 +34,8 @@ describe("PopupPageComponent", () => {
     fixture.nativeElement.querySelector("[data-testid=popup-layout-scroll-region]");
   /** The element `popup-page` hands to `bitCollapseOnScroll`, which publishes `data-state`. */
   const collapsingRegion = (): HTMLElement => fixture.nativeElement.querySelector("[data-state]");
+  /** The wrapper around the collapsing region, which holds the seam when the page opts out. */
+  const seamWrapper = (): HTMLElement => collapsingRegion().parentElement!;
   const floatingAction = (): HTMLElement | null =>
     fixture.nativeElement.querySelector("[data-testid=floating-action]");
   const collapseDirective = (): CollapseOnScrollDirective =>
@@ -43,6 +45,12 @@ describe("PopupPageComponent", () => {
   /** The positioning wrapper `popup-page` puts around the projected action. */
   const floatingActionWrapper = (): HTMLElement =>
     floatingAction()!.closest(".tw-absolute") as HTMLElement;
+
+  const scrollAwayFromTop = (): void => {
+    scrollRegion().scrollTop = 100;
+    scrollRegion().dispatchEvent(new Event("scroll"));
+    fixture.detectChanges();
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -77,6 +85,26 @@ describe("PopupPageComponent", () => {
       const content = fixture.nativeElement.querySelector("[data-testid=above-scroll-area]");
 
       expect(collapsingRegion().contains(content)).toBe(true);
+    });
+
+    it("grows its own seam on scroll when opted out, since the directive draws none", () => {
+      host.collapse.set(false);
+      fixture.detectChanges();
+
+      expect(seamWrapper().classList).toContain("tw-border-b");
+      expect(seamWrapper().classList).not.toContain("!tw-border-border-base");
+
+      scrollAwayFromTop();
+
+      expect(seamWrapper().classList).toContain("!tw-border-border-base");
+    });
+
+    /** The directive's `ownsSeam` gates on the same signal, so a seam here would stack against it. */
+    it("leaves the seam to the directive when opted in", () => {
+      scrollAwayFromTop();
+
+      expect(seamWrapper().classList).toContain("!tw-border-none");
+      expect(seamWrapper().classList).not.toContain("!tw-border-border-base");
     });
   });
 
