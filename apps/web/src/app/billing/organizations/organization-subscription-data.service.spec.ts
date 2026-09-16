@@ -229,6 +229,19 @@ describe("OrganizationSubscriptionDataService", () => {
         done();
       });
     });
+
+    it("should return false when the API key lookup fails", (done) => {
+      const mockOrg: Organization = { id: "org-123" } as Organization;
+      orgService.organizations$.mockImplementation((_userId: any) =>
+        new BehaviorSubject([mockOrg]).asObservable(),
+      );
+      orgApiService.getApiKeyInformation.mockRejectedValue(new Error("unavailable"));
+
+      service.hasBillingSyncToken$("org-123").subscribe((hasToken) => {
+        expect(hasToken).toBe(false);
+        done();
+      });
+    });
   });
 
   describe("resellerSeatsRemaining$", () => {
@@ -276,6 +289,19 @@ describe("OrganizationSubscriptionDataService", () => {
       service.resellerSeatsRemaining$("org-123").subscribe((remaining) => {
         expect(remaining).toBeNull();
         expect(orgUserApiService.getAllUsers).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return null when the user lookup fails", (done) => {
+      const mockOrg: Organization = { id: "org-123", hasReseller: true, seats: 50 } as Organization;
+      orgService.organizations$.mockImplementation((_userId: any) =>
+        new BehaviorSubject([mockOrg]).asObservable(),
+      );
+      orgUserApiService.getAllUsers.mockRejectedValue(new Error("unavailable"));
+
+      service.resellerSeatsRemaining$("org-123").subscribe((remaining) => {
+        expect(remaining).toBeNull();
         done();
       });
     });

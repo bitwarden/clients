@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { Observable, distinctUntilChanged, from, map, of, switchMap } from "rxjs";
+import { Observable, catchError, distinctUntilChanged, from, map, of, switchMap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -69,6 +69,7 @@ export class OrganizationSubscriptionDataService {
               map((response) =>
                 response.data.some((key) => key.keyType === OrganizationApiKeyType.BillingSync),
               ),
+              catchError(() => of(false)),
             )
           : of(false),
       ),
@@ -93,6 +94,7 @@ export class OrganizationSubscriptionDataService {
                 ).length;
                 return org.seats - activeUserCount;
               }),
+              catchError(() => of(null)),
             )
           : of(null),
       ),
