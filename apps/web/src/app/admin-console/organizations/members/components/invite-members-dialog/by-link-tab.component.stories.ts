@@ -8,6 +8,7 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
@@ -38,6 +39,7 @@ const mockAccountService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockToastService = {
@@ -47,6 +49,10 @@ const mockToastService = {
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockServerSettingsService = {
+  isEmailVerificationDisabled$: of(false),
 };
 
 const mockInviteLinkUrl =
@@ -86,6 +92,7 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: ToastService, useValue: mockToastService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
       ],
     }),
     applicationConfig({
