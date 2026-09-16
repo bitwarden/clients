@@ -29,7 +29,7 @@
   });
   sidebar.querySelectorAll("a").forEach(function (a) {
     a.addEventListener("click", function () {
-      if (window.matchMedia("(max-width: 899px)").matches) closeDrawer();
+      if (window.matchMedia("(max-width: 899.98px)").matches) closeDrawer();
     });
   });
 
