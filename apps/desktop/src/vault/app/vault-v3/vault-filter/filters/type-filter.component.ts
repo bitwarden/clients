@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, inject } from "@angular/core";
+import { Component, input, inject, computed } from "@angular/core";
 import { combineLatest, map, shareReplay } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -10,6 +10,9 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultFilter, CipherTypeFilter } from "@bitwarden/vault";
+
+import { PersistedVaultFilterExpansionService } from "../services/persisted-vault-filter-expansion.service";
+import { settledAfterRender } from "../services/settled-after-render";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -23,6 +26,8 @@ export class TypeFilterComponent {
     RestrictedItemTypesService,
   );
   private configService: ConfigService = inject(ConfigService);
+  private collapseService = inject(PersistedVaultFilterExpansionService);
+  private settled = settledAfterRender();
 
   protected readonly cipherTypes = input.required<TreeNode<CipherTypeFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
@@ -63,4 +68,15 @@ export class TypeFilterComponent {
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  protected readonly isOpen = computed<boolean>(() => {
+    return this.collapseService.isOpen(this.cipherTypes()?.node.id);
+  });
+
+  protected onOpenChange(open: boolean) {
+    if (!this.settled()) {
+      return;
+    }
+    void this.collapseService.setOpen(this.cipherTypes()?.node.id, open);
+  }
 }

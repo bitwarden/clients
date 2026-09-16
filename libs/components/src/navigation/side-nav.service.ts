@@ -10,6 +10,14 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   deserializer: (s) => s,
 });
 
+const BIT_SIDE_NAV_COLLAPSE_PREFERENCE_KEY_DEF = new KeyDefinition<"open" | "closed" | null>(
+  BIT_SIDE_NAV_DISK,
+  "side-nav-collapse-preference",
+  {
+    deserializer: (s) => s,
+  },
+);
+
 export type SideNavVersion = "default" | "vfo1";
 
 @Injectable({
@@ -79,6 +87,16 @@ export class SideNavService {
     map((width) => width ?? this.DEFAULT_OPEN_WIDTH),
   );
 
+  /**
+   * State provider for the user's explicit open/closed preference.
+   *
+   * Only written by {@link toggle}, never by automatic responsive/push-mode changes, so it
+   * captures intent rather than the nav's current visual state.
+   */
+  private readonly collapsePreferenceState = inject(GlobalStateProvider).get(
+    BIT_SIDE_NAV_COLLAPSE_PREFERENCE_KEY_DEF,
+  );
+
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
     this.rootFontSizePx = getRootFontSizePx();
@@ -92,14 +110,25 @@ export class SideNavService {
     this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
       void this.widthState.update(() => width);
     });
+
+    // Restore the user's last explicit open/closed preference. A null preference (never
+    // toggled) leaves the default responsive/push-mode behavior untouched.
+    this.collapsePreferenceState.state$.pipe(first()).subscribe((preference) => {
+      if (preference) {
+        this.userCollapsePreference.set(preference);
+        this.open.set(preference === "open");
+      }
+    });
   }
 
   /**
    * Toggle the open/close state of the side nav
    */
   toggle() {
-    this.userCollapsePreference.set(this.open() ? "closed" : "open");
+    const preference = this.open() ? "closed" : "open";
+    this.userCollapsePreference.set(preference);
     this.open.set(!this.open());
+    void this.collapsePreferenceState.update(() => preference);
   }
 
   /**
