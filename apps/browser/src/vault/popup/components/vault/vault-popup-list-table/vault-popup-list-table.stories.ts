@@ -38,6 +38,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   MY_VAULT,
   orgIconTile,
@@ -635,6 +636,12 @@ const buildProviders = (args: StoryArgs) => {
     },
     // `popup-header`'s back button, for the stories that render the full page layout.
     { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve(true) } },
+    {
+      // The rows' more-options menu hosts the share entry point, which asks whether the
+      // item can be shared. Stubbed so the real service is not constructed.
+      provide: ShareLinkService,
+      useValue: { cipherCanBeShared$: () => of(false) },
+    },
   ];
 };
 

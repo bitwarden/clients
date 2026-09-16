@@ -50,7 +50,11 @@ class QueryParams {
   constructor(params: Params) {
     this.sendId = params.sendId;
     const sendTypeValue = parseInt(params.type, 10);
-    if (sendTypeValue === SendType.Text || sendTypeValue === SendType.File) {
+    if (
+      sendTypeValue === SendType.Text ||
+      sendTypeValue === SendType.File ||
+      sendTypeValue === SendType.Item
+    ) {
       this.type = sendTypeValue;
     } else {
       throw new Error(`Invalid SendType: ${params.type}`);
