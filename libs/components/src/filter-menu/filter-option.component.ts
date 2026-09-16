@@ -92,7 +92,10 @@ export class FilterOptionComponent<T = unknown> implements FilterRow {
    * second example. Recurses through this same component, so an arbitrarily deep tree needs no
    * markup of its own beyond this one binding.
    */
-  readonly nested = input<readonly FilterOptionNode<T>[]>([]);
+  readonly nested = input<
+    readonly FilterOptionNode<T>[],
+    readonly FilterOptionNode<T>[] | undefined
+  >([], { transform: (value) => value ?? [] });
 
   /**
    * Literal nested `bit-filter-option` markup — direct content, not `descendants`. Ignored once
