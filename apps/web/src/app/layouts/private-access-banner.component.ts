@@ -20,8 +20,7 @@ const HEIGHT_PROPERTY = "--private-access-banner-height";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivateAccessBannerComponent implements AfterViewInit, OnDestroy {
-  // TODO(PM-43667): point at the private preview user guide once it exists.
-  protected readonly helpUrl = "https://bitwarden.com/help/private-preview-user-guide";
+  protected readonly helpUrl = "/help/privileged-controls/index.html";
 
   private readonly container = viewChild.required<ElementRef<HTMLElement>>("container");
 
