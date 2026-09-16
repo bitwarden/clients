@@ -180,11 +180,8 @@
     </div>
   </bit-card>
 
-  <!--
-    Its own section, a sibling of the card above rather than folded inside it (PM-43662); the
-    request, submit and cancel buttons live in the dialog footer, driven through
-    `RequestAccessFooterBridge`.
-  -->
+  <!-- Its own section, a sibling of the card above: the buttons that drive it are in the
+       dialog footer, reached through `RequestAccessFooterBridge`. -->
   @if (requestFormExpanded()) {
     <bit-section class="tw-mb-5 bit-compact:tw-mb-4">
       <bit-card>

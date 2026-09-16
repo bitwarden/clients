@@ -21,16 +21,13 @@ import { RequestAccessFooterBridge } from "../cipher-view-banner/request-access-
  * The LEFT-slotted actions in the vault item dialog's footer for a PAM-governed cipher — bound to
  * `CIPHER_VIEW_FOOTER_ACTIONS` (`@bitwarden/vault`) alongside `CIPHER_VIEW_BANNER`.
  *
- * PM-43662 moved the request affordance out of the in-body card
- * ({@link CipherViewBannerComponent}) and into the footer, to follow the standard footer pattern
- * for primary and secondary actions. The card still owns the form; this component owns only the
- * buttons that drive it, reading the shared {@link RequestAccessFooterActions} handle the card
- * publishes through {@link RequestAccessFooterBridge}.
+ * The card ({@link CipherViewBannerComponent}) owns the form; this component owns only the
+ * buttons that drive it, reading the handle the card publishes through
+ * {@link RequestAccessFooterBridge}.
  *
- * Renders nothing when there is no published handle, when the published handle belongs to a
- * DIFFERENT cipher (a handle left over from a previously open item), or when the matching
- * handle's own `visible` is false — an ordinary cipher's dialog footer must look exactly as it
- * does today.
+ * Renders nothing when no handle is published, when the published handle belongs to a DIFFERENT
+ * cipher (one left over from a previously open item), or when the matching handle reports itself
+ * not visible — an ordinary cipher's dialog footer must be untouched.
  */
 @Component({
   selector: "app-pam-cipher-view-footer-actions",
@@ -68,15 +65,12 @@ export class CipherViewFooterActionsComponent {
   });
 
   constructor() {
-    // Collapsing — whether from this footer's own Cancel or from a submit that closed the form on
-    // the card's side — unmounts [Submit request]/[Cancel] and remounts [Request access]. Refocus
-    // it so a keyboard caller is not dropped back at the top of the dialog. Keyed off the
-    // collapse EDGE, not off `expanded` being false: the resting state is also false, and
-    // focusing the toggle every time the footer renders would steal focus on open.
-    // Deliberately `effect` + `afterNextRender` rather than a single `afterRenderEffect`: the
-    // latter only runs in the after-render phase of a full application tick, which defers the
-    // refocus past the change detection that remounts the button. An `effect` flushes with
-    // change detection and then waits exactly one render for its target to exist.
+    // Collapsing (this footer's Cancel, or a submit that closed the form on the card's side)
+    // unmounts [Submit request]/[Cancel] and remounts [Request access]; refocus it so a keyboard
+    // caller is not dropped at the top of the dialog. Keyed off the collapse EDGE — the resting
+    // state is also unexpanded, and refocusing on every render would steal focus on open. Keep
+    // `effect` + `afterNextRender`: `afterRenderEffect` runs only in a full tick's after-render
+    // phase, which defers the refocus past the change detection that remounts the button.
     let wasExpanded = false;
     effect(() => {
       const expanded = this.handle()?.expanded() ?? false;
