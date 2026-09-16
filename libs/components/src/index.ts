@@ -46,6 +46,7 @@ export * from "./navigation";
 export * from "./popover";
 export * from "./progress";
 export * from "./radio-button";
+export * from "./resize-observer";
 export * from "./search";
 export * from "./section";
 export * from "./select";
