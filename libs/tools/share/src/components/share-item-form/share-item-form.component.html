@@ -58,6 +58,11 @@
           }
         </bit-select>
       </bit-form-field>
+      @if (policyDeletionHoursOrgName()) {
+        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-4">
+          {{ "sendDeletionDateSetByOrg" | i18n: policyDeletionHoursOrgName() }}
+        </p>
+      }
       <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
         {{ "shareLinkExpiryHint" | i18n }}
       </p>
@@ -94,7 +99,7 @@
                 linkEmailDisplay(link.emails)
               }}</span>
               <span bitTypography="helper" class="tw-text-muted">
-                {{ "expires" | i18n }} {{ link.expiresAt | date: "mediumDate" }}
+                {{ "shareLinkExpires" | i18n }} {{ link.expiresAt | date: "mediumDate" }}
               </span>
             </div>
             <div class="tw-flex tw-items-center tw-shrink-0">

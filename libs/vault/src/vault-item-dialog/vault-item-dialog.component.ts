@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { CommonModule, NgComponentOutlet } from "@angular/common";
+import {
+  Component,
+  ElementRef,
+  inject,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Type,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
@@ -60,6 +69,7 @@ import {
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
 import { VaultViewPasswordHistoryService } from "../services/view-password-history.service";
+import { SHARE_ITEM_ENTRY_POINT } from "../tokens/share-item-entry-point.token";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -135,6 +145,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
+    NgComponentOutlet,
   ],
   providers: [{ provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService }],
 })
@@ -318,6 +329,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
+
+  /**
+   * The client's share entry point, if it has one. See {@link SHARE_ITEM_ENTRY_POINT}.
+   *
+   * The explicit type argument keeps `SafeInjectionToken`'s tagged generic from collapsing to `{}`
+   * when this file is compiled as part of a consuming project, which the template type-checker
+   * then rejects as an `ngComponentOutlet` value.
+   */
+  protected readonly shareItemEntryPoint = inject<Type<unknown>>(SHARE_ITEM_ENTRY_POINT, {
+    optional: true,
+  });
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,

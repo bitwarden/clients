@@ -183,6 +183,13 @@ export class CartSummaryComponent {
   });
 
   /**
+   * Hides pricing term through input or the cart.
+   */
+  readonly hideTerm = computed(
+    () => this.hidePricingTerm() || (this.cart().hidePricingTerm ?? false),
+  );
+
+  /**
    * Calculates the subtotal before discount and tax, including proration charge rows.
    */
   readonly subtotal = computed<number>(
