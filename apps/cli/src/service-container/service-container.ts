@@ -898,7 +898,6 @@ export class ServiceContainer {
     this.passwordPreloginService = new DefaultPasswordPreloginService(
       passwordPreloginApiService,
       this.sdkService,
-      this.environmentService,
       this.configService,
     );
 

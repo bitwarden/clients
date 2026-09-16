@@ -2089,7 +2089,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService, SdkService, EnvironmentService, ConfigService],
+    deps: [PasswordPreloginApiService, SdkService, ConfigService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,
