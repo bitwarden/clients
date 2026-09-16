@@ -360,6 +360,25 @@ describe("CartSummaryComponent", () => {
       expect(termElement).toBeFalsy();
     });
 
+    it("should hide term when hidePricingTerm is true in the cart", () => {
+      // Arrange — the caller leaves the input off; the cart carries the flag.
+      const oneTimeCart: Cart = {
+        ...mockCart,
+        hidePricingTerm: true,
+      };
+      fixture.componentRef.setInput("cart", oneTimeCart);
+      fixture.detectChanges();
+
+      // Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(component.hidePricingTerm()).toBe(false);
+      expect(component.hideTerm()).toBe(true);
+      expect(termElement).toBeFalsy();
+    });
+
     it("should show term when hidePricingTerm is false", () => {
       // Arrange
       const cartWithVisibleTerm: Cart = {

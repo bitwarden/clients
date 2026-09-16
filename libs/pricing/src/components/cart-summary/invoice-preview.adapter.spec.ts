@@ -279,6 +279,7 @@ describe("adaptInvoicePreviewToCart", () => {
           translationKey: "appliedSubscriptionCredits",
           value: 37.64,
         });
+        expect(cart.hidePricingTerm).toBe(true);
       });
 
       it("should render a single seat with the singular unit", () => {
@@ -340,6 +341,7 @@ describe("adaptInvoicePreviewToCart", () => {
           translationKey: "appliedSubscriptionCredits",
           value: 9.02,
         });
+        expect(cart.hidePricingTerm).toBeUndefined();
       });
 
       it("should emit no charge lines for a pure-credit proration", () => {
