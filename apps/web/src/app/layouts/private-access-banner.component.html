@@ -1,0 +1,10 @@
+@if (visible()) {
+  <div #container resizeObserver (resize)="publishHeight()">
+    <bit-banner class="[&_span]:tw-max-w-none [&>div]:tw-pointer-events-auto" variant="primary">
+      {{ "privateAccessBanner" | i18n }}
+      <a bitLink linkType="default" [href]="helpUrl" target="_blank" rel="noreferrer">
+        {{ "viewUserGuide" | i18n }}
+      </a>
+    </bit-banner>
+  </div>
+}
