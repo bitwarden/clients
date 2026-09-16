@@ -1805,9 +1805,6 @@
   "launchWebsite": {
     "message": "Launch website"
   },
-  "launchWebsite": {
-    "message": "Launch website"
-  },
   "me": {
     "message": "Me"
   },
@@ -1890,9 +1887,6 @@
   },
   "clearAll": {
     "message": "Clear all"
-  },
-  "done": {
-    "message": "Done"
   },
   "filtersSelected": {
     "message": "$COUNT$ selected",
@@ -4701,6 +4695,15 @@
   },
   "reinstateSubscription": {
     "message": "Reinstate subscription"
+  },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
   },
   "reinstateConfirmation": {
     "message": "Are you sure you want to remove the pending cancellation request and reinstate your subscription?"
@@ -9549,16 +9552,25 @@
   "decryptionError": {
     "message": "Decryption error"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "Manage users must also be granted with the manage account recovery permission"
@@ -17766,5 +17778,29 @@
         "example": "Test Login"
       }
     }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "additional service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
+  "membersLower": {
+    "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager prorated charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage prorated charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager prorated charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service accounts prorated charge"
   }
 }
