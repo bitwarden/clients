@@ -2,6 +2,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
+import { USER_DECRYPTION_OPTIONS } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
   CryptoFunctionService,
@@ -32,11 +34,7 @@ import {
   MasterPasswordUnlockData,
 } from "../types/master-password.types";
 
-import {
-  FORCE_SET_PASSWORD_REASON,
-  MasterPasswordService,
-  USER_DECRYPTION_OPTIONS,
-} from "./master-password.service";
+import { FORCE_SET_PASSWORD_REASON, MasterPasswordService } from "./master-password.service";
 
 describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;
