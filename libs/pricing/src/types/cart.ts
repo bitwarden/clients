@@ -12,12 +12,15 @@ export type CartItem = {
 
 export type Cart = {
   passwordManager: {
-    seats: CartItem;
+    seats?: CartItem;
     additionalStorage?: CartItem;
+    /** Each proration charge rendered as its own line row, labeled by its purchasable reference. */
+    prorationCharges?: CartItem[];
   };
   secretsManager?: {
     seats?: CartItem;
     additionalServiceAccounts?: CartItem;
+    prorationCharges?: CartItem[];
   };
   cadence: "annually" | "monthly";
   discounts?: CartDiscount[];
