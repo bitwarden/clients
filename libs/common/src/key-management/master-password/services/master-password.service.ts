@@ -2,6 +2,9 @@
 // @ts-strict-ignore
 import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { USER_DECRYPTION_OPTIONS } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -15,16 +18,10 @@ import { AccountService } from "../../../auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { assertNonNullish } from "../../../auth/utils";
 import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
-import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
-import {
-  MASTER_PASSWORD_DISK,
-  StateProvider,
-  USER_DECRYPTION_OPTIONS_DISK,
-  UserKeyDefinition,
-} from "../../../platform/state";
+import { MASTER_PASSWORD_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
@@ -37,22 +34,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "../types/master-password.types";
-
-/**
- * Whether the server says the user has a master password, independent of any local key material.
- *
- * Note: the canonical definition of this state lives in `libs/auth`, which `libs/common` cannot
- * import. It is redeclared here, narrowed to the one field needed, so that a missing-unlock-data
- * hydration failure can be told apart from a user who legitimately has no master password.
- */
-export const USER_DECRYPTION_OPTIONS = new UserKeyDefinition<{ hasMasterPassword: boolean }>(
-  USER_DECRYPTION_OPTIONS_DISK,
-  "decryptionOptions",
-  {
-    deserializer: (options) => options,
-    clearOn: ["logout"],
-  },
-);
 
 /** Disk to persist through lock and account switches */
 export const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
@@ -68,7 +49,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
   constructor(
     private stateProvider: StateProvider,
     private keyGenerationService: KeyGenerationService,
-    private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
   ) {}

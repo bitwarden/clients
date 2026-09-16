@@ -20,7 +20,6 @@ import {
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
-import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
@@ -43,7 +42,6 @@ describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;
 
   let keyGenerationService: MockProxy<KeyGenerationService>;
-  let logService: MockProxy<LogService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
@@ -58,7 +56,6 @@ describe("MasterPasswordService", () => {
 
   beforeEach(() => {
     keyGenerationService = mock<KeyGenerationService>();
-    logService = mock<LogService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
     accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
@@ -66,7 +63,6 @@ describe("MasterPasswordService", () => {
     sut = new MasterPasswordService(
       stateProvider,
       keyGenerationService,
-      logService,
       cryptoFunctionService,
       accountService,
     );

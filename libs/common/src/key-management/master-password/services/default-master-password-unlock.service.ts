@@ -1,7 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { isCryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -13,7 +11,6 @@ import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master
 export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockService {
   constructor(
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private readonly legacyCompatKeyService: LegacyCompatKeyService,
     private readonly logService: LogService,
   ) {}
 

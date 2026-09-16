@@ -30,7 +30,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
@@ -96,7 +95,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private logService: LogService,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
-    private stateService: StateService,
     private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
@@ -311,7 +309,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.platformUtilsService,
       this.messagingService,
       this.logService,
-      this.stateService,
       this.twoFactorService,
       this.userDecryptionOptionsService,
       this.billingAccountProfileStateService,
