@@ -1,40 +1,38 @@
 @if (handle(); as actions) {
-  @if (actions.visible()) {
-    @if (!actions.expanded()) {
+  @if (!actions.expanded()) {
+    <button
+      #requestToggleButton
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="actions.toggle()"
+      id="pam-cipher-view-banner_button_request-toggle"
+      data-testid="cipher-view-footer-actions-toggle"
+    >
+      {{ "pamRequestAccessButton" | i18n }}
+    </button>
+  } @else {
+    @if (actions.submittable()) {
       <button
-        #requestToggleButton
         type="button"
         bitButton
         buttonType="primary"
-        (click)="actions.toggle()"
-        id="pam-cipher-view-banner_button_request-toggle"
-        data-testid="cipher-view-footer-actions-toggle"
+        [bitAction]="actions.submit"
+        id="pam-cipher-view-banner_button_request-submit"
+        data-testid="cipher-view-footer-actions-submit"
       >
-        {{ "pamRequestAccessButton" | i18n }}
-      </button>
-    } @else {
-      @if (actions.submittable()) {
-        <button
-          type="button"
-          bitButton
-          buttonType="primary"
-          [bitAction]="actions.submit"
-          id="pam-cipher-view-banner_button_request-submit"
-          data-testid="cipher-view-footer-actions-submit"
-        >
-          {{ "requestAccessModalSubmit" | i18n }}
-        </button>
-      }
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        (click)="actions.toggle()"
-        id="pam-cipher-view-banner_button_request-cancel"
-        data-testid="cipher-view-footer-actions-cancel"
-      >
-        {{ "requestAccessModalDismiss" | i18n }}
+        {{ "requestAccessModalSubmit" | i18n }}
       </button>
     }
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="actions.toggle()"
+      id="pam-cipher-view-banner_button_request-cancel"
+      data-testid="cipher-view-footer-actions-cancel"
+    >
+      {{ "requestAccessModalDismiss" | i18n }}
+    </button>
   }
 }

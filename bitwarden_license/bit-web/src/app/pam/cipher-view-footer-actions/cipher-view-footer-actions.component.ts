@@ -45,13 +45,21 @@ export class CipherViewFooterActionsComponent {
   private readonly injector = inject(Injector);
 
   /**
-   * The published handle, but only when it matches the cipher this footer was handed — a stale
-   * handle from a previously open item must render nothing rather than drive the wrong request.
+   * The handle to render actions from, or null for a footer with nothing to add.
+   *
+   * Null unless the published handle both matches the cipher this footer was handed — a stale
+   * handle from a previously open item must render nothing rather than drive the wrong request —
+   * and reports itself visible, so the template branches on the open form alone.
    */
   protected readonly handle = computed(() => {
     const actions = this.bridge.actions();
     const cipherId = this.cipher().id;
-    return actions != null && cipherId != null && actions.cipherId === cipherId ? actions : null;
+
+    if (actions == null || cipherId == null || actions.cipherId !== cipherId) {
+      return null;
+    }
+
+    return actions.visible() ? actions : null;
   });
 
   /** Refocused once the form collapses — see the constructor effect below. */
@@ -61,18 +69,24 @@ export class CipherViewFooterActionsComponent {
 
   constructor() {
     // Collapsing — whether from this footer's own Cancel or from a submit that closed the form on
-    // the card's side — unmounts [Submit request]/[Cancel] and remounts [Request access]; refocus
-    // it the same way `cipher-view-banner.component.ts` refocuses its own toggle, bound to the
-    // render that follows the collapse rather than the click itself, since a submit's collapse
-    // happens on the card, not here.
+    // the card's side — unmounts [Submit request]/[Cancel] and remounts [Request access]. Refocus
+    // it so a keyboard caller is not dropped back at the top of the dialog. Keyed off the
+    // collapse EDGE, not off `expanded` being false: the resting state is also false, and
+    // focusing the toggle every time the footer renders would steal focus on open.
+    // Deliberately `effect` + `afterNextRender` rather than a single `afterRenderEffect`: the
+    // latter only runs in the after-render phase of a full application tick, which defers the
+    // refocus past the change detection that remounts the button. An `effect` flushes with
+    // change detection and then waits exactly one render for its target to exist.
     let wasExpanded = false;
     effect(() => {
       const expanded = this.handle()?.expanded() ?? false;
+
       if (wasExpanded && !expanded) {
         afterNextRender(() => this.requestToggleButton()?.nativeElement.focus(), {
           injector: this.injector,
         });
       }
+
       wasExpanded = expanded;
     });
   }
