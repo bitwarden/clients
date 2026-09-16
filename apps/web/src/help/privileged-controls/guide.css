@@ -571,17 +571,6 @@ figure.shot figcaption {
   margin-top: 0.5rem;
 }
 
-.content-footer {
-  max-width: 74ch;
-  margin-top: 3.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border-base);
-}
-.content-footer p {
-  font-size: 0.875rem;
-  color: var(--fg-body-subtle);
-}
-
 /* ---- right rail ---- */
 .rail {
   display: none;
@@ -623,21 +612,6 @@ figure.shot figcaption {
 }
 .rail-list a:hover {
   color: var(--fg-heading);
-}
-
-/* ---- footer ---- */
-.site-footer {
-  border-top: 1px solid var(--border-base);
-  padding: 2rem 1.75rem 3rem;
-}
-.site-footer-inner {
-  max-width: 88rem;
-  margin: 0 auto;
-}
-.site-footer p {
-  font-size: 0.875rem;
-  color: var(--fg-body-subtle);
-  margin: 0;
 }
 
 @media (max-width: 1219.98px) {
@@ -692,8 +666,7 @@ figure.shot figcaption {
   .sidebar,
   .sidebar-backdrop,
   .rail,
-  .nav-toggle,
-  .site-footer {
+  .nav-toggle {
     display: none;
   }
   .shell {
