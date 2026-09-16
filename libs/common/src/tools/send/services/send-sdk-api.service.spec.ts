@@ -480,6 +480,30 @@ describe("SendSdkApiService", () => {
         });
       });
 
+      describe("when the caller aborts after a successful upload", () => {
+        // Regression guard for PM-42963: cancelling the Send dialog used to just close it,
+        // leaving whatever the in-flight upload produced (even a corrupted file) as a
+        // permanent send, since nothing threw for rollback to react to.
+        it("rolls back the created send and throws an AbortError instead of returning it", async () => {
+          const controller = new AbortController();
+          controller.abort();
+
+          await expect(
+            service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal),
+          ).rejects.toMatchObject({ name: "AbortError" });
+
+          expect(sendsClient.delete).toHaveBeenCalledWith("server-id");
+        });
+
+        it("does not roll back or throw when the signal was never aborted", async () => {
+          const controller = new AbortController();
+
+          await service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal);
+
+          expect(sendsClient.delete).not.toHaveBeenCalled();
+        });
+      });
+
       it("edits an existing file send through the SDK", async () => {
         const existingId = Utils.newGuid();
 

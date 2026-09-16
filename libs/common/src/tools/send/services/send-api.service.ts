@@ -9,6 +9,7 @@ import {
   FileUploadApiMethods,
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
+import { LogService } from "../../../platform/abstractions/log.service";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendRequest } from "../models/request/send.request";
@@ -28,6 +29,7 @@ export class SendApiService implements SendApiServiceAbstraction {
     private apiService: ApiService,
     private fileUploadService: FileUploadService,
     private sendService: InternalSendService,
+    private logService: LogService,
   ) {}
 
   async getSend(id: string): Promise<SendResponse> {
@@ -95,8 +97,12 @@ export class SendApiService implements SendApiServiceAbstraction {
   // derives the send password over the key it generates. The legacy path derives it in
   // `SendService.encrypt` before `save` and carries the result on `Send.password`, so it ignores
   // the plaintext here — behavior is unchanged.
-  async save(sendData: [Send, EncArrayBuffer], _plaintextPassword?: string): Promise<Send> {
-    const response = await this.upload(sendData);
+  async save(
+    sendData: [Send, EncArrayBuffer],
+    _plaintextPassword?: string,
+    signal?: AbortSignal,
+  ): Promise<Send> {
+    const response = await this.upload(sendData, signal);
 
     const data = new SendData(response);
     await this.sendService.upsert(data);
@@ -110,9 +116,10 @@ export class SendApiService implements SendApiServiceAbstraction {
     view: SendView,
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
+    signal?: AbortSignal,
   ): Promise<Send> {
     const sendData = await this.sendService.encrypt(view, file, plaintextPassword);
-    return await this.save(sendData, plaintextPassword);
+    return await this.save(sendData, plaintextPassword, signal);
   }
 
   async delete(id: string): Promise<any> {
@@ -161,7 +168,10 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendResponse(r);
   }
 
-  private async upload(sendData: [Send, EncArrayBuffer]): Promise<SendResponse> {
+  private async upload(
+    sendData: [Send, EncArrayBuffer],
+    signal?: AbortSignal,
+  ): Promise<SendResponse> {
     const request = new SendRequest(sendData[0], sendData[1]?.buffer.byteLength);
 
     let response: SendResponse;
@@ -172,12 +182,29 @@ export class SendApiService implements SendApiServiceAbstraction {
         try {
           const uploadDataResponse = await this.postFileTypeSend(request);
           response = uploadDataResponse.sendResponse;
+          const fileUploadMethods = this.generateMethods(uploadDataResponse, response);
           await this.fileUploadService.upload(
             uploadDataResponse,
             sendData[0].file.fileName,
             sendData[1],
-            this.generateMethods(uploadDataResponse, response),
+            fileUploadMethods,
           );
+          // The upload can't be interrupted mid-flight, but if the caller abandoned this
+          // submission while it was in progress, don't leave a completed-but-unwanted send
+          // behind — roll it back the same way a failed upload would be.
+          if (signal?.aborted) {
+            try {
+              await fileUploadMethods.rollback();
+            } catch (rollbackError) {
+              // A rollback failure is logged rather than thrown, so the caller still sees the
+              // cancellation (AbortError) that caused it, matching the SDK path's
+              // `rollbackFileSend` — not a generic error toast for a cancel the user asked for.
+              this.logService.error(
+                `Failed to roll back file send after a cancelled upload: ${rollbackError}`,
+              );
+            }
+            throw new DOMException("Send creation was cancelled", "AbortError");
+          }
         } catch (e) {
           if (e instanceof ErrorResponse) {
             throw new Error((e as ErrorResponse).getSingleMessage());
