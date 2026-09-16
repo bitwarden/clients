@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
@@ -52,6 +53,7 @@ export class InitService {
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
     private logService: LogService,
+    private automationDriver: AutomationDriver,
   ) {}
 
   init() {
@@ -104,6 +106,7 @@ export class InitService {
         this.legacyCompatKeyService,
       );
       containerService.attachToGlobal(this.win);
+      this.automationDriver.attachToGlobal(this.win);
     };
   }
 }

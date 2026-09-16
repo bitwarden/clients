@@ -114,7 +114,7 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.Login.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
         organizationId: "444-555-666",
         folderId: "222-333-444",
         prefillNameAndURIFromTab: "true",
@@ -132,7 +132,9 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.Login.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
+        organizationId: undefined,
+        folderId: undefined,
       });
     });
 
@@ -145,7 +147,9 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.SecureNote.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
+        organizationId: undefined,
+        folderId: undefined,
       });
     });
 
@@ -158,7 +162,9 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.Identity.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
+        organizationId: undefined,
+        folderId: undefined,
       });
     });
 
@@ -171,7 +177,9 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.Card.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
+        organizationId: undefined,
+        folderId: undefined,
       });
     });
 
@@ -184,7 +192,9 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.SshKey.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
+        organizationId: undefined,
+        folderId: undefined,
       });
     });
 
@@ -197,7 +207,9 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.BankAccount.toString(),
-        collectionId: "777-888-999",
+        collectionIds: "777-888-999",
+        organizationId: undefined,
+        folderId: undefined,
       });
     });
   });
@@ -236,7 +248,7 @@ describe("NewItemDropdownComponent", () => {
         queryParams: {
           folderId: "folder-1",
           organizationId: "org-1",
-          collectionId: "col-1",
+          collectionIds: "col-1",
         },
       });
     });
@@ -250,7 +262,7 @@ describe("NewItemDropdownComponent", () => {
         queryParams: {
           folderId: undefined,
           organizationId: undefined,
-          collectionId: undefined,
+          collectionIds: undefined,
         },
       });
     });
