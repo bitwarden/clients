@@ -98,6 +98,11 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
 }
 
+/** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
+function subtreeValues(nodes: FilterOptionNode<string>[]): string[] {
+  return nodes.flatMap((n) => [n.value, ...subtreeValues(n.nested ?? [])]);
+}
+
 /** The chips a vault switch invalidates. Type is absent: item types span vaults. */
 const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
 
@@ -444,9 +449,8 @@ export class VaultPopupListTableComponent {
    * Prunes a `ChipFilterOption` tree to nodes in `visibleIds`, keeping ancestors with a visible
    * descendant so nesting survives narrowing even when the ancestor itself didn't pass (e.g. a
    * folder with no directly-scoped items). Converts to {@link FilterOptionNode} for
-   * `bit-filter-option`'s `nested` input — each node's `count` is {@link optionCount} pinned to
-   * just that node's own id, never its descendants', since a parent collection/folder doesn't
-   * contain its children's items.
+   * `bit-filter-option`'s `nested` input — each node's `count` includes its full subtree so it
+   * matches the item set that clicking the parent actually selects.
    */
   private toFilterOptionNodes<T extends { id: string }>(
     tree: ChipFilterOption<T>[],
@@ -465,7 +469,7 @@ export class VaultPopupListTableComponent {
       const node: FilterOptionNode<string> = {
         value: id,
         label: option.label ?? "",
-        count: this.optionCount(key, [id]),
+        count: this.optionCount(key, [id, ...subtreeValues(children)]),
         nested: children,
       };
       return [node];

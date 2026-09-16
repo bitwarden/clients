@@ -378,7 +378,8 @@ export class FilterMenuComponent
 
   /**
    * The count shown on each option row, keyed by the option: its explicit `count` if
-   * set, else the host's count for this chip's `key` pinned to the option's value.
+   * set, else the host's count for this chip's `key`. In `multiple` mode the count uses the
+   * option's full subtree of values so a parent row reflects the same item set its click selects.
    */
   protected readonly optionCounts = computed(() => {
     const counts = new Map<FilterOptionComponent, number | undefined>();
@@ -395,7 +396,7 @@ export class FilterMenuComponent
       if (!resolved) {
         continue;
       }
-      const pinned = multiple ? [resolved.value] : resolved.value;
+      const pinned = multiple ? this.subtreeValues(option) : resolved.value;
       counts.set(option, host?.optionCount?.(key, pinned));
     }
     return counts;
