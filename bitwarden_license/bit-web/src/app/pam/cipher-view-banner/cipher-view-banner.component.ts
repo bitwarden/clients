@@ -455,9 +455,8 @@ export class CipherViewBannerComponent implements OnInit {
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
 
-    // This card owns the form; the dialog footer owns the buttons that drive it, so the flow's
-    // state and behaviour are published for the footer to read. Withdraw on destroy rather than
-    // leaving a stale handle behind — it holds this component and its decrypted cipher.
+    // The footer owns the buttons driving this card's form, so publish the flow for it to read.
+    // Withdraw on destroy: the handle holds this component and its decrypted cipher.
     const footerActions: RequestAccessFooterActions = {
       cipherId: String(this.cipher().id),
       visible: this.canRequestAccess,
@@ -475,9 +474,8 @@ export class CipherViewBannerComponent implements OnInit {
    * side-effect-free pre-check so the form below is purely inputs plus submit. A pre-check that
    * reports an active lease means one raced in — collapse and let the state stream reveal it.
    *
-   * Focus only moves on open, into the fold-out this card owns. Returning focus to the toggle on
-   * collapse is the FOOTER's job now that the buttons live there — reaching across the bridge for
-   * another component's DOM is exactly what the seam exists to avoid.
+   * Focus only moves on open, into the fold-out this card owns; the footer refocuses its own
+   * toggle on collapse. Do not reach across the bridge for another component's DOM.
    */
   protected async toggleRequestForm(): Promise<void> {
     const next = !this.requestFormExpanded();

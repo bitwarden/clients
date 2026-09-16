@@ -18,16 +18,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { RequestAccessFooterBridge } from "../cipher-view-banner/request-access-footer.bridge";
 
 /**
- * The LEFT-slotted actions in the vault item dialog's footer for a PAM-governed cipher — bound to
- * `CIPHER_VIEW_FOOTER_ACTIONS` (`@bitwarden/vault`) alongside `CIPHER_VIEW_BANNER`.
- *
- * The card ({@link CipherViewBannerComponent}) owns the form; this component owns only the
- * buttons that drive it, reading the handle the card publishes through
- * {@link RequestAccessFooterBridge}.
- *
- * Renders nothing when no handle is published, when the published handle belongs to a DIFFERENT
- * cipher (one left over from a previously open item), or when the matching handle reports itself
- * not visible — an ordinary cipher's dialog footer must be untouched.
+ * The left-slotted actions in the vault item dialog's footer for a PAM-governed cipher, bound to
+ * `CIPHER_VIEW_FOOTER_ACTIONS`. The card owns the form; this owns the buttons driving it, read
+ * off {@link RequestAccessFooterBridge}. Renders nothing without a matching visible handle, so an
+ * ordinary cipher's footer is untouched.
  */
 @Component({
   selector: "app-pam-cipher-view-footer-actions",
@@ -42,11 +36,8 @@ export class CipherViewFooterActionsComponent {
   private readonly injector = inject(Injector);
 
   /**
-   * The handle to render actions from, or null for a footer with nothing to add.
-   *
-   * Null unless the published handle both matches the cipher this footer was handed — a stale
-   * handle from a previously open item must render nothing rather than drive the wrong request —
-   * and reports itself visible, so the template branches on the open form alone.
+   * Null unless the published handle matches the cipher this footer was handed and reports itself
+   * visible, so the template branches on the open form alone.
    */
   protected readonly handle = computed(() => {
     const actions = this.bridge.actions();
@@ -59,7 +50,6 @@ export class CipherViewFooterActionsComponent {
     return actions.visible() ? actions : null;
   });
 
-  /** Refocused once the form collapses — see the constructor effect below. */
   private readonly requestToggleButton = viewChild("requestToggleButton", {
     read: ElementRef<HTMLElement>,
   });

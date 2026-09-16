@@ -206,11 +206,8 @@ export default {
 type Story = StoryObj<CipherViewComponent>;
 
 /**
- * The resting state: the "Privileged" badge on the name row, the access card under the identity.
- *
- * The footer actions render below the view, standing in for the dialog footer that hosts them
- * (`CIPHER_VIEW_FOOTER_ACTIONS`) — the one story showing both halves of the request flow, the
- * card publishing its handle and the footer reading it through the shared bridge.
+ * The resting state: the "Privileged" badge on the name row, the access card under the identity,
+ * and the footer actions below it standing in for the dialog footer that hosts them.
  */
 export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],

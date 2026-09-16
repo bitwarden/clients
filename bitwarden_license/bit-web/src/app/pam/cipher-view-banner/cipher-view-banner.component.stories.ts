@@ -153,10 +153,8 @@ export default {
 type Story = StoryObj<CipherViewBannerComponent>;
 
 /**
- * Renders the banner alongside `CipherViewFooterActionsComponent`, which carries the card's
- * request/submit/cancel buttons. Both read the same root-provided `RequestAccessFooterBridge`,
- * so the banner's handle is picked up here as the real dialog footer picks it up. The card alone
- * would show its heading and copy with no way to act on them.
+ * Renders the banner with the footer actions that carry its buttons; both read the same
+ * root-provided bridge, so the handle is picked up as the real dialog footer picks it up.
  */
 function renderWithFooterActions(args: { cipher: CipherView }) {
   return {
