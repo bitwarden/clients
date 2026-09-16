@@ -14,7 +14,10 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BannerModule, LinkModule, ResizeObserverDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -44,6 +47,10 @@ export class PrivateAccessBannerPlacementService {
   selector: "app-private-access-banner",
   templateUrl: "private-access-banner.component.html",
   imports: [BannerModule, LinkModule, I18nPipe, ResizeObserverDirective],
+  host: {
+    class: "tw-sticky tw-z-20 tw-block tw-pointer-events-none",
+    "[class]": "offsetClass()",
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivateAccessBannerComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -55,6 +62,23 @@ export class PrivateAccessBannerComponent implements OnInit, AfterViewInit, OnDe
   private readonly placementService = inject(PrivateAccessBannerPlacementService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly container = viewChild<ElementRef<HTMLElement>>("container");
+
+  private readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  /**
+   * Sticky insets are measured inside the scroll container's padding, so the layout instance
+   * offsets `<main>`'s top padding to pin flush with its top edge. Mirrors the padding
+   * correction in `bit-banner`.
+   */
+  protected readonly offsetClass = computed(() => {
+    if (this.placement() === "app") {
+      return "tw-top-0";
+    }
+    return this.vfo1Enabled() ? "-tw-top-6 [main:has(bit-header)>&]:tw-top-0" : "-tw-top-6";
+  });
 
   protected readonly visible = computed(
     () => this.placement() === "layout" || !this.placementService.layoutBannerMounted(),

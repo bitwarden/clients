@@ -3,7 +3,9 @@ import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -25,15 +27,18 @@ class HostComponent {}
 
 describe("WebLayoutComponent", () => {
   const i18nService = mock<I18nService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(async () => {
     i18nService.t.mockImplementation((key) => key);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
         provideRouter([]),
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
       ],
     }).compileComponents();
