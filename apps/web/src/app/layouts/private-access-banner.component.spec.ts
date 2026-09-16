@@ -4,7 +4,10 @@ import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { PrivateAccessBannerComponent } from "./private-access-banner.component";
+import {
+  PrivateAccessBannerComponent,
+  PrivateAccessBannerPlacement,
+} from "./private-access-banner.component";
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -17,11 +20,18 @@ describe("PrivateAccessBannerComponent", () => {
   let measuredHeight: jest.SpyInstance<DOMRect>;
   const i18nService = mock<I18nService>();
 
-  const banner = () => fixture.debugElement.query(By.css("bit-banner"));
+  const banner = (target = fixture) => target.debugElement.query(By.css("bit-banner"));
   const link = () => banner().query(By.css("a")).nativeElement as HTMLAnchorElement;
-  const container = () => fixture.debugElement.query(By.css("[resizeObserver]"));
+  const container = (target = fixture) => target.debugElement.query(By.css("[resizeObserver]"));
   const height = () =>
     document.documentElement.style.getPropertyValue("--private-access-banner-height");
+
+  const createBanner = (placement: PrivateAccessBannerPlacement) => {
+    const created = TestBed.createComponent(PrivateAccessBannerComponent);
+    created.componentRef.setInput("placement", placement);
+    created.detectChanges();
+    return created;
+  };
 
   beforeEach(async () => {
     i18nService.t.mockImplementation((key) => key);
@@ -40,6 +50,7 @@ describe("PrivateAccessBannerComponent", () => {
 
   afterEach(() => {
     fixture.destroy();
+    document.documentElement.style.removeProperty("--private-access-banner-height");
     jest.restoreAllMocks();
   });
 
@@ -78,5 +89,55 @@ describe("PrivateAccessBannerComponent", () => {
 
   it("offers no way to dismiss it", () => {
     expect(fixture.debugElement.query(By.css("button"))).toBeNull();
+  });
+
+  describe("inside a layout", () => {
+    let layoutFixture: ComponentFixture<PrivateAccessBannerComponent>;
+
+    beforeEach(() => {
+      layoutFixture = createBanner("layout");
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      layoutFixture.destroy();
+    });
+
+    it("renders the banner in the layout", () => {
+      expect(banner(layoutFixture)).not.toBeNull();
+    });
+
+    it("hides the app-level banner so only one is visible", () => {
+      expect(banner()).toBeNull();
+    });
+
+    it("clears the height the app-level banner published", () => {
+      expect(height()).toBe("");
+    });
+
+    it("does not publish a height of its own", () => {
+      container(layoutFixture).triggerEventHandler("resize", {});
+
+      expect(height()).toBe("");
+    });
+
+    it("brings the app-level banner back once the layout is gone", () => {
+      layoutFixture.destroy();
+      fixture.detectChanges();
+      container().triggerEventHandler("resize", {});
+
+      expect(banner()).not.toBeNull();
+      expect(height()).toBe("43.5px");
+    });
+
+    it("keeps the app-level banner hidden while another layout banner remains", () => {
+      const secondLayoutFixture = createBanner("layout");
+      layoutFixture.destroy();
+      fixture.detectChanges();
+
+      expect(banner()).toBeNull();
+
+      secondLayoutFixture.destroy();
+    });
   });
 });

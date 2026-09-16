@@ -47,17 +47,8 @@
     }
   }
 
-  bit-layout {
-    height: calc(100vh - var(--private-access-banner-height, 0px)) !important;
-  }
-
   bit-landing-layout > div {
     min-height: calc(100vh - var(--private-access-banner-height, 0px)) !important;
-  }
-
-  bit-side-nav.tw-fixed {
-    top: var(--private-access-banner-height, 0px);
-    height: calc(100% - var(--private-access-banner-height, 0px));
   }
 
   /**
