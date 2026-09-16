@@ -53,6 +53,28 @@ const createScrollable = (scrollHeight = 1000, clientHeight = 500) => {
   return element;
 };
 
+/**
+ * A consumer gating two projected nodes on one condition. Angular projects a `@if` block only
+ * when it has a single root, so wrapping both drops each into the default content.
+ */
+@Component({
+  template: `
+    <popup-header pageTitle="Vault">
+      @if (enabled()) {
+        <span slot="title-start" data-testid="title-start">Switcher</span>
+      }
+      @if (enabled()) {
+        <span slot="end" data-testid="end">12 items</span>
+      }
+    </popup-header>
+  `,
+  imports: [PopupHeaderComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class GatedSlotsHostComponent {
+  readonly enabled = signal(true);
+}
+
 describe("PopupHeaderComponent", () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let scrollable: HTMLElement;
@@ -248,12 +270,78 @@ describe("PopupHeaderComponent", () => {
 
         expect(collapsed()).toBe(false);
       });
+
+      describe("a restored scroll position", () => {
+        /** The transition classes are what animate the collapse; without them it arrives collapsed. */
+        const animated = () => titleBar().className.includes("tw-transition-");
+
+        it("collapses the bar", () => {
+          TestBed.inject(ScrollLayoutService).restoredScrolled.set(true);
+          fixture.detectChanges();
+
+          expect(collapsed()).toBe(true);
+        });
+
+        it("arrives collapsed rather than animating into it", () => {
+          TestBed.inject(ScrollLayoutService).restoredScrolled.set(true);
+          fixture.detectChanges();
+
+          expect(collapsed()).toBe(true);
+          expect(animated()).toBe(false);
+        });
+
+        it("animates again once the user takes over the scrolling", async () => {
+          const scrollLayout = TestBed.inject(ScrollLayoutService);
+          scrollLayout.restoredScrolled.set(true);
+          fixture.detectChanges();
+
+          // The position service hands the bar back on the user's first scroll.
+          scrollLayout.restoredScrolled.set(false);
+          await scrollTo(200);
+
+          expect(collapsed()).toBe(true);
+          expect(animated()).toBe(true);
+        });
+      });
     });
 
     it("does not hide the title bar when the flag is off", async () => {
       await scrollTo(200);
 
       expect(collapsed()).toBe(false);
+    });
+  });
+
+  /**
+   * Regression: one `@if` wrapped both, so neither reached its slot and the two-bar header
+   * dropped them.
+   */
+  describe("slots gated by a feature flag", () => {
+    let gated: ComponentFixture<GatedSlotsHostComponent>;
+
+    beforeEach(() => {
+      vfo1Enabled.next(true);
+      gated = TestBed.createComponent(GatedSlotsHostComponent);
+      gated.detectChanges();
+    });
+
+    const gatedSlot = (testId: string) =>
+      gated.debugElement.query(By.css(`[data-testid="${testId}"]`))?.nativeElement ?? null;
+
+    it("projects each gated node into its own slot", () => {
+      const appBar = gated.nativeElement.querySelector('[data-testid="app-bar"]');
+      const titleBar = gated.nativeElement.querySelector('[data-testid="title-bar"]');
+
+      expect(titleBar.contains(gatedSlot("title-start"))).toBe(true);
+      expect(appBar.contains(gatedSlot("end"))).toBe(true);
+    });
+
+    it("removes both nodes when the condition turns off", () => {
+      gated.componentInstance.enabled.set(false);
+      gated.detectChanges();
+
+      expect(gatedSlot("title-start")).toBeNull();
+      expect(gatedSlot("end")).toBeNull();
     });
   });
 

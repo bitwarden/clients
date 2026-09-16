@@ -216,6 +216,7 @@ import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -296,6 +297,11 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   ActiveUserStateProvider,
@@ -377,7 +383,7 @@ import { BrowserActionsService } from "../platform/actions/browser-actions.servi
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 /* eslint-disable no-restricted-imports */
@@ -389,6 +395,7 @@ import { BrowserTaskSchedulerService } from "../platform/services/abstractions/b
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
+import { BrowserManagedConfigReader } from "../platform/services/browser-managed-config-reader";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
@@ -491,6 +498,7 @@ export default class MainBackground {
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
+  sendDecryptionService: SendDecryptionService;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<BrowserFido2ParentWindowReference>;
@@ -546,6 +554,8 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  managedSettingsService: ManagedSettingsService;
+  private managedConfigReader?: BrowserManagedConfigReader;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -957,6 +967,23 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -969,6 +996,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -979,6 +1007,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.managedSettingsService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
@@ -1206,6 +1235,11 @@ export default class MainBackground {
       this.legacyCompatKeyService,
     );
 
+    this.sendDecryptionService = new SendDecryptionService(
+      this.sdkService,
+      this.configService,
+      this.legacyCompatKeyService,
+    );
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
       this.accountService,
@@ -1215,6 +1249,8 @@ export default class MainBackground {
       this.sendStateProvider,
       this.encryptService,
       this.configService,
+      this.sdkService,
+      this.sendDecryptionService,
     );
     const legacySendApiService = new SendApiService(
       this.apiService,
@@ -1230,6 +1266,7 @@ export default class MainBackground {
         this.sendService,
         this.accountService,
         this.logService,
+        this.sendDecryptionService,
       ),
     );
 
@@ -1792,6 +1829,11 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
+    // Acquired first so no consumer can observe an empty profile that acquisition would have
+    // filled. Pushing before the SDK loads is safe: the profile is mirrored into the SDK handle
+    // lazily, once the WASM module is ready. Absent when a dev source supplies the profile instead.
+    await this.managedConfigReader?.init();
+
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
@@ -1822,8 +1864,8 @@ export default class MainBackground {
     // injection, so the onConnect listener is registered before any frame
     // connects.
     this.autofillLifecycleService.init();
-    this.autofillOrchestrator.init();
     await this.runtimeBackground.init();
+    this.autofillOrchestrator.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();

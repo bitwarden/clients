@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -7,6 +8,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { NavigationModule } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
+
+import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 
 import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 
@@ -50,7 +53,12 @@ describe("DesktopSideNavComponent", () => {
           useValue: configService,
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(DesktopSideNavComponent, {
+        remove: { imports: [AccountSwitcherV2Component] },
+        add: { schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DesktopSideNavComponent);
     component = fixture.componentInstance;

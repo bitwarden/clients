@@ -35,6 +35,12 @@ import {
   LoginEmailService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
+import {
+  AutomationCapability,
+  BiometricsCapability,
+  DesktopNavigationCapability,
+  ProcessReloadCapability,
+} from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -167,6 +173,7 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2MacOsUserVerificationService } from "../../autofill/services/desktop-fido2-macos-user-verification.service";
 import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
@@ -235,6 +242,32 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DesktopDeviceManagementComponentService,
     deps: [],
+  }),
+  // Desktop-only automation capabilities.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () => new ProcessReloadCapability(() => ipc.platform.reloadProcess()),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () =>
+      new BiometricsCapability({
+        setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+        listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+        approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+        deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+      }),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (messagingService: MessagingServiceAbstraction) =>
+      new DesktopNavigationCapability(messagingService),
+    deps: [MessagingServiceAbstraction],
+    multi: true,
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
@@ -602,6 +635,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopAutotypeMvpService,
     useClass: DesktopAutotypeMvpService,
+    deps: [
+      AccountService,
+      AuthService,
+      CipherServiceAbstraction,
+      ConfigService,
+      GlobalStateProvider,
+      PlatformUtilsServiceAbstraction,
+      BillingAccountProfileStateService,
+      DesktopAutotypeDefaultSettingPolicy,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeService,
+    useClass: DesktopAutotypeService,
     deps: [
       AccountService,
       AuthService,

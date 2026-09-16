@@ -52,7 +52,7 @@ describe("HealthScanService", () => {
   };
 
   /** Subscribes like a Health view would and returns the handle so it can be destroyed. */
-  const watch = (source$: ReturnType<HealthScanService["runScan$"]>): Subscription => {
+  const watch = (source$: ReturnType<HealthScanService["keepReportCurrent$"]>): Subscription => {
     const subscription = source$.subscribe();
     subscriptions.push(subscription);
     return subscription;
@@ -109,30 +109,55 @@ describe("HealthScanService", () => {
     jest.clearAllMocks();
   });
 
-  describe("runScan$", () => {
+  describe("keepReportCurrent$", () => {
     it("does nothing until something subscribes", async () => {
-      service.runScan$(userId);
+      service.keepReportCurrent$(userId);
       await settle();
 
       expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
     });
 
-    it("runs one full scan with the ciphers from the stream", async () => {
-      watch(service.runScan$(userId));
+    it("scans when there is no report yet, using the ciphers from the stream", async () => {
+      watch(service.keepReportCurrent$(userId));
       await settle();
 
       expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
       expect(reportService.buildVaultHealthReport).toHaveBeenCalledWith([cipher("a")], userId);
     });
 
-    it("scans even when the service already has a report", async () => {
-      // The Health Overview rescans on every load by product decision.
+    it("does not scan when a report is already published", async () => {
+      // Both Health views call this, so navigating between them must not repeat
+      // the breach lookups the first one already spent.
       reportState$.next({ status: VaultHealthReportStatus.Success, report: {} as never });
 
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+    });
+
+    it("does not scan while a scan is already running", async () => {
+      reportState$.next({ status: VaultHealthReportStatus.Loading, report: null });
+
+      watch(service.keepReportCurrent$(userId));
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+    });
+
+    it("still watches the vault when it skipped the scan", async () => {
+      reportState$.next({ status: VaultHealthReportStatus.Success, report: {} as never });
+      watch(service.keepReportCurrent$(userId));
+      await settle();
+
+      ciphers$.next([cipher("a"), cipher("b")]);
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalledWith(
+        [cipher("a"), cipher("b")],
+        userId,
+      );
     });
 
     it("does not scan the replayed null from cipherViews$", async () => {
@@ -140,7 +165,7 @@ describe("HealthScanService", () => {
       // would report a permanently healthy vault.
       ciphers$.next(null);
 
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
 
       expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
@@ -156,52 +181,9 @@ describe("HealthScanService", () => {
     });
   });
 
-  describe("ensureScan$", () => {
-    it("scans when there is no report yet", async () => {
-      watch(service.ensureScan$(userId));
-      await settle();
-
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not scan when a report is already published", async () => {
-      // Navigating in from the Health Overview must not repeat the breach lookups.
-      reportState$.next({ status: VaultHealthReportStatus.Success, report: {} as never });
-
-      watch(service.ensureScan$(userId));
-      await settle();
-
-      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
-    });
-
-    it("does not scan while a scan is already running", async () => {
-      reportState$.next({ status: VaultHealthReportStatus.Loading, report: null });
-
-      watch(service.ensureScan$(userId));
-      await settle();
-
-      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
-    });
-
-    it("still watches the vault when it skipped the scan", async () => {
-      reportState$.next({ status: VaultHealthReportStatus.Success, report: {} as never });
-      watch(service.ensureScan$(userId));
-      await settle();
-
-      ciphers$.next([cipher("a"), cipher("b")]);
-      await settle();
-
-      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
-      expect(reportService.refreshVaultHealthReport).toHaveBeenCalledWith(
-        [cipher("a"), cipher("b")],
-        userId,
-      );
-    });
-  });
-
   describe("watching the vault", () => {
     it("refreshes when the vault changes, without a second full scan", async () => {
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       reportService.buildVaultHealthReport.mockClear();
 
@@ -223,7 +205,7 @@ describe("HealthScanService", () => {
         new Promise<void>((resolve) => (releaseScan = resolve)),
       );
 
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       ciphers$.next([cipher("a"), cipher("b")]);
       await settle();
@@ -245,7 +227,7 @@ describe("HealthScanService", () => {
       // subscribes. Harmless because the vault has not changed, so
       // refreshVaultHealthReport compares fingerprints and returns without
       // publishing or spending a breach lookup.
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
 
       expect(reportService.refreshVaultHealthReport).toHaveBeenCalledTimes(1);
@@ -253,7 +235,7 @@ describe("HealthScanService", () => {
     });
 
     it("collapses a burst of vault changes into one refresh", async () => {
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       // Drop the startup refresh so this counts only what the burst caused.
       reportService.refreshVaultHealthReport.mockClear();
@@ -273,7 +255,7 @@ describe("HealthScanService", () => {
 
     it("does not overlap refreshes", async () => {
       // A superseded promise still resolves and could publish a stale report late.
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       reportService.refreshVaultHealthReport.mockClear();
 
@@ -296,7 +278,7 @@ describe("HealthScanService", () => {
     });
 
     it("stops watching once the last subscriber goes away", async () => {
-      const subscription = watch(service.runScan$(userId));
+      const subscription = watch(service.keepReportCurrent$(userId));
       await settle();
       reportService.refreshVaultHealthReport.mockClear();
 
@@ -310,7 +292,7 @@ describe("HealthScanService", () => {
 
   describe("retryScan", () => {
     it("runs another full scan", async () => {
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       reportService.buildVaultHealthReport.mockClear();
 
@@ -320,10 +302,11 @@ describe("HealthScanService", () => {
       expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
     });
 
-    it("scans even when ensureScan$ skipped the initial one", async () => {
-      // The failure view is reachable on the detail page, so its retry has to work.
+    it("scans even when the initial one was skipped", async () => {
+      // The failure view is reachable on the detail page, so its retry has to work
+      // on a view that reused an existing report rather than scanning.
       reportState$.next({ status: VaultHealthReportStatus.Success, report: {} as never });
-      watch(service.ensureScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
 
       service.retryScan(userId);
@@ -333,7 +316,7 @@ describe("HealthScanService", () => {
     });
 
     it("does not scan for an account that is not subscribed", async () => {
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       reportService.buildVaultHealthReport.mockClear();
 
@@ -357,7 +340,7 @@ describe("HealthScanService", () => {
 
     it("records and logs a failure to fetch the ciphers to scan", async () => {
       const failing$ = failingCiphers();
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       const failure = new Error("decryption unavailable");
 
       failing$.error(failure);
@@ -369,7 +352,7 @@ describe("HealthScanService", () => {
 
     it("clears at the start of the next scan", async () => {
       const failing$ = failingCiphers();
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       failing$.error(new Error("decryption unavailable"));
       await settle();
 
@@ -382,7 +365,7 @@ describe("HealthScanService", () => {
 
     it("does not leak a failure to another account", async () => {
       const failing$ = failingCiphers();
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       failing$.error(new Error("decryption unavailable"));
       await settle();
 
@@ -394,7 +377,7 @@ describe("HealthScanService", () => {
       // already reading.
       const failing$ = new BehaviorSubject<CipherView[] | null>([cipher("a")]);
       cipherService.cipherViews$.mockReturnValue(failing$ as never);
-      watch(service.runScan$(userId));
+      watch(service.keepReportCurrent$(userId));
       await settle();
       const failure = new Error("decryption cleared");
 
