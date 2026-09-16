@@ -7,7 +7,6 @@ import {
   inject,
   input,
   signal,
-  untracked,
 } from "@angular/core";
 
 import { settledHeight } from "../utils/settled-height";
@@ -51,7 +50,8 @@ const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows,borde
  * rather than here, so it collapses with the row instead of holding the region open.
  *
  * The region is only ever visually clipped, never removed from the accessibility tree, so tabbing
- * into it brings it into view. Under `prefers-reduced-motion: reduce` the collapse is instant.
+ * into it brings it into view. Focus already inside when the collapse comes due is left where it is.
+ * Under `prefers-reduced-motion: reduce` the collapse is instant.
  *
  * The host's bottom border belongs to this directive: the bottom-most expanded region on a page
  * draws its seam, the one rule dividing the regions above the scroll area from the scrolled
@@ -62,8 +62,8 @@ const COLLAPSE_TRANSITION = "motion-safe:tw-transition-[grid-template-rows,borde
   host: {
     "[class]": "collapseClasses()",
     "[attr.data-state]": "state()",
-    "(focusin)": "hasFocus.set(true)",
-    "(focusout)": "hasFocus.set(false)",
+    "(focusin)": "onFocusIn()",
+    "(focusout)": "focusHoldsOpen.set(false)",
   },
 })
 export class CollapseOnScrollDirective {
@@ -74,13 +74,17 @@ export class CollapseOnScrollDirective {
   readonly bitCollapseOnScroll = input(true, { transform: booleanAttribute });
 
   /**
-   * Whether the region contains focus. Tracked here rather than left to CSS `:focus-within`, since
-   * the collapsed styles override the child's padding and CSS can't take that override back out.
+   * Whether focus arrived while this region was collapsed, which holds it open so it can be tabbed
+   * into. Focus that predates the collapse — the vault's search is autofocused and keeps focus
+   * through a wheel scroll — is left where it is and doesn't veto the collapse.
+   *
+   * Tracked here rather than left to CSS `:focus-within`, since the collapsed styles override the
+   * child's padding and CSS can't take that override back out.
    */
-  protected readonly hasFocus = signal(false);
+  protected readonly focusHoldsOpen = signal(false);
 
   protected readonly state = computed<CollapseOnScrollState>(() =>
-    this.bitCollapseOnScroll() && !this.hasFocus() && this.service.direction() === "down"
+    this.bitCollapseOnScroll() && !this.focusHoldsOpen() && this.service.direction() === "down"
       ? "collapsed"
       : "expanded",
   );
@@ -136,42 +140,9 @@ export class CollapseOnScrollDirective {
       this.service.register(this.region);
       onCleanup(() => this.service.unregister(this.region));
     });
-
-    // `hasFocus` read untracked: the hand-off belongs to the collapse coming due, not to focus
-    // arriving. Tracked, focus entering an already-collapsed region would be bounced straight back
-    // out and the region could never be tabbed into.
-    effect(() => {
-      if (
-        this.bitCollapseOnScroll() &&
-        this.service.direction() === "down" &&
-        untracked(this.hasFocus)
-      ) {
-        this.releaseFocus();
-      }
-    });
   }
 
-  /**
-   * Hands focus to the nearest focusable ancestor when the collapse comes due while this region
-   * holds it, so an autofocused control inside it isn't left focused but clipped. Focus arriving
-   * afterwards is left alone — it holds the region open instead.
-   */
-  private releaseFocus(): void {
-    const host = this.host.nativeElement;
-    const active = host.ownerDocument.activeElement;
-    if (!(active instanceof HTMLElement) || !host.contains(active)) {
-      return;
-    }
-
-    const destination = host.parentElement?.closest<HTMLElement>('[tabindex]:not([tabindex="-1"])');
-
-    if (destination) {
-      // `preventScroll` because focusing the scroll region would otherwise jump it back.
-      destination.focus({ preventScroll: true });
-    } else {
-      active.blur();
-    }
-
-    this.hasFocus.set(false);
+  protected onFocusIn(): void {
+    this.focusHoldsOpen.set(this.service.direction() === "down");
   }
 }

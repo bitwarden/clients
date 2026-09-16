@@ -187,9 +187,9 @@ The element must have exactly one element child, which becomes the collapsing ro
 on that child rather than on the element itself, so it collapses with the row.
 
 Collapsing regions are only ever visually clipped, never removed from the accessibility tree, so
-tabbing into one brings it into view and holds it open. If a region already holds focus when the
-collapse comes due — the vault's search is autofocused and keeps focus through a wheel scroll —
-focus moves out to the nearest focusable ancestor rather than being hidden.
+tabbing into one brings it into view and holds it open. Focus already inside a region when the
+collapse comes due — the vault's search is autofocused and keeps focus through a wheel scroll — is
+left where it is, so the collapse never takes an input out from under the user.
 
 A restored scroll position collapses every region on the page, not just the title bar, so the page
 arrives collapsed rather than animating into it — as long as the list has more left to scroll than

@@ -103,15 +103,14 @@ describe("scroll collapse", () => {
   describe("focus", () => {
     const search = (): HTMLInputElement => el("search") as HTMLInputElement;
 
-    it("hands focus to the nearest focusable ancestor rather than hiding it", async () => {
-      // The vault's search is autofocused, so without this the region could never collapse.
+    it("leaves focus where it is on the region it collapses", async () => {
+      // The vault's search is autofocused and keeps focus through a wheel scroll.
       search().focus();
       fixture.detectChanges();
-      expect(region().contains(document.activeElement)).toBe(true);
 
       await scrollTo(200);
 
-      expect(document.activeElement).toBe(el("focus-destination"));
+      expect(document.activeElement).toBe(search());
       expect(state()).toBe("collapsed");
     });
 
@@ -119,7 +118,7 @@ describe("scroll collapse", () => {
       await scrollTo(200);
       expect(state()).toBe("collapsed");
 
-      // Tabbing back into the region brings it into view rather than handing focus away again.
+      // Tabbing back into the region brings it into view.
       search().focus();
       fixture.detectChanges();
 
