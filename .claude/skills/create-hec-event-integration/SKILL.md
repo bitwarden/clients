@@ -83,7 +83,7 @@ if (<serviceName>FeatureEnabled) {
 }
 ```
 
-No changes needed to `IntegrationCardComponent` — new HEC services fall into the existing `else` branch, which opens `openHecConnectDialog` with a `saveCallback`. The callback builds the config and template using the card's `name` as the service name and delegates to `executeHecSave`. Delete is handled by `deleteHec`.
+No changes needed to `IntegrationCardComponent` — new HEC services fall into the existing `else` branch, which calls `openHecConnectDialog` → `saveHec` → `deleteHec`. These methods already call `buildHecConfiguration` and `buildHecTemplate` using the card's `name` as the service name.
 
 ## Step 5 — Add tests
 
@@ -134,7 +134,7 @@ All tests must pass. If any fail, fix them before proceeding.
 
 | Mistake                                                                 | Fix                                                                                                   |
 | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `name` in card doesn't match `OrganizationIntegrationServiceName` value | They must be identical strings — the `saveCallback` passes `name` directly to `buildHecConfiguration` |
+| `name` in card doesn't match `OrganizationIntegrationServiceName` value | They must be identical strings — `saveHec()` casts the name directly                                  |
 | Feature flag default not set to `FALSE`                                 | Always add the default entry in `defaultFlags`; new flags without a default will not work correctly   |
 | Kebab-case mismatch in flag string                                      | Convert consistently: lowercase, spaces → hyphens                                                     |
 | Adding a new `OrganizationIntegrationType`                              | Not needed — all HEC services share `OrganizationIntegrationType.Hec`                                 |
