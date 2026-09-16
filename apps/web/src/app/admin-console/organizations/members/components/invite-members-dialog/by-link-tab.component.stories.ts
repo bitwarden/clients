@@ -52,7 +52,7 @@ const mockEventCollectionService = {
 };
 
 const mockServerSettingsService = {
-  isEmailVerificationEnabled$: of(true),
+  isEmailVerificationDisabled$: of(false),
 };
 
 const mockInviteLinkUrl =

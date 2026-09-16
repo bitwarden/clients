@@ -20,7 +20,7 @@ describe("ServerConfigData", () => {
         settings: {
           disableUserRegistration: false,
           suppressOnboardingInterstitials: false,
-          enableEmailVerification: false,
+          disableEmailVerification: false,
         },
         environment: {
           cloudRegion: Region.EU,

@@ -35,20 +35,20 @@ describe("ServerSettings", () => {
     });
   });
 
-  describe("enableEmailVerification", () => {
-    it("defaults enableEmailVerification to false", () => {
+  describe("disableEmailVerification", () => {
+    it("defaults disableEmailVerification to false", () => {
       const settings = new ServerSettings();
-      expect(settings.enableEmailVerification).toBe(false);
+      expect(settings.disableEmailVerification).toBe(false);
     });
 
-    it("sets enableEmailVerification to true when provided", () => {
-      const settings = new ServerSettings({ enableEmailVerification: true });
-      expect(settings.enableEmailVerification).toBe(true);
+    it("sets disableEmailVerification to true when provided", () => {
+      const settings = new ServerSettings({ disableEmailVerification: true });
+      expect(settings.disableEmailVerification).toBe(true);
     });
 
-    it("sets enableEmailVerification to false when provided", () => {
-      const settings = new ServerSettings({ enableEmailVerification: false });
-      expect(settings.enableEmailVerification).toBe(false);
+    it("sets disableEmailVerification to false when provided", () => {
+      const settings = new ServerSettings({ disableEmailVerification: false });
+      expect(settings.disableEmailVerification).toBe(false);
     });
   });
 });

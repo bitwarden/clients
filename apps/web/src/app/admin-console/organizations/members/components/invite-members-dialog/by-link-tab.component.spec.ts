@@ -75,7 +75,7 @@ async function createComponent(
   const validationService = mock<ValidationService>();
 
   const serverSettingsService = mock<DefaultServerSettingsService>({
-    isEmailVerificationEnabled$: of(true),
+    isEmailVerificationDisabled$: of(false),
   });
 
   await TestBed.configureTestingModule({

@@ -85,12 +85,12 @@ export class ByLinkTabComponent {
   private readonly serverSettingsService = inject(DefaultServerSettingsService);
 
   private readonly isSelfHost = this.platformUtilsService.isSelfHost();
-  private readonly emailVerificationEnabled = toSignal(
-    this.serverSettingsService.isEmailVerificationEnabled$,
+  private readonly emailVerificationDisabled = toSignal(
+    this.serverSettingsService.isEmailVerificationDisabled$,
     { initialValue: false },
   );
   protected readonly showSelfHostWarning = computed(
-    () => this.isSelfHost && !this.emailVerificationEnabled(),
+    () => this.isSelfHost && this.emailVerificationDisabled(),
   );
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);

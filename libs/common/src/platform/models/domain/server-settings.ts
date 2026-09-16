@@ -1,11 +1,11 @@
 export class ServerSettings {
   disableUserRegistration: boolean;
   suppressOnboardingInterstitials: boolean;
-  enableEmailVerification: boolean;
+  disableEmailVerification: boolean;
 
   constructor(data?: Partial<ServerSettings>) {
     this.disableUserRegistration = data?.disableUserRegistration ?? false;
     this.suppressOnboardingInterstitials = data?.suppressOnboardingInterstitials ?? false;
-    this.enableEmailVerification = data?.enableEmailVerification ?? false;
+    this.disableEmailVerification = data?.disableEmailVerification ?? false;
   }
 }

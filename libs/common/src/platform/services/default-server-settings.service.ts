@@ -19,9 +19,9 @@ export class DefaultServerSettingsService {
     );
   }
 
-  get isEmailVerificationEnabled$(): Observable<boolean> {
+  get isEmailVerificationDisabled$(): Observable<boolean> {
     return this.getSettings$().pipe(
-      map((settings: ServerSettings) => settings.enableEmailVerification),
+      map((settings: ServerSettings) => settings.disableEmailVerification),
     );
   }
 }
