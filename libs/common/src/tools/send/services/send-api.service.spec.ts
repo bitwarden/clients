@@ -80,27 +80,45 @@ describe("SendApiService", () => {
     // Regression guard for PM-42963: cancelling the Send dialog used to just close it, leaving
     // whatever the in-flight upload produced (even a corrupted file) as a permanent send, since
     // nothing threw for the existing rollback (on a thrown upload error) to react to.
+    const fileSendData = (): [Send, EncArrayBuffer] => {
+      const send = new Send();
+      send.type = SendType.File;
+      send.file = { fileName: "notes.txt" } as any;
+      return [send, mock<EncArrayBuffer>()];
+    };
+
+    it("bails before doing any network work when the signal is already aborted", async () => {
+      const controller = new AbortController();
+      controller.abort();
+
+      await expect(
+        service.save(fileSendData(), undefined, controller.signal),
+      ).rejects.toMatchObject({ name: "AbortError" });
+
+      expect(apiService.send).not.toHaveBeenCalled();
+      expect(fileUploadService.upload).not.toHaveBeenCalled();
+    });
+
     describe("file send creation, when the caller aborts after a successful upload", () => {
-      const fileSendData = (): [Send, EncArrayBuffer] => {
-        const send = new Send();
-        send.type = SendType.File;
-        send.file = { fileName: "notes.txt" } as any;
-        return [send, mock<EncArrayBuffer>()];
-      };
+      // The signal must still be unaborted when `save()` starts — otherwise the early bail
+      // added for PM-42963 would intercept it before the upload ever runs, which is a
+      // different scenario (covered above). Aborting from inside the upload mock simulates
+      // the user cancelling while the upload is genuinely in flight.
+      let controller: AbortController;
 
       beforeEach(() => {
+        controller = new AbortController();
         apiService.send.mockResolvedValueOnce({
           fileUploadType: FileUploadType.Direct,
           url: null,
           sendResponse: { id: "server-id", accessId: "access-id", file: { id: "file-id" } },
         });
-        fileUploadService.upload.mockResolvedValue(undefined);
+        fileUploadService.upload.mockImplementation(async () => {
+          controller.abort();
+        });
       });
 
       it("rolls back the created send and throws an AbortError instead of returning it", async () => {
-        const controller = new AbortController();
-        controller.abort();
-
         await expect(
           service.save(fileSendData(), undefined, controller.signal),
         ).rejects.toMatchObject({ name: "AbortError" });
@@ -115,7 +133,9 @@ describe("SendApiService", () => {
       });
 
       it("does not roll back or throw when the signal was never aborted", async () => {
-        const controller = new AbortController();
+        fileUploadService.upload.mockImplementation(async () => {
+          // No abort — the upload just completes normally.
+        });
 
         await expect(
           service.save(fileSendData(), undefined, controller.signal),
@@ -127,8 +147,6 @@ describe("SendApiService", () => {
 
       it("still throws an AbortError, not the rollback's error, when the rollback itself fails", async () => {
         apiService.send.mockRejectedValueOnce(new Error("rollback failed"));
-        const controller = new AbortController();
-        controller.abort();
 
         await expect(
           service.save(fileSendData(), undefined, controller.signal),

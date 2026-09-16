@@ -172,6 +172,13 @@ export class SendApiService implements SendApiServiceAbstraction {
     sendData: [Send, EncArrayBuffer],
     signal?: AbortSignal,
   ): Promise<SendResponse> {
+    // Bail before doing any network work if the caller already abandoned this submission —
+    // otherwise a cancel that lands before this point still uploads the whole file only to
+    // immediately delete it.
+    if (signal?.aborted) {
+      throw new DOMException("Send creation was cancelled", "AbortError");
+    }
+
     const request = new SendRequest(sendData[0], sendData[1]?.buffer.byteLength);
 
     let response: SendResponse;

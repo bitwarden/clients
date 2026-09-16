@@ -315,6 +315,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     plaintextPassword?: string,
     signal?: AbortSignal,
   ): Promise<SdkSendView> {
+    // Bail before doing any network work if the caller already abandoned this submission —
+    // otherwise a cancel that lands before this point still uploads the whole file only to
+    // immediately delete it.
+    if (signal?.aborted) {
+      throw new DOMException("Send creation was cancelled", "AbortError");
+    }
+
     if (file == null) {
       throw new Error("File send creation requires file data.");
     }
