@@ -14,12 +14,7 @@ import {
   VaultNavItemViewModel,
   VaultsNavViewModel,
 } from "./vault-nav-view-model";
-import {
-  organizationVaultPage,
-  OrganizationVaultPage,
-  VaultScope,
-  VaultScopeType,
-} from "./vault-scope";
+import { VaultScope, VaultScopeType } from "./vault-scope";
 
 /** The tile variant for an organization, keyed off its plan */
 function orgTileVariant(tier: ProductTierType): IconTileVariant {
@@ -76,9 +71,9 @@ export function navIconTile(vault: VaultNavItemViewModel): IconTileOptions {
 }
 
 /**
- * The tile shown before a scoped vault's page title. An organization's whole vault and "My items"
- * pages carry the organization's own tile; a shared folder carries its tile in the breadcrumb trail
- * instead, and Trash and Archive have none, so those yield `undefined`.
+ * The tile shown before a scoped vault's page title. An organization vault's tile is always shown
+ * in the breadcrumb trail instead, so its own scope yields `undefined`; Trash and Archive have no
+ * tile either.
  */
 export function vaultScopeHeaderTile(
   scope: VaultScope,
@@ -90,13 +85,6 @@ export function vaultScopeHeaderTile(
     case VaultScopeType.MyVault: {
       const personal = nav?.vaults.find((vault) => vault.type === VaultNavItemType.Personal);
       return personal == null ? undefined : navIconTile(personal);
-    }
-    case VaultScopeType.Organization: {
-      if (organizationVaultPage(scope, nav) === OrganizationVaultPage.SharedFolder) {
-        return undefined;
-      }
-      const org = nav?.vaults.find((vault) => vault.id === scope.organizationId);
-      return org == null ? undefined : navIconTile(org);
     }
     default:
       return undefined;

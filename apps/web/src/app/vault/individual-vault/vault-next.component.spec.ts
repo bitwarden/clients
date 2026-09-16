@@ -604,13 +604,13 @@ describe("VaultNextComponent", () => {
         expect(component().scopedOrganizationId()).toBe(organizationId);
       });
 
-      it("titles the header All vault items", () => {
-        expect(component().title()).toBe("allVaultItems");
+      it("has no separate title — the breadcrumb trail titles the page", () => {
+        expect(component().title()).toBeUndefined();
       });
 
-      it("shows a header tile rather than breadcrumbs", () => {
-        expect(component().showBreadcrumbs()).toBe(false);
-        expect(component().headerTile()).toBeDefined();
+      it("shows breadcrumbs rather than a header tile", () => {
+        expect(component().showBreadcrumbs()).toBe(true);
+        expect(component().headerTile()).toBeUndefined();
       });
     });
 
@@ -631,13 +631,13 @@ describe("VaultNextComponent", () => {
         scopeTo(organizationId, MY_ITEMS_ROUTE);
       });
 
-      it("titles the header My items", () => {
-        expect(component().title()).toBe("myItemsV2");
+      it("has no separate title — the breadcrumb trail titles the page", () => {
+        expect(component().title()).toBeUndefined();
       });
 
-      it("shows a header tile rather than breadcrumbs", () => {
-        expect(component().showBreadcrumbs()).toBe(false);
-        expect(component().headerTile()).toBeDefined();
+      it("shows breadcrumbs rather than a header tile", () => {
+        expect(component().showBreadcrumbs()).toBe(true);
+        expect(component().headerTile()).toBeUndefined();
       });
     });
 

@@ -124,18 +124,11 @@ export function organizationVaultPage(
   return OrganizationVaultPage.SharedFolder;
 }
 
-/** The title key for each organization page — `null` for a shared folder, which the breadcrumb titles. */
-const ORGANIZATION_PAGE_TITLE_KEYS: Record<OrganizationVaultPage, string | null> = {
-  [OrganizationVaultPage.AllVaultItems]: "allVaultItems",
-  [OrganizationVaultPage.MyItems]: "myItemsV2",
-  [OrganizationVaultPage.SharedFolder]: null,
-};
-
 /**
- * The i18n key titling a scope's page. `null` for a shared folder, whose title is the folder name
- * the breadcrumb trail promotes to the heading rather than a fixed string.
+ * The i18n key titling a scope's page. `null` for an organization scope, whose page — whole
+ * vault, "My items", or a shared folder — the breadcrumb trail titles instead of a fixed string.
  */
-function vaultScopeTitleKey(scope: VaultScope, nav: VaultsNavViewModel | undefined): string | null {
+function vaultScopeTitleKey(scope: VaultScope): string | null {
   switch (scope.type) {
     case VaultScopeType.MyVault:
       return "myVault";
@@ -143,25 +136,19 @@ function vaultScopeTitleKey(scope: VaultScope, nav: VaultsNavViewModel | undefin
       return "trash";
     case VaultScopeType.Archive:
       return "archiveNoun";
-    case VaultScopeType.Organization: {
-      const page = organizationVaultPage(scope, nav);
-      return page == null ? null : ORGANIZATION_PAGE_TITLE_KEYS[page];
-    }
+    case VaultScopeType.Organization:
+      return null;
     default:
       return "allItems";
   }
 }
 
 /**
- * The page title for a scope: a localized string, or `undefined` for a shared folder whose title
- * the breadcrumb trail supplies.
+ * The page title for a scope: a localized string, or `undefined` for an organization scope whose
+ * title the breadcrumb trail supplies.
  */
-export function vaultScopeTitle(
-  scope: VaultScope,
-  i18nService: I18nService,
-  nav: VaultsNavViewModel | undefined,
-): string | undefined {
-  const key = vaultScopeTitleKey(scope, nav);
+export function vaultScopeTitle(scope: VaultScope, i18nService: I18nService): string | undefined {
+  const key = vaultScopeTitleKey(scope);
   return key == null ? undefined : i18nService.t(key);
 }
 

@@ -68,8 +68,6 @@ import {
   hasMultipleVaults,
   organizationNameForScope,
   organizationInScope,
-  organizationVaultPage,
-  OrganizationVaultPage,
   resolveVaultScope,
   scopedCollectionSegment,
   vaultScopeHeaderTile,
@@ -217,11 +215,9 @@ export class VaultNextComponent implements OnInit {
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
 
-  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  /** Every organization vault page trails a breadcrumb; every other page reads as a plain title. */
   protected readonly showBreadcrumbs = computed(
-    () =>
-      organizationVaultPage(this.vaultScope(), this.vaultNav()) ===
-      OrganizationVaultPage.SharedFolder,
+    () => this.vaultScope().type === VaultScopeType.Organization,
   );
 
   protected readonly headerTile = computed(() =>
@@ -390,9 +386,7 @@ export class VaultNextComponent implements OnInit {
     () => this.vaultScope().type === VaultScopeType.Archive && this.subscriptionEndedMessaging(),
   );
 
-  protected readonly title = computed(() =>
-    vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
-  );
+  protected readonly title = computed(() => vaultScopeTitle(this.vaultScope(), this.i18nService));
 
   private readonly configureBatchBar = effect(() => {
     const collections = this.collections();
