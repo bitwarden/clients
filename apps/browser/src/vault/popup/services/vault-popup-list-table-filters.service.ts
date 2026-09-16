@@ -385,17 +385,7 @@ export class VaultPopupListTableFiltersService {
             return [selectedOrgs, [] as FolderView[], cipherViews] as const;
           }
 
-          folders.sort(Utils.getSortFunction(this.i18nService, "name"));
-          let arrangedFolders = folders;
-          const noFolder = folders.find((f) => !f.id);
-
-          if (noFolder) {
-            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("noFoldersFilter") };
-            // Leads the list, and the menu rules it off from the real folders.
-            arrangedFolders = [updatedNoFolder, ...folders.filter((f) => f.id)];
-          }
-
-          return [selectedOrgs, arrangedFolders, cipherViews] as const;
+          return [selectedOrgs, folders, cipherViews] as const;
         }),
         map(([selectedOrgs, folders, cipherViews]) => {
           const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
@@ -417,7 +407,7 @@ export class VaultPopupListTableFiltersService {
           });
         }),
         map((folders) => {
-          const nested = getNestedFolderTree(folders);
+          const nested = getNestedFolderTree(folders, this.i18nService);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
         map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
