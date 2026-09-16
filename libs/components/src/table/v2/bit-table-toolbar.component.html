@@ -77,12 +77,35 @@
   @if (collapsed() && activeFilters().length) {
     <div [class]="activeFilterRowClasses()">
       @for (filter of activeFilters(); track filter.key()) {
-        <bit-chip
-          [label]="appliedLabel(filter)"
-          [bitTooltip]="appliedLabel(filter)"
-          (click)="filter.clear()"
-          (dismissed)="filter.clear()"
-        ></bit-chip>
+        @if (filter.multiple() && filter.selections().length) {
+          <!--
+            A multi-select draws one chip per selected option, so each can be removed on its
+            own. The chips show only the option's name: the filter's icon identifies it
+            visually, and the group's aria-label does the same for screen readers.
+            `tw-contents` so the chips are flex items of the row itself: a wrapper with its
+            own box is a single atomic flex item, so the whole group drops to the next line
+            when it doesn't fit, even if its first chips would have fit alongside the
+            preceding one. The row's own gap then spaces them, unchanged.
+          -->
+          <div role="group" [attr.aria-label]="filter.label()" class="tw-contents">
+            @for (selection of filter.selections(); track selection.value) {
+              <bit-chip
+                [label]="selection.label"
+                [startIcon]="filter.icon()"
+                [bitTooltip]="selectionTooltip(filter, selection)"
+                (click)="filter.deselect(selection.value)"
+                (dismissed)="filter.deselect(selection.value)"
+              ></bit-chip>
+            }
+          </div>
+        } @else {
+          <bit-chip
+            [label]="appliedLabel(filter)"
+            [bitTooltip]="appliedLabel(filter)"
+            (click)="filter.clear()"
+            (dismissed)="filter.clear()"
+          ></bit-chip>
+        }
       }
     </div>
   }

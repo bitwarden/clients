@@ -92,6 +92,15 @@ Usage guidelines:
 
 <Canvas of={stories.IconTiles} />
 
+## Chip icon
+
+`icon` puts a leading glyph on the chip itself, and the same glyph beside the filter's row in the
+responsive dialog. Set it on a `multiple` chip: when the toolbar collapses, a multi-select's
+selections each get their own dismissible chip named for the option alone — `Login`, not
+`Type: Login` — and the icon is what ties them back to the filter they came from. Without one those
+chips read as bare labels. (Screen readers get the filter's name from the group that wraps the run,
+so the icon stays decorative.)
+
 ## Long labels
 
 Option and section labels truncate to the row's width rather than wrapping, so every row carries a
