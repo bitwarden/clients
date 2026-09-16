@@ -42,7 +42,10 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
+import {
+  COLLAPSED_GROUPINGS,
+  PERSISTED_COLLAPSED_VAULT_FILTER_NODES,
+} from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import {
@@ -68,6 +71,17 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   collapsedFilterNodes$ = this.activeUserId$.pipe(
     switchMap((id) => this.collapsedGroupingsState(id).state$),
     map((state) => new Set(state)),
+  );
+
+  /**
+   * Ids of any vault-filter tree node (organization, collection, folder, cipher type, or other
+   * collapsible section) the user has collapsed, persisted so it survives Vault Timeout Action
+   * "Lock" — used by Desktop. See {@link PERSISTED_COLLAPSED_VAULT_FILTER_NODES} for why this is
+   * a separate key from {@link COLLAPSED_GROUPINGS}.
+   */
+  persistedCollapsedVaultFilterNodes$ = this.activeUserId$.pipe(
+    switchMap((id) => this.persistedCollapsedVaultFilterNodesState(id).state$),
+    map((state) => new Set(state ?? [])),
   );
 
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
@@ -203,6 +217,10 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     return this.stateProvider.getUser(userId, COLLAPSED_GROUPINGS);
   }
 
+  private persistedCollapsedVaultFilterNodesState(userId: UserId): SingleUserState<string[]> {
+    return this.stateProvider.getUser(userId, PERSISTED_COLLAPSED_VAULT_FILTER_NODES);
+  }
+
   constructor(
     protected organizationService: OrganizationService,
     protected folderService: FolderService,
@@ -223,6 +241,22 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>, userId: UserId): Promise<void> {
     await this.collapsedGroupingsState(userId).update(() => Array.from(collapsedFilterNodes));
+  }
+
+  async setPersistedVaultFilterNodeOpen(
+    nodeId: string,
+    open: boolean,
+    userId: UserId,
+  ): Promise<void> {
+    await this.persistedCollapsedVaultFilterNodesState(userId).update((current) => {
+      const collapsedNodes = new Set(current ?? []);
+      if (open) {
+        collapsedNodes.delete(nodeId);
+      } else {
+        collapsedNodes.add(nodeId);
+      }
+      return Array.from(collapsedNodes);
+    });
   }
 
   protected async getCollapsedFilterNodes(): Promise<Set<string>> {

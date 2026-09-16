@@ -4,7 +4,8 @@
   [text]="'allItems' | i18n"
   [attr.aria-pressed]="activeFilter()?.selectedCipherTypeNode?.node?.id === 'AllItems'"
   [appA11yTitle]="'allItems' | i18n"
-  [open]="true"
+  [open]="isOpen()"
+  (openChange)="onOpenChange($event)"
   [forceActiveStyles]="activeFilter()?.selectedCipherTypeNode?.node?.id === 'AllItems'"
   [disableToggleOnClick]="true"
 >
