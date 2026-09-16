@@ -142,7 +142,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.setUsesKeyConnector(true, userId);
 
     // Clear master password unlock from state
-    // Todo: move to sdk's migrate_to_key_connector
+    // TODO(https://bitwarden.atlassian.net/browse/PM-43754): move to sdk's migrate_to_key_connector
     await this.masterPasswordService.clearMasterPasswordUnlockData(userId);
 
     const userDecryptionOptions = await firstValueFrom(
