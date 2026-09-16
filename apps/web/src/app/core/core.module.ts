@@ -45,6 +45,7 @@ import {
   LoginEmailService,
   LogoutService,
 } from "@bitwarden/auth/common";
+import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -254,6 +255,13 @@ const safeProviders: SafeProvider[] = [
     deps: [InitService],
     multi: true,
   }),
+  // Web-only automation capability.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (win: Window) => new ProcessReloadCapability(() => win.location.reload()),
+    deps: [WINDOW],
+    multi: true,
+  }),
   safeProvider({
     provide: I18nServiceAbstraction,
     useClass: I18nService,
@@ -403,8 +411,6 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       Router,
-      AccountService,
-      ConfigService,
       ToastService,
       I18nServiceAbstraction,
     ],

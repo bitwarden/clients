@@ -25,9 +25,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 
 /**
- * How long a burst of vault changes is allowed to settle before the report is
- * brought up to date. A sync rewrites many ciphers across several ticks, and each
- * rebuild can cost a breach lookup per login, so they are collapsed into one.
+ * A sync rewrites many ciphers across several ticks, and each rebuild can cost a
+ * breach lookup per login, so a burst is collapsed into one refresh.
  */
 const VAULT_CHANGE_DEBOUNCE_MS = 300;
 
@@ -35,10 +34,10 @@ const VAULT_CHANGE_DEBOUNCE_MS = 300;
  * Decides *when* the browser Health views recompute their report;
  * {@link VaultHealthReportService} owns *what* the report is.
  *
- * Everything is cold and scoped to the subscriber: a Health view subscribes on
- * mount and the vault watch stops when the last one goes away, so no work happens
- * while the user is elsewhere in the popup. Nothing here throws — a scan failure
- * arrives as a published report status or on {@link pipelineFailed$}.
+ * The scan pipeline is cold and scoped to the subscriber: a Health view subscribes
+ * on mount and the vault watch stops when the last one goes away, so no work
+ * happens while the user is elsewhere in the popup. Nothing here throws — a scan
+ * failure arrives as a published report status or on {@link pipelineFailed$}.
  */
 @Injectable({ providedIn: "root" })
 export class HealthScanService {
@@ -54,21 +53,24 @@ export class HealthScanService {
   private readonly pipelineFailures = new Map<UserId, BehaviorSubject<boolean>>();
 
   /**
-   * Runs a full scan, breach lookups included, then keeps the report current until
-   * the caller unsubscribes. For a view that is expected to rescan on every load.
-   */
-  runScan$(userId: UserId): Observable<void> {
-    return this.keepCurrent$(userId, of(true));
-  }
-
-  /**
    * Keeps the report current until the caller unsubscribes, running a full scan
-   * first only when there is no report yet. For a view that can be opened directly,
-   * such as a route the popup restored, and that must not repeat the breach lookups
-   * when the user simply navigated in from the Health Overview.
+   * first only when there is no report yet. Both Health views share one scan this
+   * way: navigating between them, or landing on either directly, does not repeat
+   * the breach lookups.
    */
-  ensureScan$(userId: UserId): Observable<void> {
-    return this.keepCurrent$(userId, this.needsScan$(userId));
+  keepReportCurrent$(userId: UserId): Observable<void> {
+    return this.needsScan$(userId).pipe(
+      switchMap((scanFirst) =>
+        // A retry starts the pipeline over, scan and vault watch both.
+        merge(of(scanFirst), this.retriesFor(userId).pipe(map(() => true))).pipe(
+          switchMap((runFullScan) =>
+            // The scan has to publish before the watch starts: the vault reports a
+            // change only once, so one landing mid-scan would be lost.
+            concat(runFullScan ? this.fullScan$(userId) : EMPTY, this.refreshes$(userId)),
+          ),
+        ),
+      ),
+    );
   }
 
   /** Requests another full scan. Only `userId`'s subscribed scan reacts. */
@@ -85,24 +87,10 @@ export class HealthScanService {
     return this.pipelineFailedFor(userId).asObservable();
   }
 
-  private keepCurrent$(userId: UserId, scanFirst$: Observable<boolean>): Observable<void> {
-    return scanFirst$.pipe(
-      switchMap((scanFirst) =>
-        // switchMap, not exhaustMap: a retry has to restart both halves, and
-        // exhaustMap over a concat whose tail never completes would drop it forever.
-        merge(of(scanFirst), this.retriesFor(userId).pipe(map(() => true))).pipe(
-          switchMap((runFullScan) =>
-            // The watch must not start until the scan has published, or a change
-            // landing mid-scan finds no baseline to compare against, is treated as
-            // handled, and is then lost because cipherViews$ will not re-emit.
-            concat(runFullScan ? this.fullScan$(userId) : EMPTY, this.refreshes$(userId)),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /** Whether there is no report to keep current yet. */
+  /**
+   * Whether a full scan is still owed. A scan already running is not: it publishes
+   * on its own, and a second would just repeat the same breach lookups.
+   */
   private needsScan$(userId: UserId): Observable<boolean> {
     return this.reportService.getVaultHealthReport$(userId).pipe(
       take(1),
@@ -134,14 +122,14 @@ export class HealthScanService {
     return this.cipherService.cipherViews$(userId).pipe(
       filterOutNullish(),
       debounceTime(VAULT_CHANGE_DEBOUNCE_MS),
-      // concatMap, not switchMap: a superseded refresh still resolves and could
-      // publish a stale report late. Not exhaustMap: that drops the newest change.
+      // Refreshes are queued, never replaced: an abandoned one still finishes and
+      // could publish stale results after a newer one has landed.
       concatMap((ciphers) =>
         defer(() => this.reportService.refreshVaultHealthReport(ciphers, userId)),
       ),
       catchError((error: unknown) => {
-        // Deliberately does not set pipelineFailed: a background failure must not
-        // put a failure view over results the user is already reading.
+        // Stays quiet: a background failure must not put a failure view over
+        // results the user is already reading.
         this.logService.error("Vault health refresh pipeline failed", error);
         return EMPTY;
       }),

@@ -4,7 +4,6 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import {
   userEvent,
-  getAllByRole,
   getByRole,
   queryByRole,
   fireEvent,
@@ -93,6 +92,8 @@ export default {
               sideNavigation: "Side navigation",
               skipLink: "Skip link",
               more: "More",
+              showMore: "Show more",
+              showMoreCount: "Show 5 more",
             });
           },
         },
@@ -177,7 +178,7 @@ export const MenuOpen: Story = {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
     const table = getByRole(canvas, "table");
-    const menuButton = getAllByRole(table, "button")[0];
+    const menuButton = getAllByLabelText(table, "Options")[0];
     await userEvent.click(menuButton);
   },
   parameters: {

@@ -2,11 +2,30 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Bộ lọc"
   },
   "allItems": {
     "message": "Tất cả các mục"
+  },
+  "allVaultItems": {
+    "message": "Tất cả mục trong kho lưu trữ"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "Kho"
+  },
+  "tools": {
+    "message": "Công cụ"
+  },
+  "manage": {
+    "message": "Quản lý"
   },
   "favorites": {
     "message": "Yêu thích"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Thư mục chia sẻ"
   },
+  "sharedFoldersInParent": {
+    "message": "Thư mục chia sẻ trong $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ thư mục chia sẻ khác được hiển thị phía trên nút này",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 thư mục chia sẻ khác được hiển thị phía trên nút này",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Thư mục của tôi"
   },
@@ -121,6 +182,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Thêm thư mục vào các mục để lọc chúng tại đây."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "Chỉnh sửa thư mục"
   },
+  "editFolderNamed": {
+    "message": "Sửa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Xóa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Tạo lại mật khẩu"
   },
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "Đã thêm thư mục"
   },
+  "folderEdited": {
+    "message": "Đã sửa thư mục"
+  },
+  "enterAName": {
+    "message": "Nhập tên."
+  },
   "deleteFolderConfirmation": {
     "message": "Bạn có chắc chắn muốn xóa thư mục này không?"
   },
   "deletedFolder": {
     "message": "Đã xóa thư mục"
+  },
+  "foldersDeleted": {
+    "message": "Đã xóa các thư mục"
+  },
+  "deleteFoldersCount": {
+    "message": "Xóa $COUNT$ thư mục",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Khi bạn xóa thư mục $NAME$, thư mục này sẽ bị xóa khỏi mọi mục đã áp dụng thư mục. Bản thân các mục sẽ không bị xóa.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Khi bạn xóa các thư mục này, chúng sẽ bị xóa khỏi mọi mục đã áp dụng. Bản thân các mục sẽ không bị xóa."
   },
   "loginOrCreateNewAccount": {
     "message": "Đăng nhập hoặc tạo tài khoản mới để truy cập kho lưu trữ của bạn."
@@ -2302,6 +2414,42 @@
   },
   "noMatchingItems": {
     "message": "Không có mục nào phù hợp"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "selected": {
     "message": "Đã chọn"
@@ -4590,6 +4738,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Xem hướng dẫn chi tiết về $NAME$ trong",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Trung tâm Trợ giúp"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Quy trình hoàn toàn giống với khi nhập từ Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Trong ứng dụng KeePassX dành cho máy tính, đi tới \"Database\" → \"Export to CSV file\" và lưu tệp CSV."
+  },
+  "importAviraInstructions": {
+    "message": "Trong kho lưu trữ web của Avira, đi tới \"Settings\" → \"My Data\" → \"Export data\" và lưu tệp CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Trong kho lưu trữ web của Blur, nhấp vào tên người dùng của bạn ở phía trên và đi tới \"Settings\" → \"Export Data\", sau đó nhấp vào \"Export CSV\" cho \"Accounts\" của bạn."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Trong ứng dụng SafeInCloud dành cho máy tính, đi tới \"File\" → \"Export\" → \"As XML\" và lưu tệp XML."
+  },
+  "importPadlockInstructions": {
+    "message": "Trong ứng dụng Padlock dành cho máy tính, nhấp vào biểu tượng menu ba gạch ở góc trên bên trái và đi tới nút \"Settings\" → \"Export\", sau đó lưu tệp dưới dạng \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Trong ứng dụng KeePass 2 dành cho máy tính, đi tới \"File\" → \"Export\" và chọn tùy chọn \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "Trong ứng dụng Universal Password Manager dành cho máy tính, đi tới \"Database\" → \"Export\" và lưu tệp CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "Trong tiện ích mở rộng trình duyệt SaferPass, nhấp vào biểu tượng menu ba gạch ở góc trên bên trái và đi tới \"Settings\". Nhấp vào nút \"Export accounts\" để lưu tệp CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Trong kho lưu trữ web của Meldium, đi tới \"Settings\". Tìm chức năng \"Export data\" và nhấp vào \"Show me my data\" để lưu tệp CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Trong ứng dụng Password Dragon dành cho máy tính, đi tới \"File\" → \"Export\" → \"To XML\". Trong hộp thoại bật lên, chọn \"All Rows\" và đánh dấu tất cả các trường. Nhấp vào nút \"Export\" và lưu tệp XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Trong ứng dụng Enpass dành cho máy tính, đi tới \"File\" → \"Export\" → \"As CSV\". Chọn \"OK\" ở cảnh báo và lưu tệp CSV. Lưu ý rằng trình nhập chỉ hỗ trợ các tệp được xuất khi Enpass được đặt sang ngôn ngữ tiếng Anh, vì vậy hãy điều chỉnh cài đặt cho phù hợp."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Trong ứng dụng Enpass 6 dành cho máy tính, nhấp vào nút menu và đi tới \"File\" → \"Export\". Chọn tùy chọn định dạng tệp \".json\" và lưu tệp JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "Trong ứng dụng Password Safe dành cho máy tính, đi tới \"File\" → \"Export To\" → \"XML format...\" và lưu tệp XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Đăng nhập vào Dashlane, nhấp vào \"My Account\" → \"Settings\" → \"Export file\" và chọn \"Export as a CSV file\". Thao tác này sẽ tải xuống một tệp lưu trữ zip chứa nhiều tệp CSV. Giải nén tệp lưu trữ và nhập riêng từng tệp CSV."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane không còn hỗ trợ định dạng JSON. Chỉ sử dụng tùy chọn này nếu bạn đã có tệp JSON để nhập. Hãy sử dụng trình nhập CSV khi tạo bản xuất mới."
+  },
+  "importMsecureInstructions": {
+    "message": "Trong ứng dụng mSecure dành cho máy tính, đi tới \"File\" → \"Export\" → \"CSV File...\" và lưu tệp CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Trong ứng dụng Sticky Password dành cho máy tính, đi tới \"Menu\" (góc trên bên phải) → \"Export\" → \"Export all\". Chọn tùy chọn định dạng XML không mã hóa và lưu tệp XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "Trong ứng dụng True Key dành cho máy tính, nhấp vào biểu tượng bánh răng (góc trên bên phải), sau đó đi tới \"App Settings\". Nhấp vào nút \"Export\", nhập mật khẩu của bạn và lưu tệp CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Đăng nhập vào ứng dụng web Clipperz (clipperz.is/app). Nhấp vào biểu tượng menu ba gạch ở góc trên bên phải để mở rộng thanh điều hướng. Đi tới \"Data\" → \"Export\". Nhấp vào nút \"download HTML+JSON\" để lưu tệp HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "Trong ứng dụng RoboForm Editor dành cho máy tính, đi tới \"RoboForm\" (góc trên bên trái) → \"Options\" → \"Account & Data\" và nhấp vào nút \"Export\". Chọn tất cả dữ liệu của bạn, đổi \"Format\" thành \"CSV file\", sau đó nhấp vào nút \"Export\" để lưu tệp CSV. Lưu ý: RoboForm chỉ cho phép bạn xuất các mục Đăng nhập. Các mục khác sẽ không được xuất."
+  },
+  "importPassboltInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ web Passbolt và đi tới danh sách \"Passwords\". Chọn tất cả mật khẩu bạn muốn xuất và nhấp vào nút \"Export\" ở đầu danh sách. Chọn định dạng xuất \"csv (lastpass)\" và nhấp vào nút \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "Trong ứng dụng Ascendo DataVault dành cho máy tính, đi tới \"Tools\" → \"Export\". Trong hộp thoại bật lên, chọn tùy chọn \"All Items (DVX, CSV)\". Nhấp vào nút \"Ok\" để lưu tệp CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Trong ứng dụng Password Boss dành cho máy tính, đi tới \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" và lưu tệp JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ web Zoho (vault.zoho.com). Đi tới \"Tools\" → \"Export Secrets\". Chọn \"All Secrets\" và nhấp vào nút \"Zoho Vault Format CSV\". Bôi đen và sao chép dữ liệu từ vùng văn bản. Mở trình soạn thảo văn bản như Notepad và dán dữ liệu. Lưu dữ liệu từ trình soạn thảo văn bản dưới dạng",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Trong ứng dụng SplashID Safe dành cho máy tính, nhấp vào biểu tượng khóa màu xanh dương SplashID ở góc trên bên phải. Đi tới \"Export\" → \"Export as CSV\" và lưu tệp CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "Trong ứng dụng di động PassKeep, đi tới \"Backup/Restore\". Tìm phần \"CSV Backup/Restore\" và nhấp vào \"Backup to CSV\" để lưu tệp CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Đảm bảo bạn đã cài đặt python-keyring và python-gnomekeyring. Lưu",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Nhập/Xuất GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "tập lệnh python vào màn hình nền của bạn dưới tên",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Mở terminal và chạy",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "và sau đó",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Sau đó tải lên tệp kết quả",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "tại đây lên Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Trong ứng dụng Password Agent dành cho máy tính, đi tới \"File\" → \"Export\", chọn nút \"Fields to export\" và đánh dấu tất cả các trường, đổi \"Output format\" thành \"CSV\", sau đó nhấp vào nút \"Start\" để lưu tệp CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ trên trang web Passpack và đi tới \"Settings\" → \"Export\", sau đó nhấp vào nút \"Download\" để lưu tệp CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Mở kho lưu trữ Passman của bạn và nhấp vào \"Settings\" ở góc dưới bên trái. Trong cửa sổ \"Settings\", chuyển sang tab \"Export credentials\" và chọn \"JSON\" làm loại xuất. Nhập cụm mật khẩu của kho lưu trữ và nhấp vào nút \"Export\" để lưu tệp JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Mở ứng dụng Avast Passwords dành cho máy tính và đi tới \"Settings\" → \"Import/export data\". Chọn nút \"Export\" cho tùy chọn \"Export to CSV file\" để lưu tệp CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Mở ứng dụng Avast Passwords dành cho máy tính và đi tới \"Settings\" → \"Import/export data\". Chọn nút \"Export\" cho tùy chọn \"Export to JSON file\" để lưu tệp JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Mở ứng dụng F-Secure KEY dành cho máy tính và đi tới \"Settings\" → \"Export Passwords\". Chọn nút \"Export\", nhập mật khẩu chính của bạn và lưu tệp FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Mở ứng dụng Kaspersky Password Manager dành cho máy tính và đi tới \"Settings\" → \"Import/Export\". Tìm phần \"Export to text file\" và chọn nút \"Export\" để lưu tệp TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Mở ứng dụng RememBear dành cho máy tính và đi tới \"Settings\" → \"Account\" → \"Export\". Nhập mật khẩu chính của bạn và chọn nút \"Export Anyway\" để lưu tệp CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Mở ứng dụng PasswordWallet dành cho máy tính và đi tới \"File\" → \"Export\" → \"Visible entries to text file\". Nhập mật khẩu của bạn và chọn nút \"Ok\" để lưu tệp TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Mở tiện ích mở rộng trình duyệt Myki dành cho máy tính và đi tới \"Advanced\" → \"Export Accounts\", sau đó quét mã QR bằng thiết bị di động. Nhiều tệp CSV sẽ được lưu vào thư mục tải xuống trên máy tính của bạn."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Xuất kho mật khẩu SecureSafe của bạn sang tệp CSV với dấu phẩy làm dấu phân cách."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Mở tiện ích mở rộng trình duyệt LogMeOnce, sau đó đi tới \"Open Menu\" → \"Export To\" và chọn \"CSV File\" để lưu tệp CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Mở ứng dụng BlackBerry Password Keeper, sau đó đi tới \"Settings\" → \"Import/Export\". Chọn \"Export Passwords\" và làm theo hướng dẫn trên màn hình để lưu tệp CSV không mã hóa."
+  },
+  "importButtercupInstructions": {
+    "message": "Mở ứng dụng Buttercup dành cho máy tính và mở khóa kho lưu trữ của bạn. Nhấp chuột phải vào biểu tượng kho lưu trữ và chọn \"Export\" để lưu tệp CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Mở ứng dụng Codebook dành cho máy tính và đăng nhập. Đi tới \"File\" → \"Export all\", sau đó nhấp vào \"Yes\" trong hộp thoại và lưu tệp CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Mở phiên bản mới nhất của ứng dụng Encryptr dành cho máy tính và cho phép đồng bộ hóa toàn bộ dữ liệu. Khi dữ liệu đã đồng bộ xong, biểu tượng tải xuống ở góc trên bên phải sẽ chuyển sang màu hồng. Nhấp vào biểu tượng tải xuống và lưu tệp CSV."
+  },
+  "importYotiInstructions": {
+    "message": "Trong tiện ích mở rộng trình duyệt Yoti, nhấp vào \"Settings\", sau đó \"Export Saved Logins\" và lưu tệp CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ web Psono, nhấp vào danh sách thả xuống \"Signed in as\", chọn \"Others\". Đi tới tab \"Export\", chọn loại xuất json rồi nhấp vào Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Đăng nhập vào \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" trong phần Passky. (\"Backup\" không được hỗ trợ vì đã được mã hóa)."
+  },
+  "importProtonpassInstructions": {
+    "message": "Trong tiện ích mở rộng trình duyệt ProtonPass, đi tới Settings > Export. Xuất mà không mã hóa PGP và lưu tệp zip."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Chọn menu Database → Export to file... → Trong các tùy chọn xuất, đảm bảo Folder names và Column titles đã được chọn. → Nhấn nút Browse... rồi chọn tệp đích và đặt loại tệp thành CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Mở FullClient, đi tới Main Menu và chọn Export. Khởi động trình hướng dẫn xuất mật khẩu và làm theo hướng dẫn để xuất tệp CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Đăng nhập vào NordPass và mở Settings → Cuộn xuống phần Import and Export rồi chọn Export items → Nhập Mật khẩu chính của bạn và chọn Continue. → Lưu tệp CSV trên thiết bị."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Đăng nhập vào Delinea, tìm “Import/Export” -> chọn “Export” -> Chọn “XML” làm định dạng xuất -> Chọn “QuantumLock” làm loại trình xác thực -> nhập mật khẩu của bạn và chọn “Export” để lưu tệp XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Đăng nhập vào Delinea, tìm “Import/Export” -> chọn “Export” -> Chọn “CSV” làm định dạng xuất -> Chọn “QuantumLock” làm loại trình xác thực -> nhập mật khẩu của bạn và chọn “Export” để lưu tệp CSV."
+  },
   "confirmVaultImport": {
     "message": "Xác nhận nhập kho"
   },
@@ -4703,10 +5052,6 @@
   },
   "browserProfile": {
     "message": "Hồ sơ trình duyệt"
-  },
-  "seeDetailedInstructions": {
-    "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Nhập trực tiếp từ LastPass"
@@ -5177,13 +5522,13 @@
     "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
   },
   "passkeyLogin2": {
-    "message": "Log in with passkey"
+    "message": "Đăng nhập bằng mã khoá"
   },
   "savePasskeyQuestion": {
     "message": "Lưu mã khóa?"
   },
   "savePasskey": {
-    "message": "Save passkey"
+    "message": "Lưu mã khoá"
   },
   "saveNewPasskey": {
     "message": "Lưu như đăng nhập mới"
@@ -5199,7 +5544,7 @@
     "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
   },
   "overwritePasskey2": {
-    "message": "Overwrite passkey"
+    "message": "Ghi đè mã khóa"
   },
   "unableToSavePasskey": {
     "message": "Không thể lưu mã khóa"
@@ -5593,6 +5938,15 @@
   "showMore": {
     "message": "Xem thêm"
   },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Thu gọn"
   },
@@ -5946,11 +6300,80 @@
   "noItemsInTrashDesc": {
     "message": "Các mục bạn xóa sẽ xuất hiện ở đây và sẽ bị xóa vĩnh vĩnh sau 30 ngày"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "Không có mục nào trong kho lưu trữ"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Kho lưu trữ không chỉ bảo vệ mỗi mật khẩu. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, giấy tờ tùy thân, thẻ và ghi chú tại đây."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "Bạn chưa thêm mục nào vào danh sách yêu thích"
@@ -5963,6 +6386,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Xóa bộ lọc hoặc thử từ khóa tìm kiếm khác"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Chưa có thư mục chia sẻ nào được thêm"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "sendPasswordHelperText": {
     "message": "Các cá nhân sẽ cần nhập mật khẩu để xem Send này",
@@ -6322,7 +6751,7 @@
     }
   },
   "confirmPasskeyRegistrationMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "message": "tạo mã khóa $RPID$ mới cho $USERNAME$",
     "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6336,7 +6765,7 @@
     }
   },
   "confirmPasskeyOverwriteMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "message": "ghi đè mã khóa $RPID$ cho $USERNAME$",
     "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6350,7 +6779,7 @@
     }
   },
   "confirmPasskeyAssertionMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "message": "đăng nhập với tư cách $USERNAME$ bằng mã khóa $RPID$ của bạn",
     "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6364,7 +6793,7 @@
     }
   },
   "confirmPasskeyRegistrationWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "message": "Xác minh đó là bạn để tạo mã khóa $RPID$ mới cho $USERNAME$.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6378,7 +6807,7 @@
     }
   },
   "confirmPasskeyOverwriteWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "message": "Xác minh đó là bạn để ghi đè mã khóa $RPID$ cho $USERNAME$.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6392,7 +6821,7 @@
     }
   },
   "confirmPasskeyAssertionWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "message": "Xác minh đó là bạn để đăng nhập với tư cách $USERNAME$ bằng mã khóa $RPID$ của bạn.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6404,5 +6833,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Quyền truy cập"
+  },
+  "viewItems": {
+    "message": "Xem mục"
+  },
+  "viewItemsHidePass": {
+    "message": "Xem các mục, ẩn các mật khẩu"
+  },
+  "editItems": {
+    "message": "Chỉnh sửa mục"
+  },
+  "editItemsHidePass": {
+    "message": "Sửa các mục, ẩn các mật khẩu"
   }
 }

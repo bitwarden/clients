@@ -242,6 +242,10 @@ export const IconTiles: Story = {
       },
     ],
   },
+  parameters: {
+    // Test is flaky and this component is deprecated anyway
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 export const TextOverflow: Story = {

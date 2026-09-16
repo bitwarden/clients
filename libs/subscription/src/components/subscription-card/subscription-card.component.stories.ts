@@ -13,6 +13,7 @@ import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitwardenSubscription } from "../../types/bitwarden-subscription";
+import { SubscriptionPreview } from "../../types/subscription-preview";
 
 import { SubscriptionCardComponent } from "./subscription-card.component";
 
@@ -55,8 +56,9 @@ export default {
                   "Your subscription is expired. Please resubscribe to continue using premium features.",
                 yourSubscriptionIsCanceled:
                   "Your subscription is canceled. Please resubscribe to continue using premium features.",
-                yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
-                reinstateSubscription: "Reinstate subscription",
+                subscriptionPendingCanceled:
+                  "The subscription has been marked for cancellation at the end of the current billing period.",
+                keepSubscription: "Keep subscription",
                 resubscribe: "Resubscribe",
                 upgradeYourPlan: "Upgrade your plan",
                 premiumShareEvenMore:
@@ -68,6 +70,9 @@ export default {
                   "To reactivate your subscription, please resolve the past due invoices.",
                 yourSubscriptionWillBeSuspendedOn: "Your subscription will be suspended on",
                 yourSubscriptionWasSuspendedOn: "Your subscription was suspended on",
+                subscriptionPastDueWillPauseSoon:
+                  "Your subscription is past due and will be paused soon.",
+                subscriptionPastDuePaused: "Your subscription is past due and has been paused.",
                 yourSubscriptionWillBeCanceledOn: "Your subscription will be canceled on",
                 yourNextChargeIsFor: "Your next charge is for",
                 dueOn: "due on",
@@ -286,6 +291,27 @@ export const PastDue: Story = {
   },
 };
 
+export const PastDueWithoutDetails: Story = {
+  name: "Past Due - No Suspension Date",
+  args: {
+    title: "Enterprise Subscription",
+    subscription: {
+      status: "past_due",
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 20,
+            translationKey: "members",
+            cost: 6,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      },
+    } satisfies SubscriptionPreview,
+  },
+};
+
 export const PendingCancellation: Story = {
   args: {
     title: "Premium Subscription",
@@ -337,6 +363,32 @@ export const Unpaid: Story = {
         readableUsed: "234 MB",
       },
     } satisfies BitwardenSubscription,
+  },
+};
+
+export const UnpaidNoSuspensionDate: Story = {
+  name: "Unpaid - No Suspension Date",
+  args: {
+    title: "Premium Subscription",
+    subscription: {
+      status: "unpaid",
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 1,
+            translationKey: "members",
+            cost: 10.0,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 2.71,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies SubscriptionPreview,
   },
 };
 
@@ -413,4 +465,44 @@ export const Enterprise: Story = {
       },
     },
   },
+};
+
+export const WithProjectedContent: Story = {
+  name: "Preview-Driven - With Projected Warning",
+  args: {
+    title: "Teams Subscription",
+    subscription: {
+      status: "active",
+      nextCharge: new Date("2025-02-15"),
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 4,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 1.5,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies SubscriptionPreview,
+  },
+  // Verifies the <ng-content> slot: pages project content (e.g. the scheduled price-increase
+  // warning) into the bottom of the card.
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-subscription-card [title]="title" [subscription]="subscription">
+        <bit-callout type="warning" title="Pricing details may be outdated">
+          We're having trouble reaching our billing service, so your subscription details may be
+          outdated. You're seeing the last known details.
+        </bit-callout>
+      </billing-subscription-card>
+    `,
+  }),
 };
