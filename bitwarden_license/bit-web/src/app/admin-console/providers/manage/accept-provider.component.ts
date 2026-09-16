@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
@@ -20,10 +18,10 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
   protected logo = BitwardenLogo;
-  providerName: string;
-  providerId: string;
-  providerUserId: string;
-  providerInviteToken: string;
+  providerName?: string;
+  providerId?: string;
+  providerUserId?: string;
+  providerInviteToken?: string;
 
   failedMessage = "providerInviteAcceptFailed";
 

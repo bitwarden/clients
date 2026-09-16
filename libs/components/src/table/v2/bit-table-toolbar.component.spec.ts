@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -7,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService } from "../../dialog";
 import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component";
 import { SearchComponent } from "../../search/search.component";
+import { TooltipDirective } from "../../tooltip";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
@@ -109,6 +111,15 @@ describe("BitTableToolbarComponent", () => {
     expect(host.search().value()).toBe("vault");
     expect(clearAllVisible()).toBe(false);
   });
+  it("tooltips an active filter chip with its full applied label", () => {
+    host.toggle().flip();
+    fixture.detectChanges();
+
+    const chip = fixture.debugElement.query(By.css("bit-chip"));
+    expect(chip).not.toBeNull();
+    expect(chip.injector.get(TooltipDirective).tooltipContent()).toBe("Favorites");
+  });
+
   it("leaves the filter row free of element children when no filters are projected", () => {
     const searchOnly = TestBed.createComponent(SearchOnlyHostComponent);
     searchOnly.detectChanges();

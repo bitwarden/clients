@@ -103,6 +103,15 @@ export class LayoutComponent {
   protected readonly siderailIsPushMode = signal(false);
 
   /**
+   * Whether column 1 gets a non-zero track — i.e. a side nav is projected and either the
+   * full nav or the siderail fits.  When false the nav column collapses to 0px and <main>
+   * sits flush against the container edge.
+   */
+  private readonly navOccupiesColumn = computed(
+    () => this.hasSideNav() && (this.sideNavService.isPushMode() || this.siderailIsPushMode()),
+  );
+
+  /**
    * The CSS grid-template-columns value for the three-panel layout.
    *
    * Column 1 (nav):    navWidthRem when nav is push+open
@@ -120,7 +129,6 @@ export class LayoutComponent {
   protected readonly gridTemplateColumns = computed(() => {
     const navOpen = this.sideNavService.open();
     const navPush = this.sideNavService.isPushMode();
-    const siderailPush = this.siderailIsPushMode();
 
     // --- Drawer push/shrink/overlay ---
     const drawerActive = this.drawerIsActive();
@@ -155,14 +163,13 @@ export class LayoutComponent {
     // flow.  A dummy placeholder div in the template keeps the col 1 auto track
     // stable without needing an explicit px value here.
     let col1: string;
-    if (!this.hasSideNav()) {
-      col1 = "0px"; // no side nav projected — collapse the column entirely
+    if (!this.navOccupiesColumn()) {
+      // no side nav projected, or the viewport is too narrow even for the siderail
+      col1 = "0px";
     } else if (navOpen && navPush) {
       col1 = `${this.sideNavService.widthRem()}rem`; // full nav, push+open
-    } else if (navPush || siderailPush) {
-      col1 = "auto"; // siderail in flow, size naturally
     } else {
-      col1 = "0px"; // viewport too narrow even for siderail
+      col1 = "auto"; // siderail in flow, size naturally
     }
 
     // col3: minmax(0px, declaredMax) instead of "auto" so the track is sized by its
@@ -283,6 +290,13 @@ export class LayoutComponent {
    * Rounded top left corner for the main content area
    */
   readonly rounded = input(false, { transform: booleanAttribute });
+
+  /**
+   * The corner is only drawn when the nav column has width.  Once col 1 collapses to 0px
+   * <main> is flush with the container edge, and rounding it would just carve a sliver of
+   * the backdrop out against the window edge instead of tucking into the nav.
+   */
+  protected readonly showRoundedCorner = computed(() => this.rounded() && this.navOccupiesColumn());
 
   protected focusMainContent() {
     this.mainContent().nativeElement.focus();
