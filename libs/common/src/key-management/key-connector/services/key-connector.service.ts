@@ -38,6 +38,7 @@ import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../p
 import { UserId } from "../../../types/guid";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
+import { withPasswordManagerSdk } from "../../utils";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
@@ -131,21 +132,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
   async migrateUser(keyConnectorUrl: string, userId: UserId) {
     try {
-      await firstValueFrom(
-        this.sdkService.userClient$(userId).pipe(
-          map(async (sdk) => {
-            if (!sdk) {
-              throw new Error("SDK not available");
-            }
-
-            using ref = sdk.take();
-
-            return await ref.value
-              .user_crypto_management()
-              .migrate_to_key_connector(keyConnectorUrl);
-          }),
-        ),
-      );
+      await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+        await sdk.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
+      });
     } catch (e) {
       this.handleKeyConnectorError(e);
     }
@@ -153,6 +142,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.setUsesKeyConnector(true, userId);
 
     // Clear master password unlock from state
+    // Todo: move to sdk's migrate_to_key_connector
     await this.masterPasswordService.clearMasterPasswordUnlockData(userId);
 
     const userDecryptionOptions = await firstValueFrom(

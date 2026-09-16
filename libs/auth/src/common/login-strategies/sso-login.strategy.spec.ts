@@ -514,6 +514,20 @@ describe("SsoLoginStrategy", () => {
       );
     });
 
+    it("does not enroll a master password user without a wrapped user key", async () => {
+      const masterPasswordUser = identityTokenResponseFactory(null, {
+        HasMasterPassword: true,
+        KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
+      });
+      masterPasswordUser.key = undefined;
+
+      apiService.postIdentityToken.mockResolvedValue(masterPasswordUser);
+
+      await ssoLoginStrategy.logIn(credentials);
+
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).not.toHaveBeenCalled();
+    });
+
     it("does not derive the user key from the master key for an enrolled user", async () => {
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
