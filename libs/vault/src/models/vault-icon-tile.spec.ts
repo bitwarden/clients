@@ -124,8 +124,6 @@ describe("vaultScopeHeaderTile", () => {
     organizationDataOwnership: true,
   };
 
-  const orgTile = { icon: "bwi-business", variant: "purple", emphasis: "bold" };
-
   it("gives All items the brand list tile", () => {
     expect(vaultScopeHeaderTile({ type: VaultScopeType.AllItems }, personalNav)).toEqual(
       ALL_ITEMS_ICON_TILE,
@@ -143,23 +141,17 @@ describe("vaultScopeHeaderTile", () => {
     expect(vaultScopeHeaderTile({ type: VaultScopeType.MyVault }, undefined)).toBeUndefined();
   });
 
-  it("gives an organization's All vault items the organization's tile", () => {
+  // An organization vault's tile is always shown on the breadcrumb trail instead.
+  it("has no tile for an organization's All vault items, My items, or a shared folder, or for trash or archive", () => {
     expect(
       vaultScopeHeaderTile({ type: VaultScopeType.Organization, organizationId: orgId }, orgNav),
-    ).toEqual(orgTile);
-  });
-
-  it("gives an organization's My items the organization's tile", () => {
+    ).toBeUndefined();
     expect(
       vaultScopeHeaderTile(
         { type: VaultScopeType.Organization, organizationId: orgId, collectionId: myItemsId },
         orgNav,
       ),
-    ).toEqual(orgTile);
-  });
-
-  // A shared folder carries its tile on the breadcrumb trail instead.
-  it("has no tile for a shared folder, trash, or archive", () => {
+    ).toBeUndefined();
     expect(
       vaultScopeHeaderTile(
         { type: VaultScopeType.Organization, organizationId: orgId, collectionId: sharedFolderId },
