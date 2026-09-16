@@ -90,13 +90,15 @@ export type CartItem = {
 
 export type Cart = {
   passwordManager: {
-    seats: CartItem; // Required PM seats
+    seats?: CartItem; // Absent on an all-proration transition invoice
     additionalStorage?: CartItem; // Optional additional storage
+    prorationCharges?: CartItem[]; // Optional mid-cycle proration charges, rendered as their own lines
   };
   secretsManager?: {
     // Optional SM section
-    seats: CartItem; // SM seats
+    seats?: CartItem; // SM seats
     additionalServiceAccounts?: CartItem; // Optional service accounts
+    prorationCharges?: CartItem[]; // Optional mid-cycle proration charges
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
@@ -123,6 +125,7 @@ export type CartDiscount = {
   value: number; // Dollar amount or percentage (20 for 20%)
   amount?: number; // Optional authoritative applied amount in dollars
   label?: string; // Optional coupon name, preferred over the derived label
+  durationInMonths?: number; // Optional repeating-coupon duration, appended to the derived label
 };
 ```
 
@@ -767,7 +770,9 @@ Show cart with families plan:
 
 ### ❌ Don't
 
-- Omit required Cart fields (passwordManager.seats, cadence, estimatedTax)
+- Omit required Cart fields (cadence, estimatedTax)
+- Invent a proration charge without a purchasable reference — the label resolves from the reference
+  and falls back to the product group
 - Use old "month"/"year" cadence values (use "monthly"/"annually")
 - Modify the component's internal calculations or totals
 - Use inconsistent formatting for monetary values
