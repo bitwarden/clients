@@ -17,15 +17,20 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { IntegrationDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
+import {
+  IntegrationDialogResultStatus,
+  openConnectViaHecTokenDialog,
+  openHecConnectDialog,
+} from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
 jest.mock("../integration-dialog", () => ({
   openHecConnectDialog: jest.fn(),
+  openConnectViaHecTokenDialog: jest.fn(),
   openDatadogConnectDialog: jest.fn(),
   openHuntressConnectDialog: jest.fn(),
-  IntegrationDialogResultStatus: { Edited: "edit", Delete: "delete" },
+  IntegrationDialogResultStatus: { Edited: "edit", Delete: "delete", SavedViaCallback: "saved" },
 }));
 
 describe("IntegrationCardComponent", () => {
@@ -613,6 +618,46 @@ describe("IntegrationCardComponent", () => {
         message: mockI18nService.t("success"),
       });
       expect(stateService.deleteIntegrationSettings).toHaveBeenCalled();
+    });
+
+    it("should skip save when dialog closes with SavedViaCallback", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: IntegrationDialogResultStatus.SavedViaCallback,
+        }),
+      });
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.save).not.toHaveBeenCalled();
+      expect(mockIntegrationService.update).not.toHaveBeenCalled();
+      expect(mockIntegrationService.delete).not.toHaveBeenCalled();
+    });
+
+    it("should pass saveCallback to openConnectViaHecTokenDialog for Splunk path", async () => {
+      fixture.componentRef.setInput("integrationSettings", {
+        organizationIntegration: null,
+        name: OrganizationIntegrationServiceName.Splunk,
+        integrationType: OrganizationIntegrationType.Hec,
+      } as any);
+      component.organizationId = "org-id" as any;
+      stateService.integrations.mockReturnValue([]);
+      stateService.organization.mockReturnValue({ id: "org-id" } as any);
+
+      (openConnectViaHecTokenDialog as jest.Mock).mockReturnValue({
+        closed: of(undefined),
+      });
+
+      await component.setupConnection();
+
+      expect(openConnectViaHecTokenDialog).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            saveCallback: expect.any(Function),
+          }),
+        }),
+      );
     });
   });
 });

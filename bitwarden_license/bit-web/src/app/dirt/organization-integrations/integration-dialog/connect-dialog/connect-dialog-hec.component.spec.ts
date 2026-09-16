@@ -1,12 +1,18 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -59,6 +65,7 @@ describe("ConnectDialogHecComponent", () => {
   let fixture: ComponentFixture<ConnectHecDialogComponent>;
   let dialogRefMock = mock<DialogRef<HecConnectDialogResult>>();
   const mockI18nService = mock<I18nService>();
+  const mockToastService = mock<ToastService>();
 
   const integrationMock: Integration = {
     name: "Test Integration",
@@ -85,6 +92,7 @@ describe("ConnectDialogHecComponent", () => {
         { provide: DialogRef, useValue: dialogRefMock },
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: ToastService, useValue: mockToastService },
       ],
     }).compileComponents();
   });
@@ -157,6 +165,92 @@ describe("ConnectDialogHecComponent", () => {
       index: "1",
       service: "Test Service",
       success: IntegrationDialogResultStatus.Edited,
+    });
+  });
+
+  describe("with saveCallback", () => {
+    let toastServiceMock: MockProxy<ToastService>;
+    let dialogRefWithCallback: MockProxy<DialogRef<HecConnectDialogResult>>;
+
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      toastServiceMock = mock<ToastService>();
+      dialogRefWithCallback = mock<DialogRef<HecConnectDialogResult>>();
+
+      const connectInfoWithCallback: HecConnectDialogParams = {
+        settings: integrationMock,
+        saveCallback: jest.fn(),
+      };
+
+      await TestBed.configureTestingModule({
+        imports: [ReactiveFormsModule, SharedModule, BrowserAnimationsModule],
+        providers: [
+          FormBuilder,
+          { provide: DIALOG_DATA, useValue: connectInfoWithCallback },
+          { provide: DialogRef, useValue: dialogRefWithCallback },
+          { provide: I18nPipe, useValue: mock<I18nPipe>() },
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: ToastService, useValue: toastServiceMock },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ConnectHecDialogComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      mockI18nService.t.mockImplementation((key) => key);
+    });
+
+    it("should show error toast and keep dialog open when saveCallback returns an error string", async () => {
+      (component.connectInfo.saveCallback as jest.Mock).mockResolvedValue(
+        "Authentication failed: invalid token.",
+      );
+      component.formGroup.setValue({
+        url: "https://test.com",
+        bearerToken: "token",
+        index: "1",
+        service: "Test Service",
+      });
+
+      await component.submit();
+
+      expect(toastServiceMock.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: "Authentication failed: invalid token.",
+      });
+      expect(dialogRefWithCallback.close).not.toHaveBeenCalled();
+    });
+
+    it("should close dialog with SavedViaCallback when saveCallback returns null", async () => {
+      (component.connectInfo.saveCallback as jest.Mock).mockResolvedValue(null);
+      component.formGroup.setValue({
+        url: "https://test.com",
+        bearerToken: "valid-token",
+        index: "1",
+        service: "Test Service",
+      });
+
+      await component.submit();
+
+      expect(dialogRefWithCallback.close).toHaveBeenCalledWith(
+        expect.objectContaining({ success: IntegrationDialogResultStatus.SavedViaCallback }),
+      );
+      expect(toastServiceMock.showToast).not.toHaveBeenCalled();
+    });
+
+    it("should close dialog without result when saveCallback throws", async () => {
+      (component.connectInfo.saveCallback as jest.Mock).mockRejectedValue(new Error("fail"));
+      component.formGroup.setValue({
+        url: "https://test.com",
+        bearerToken: "bad-token",
+        index: "1",
+        service: "Test Service",
+      });
+
+      await component.submit();
+
+      expect(dialogRefWithCallback.close).toHaveBeenCalledWith();
+      expect(toastServiceMock.showToast).not.toHaveBeenCalled();
     });
   });
 });
