@@ -29,14 +29,10 @@ import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SIDE_NAV_WIDTH_BOUNDS } from "../navigation/side-nav-width.service";
 import { SideNavService } from "../navigation/side-nav.service";
-import {
-  getRootFontSizePx,
-  LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM,
-  remToPx,
-  SIDERAIL_WIDTH_REM,
-} from "../shared";
+import { getRootFontSizePx, remToPx, SIDERAIL_WIDTH_REM } from "../shared";
 
 import { LayoutFooterService } from "./layout-footer.service";
+import { MAIN_CONTENT_MIN_WIDTH_REM } from "./layout-metrics";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -74,7 +70,7 @@ export class LayoutComponent {
 
   /** Bound in the template, so the constants remain the single source of truth for these widths. */
   protected readonly siderailWidthRem = SIDERAIL_WIDTH_REM;
-  protected readonly mainContentMinWidthRem = LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM;
+  protected readonly mainContentMinWidthRem = MAIN_CONTENT_MIN_WIDTH_REM;
 
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");
@@ -144,7 +140,7 @@ export class LayoutComponent {
     const rootFontSizePx = getRootFontSizePx();
     const siderailWidthPx = remToPx(SIDERAIL_WIDTH_REM, rootFontSizePx);
     const drawerMinWidthPx = remToPx(drawerSizeToWidthRem.small, rootFontSizePx);
-    const mainMinWidthPx = remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+    const mainMinWidthPx = remToPx(MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
 
     // Push vs overlay: switch to overlay only when the minimum push width won't fit.
     // The shrink zone between the declared max-width and the minimum is handled
@@ -208,7 +204,7 @@ export class LayoutComponent {
     const rootFontSizePx = getRootFontSizePx();
     const estimatedPushMode =
       window.innerWidth - remToPx(SIDE_NAV_WIDTH_BOUNDS.default, rootFontSizePx) >=
-      remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+      remToPx(MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
     if (estimatedPushMode && this.sideNavService.userCollapsePreference() !== "closed") {
       this.sideNavService.open.set(true);
     }
@@ -224,7 +220,7 @@ export class LayoutComponent {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
         const siderailPx = remToPx(SIDERAIL_WIDTH_REM, rootFontSizePx);
-        const mainMinPx = remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+        const mainMinPx = remToPx(MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
         const navWidthPx = remToPx(this.sideNavService.widthRem(), rootFontSizePx);
         const drawerMinPx = remToPx(drawerSizeToWidthRem.small, rootFontSizePx);
 

@@ -11,9 +11,9 @@ import { NavigationModule } from "../navigation/navigation.module";
 import { ARROW_STEP_REM } from "../navigation/side-nav-resize";
 import { SIDE_NAV_WIDTH_BOUNDS } from "../navigation/side-nav-width.service";
 import { SideNavService } from "../navigation/side-nav.service";
-import { LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { MAIN_CONTENT_MIN_WIDTH_REM } from "./layout-metrics";
 import { LayoutComponent } from "./layout.component";
 
 // JSDOM implements neither ResizeObserver nor layout, so these tests drive both by hand: the
@@ -86,7 +86,7 @@ describe("LayoutComponent push/overlay reconciliation", () => {
   // What this container affords: the nav can push alongside main up to the ceiling, and goes
   // overlay past it. Derived rather than written out so the numbers track the constants.
   const CONTAINER_REM = CONTAINER_WIDTH / ROOT_FONT_SIZE;
-  const PUSH_CEILING_REM = CONTAINER_REM - LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM;
+  const PUSH_CEILING_REM = CONTAINER_REM - MAIN_CONTENT_MIN_WIDTH_REM;
   const OVER_CEILING_REM = PUSH_CEILING_REM + ARROW_STEP_REM;
   /** Arrow presses from the default width to the first width past the ceiling. */
   const STEPS_PAST_CEILING = Math.ceil(
