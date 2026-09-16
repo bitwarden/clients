@@ -48,8 +48,9 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { isAutostartLaunch } from "./main/autostart";
 import { MenuMain } from "./main/menu/menu.main";
-import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
+import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
@@ -368,17 +369,21 @@ export class Main {
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
-        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+        // Autostart should start to tray, but only when running in the background is
+        // enabled; otherwise there would be a hidden window with no tray icon to bring
+        // it back.
+        const startHidden =
+          isAutostartLaunch() &&
+          (await firstValueFrom(this.desktopSettingsService.runInBackground$));
 
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
 
-        // Autostart should start to tray. However showing it then hiding it quickly triggers a bug in Kwin
+        // Showing the window then hiding it quickly triggers a bug in Kwin
         // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
-        // autostart is enabled.
-        const showWindow = !isAutostart;
-        await this.windowMain.init(showWindow);
+        // starting hidden.
+        await this.windowMain.init(!startHidden);
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -397,10 +402,7 @@ export class Main {
           },
         ]);
 
-        // Autostart starts to tray. Any auto-start mechanism must provide this flag.
-        // Only hide to tray when running in the background is enabled; otherwise there
-        // would be a hidden window with no tray icon to bring it back.
-        if (isAutostart && (await firstValueFrom(this.desktopSettingsService.runInBackground$))) {
+        if (startHidden) {
           this.trayMain.hideToTray();
         }
 

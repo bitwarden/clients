@@ -8,10 +8,10 @@ import { autostart } from "@bitwarden/desktop-napi";
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
+import { AUTOSTART_FLAG } from "./autostart";
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
 const SyncInterval = 5 * 60 * 1000; // 5 minutes
-export const AUTOSTART_FLAG = "--autostart";
 
 export class MessagingMain {
   private syncTimeout: NodeJS.Timeout;
@@ -126,6 +126,8 @@ export class MessagingMain {
           this.main.logService.error("Error setting autostart", e);
         });
     } else {
+      // `args` is Windows-only; macOS ignores it and launches the login item
+      // with no arguments, which is why isAutostartLaunch() asks the OS there.
       app.setLoginItemSettings({ openAtLogin: enabled, args: enabled ? [AUTOSTART_FLAG] : [] });
     }
   }
