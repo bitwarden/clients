@@ -20,6 +20,7 @@ import {
 
 export abstract class VaultFilterService {
   collapsedFilterNodes$: Observable<Set<string>>;
+  persistedCollapsedVaultFilterNodes$: Observable<Set<string>>;
   filteredFolders$: Observable<FolderView[]>;
   filteredCollections$: Observable<CollectionView[]>;
   organizationTree$: Observable<TreeNode<OrganizationFilter>>;
@@ -30,6 +31,11 @@ export abstract class VaultFilterService {
   abstract getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
   abstract setCollapsedFilterNodes: (
     collapsedFilterNodes: Set<string>,
+    userId: UserId,
+  ) => Promise<void>;
+  abstract setPersistedVaultFilterNodeOpen: (
+    nodeId: string,
+    open: boolean,
     userId: UserId,
   ) => Promise<void>;
   abstract expandOrgFilter: (userId: UserId) => Promise<void>;

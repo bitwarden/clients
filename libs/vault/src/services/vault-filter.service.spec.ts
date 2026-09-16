@@ -28,7 +28,10 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
+import {
+  COLLAPSED_GROUPINGS,
+  PERSISTED_COLLAPSED_VAULT_FILTER_NODES,
+} from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { VaultFilterService } from "./vault-filter.service";
 import { Vfo1TerminologyService } from "./vfo1-terminology.service";
@@ -150,6 +153,47 @@ describe("vault filter service", () => {
       await expect(firstValueFrom(vaultFilterService.collapsedFilterNodes$)).resolves.toEqual(
         nodes,
       );
+    });
+  });
+
+  describe("persisted collapsed vault filter nodes", () => {
+    it("adds a node id when collapsing it", async () => {
+      await vaultFilterService.setPersistedVaultFilterNodeOpen("1", false, mockUserId);
+
+      const persistedState = stateProvider.singleUser.getFake(
+        mockUserId,
+        PERSISTED_COLLAPSED_VAULT_FILTER_NODES,
+      );
+      expect(await firstValueFrom(persistedState.state$)).toEqual(["1"]);
+    });
+
+    it("removes a node id when expanding it, leaving other collapsed nodes untouched", async () => {
+      const persistedState = stateProvider.singleUser.getFake(
+        mockUserId,
+        PERSISTED_COLLAPSED_VAULT_FILTER_NODES,
+      );
+      persistedState.nextState(["1", "2"]);
+
+      await vaultFilterService.setPersistedVaultFilterNodeOpen("1", true, mockUserId);
+
+      expect(await firstValueFrom(persistedState.state$)).toEqual(["2"]);
+    });
+
+    it("loads from state on initialization", async () => {
+      const persistedState = stateProvider.singleUser.getFake(
+        mockUserId,
+        PERSISTED_COLLAPSED_VAULT_FILTER_NODES,
+      );
+      persistedState.nextState(["1", "2"]);
+
+      await expect(
+        firstValueFrom(vaultFilterService.persistedCollapsedVaultFilterNodes$),
+      ).resolves.toEqual(new Set(["1", "2"]));
+    });
+
+    it("does not clear on lock, unlike collapsedFilterNodes", () => {
+      expect(PERSISTED_COLLAPSED_VAULT_FILTER_NODES.clearOn).not.toContain("lock");
+      expect(COLLAPSED_GROUPINGS.clearOn).toContain("lock");
     });
   });
 

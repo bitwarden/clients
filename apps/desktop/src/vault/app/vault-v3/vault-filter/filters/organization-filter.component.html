@@ -5,7 +5,8 @@
     [text]="'allVaults' | i18n"
     [attr.aria-pressed]="!activeFilter()?.selectedOrganizationNode"
     [appA11yTitle]="'allVaults' | i18n"
-    [open]="true"
+    [open]="isOpen()"
+    (openChange)="onOpenChange($event)"
     [forceActiveStyles]="!activeFilter()?.selectedOrganizationNode"
     [disableToggleOnClick]="true"
   >

@@ -3,7 +3,17 @@
     <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
   </div>
 } @else {
-  <bit-nav-group icon="bwi-vault" [text]="'vault' | i18n" route="vault">
+  <bit-nav-group
+    #vaultGroup
+    icon="bwi-vault"
+    [text]="'vault' | i18n"
+    route="vault"
+    [disableToggleOnClick]="true"
+    [open]="isOpen(vaultGroupNodeId)"
+    (openChange)="onOpenChange(vaultGroupNodeId, $event)"
+    (mousedown)="onVaultGroupInteractionStart()"
+    (keydown)="onVaultGroupInteractionStart()"
+  >
     <app-organization-filter
       [activeFilter]="activeFilter()"
       [organizations]="organizations()"
@@ -18,6 +28,8 @@
         [text]="'collections' | vfo1I18n: 'sharedFolders'"
         [appA11yTitle]="'collections' | vfo1I18n: 'sharedFolders'"
         [disableToggleOnClick]="true"
+        [open]="isOpen(collections()?.node?.id)"
+        (openChange)="onOpenChange(collections()?.node?.id, $event)"
       >
         @for (collection of collections()?.children ?? []; track collection.node.id) {
           <app-collection-filter [activeFilter]="activeFilter()" [collection]="collection" />
@@ -29,6 +41,8 @@
       [text]="'folders' | vfo1I18n: 'myFolders'"
       [appA11yTitle]="'folders' | vfo1I18n: 'myFolders'"
       [disableToggleOnClick]="true"
+      [open]="isOpen(folders()?.node?.id)"
+      (openChange)="onOpenChange(folders()?.node?.id, $event)"
     >
       @for (folder of folders()?.children ?? []; track folder.node.id) {
         <app-folder-filter

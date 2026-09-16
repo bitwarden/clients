@@ -7,6 +7,8 @@
     (click)="applyFilter($event)"
     [forceActiveStyles]="isActive()"
     [disableToggleOnClick]="true"
+    [open]="isOpen()"
+    (openChange)="onOpenChange($event)"
   >
     @if (folder()?.node.id) {
       <button
