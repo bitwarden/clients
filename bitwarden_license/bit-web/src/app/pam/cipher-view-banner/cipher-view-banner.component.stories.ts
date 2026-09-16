@@ -14,6 +14,7 @@ import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service"
 import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
+import { CipherViewFooterActionsComponent } from "../cipher-view-footer-actions/cipher-view-footer-actions.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import {
   HOUR,
@@ -152,11 +153,35 @@ export default {
 type Story = StoryObj<CipherViewBannerComponent>;
 
 /**
+ * Renders the banner alongside `CipherViewFooterActionsComponent` rather than the banner alone.
+ *
+ * PM-43662 moved the request/submit/cancel buttons out of this card and into the dialog footer;
+ * both components read the same root-provided `RequestAccessFooterBridge`, so the banner
+ * publishing its handle on init is picked up here exactly as the real dialog footer would. A
+ * story that rendered only the card would show its heading and copy with no way to act on them.
+ */
+function renderWithFooterActions(args: { cipher: CipherView }) {
+  return {
+    props: args,
+    template: /*html*/ `
+      <app-pam-cipher-view-banner [cipher]="cipher"></app-pam-cipher-view-banner>
+      <div class="tw-mt-4 tw-flex tw-items-center tw-gap-2">
+        <app-pam-cipher-view-footer-actions [cipher]="cipher"></app-pam-cipher-view-footer-actions>
+      </div>
+    `,
+  };
+}
+
+/**
  * The resting state under an auto-approving rule: the card carries the rule's cap and the
  * instant-approval clause, and expanding it collects a duration only.
  */
 export const Privileged: Story = {
-  decorators: [pam({ state: () => ({ badgeState: "privileged" }) })],
+  decorators: [
+    pam({ state: () => ({ badgeState: "privileged" }) }),
+    moduleMetadata({ imports: [CipherViewFooterActionsComponent] }),
+  ],
+  render: renderWithFooterActions,
 };
 
 /**
@@ -170,7 +195,9 @@ export const PrivilegedHumanApproval: Story = {
       mode: "human",
       maxDurationSeconds: 24 * 60 * 60,
     }),
+    moduleMetadata({ imports: [CipherViewFooterActionsComponent] }),
   ],
+  render: renderWithFooterActions,
 };
 
 /**

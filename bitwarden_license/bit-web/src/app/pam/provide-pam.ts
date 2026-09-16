@@ -9,6 +9,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import {
   CIPHER_VIEW_BANNER,
+  CIPHER_VIEW_FOOTER_ACTIONS,
   GATED_CIPHER_RELOADER,
   ITEM_DETAILS_STATE_BADGE,
 } from "@bitwarden/vault";
@@ -26,6 +27,7 @@ import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowl
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
+import { CipherViewFooterActionsComponent } from "./cipher-view-footer-actions/cipher-view-footer-actions.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
@@ -155,6 +157,10 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherViewBannerComponent,
+    }),
+    safeProvider({
+      provide: CIPHER_VIEW_FOOTER_ACTIONS,
+      useValue: CipherViewFooterActionsComponent,
     }),
     safeProvider({
       provide: ITEM_DETAILS_STATE_BADGE,

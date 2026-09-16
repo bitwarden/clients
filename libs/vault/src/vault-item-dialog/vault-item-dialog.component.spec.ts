@@ -9,7 +9,10 @@ Object.defineProperty(window, "IntersectionObserver", {
   })),
 });
 
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -34,6 +37,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 
 import { CipherFormConfig } from "../cipher-form";
 import { AttachmentDialogResult } from "../cipher-view/attachments/attachments-v2.component";
+import { CIPHER_VIEW_FOOTER_ACTIONS } from "../tokens/cipher-view-footer-actions.token";
 import { GATED_CIPHER_RELOADER } from "../tokens/gated-cipher-reloader.token";
 
 import {
@@ -76,6 +80,16 @@ class TestVaultItemDialogComponent extends VaultItemDialogComponent {
   triggerFormReady() {
     this["_formReadySubject"].next();
   }
+}
+
+/** Stand-in for a host-provided footer actions component; captures the inputs the slot passes through. */
+@Component({
+  selector: "test-footer-actions",
+  template: "<div data-testid='test-footer-actions'></div>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestFooterActionsComponent {
+  readonly cipher = input<CipherView>();
 }
 
 describe("VaultItemDialogComponent", () => {
@@ -915,6 +929,110 @@ describe("VaultItemDialogComponent", () => {
         // The save itself landed, so the dialog must still report the item as modified.
         expect(gatedComponent["_cipherModified"]).toBe(true);
       });
+    });
+  });
+
+  describe("footer actions slot (CIPHER_VIEW_FOOTER_ACTIONS)", () => {
+    // Mirrors the real `bitDialogFooter` fragment in isolation, so these tests don't need to
+    // stand up the full cipher-view/cipher-form dependency graphs just to exercise the slot.
+    const FOOTER_ACTIONS_TEMPLATE = /* HTML */ `
+      @if (footerActionsComponent) {
+      <ng-container
+        *ngComponentOutlet="
+            footerActionsComponent;
+            inputs: {
+              cipher: cipher,
+            }
+          "
+      />
+      }
+    `;
+
+    async function setupFooterActions(provideFooterActions: boolean): Promise<{
+      fixture: ComponentFixture<VaultItemDialogComponent>;
+      component: VaultItemDialogComponent;
+    }> {
+      TestBed.resetTestingModule();
+
+      const providers: any[] = [
+        { provide: DIALOG_DATA, useValue: { ...baseParams, formConfig: { ...baseFormConfig } } },
+        { provide: DialogRef, useValue: { close } },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: MessagingService, useValue: { send: jest.fn() } },
+        { provide: LogService, useValue: { error: jest.fn() } },
+        { provide: CipherService, useValue: cipherServiceMock },
+        { provide: Router, useValue: mockRouter },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: "test-user-id" as any }) },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: { hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)) },
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: { upgradeConfirmed$: of(false), promptForPremium: jest.fn() },
+        },
+        { provide: CipherAuthorizationService, useValue: cipherAuthorizationServiceMock },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
+        { provide: CipherArchiveService, useValue: mockArchiveService },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
+      ];
+      if (provideFooterActions) {
+        providers.push({
+          provide: CIPHER_VIEW_FOOTER_ACTIONS,
+          useValue: TestFooterActionsComponent,
+        });
+      }
+
+      await TestBed.configureTestingModule({
+        imports: [VaultItemDialogComponent, NoopAnimationsModule],
+        providers,
+      })
+        .overrideProvider(DialogService, { useValue: mockDialogService })
+        .overrideComponent(VaultItemDialogComponent, {
+          set: {
+            template: FOOTER_ACTIONS_TEMPLATE,
+            imports: [CommonModule, TestFooterActionsComponent],
+          },
+        })
+        .compileComponents();
+
+      const fixture = TestBed.createComponent(VaultItemDialogComponent);
+      return { fixture, component: fixture.componentInstance };
+    }
+
+    it("injects null and renders nothing extra when the host provides no footer actions", async () => {
+      const { fixture, component } = await setupFooterActions(false);
+      fixture.detectChanges();
+
+      expect(component["footerActionsComponent"]).toBeNull();
+      expect(fixture.debugElement.query(By.directive(TestFooterActionsComponent))).toBeNull();
+    });
+
+    it("renders the host's footer actions component when provided", async () => {
+      const { fixture, component } = await setupFooterActions(true);
+      fixture.detectChanges();
+
+      expect(component["footerActionsComponent"]).toBe(TestFooterActionsComponent);
+      expect(fixture.debugElement.query(By.directive(TestFooterActionsComponent))).not.toBeNull();
+    });
+
+    it("hands the open cipher through to the footer actions component as its `cipher` input", async () => {
+      const { fixture, component } = await setupFooterActions(true);
+      const cipher = { id: "c1", type: CipherType.Login } as unknown as CipherView;
+      component["cipher"] = cipher;
+      fixture.detectChanges();
+
+      const footerActions = fixture.debugElement.query(By.directive(TestFooterActionsComponent));
+      const instance = footerActions.componentInstance as TestFooterActionsComponent;
+      expect(instance.cipher()).toBe(cipher);
     });
   });
 });
