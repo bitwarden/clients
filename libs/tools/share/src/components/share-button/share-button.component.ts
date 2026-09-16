@@ -6,6 +6,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { ButtonModule, DialogRef } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { ShareItemService } from "../../services/share-item.service";
 import { ShareLinkService } from "../../services/share-link.service";
 
 /**
@@ -32,6 +33,7 @@ export class ShareButtonComponent {
   readonly skipPasswordPrompt = input<boolean>(false);
 
   private readonly shareLinkService = inject(ShareLinkService);
+  private readonly shareItemService = inject(ShareItemService);
 
   /** The dialog this button sits in, when it sits in one. */
   private readonly hostDialog = inject(DialogRef, { optional: true });
@@ -44,9 +46,9 @@ export class ShareButtonComponent {
   );
 
   protected async share(): Promise<void> {
-    await this.shareLinkService.openShareForm(this.cipher(), this.skipPasswordPrompt());
-    if (this.hostDialog) {
-      await this.hostDialog.close();
-    }
+    await this.shareItemService.share(this.cipher(), {
+      alreadyVerified: this.hostDialog != null,
+    });
+    await this.hostDialog?.close();
   }
 }

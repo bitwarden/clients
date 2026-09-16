@@ -13,7 +13,6 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -40,9 +39,6 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PolicyType } from "@bitwarden/sdk-internal";
-import { PasswordRepromptService } from "@bitwarden/vault";
-
-import { ShareItemDrawerComponent } from "../components/share-item-drawer/share-item-drawer.component";
 
 /**
  * Represents an active share link created for a vault item.
@@ -72,7 +68,6 @@ export class ShareLinkService {
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly platformService = inject(PlatformUtilsService);
   private readonly router = inject(Router);
-  private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly cipherService = inject(CipherService);
   private readonly toastService = inject(ToastService);
   private readonly dialogService = inject(DialogService);
@@ -251,58 +246,6 @@ export class ShareLinkService {
           )
         );
       }),
-    );
-  }
-
-  async openShareForm(cipher: CipherViewLike, skipReprompt = false): Promise<void> {
-    const clientType = this.platformService.getClientType();
-    if (clientType === ClientType.Cli) {
-      return;
-    }
-    const cipherView = await this.resolveCipherView(cipher);
-    if (!cipherView || !cipherView.id) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("unknownCipher"),
-      });
-      return;
-    }
-    this.setCipher(cipherView.id as CipherId);
-    if (!skipReprompt) {
-      const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
-      if (!repromptPassed) {
-        return;
-      }
-    }
-    if (clientType === ClientType.Browser) {
-      await this.router.navigate(["/share-item"], { queryParams: { cipherId: cipherView.id } });
-    } else {
-      // Web/Desktop
-      await this.dialogService.openDrawer(ShareItemDrawerComponent, {
-        data: { cipher: cipherView },
-      });
-    }
-  }
-
-  /**
-   * The drawer needs a full {@link CipherView}. Lists that render `CipherListView` rows have to
-   * look one up; callers that already hold a decrypted view — the Admin Console, whose items are
-   * not necessarily in the acting user's own vault — pass it straight through, because looking it
-   * up by id would come back empty for them.
-   */
-  private async resolveCipherView(cipher: CipherViewLike): Promise<CipherView | undefined> {
-    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
-      return cipher;
-    }
-
-    if (cipher.id == null) {
-      return undefined;
-    }
-
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    // The SDK and `common` tag cipher ids separately, so the two do not overlap structurally.
-    return await firstValueFrom(
-      this.cipherService.cipherView$(userId, cipher.id as unknown as CipherId),
     );
   }
 }

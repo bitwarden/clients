@@ -10,7 +10,7 @@
       id="share-item-desktop_button_copy-link"
       buttonType="primary"
       startIcon="bwi-share-link"
-      (click)="createAndCopyLink()"
+      [bitAction]="createAndCopyLink"
       [disabled]="shareItemForm()?.form?.invalid"
     >
       {{ "copyLink" | i18n }}
