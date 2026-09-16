@@ -185,7 +185,7 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
  * (e.g. `manifest.json`) at fetch time.
  */
 export const DEFAULT_FILL_ASSIST_RULES_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download";
+  "https://fillassist.bitwarden.com";
 
 /**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in
