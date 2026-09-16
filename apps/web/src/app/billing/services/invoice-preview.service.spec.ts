@@ -66,12 +66,16 @@ describe("InvoicePreviewService", () => {
       expect(mockLogService.error).not.toHaveBeenCalled();
     });
 
-    it("should return an adapted cart carrying the authoritative total", async () => {
-      mockClient.previewPremiumPurchase.mockResolvedValue(preview("premium") as never);
+    it("should return an adapted cart carrying the amount due as its total", async () => {
+      mockClient.previewPremiumPurchase.mockResolvedValue({
+        ...preview("premium"),
+        total: 259.6,
+        amountDue: 200,
+      } as never);
 
       const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
 
-      expect(cart.total).toBe(259.6);
+      expect(cart.total).toBe(200);
       expect(cart.estimatedTax).toBe(9.6);
     });
   });
@@ -103,7 +107,7 @@ describe("InvoicePreviewService", () => {
     it("should bake the premium-org-upgrade flow context", async () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(preview("enterprise") as never);
 
-      const { cart } = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest);
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
 
       expect(cart.passwordManager.seats.translationKey).toBe("enterpriseMembership");
     });
@@ -116,12 +120,12 @@ describe("InvoicePreviewService", () => {
         },
       } as never);
 
-      const { cart } = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest);
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
 
       expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 20 });
     });
 
-    it("should return the prorated month count alongside the adapted cart", async () => {
+    it("should label the prorated seat row with the plan name and month count", async () => {
       const response = {
         ...preview("enterprise"),
         passwordManager: {
@@ -130,20 +134,25 @@ describe("InvoicePreviewService", () => {
       };
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(response as never);
 
-      const { cart, proratedMonths } =
-        await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest);
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
 
       // The server sends no seats line for this upgrade; the seat row is the prorated charge.
-      expect(cart.passwordManager.seats).toMatchObject({ quantity: 1, cost: 26.67 });
-      expect(proratedMonths).toBe(8);
+      expect(cart.passwordManager.seats).toEqual({
+        translationKey: "planProratedMembershipInMonths",
+        translationParams: ["Enterprise", "8 months"],
+        quantity: 1,
+        cost: 26.67,
+        hideBreakdown: true,
+      });
     });
 
-    it("should report zero prorated months when the preview carries no prorations", async () => {
+    it("should keep the plain membership label when the preview carries no prorations", async () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(preview("enterprise") as never);
 
-      const { proratedMonths } = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest);
+      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
 
-      expect(proratedMonths).toBe(0);
+      expect(cart.passwordManager.seats.translationKey).toBe("enterpriseMembership");
+      expect(cart.passwordManager.seats.translationParams).toBeUndefined();
     });
   });
 

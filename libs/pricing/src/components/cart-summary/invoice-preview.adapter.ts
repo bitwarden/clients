@@ -8,7 +8,15 @@ import {
 } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
-import { getCartItemTranslationKey, getCreditTranslationKey } from "./translation";
+import {
+  getCartItemTranslationKey,
+  getCreditTranslationKey,
+  getProratedSeatTranslationKey,
+} from "./translation";
+
+export type AdaptInvoicePreviewOptions = {
+  planName?: string;
+};
 
 /**
  * Converts the server's `InvoicePreview` wire model into the render-ready `Cart` view model consumed
@@ -22,6 +30,7 @@ export const adaptInvoicePreviewToCart = (
   preview: InvoicePreview,
   flowContext: InvoicePreviewFlowContext,
   logService: LogService,
+  options: AdaptInvoicePreviewOptions = {},
 ): Cart => {
   const { passwordManager, secretsManager, planTier } = preview;
 
@@ -57,9 +66,24 @@ export const adaptInvoicePreviewToCart = (
     };
   };
 
+  const proratedMonths = passwordManager.prorations?.[0]?.months ?? 0;
+
+  const labelProratedMonths = (seats: CartItem): CartItem => {
+    const translationKey = getProratedSeatTranslationKey(flowContext);
+    if (!translationKey || !options.planName || proratedMonths <= 0) {
+      return seats;
+    }
+
+    return {
+      ...seats,
+      translationKey,
+      translationParams: [options.planName, formatMonthLabel(proratedMonths)],
+    };
+  };
+
   const cart: Cart = {
     passwordManager: {
-      seats: passwordManagerSeats(),
+      seats: labelProratedMonths(passwordManagerSeats()),
       ...(passwordManager.additionalStorage
         ? { additionalStorage: toCartItem(passwordManager.additionalStorage) }
         : {}),
@@ -81,7 +105,7 @@ export const adaptInvoicePreviewToCart = (
     cadence: preview.cadence,
     ...(preview.discounts ? { discounts: preview.discounts } : {}),
     estimatedTax: preview.estimatedTax,
-    total: preview.total,
+    total: preview.amountDue,
   };
 
   const credit = buildCreditRow(preview, flowContext);
@@ -90,13 +114,16 @@ export const adaptInvoicePreviewToCart = (
   }
 
   // Deliberately NOT mapped:
+  // - `total`: superseded by `amountDue` above.
   // - `startingBalance`: the cart summary does not render account balance.
-  // - `amountDue` and `nextPaymentAttempt`: no corresponding `Cart` field.
+  // - `nextPaymentAttempt`: no corresponding `Cart` field.
   return cart;
 };
 
 const hasProrations = (prorations: PurchasableProration[] | undefined): boolean =>
   !!prorations && prorations.length > 0;
+
+const formatMonthLabel = (months: number): string => `${months} month${months > 1 ? "s" : ""}`;
 
 /** Sums in integer cents and converts once so a run of fractional amounts cannot accumulate drift. */
 const sumInCents = (amounts: number[]): number =>

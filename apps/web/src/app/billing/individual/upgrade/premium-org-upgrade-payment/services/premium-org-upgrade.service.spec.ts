@@ -99,12 +99,9 @@ describe("PremiumOrgUpgradeService", () => {
     } as any;
     invoicePreviewService = {
       previewPremiumOrgUpgradeCart: jest.fn().mockResolvedValue({
-        cart: {
-          passwordManager: {
-            seats: { translationKey: "teamsMembership", cost: 26.67, quantity: 1 },
-          },
+        passwordManager: {
+          seats: { translationKey: "teamsMembership", cost: 26.67, quantity: 1 },
         },
-        proratedMonths: 8,
       }),
     } as any;
 
@@ -436,18 +433,20 @@ describe("PremiumOrgUpgradeService", () => {
   });
 
   describe("previewInvoiceCart", () => {
-    it("should map the tier and pass only country and postal code to the preview facade", async () => {
-      const result = await service.previewInvoiceCart(mockPlanDetails, mockBillingAddress);
+    it("should map the tier, pass only country and postal code, and hand over the plan name", async () => {
+      const cart = await service.previewInvoiceCart(mockPlanDetails, mockBillingAddress);
 
-      expect(invoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith({
-        targetProductTierType: ProductTierType.Teams,
-        billingAddress: {
-          country: mockBillingAddress.country,
-          postalCode: mockBillingAddress.postalCode,
+      expect(invoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith(
+        {
+          targetProductTierType: ProductTierType.Teams,
+          billingAddress: {
+            country: mockBillingAddress.country,
+            postalCode: mockBillingAddress.postalCode,
+          },
         },
-      });
-      expect(result.proratedMonths).toBe(8);
-      expect(result.cart.passwordManager.seats.translationKey).toBe("teamsMembership");
+        "Teams",
+      );
+      expect(cart.passwordManager.seats.translationKey).toBe("teamsMembership");
     });
 
     it("should reject an invalid target tier before calling the facade", async () => {

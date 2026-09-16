@@ -113,3 +113,10 @@ export const getCreditTranslationKey = (
       return undefined;
   }
 };
+
+export const getProratedSeatTranslationKey = (
+  flowContext: InvoicePreviewFlowContext,
+): string | undefined =>
+  flowContext === InvoicePreviewFlowContext.PremiumOrgUpgrade
+    ? "planProratedMembershipInMonths"
+    : undefined;

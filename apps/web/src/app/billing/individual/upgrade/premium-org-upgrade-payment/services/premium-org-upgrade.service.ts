@@ -23,6 +23,7 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { Cart } from "@bitwarden/pricing";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -35,10 +36,7 @@ import {
   MaskedPaymentMethod,
   TokenizablePaymentMethods,
 } from "../../../../payment/types";
-import {
-  CartWithProratedMonths,
-  InvoicePreviewService,
-} from "../../../../services/invoice-preview.service";
+import { InvoicePreviewService } from "../../../../services/invoice-preview.service";
 
 export const UNVERIFIED_BANK_ACCOUNT_MESSAGE =
   "Unverified bank account payment method is not supported for this upgrade";
@@ -102,11 +100,14 @@ export class PremiumOrgUpgradeService {
   async previewInvoiceCart(
     planDetails: PremiumOrgUpgradePlanDetails,
     billingAddress: BillingAddress,
-  ): Promise<CartWithProratedMonths> {
-    return this.invoicePreviewService.previewPremiumOrgUpgradeCart({
-      targetProductTierType: this.ProductTierTypeFromSubscriptionTierId(planDetails.tier),
-      billingAddress: { country: billingAddress.country, postalCode: billingAddress.postalCode },
-    });
+  ): Promise<Cart> {
+    return this.invoicePreviewService.previewPremiumOrgUpgradeCart(
+      {
+        targetProductTierType: this.ProductTierTypeFromSubscriptionTierId(planDetails.tier),
+        billingAddress: { country: billingAddress.country, postalCode: billingAddress.postalCode },
+      },
+      planDetails.details.name,
+    );
   }
 
   async upgradeToOrganization(

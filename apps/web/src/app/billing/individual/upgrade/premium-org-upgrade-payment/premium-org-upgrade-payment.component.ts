@@ -163,6 +163,9 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   /** Server cart on the flag-on path; null when the flag is off, the address is incomplete, or the preview failed. */
   private readonly previewCart = signal<Cart | null>(null);
 
+  /** Flag-on preview failed; the summary is replaced by an error callout rather than the local estimate. */
+  protected readonly previewFailed = signal(false);
+
   // Use defer to lazily create the observable when subscribed to
   protected readonly estimatedInvoice$ = defer(() =>
     combineLatest([
@@ -176,6 +179,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         if (!previewDrivenCart) {
           // A runtime flip to off must drop the server cart, or the kill switch leaves it pinned.
           this.previewCart.set(null);
+          this.previewFailed.set(false);
           return this.refreshInvoicePreview$();
         }
         return this.refreshPreviewCart$();
@@ -529,15 +533,17 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
     if (!this.isFormValid() || !billingAddress.country || !billingAddress.postalCode) {
       this.previewCart.set(null);
+      this.previewFailed.set(false);
       return of(this.getEmptyInvoicePreview());
     }
 
     return from(
       this.premiumOrgUpgradeService.previewInvoiceCart(this.selectedPlan()!, billingAddress),
     ).pipe(
-      tap(({ cart, proratedMonths }) =>
-        this.previewCart.set(this.withProratedMonthsLabel(cart, proratedMonths)),
-      ),
+      tap((cart) => {
+        this.previewCart.set(cart);
+        this.previewFailed.set(false);
+      }),
       map(() => this.getEmptyInvoicePreview()),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
@@ -546,31 +552,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
           message: this.i18nService.t("invoicePreviewErrorMessage"),
         });
         this.previewCart.set(null);
+        this.previewFailed.set(true);
         return of(this.getEmptyInvoicePreview());
       }),
     );
-  }
-
-  /**
-   * Applies the prorated-months seat label; it needs the plan name, which only this component has.
-   * TODO(PM-40231): move into the cart adapter.
-   */
-  private withProratedMonthsLabel(cart: Cart, months: number): Cart {
-    if (months <= 0) {
-      return cart;
-    }
-
-    return {
-      ...cart,
-      passwordManager: {
-        ...cart.passwordManager,
-        seats: {
-          ...cart.passwordManager.seats,
-          translationKey: "planProratedMembershipInMonths",
-          translationParams: [this.selectedPlan()!.details.name, this.formatMonthLabel(months)],
-        },
-      },
-    };
   }
 
   /**

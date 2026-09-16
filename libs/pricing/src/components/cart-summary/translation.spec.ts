@@ -5,7 +5,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlanTier, PurchasableReference } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
-import { getCartItemTranslationKey, getCreditTranslationKey } from "./translation";
+import {
+  getCartItemTranslationKey,
+  getCreditTranslationKey,
+  getProratedSeatTranslationKey,
+} from "./translation";
 
 describe("getCartItemTranslationKey", () => {
   let logService: LogService;
@@ -184,6 +188,26 @@ describe("getCreditTranslationKey", () => {
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
     expect(getCreditTranslationKey(flowContext)).toBeUndefined();
+  });
+});
+
+describe("getProratedSeatTranslationKey", () => {
+  it("should map premium-org-upgrade to planProratedMembershipInMonths", () => {
+    expect(getProratedSeatTranslationKey(InvoicePreviewFlowContext.PremiumOrgUpgrade)).toBe(
+      "planProratedMembershipInMonths",
+    );
+  });
+
+  const plainSeatContexts = [
+    InvoicePreviewFlowContext.PremiumSubscriptionPage,
+    InvoicePreviewFlowContext.PersonalCheckout,
+    InvoicePreviewFlowContext.OrganizationCheckout,
+    InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+    InvoicePreviewFlowContext.OrganizationPlanChange,
+  ];
+
+  it.each(plainSeatContexts)("should return undefined for %s", (flowContext) => {
+    expect(getProratedSeatTranslationKey(flowContext)).toBeUndefined();
   });
 });
 

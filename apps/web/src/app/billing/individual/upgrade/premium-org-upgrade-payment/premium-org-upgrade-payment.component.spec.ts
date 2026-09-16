@@ -677,10 +677,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     });
 
     it("should build the cart from the server preview", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        cart: serverCart,
-        proratedMonths: 0,
-      });
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
 
       completeTheForm();
       tick(1500);
@@ -697,10 +694,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     }));
 
     it("should hand the selected plan and the form's billing address to the upgrade service", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        cart: serverCart,
-        proratedMonths: 0,
-      });
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
 
       completeTheForm();
       tick(1500);
@@ -712,10 +706,17 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       );
     }));
 
-    it("should decorate the seat line with the prorated month count", fakeAsync(() => {
+    it("should render the server cart's seat label verbatim", fakeAsync(() => {
+      // The adapter owns the prorated-months label; the component must not relabel the seat line.
       mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        cart: serverCart,
-        proratedMonths: 8,
+        ...serverCart,
+        passwordManager: {
+          seats: {
+            ...serverCart.passwordManager.seats,
+            translationKey: "planProratedMembershipInMonths",
+            translationParams: ["Teams", "8 months"],
+          },
+        },
       });
 
       completeTheForm();
@@ -725,19 +726,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       const seats = component["cart"]().passwordManager.seats;
       expect(seats.translationKey).toBe("planProratedMembershipInMonths");
       expect(seats.translationParams).toEqual(["Teams", "8 months"]);
-    }));
-
-    it("should leave the seat label untouched when there are no prorated months", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        cart: serverCart,
-        proratedMonths: 0,
-      });
-
-      completeTheForm();
-      tick(1500);
-      fixture.detectChanges();
-
-      expect(component["cart"]().passwordManager.seats.translationKey).toBe("teamsMembership");
     }));
 
     it("should not call the preview endpoint while the billing address is incomplete", fakeAsync(() => {
@@ -753,7 +741,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(component["cart"]().passwordManager.seats.cost).toBe(48);
     }));
 
-    it("should show an error toast and fall back to the legacy cart when the preview fails", fakeAsync(() => {
+    it("should show an error toast and withhold the cart summary when the preview fails", fakeAsync(() => {
       mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
 
       completeTheForm();
@@ -764,16 +752,59 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         variant: "error",
         message: "invoicePreviewErrorMessage",
       });
-      expect(component["cart"]().passwordManager.seats.cost).toBe(48);
+      // The locally computed cart would show list price with $0 tax and $0 credit, so it is
+      // hidden behind an error callout instead of being rendered.
+      expect(component["previewFailed"]()).toBe(true);
+      expect(
+        fixture.nativeElement.querySelector("[data-testid='invoice-preview-error']"),
+      ).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("billing-cart-summary").classList.contains("tw-hidden"),
+      ).toBe(true);
       // A failed preview must not block the upgrade itself.
       expect(component["isFormValid"]()).toBe(true);
     }));
 
+    it("should restore the cart summary once a later preview succeeds", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverCart);
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+      expect(component["previewFailed"]()).toBe(true);
+
+      component["formGroup"].patchValue({ billingAddress: { country: "US", postalCode: "54321" } });
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(component["previewFailed"]()).toBe(false);
+      expect(
+        fixture.nativeElement.querySelector("[data-testid='invoice-preview-error']"),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("billing-cart-summary").classList.contains("tw-hidden"),
+      ).toBe(false);
+      expect(component["cart"]().passwordManager.seats.cost).toBe(26.67);
+    }));
+
+    it("should clear the failed state when the billing address becomes incomplete", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+      expect(component["previewFailed"]()).toBe(true);
+
+      component["formGroup"].patchValue({ billingAddress: { country: "US", postalCode: "" } });
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(component["previewFailed"]()).toBe(false);
+    }));
+
     it("should not re-run the preview when the flag re-emits the same value", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        cart: serverCart,
-        proratedMonths: 0,
-      });
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
       completeTheForm();
       tick(1500);
       fixture.detectChanges();
@@ -788,10 +819,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     }));
 
     it("should drop the server cart and revert to the legacy path when the flag flips off", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        cart: serverCart,
-        proratedMonths: 0,
-      });
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
       completeTheForm();
       tick(1500);
       fixture.detectChanges();

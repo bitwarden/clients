@@ -455,19 +455,20 @@ describe("adaptInvoicePreviewToCart", () => {
   });
 
   describe("total and tax", () => {
-    it("should pass the authoritative total through", () => {
+    it("should render the amount due, not the pre-credit invoice total", () => {
+      // A customer carrying $50 of account credit: Stripe reports total 412.75, amountDue 362.75.
       const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 412.75 }),
+        basePreview({ total: 412.75, amountDue: 362.75, startingBalance: -50 }),
         InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
-      expect(cart.total).toBe(412.75);
+      expect(cart.total).toBe(362.75);
     });
 
-    it("should pass a total of zero through rather than dropping it", () => {
+    it("should pass an amount due of zero through rather than dropping it", () => {
       const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 0 }),
+        basePreview({ total: 12, amountDue: 0 }),
         InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
@@ -488,7 +489,7 @@ describe("adaptInvoicePreviewToCart", () => {
       expect((cart as Record<string, unknown>).startingBalance).toBeUndefined();
     });
 
-    it("should not map amountDue or nextPaymentAttempt onto the cart", () => {
+    it("should not map amountDue or nextPaymentAttempt onto the cart as their own fields", () => {
       const cart = adaptInvoicePreviewToCart(
         basePreview({ amountDue: 123, nextPaymentAttempt: new Date("2026-01-01") }),
         InvoicePreviewFlowContext.OrganizationCheckout,
@@ -497,6 +498,106 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(Object.keys(cart)).not.toContain("amountDue");
       expect(Object.keys(cart)).not.toContain("nextPaymentAttempt");
+    });
+  });
+
+  describe("prorated seat label", () => {
+    const proratedPreview = () =>
+      basePreview({
+        planTier: "families",
+        passwordManager: {
+          prorations: [{ credit: 6.67, charge: 26.67, tax: 2, total: 20, months: 8 }],
+        },
+      });
+
+    it("should label the seat line with the plan name and prorated month count", () => {
+      const cart = adaptInvoicePreviewToCart(
+        proratedPreview(),
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+        { planName: "Families" },
+      );
+
+      expect(cart.passwordManager.seats).toEqual({
+        translationKey: "planProratedMembershipInMonths",
+        translationParams: ["Families", "8 months"],
+        quantity: 1,
+        cost: 26.67,
+        hideBreakdown: true,
+      });
+    });
+
+    it("should use the singular month label for a single prorated month", () => {
+      const preview = basePreview({
+        planTier: "families",
+        passwordManager: {
+          prorations: [{ credit: 1, charge: 3.33, tax: 0, total: 2.33, months: 1 }],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+        { planName: "Families" },
+      );
+
+      expect(cart.passwordManager.seats.translationParams).toEqual(["Families", "1 month"]);
+    });
+
+    it("should also relabel a real seats line when the group is prorated", () => {
+      const preview = basePreview({
+        planTier: "teams",
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 1, cost: 26.67 },
+          prorations: [{ credit: 6.67, charge: 26.67, tax: 2, total: 20, months: 8 }],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+        { planName: "Teams" },
+      );
+
+      expect(cart.passwordManager.seats.translationKey).toBe("planProratedMembershipInMonths");
+      expect(cart.passwordManager.seats.translationParams).toEqual(["Teams", "8 months"]);
+    });
+
+    it("should keep the plain membership label when no plan name is supplied", () => {
+      const cart = adaptInvoicePreviewToCart(
+        proratedPreview(),
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
+
+      expect(cart.passwordManager.seats.translationKey).toBe("familiesMembership");
+      expect(cart.passwordManager.seats.translationParams).toBeUndefined();
+    });
+
+    it("should keep the plain membership label when the preview carries no prorated months", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ planTier: "families" }),
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+        { planName: "Families" },
+      );
+
+      expect(cart.passwordManager.seats.translationKey).toBe("familiesMembership");
+      expect(cart.passwordManager.seats.translationParams).toBeUndefined();
+    });
+
+    it("should ignore the plan name in flow contexts that do not label prorated seats", () => {
+      const cart = adaptInvoicePreviewToCart(
+        proratedPreview(),
+        InvoicePreviewFlowContext.PersonalCheckout,
+        logService,
+        { planName: "Families" },
+      );
+
+      expect(cart.passwordManager.seats.translationKey).toBe("familiesMembership");
+      expect(cart.passwordManager.seats.translationParams).toBeUndefined();
     });
   });
 
