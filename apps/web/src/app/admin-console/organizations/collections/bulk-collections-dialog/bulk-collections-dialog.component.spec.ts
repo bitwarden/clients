@@ -195,7 +195,7 @@ describe("BulkCollectionsDialogComponent", () => {
   describe("loading state", () => {
     it("is false after data loads", async () => {
       const { component } = await createComponent();
-      expect((component as any).loading).toBe(false);
+      expect((component as any).loading()).toBe(false);
     });
   });
 
@@ -207,7 +207,7 @@ describe("BulkCollectionsDialogComponent", () => {
         users: [buildMiniUser("u1")],
       });
 
-      const items = (component as any).accessItems;
+      const items = (component as any).accessItems();
       expect(items).toHaveLength(2);
       expect(items).toEqual(
         expect.arrayContaining([

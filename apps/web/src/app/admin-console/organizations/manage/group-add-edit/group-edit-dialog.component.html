@@ -1,0 +1,89 @@
+<form [formGroup]="groupForm" [bitSubmit]="submit" bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ title }}
+    <span class="tw-text-sm tw-normal-case tw-text-muted">{{ group()?.name }}</span>
+  </span>
+  <div bitDialogContent>
+    @if (loaded$ | async) {
+      <bit-tab-group [(selectedIndex)]="tabIndex">
+        <bit-tab label="{{ 'groupInfo' | i18n }}">
+          <bit-form-field>
+            <bit-label>{{ "name" | i18n }}</bit-label>
+            <input bitInput appAutofocus type="text" formControlName="name" />
+            <bit-hint>{{ "characterMaximum" | i18n: 100 }}</bit-hint>
+          </bit-form-field>
+          @if (isExternalIdVisible) {
+            <bit-form-field>
+              <bit-label>{{ "externalId" | i18n }}</bit-label>
+              <input bitInput type="text" formControlName="externalId" readonly />
+              <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          }
+        </bit-tab>
+
+        <bit-tab label="{{ 'members' | i18n }}">
+          <p>
+            {{ "editGroupMembersDesc" | vfo1I18n: "editGroupMembersDescSharedFolders" }}
+            @if (cannotAddSelfToGroup$ | async) {
+              <span>{{ "restrictedGroupAccessDesc" | i18n }}</span>
+            }
+          </p>
+          <bit-access-selector
+            formControlName="members"
+            [items]="(members$ | async) ?? []"
+            [showMemberRoles]="true"
+            [permissionMode]="PermissionMode.Hidden"
+            [columnHeader]="'member' | i18n"
+            [selectorLabelText]="'selectMembers' | i18n"
+            [emptySelectionText]="'noMembersAdded' | i18n"
+          ></bit-access-selector>
+        </bit-tab>
+
+        <bit-tab label="{{ 'collections' | vfo1I18n: 'sharedFolders' }}">
+          <p>
+            {{ "editGroupCollectionsDesc" | vfo1I18n: "editGroupSharedFoldersDesc" }}
+            @if (!(canAssignAccessToAnyCollection$ | async)) {
+              <span>
+                {{
+                  "restrictedCollectionAssignmentDesc"
+                    | vfo1I18n: "restrictedSharedFolderAssignmentDesc"
+                }}
+              </span>
+            }
+          </p>
+          <bit-access-selector
+            formControlName="collections"
+            [items]="(collections$ | async) ?? []"
+            [permissionMode]="PermissionMode.Edit"
+            [columnHeader]="'collection' | vfo1I18n: 'sharedFolder'"
+            [selectorLabelText]="'selectCollections' | vfo1I18n: 'selectSharedFolders'"
+            [emptySelectionText]="'noCollectionsAdded' | vfo1I18n: 'noSharedFoldersAdded'"
+          ></bit-access-selector>
+        </bit-tab>
+      </bit-tab-group>
+    } @else {
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
+        [ariaLabel]="'loading' | i18n"
+      ></bit-icon>
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" bitFormButton type="submit">
+      {{ "save" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Canceled">
+      {{ "cancel" | i18n }}
+    </button>
+    <button
+      class="tw-ml-auto"
+      type="button"
+      buttonType="dangerGhost"
+      bitIconButton="bwi-trash"
+      bitFormButton
+      [bitAction]="delete"
+      [label]="'delete' | i18n"
+    ></button>
+  </ng-container>
+</form>

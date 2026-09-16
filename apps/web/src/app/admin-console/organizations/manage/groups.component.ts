@@ -1,6 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, inject } from "@angular/core";
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -33,16 +32,26 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  IconModule,
+  ScrollLayoutDirective,
+  TableDataSource,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
 import {
   GroupAddEditDialogResultType,
   GroupAddEditTabType,
-  openGroupAddEditDialog,
-} from "./group-add-edit.component";
+  openAddGroupDialog,
+  openEditGroupDialog,
+} from "./group-add-edit";
 
 type GroupDetailsRow = {
   /**
@@ -79,60 +88,68 @@ const groupsFilter = (filter: string) => {
   };
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-groups",
   templateUrl: "groups.component.html",
-  standalone: false,
+  imports: [
+    SharedModule,
+    HeaderModule,
+    ScrollingModule,
+    ScrollLayoutDirective,
+    IconModule,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupsComponent {
-  loading = true;
-  organizationId: string;
+  private readonly apiService = inject(ApiService);
+  private readonly groupService = inject(GroupService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
+  private readonly logService = inject(LogService);
+  private readonly collectionService = inject(CollectionService);
+  private readonly toastService = inject(ToastService);
+  private readonly keyService = inject(KeyService);
+  private readonly accountService = inject(AccountService);
+  private readonly configService = inject(ConfigService);
 
-  protected dataSource = new TableDataSource<GroupDetailsRow>();
-  protected searchControl = new FormControl("");
+  protected readonly loading = signal(true);
+  protected readonly organizationId = signal<string | undefined>(undefined);
+
+  protected readonly dataSource = new TableDataSource<GroupDetailsRow>();
+  protected readonly searchControl = new FormControl("");
 
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 50;
-  protected rowHeightClass = `tw-h-[50px]`;
+  protected readonly rowHeight = 50;
+  protected readonly rowHeightClass = `tw-h-[50px]`;
 
-  protected ModalTabType = GroupAddEditTabType;
-  private refreshGroups$ = new BehaviorSubject<void>(null);
+  protected readonly ModalTabType = GroupAddEditTabType;
+  private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
 
-  private readonly configService = inject(ConfigService);
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 
-  constructor(
-    private apiService: ApiService,
-    private groupService: GroupService,
-    private route: ActivatedRoute,
-    private i18nService: I18nService,
-    private dialogService: DialogService,
-    private logService: LogService,
-    private collectionService: CollectionService,
-    private toastService: ToastService,
-    private keyService: KeyService,
-    private accountService: AccountService,
-  ) {
+  constructor() {
     this.route.params
       .pipe(
-        tap((params) => (this.organizationId = params.organizationId)),
-        switchMap(() =>
-          combineLatest([
+        tap((params) => this.organizationId.set(params.organizationId)),
+        switchMap((params) => {
+          const organizationId: string = params.organizationId;
+          return combineLatest([
             // collectionMap
-            from(this.apiService.getCollections(this.organizationId)).pipe(
+            from(this.apiService.getCollections(organizationId)).pipe(
               concatMap((response) => this.toCollectionMap(response)),
             ),
             // groups
             this.refreshGroups$.pipe(
-              switchMap(() => this.groupService.getAllDetails(this.organizationId)),
+              switchMap(() => this.groupService.getAllDetails(organizationId)),
             ),
-          ]),
-        ),
+          ]);
+        }),
         map(([collectionMap, groups]) => {
           return groups.map<GroupDetailsRow>((g) => ({
             id: g.id,
@@ -148,13 +165,13 @@ export class GroupsComponent {
       )
       .subscribe((groups) => {
         this.dataSource.data = groups;
-        this.loading = false;
+        this.loading.set(false);
       });
 
     // Connect the search input to the table dataSource filter input
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
-      .subscribe((v) => (this.dataSource.filter = groupsFilter(v)));
+      .subscribe((v) => (this.dataSource.filter = groupsFilter(v ?? "")));
 
     this.route.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((qParams) => {
       this.searchControl.setValue(qParams.search);
@@ -165,11 +182,15 @@ export class GroupsComponent {
     group: GroupDetailsRow,
     startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info,
   ) {
-    const dialogRef = openGroupAddEditDialog(this.dialogService, {
+    const organizationId = this.organizationId();
+    if (organizationId == null) {
+      return;
+    }
+    const dialogRef = openEditGroupDialog(this.dialogService, {
       data: {
         initialTab: startingTabIndex,
-        organizationId: this.organizationId,
-        groupId: group != null ? group.details.id : null,
+        organizationId,
+        groupId: group.details.id,
       },
     });
 
@@ -182,8 +203,23 @@ export class GroupsComponent {
     }
   }
 
-  async add() {
-    await this.edit(null);
+  async add(startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info) {
+    const organizationId = this.organizationId();
+    if (organizationId == null) {
+      return;
+    }
+    const dialogRef = openAddGroupDialog(this.dialogService, {
+      data: {
+        initialTab: startingTabIndex,
+        organizationId,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result == GroupAddEditDialogResultType.Saved) {
+      this.refreshGroups$.next();
+    }
   }
 
   async delete(groupRow: GroupDetailsRow) {
@@ -196,11 +232,14 @@ export class GroupsComponent {
       return false;
     }
 
+    const organizationId = this.organizationId();
+    if (organizationId == null) {
+      return;
+    }
     try {
-      await this.groupService.delete(this.organizationId, groupRow.details.id);
+      await this.groupService.delete(organizationId, groupRow.details.id);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("deletedGroupId", groupRow.details.name),
       });
       this.removeGroup(groupRow);
@@ -229,14 +268,17 @@ export class GroupsComponent {
       return false;
     }
 
+    const organizationId = this.organizationId();
+    if (organizationId == null) {
+      return;
+    }
     try {
       await this.groupService.deleteMany(
-        this.organizationId,
+        organizationId,
         groupsToDelete.map((g) => g.details.id),
       );
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("deletedManyGroups", groupsToDelete.length.toString()),
       });
 
@@ -251,9 +293,8 @@ export class GroupsComponent {
   }
 
   toggleAllVisible(event: Event) {
-    this.dataSource.filteredData.forEach(
-      (g) => (g.checked = (event.target as HTMLInputElement).checked),
-    );
+    const checked = (event.target as HTMLInputElement | null)?.checked ?? false;
+    this.dataSource.filteredData?.forEach((g) => (g.checked = checked));
   }
 
   private removeGroup(groupRow: GroupDetailsRow) {
@@ -271,7 +312,7 @@ export class GroupsComponent {
     return this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.keyService.orgKeys$(userId)),
-      switchMap((orgKeys) => this.collectionService.decryptMany$(collections, orgKeys)),
+      switchMap((orgKeys) => this.collectionService.decryptMany$(collections, orgKeys ?? {})),
       map((collections) => {
         const collectionMap: Record<string, CollectionView> = {};
         collections.forEach((c) => (collectionMap[c.id] = c));

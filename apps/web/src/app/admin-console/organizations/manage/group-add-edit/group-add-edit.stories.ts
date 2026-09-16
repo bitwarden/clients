@@ -21,16 +21,18 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
-import { PreloadedEnglishI18nModule } from "../../../core/tests";
-import { InternalGroupApiService } from "../core";
-import { GroupDetailsView } from "../core/views/group-details.view";
-import { SharedOrganizationModule } from "../shared";
+import { PreloadedEnglishI18nModule } from "../../../../core/tests";
+import { InternalGroupApiService } from "../../core";
+import { GroupDetailsView } from "../../core/views/group-details.view";
+import { SharedOrganizationModule } from "../../shared";
 
+import { GroupAddDialogComponent } from "./group-add-dialog.component";
 import {
-  GroupAddEditComponent,
-  GroupAddEditDialogParams,
+  GroupAddDialogParams,
   GroupAddEditTabType,
-} from "./group-add-edit.component";
+  GroupEditDialogParams,
+} from "./group-add-edit.types";
+import { GroupEditDialogComponent } from "./group-edit-dialog.component";
 
 const ORG_ID = "org-1" as OrganizationId;
 const GROUP_ID = "group-1";
@@ -131,24 +133,29 @@ function makeGroupService(group?: GroupDetailsView) {
   };
 }
 
+const sharedProviders = [
+  { provide: DialogRef, useValue: mockDialogRef },
+  { provide: DialogService, useValue: mockDialogService },
+  { provide: ToastService, useValue: mockToastService },
+  { provide: LogService, useValue: mockLogService },
+  { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+  { provide: ApiService, useValue: mockApiService },
+  { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
+  { provide: CollectionAdminService, useValue: mockCollectionAdminService },
+  { provide: AccountService, useValue: mockAccountService },
+];
+
 export default {
   title: "Admin Console/Organizations/Groups/Group Add-Edit Dialog",
-  component: GroupAddEditComponent,
   decorators: [
     moduleMetadata({
-      declarations: [GroupAddEditComponent],
-      imports: [SharedOrganizationModule, Vfo1I18nPipe],
-      providers: [
-        { provide: DialogRef, useValue: mockDialogRef },
-        { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: LogService, useValue: mockLogService },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
-        { provide: ApiService, useValue: mockApiService },
-        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
-        { provide: CollectionAdminService, useValue: mockCollectionAdminService },
-        { provide: AccountService, useValue: mockAccountService },
+      imports: [
+        SharedOrganizationModule,
+        Vfo1I18nPipe,
+        GroupAddDialogComponent,
+        GroupEditDialogComponent,
       ],
+      providers: sharedProviders,
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
@@ -156,23 +163,34 @@ export default {
   ],
 } as Meta;
 
-type Story = StoryObj<GroupAddEditComponent>;
+type AddStory = StoryObj<GroupAddDialogComponent>;
+type EditStory = StoryObj<GroupEditDialogComponent>;
 
-function makeRender(
-  params: GroupAddEditDialogParams,
-  org: Organization,
-  group?: GroupDetailsView,
-  vfo1Enabled = false,
-): Story["render"] {
+function makeAddRender(params: GroupAddDialogParams, org: Organization): AddStory["render"] {
   return () => ({
-    // Vfo1TerminologyService is `providedIn: "root"`, so its ConfigService dependency must be
-    // overridden at the application root (applicationConfig) rather than in the story's
-    // moduleMetadata child injector, which Vfo1TerminologyService can't see.
-    // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx) for
-    // their ConfigService. Only force it here to guarantee the "Vfo1Enabled" story always
-    // renders with the flag on, regardless of the toolbar.
+    moduleMetadata: {
+      providers: [
+        { provide: DIALOG_DATA, useValue: params },
+        { provide: OrganizationService, useValue: makeOrganizationService(org) },
+        { provide: InternalGroupApiService, useValue: makeGroupService(undefined) },
+      ],
+    },
+    template: `<app-group-add-dialog></app-group-add-dialog>`,
+  });
+}
+
+function makeEditRender(
+  params: GroupEditDialogParams,
+  org: Organization,
+  group: GroupDetailsView,
+  vfo1Enabled = false,
+): EditStory["render"] {
+  return () => ({
     ...(vfo1Enabled
       ? {
+          // Vfo1TerminologyService is `providedIn: "root"`, so its ConfigService dependency must
+          // be overridden at the application root rather than in the story's moduleMetadata child
+          // injector, which Vfo1TerminologyService can't see.
           applicationConfig: {
             providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
           },
@@ -185,18 +203,18 @@ function makeRender(
         { provide: InternalGroupApiService, useValue: makeGroupService(group) },
       ],
     },
-    template: `<app-group-add-edit></app-group-add-edit>`,
+    template: `<app-group-edit-dialog></app-group-edit-dialog>`,
   });
 }
 
 /** New group opened from the Groups page. */
-export const CreateGroup: Story = {
-  render: makeRender({ organizationId: ORG_ID }, mockOrganization()),
+export const CreateGroup: AddStory = {
+  render: makeAddRender({ organizationId: ORG_ID }, mockOrganization()),
 };
 
 /** Existing group open for editing. */
-export const EditGroup: Story = {
-  render: makeRender(
+export const EditGroup: EditStory = {
+  render: makeEditRender(
     { organizationId: ORG_ID, groupId: GROUP_ID },
     mockOrganization(),
     mockGroupDetails,
@@ -207,8 +225,8 @@ export const EditGroup: Story = {
  * Existing group opened directly on the Collections tab, with the VFO1 terminology flag on —
  * tab label, description text, and access-selector copy render "shared folder" terminology.
  */
-export const EditGroupCollectionsTabVfo1Enabled: Story = {
-  render: makeRender(
+export const EditGroupCollectionsTabVfo1Enabled: EditStory = {
+  render: makeEditRender(
     { organizationId: ORG_ID, groupId: GROUP_ID, initialTab: GroupAddEditTabType.Collections },
     mockOrganization(),
     mockGroupDetails,
