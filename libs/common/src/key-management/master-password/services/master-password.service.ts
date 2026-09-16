@@ -56,9 +56,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
   async userHasMasterPassword(userId: UserId): Promise<boolean> {
     assertNonNullish(userId, "userId");
     // A user has a master-password if they have master-password unlock data *but* are not a key
-    // connector user. Unlock data is written on every master-password capable login and cleared
-    // when a user migrates to key connector, so the key connector check is belt-and-braces.
-    // Note: We can't use the key connector service as an abstraction here because it causes a run-time dependency injection cycle between KC service and MP service.
+    // connector user.
     const usesKeyConnector = await firstValueFrom(
       this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).state$,
     );
