@@ -288,12 +288,19 @@ export class CipherViewComponent {
 
   /**
    * Whether the login password for the cipher is considered at risk.
-   * The password is only evaluated when the user is premium and has edit access to the cipher.
+   * The password is only evaluated when the user is premium (and not anonymous;
+   * the userId is required to make the check) and has edit access to the cipher.
    */
   readonly passwordIsAtRisk = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) => {
-        if (!cipher.hasLoginPassword || !cipher.edit || cipher.organizationId || cipher.isDeleted) {
+        if (
+          !cipher.hasLoginPassword ||
+          !cipher.edit ||
+          cipher.organizationId ||
+          cipher.isDeleted ||
+          !userId
+        ) {
           return of(false);
         }
         return this.switchPremium$(

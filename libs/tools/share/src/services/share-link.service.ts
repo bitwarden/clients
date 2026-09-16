@@ -1,6 +1,5 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -21,7 +20,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -30,14 +28,12 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { DialogService, ToastService } from "@bitwarden/components";
 import { PolicyType } from "@bitwarden/sdk-internal";
 
 /**
@@ -66,11 +62,6 @@ export class ShareLinkService {
   private collectionService = inject(CollectionService);
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
-  private readonly platformService = inject(PlatformUtilsService);
-  private readonly router = inject(Router);
-  private readonly cipherService = inject(CipherService);
-  private readonly toastService = inject(ToastService);
-  private readonly dialogService = inject(DialogService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   /** Observable of all active share links. */

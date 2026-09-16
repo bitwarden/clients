@@ -47,7 +47,7 @@ export class ShareButtonComponent {
 
   protected async share(): Promise<void> {
     await this.shareItemService.share(this.cipher(), {
-      alreadyVerified: this.hostDialog != null,
+      alreadyVerified: this.skipPasswordPrompt() || this.hostDialog != null,
     });
     await this.hostDialog?.close();
   }
