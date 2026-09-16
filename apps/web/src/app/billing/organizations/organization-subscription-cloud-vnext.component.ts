@@ -1,17 +1,8 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import {
-  BehaviorSubject,
-  filter,
-  firstValueFrom,
-  lastValueFrom,
-  map,
-  shareReplay,
-  switchMap,
-  take,
-} from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, lastValueFrom, map, switchMap, take } from "rxjs";
 
 import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -147,19 +138,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
   );
 
   /**
-   * Observable for the organization subscription data.
-   * @summary Provides a reactive stream for the subscription details of the organization.
-   * the shareReplay operator ensures that the latest subscription data is shared among all subscribers,
-   * preventing redundant network requests.
-   * @returns A reactive stream that emits the subscription details of the organization.
-   *
+   * Loads the organization subscription
    */
-  private readonly organizationSubscription$ = this.refresh$.pipe(
-    switchMap(() => this.data.organizationSubscription$(this.organizationId)),
-    shareReplay({ bufferSize: 1, refCount: true }),
+  readonly organizationSubscriptionResource = resource({
+    params: () => this.organizationId,
+    loader: ({ params: organizationId }) =>
+      firstValueFrom(this.data.organizationSubscription$(organizationId)),
+  });
+
+  /**
+   * The organization subscription if it has been loaded, or null otherwise.
+   */
+  readonly organizationSubscription = computed(() =>
+    this.organizationSubscriptionResource.hasValue()
+      ? this.organizationSubscriptionResource.value()
+      : null,
   );
 
-  readonly organizationSubscription = toSignal(this.organizationSubscription$);
+  // Stream form for the upgrade deep-link flow, which must await the load before opening the dialog.
+  private readonly organizationSubscription$ = toObservable(this.organizationSubscription);
 
   /**
    * Observable for the presence of a billing sync token for the organization.
@@ -736,5 +733,6 @@ export class OrganizationSubscriptionCloudVNextComponent {
   protected refreshAll() {
     this.refresh$.next();
     this.subscriptionPreview.reload();
+    this.organizationSubscriptionResource.reload();
   }
 }

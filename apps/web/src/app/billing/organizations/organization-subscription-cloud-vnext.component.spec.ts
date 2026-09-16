@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, of, Subject } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -262,16 +262,20 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should initialize data services with the organization id", () => {
-    createComponent();
+  it("should initialize data services with the organization id", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(dataService.organization$).toHaveBeenCalledWith("org-123");
     expect(dataService.organizationSubscription$).toHaveBeenCalledWith("org-123");
     expect(dataService.hasBillingSyncToken$).toHaveBeenCalledWith("org-123");
     expect(dataService.resellerSeatsRemaining$).toHaveBeenCalledWith("org-123");
   });
 
-  it("should populate the organization and subscription signals", () => {
-    createComponent();
+  it("should populate the organization and subscription signals", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(component.organization()?.id).toBe("org-123");
     expect(component.organizationSubscription()?.id).toBe("org-123");
   });
@@ -283,8 +287,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     expect(component.subscriptionPreview.status()).toBe("resolved");
   });
 
-  it("should compose the card title from plan name and cadence", () => {
-    createComponent();
+  it("should compose the card title from plan name and cadence", async () => {
+    createComponent({ detectChanges: true });
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(component.cardTitle()).toBe("organizationSubscriptionCardTitle");
     expect(i18nService.t).toHaveBeenCalledWith(
       "organizationSubscriptionCardTitle",
@@ -299,7 +305,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   });
 
   describe("pending annual upgrade", () => {
-    it("exposes the pending annual upgrade for the notice callout", () => {
+    it("exposes the pending annual upgrade for the notice callout", async () => {
       const effectiveDate = new Date("2026-09-17T00:00:00.000Z");
       createComponent({
         subscription: buildSubscriptionResponse({
@@ -309,7 +315,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
             effectiveDate,
           },
         } as any),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component.pendingAnnualUpgrade()?.effectiveDate).toEqual(effectiveDate);
     });
@@ -341,7 +350,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.access()?.showProviderManagedBilling).toBe(true);
     });
 
-    it("shows the plan and status details for a resold organization owner", () => {
+    it("shows the plan and status details for a resold organization owner", async () => {
       createComponent({
         organization: buildOrganization({
           canViewSubscription: false,
@@ -351,6 +360,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         }),
         detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
       expect(text).toContain("Teams");
@@ -358,7 +369,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(text).toContain("Jan 1, 2026");
     });
 
-    it("shows the plan and status details for a resold organization provider user", () => {
+    it("shows the plan and status details for a resold organization provider user", async () => {
       createComponent({
         organization: buildOrganization({
           canViewSubscription: false,
@@ -369,6 +380,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         }),
         detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
       expect(text).toContain("Teams");
@@ -385,21 +398,27 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   });
 
   describe("cancellation state", () => {
-    it("treats a subscription that cancels at period end as cancelled or pending cancellation", () => {
+    it("treats a subscription that cancels at period end as cancelled or pending cancellation", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({
           subscription: { cancelAtEndDate: true, cancelled: false, status: "active" } as any,
         }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.isSubscriptionCanceledOrPendingCancellation()).toBe(true);
     });
 
-    it("treats an already cancelled subscription as cancelled or pending cancellation", () => {
+    it("treats an already cancelled subscription as cancelled or pending cancellation", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({
           subscription: { cancelled: true, cancelAtEndDate: true } as any,
         }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.isSubscriptionCanceledOrPendingCancellation()).toBe(true);
     });
 
@@ -437,12 +456,15 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   });
 
   describe("sponsored subscription", () => {
-    it("detects a sponsored subscription from its items", () => {
+    it("detects a sponsored subscription from its items", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({
           subscription: { items: [{ sponsoredSubscriptionItem: true }], cancelled: false } as any,
         }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.isSponsoredSubscription()).toBe(true);
     });
   });
@@ -457,8 +479,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.showChangePlanButton()).toBe(false);
     });
 
-    it("shows the change-plan button for non-enterprise active plans", () => {
-      createComponent();
+    it("shows the change-plan button for non-enterprise active plans", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.showChangePlanButton()).toBe(true);
     });
 
@@ -469,29 +493,38 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.showChangePlanButton()).toBe(false);
     });
 
-    it("still shows the change-plan button for a cancelled free plan", () => {
+    it("still shows the change-plan button for a cancelled free plan", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({
           plan: { productTier: ProductTierType.Free } as any,
           subscription: { cancelled: true } as any,
         }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.showChangePlanButton()).toBe(true);
     });
   });
 
   describe("secrets manager sections", () => {
-    it("shows Secrets Manager subscribe when editable and SM is not yet in use", () => {
+    it("shows Secrets Manager subscribe when editable and SM is not yet in use", async () => {
       createComponent({
         organization: buildOrganization({ canEditSubscription: true, useSecretsManager: false }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.showSecretsManagerSubscribe()).toBe(true);
     });
 
-    it("shows Secrets Manager adjust when SM is in use and editable", () => {
+    it("shows Secrets Manager adjust when SM is in use and editable", async () => {
       createComponent({
         organization: buildOrganization({ canEditSubscription: true, useSecretsManager: true }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.showAdjustSecretsManager()).toBe(true);
     });
 
@@ -523,8 +556,13 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.canAdjustPasswordManagerSeats()).toBe(false);
     });
 
-    it("allows seat adjustment for an editable active subscription", () => {
-      createComponent({ organization: buildOrganization({ canEditSubscription: true }) });
+    it("allows seat adjustment for an editable active subscription", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.canAdjustPasswordManagerSeats()).toBe(true);
     });
 
@@ -538,37 +576,49 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   });
 
   describe("derived view state", () => {
-    it("applies a percentage discount to the seat price", () => {
+    it("applies a percentage discount to the seat price", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({ customerDiscount: { percentOff: 25 } as any }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.seatPrice()).toBe(3); // 4 - 25%
     });
 
-    it("computes storage usage percentage", () => {
-      createComponent(); // 5 of 10 GB
+    it("computes storage usage percentage", async () => {
+      createComponent({ detectChanges: true }); // 5 of 10 GB
+      await fixture.whenStable();
+      fixture.detectChanges();
       expect(component.storagePercentage()).toBe(50);
     });
 
-    it("builds Secrets Manager options from the subscription", () => {
-      createComponent();
+    it("builds Secrets Manager options from the subscription", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
       const options = component.smOptions();
       expect(options?.seatCount).toBe(3);
       expect(options?.additionalServiceAccounts).toBe(10); // 60 - 50 base - 0 grace
       expect(options?.interval).toBe("year");
     });
 
-    it("subtracts grace service accounts from the billable additional count", () => {
+    it("subtracts grace service accounts from the billable additional count", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({ smServiceAccountsGrace: 7 }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       const options = component.smOptions();
       expect(options?.additionalServiceAccounts).toBe(3); // 60 - 50 base - 7 grace
       expect(options?.graceServiceAccounts).toBe(7);
     });
 
-    it("titles the card from the current plan when no annual upgrade is pending", () => {
-      createComponent();
+    it("titles the card from the current plan when no annual upgrade is pending", async () => {
+      createComponent({ detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
       component.cardTitle();
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -578,7 +628,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       );
     });
 
-    it("titles the card from the current plan even when an annual upgrade is pending", () => {
+    it("titles the card from the current plan even when an annual upgrade is pending", async () => {
       createComponent({
         subscription: buildSubscriptionResponse({
           pendingAnnualUpgrade: {
@@ -587,7 +637,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
             effectiveDate: "2026-10-01",
           },
         } as any),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
       component.cardTitle();
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -682,6 +735,34 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.subscriptionPreview.status()).toBe("error");
       expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
       expect(fixture.nativeElement.textContent).toContain("manageSubscription");
+    });
+
+    it("shows the error card when the subscription cannot be loaded", async () => {
+      createComponent({ organization: buildOrganization({ canEditSubscription: true }) });
+      dataService.organizationSubscription$.mockReturnValue(
+        throwError(() => new Error("billing unavailable")),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.organizationSubscriptionResource.status()).toBe("error");
+      expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
+    });
+
+    it("recovers the subscription when Refresh is clicked", async () => {
+      createComponent({ organization: buildOrganization({ canEditSubscription: true }) });
+      dataService.organizationSubscription$.mockReturnValue(
+        throwError(() => new Error("billing unavailable")),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+      fixture.nativeElement.querySelector("button").click();
+
+      expect(reload).toHaveBeenCalled();
     });
   });
 
@@ -789,10 +870,11 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       const queryParamMap = new BehaviorSubject(convertToParamMap({}));
       activatedRoute.queryParamMap = queryParamMap;
 
-      createComponent();
+      createComponent({ detectChanges: true });
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
       queryParamMap.next(convertToParamMap({ upgrade: "true" }));
       await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(changePlan).toHaveBeenCalledWith(undefined);
     });
@@ -801,7 +883,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       const queryParamMap = new BehaviorSubject(convertToParamMap({}));
       activatedRoute.queryParamMap = queryParamMap;
 
-      createComponent();
+      createComponent({ detectChanges: true });
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
       queryParamMap.next(
         convertToParamMap({
@@ -810,6 +892,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         }),
       );
       await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(changePlan).toHaveBeenCalledWith(ProductTierType.Enterprise);
     });
@@ -818,7 +901,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       const queryParamMap = new BehaviorSubject(convertToParamMap({}));
       activatedRoute.queryParamMap = queryParamMap;
 
-      createComponent();
+      createComponent({ detectChanges: true });
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
       queryParamMap.next(
         convertToParamMap({
@@ -827,6 +910,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         }),
       );
       await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(changePlan).toHaveBeenCalledWith(undefined);
     });
@@ -835,7 +919,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       const queryParamMap = new BehaviorSubject(convertToParamMap({}));
       activatedRoute.queryParamMap = queryParamMap;
 
-      createComponent();
+      createComponent({ detectChanges: true });
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
       queryParamMap.next(
         convertToParamMap({
@@ -844,6 +928,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         }),
       );
       await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(changePlan).toHaveBeenCalledWith(undefined);
     });

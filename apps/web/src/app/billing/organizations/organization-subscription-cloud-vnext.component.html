@@ -36,13 +36,15 @@
           </ng-template>
         </bit-table>
       } @else {
-        @if (subscriptionPreview.error()) {
+        @if (subscriptionPreview.error() || organizationSubscriptionResource.error()) {
           <billing-error-card
             [title]="'subscriptionDetailsNotLoading' | i18n"
             [description]="'subscriptionDetailsNotLoadingDesc' | i18n"
             [buttonText]="'refresh' | i18n"
             icon="bwi-clear"
-            [loading]="subscriptionPreview.isLoading()"
+            [loading]="
+              subscriptionPreview.isLoading() || organizationSubscriptionResource.isLoading()
+            "
             (actionClicked)="refreshAll()"
           />
         } @else if (subscriptionPreview.isLoading() || !subscription) {
