@@ -6934,6 +6934,10 @@
       }
     }
   },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
   "expires": {
     "message": "Expires",
     "description": "Label for the expiration date of an access token."

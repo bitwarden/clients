@@ -48,6 +48,7 @@ import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
+import { BrowserShareItemPresenter } from "@bitwarden/browser/tools/popup/share/browser-share-item.presenter";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
@@ -185,6 +186,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
+import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
 import {
   AutoUnlockService,
   ForegroundLockService,
@@ -912,6 +914,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: VAULT_BASE_ROUTE as SafeInjectionToken<string>,
     useValue: "/tabs/vault",
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider(BrowserShareItemPresenter),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: BrowserShareItemPresenter,
+    deps: [],
   }),
 ];
 
