@@ -4,7 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,6 +12,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -65,6 +66,10 @@ const mockPlatformUtilsService = {
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockLogService = {
+  error: () => {},
 };
 
 const mockDialogRef = {
@@ -240,9 +245,10 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: LogService, useValue: mockLogService },
         {
-          provide: OrgDomainApiServiceAbstraction,
-          useValue: { getAllByOrgId: () => Promise.resolve([]) },
+          provide: OrganizationDomainsService,
+          useValue: { claimedDomains: () => Promise.resolve([]) },
         },
       ],
     }),
