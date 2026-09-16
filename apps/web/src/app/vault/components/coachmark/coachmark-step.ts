@@ -34,6 +34,15 @@ export interface CoachmarkStep {
 
   /** Route to navigate to before showing this step */
   route?: string;
+
+  /** Route used instead of {@link route} when the VFO1 flag is on */
+  routeVfo1?: string;
+
+  /**
+   * Whether this step anchors a side-nav entry. A collapsed rail renders none, so the tour opens
+   * the nav before the step starts.
+   */
+  opensSideNav?: boolean;
 }
 
 /** All available coachmark steps in display order */
@@ -45,6 +54,9 @@ export const COACHMARK_STEPS: CoachmarkStep[] = [
     position: "right-center",
     learnMoreUrl: "https://bitwarden.com/help/import-data/",
     route: "/tools/import",
+    // VFO1 drops the Import nav entry — import is a dialog opened from the vault toolbar, so the
+    // step anchors that button rather than the import page.
+    routeVfo1: "/vault",
   },
   {
     id: "addItem",
@@ -64,6 +76,7 @@ export const COACHMARK_STEPS: CoachmarkStep[] = [
     requiresOrganization: true,
     requiresCollections: true,
     route: "/vault",
+    opensSideNav: true,
   },
   {
     id: "monitorSecurity",
@@ -72,5 +85,6 @@ export const COACHMARK_STEPS: CoachmarkStep[] = [
     position: "right-center",
     learnMoreUrl: "https://bitwarden.com/help/reports/",
     route: "/reports",
+    opensSideNav: true,
   },
 ];
