@@ -83,7 +83,7 @@ if (<serviceName>FeatureEnabled) {
 }
 ```
 
-No changes needed to `IntegrationCardComponent` — new HEC token-auth services fall into the existing `else if` branch (type is `Hec` and name is not `CrowdStrike`), which opens `openConnectViaHecTokenDialog` with a `saveCallback`. The callback builds the config and template using the card's `name` as the service name and delegates to `executeHecSave`. Delete is handled by `deleteConnectViaHecTokenIntegration`.
+No changes needed to `IntegrationCardComponent` — new HEC services fall into the existing `else` branch, which opens `openHecConnectDialog` with a `saveCallback`. The callback builds the config and template using the card's `name` as the service name and delegates to `executeHecSave`. Delete is handled by `deleteHec`.
 
 ## Step 5 — Add tests
 
