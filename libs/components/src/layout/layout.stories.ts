@@ -136,6 +136,11 @@ export const Rounded: Story = {
   },
 };
 
+export const RoundedVfo1: Story = {
+  ...Rounded,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const BannerAndHeader: Story = {
   render: (args) => ({
     props: args,

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 /**
@@ -20,5 +18,5 @@ export class OrganizationManagementPreference<T> {
  * Publishes state of a given user's personal settings relating to the user experience of managing an organization.
  */
 export abstract class OrganizationManagementPreferencesService {
-  autoConfirmFingerPrints: OrganizationManagementPreference<boolean>;
+  abstract autoConfirmFingerPrints: OrganizationManagementPreference<boolean>;
 }

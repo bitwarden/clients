@@ -38,6 +38,7 @@ import {
   resolveIconTileColor,
   resolveIconTileVariant,
 } from "../icon-tile";
+import { MenuDividerComponent } from "../menu/menu-divider.component";
 import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
@@ -46,6 +47,7 @@ import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
 import { StatusLockupComponent } from "../status-lockup";
+import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterOptionComponent } from "./filter-option.component";
@@ -74,6 +76,57 @@ const SEARCH_THRESHOLD = 10;
 let nextRadioGroupId = 0;
 
 /**
+ * Flag each node's group boundaries, in place. A group is a section with its descendants,
+ * or a run of loose top-level rows; a divider ends the run it follows. Walks `entries`
+ * rather than the nodes, since a divider produces no node of its own.
+ */
+function markGroups(nodes: FilterTreeNode[], entries: readonly FilterEntry[]): void {
+  // Nodes are depth-first, so the top-level rows sit at the `level === 1` indices in the
+  // same order as the entries that produced them.
+  const topLevel = nodes.reduce<number[]>((indices, node, index) => {
+    if (node.level === 1) {
+      indices.push(index);
+    }
+    return indices;
+  }, []);
+
+  let cursor = 0;
+  let breakBefore = true;
+  let afterSection = false;
+  let afterDivider = false;
+  for (const entry of entries) {
+    if (entry.kind === "divider") {
+      afterDivider = true;
+      continue;
+    }
+    const section = entry.kind === "section";
+    const index = topLevel[cursor++];
+    if (index == null) {
+      continue;
+    }
+    if (section || afterSection || afterDivider) {
+      breakBefore = true;
+    }
+    if (breakBefore) {
+      nodes[index].groupStart = true;
+      // Only when a row precedes it: a search can hide everything above a divider, and a
+      // rule above the first result divides nothing.
+      nodes[index].dividerBefore = afterDivider && index > 0;
+      if (index > 0) {
+        nodes[index - 1].groupEnd = true;
+      }
+    }
+    breakBefore = false;
+    afterSection = section;
+    afterDivider = false;
+  }
+
+  if (nodes.length > 0) {
+    nodes[nodes.length - 1].groupEnd = true;
+  }
+}
+
+/**
  * Sentinel value for the auto-injected "All" option on a single-select chip:
  * selecting it clears the chip, and it reads as selected while nothing else is.
  */
@@ -98,6 +151,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     ChipContentComponent,
     ChipDismissButtonComponent,
     MenuComponent,
+    MenuDividerComponent,
     MenuTriggerForDirective,
     SearchComponent,
     ButtonModule,
@@ -109,6 +163,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     FilterTreeRowDirective,
     IconTileComponent,
     StatusLockupComponent,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -141,6 +196,12 @@ export class FilterMenuComponent
   /** Multi-select (checkbox) when `true`; single-select (radio) when omitted. */
   readonly multiple = input(false, { transform: booleanAttribute });
 
+  /**
+   * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
+   * {@link disabled} is true. Pass an already-localized string.
+   */
+  readonly disabledTooltip = input("");
+
   /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
   readonly icon = input<BitwardenIcon>();
 
@@ -169,8 +230,11 @@ export class FilterMenuComponent
   /** The selected options' labels, e.g. ["Login"]. Eager (options always exist), so it's never stale. */
   private readonly labels = signal<string[]>([]);
 
-  /** Row styling shared by every option row — `bitMenuItem`'s look plus the flex layout. */
-  protected readonly optionRowClasses = [
+  /**
+   * `bitMenuItem`'s look plus the flex layout, shared by every row. Section headers use
+   * it as-is; option rows use {@link optionRowClasses}.
+   */
+  protected readonly rowBaseClasses = [
     "tw-flex",
     "tw-items-center",
     "tw-gap-2",
@@ -189,6 +253,9 @@ export class FilterMenuComponent
     "has-[:disabled]:hover:tw-bg-background",
     "has-[:disabled]:!tw-text-fg-inactive",
   ];
+
+  /** An option row is 48px against a section header's 40px. */
+  protected readonly optionRowClasses = [...this.rowBaseClasses, "tw-py-3"];
 
   /** Shared `name` so a menu's radios form one group; unique per chip so menus don't merge. */
   protected readonly radioName = `bit-filter-menu-${nextRadioGroupId++}`;
@@ -218,6 +285,16 @@ export class FilterMenuComponent
     const unsetLabel = this.unsetLabel();
     return unsetLabel ? `${prefix}: ${unsetLabel}` : prefix;
   });
+
+  /** Whether a {@link disabledTooltip} is in play, i.e. the chip is disabled and has a reason. */
+  protected readonly showDisabledReason = computed(
+    () => this.disabled() && this.disabledTooltip().length > 0,
+  );
+
+  /** The trigger's tooltip: the disabled reason when there is one, else the label. */
+  protected readonly triggerTooltip = computed(() =>
+    this.showDisabledReason() ? this.disabledTooltip() : this.displayLabel(),
+  );
 
   /** Live count of selected options (`multiple` only). Source for the committed berry value. */
   protected readonly selectedCount = computed(() => {
@@ -258,6 +335,19 @@ export class FilterMenuComponent
 
   /** Whether the menu has enough options to warrant the in-menu search box. */
   protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
+
+  /**
+   * How many options the running search matched, or `undefined` when no search is running. Shown
+   * above the list, which is where the spec puts it.
+   */
+  protected readonly resultCount = computed(() => {
+    if (this._searchTerm().trim() === "") {
+      return undefined;
+    }
+    const matches = this.allOptions().filter((option) => this.rowVisible(option)).length;
+    // No count at zero: the "no results" state below already names the term.
+    return matches === 0 ? undefined : matches;
+  });
 
   /** A search term is entered but no option matches — show a "no results" message. */
   protected readonly noResults = computed(() => {
@@ -392,6 +482,29 @@ export class FilterMenuComponent
     );
   }
 
+  /**
+   * Whether a divider in the flat branch earns its rule: the runs on either side of it,
+   * up to the neighbouring dividers, must each still hold a visible row. Without this a
+   * search can strand a rule at the top or bottom of the list, or leave two adjacent when
+   * the run between them is filtered out.
+   */
+  protected dividerVisible(index: number): boolean {
+    const entries = this.entries();
+    const runHasRow = (from: number, step: number): boolean => {
+      for (let i = from; i >= 0 && i < entries.length; i += step) {
+        const entry = entries[i];
+        if (entry.kind === "divider") {
+          return false;
+        }
+        if (this.rowVisible(entry as FilterRow)) {
+          return true;
+        }
+      }
+      return false;
+    };
+    return runHasRow(index - 1, -1) && runHasRow(index + 1, 1);
+  }
+
   /** A row's own state, or forced open while searching so matches aren't buried. */
   protected rowExpanded(row: FilterRow): boolean {
     return this._searchTerm().trim() !== "" || row.open();
@@ -416,6 +529,7 @@ export class FilterMenuComponent
     const push = (
       rows: readonly FilterRow[],
       level: number,
+      indent: number,
       parent: number | null,
       reserveExpander: boolean,
     ) => {
@@ -428,29 +542,42 @@ export class FilterMenuComponent
           parent,
           expanded,
           level,
+          indent,
           setsize: visible.length,
           posinset: index + 1,
           reserveExpander,
+          dividerBefore: false,
+          groupStart: false,
+          groupEnd: false,
         });
         // Children, not `expandable()`: a non-collapsible section still shows its options.
         if (expanded && row.children().length > 0) {
           // A section is its own group: it reserves only if something inside it expands.
           const children = row.children();
-          const reserve = row.kind === "section" ? this.groupExpands(children) : reserveExpander;
-          push(children, level + 1, self, reserve);
+          const section = row.kind === "section";
+          const reserve = section ? this.groupExpands(children) : reserveExpander;
+          // A section heads its group rather than parenting a row, so its options hold the
+          // section's own indent instead of stepping in from it.
+          push(children, level + 1, section ? indent : indent + 1, self, reserve);
         }
       });
     };
 
+    // Dividers aren't rows, so they're held back for the group pass below.
+    const entries = this.entries().filter(
+      (entry) => entry.kind === "divider" || this.rowVisible(entry as FilterRow),
+    );
+    const rows = entries.filter((entry) => entry.kind !== "divider") as FilterRow[];
     // Top-level rows align with each other: anything expandable on that line means every
     // row on it reserves the column.
-    const entries = (this.entries() as readonly FilterRow[]).filter((row) => this.rowVisible(row));
     push(
-      entries,
+      rows,
+      1,
       1,
       null,
-      entries.some((row) => row.expandable()),
+      rows.some((row) => row.expandable()),
     );
+    markGroups(nodes, entries);
     return nodes;
   });
 

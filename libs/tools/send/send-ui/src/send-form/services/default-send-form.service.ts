@@ -12,6 +12,7 @@ import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-ac
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -36,6 +37,7 @@ export class DefaultSendFormService implements SendFormService {
   private sendService = inject(SendService);
   private i18nService = inject(I18nService);
   private sendPolicyService = inject(SendPolicyService);
+  private sendDecryptionService = inject(SendDecryptionService);
 
   private _sendForm = this.formBuilder.group<SendForm>({});
   readonly sendForm = signal(this._sendForm).asReadonly();
@@ -52,7 +54,7 @@ export class DefaultSendFormService implements SendFormService {
 
   async decryptSend(send: Send): Promise<SendView> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await send.decrypt(userId);
+    return this.sendDecryptionService.decryptSend(send, userId);
   }
 
   registerChildForm<K extends keyof SendForm>(

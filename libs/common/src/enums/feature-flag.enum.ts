@@ -11,8 +11,9 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  GenerateInviteLink = "pm-32497-generate-invite-link",
   StagedStatus = "pm-34423-staged-status",
+  InviteLinkNotification = "pm-39601-invite-link-notification",
+  InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -40,7 +41,6 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   WindowsNativeCredentialSync = "windows-native-credential-sync",
-  SSHAgentV2 = "ssh-agent-v2",
   SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
@@ -145,8 +145,9 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
+  [FeatureFlag.InviteLinkNotification]: FALSE,
+  [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -161,7 +162,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
-  [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */

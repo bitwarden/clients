@@ -16,6 +16,12 @@
         [headerText]="'itemsInTrash' | i18n"
         [ciphers]="deletedItems"
       ></app-trash-list-items-container>
+    } @else if (vfo1Enabled()) {
+      <vault-empty-vault
+        class="tw-flex tw-h-full tw-items-center tw-justify-center"
+        [hasItems]="false"
+        [scope]="trashScope"
+      ></vault-empty-vault>
     } @else {
       <bit-status-lockup class="tw-flex tw-h-full tw-items-center tw-justify-center">
         <bit-svg slot="graphic" [content]="emptyTrashIcon"></bit-svg>
