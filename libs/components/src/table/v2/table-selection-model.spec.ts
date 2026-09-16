@@ -155,6 +155,21 @@ describe("TableSelectionModel", () => {
       expect(model.indeterminate()).toBe(true);
     });
 
+    it("unchecks the header checkbox after a capped select-all is cleared", () => {
+      const model = new TableSelectionModel<Row>({
+        multiple: true,
+        max: 10,
+        rows: signal(rows(25)),
+      });
+
+      model.toggleAll();
+      expect(model.headerChecked()).toBe(true);
+
+      model.clear();
+
+      expect(model.headerChecked()).toBe(false);
+    });
+
     it("clears a capped selection on the next toggle", () => {
       const model = new TableSelectionModel<Row>({
         multiple: true,

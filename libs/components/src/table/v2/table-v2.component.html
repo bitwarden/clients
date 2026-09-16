@@ -9,7 +9,7 @@
           bitCheckbox
           type="checkbox"
           [attr.aria-label]="'selectAllRows' | i18n"
-          [checked]="sel.allSelected()"
+          [checked]="sel.headerChecked()"
           [indeterminate]="sel.indeterminate()"
           (change)="sel.toggleAll()"
         />

@@ -67,6 +67,13 @@ export class TableSelectionModel<T> {
     () => this.selectable().some((row) => this.isSelected(row)) && !this.allSelected(),
   );
 
+  /**
+   * What the header checkbox's `checked` binds to. True whenever a click would clear, so the
+   * binding still changes when a capped select-all leaves {@link allSelected} false — otherwise
+   * Angular never overwrites the `checked` the browser set on the click itself.
+   */
+  readonly headerChecked = computed(() => this.allSelected() || this.indeterminate());
+
   /** Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this. */
   readonly full = computed(() => this.count() >= this.max);
 
