@@ -244,6 +244,63 @@ describe("CartSummaryComponent", () => {
       expect(total.nativeElement.textContent).toContain("$291.60"); // 250 + 20 + 12 + 9.6
     });
 
+    it("should render proration charge lines inside their product group", () => {
+      // A mid-cycle change rides on top of the renewal lines as its own row.
+      const cartWithProrationCharges: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          prorationCharges: [
+            {
+              quantity: 1,
+              translationKey: "passwordManagerProratedCharge",
+              cost: 13.52,
+              hideBreakdown: true,
+            },
+          ],
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithProrationCharges);
+      fixture.detectChanges();
+
+      const chargeLine = fixture.debugElement.query(
+        By.css("[data-testid='password-manager-proration-charge']"),
+      );
+      expect(chargeLine).toBeTruthy();
+      expect(chargeLine.nativeElement.textContent).toContain("passwordManagerProratedCharge");
+      expect(chargeLine.nativeElement.textContent).toContain("$13.52");
+    });
+
+    it("should render a password manager section without a seats line", () => {
+      // A transition invoice carries only proration lines; no seats row renders.
+      const cartWithoutSeats: Cart = {
+        ...mockCart,
+        passwordManager: {
+          prorationCharges: [
+            {
+              quantity: 1,
+              translationKey: "passwordManagerProratedCharge",
+              cost: 188.22,
+              hideBreakdown: true,
+            },
+          ],
+        },
+        secretsManager: undefined,
+      };
+      fixture.componentRef.setInput("cart", cartWithoutSeats);
+      fixture.detectChanges();
+
+      const pmSection = fixture.debugElement.query(By.css('[id="password-manager"]'));
+      const seatsLine = fixture.debugElement.query(By.css('[id="password-manager-members"]'));
+      const chargeLine = fixture.debugElement.query(
+        By.css("[data-testid='password-manager-proration-charge']"),
+      );
+
+      expect(pmSection).toBeTruthy();
+      expect(seatsLine).toBeNull();
+      expect(chargeLine.nativeElement.textContent).toContain("$188.22");
+    });
+
     it("should display correct tax and total", () => {
       // Arrange
       const taxSection = fixture.debugElement.query(By.css('[id="estimated-tax-section"]'));
@@ -300,6 +357,25 @@ describe("CartSummaryComponent", () => {
 
       // Assert
       expect(component.hidePricingTerm()).toBe(true);
+      expect(termElement).toBeFalsy();
+    });
+
+    it("should hide term when hidePricingTerm is true in the cart", () => {
+      // Arrange — the caller leaves the input off; the cart carries the flag.
+      const oneTimeCart: Cart = {
+        ...mockCart,
+        hidePricingTerm: true,
+      };
+      fixture.componentRef.setInput("cart", oneTimeCart);
+      fixture.detectChanges();
+
+      // Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(component.hidePricingTerm()).toBe(false);
+      expect(component.hideTerm()).toBe(true);
       expect(termElement).toBeFalsy();
     });
 

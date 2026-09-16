@@ -61,6 +61,9 @@ export class CartSummaryComponent {
     const {
       passwordManager: { seats },
     } = this.cart();
+    if (!seats) {
+      return 0;
+    }
     return seats.quantity * seats.cost;
   });
 
@@ -180,14 +183,24 @@ export class CartSummaryComponent {
   });
 
   /**
-   * Calculates the subtotal before discount and tax
+   * Hides pricing term through input or the cart.
+   */
+  readonly hideTerm = computed(
+    () => this.hidePricingTerm() || (this.cart().hidePricingTerm ?? false),
+  );
+
+  /**
+   * Calculates the subtotal before discount and tax, including proration charge rows.
    */
   readonly subtotal = computed<number>(
     () =>
       this.passwordManagerSeatsTotal() +
       this.additionalStorageTotal() +
       this.secretsManagerSeatsTotal() +
-      this.additionalServiceAccountsTotal(),
+      this.additionalServiceAccountsTotal() +
+      [this.cart().passwordManager.prorationCharges, this.cart().secretsManager?.prorationCharges]
+        .flatMap((charges) => charges ?? [])
+        .reduce((sum, charge) => sum + charge.cost, 0),
   );
 
   /**
