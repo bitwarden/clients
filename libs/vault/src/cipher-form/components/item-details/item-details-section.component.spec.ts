@@ -448,12 +448,8 @@ describe("ItemDetailsSectionComponent", () => {
       expect(collectionSelect).not.toBeNull();
     }));
 
-    it("should disambiguate collections whose names failed to decrypt with an ID prefix", fakeAsync(() => {
-      i18nService.t
-        .calledWith("cannotDecryptCollectionNameWithId", expect.anything())
-        .mockImplementation(
-          (_key: string, id: string) => `Error: Cannot decrypt (ID: ${id})` as any,
-        );
+    it("should label collections whose names failed to decrypt with the shared error text", fakeAsync(() => {
+      i18nService.t.calledWith("errorCannotDecrypt").mockReturnValue("Error: Cannot decrypt");
 
       // CollectionView.fromFailedDecryption gives every failed collection the same unusable
       // placeholder name (DECRYPT_ERROR, which lives in the restricted @bitwarden/legacy-crypto
@@ -492,14 +488,12 @@ describe("ItemDetailsSectionComponent", () => {
       tick();
       fixture.detectChanges();
 
-      const labels = component["collectionOptions"].map((c) => c.labelName);
-
-      // Both entries are still offered, but they no longer read identically.
-      expect(labels).toEqual([
-        "Error: Cannot decrypt (ID: aaaaaaaa)",
-        "Error: Cannot decrypt (ID: bbbbbbbb)",
+      // Both entries are still offered so an already-assigned cipher is not silently unassigned,
+      // and neither leaks the raw placeholder.
+      expect(component["collectionOptions"].map((c) => c.labelName)).toEqual([
+        "Error: Cannot decrypt",
+        "Error: Cannot decrypt",
       ]);
-      expect(new Set(labels).size).toBe(2);
     }));
 
     it("should leave names untouched for collections that decrypted successfully", fakeAsync(() => {
@@ -522,10 +516,7 @@ describe("ItemDetailsSectionComponent", () => {
         "Collection 1",
         "Collection 2",
       ]);
-      expect(i18nService.t).not.toHaveBeenCalledWith(
-        "cannotDecryptCollectionNameWithId",
-        expect.anything(),
-      );
+      expect(i18nService.t).not.toHaveBeenCalledWith("errorCannotDecrypt");
     }));
 
     it("should set collectionIds to originalCipher collections on first load", async () => {

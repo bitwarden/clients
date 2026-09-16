@@ -191,7 +191,7 @@ describe("AssignCollectionsComponent", () => {
     const failed1 = failedCollection("aaaaaaaa-1111-1111-1111-111111111111");
     const failed2 = failedCollection("bbbbbbbb-2222-2222-2222-222222222222");
 
-    it("labels each undecryptable collection distinctly so they can be told apart", async () => {
+    it("labels undecryptable collections with the shared error text rather than the raw placeholder", async () => {
       component.params = {
         ...component.params,
         availableCollections: [failed1, failed2],
@@ -202,12 +202,7 @@ describe("AssignCollectionsComponent", () => {
 
       const labels = component["availableCollections"].map((c) => c.labelName);
 
-      expect(labels).toEqual([
-        "cannotDecryptCollectionNameWithId aaaaaaaa",
-        "cannotDecryptCollectionNameWithId bbbbbbbb",
-      ]);
-      // The regression being guarded: both entries previously rendered as the same placeholder.
-      expect(new Set(labels).size).toBe(2);
+      expect(labels).toEqual(["errorCannotDecrypt", "errorCannotDecrypt"]);
       expect(labels).not.toContain(placeholderName);
     });
 
@@ -238,6 +233,34 @@ describe("AssignCollectionsComponent", () => {
       expect(component["availableCollections"].map((c) => c.labelName)).toEqual([
         editCollection.name,
       ]);
+    });
+
+    it("shows the shared error text in the read-only hint instead of the raw placeholder", async () => {
+      const failedReadOnly = failedCollection("cccccccc-3333-3333-3333-333333333333");
+      failedReadOnly.readOnly = true;
+      failedReadOnly.manage = false;
+
+      component.params = {
+        ...component.params,
+        ciphers: [
+          {
+            id: "cipher-id",
+            name: "Cipher Name",
+            collectionIds: [failedReadOnly.id],
+            edit: true,
+          } as unknown as CipherView,
+        ],
+        availableCollections: [failedReadOnly],
+      };
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const hint = fixture.debugElement.query(By.css('[data-testid="view-only-hint"]'));
+
+      expect(hint.nativeElement.textContent.trim()).toBe(
+        "cannotRemoveViewOnlyCollections errorCannotDecrypt",
+      );
     });
   });
 

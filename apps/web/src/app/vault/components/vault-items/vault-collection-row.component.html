@@ -47,7 +47,7 @@
           stay reachable. Label the link with a warning in place of the name; renaming
           it — which re-encrypts the collection — remains available from the row's options menu.
         -->
-        <span bitBadge variant="warning">{{ "errorCannotDecrypt" | i18n }}</span>
+        <span bitBadge variant="warning">{{ displayName }}</span>
       } @else {
         <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
       }

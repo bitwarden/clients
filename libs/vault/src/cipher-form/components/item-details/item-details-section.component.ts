@@ -39,6 +39,7 @@ import {
 import { orgIconTile, personalIconTile } from "../../../models/vault-icon-tile";
 import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
+import { collectionDisplayName } from "../../../utils/collection-display-name";
 import {
   CipherFormConfig,
   OptionalInitialValues,
@@ -499,13 +500,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         return aIsDefaultCollection - bIsDefaultCollection;
       })
       .map((c) => {
-        // A collection whose name failed to decrypt carries the decrypt-error placeholder as its
-        // name, so several of them would be indistinguishable in this picker and the item could be
-        // assigned to the wrong one. Such collections are still listed — one already assigned to
-        // the cipher must stay assignable — so disambiguate them with a short ID prefix instead.
-        const name = c.decryptionFailure
-          ? this.i18nService.t("cannotDecryptCollectionNameWithId", c.id.slice(0, 8))
-          : c.name;
+        const name = collectionDisplayName(c, this.i18nService);
 
         return {
           id: c.id,

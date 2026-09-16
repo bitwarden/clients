@@ -23,7 +23,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { collectionDisplayName, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -152,6 +152,11 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
    */
   protected get decryptionFailure() {
     return this.decryptionFailureUi() && this.collection.decryptionFailure;
+  }
+
+  /** @see collectionDisplayName — shared with the collection pickers so both read identically. */
+  protected get displayName() {
+    return collectionDisplayName(this.collection, this.i18nService);
   }
 
   get permissionText() {

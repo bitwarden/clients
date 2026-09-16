@@ -16314,16 +16314,6 @@
   "errorCannotDecrypt": {
     "message": "Error: Cannot decrypt"
   },
-  "cannotDecryptCollectionNameWithId": {
-    "message": "Error: Cannot decrypt (ID: $ID$)",
-    "description": "Label shown for a collection in the collection picker when its name could not be decrypted. A short prefix of the collection's ID is appended so that multiple undecryptable collections can be told apart.",
-    "placeholders": {
-      "id": {
-        "content": "$1",
-        "example": "1a2b3c4d"
-      }
-    }
-  },
   "userVerificationFailed": {
     "message": "User verification failed."
   },
