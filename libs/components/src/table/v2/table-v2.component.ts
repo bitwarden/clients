@@ -661,7 +661,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
   }
 
-  /** Keeps the checkbox in sync with the selection, which the bindings alone don't guarantee. */
+  /**
+   * Keeps the checkbox in sync with the selection, which the bindings alone don't guarantee.
+   * Without this it strands — checked with nothing selected, or empty with every row selected.
+   */
   protected onToggleAll(event: Event, sel: TableSelectionModel<T>): void {
     sel.toggleAll();
     const input = event.target as HTMLInputElement;
