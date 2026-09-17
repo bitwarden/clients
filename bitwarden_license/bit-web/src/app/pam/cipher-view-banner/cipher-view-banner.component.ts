@@ -82,6 +82,7 @@ import { formatRemaining } from "../date/format-remaining";
 import { isGovernedCipher } from "../helpers/governed-cipher";
 import { isUnlicensedError } from "../helpers/pam-license-error";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { MyLeasesService } from "../services/my-leases.service";
 import { callerOrganizations$, unlicensedForPam } from "../services/pam-membership";
 
 import {
@@ -132,6 +133,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly myLeasesService = inject(MyLeasesService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
@@ -153,9 +155,20 @@ export class CipherViewBannerComponent implements OnInit {
    * for {@link state} and {@link unlicensed}.
    */
   private readonly governedCipher$ = combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
-    map(([cipher, enabled]) =>
-      !enabled || cipher.id == null || !isGovernedCipher(cipher) ? null : cipher,
-    ),
+    switchMap(([cipher, enabled]) => {
+      if (!enabled || cipher.id == null) {
+        return of(null);
+      }
+      if (isGovernedCipher(cipher)) {
+        return of(cipher);
+      }
+      // Ungated now, but a live lease still governs itself: the item became reachable through a
+      // collection carrying no rule after the lease was minted, so the credential reads in full
+      // while the lease remains the holder's to extend or end.
+      return this.myLeasesService
+        .hasActiveLease$(String(cipher.id))
+        .pipe(map((held) => (held ? cipher : null)));
+    }),
     distinctUntilChanged(),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -700,6 +713,9 @@ export class CipherViewBannerComponent implements OnInit {
    * gated-cipher reloader reveal or re-lock the item behind this banner.
    */
   private notifyAccessChanged(): void {
+    // The gate for an ungated-but-leased item reads the cached lease list, which must not outlive
+    // a mutation that ended or extended the lease.
+    this.myLeasesService.invalidate();
     const cipherId = this.cipher().id;
     if (cipherId != null) {
       this.accessRefreshService.notifyAccessChanged(String(cipherId));
