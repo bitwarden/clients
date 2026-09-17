@@ -86,7 +86,12 @@
               rel="noopener noreferrer"
               >Schedule a call</a
             >
-            <a class="btn-secondary" href="mailto:privileged-controls@bitwarden.com">
+            <!--
+              The address is shown as text rather than behind a mailto: button. A mailto: does
+              nothing for anyone without a mail client configured, and the old button never
+              displayed the address, so those readers had nothing to copy.
+            -->
+            <p class="sidebar-help-email">
               <svg
                 class="icon-mail"
                 width="16"
@@ -112,8 +117,13 @@
                   stroke-linejoin="round"
                 />
               </svg>
-              Email feedback
-            </a>
+              <span class="sidebar-help-address"
+                ><span class="sidebar-help-address-part">privileged-controls@</span><wbr /><span
+                  class="sidebar-help-address-part"
+                  >bitwarden.com</span
+                ></span
+              >
+            </p>
           </div>
         </div>
       </nav>
