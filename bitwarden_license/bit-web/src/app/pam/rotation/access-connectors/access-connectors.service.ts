@@ -21,30 +21,30 @@ import { accessConnectorStatusLabelKey } from "./access-connector-label";
  * Flattens assignment IDs into display names using the target-systems lookup,
  * and pre-computes action availability flags so the template stays declarative.
  */
-export type DaemonRow = {
+export type AccessConnectorRow = {
   id: AccessConnectorId;
   name: string;
   statusLabelKey: "pamAccessConnectorStatusActive" | "pamAccessConnectorStatusInactive";
   isConnected: boolean;
   /** Target system names for the assignment badges, falling back to the raw ID when unresolved. */
   assignmentNames: string[];
-  /** True when the daemon is enabled; drives the Deactivate/Activate action and assignment availability. */
+  /** True when the access connector is enabled; drives the Deactivate/Activate action and assignment availability. */
   enabled: boolean;
-  /** True only when the daemon is enabled; required for it to be assigned a target. */
+  /** True only when the access connector is enabled; required for it to be assigned a target. */
   canAssign: boolean;
   /** The raw response, kept for mutation operations. */
-  daemon: AccessConnector;
+  accessConnector: AccessConnector;
 };
 
 /**
- * Page-scoped data service for the daemons tab.
+ * Page-scoped data service for the access connectors tab.
  *
  * Provided at the rotation-shell route together with `TargetSystemsService`.
- * Owns the daemon list, projects rows with name resolution, and handles all
- * daemon mutations (enable/disable, delete, assign, unassign) with optimistic local patching.
+ * Owns the access connector list, projects rows with name resolution, and handles all
+ * access connector mutations (enable/disable, delete, assign, unassign) with optimistic local patching.
  */
 @Injectable()
-export class DaemonsService {
+export class AccessConnectorsService {
   private readonly rotationSdk = inject(RotationSdkService);
   private readonly targetSystemsService = inject(TargetSystemsService);
 
@@ -54,11 +54,12 @@ export class DaemonsService {
   /** Incremented per {@link load} call so a superseded call can drop its outcome. */
   private loadGeneration = 0;
 
-  private readonly _daemons$ = new BehaviorSubject<AccessConnector[]>([]);
+  private readonly _accessConnectors$ = new BehaviorSubject<AccessConnector[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
-  readonly daemons$: Observable<AccessConnector[]> = this._daemons$.asObservable();
+  readonly accessConnectors$: Observable<AccessConnector[]> =
+    this._accessConnectors$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /** The error from the last {@link load}, or null when it succeeded. */
@@ -67,14 +68,14 @@ export class DaemonsService {
     this.targetSystemsService.loadError$,
   ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
-  /** Daemons projected into presentation rows, joined with target-system names; updates with either source. */
-  readonly rows$: Observable<DaemonRow[]> = combineLatest([
-    this._daemons$,
+  /** AccessConnectors projected into presentation rows, joined with target-system names; updates with either source. */
+  readonly rows$: Observable<AccessConnectorRow[]> = combineLatest([
+    this._accessConnectors$,
     this.targetSystemsService.systemById$,
-  ]).pipe(map(([daemons, systemById]) => this.buildRows(daemons, systemById)));
+  ]).pipe(map(([accessConnectors, systemById]) => this.buildRows(accessConnectors, systemById)));
 
   /**
-   * Fetch the org's daemons, replacing local state.
+   * Fetch the org's access connectors, replacing local state.
    *
    * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
    * `void load(...)`, so a rejection would leave the tab rendering its empty state.
@@ -93,7 +94,7 @@ export class DaemonsService {
       if (generation !== this.loadGeneration) {
         return;
       }
-      this._daemons$.next(connectors);
+      this._accessConnectors$.next(connectors);
       this._loadError$.next(null);
     } catch (e) {
       if (generation !== this.loadGeneration) {
@@ -108,57 +109,59 @@ export class DaemonsService {
   }
 
   /**
-   * Enable or disable a daemon, optimistically patching local status.
+   * Enable or disable an access connector, optimistically patching local status.
    * Disabling stops it from claiming new jobs (running jobs are released); it is reversible via
    * enable. Rolls back and re-throws on API failure.
    */
-  async setEnabled(daemon: AccessConnector, enabled: boolean): Promise<void> {
+  async setEnabled(accessConnector: AccessConnector, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
-    const prevDaemons = this._daemons$.value;
+    const prevAccessConnectors = this._accessConnectors$.value;
     const nextStatus = enabled ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled;
 
     // Optimistic update
-    this._daemons$.next(
-      prevDaemons.map((d) =>
-        d.id === daemon.id ? ({ ...d, status: nextStatus } as AccessConnector) : d,
+    this._accessConnectors$.next(
+      prevAccessConnectors.map((d) =>
+        d.id === accessConnector.id ? ({ ...d, status: nextStatus } as AccessConnector) : d,
       ),
     );
 
     try {
       if (enabled) {
-        await this.rotationSdk.enableConnector(orgId, daemon.id);
+        await this.rotationSdk.enableConnector(orgId, accessConnector.id);
       } else {
-        await this.rotationSdk.disableConnector(orgId, daemon.id);
+        await this.rotationSdk.disableConnector(orgId, accessConnector.id);
       }
     } catch (e) {
       // Rollback
-      this._daemons$.next(prevDaemons);
+      this._accessConnectors$.next(prevAccessConnectors);
       throw e;
     }
   }
 
   /**
-   * Delete a daemon permanently, removing it from local state once the server confirms.
+   * Delete an access connector permanently, removing it from local state once the server confirms.
    *
-   * This invalidates the daemon's credentials; since it held the org key in memory, rotate the
+   * This invalidates the access connector's credentials; since it held the org key in memory, rotate the
    * organization key if compromise is suspected.
    */
-  async delete(daemon: AccessConnector): Promise<void> {
+  async delete(accessConnector: AccessConnector): Promise<void> {
     const orgId = this.requireOrganizationId();
-    await this.rotationSdk.deleteConnector(orgId, daemon.id);
-    this._daemons$.next(this._daemons$.value.filter((d) => d.id !== daemon.id));
+    await this.rotationSdk.deleteConnector(orgId, accessConnector.id);
+    this._accessConnectors$.next(
+      this._accessConnectors$.value.filter((d) => d.id !== accessConnector.id),
+    );
   }
 
   /**
-   * Drop a deleted target system from every daemon's assignments.
+   * Drop a deleted target system from every access connector's assignments.
    *
    * Deleting a target takes its assignments with it server-side; without this, {@link rows$}
    * would keep projecting the dangling ID as a raw UUID. Purely local reconciliation of that
    * server-side delete.
    */
   forgetTargetSystem(targetSystemId: TargetSystemId): void {
-    this._daemons$.next(
-      this._daemons$.value.map((d) =>
+    this._accessConnectors$.next(
+      this._accessConnectors$.value.map((d) =>
         d.assignedTargetSystemIds.includes(targetSystemId)
           ? ({
               ...d,
@@ -172,17 +175,17 @@ export class DaemonsService {
   }
 
   /**
-   * Assign a target system to a daemon. Optimistically pushes the target ID into
-   * the daemon's assignments; rolls back and re-throws on failure.
+   * Assign a target system to an access connector. Optimistically pushes the target ID into
+   * the access connector's assignments; rolls back and re-throws on failure.
    */
-  async assign(daemon: AccessConnector, targetSystemId: TargetSystemId): Promise<void> {
+  async assign(accessConnector: AccessConnector, targetSystemId: TargetSystemId): Promise<void> {
     const orgId = this.requireOrganizationId();
-    const prevDaemons = this._daemons$.value;
+    const prevAccessConnectors = this._accessConnectors$.value;
 
     // Optimistic update
-    this._daemons$.next(
-      prevDaemons.map((d) =>
-        d.id === daemon.id
+    this._accessConnectors$.next(
+      prevAccessConnectors.map((d) =>
+        d.id === accessConnector.id
           ? ({
               ...d,
               assignedTargetSystemIds: [...d.assignedTargetSystemIds, targetSystemId],
@@ -192,26 +195,26 @@ export class DaemonsService {
     );
 
     try {
-      await this.rotationSdk.assignTarget(orgId, daemon.id, targetSystemId);
+      await this.rotationSdk.assignTarget(orgId, accessConnector.id, targetSystemId);
     } catch (e) {
       // Rollback
-      this._daemons$.next(prevDaemons);
+      this._accessConnectors$.next(prevAccessConnectors);
       throw e;
     }
   }
 
   /**
-   * Remove a target-system assignment from a daemon. Optimistically removes the
+   * Remove a target-system assignment from an access connector. Optimistically removes the
    * ID from the local state; rolls back and re-throws on failure.
    */
-  async unassign(daemon: AccessConnector, targetSystemId: TargetSystemId): Promise<void> {
+  async unassign(accessConnector: AccessConnector, targetSystemId: TargetSystemId): Promise<void> {
     const orgId = this.requireOrganizationId();
-    const prevDaemons = this._daemons$.value;
+    const prevAccessConnectors = this._accessConnectors$.value;
 
     // Optimistic update
-    this._daemons$.next(
-      prevDaemons.map((d) =>
-        d.id === daemon.id
+    this._accessConnectors$.next(
+      prevAccessConnectors.map((d) =>
+        d.id === accessConnector.id
           ? ({
               ...d,
               assignedTargetSystemIds: d.assignedTargetSystemIds.filter(
@@ -223,16 +226,16 @@ export class DaemonsService {
     );
 
     try {
-      await this.rotationSdk.unassignTarget(orgId, daemon.id, targetSystemId);
+      await this.rotationSdk.unassignTarget(orgId, accessConnector.id, targetSystemId);
     } catch (e) {
       // Rollback
-      this._daemons$.next(prevDaemons);
+      this._accessConnectors$.next(prevAccessConnectors);
       throw e;
     }
   }
 
   /**
-   * Call after a successful daemon registration to refresh the list from the server.
+   * Call after a successful access connector registration to refresh the list from the server.
    */
   async registerCompleted(organizationId: OrganizationId): Promise<void> {
     await this.load(organizationId);
@@ -240,26 +243,26 @@ export class DaemonsService {
 
   private requireOrganizationId(): OrganizationId {
     if (this.organizationId == null) {
-      throw new Error("DaemonsService.load must run before mutating daemons.");
+      throw new Error("AccessConnectorsService.load must run before mutating accessConnectors.");
     }
     return this.organizationId;
   }
 
   private buildRows(
-    daemons: AccessConnector[],
+    accessConnectors: AccessConnector[],
     systemById: Map<TargetSystemId, TargetSystem>,
-  ): DaemonRow[] {
-    return daemons.map((daemon) => ({
-      id: daemon.id,
-      name: daemon.name,
-      statusLabelKey: accessConnectorStatusLabelKey(daemon.status),
-      isConnected: daemon.isConnected,
-      assignmentNames: daemon.assignedTargetSystemIds.map(
+  ): AccessConnectorRow[] {
+    return accessConnectors.map((accessConnector) => ({
+      id: accessConnector.id,
+      name: accessConnector.name,
+      statusLabelKey: accessConnectorStatusLabelKey(accessConnector.status),
+      isConnected: accessConnector.isConnected,
+      assignmentNames: accessConnector.assignedTargetSystemIds.map(
         (id) => systemById.get(id)?.name ?? String(id),
       ),
-      enabled: daemon.status === AccessConnectorStatus.Enabled,
-      canAssign: daemon.status === AccessConnectorStatus.Enabled,
-      daemon,
+      enabled: accessConnector.status === AccessConnectorStatus.Enabled,
+      canAssign: accessConnector.status === AccessConnectorStatus.Enabled,
+      accessConnector,
     }));
   }
 }

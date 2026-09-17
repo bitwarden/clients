@@ -1,8 +1,11 @@
 import { RunGuardsAndResolvers, Routes } from "@angular/router";
 
-import { DaemonDetailComponent, daemonDetailDiscardGuard } from "./daemons/daemon-detail.component";
-import { DaemonsTabComponent } from "./daemons/daemons-tab.component";
-import { DaemonsService } from "./daemons/daemons.service";
+import {
+  AccessConnectorDetailComponent,
+  accessConnectorDetailDiscardGuard,
+} from "./access-connectors/access-connector-detail.component";
+import { AccessConnectorsTabComponent } from "./access-connectors/access-connectors-tab.component";
+import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
 import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
 import {
   RotationConfigEditComponent,
@@ -69,26 +72,31 @@ export const rotationRoutes: Routes = [
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {
-    path: `${ROTATION_TABS.accessConnectors}/:daemonId`,
+    path: `${ROTATION_TABS.accessConnectors}/:accessConnectorId`,
     pathMatch: "full",
-    redirectTo: `${ROTATION_TABS.accessConnectors}/:daemonId/configuration`,
+    redirectTo: `${ROTATION_TABS.accessConnectors}/:accessConnectorId/configuration`,
   },
   {
-    path: `${ROTATION_TABS.accessConnectors}/:daemonId/:tab`,
-    component: DaemonDetailComponent,
-    canDeactivate: [daemonDetailDiscardGuard],
-    runGuardsAndResolvers: recordChanged("daemonId"),
+    path: `${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`,
+    component: AccessConnectorDetailComponent,
+    canDeactivate: [accessConnectorDetailDiscardGuard],
+    runGuardsAndResolvers: recordChanged("accessConnectorId"),
     data: { titleId: "pamAccessConnectorDetailTitle" },
   },
   {
     path: "",
     component: RotationShellComponent,
-    providers: [RotationConfigsService, TargetSystemsService, DaemonsService, OrgCiphersService],
+    providers: [
+      RotationConfigsService,
+      TargetSystemsService,
+      AccessConnectorsService,
+      OrgCiphersService,
+    ],
     children: [
       { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.accessConnectors },
       {
         path: ROTATION_TABS.accessConnectors,
-        component: DaemonsTabComponent,
+        component: AccessConnectorsTabComponent,
         data: { titleId: "pamRotationTabAccessConnectors" },
       },
       {
