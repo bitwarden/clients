@@ -80,6 +80,7 @@ describe("ConnectHuntressDialogComponent", () => {
 
   const connectInfo: ConnectViaHecTokenDialogParams = {
     settings: integrationMock,
+    saveCallback: jest.fn().mockResolvedValue(null),
   };
 
   beforeEach(async () => {
@@ -159,7 +160,7 @@ describe("ConnectHuntressDialogComponent", () => {
       url: "https://hec.huntress.io/services/collector",
       token: "test-token",
       service: "Huntress",
-      success: IntegrationDialogResultStatus.Edited,
+      success: IntegrationDialogResultStatus.SavedViaCallback,
     });
   });
 

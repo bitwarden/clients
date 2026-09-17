@@ -78,7 +78,8 @@ describe("ConnectDialogHecComponent", () => {
     type: IntegrationType.EVENT,
   } as Integration;
   const connectInfo: HecConnectDialogParams = {
-    settings: integrationMock, // Provide appropriate mock template if needed
+    settings: integrationMock,
+    saveCallback: jest.fn().mockResolvedValue(null),
   };
 
   beforeEach(async () => {
@@ -164,7 +165,7 @@ describe("ConnectDialogHecComponent", () => {
       bearerToken: "token",
       index: "1",
       service: "Test Service",
-      success: IntegrationDialogResultStatus.Edited,
+      success: IntegrationDialogResultStatus.SavedViaCallback,
     });
   });
 
