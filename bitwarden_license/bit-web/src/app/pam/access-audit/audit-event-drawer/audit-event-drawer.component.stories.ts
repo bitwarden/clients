@@ -93,12 +93,12 @@ const RULE_DELETED: AuditRow = {
 };
 
 /**
- * A fleet event: no cipher and no rule, so the subject is the daemon and the target it was assigned to.
+ * A fleet event: no cipher and no rule, so the subject is the access connector and the target it was assigned to.
  * Those two fields are what keep a rotation-heavy trail from reading as a column of em dashes.
  */
-const DAEMON_ASSIGNED: AuditRow = {
+const CONNECTOR_ASSIGNED: AuditRow = {
   ...POPULATED,
-  kindLabelKey: "pamAuditKindDaemonAssigned",
+  kindLabelKey: "pamAuditKindAccessConnectorAssigned",
   requester: null,
   requesterId: null,
   requesterEmail: null,
@@ -200,13 +200,13 @@ export const DeletedRule: Story = {
 };
 
 /**
- * A rotation fleet event. It names neither a cipher nor a rule, so Item falls through to the daemon and
- * the Target system / Daemon fields carry the pair the action actually concerned.
+ * A rotation fleet event. It names neither a cipher nor a rule, so Item falls through to the access connector and
+ * the Target system / Access connector fields carry the pair the action actually concerned.
  */
 export const FleetEvent: Story = {
   render: () => ({
     moduleMetadata: {
-      providers: [{ provide: DIALOG_DATA, useValue: params(DAEMON_ASSIGNED, true) }],
+      providers: [{ provide: DIALOG_DATA, useValue: params(CONNECTOR_ASSIGNED, true) }],
     },
     template: `<pam-audit-event-drawer />`,
   }),
