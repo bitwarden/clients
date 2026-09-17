@@ -90,7 +90,7 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.RotationPaused]: "pamAuditKindRotationPaused",
   [AccessAuditEventKind.RotationResumed]: "pamAuditKindRotationResumed",
   [AccessAuditEventKind.RotationConfigDeleted]: "pamAuditKindRotationConfigDeleted",
-  [AccessAuditEventKind.RotationOffered]: "pamAuditKindRotationOffered",
+  [AccessAuditEventKind.RotationOffered]: "pamAuditKindRotationOfferedToConnector",
   [AccessAuditEventKind.RotationDispatched]: "pamAuditKindRotationDispatched",
   [AccessAuditEventKind.RotationSucceeded]: "pamAuditKindRotationSucceeded",
   [AccessAuditEventKind.RotationAttemptFailed]: "pamAuditKindRotationAttemptFailed",
@@ -101,16 +101,16 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.RotationReportRejected]: "pamAuditKindRotationReportRejected",
   [AccessAuditEventKind.ManualRotationDue]: "pamAuditKindManualRotationDue",
   [AccessAuditEventKind.ManualRotationRecorded]: "pamAuditKindManualRotationRecorded",
-  [AccessAuditEventKind.DaemonRegistered]: "pamAuditKindDaemonRegistered",
-  [AccessAuditEventKind.DaemonRevoked]: "pamAuditKindDaemonRevoked",
-  [AccessAuditEventKind.DaemonDisabled]: "pamAuditKindDaemonDisabled",
-  [AccessAuditEventKind.DaemonEnabled]: "pamAuditKindDaemonEnabled",
-  [AccessAuditEventKind.DaemonDeleted]: "pamAuditKindDaemonDeleted",
-  [AccessAuditEventKind.DaemonAssignedToTarget]: "pamAuditKindDaemonAssigned",
-  [AccessAuditEventKind.DaemonUnassignedFromTarget]: "pamAuditKindDaemonUnassigned",
+  [AccessAuditEventKind.DaemonRegistered]: "pamAuditKindAccessConnectorRegistered",
+  [AccessAuditEventKind.DaemonRevoked]: "pamAuditKindAccessConnectorRevoked",
+  [AccessAuditEventKind.DaemonDisabled]: "pamAuditKindAccessConnectorDeactivated",
+  [AccessAuditEventKind.DaemonEnabled]: "pamAuditKindAccessConnectorActivated",
+  [AccessAuditEventKind.DaemonDeleted]: "pamAuditKindAccessConnectorDeleted",
+  [AccessAuditEventKind.DaemonAssignedToTarget]: "pamAuditKindAccessConnectorAssigned",
+  [AccessAuditEventKind.DaemonUnassignedFromTarget]: "pamAuditKindAccessConnectorUnassigned",
   [AccessAuditEventKind.TargetSystemRegistered]: "pamAuditKindTargetRegistered",
-  [AccessAuditEventKind.TargetSystemDisabled]: "pamAuditKindTargetDisabled",
-  [AccessAuditEventKind.TargetSystemEnabled]: "pamAuditKindTargetEnabled",
+  [AccessAuditEventKind.TargetSystemDisabled]: "pamAuditKindTargetDeactivated",
+  [AccessAuditEventKind.TargetSystemEnabled]: "pamAuditKindTargetActivated",
   [AccessAuditEventKind.TargetSystemRenamed]: "pamAuditKindTargetRenamed",
   [AccessAuditEventKind.TargetSystemPolicyUpdated]: "pamAuditKindTargetPolicyUpdated",
   [AccessAuditEventKind.TargetSystemDeleted]: "pamAuditKindTargetDeleted",
@@ -126,7 +126,7 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
 
 /**
  * The kinds no action emits: the seven the server marks `Deferred`, plus `DaemonRevoked`, which the reversible
- * disable/enable pair replaced. Labelled, so a stored row still reads, but kept out of the Event filter, where
+ * activate/deactivate pair replaced. Labelled, so a stored row still reads, but kept out of the Event filter, where
  * selecting one could only ever return nothing.
  */
 export const UNEMITTED_AUDIT_KINDS: ReadonlySet<AccessAuditEventKind> = new Set([

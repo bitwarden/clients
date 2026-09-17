@@ -20184,6 +20184,27 @@
   "pamAuditKindManualRotationRecorded": {
     "message": "Manual rotation recorded"
   },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Access connector registered"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Access connector revoked"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Access connector deactivated"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Access connector activated"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Access connector deleted"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Access connector assigned to target"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Access connector unassigned from target"
+  },
   "pamAuditKindTargetRegistered": {
     "message": "Target system registered"
   },
@@ -20205,8 +20226,8 @@
   "pamAuditTargetSystem": {
     "message": "Target system"
   },
-  "pamAuditDaemon": {
-    "message": "Daemon"
+  "pamAuditAccessConnector": {
+    "message": "Access connector"
   },
   "pamAccessConnectorAssignmentCountSingular": {
     "message": "$COUNT$ target",

@@ -128,8 +128,10 @@
       </div>
 
       <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditDaemon" | i18n }}</dt>
-        <dd class="tw-m-0 tw-break-words" data-testid="drawer-daemon">
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "pamAuditAccessConnector" | i18n }}
+        </dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-access-connector">
           @if (row.daemonName) {
             {{ row.daemonName }}
           } @else {
