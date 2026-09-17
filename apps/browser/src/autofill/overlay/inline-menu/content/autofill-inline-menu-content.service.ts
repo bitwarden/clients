@@ -563,36 +563,25 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
-   * Returns the name of the generated container tags for usage internally to avoid
-   * unintentional targeting of the owned experience.
-   */
-  getOwnedTagNames = (): string[] => {
-    return [
-      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
-      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
-    ];
-  };
-
-  /**
    * Queries and return elements (excluding those of the inline menu) that exist in the
    * top-layer via popover or dialog
    * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
    * may or may not be active) should be included in the query
    */
-  getUnownedTopLayerItems = (includeCandidates = false) => {
-    const inlineMenuTagExclusions = [
-      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
-      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
-      ":popover-open",
-    ].join("");
+  getUnownedTopLayerItems = (includeCandidates = false): Element[] => {
     const selector = [
       ":modal",
-      inlineMenuTagExclusions,
-      ...(includeCandidates ? ["[popover], dialog"] : []),
+      ":popover-open",
+      ...(includeCandidates ? ["[popover]", "dialog"] : []),
     ].join(",");
-    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
 
-    return otherTopLayeritems;
+    // Exclude by identity, matching every other ownership test in this service. Encoding the
+    // exclusion in the selector could not work: `:not(TAG)` only constrains the one branch of the
+    // selector list it sits in, so `:modal` — and `[popover]`, which our own elements match —
+    // returned the menu as unowned.
+    return Array.from(globalThis.document.querySelectorAll(selector)).filter(
+      (element) => !this.isElementInlineMenu(element as HTMLElement),
+    );
   };
 
   /**
@@ -645,12 +634,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    const buttonInDocument =
-      this.buttonElement &&
-      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
-    const listInDocument =
-      this.listElement &&
-      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    // The cached nodes, not a tag-name lookup: the generated name is visible in the DOM, so a
+    // page that plants a copy earlier in document order would win `getElementsByTagName(...)[0]`
+    // and take the refresh meant for our own element. `isConnected` stands in for the
+    // undefined that lookup returned when the element was absent.
+    const buttonInDocument = this.buttonElement?.isConnected ? this.buttonElement : undefined;
+    const listInDocument = this.listElement?.isConnected ? this.listElement : undefined;
 
     if (buttonInDocument) {
       buttonInDocument.hidePopover();

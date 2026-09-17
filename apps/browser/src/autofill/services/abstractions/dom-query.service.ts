@@ -15,7 +15,7 @@ export interface DomQueryService {
   ): { elements: T[]; unresolvedHosts: Set<Element> };
   updatePageContainsShadowDom(): boolean;
   refreshShadowDomStateForUserRequest(): void;
-  checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
+  shadowRootMutations(mutations: MutationRecord[]): MutationRecord[];
   checkForNewShadowRoots(
     addedElements?: Element[],
     mutationObserver?: MutationObserver,

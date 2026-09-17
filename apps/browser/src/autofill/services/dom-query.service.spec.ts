@@ -253,8 +253,8 @@ describe("DomQueryService", () => {
     });
   });
 
-  describe("checkMutationsInShadowRoots", () => {
-    it("returns true when a mutation occurred within a shadow root", () => {
+  describe("shadowRootMutations", () => {
+    it("keeps a mutation that occurred within a shadow root", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
@@ -273,12 +273,12 @@ describe("DomQueryService", () => {
         target: input,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+      const result = domQueryService.shadowRootMutations([mutationRecord]);
 
-      expect(result).toBe(true);
+      expect(result).toEqual([mutationRecord]);
     });
 
-    it("returns false when mutations occurred in the light DOM", () => {
+    it("drops mutations that occurred in the light DOM", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const div = document.createElement("div");
       document.body.appendChild(div);
@@ -295,12 +295,14 @@ describe("DomQueryService", () => {
         target: div,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+      const result = domQueryService.shadowRootMutations([mutationRecord]);
 
-      expect(result).toBe(false);
+      expect(result).toEqual([]);
     });
 
-    it("returns true if any mutation in the array is in a shadow root", () => {
+    // The gate downstream reads the attribute branch first, so a light-DOM record left in the
+    // batch would vouch for unrelated shadow churn sharing it.
+    it("keeps only the shadow records when a batch mixes both", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
@@ -334,12 +336,12 @@ describe("DomQueryService", () => {
         target: lightDiv,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([lightMutation, shadowMutation]);
+      const result = domQueryService.shadowRootMutations([lightMutation, shadowMutation]);
 
-      expect(result).toBe(true);
+      expect(result).toEqual([shadowMutation]);
     });
 
-    it("returns false without walking targets when pageContainsShadowDom is false", () => {
+    it("returns nothing without walking targets when pageContainsShadowDom is false", () => {
       domQueryService["pageContainsShadowDom"] = false;
       const target = document.createElement("div");
       document.body.appendChild(target);
@@ -356,9 +358,9 @@ describe("DomQueryService", () => {
         target,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+      const result = domQueryService.shadowRootMutations([mutationRecord]);
 
-      expect(result).toBe(false);
+      expect(result).toEqual([]);
       expect(getRootNodeSpy).not.toHaveBeenCalled();
     });
 
@@ -380,11 +382,11 @@ describe("DomQueryService", () => {
         target: shadowInput,
       };
 
-      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(false);
+      expect(domQueryService.shadowRootMutations([mutationRecord])).toEqual([]);
 
       domQueryService["markShadowDomPresent"]();
 
-      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(true);
+      expect(domQueryService.shadowRootMutations([mutationRecord])).toEqual([mutationRecord]);
     });
   });
 
@@ -471,7 +473,7 @@ describe("DomQueryService", () => {
       domQueryService.setOwnedShadowHostPredicate((el) => el === host);
 
       const mutation = { target: inner } as unknown as MutationRecord;
-      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
+      expect(domQueryService.shadowRootMutations([mutation])).toEqual([]);
     });
 
     it("still flags mutations inside a non-owned shadow host", () => {
@@ -481,7 +483,7 @@ describe("DomQueryService", () => {
       domQueryService.setOwnedShadowHostPredicate(() => false);
 
       const mutation = { target: inner } as unknown as MutationRecord;
-      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);
+      expect(domQueryService.shadowRootMutations([mutation])).toEqual([mutation]);
     });
   });
 

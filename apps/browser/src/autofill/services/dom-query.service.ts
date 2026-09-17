@@ -144,18 +144,25 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
-   * Checks if any of the provided mutations occurred within shadow roots.
-   * This is a lightweight check that doesn't query the DOM.
-   * @param mutations - The mutation records to check
-   * @returns True if any mutation occurred within a shadow root
+   * Narrows a batch to the records that happened inside a page shadow root. Lightweight — reads
+   * `getRootNode()` per record and queries nothing.
+   *
+   * Returns the records rather than a boolean so a caller can judge their relevance against the
+   * shadow records alone. A batch mixes light-DOM and shadow records freely, so "does this batch
+   * contain a shadow record" and "is this batch relevant" are different questions asked of
+   * different subsets; answering the second over the whole batch lets one unrelated light-DOM
+   * record speak for the shadow ones.
+   *
+   * @param mutations - The mutation records to filter
+   * @returns The subset whose target is inside a non-owned shadow root
    */
-  checkMutationsInShadowRoots = (mutations: MutationRecord[]): boolean => {
+  shadowRootMutations = (mutations: MutationRecord[]): MutationRecord[] => {
     // Latch is a one-way ratchet (see `markShadowDomPresent`); false here means no
     // shadow root has been observed yet, so no mutation target can be inside one.
     if (!this.pageContainsShadowDom) {
-      return false;
+      return [];
     }
-    return mutations.some((mutation) => {
+    return mutations.filter((mutation) => {
       const root = (mutation.target as Node).getRootNode();
       // Ignore our own injected shadow hosts — observing them churns on the menu's own styling.
       return root instanceof ShadowRoot && !this.isOwnedShadowHost(root.host);
