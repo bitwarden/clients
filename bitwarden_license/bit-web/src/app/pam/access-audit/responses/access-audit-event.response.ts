@@ -42,13 +42,13 @@ export const AccessAuditEventKind = Object.freeze({
   RotationReportRejected: "rotationReportRejected",
   ManualRotationDue: "manualRotationDue",
   ManualRotationRecorded: "manualRotationRecorded",
-  DaemonRegistered: "daemonRegistered",
-  DaemonRevoked: "daemonRevoked",
-  DaemonDisabled: "daemonDisabled",
-  DaemonEnabled: "daemonEnabled",
-  DaemonDeleted: "daemonDeleted",
-  DaemonAssignedToTarget: "daemonAssignedToTarget",
-  DaemonUnassignedFromTarget: "daemonUnassignedFromTarget",
+  AccessConnectorRegistered: "accessConnectorRegistered",
+  AccessConnectorRevoked: "accessConnectorRevoked",
+  AccessConnectorDisabled: "accessConnectorDisabled",
+  AccessConnectorEnabled: "accessConnectorEnabled",
+  AccessConnectorDeleted: "accessConnectorDeleted",
+  AccessConnectorAssignedToTarget: "accessConnectorAssignedToTarget",
+  AccessConnectorUnassignedFromTarget: "accessConnectorUnassignedFromTarget",
   TargetSystemRegistered: "targetSystemRegistered",
   TargetSystemDisabled: "targetSystemDisabled",
   TargetSystemEnabled: "targetSystemEnabled",
@@ -97,10 +97,9 @@ export class AccessAuditEventResponse extends BaseResponse {
   targetSystemName: string | null;
   /**
    * The access connector's name — plaintext org configuration, for rotation and fleet administration
-   * events. Named for the wire field, which predates the rename; `toAuditRow` carries it as
-   * `accessConnectorName` from here on.
+   * events.
    */
-  daemonName: string | null;
+  accessConnectorName: string | null;
   /** True when there's no human actor — a system / automatic event. */
   automated: boolean;
   /** True when the action's outcome never landed — only the write-ahead attempt, an in-doubt entry. */
@@ -129,7 +128,7 @@ export class AccessAuditEventResponse extends BaseResponse {
     this.collectionName = this.getResponseProperty("CollectionName") ?? null;
     this.ruleName = this.getResponseProperty("RuleName") ?? null;
     this.targetSystemName = this.getResponseProperty("TargetSystemName") ?? null;
-    this.daemonName = this.getResponseProperty("DaemonName") ?? null;
+    this.accessConnectorName = this.getResponseProperty("AccessConnectorName") ?? null;
     this.automated = this.getResponseProperty("Automated");
     this.incomplete = this.getResponseProperty("Incomplete") ?? false;
   }
