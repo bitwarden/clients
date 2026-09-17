@@ -13,6 +13,7 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { BerryComponent } from "../berry/berry.component";
 import { IconTileComponent } from "../icon-tile";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { TooltipDirective } from "../tooltip";
@@ -20,6 +21,7 @@ import { TooltipDirective } from "../tooltip";
 import { FilterMenuComponent } from "./filter-menu.component";
 import { FilterOptionComponent } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
+import { FilterOptionRow } from "./filter-tokens";
 
 const mockI18nService = { t: (key: string) => key };
 
@@ -81,6 +83,101 @@ describe("FilterMenuComponent", () => {
 
     expect(menu.isSelected("abc")).toBe(true);
     expect(menu.summary()).toBe("abc");
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu #multi key="type" placeholderText="Type" multiple>
+      <bit-filter-option [value]="'login'">Login</bit-filter-option>
+      <bit-filter-option [value]="'card'">Card</bit-filter-option>
+    </bit-filter-menu>
+    <bit-filter-menu #single key="vault" placeholderText="Vault">
+      <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class SelectionHostComponent {
+  readonly multi = viewChild.required<FilterMenuComponent>("multi");
+  readonly single = viewChild.required<FilterMenuComponent>("single");
+}
+
+describe("FilterMenuComponent selections", () => {
+  let fixture: ComponentFixture<SelectionHostComponent>;
+  let host: SelectionHostComponent;
+
+  /** The committed count the chip's berry shows; normally only a menu close updates it. */
+  const berryValue = (menu: FilterMenuComponent) =>
+    fixture.debugElement
+      .queryAll(By.directive(BerryComponent))
+      .map((el) => el.componentInstance as BerryComponent)
+      [menu === host.multi() ? 0 : 1].value();
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SelectionHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SelectionHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("pairs each selected option's label with the value that produced it", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([
+      { value: "login", label: "Login" },
+      { value: "card", label: "Card" },
+    ]);
+  });
+
+  it("drops a single selection and leaves the rest", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    host.multi().deselect("login");
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([{ value: "card", label: "Card" }]);
+    expect(host.multi().isSelected("login")).toBe(false);
+    expect(host.multi().active()).toBe(true);
+  });
+
+  it("commits the berry on deselect, since nothing closed the menu to do it", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+    expect(berryValue(host.multi())).toBe(2);
+
+    host.multi().deselect("login");
+    fixture.detectChanges();
+
+    expect(berryValue(host.multi())).toBe(1);
+  });
+
+  it("ignores a value that isn't selected", () => {
+    host.multi().setValue(["login"]);
+    fixture.detectChanges();
+
+    host.multi().deselect("card");
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([{ value: "login", label: "Login" }]);
+  });
+
+  it("leaves a single-select chip alone — it clears rather than deselects", () => {
+    host.single().setValue("mine");
+    fixture.detectChanges();
+
+    host.single().deselect("mine");
+    fixture.detectChanges();
+
+    expect(host.single().selections()).toEqual([{ value: "mine", label: "My vault" }]);
   });
 });
 
@@ -152,6 +249,89 @@ describe("FilterMenuComponent icon tiles", () => {
     expect(enabled.emphasis()).toBe("bold");
     expect(disabled.variant()).toBe("gray");
     expect(disabled.color()).toBeUndefined();
+  });
+});
+
+type Row = { value: string; label: string; options?: Row[] };
+
+/**
+ * A data-driven tree via `[options]`, the way a consumer builds an arbitrary-depth option tree
+ * from data rather than literal markup — see `FilterMenuComponent.options` /
+ * `FilterSectionComponent.options`.
+ */
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterSectionComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu key="test" placeholderText="Test" multiple [options]="grouped ? [] : rows">
+      @if (grouped) {
+        <bit-filter-section label="Group A" [options]="rows"></bit-filter-section>
+      }
+    </bit-filter-menu>
+  `,
+})
+class DataDrivenTreeHostComponent {
+  grouped = false;
+  rows: Row[] = [
+    { value: "parent", label: "Parent", options: [{ value: "child", label: "Child" }] },
+  ];
+}
+
+describe("FilterMenuComponent options built from FilterMenuComponent.options", () => {
+  async function setup(grouped: boolean): Promise<{
+    fixture: ComponentFixture<DataDrivenTreeHostComponent>;
+    menu: FilterMenuComponent;
+  }> {
+    await TestBed.configureTestingModule({
+      imports: [DataDrivenTreeHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(DataDrivenTreeHostComponent);
+    fixture.componentInstance.grouped = grouped;
+    fixture.detectChanges();
+    const menu = fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .componentInstance as FilterMenuComponent;
+    return { fixture, menu };
+  }
+
+  /** Finds a data-driven row by its value — these are plain objects, never stamped components. */
+  function findOption(menu: FilterMenuComponent, value: string): FilterOptionRow {
+    const option = (menu["allOptions"]() as FilterOptionRow[]).find((o) => o.value() === value);
+    if (!option) {
+      throw new Error(`No option found for value ${value}`);
+    }
+    return option;
+  }
+
+  it("selecting the parent selects its whole nested subtree (ungrouped)", async () => {
+    const { menu } = await setup(false);
+
+    expect(menu.isSelected("parent")).toBe(false);
+    menu["toggleOption"](findOption(menu, "parent"));
+    expect(menu.isSelected("parent")).toBe(true);
+    expect(menu.isSelected("child")).toBe(true);
+  });
+
+  it("keeps the tree nested rather than flattening it, and excludes descendant text from a label", async () => {
+    const { menu } = await setup(false);
+
+    expect(menu["entries"]().map((e) => (e as FilterOptionRow).value())).toEqual(["parent"]);
+    const parent = findOption(menu, "parent");
+    expect(parent.children().map((o) => o.value())).toEqual(["child"]);
+    expect(parent.label()).toBe("Parent");
+  });
+
+  it("groups the nested option's subtree under its bit-filter-section", async () => {
+    const { fixture, menu } = await setup(true);
+    const section = fixture.debugElement.query(By.directive(FilterSectionComponent))
+      .componentInstance as FilterSectionComponent;
+
+    expect(section.children().map((o) => o.value())).toEqual(["parent"]);
+    expect(section.allOptions().map((o) => o.value())).toEqual(["parent", "child"]);
+
+    menu["toggleOption"](findOption(menu, "parent"));
+    expect(menu.isSelected("child")).toBe(true);
   });
 });
 

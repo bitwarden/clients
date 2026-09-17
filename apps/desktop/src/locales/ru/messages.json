@@ -183,6 +183,9 @@
   "foldersFilterTooltip": {
     "message": "Добавить папки к элементам, чтобы отфильтровать их здесь."
   },
+  "myItemsFilterTooltip": {
+    "message": "Добавьте элементы в Мои элементы, чтобы отфильтровать их здесь."
+  },
   "sharedFolderFilterTooltip": {
     "message": "Добавляйте элементы в общую папку для фильтрации здесь."
   },
@@ -802,16 +805,25 @@
   "decryptionError": {
     "message": "Ошибка расшифровки"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden не удалось расшифровать указанный ниже элемент хранилища. Обратитесь в службу поддержки Bitwarden и сообщите указанный ниже ID элемента, чтобы выяснить, можно ли его восстановить."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Обратитесь в службу поддержки,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden не удалось расшифровать указанные ниже элементы хранилища. Обратитесь в службу поддержки Bitwarden и сообщите указанные ниже ID элементов, чтобы выяснить, можно ли их восстановить."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "чтобы избежать дополнительной потери данных.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID элемента",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID элементов",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Скопировать ID"
+  },
+  "copyAllIds": {
+    "message": "Скопировать все ID"
   },
   "january": {
     "message": "Январь"
@@ -5982,6 +5994,9 @@
   "enableAutotypeShortcutPreview": {
     "message": "Включить сочетание клавиш ввода (предварительная версия функции)"
   },
+  "enableAutotypeGaShortcut": {
+    "message": "Включить ярлык автоввода"
+  },
   "enableAutotypeShortcutDescription": {
     "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
   },
@@ -6848,5 +6863,80 @@
   },
   "editItemsHidePass": {
     "message": "Изменение элементов, пароли скрыты"
+  },
+  "shareVerb": {
+    "message": "Поделиться"
+  },
+  "peopleWhoCanView": {
+    "message": "Люди, которые могут просматривать",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "После того, как вы поделитесь этой ссылкой необходимо будет подтвердить свой адрес email с помощью кода, чтобы просмотреть элемент.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Ссылка перестанет действовать после указанной даты, однако получатели могут сохранить ранее переданную информацию. Чтобы отозвать доступ, необходимо заново сгенерировать учетные данные.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Ссылка истекает через",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Одноразовая ссылка",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Активные ссылки",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Ссылка скопирована в буфер обмена",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не удается создать ссылку общего доступа",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Ссылка сохранена и скопирована в буфер обмена",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Не удалось скопировать ссылку общего доступа в буфер обмена",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Ссылка общего доступа удалена",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Не удалось удалить ссылку общего доступа",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Поделиться по ссылке",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Поделиться элементом хранилища $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Истекает",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Истекает",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Неизвестный элемент. Вам может потребоваться запросить разрешение на доступ к этому элементу."
   }
 }

@@ -50,7 +50,7 @@ import { StatusLockupComponent } from "../status-lockup";
 import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
-import { FilterOptionComponent } from "./filter-option.component";
+import { FilterOptionNode } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
 import {
   FILTER_CONTROL,
@@ -61,11 +61,16 @@ import {
   FILTER_TREE_HOST,
   FilterControl,
   FilterEntry,
+  FilterOptionRow,
   FilterRow,
   FilterGroup,
   FilterPresenter,
+  FilterSelection,
   FilterTreeHost,
   FilterTreeNode,
+  buildDataEntries,
+  createFilterOptionOpenState,
+  flattenFilterOptions,
 } from "./filter-tokens";
 import { FilterTreeRowDirective } from "./filter-tree-row.directive";
 
@@ -197,6 +202,15 @@ export class FilterMenuComponent
   readonly multiple = input(false, { transform: booleanAttribute });
 
   /**
+   * A data-driven option tree — renders the full nested structure without any
+   * `bit-filter-option` markup in the consumer's template. When set (non-empty), it takes
+   * precedence over any projected `bit-filter-option` content, which is otherwise ignored —
+   * set a node's `dividerBefore` for a pinned row that needs to stand apart from the rest of
+   * the tree, rather than projecting a divider.
+   */
+  readonly options = input<FilterOptionNode<unknown>[]>([]);
+
+  /**
    * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
    * {@link disabled} is true. Pass an already-localized string.
    */
@@ -218,17 +232,45 @@ export class FilterMenuComponent
   private readonly _searchTerm = signal("");
   readonly searchTerm = this._searchTerm.asReadonly();
 
-  /**
-   * Top-level entries (loose options and sections) in document order. Instantiated
-   * eagerly in a hidden slot, so this is populated before the menu ever opens.
-   */
-  protected readonly entries = contentChildren(FILTER_ENTRY);
+  /** Top-level entries from projected content — options, sections, and dividers. */
+  private readonly _contentEntries = contentChildren(FILTER_ENTRY);
+
+  /** Persists each data-driven row's expanded state across rebuilds of {@link _dataEntries}. */
+  private readonly _openState = createFilterOptionOpenState();
+
+  /** Top-level entries built from {@link options} — plain data, never stamped as components. */
+  private readonly _dataEntries = computed<readonly FilterEntry[]>(() =>
+    buildDataEntries(this.options(), this._openState),
+  );
+
+  /** All top-level entries, prioritizing data-driven options over projected content. */
+  protected readonly entries = computed(() => {
+    if (this._dataEntries().length > 0) {
+      return this._dataEntries();
+    }
+    return this._contentEntries();
+  });
 
   /** Every option (including those nested in sections) — for the summary, search, and threshold. */
-  private readonly allOptions = contentChildren(FilterOptionComponent, { descendants: true });
+  private readonly allOptions = computed(() => {
+    const topLevelOptions = this.entries().flatMap((entry): FilterOptionRow[] => {
+      if (entry.kind === "option") {
+        return [entry as FilterOptionRow];
+      }
+      if (entry.kind === "section") {
+        return [...(entry as FilterSectionComponent).children()];
+      }
+      return [];
+    });
+    return flattenFilterOptions(topLevelOptions);
+  });
 
-  /** The selected options' labels, e.g. ["Login"]. Eager (options always exist), so it's never stale. */
-  private readonly labels = signal<string[]>([]);
+  /**
+   * The selected options, e.g. `[{ value: "login", label: "Login" }]`. Eager (options always
+   * exist), so it's never stale. Each label is paired with its value so {@link deselect} can
+   * remove one selection.
+   */
+  private readonly selected = signal<FilterSelection[]>([]);
 
   /**
    * `bitMenuItem`'s look plus the flex layout, shared by every row. Section headers use
@@ -276,8 +318,8 @@ export class FilterMenuComponent
   protected readonly displayLabel = computed(() => {
     const prefix = this.placeholderText();
     // Single-select reflects the selected value in the label; multi-select doesn't.
-    if (!this.multiple() && this.labels().length > 0) {
-      return `${prefix}: ${this.labels().join(", ")}`;
+    if (!this.multiple() && this.selected().length > 0) {
+      return `${prefix}: ${this.summary()}`;
     }
     if (this.active()) {
       return prefix;
@@ -319,10 +361,14 @@ export class FilterMenuComponent
   readonly label = this.placeholderText;
 
   /** @see FilterPresenter.summary — the selected option labels, e.g. "Login". */
-  readonly summary = computed(() => this.labels().join(", "));
+  readonly summary = computed(() =>
+    this.selected()
+      .map((selection) => selection.label)
+      .join(", "),
+  );
 
-  /** @see FilterPresenter.summaryLabels */
-  readonly summaryLabels = this.labels.asReadonly();
+  /** @see FilterPresenter.selections */
+  readonly selections = this.selected.asReadonly();
 
   /**
    * The menu body as a template, so the popover and the dialog's drill-in stamp the
@@ -331,7 +377,7 @@ export class FilterMenuComponent
   readonly optionsTemplate = viewChild<TemplateRef<unknown>>("optionsBody");
 
   /** Whether any option has children — nesting requires `multiple`. */
-  protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.hasChildren()));
+  protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.expandable()));
 
   /** Whether the menu has enough options to warrant the in-menu search box. */
   protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
@@ -366,10 +412,11 @@ export class FilterMenuComponent
 
   /**
    * The count shown on each option row, keyed by the option: its explicit `count` if
-   * set, else the host's count for this chip's `key` pinned to the option's value.
+   * set, else the host's count for this chip's `key`. In `multiple` mode the count uses the
+   * option's full subtree of values so a parent row reflects the same item set its click selects.
    */
   protected readonly optionCounts = computed(() => {
-    const counts = new Map<FilterOptionComponent, number | undefined>();
+    const counts = new Map<FilterOptionRow, number | undefined>();
     const host = this.filterHost;
     const key = this.key();
     const multiple = this.multiple();
@@ -383,7 +430,7 @@ export class FilterMenuComponent
       if (!resolved) {
         continue;
       }
-      const pinned = multiple ? [resolved.value] : resolved.value;
+      const pinned = multiple ? this.subtreeValues(option) : resolved.value;
       counts.set(option, host?.optionCount?.(key, pinned));
     }
     return counts;
@@ -397,7 +444,7 @@ export class FilterMenuComponent
    * `value`. Reading the input still registers a signal dependency even though it throws,
    * so the caller re-runs once the value resolves.
    */
-  private optionValue(option: FilterOptionComponent): { value: unknown } | undefined {
+  private optionValue(option: FilterOptionRow): { value: unknown } | undefined {
     try {
       return { value: option.value() };
     } catch {
@@ -421,14 +468,14 @@ export class FilterMenuComponent
       if (options.length === 0) {
         return;
       }
-      const labels: string[] = [];
+      const selected: FilterSelection[] = [];
       for (const option of options) {
         const resolved = this.optionValue(option);
         if (resolved && this.isSelected(resolved.value)) {
-          labels.push(option.label());
+          selected.push({ value: resolved.value, label: option.label() });
         }
       }
-      this.labels.set(labels);
+      this.selected.set(selected);
     });
     effect(() => this.baseChip.selectedState.set(this.active()));
     // Otherwise only committed on menu close, leaving a stale berry on the chip.
@@ -451,11 +498,11 @@ export class FilterMenuComponent
     this.destroyRef.onDestroy(() => host.unregisterFilter(this));
   }
 
-  protected tileVariant(option: FilterOptionComponent): IconTileVariant {
+  protected tileVariant(option: FilterOptionRow): IconTileVariant {
     return resolveIconTileVariant(option.iconTile(), option.disabled());
   }
 
-  protected tileColor(option: FilterOptionComponent): string | undefined {
+  protected tileColor(option: FilterOptionRow): string | undefined {
     return resolveIconTileColor(option.iconTile(), option.disabled());
   }
 
@@ -465,8 +512,8 @@ export class FilterMenuComponent
   }
 
   /** Narrows an entry to a loose option for the template (else `null`). */
-  protected asOption(entry: FilterEntry): FilterOptionComponent | null {
-    return entry.kind === "option" ? (entry as FilterOptionComponent) : null;
+  protected asOption(entry: FilterEntry): FilterOptionRow | null {
+    return entry.kind === "option" ? (entry as FilterOptionRow) : null;
   }
 
   /** A parent stays visible when a child matches; a section has no label of its own to match. */
@@ -519,8 +566,8 @@ export class FilterMenuComponent
   }
 
   /** Whether anything in this run of options, at any depth, can expand. */
-  private groupExpands(options: readonly FilterOptionComponent[]): boolean {
-    return options.some((option) => option.hasChildren() || this.groupExpands(option.children()));
+  private groupExpands(options: readonly FilterOptionRow[]): boolean {
+    return options.some((option) => option.expandable() || this.groupExpands(option.children()));
   }
 
   /** The multi-select rows, flattened in document order, each carrying its own level. */
@@ -625,7 +672,7 @@ export class FilterMenuComponent
     if (node.row.kind === "section") {
       return null;
     }
-    const option = node.row as FilterOptionComponent;
+    const option = node.row as FilterOptionRow;
     if (this.partiallySelected(option)) {
       return "mixed";
     }
@@ -635,13 +682,13 @@ export class FilterMenuComponent
   /** Section headers aren't selectable, so they expand instead. */
   activateNode(node: FilterTreeNode): void {
     if (node.row.kind === "option") {
-      this.toggleOption(node.row as FilterOptionComponent);
+      this.toggleOption(node.row as FilterOptionRow);
     } else {
       node.row.toggleExpanded();
     }
   }
 
-  private subtreeValues(option: FilterOptionComponent): unknown[] {
+  private subtreeValues(option: FilterOptionRow): unknown[] {
     const own = this.optionValue(option);
     const values = own ? [own.value] : [];
     for (const child of option.children()) {
@@ -651,12 +698,12 @@ export class FilterMenuComponent
   }
 
   /** Whether a row draws selected: a leaf's own value, or a parent's whole subtree. */
-  protected optionSelected(option: FilterOptionComponent): boolean {
+  protected optionSelected(option: FilterOptionRow): boolean {
     const values = this.subtreeValues(option);
     return values.length > 0 && values.every((value) => this.isSelected(value));
   }
 
-  protected partiallySelected(option: FilterOptionComponent): boolean {
+  protected partiallySelected(option: FilterOptionRow): boolean {
     const values = this.subtreeValues(option);
     return (
       values.some((value) => this.isSelected(value)) && !values.every((v) => this.isSelected(v))
@@ -664,7 +711,7 @@ export class FilterMenuComponent
   }
 
   /** Selecting a row selects everything beneath it; clearing it clears the same set. */
-  protected toggleOption(option: FilterOptionComponent): void {
+  protected toggleOption(option: FilterOptionRow): void {
     const values = this.subtreeValues(option);
     if (!this.multiple() || values.length <= 1) {
       this.toggle(values[0]);
@@ -761,10 +808,26 @@ export class FilterMenuComponent
     focusAfterRender(this.injector, () => this.chipTriggerEl()?.nativeElement);
   }
 
+  /**
+   * @see FilterPresenter.deselect
+   *
+   * Removes the value rather than calling {@link toggle}, which would re-add it if the chip
+   * no longer holds it.
+   */
+  deselect(value: unknown): void {
+    if (!this.multiple()) {
+      return;
+    }
+    const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
+    this._value.set(current.filter((v) => v !== value));
+    // The menu never closed, so commit the berry count here instead of in `onMenuClosed`.
+    this.committedCount.set(this.selectedCount());
+  }
+
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */
   clear(): void {
     this._value.set(this.clearedValue());
-    this.labels.set([]);
+    this.selected.set([]);
     this.committedCount.set(0);
   }
 
