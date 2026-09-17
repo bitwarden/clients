@@ -238,12 +238,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService, IpcService],
+    deps: [TokenService, BiometricStateService, IpcService, LogService],
   }),
   safeProvider({
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService, IpcService],
+    deps: [TokenService, BiometricStateService, IpcService, LogService],
   }),
   safeProvider({
     provide: DeviceManagementComponentServiceAbstraction,
@@ -354,7 +354,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SECURE_STORAGE,
     useClass: ElectronRendererSecureStorageService,
-    deps: [],
+    deps: [LogService],
   }),
   safeProvider({ provide: MEMORY_STORAGE, useClass: MemoryStorageService, deps: [] }),
   safeProvider({

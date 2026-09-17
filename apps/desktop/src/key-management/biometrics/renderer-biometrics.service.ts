@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { toSdkBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -29,6 +30,10 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
 // should only happen after shared unlock has rolled out since otherwise the desktop app
 // inadvertently gets unlocked but not locked again.
 const SET_USERKEY_UNLOCK = false;
+
+const UNLOCK_TRACK_GROUP = "Unlock";
+const AUTHENTICATE_TRACK = "Biometrics authenticate";
+const UNLOCK_TRACK = "Biometrics unlock";
 
 /**
  * SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
@@ -76,12 +81,18 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     private tokenService: TokenService,
     private biometricStateService: BiometricStateService,
     private ipcService: IpcService,
+    private logService: LogService,
   ) {
     super();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
-    return await ipc.keyManagement.biometric.authenticateWithBiometrics();
+    const start = performance.now();
+    const authenticated = await ipc.keyManagement.biometric.authenticateWithBiometrics();
+    // Spans the OS prompt, so the duration is mostly the user's own response time.
+    this.logService.measure(start, UNLOCK_TRACK_GROUP, AUTHENTICATE_TRACK, "authenticate");
+
+    return authenticated;
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
@@ -89,7 +100,10 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+    const start = performance.now();
     const userKey = await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
+    this.logService.measure(start, UNLOCK_TRACK_GROUP, UNLOCK_TRACK, "unlock");
+
     if (userKey == null) {
       return null;
     }

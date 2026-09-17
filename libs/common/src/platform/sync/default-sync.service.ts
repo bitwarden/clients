@@ -63,6 +63,9 @@ import { CoreSyncService } from "./core-sync.service";
 import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
 
+const SYNC_TRACK_GROUP = "Sync";
+const FULL_SYNC_TRACK = "Full sync";
+
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
 
@@ -132,10 +135,16 @@ export class DefaultSyncService extends CoreSyncService {
         ? { allowThrowOnError: allowThrowOnErrorOrOptions }
         : (allowThrowOnErrorOrOptions ?? {});
 
+    const syncStart = performance.now();
+    // Spans the whole sync, named after its outcome, e.g. "Full sync: completed".
+    const measureSync = (outcome: string) =>
+      this.logService.measure(syncStart, SYNC_TRACK_GROUP, FULL_SYNC_TRACK, outcome);
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
+      measureSync("logged out");
       return this.syncCompleted(false, userId);
     }
 
@@ -147,6 +156,7 @@ export class DefaultSyncService extends CoreSyncService {
     } catch (e) {
       needsSyncSucceeded = false;
       if (allowThrowOnError) {
+        measureSync("failed");
         this.syncCompleted(false, userId);
         throw e;
       }
@@ -156,6 +166,7 @@ export class DefaultSyncService extends CoreSyncService {
       if (needsSyncSucceeded) {
         await this.setLastSync(now, userId);
       }
+      measureSync("not needed");
       return this.syncCompleted(false, userId);
     }
 
@@ -199,8 +210,11 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
+      measureSync("completed");
       return this.syncCompleted(true, userId);
     } catch (e) {
+      measureSync("failed");
+
       if (allowThrowOnError) {
         this.syncCompleted(false, userId);
         throw e;

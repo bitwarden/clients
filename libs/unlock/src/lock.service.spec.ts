@@ -70,6 +70,10 @@ describe("DefaultLockService", () => {
       keyService,
     );
 
+    beforeEach(() => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+    });
+
     it("locks the active account last", async () => {
       await accountService.addAccount(
         mockUser2,
@@ -99,6 +103,21 @@ describe("DefaultLockService", () => {
 
       // Active user should be called last
       expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual, true);
+    });
+
+    it("skips already locked users", async () => {
+      authService.authStatusFor$.mockImplementation((userId) =>
+        of(userId === mockUser2 ? AuthenticationStatus.Locked : AuthenticationStatus.Unlocked),
+      );
+
+      const lockSpy = jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
+      lockSpy.mockClear();
+
+      await sut.lockAll(LockSource.Manual);
+
+      expect(lockSpy).not.toHaveBeenCalledWith(mockUser2, expect.anything(), expect.anything());
     });
 
     it("reloads the process once, after all users are locked", async () => {

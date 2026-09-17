@@ -22,6 +22,11 @@ import { LockSource } from "./lock-source.enum";
 const SuppressProcessReload = true;
 const PerformProcessReload = false;
 
+const UNLOCK_TRACK_GROUP = "Unlock";
+const LOCK_EVENTS_TRACK = "Lock events";
+/** A lock event is a point in time; give it a width so it stays visible on the track. */
+const LOCK_EVENT_DURATION_MS = 50;
+
 export abstract class LockService {
   /**
    * Locks all accounts.
@@ -90,18 +95,29 @@ export class DefaultLockService implements LockService {
     // Process reload is suppressed for the individual locks and done once at the
     // end, so a reload cannot cut the remaining locks short.
     for (const otherAccount of accounts.otherAccounts) {
+      if (!(await this.needsLock(otherAccount))) {
+        continue;
+      }
+
       await this.lockUser(otherAccount, source, SuppressProcessReload);
     }
 
     // Do the active account last in case we ever try to route the user on lock
     // that way this whole operation will be complete before that routing
     // could take place.
-    if (accounts.activeAccount != null) {
+    if (accounts.activeAccount != null && (await this.needsLock(accounts.activeAccount))) {
       await this.lockUser(accounts.activeAccount, source, SuppressProcessReload);
     }
 
     // Wipe the current process to clear active secrets in memory.
     await this.processReloadService.reloadProcess();
+  }
+
+  /** An already locked user has nothing to lock. */
+  private async needsLock(userId: UserId): Promise<boolean> {
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+
+    return authStatus !== AuthenticationStatus.Locked;
   }
 
   async lock(userId: UserId, source: LockSource): Promise<void> {
@@ -116,6 +132,14 @@ export class DefaultLockService implements LockService {
     assertNonNullish(userId, "userId", "LockService");
 
     this.logService.info(`[LockService] Locking user ${userId}`);
+
+    // Entry named after what caused the lock, e.g. "vaultTimeout".
+    this.logService.measure(
+      performance.now() - LOCK_EVENT_DURATION_MS,
+      UNLOCK_TRACK_GROUP,
+      LOCK_EVENTS_TRACK,
+      source,
+    );
 
     // If user already logged out, then skip locking
     if (
@@ -139,6 +163,7 @@ export class DefaultLockService implements LockService {
     await this.runPlatformOnLockActions(userId, source);
 
     this.logService.info(`[LockService] Locked user ${userId}`);
+    this.logService.mark("Vault locked");
 
     // Subscribers navigate the client to the lock screen based on this lock message.
     // We need to disable auto-prompting as we are just entering a locked state now.

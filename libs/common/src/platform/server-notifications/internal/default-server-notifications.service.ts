@@ -49,6 +49,10 @@ import { WebPushConnectionService } from "./webpush-connection.service";
 
 export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
+const NOTIFICATIONS_TRACK_GROUP = "Notifications";
+const INCOMING_NOTIFICATIONS_TRACK = "Incoming notifications";
+const EVENT_DURATION_MS = 1;
+
 export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
   NotificationType.AuthRequest,
   NotificationType.AutoConfirmMember,
@@ -362,6 +366,15 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     return this.notifications$
       .pipe(
         mergeMap(async ([notification, userId]) => {
+          // One entry per incoming notification, e.g. "SyncCipherUpdate". Point-in-time event, so
+          // it gets a fixed duration to stay visible on the devtools track.
+          this.logService.measure(
+            performance.now() - EVENT_DURATION_MS,
+            NOTIFICATIONS_TRACK_GROUP,
+            INCOMING_NOTIFICATIONS_TRACK,
+            NotificationType[notification.type] ?? `Unknown (${notification.type})`,
+          );
+
           try {
             await this.processNotification(notification, userId);
           } catch (err: unknown) {
