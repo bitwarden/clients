@@ -30,7 +30,7 @@
     "message": "არცერთი კრიტიკული აპლიკაცია არ არის რისკის ქვეშ"
   },
   "critical": {
-    "message": "კრიტიკული",
+    "message": "Critical ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -39,7 +39,7 @@
     }
   },
   "notCritical": {
-    "message": "არაკრიტიკული",
+    "message": "Not critical ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -81,7 +81,7 @@
     "message": "Review at-risk logins"
   },
   "dataLastUpdated": {
-    "message": "მონაცემები ბოლოს განახლებულია",
+    "message": "Data last updated: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
