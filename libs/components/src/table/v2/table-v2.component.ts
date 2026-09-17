@@ -661,10 +661,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
   }
 
-  /**
-   * The click mutates the checkbox before this runs, and Angular writes a binding only when its
-   * value changes — so an aggregate landing on the value it already held leaves the box stale.
-   */
+  /** Keeps the checkbox in sync with the selection, which the bindings alone don't guarantee. */
   protected onToggleAll(event: Event, sel: TableSelectionModel<T>): void {
     sel.toggleAll();
     const input = event.target as HTMLInputElement;
