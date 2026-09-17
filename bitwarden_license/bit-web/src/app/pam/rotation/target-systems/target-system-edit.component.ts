@@ -24,9 +24,11 @@ import {
   CalloutModule,
   CardComponent,
   CheckboxModule,
+  CopyClickDirective,
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  IconButtonModule,
   IconModule,
   RadioButtonModule,
   SectionComponent,
@@ -174,8 +176,10 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     CalloutModule,
     CardComponent,
     CheckboxModule,
+    CopyClickDirective,
     FormFieldModule,
     HeaderComponent,
+    IconButtonModule,
     IconModule,
     RadioButtonModule,
     SectionComponent,
@@ -227,6 +231,15 @@ export class TargetSystemEditComponent {
   protected readonly skeletonFields = [0, 1, 2, 3];
 
   protected readonly existing = signal<TargetSystem | null>(null);
+
+  /**
+   * The id an access connector's config file keys this target's rotation script on. Read off the
+   * stored record rather than the route, which reaches this page in either case.
+   */
+  protected readonly systemIdText = computed(() => {
+    const id = this.existing()?.id;
+    return id == null ? null : uuidAsString(id);
+  });
 
   /**
    * The i18n key naming this system's integration, or null for a kind this version cannot model.
