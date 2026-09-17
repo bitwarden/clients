@@ -95,9 +95,6 @@ export default {
               sharedFoldersInParent: (name) => `Shared folders in ${name}`,
               sharedFolderCount: (count) => `${count} shared folders`,
               sharedFolderSingular: (count) => `${count} shared folder`,
-              moreSharedFoldersShownAbove: (count) =>
-                `${count} more shared folders shown above this button`,
-              moreSharedFoldersShownAboveSingular: `1 more shared folder shown above this button`,
               showAll: "Show all",
               showLess: "Show less",
             }),
