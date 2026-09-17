@@ -276,6 +276,8 @@ const buildCreditRow = (
  * invoice is only applied up to the invoice total, and the difference between the two
  * server-supplied figures is exactly what Stripe consumed. `startingBalance` gates the row so the
  * "Account credit" label is only shown when a credit balance is what closed the gap.
+ *
+ * No debit-balance row: the server omits `startingBalance` unless it is negative.
  */
 const buildAccountCreditRow = (preview: InvoicePreview): Cart["accountCredit"] => {
   if (preview.startingBalance === undefined || preview.startingBalance >= 0) {
