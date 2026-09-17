@@ -364,8 +364,8 @@ config {
 -- path is gated — every collection through which THIS member reaches the cipher
 -- carries an enabled AccessRule. If even one of those collections has no rule,
 -- the member already has ungated access, so the cipher opens normally and the
--- rule on the other collection cannot gate it. This is a real bypass; admins are
--- warned of it via RuleBypassableCiphers (see AccessRulesAdminPage).
+-- rule on the other collection cannot gate it. This is a real bypass, and it is
+-- currently SILENT to admins (see RuleBypassableCiphers).
 --
 -- This determination is authoritative on the SERVER. Opening a gated cipher is a
 -- server round-trip, and the server runs exactly this calculation — the member's
@@ -503,8 +503,8 @@ rule CipherOpenWithApprovedRequest {
 rule CipherOpenPassthrough {
     -- Opens normally: either the member is in no collection containing the
     -- cipher, or they reach it through at least one collection with no enabled
-    -- rule — so gating does not apply (union-based collection access; admins are
-    -- warned of the bypass via RuleBypassableCiphers).
+    -- rule — so gating does not apply (union-based collection access; the bypass
+    -- is not surfaced to admins — see RuleBypassableCiphers).
     when: OpenCipher(caller, target_cipher)
     let member_memberships = CollectionMembership where member = caller
                                                     and collection in target_cipher.collections
@@ -1243,9 +1243,9 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- `RuleBypassableCiphers(rule)`: the ciphers in this rule's collections that a
 -- member could also reach through some collection with NO enabled access rule —
 -- so the rule's gating does not actually protect them (see the cipher-open
--- gating logic). Drives an admin warning that the rule is bypassable. Empty when
--- the rule's collections share no ciphers with ungated collections. Computed
--- server-side (it must scan ciphers and their collection membership).
+-- gating logic). Empty when the rule's collections share no ciphers with ungated
+-- collections. Computed server-side (it must scan ciphers and their collection
+-- membership).
 --
 -- This is the PER-PATH bypass. The org-wide export permission is a separate,
 -- per-caller one that no rule-level warning captures — see
@@ -1255,6 +1255,11 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- the collection -- the admin being warned -- has none of those ciphers there, so the cipher list
 -- would be empty for exactly the person who needs it. The collections are reliably nameable by any
 -- admin and are what remediation acts on. A non-empty list is the warning condition.
+--
+-- NOT SURFACED: the server computes it, but no surface exposes it. The admin-console warning it
+-- drove was removed because the predicate is collection-level and not member-aware, so it warned
+-- about ungated collections nobody is assigned to. Re-exposing it needs the member expansion
+-- first.
 deferred RuleBypassableCiphers    -- see: server-side ListRuleBypassableCiphersQuery
 
 -- `CanExportOrganizationVault(member, organization)`: whether the member holds the
@@ -1594,10 +1599,6 @@ surface AccessRulesAdminPage {
             rule.enabled
             rule.revision_date
             rule.last_edited_by
-            -- Ciphers this rule fails to protect because they are also reachable
-            -- via an ungated collection. Non-empty → warn the admin the rule is
-            -- bypassable.
-            RuleBypassableCiphers(rule)
 
     provides:
         CreateAccessRule(admin, org, name, description, conditions,
