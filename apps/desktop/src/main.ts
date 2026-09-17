@@ -363,106 +363,109 @@ export class Main {
     });
   }
 
-  bootstrap() {
+  async bootstrap() {
     this.desktopCredentialStorageListener.init();
     this.mainBiometricsIpcListener.init();
+
     // Run migrations first, then other things
-    this.migrationRunner.run().then(
-      async () => {
-        // Autostart should start to tray, but only when running in the background is
-        // enabled; otherwise there would be a hidden window with no tray icon to bring
-        // it back.
-        const startHidden =
-          isAutostartLaunch() &&
-          (await firstValueFrom(this.desktopSettingsService.runInBackground$));
+    try {
+      await this.migrationRunner.run();
+    } catch (e) {
+      this.logService.error("Error while running migrations:", e);
+      return;
+    }
 
-        await this.toggleHardwareAcceleration();
-        // Reset modal mode to make sure main window is displayed correctly
-        await this.desktopSettingsService.resetModalMode();
+    await this.toggleHardwareAcceleration();
+    // Reset modal mode to make sure main window is displayed correctly
+    await this.desktopSettingsService.resetModalMode();
 
-        // Showing the window then hiding it quickly triggers a bug in Kwin
-        // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
-        // starting hidden.
-        await this.windowMain.init(!startHidden);
-        this.ssoCookieMain.init(this.windowMain.session);
-        await this.i18nService.init();
-        await this.messagingMain.init();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.menuMain.init();
-        const trayName = this.i18nService.t(
-          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
-        );
-        await this.trayMain.init(trayName, [
-          {
-            label: this.i18nService.t("lockVault"),
-            enabled: false,
-            id: "lockVault",
-            click: () => this.messagingService.send("lockVault"),
-          },
-        ]);
+    // Everything past this point needs a ready app: the autostart signal is only
+    // populated once Electron has finished launching, and no window can be created
+    // before then. Anything that must run earlier (hardware acceleration) has to stay
+    // above this line.
+    await app.whenReady();
 
-        if (startHidden) {
-          this.trayMain.hideToTray();
-        }
+    // Autostart should start to tray, but only when running in the background is
+    // enabled; otherwise there would be a hidden window with no tray icon to bring
+    // it back.
+    const startHidden =
+      isAutostartLaunch() && (await firstValueFrom(this.desktopSettingsService.runInBackground$));
 
-        this.powerMonitorMain.init();
-        await this.updaterMain.init();
-
-        const [ddgIntegrationEnabled] = await Promise.all([
-          firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
-        ]);
-
-        if (ddgIntegrationEnabled) {
-          try {
-            await this.nativeMessagingMain.generateDdgManifests();
-          } catch (err) {
-            this.logService.error(
-              "Error while generating DuckDuckGo native messaging manifests:",
-              err,
-            );
-          }
-        }
-
-        try {
-          await this.nativeMessagingMain.generateManifests();
-          await this.nativeMessagingMain.listen();
-        } catch (err) {
-          this.logService.error("Error while setting up native messaging:", err);
-        }
-
-        app.removeAsDefaultProtocolClient("bitwarden");
-        if (process.env.NODE_ENV === "development" && process.platform === "win32") {
-          // Fix development build on Windows requiring a different protocol client
-          app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
-            process.argv[1],
-            path.resolve(process.argv[2]),
-          ]);
-        } else {
-          app.setAsDefaultProtocolClient("bitwarden");
-        }
-
-        // Process protocol for macOS
-        app.on("open-url", (event, url) => {
-          event.preventDefault();
-          this.processDeepLink([url]);
-        });
-
-        // Handle window visibility events
-        this.windowMain.win.on("hide", () => {
-          this.messagingService.send("windowHidden");
-        });
-        this.windowMain.win.on("minimize", () => {
-          this.messagingService.send("windowHidden");
-        });
-
-        await this.sdkLoadService.loadAndInit();
-        await this.ipcService.init();
-      },
-      (e: any) => {
-        this.logService.error("Error while running migrations:", e);
-      },
+    // Showing the window then hiding it quickly triggers a bug in Kwin
+    // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
+    // starting hidden.
+    await this.windowMain.init(!startHidden);
+    this.ssoCookieMain.init(this.windowMain.session);
+    await this.i18nService.init();
+    await this.messagingMain.init();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.menuMain.init();
+    const trayName = this.i18nService.t(
+      flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
     );
+    await this.trayMain.init(trayName, [
+      {
+        label: this.i18nService.t("lockVault"),
+        enabled: false,
+        id: "lockVault",
+        click: () => this.messagingService.send("lockVault"),
+      },
+    ]);
+
+    if (startHidden) {
+      this.trayMain.hideToTray();
+    }
+
+    this.powerMonitorMain.init();
+    await this.updaterMain.init();
+
+    const [ddgIntegrationEnabled] = await Promise.all([
+      firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
+    ]);
+
+    if (ddgIntegrationEnabled) {
+      try {
+        await this.nativeMessagingMain.generateDdgManifests();
+      } catch (err) {
+        this.logService.error("Error while generating DuckDuckGo native messaging manifests:", err);
+      }
+    }
+
+    try {
+      await this.nativeMessagingMain.generateManifests();
+      await this.nativeMessagingMain.listen();
+    } catch (err) {
+      this.logService.error("Error while setting up native messaging:", err);
+    }
+
+    app.removeAsDefaultProtocolClient("bitwarden");
+    if (process.env.NODE_ENV === "development" && process.platform === "win32") {
+      // Fix development build on Windows requiring a different protocol client
+      app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
+        process.argv[1],
+        path.resolve(process.argv[2]),
+      ]);
+    } else {
+      app.setAsDefaultProtocolClient("bitwarden");
+    }
+
+    // Process protocol for macOS
+    app.on("open-url", (event, url) => {
+      event.preventDefault();
+      this.processDeepLink([url]);
+    });
+
+    // Handle window visibility events
+    this.windowMain.win.on("hide", () => {
+      this.messagingService.send("windowHidden");
+    });
+    this.windowMain.win.on("minimize", () => {
+      this.messagingService.send("windowHidden");
+    });
+
+    await this.sdkLoadService.loadAndInit();
+    await this.ipcService.init();
   }
 
   private processDeepLink(argv: string[]): void {

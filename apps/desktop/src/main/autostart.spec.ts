@@ -27,6 +27,8 @@ describe("isAutostartLaunch", () => {
       process.argv = ["bitwarden", AUTOSTART_FLAG];
 
       expect(isAutostartLaunch()).toBe(true);
+      // The flag is authoritative, so no platform has to consult the OS.
+      expect(app.getLoginItemSettings).not.toHaveBeenCalled();
     },
   );
 

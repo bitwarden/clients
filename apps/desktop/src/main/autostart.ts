@@ -13,6 +13,10 @@ export const AUTOSTART_FLAG = "--autostart";
  * Linux passes {@link AUTOSTART_FLAG} through the `.desktop` file or the
  * Flatpak portal command, and Windows through the login-item `args`. macOS
  * drops login-item arguments entirely, so there we ask the OS directly.
+ *
+ * Must only be called once the app is ready: macOS captures the answer while
+ * handling the launch event that emits `ready`, and reports a launch by the
+ * user until then.
  */
 export function isAutostartLaunch(): boolean {
   if (process.argv.includes(AUTOSTART_FLAG)) {

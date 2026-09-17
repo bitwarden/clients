@@ -43,5 +43,8 @@ if (
   const Main = require("./main").Main;
 
   const main = new Main();
-  main.bootstrap();
+  main.bootstrap().catch((e: unknown) => {
+    // eslint-disable-next-line no-console
+    console.error("Error while bootstrapping the main process", e);
+  });
 }
