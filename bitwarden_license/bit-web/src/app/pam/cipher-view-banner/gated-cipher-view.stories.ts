@@ -39,6 +39,7 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item-details-state-badge.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { MyLeasesService } from "../services/my-leases.service";
 import {
   HOUR,
   accessRequest,
@@ -144,7 +145,11 @@ function provideStoryCipherView() {
  * No active-lease story, since that state only badges in the banner heading — see
  * `ItemDetailsStateBadgeComponent`.
  */
-function gated(state: () => Record<string, unknown>) {
+function gated(
+  state: () => Record<string, unknown>,
+  terms: { mode?: "automatic" | "human"; maxDurationSeconds?: number } = {},
+) {
+  const { mode = "automatic", maxDurationSeconds = 4 * 60 * 60 } = terms;
   return moduleMetadata({
     imports: [CipherViewBannerComponent, ItemDetailsStateBadgeComponent],
     providers: [
@@ -156,9 +161,9 @@ function gated(state: () => Record<string, unknown>) {
           getCipherAccessState: () => Promise.resolve(state()),
           preCheck: () =>
             Promise.resolve({
-              approvalMode: "automatic",
+              approvalMode: mode,
               hasActiveLease: false,
-              maxDurationSeconds: 4 * 60 * 60,
+              maxDurationSeconds,
               defaultDurationSeconds: 60 * 60,
             }),
           submitAccessRequest: () => Promise.resolve({}),
@@ -172,6 +177,13 @@ function gated(state: () => Record<string, unknown>) {
       {
         provide: AccessRefreshService,
         useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
+      },
+      // An informational read the banner makes per caller, not per item. Stubbed empty rather
+      // than wired to the lease SDK stub: no story here is about a lease the caller already
+      // holds on ANOTHER item, which is all this answers.
+      {
+        provide: MyLeasesService,
+        useValue: { leases$: () => of([]), invalidate: () => {} },
       },
       {
         provide: AccessRequestCancelService,
@@ -203,6 +215,23 @@ type Story = StoryObj<CipherViewComponent>;
 /** The resting state: the "Privileged" badge on the name row, the access card under the identity. */
 export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],
+};
+
+/**
+ * The same item under a rule that requires human approval — expand the access card and the
+ * From/To window picker is what it collects, rather than the automatic path's duration select.
+ *
+ * Here rather than only in the banner's own stories because the picker's two rows of triggers
+ * are the widest thing in that card, and how they sit against the identity card above and the
+ * Autofill card below is only visible in the composed view.
+ */
+export const RequestAccessHumanApproval: Story = {
+  decorators: [
+    gated(() => ({ badgeState: "privileged" }), {
+      mode: "human",
+      maxDurationSeconds: 24 * 60 * 60,
+    }),
+  ],
 };
 
 function pendingState() {

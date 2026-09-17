@@ -15,6 +15,7 @@ import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { MyLeasesService } from "../services/my-leases.service";
 import {
   HOUR,
   MINUTE,
@@ -116,6 +117,13 @@ function pam(
       {
         provide: AccessRefreshService,
         useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
+      },
+      // An informational read the banner makes per caller, not per item. Stubbed empty rather
+      // than wired to the lease SDK stub: no story here is about a lease the caller already
+      // holds on ANOTHER item, which is all this answers.
+      {
+        provide: MyLeasesService,
+        useValue: { leases$: () => of([]), invalidate: () => {} },
       },
       {
         provide: AccessRequestCancelService,

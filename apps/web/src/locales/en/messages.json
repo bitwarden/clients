@@ -18467,26 +18467,102 @@
   "requestAccessModalDuration1d": {
     "message": "1 day"
   },
-  "requestAccessModalDate": {
-    "message": "Date"
+  "pamAccessWindowStart": {
+    "message": "Start"
   },
-  "requestAccessModalStart": {
+  "pamAccessWindowEnd": {
+    "message": "End"
+  },
+  "pamAccessWindowToday": {
+    "message": "Today"
+  },
+  "pamAccessWindowTomorrow": {
+    "message": "Tomorrow"
+  },
+  "pamAccessWindowNow": {
+    "message": "now"
+  },
+  "pamAccessWindowInSpan": {
+    "message": "in $SPAN$",
+    "placeholders": {
+      "span": {
+        "content": "$1",
+        "example": "2 hr"
+      }
+    }
+  },
+  "pamAccessWindowApproximateSpan": {
+    "message": "~$SPAN$",
+    "placeholders": {
+      "span": {
+        "content": "$1",
+        "example": "1 hr 30 min"
+      }
+    }
+  },
+  "pamAccessWindowMidnight": {
+    "message": "Midnight"
+  },
+  "pamAccessWindowMidday": {
+    "message": "Midday"
+  },
+  "pamAccessWindowCustom": {
+    "message": "Custom…"
+  },
+  "pamAccessWindowSuggestions": {
+    "message": "Suggestions"
+  },
+  "pamAccessWindowBackToSuggestions": {
+    "message": "Back to suggestions"
+  },
+  "pamAccessWindowNoTimesOnThisDay": {
+    "message": "No times on this day fit the maximum window."
+  },
+  "pamAccessWindowNoEndsAvailable": {
+    "message": "No end times available for this start."
+  },
+  "pamAccessWindowIncomplete": {
+    "message": "Pick a start and an end."
+  },
+  "pamAccessWindowStartTime": {
     "message": "Start time"
   },
-  "requestAccessModalEnd": {
+  "pamAccessWindowEndTime": {
     "message": "End time"
+  },
+  "pamAccessWindowPickADay": {
+    "message": "Pick a day"
+  },
+  "pamAccessWindowPickATime": {
+    "message": "Pick a time"
+  },
+  "pamAccessWindowPickAnEnd": {
+    "message": "Pick an end"
+  },
+  "pamAccessWindowPreviousMonth": {
+    "message": "Previous month"
+  },
+  "pamAccessWindowNextMonth": {
+    "message": "Next month"
+  },
+  "pamAccessWindowSummary": {
+    "message": "Requesting $SPAN$ of access: $WINDOW$",
+    "placeholders": {
+      "span": {
+        "content": "$1",
+        "example": "3 hr"
+      },
+      "window": {
+        "content": "$2",
+        "example": "Today, 9:00 AM – 12:00 PM"
+      }
+    }
+  },
+  "pamAccessWindowLabel": {
+    "message": "Access window"
   },
   "requestAccessModalEndEqualsStart": {
     "message": "End time can't be the same as the start time."
-  },
-  "requestAccessModalEndsNextDay": {
-    "message": "Ends $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "9/2/26, 1:30 AM"
-      }
-    }
   },
   "requestAccessModalWindowInPast": {
     "message": "The requested window has already ended. Pick a later date or time."

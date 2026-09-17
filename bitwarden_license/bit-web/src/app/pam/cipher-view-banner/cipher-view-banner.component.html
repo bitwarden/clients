@@ -275,42 +275,10 @@
             </form>
           } @else {
             <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
-              <bit-form-field>
-                <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="date"
-                  formControlName="date"
-                  [min]="minRequestDate()"
-                  id="pam-cipher-view-banner_input_date"
-                />
-              </bit-form-field>
-
-              <div class="tw-grid tw-grid-cols-2 tw-gap-3">
-                <bit-form-field>
-                  <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
-                  <input
-                    bitInput
-                    type="time"
-                    formControlName="start"
-                    id="pam-cipher-view-banner_input_start"
-                  />
-                </bit-form-field>
-                <bit-form-field>
-                  <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
-                  <input
-                    bitInput
-                    type="time"
-                    formControlName="end"
-                    id="pam-cipher-view-banner_input_end"
-                  />
-                  @if (nextDayEnd(); as nextDay) {
-                    <bit-hint data-testid="request-window-next-day">
-                      {{ "requestAccessModalEndsNextDay" | i18n: (nextDay | date: "short") }}
-                    </bit-hint>
-                  }
-                </bit-form-field>
-              </div>
+              <app-pam-access-window-picker
+                formControlName="window"
+                [maxWindowSeconds]="maxWindowSeconds()"
+              />
 
               <bit-form-field>
                 <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>

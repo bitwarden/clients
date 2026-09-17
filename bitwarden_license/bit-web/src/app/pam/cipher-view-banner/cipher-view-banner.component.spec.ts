@@ -1,5 +1,6 @@
 import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
@@ -18,7 +19,6 @@ import {
   AccessRequestSdkService,
   LeasingErrorService,
   REQUEST_ACCESS_SERVER_ERRORS,
-  composeRequestWindow,
   toDateInputValue,
 } from "..";
 import type {
@@ -27,13 +27,20 @@ import type {
   AccessRequestView,
   CipherAccessStateView,
 } from "../abstractions/access-lease";
+import {
+  type AccessWindowFormValue,
+  REQUEST_WINDOW_ERROR_KEY,
+  composeAccessWindow,
+  toDateValue,
+  toTimeValue,
+} from "../access-window";
+import { AccessWindowPickerComponent } from "../access-window/access-window-picker.component";
 import { formatDuration } from "../date/format-duration";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
-import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
 
 /**
  * The SDK views are wide and every field is server-populated, so tests build only the fields the
@@ -45,6 +52,23 @@ import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
  * Anchored to the real clock, since the window validator rejects an already-ended window and a literal date would eventually start failing.
  */
 const futureDate = toDateInputValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+
+/** The day after {@link futureDate}, for a window that runs past midnight. */
+const dayAfterFutureDate = toDateInputValue(new Date(Date.now() + 48 * 60 * 60 * 1000));
+
+/**
+ * A window on {@link futureDate}, as the picker's composite control holds it.
+ *
+ * `endDate` defaults to the start's day; an overnight window names the day it ends on, which is
+ * the whole point of the four-field shape.
+ */
+function requestedWindow(
+  start: string,
+  end: string,
+  endDate: string = futureDate,
+): AccessWindowFormValue {
+  return { startDate: futureDate, startTime: start, endDate, endTime: end };
+}
 
 function leaseView(overrides: Partial<AccessLeaseView> = {}): AccessLeaseView {
   return {
@@ -158,9 +182,7 @@ describe("CipherViewBannerComponent", () => {
     fixture = TestBed.createComponent(CipherViewBannerComponent);
     fixture.componentRef.setInput("cipher", cipher);
     component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle();
     // The resting pre-check only resolves after the access-state read settles, landing a cycle
     // later.
     await fixture.whenStable();
@@ -187,9 +209,7 @@ describe("CipherViewBannerComponent", () => {
     requestsApi.getCipherAccessState.mockResolvedValue(next);
     TestBed.inject(AccessRefreshService).notifyAccessChanged("cipher-1");
     await fixture.whenStable();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle();
   }
 
   function reasonHint(textareaId: string): HTMLElement | null {
@@ -197,10 +217,39 @@ describe("CipherViewBannerComponent", () => {
       null) as HTMLElement | null;
   }
 
-  function endFieldError(): HTMLElement | null {
-    return (query("#pam-cipher-view-banner_input_end")
-      ?.closest("bit-form-field")
-      ?.querySelector("bit-error") ?? null) as HTMLElement | null;
+  /** The picker's own complaint about the composed window. */
+  function windowError(): HTMLElement | null {
+    return query("[data-testid='access-window-error']");
+  }
+
+  /**
+   * The composite window control inside the request form. By directive, not by constructor name:
+   * the string matched compiled clean through a rename and failed at runtime. Still `any`, since
+   * the spec drives the picker's `protected` members.
+   */
+  function picker(): any {
+    return fixture.debugElement.query(By.directive(AccessWindowPickerComponent)).componentInstance;
+  }
+
+  /** The detect/stabilize/detect dance a signal write plus an async read needs to land. */
+  async function settle(): Promise<void> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  /** The starting position for every window-picker test: gated cipher, human rule, form open. */
+  async function openHumanForm(overrides: Partial<AccessPreCheckView> = {}): Promise<void> {
+    requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human", ...overrides }));
+    await create(gatedCipher());
+    await component["toggleRequestForm"]();
+    await settle();
+  }
+
+  /** Puts the End side into typed mode, the only way to compose a window off the suggestions. */
+  function useCustomEnd(): void {
+    picker().useCustomEnd();
+    fixture.detectChanges();
   }
 
   beforeEach(() => {
@@ -354,9 +403,7 @@ describe("CipherViewBannerComponent", () => {
 
       pending$.next([organization({ usePam: true, accessPam: true })]);
       await fixture.whenStable();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      await settle();
 
       expect(query("[data-testid='cipher-view-banner-request']")).not.toBeNull();
     });
@@ -978,9 +1025,12 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(component["requestMode"]()).toBe("human");
-      expect(query("#pam-cipher-view-banner_input_date")).not.toBeNull();
-      expect(component["humanForm"].getRawValue().date).not.toBe("");
-      expect(component["humanForm"].getRawValue().start).not.toBe("");
+      expect(query("app-pam-access-window-picker")).not.toBeNull();
+      const window = component["humanForm"].getRawValue().window;
+      expect(window.startDate).not.toBe("");
+      expect(window.startTime).not.toBe("");
+      expect(window.endDate).not.toBe("");
+      expect(window.endTime).not.toBe("");
     });
 
     it("renders the automatic path's Reason field as a multi-line textarea", async () => {
@@ -1078,102 +1128,70 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       // Composed from the fold-out's open time, not a fixed date.
-      const window = composeRequestWindow(component["humanForm"].getRawValue());
+      const window = composeAccessWindow(component["humanForm"].getRawValue().window);
       const spanMinutes = (window!.end.getTime() - window!.start.getTime()) / 60_000;
       expect(spanMinutes).toBe(15);
     });
 
     it("validates the human path's window against the rule's maximum", async () => {
-      requestsApi.preCheck.mockResolvedValue(
-        preCheck({ approvalMode: "human", defaultDurationSeconds: 900, maxDurationSeconds: 1800 }),
-      );
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
+      await openHumanForm({ defaultDurationSeconds: 900, maxDurationSeconds: 1800 });
 
-      // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
-      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "11:00" });
-      component["humanForm"].controls.end.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap. Only
+      // reachable through the typed escape hatch — the suggestions are filtered to the cap.
+      useCustomEnd();
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "11:00") });
+      await settle();
 
       expect(component["humanForm"].invalid).toBe(true);
-      const maxWindow = formatDuration("en-US", 1800, "long");
-      const error = endFieldError();
+      const error = windowError();
       expect(error).not.toBeNull();
-      expect(error?.textContent).toContain(maxWindow);
+      expect(error?.textContent).toContain(formatDuration("en-US", 1800, "long"));
     });
 
     it("rejects a window that has already ended", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
+      await openHumanForm();
 
       const pastDate = toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
-      component["humanForm"].patchValue({ date: pastDate, start: "09:00", end: "10:00" });
-      component["humanForm"].controls.end.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      useCustomEnd();
+      component["humanForm"].patchValue({
+        window: { startDate: pastDate, startTime: "09:00", endDate: pastDate, endTime: "10:00" },
+      });
+      await settle();
 
       expect(component["humanForm"].invalid).toBe(true);
-      const error = endFieldError();
+      const error = windowError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalWindowInPast");
     });
 
-    // Inferred from an end earlier than the start.
-    it("names the day a midnight-crossing window ends on", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
+    /*
+     * Under the three-field model an overnight window was INFERRED from an end time earlier than
+     * the start, and spelled out in a hint. The four-field model states the end's day outright,
+     * so the assertion is on the value the form carries rather than on prose beside it.
+     */
+    it("carries an overnight window as an explicit end date", async () => {
+      await openHumanForm();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "23:00", end: "01:00" });
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      component["humanForm"].patchValue({
+        window: requestedWindow("23:00", "01:00", dayAfterFutureDate),
+      });
+      await settle();
 
-      const [year, month, day] = futureDate.split("-").map(Number);
-      const endsAt = new Date(year, month - 1, day + 1, 1, 0, 0);
-      const hint = query("[data-testid='request-window-next-day']");
-      expect(hint).not.toBeNull();
-      expect(hint?.textContent).toContain(formatDate(endsAt, "short", "en-US"));
-      expect(endFieldError()).toBeNull();
+      const window = composeAccessWindow(component["humanForm"].getRawValue().window);
+      expect(toDateValue(window!.end)).toBe(dayAfterFutureDate);
+      expect((window!.end.getTime() - window!.start.getTime()) / 60_000).toBe(120);
+      expect(windowError()).toBeNull();
     });
 
-    it("says nothing about the next day for a window that stays on its date", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
+    it("opens the window on the day the fold-out opened", async () => {
+      // The floor itself lives in the calendar's disabled cells; what matters here is that the
+      // form opens on a day inside it, so it is valid rather than pre-erroring.
+      await openHumanForm();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "10:00" });
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(query("[data-testid='request-window-next-day']")).toBeNull();
-    });
-
-    it("floors the date picker at the day the fold-out opened", async () => {
-      // `min` is only an affordance; reactive forms never read ValidityState.rangeUnderflow.
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const date = query("#pam-cipher-view-banner_input_date") as HTMLInputElement | null;
-      expect(date?.getAttribute("min")).toBe(toDateInputValue(new Date()));
-      // The seeded date is the floor itself, so the form opens valid rather than pre-erroring.
-      expect(component["humanForm"].controls.date.value).toBe(date?.getAttribute("min"));
+      expect(component["humanForm"].getRawValue().window.startDate).toBe(
+        toDateInputValue(new Date()),
+      );
+      expect(windowError()).toBeNull();
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -1347,9 +1365,7 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "09:00",
-        end: "10:00",
+        window: requestedWindow("09:00", "10:00"),
         reason: " prod incident ",
       });
       await component["submitRequest"]();
@@ -1362,8 +1378,8 @@ describe("CipherViewBannerComponent", () => {
       });
     });
 
-    // An end earlier than the start was refused as inverted, blocking any window that crosses
-    // midnight.
+    // The three-field model could only reach the next day by inverting the end time, which the
+    // picker no longer needs: the end names its own day.
     it("sends a window that crosses midnight, ending on the following day", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       requestsApi.submitAccessRequest.mockResolvedValue({
@@ -1374,21 +1390,15 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "23:00",
-        end: "01:00",
+        window: requestedWindow("23:00", "01:00", dayAfterFutureDate),
         reason: "overnight cutover",
       });
       await component["submitRequest"]();
 
-      // 01:00 the day after `futureDate`, computed from its parts rather than restating the
-      // helper's own arithmetic.
-      const [year, month, day] = futureDate.split("-").map(Number);
-      const endsAt = new Date(year, month - 1, day + 1, 1, 0, 0);
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: undefined,
         start: new Date(`${futureDate}T23:00`).toISOString(),
-        end: endsAt.toISOString(),
+        end: new Date(`${dayAfterFutureDate}T01:00`).toISOString(),
         reason: "overnight cutover",
       });
     });
@@ -1397,25 +1407,27 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      // Rendered on purpose: the window validator is registered by the picker, so an unrendered
+      // fold-out has nothing validating the control.
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-      const end = component["humanForm"].controls.end;
+      const window = component["humanForm"].controls.window;
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "09:00",
-        end: "10:00",
+        window: requestedWindow("09:00", "10:00"),
         reason: "prod incident",
       });
-      expect(end.errors).toBeNull();
+      expect(window.errors).toBeNull();
 
       // Ages the form past its window without touching a control; only submit re-validates.
       jest.useFakeTimers().setSystemTime(new Date(`${futureDate}T10:00`).getTime() + 1000);
       try {
-        expect(end.errors).toBeNull();
+        expect(window.errors).toBeNull();
 
         await component["submitRequest"]();
 
         expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
-        expect(end.errors?.[REQUEST_WINDOW_ERROR_KEY]).toEqual(
+        expect(window.errors?.[REQUEST_WINDOW_ERROR_KEY]).toEqual(
           expect.objectContaining({ problem: "endInPast" }),
         );
       } finally {
@@ -1429,9 +1441,7 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "10:00",
-        end: "10:00",
+        window: requestedWindow("10:00", "10:00"),
         reason: "",
       });
       await component["submitRequest"]();
@@ -1440,88 +1450,291 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("shows the window error once the requester zeroes the window", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
+      await openHumanForm();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "10:00", end: "10:00" });
-      component["humanForm"].controls.end.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      // Patched before switching sides: `writeValue` returns both sides to their suggestions, so
+      // a write after `useCustomEnd` would take the typed field straight back off screen.
+      component["humanForm"].patchValue({ window: requestedWindow("10:00", "10:00") });
+      useCustomEnd();
+      await settle();
 
-      const error = endFieldError();
+      const error = windowError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
       expect(error?.getAttribute("aria-live")).toBe("assertive");
-      const endInput = query("#pam-cipher-view-banner_input_end");
-      expect(endInput?.getAttribute("aria-invalid")).toBe("true");
+      // Custom on the End side opens a day/time pair with the day on the calendar and the time
+      // still on its suggestions — so the control the message describes is the end-time trigger,
+      // not a typed field.
+      const endTime = query("[data-testid='access-window-end-time']");
+      expect(endTime?.getAttribute("aria-invalid")).toBe("true");
+      expect(endTime?.getAttribute("aria-describedby")).toBe(error?.id);
     });
 
-    it("reveals the window error when a start edit breaks a window the requester never touched", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
+    /*
+     * The three-field model let a start edit silently invalidate an untouched end, so the form
+     * had to go out of its way to surface that. The picker moves the end with the start instead
+     * (see `reanchorEnd`), which is why this now asserts the window stays VALID and keeps its
+     * length rather than asserting an error appears.
+     */
+    it("keeps the requested length when the start moves", async () => {
+      await openHumanForm();
+
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "12:00") });
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "10:00" });
-      component["humanForm"].controls.start.setValue("10:00");
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      picker().selectStartDay(dayAfterFutureDate);
+      await settle();
 
-      expect(component["humanForm"].controls.end.touched).toBe(true);
-      const error = endFieldError();
-      expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
+      const window = composeAccessWindow(component["humanForm"].getRawValue().window);
+      expect(toDateValue(window!.start)).toBe(dayAfterFutureDate);
+      expect((window!.end.getTime() - window!.start.getTime()) / 60_000).toBe(180);
+      expect(windowError()).toBeNull();
     });
 
     it("clears the window error once the window is valid again", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
+      await openHumanForm();
+
+      useCustomEnd();
+      component["humanForm"].patchValue({ window: requestedWindow("10:00", "10:00") });
       fixture.detectChanges();
       await fixture.whenStable();
+      expect(windowError()).not.toBeNull();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "10:00", end: "10:00" });
-      component["humanForm"].controls.end.markAsTouched();
-      fixture.detectChanges();
-      await fixture.whenStable();
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "10:00") });
+      await settle();
 
-      component["humanForm"].controls.start.setValue("09:00");
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(component["humanForm"].controls.end.errors).toBeNull();
-      expect(endFieldError()).toBeNull();
+      expect(component["humanForm"].controls.window.errors).toBeNull();
+      expect(windowError()).toBeNull();
     });
 
     it("reveals the window error on submit rather than submitting", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await openHumanForm();
+
+      useCustomEnd();
+      component["humanForm"].patchValue({
+        window: requestedWindow("10:00", "10:00"),
+        reason: "prod incident",
+      });
+      await component["submitRequest"]();
+      await settle();
+
+      expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
+      const error = windowError();
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
+    });
+
+    /**
+     * Reaching the calendar is the only reason to leave the End suggestions, so Custom opens it
+     * outright. Asserted on the rendered overlay rather than the mode signals, because switching
+     * mode was never the missing part — the clicks it left the requester to make afterwards, on
+     * a menu of named days the list they just dismissed had already folded in, were.
+     */
+    it("opens the calendar when Custom is chosen on the End side", async () => {
+      await openHumanForm();
+
+      useCustomEnd();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The day control is there, and already open. The menu itself renders into the CDK overlay
+      // container, outside the fixture's own element.
+      const trigger = query("[data-testid='access-window-end-day']");
+      expect(trigger).not.toBeNull();
+      expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+      expect(document.querySelector("[role='dialog'] app-pam-day-picker")).not.toBeNull();
+    });
+
+    /** The calendar's own cells, by the full date they announce. */
+    function calendarCell(dateValue: string): HTMLButtonElement | undefined {
+      const label = new Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(
+        new Date(`${dateValue}T00:00`),
+      );
+      return [...document.querySelectorAll<HTMLButtonElement>("[role='dialog'] table button")].find(
+        (cell) => cell.getAttribute("aria-label") === label,
+      );
+    }
+
+    /**
+     * The calendar was the one control here that could address a window the rule cannot grant:
+     * every menu is filtered to the cap, but a grid of dates was not, so picking a day past it
+     * composed a window that only failed on submit.
+     */
+    it("refuses an end day the rule's cap cannot reach", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", maxDurationSeconds: 4 * 3600 }),
+      );
       await create(gatedCipher());
       await component["toggleRequestForm"]();
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({
-        date: futureDate,
-        start: "10:00",
-        end: "10:00",
-        reason: "prod incident",
-      });
-      await component["submitRequest"]();
-      fixture.detectChanges();
+      // A 9am start under a four-hour cap: the window cannot reach past 1pm the same day.
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "12:00") });
+      useCustomEnd();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
-      const error = endFieldError();
+      expect(calendarCell(futureDate)?.disabled).toBe(false);
+      // A month boundary can put the next day outside the rendered grid, which refuses it just
+      // as effectively as a disabled cell does.
+      expect(calendarCell(dayAfterFutureDate)?.disabled ?? true).toBe(true);
+    });
+
+    /**
+     * The last day inside the cap only admits part of itself, so the time carried over from the
+     * previous day is as likely as not to sit past the cutoff. Moving it beats handing the
+     * requester a validation error about arithmetic the picker could have done.
+     */
+    it("pulls the end time back inside the cap when its day moves", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", maxDurationSeconds: 24 * 3600 }),
+      );
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "12:00") });
+      useCustomEnd();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The day after is inside the cap, but only up to 9am — noon on it is not.
+      picker().setEndDate(dayAfterFutureDate);
+      await settle();
+
+      const value = component["humanForm"].getRawValue().window;
+      expect(value.endDate).toBe(dayAfterFutureDate);
+      expect(value.endTime).toBe("09:00");
+      expect(windowError()).toBeNull();
+      const window = composeAccessWindow(value);
+      expect((window!.end.getTime() - window!.start.getTime()) / 1000).toBe(24 * 3600);
+    });
+
+    /**
+     * A window with a cleared end of its own is refused by `validate()` as `{ required: true }`,
+     * for which nothing rendered a message — so Submit went dead silently. The three
+     * `bit-form-field`s this picker replaced got that message from `Validators.required`.
+     */
+    it("says so when a cleared time leaves no window at all", async () => {
+      await openHumanForm();
+
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "12:00") });
+      picker().setCustomStartTime({ target: { value: "" } });
+      await settle();
+
+      expect(component["humanForm"].controls.window.errors).toEqual({ required: true });
+      expect(windowError()?.textContent).toContain("pamAccessWindowIncomplete");
+    });
+
+    /**
+     * The End side's day/time ladder filters on the start and the cap; it has to filter on the
+     * clock too, or it offers ends that submit refuses the moment they are picked.
+     *
+     * Reads the real clock, since the banner passes the picker no `now`: the assertion is that
+     * nothing elapsed is offered, which holds whatever the hour (and is vacuous only in the
+     * minute either side of midnight, where a start of 00:01 today is itself still ahead).
+     */
+    it("offers no end time that has already elapsed", async () => {
+      await openHumanForm();
+
+      const today = toDateInputValue(new Date());
+      component["humanForm"].patchValue({
+        window: { startDate: today, startTime: "00:01", endDate: today, endTime: "23:00" },
+      });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const offered: { at: Date }[] = picker().endTimeSuggestions();
+      expect(offered.every(({ at }) => at.getTime() > Date.now())).toBe(true);
+    });
+
+    /** A typed start moves the window the way a chosen one does — by keeping its length. */
+    it("keeps the requested length when the start is typed rather than picked", async () => {
+      await openHumanForm();
+
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "17:00") });
+      picker().useCustomStartTime();
+      picker().setCustomStartTime({ target: { value: "08:30" } });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const window = composeAccessWindow(component["humanForm"].getRawValue().window);
+      expect((window!.end.getTime() - window!.start.getTime()) / 3_600_000).toBe(8);
+      expect(toTimeValue(window!.end)).toBe("16:30");
+    });
+
+    /**
+     * The affix beside a typed time returns the control to its list. It used to overwrite the
+     * typed value with the first suggestion on the way — the one place in the picker that
+     * discarded something the requester entered by hand.
+     */
+    it("keeps a typed time when the control returns to its suggestions", async () => {
+      await openHumanForm();
+
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "17:00") });
+      picker().useCustomStartTime();
+      picker().setCustomStartTime({ target: { value: "15:00" } });
+      picker().useSuggestedStartTime();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component["humanForm"].getRawValue().window.startTime).toBe("15:00");
+      // Back on the menu, not left in the typed field.
+      expect(query("[data-testid='access-window-start-time']")).not.toBeNull();
+      expect(query("[data-testid='access-window-start-time-custom']")).toBeNull();
+    });
+
+    /** Same rule on the day control: moving the day out and back must not re-seed a typed time. */
+    it("keeps a typed time when the day moves back to today", async () => {
+      await openHumanForm();
+
+      component["humanForm"].patchValue({ window: requestedWindow("09:00", "17:00") });
+      picker().useCustomStartTime();
+      picker().setCustomStartTime({ target: { value: "06:15" } });
+      picker().selectStartDay(dayAfterFutureDate);
+      picker().selectStartDay(toDateInputValue(new Date()));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component["humanForm"].getRawValue().window.startTime).toBe("06:15");
+    });
+
+    /**
+     * The captions above the two pairs are visual grouping only, so each control carries its own
+     * name — and the error describes the start as much as the end, since a zero-length or
+     * over-long window is as often the start's fault.
+     */
+    it("names every control and points all four at the error", async () => {
+      await openHumanForm();
+
+      component["humanForm"].patchValue({ window: requestedWindow("10:00", "10:00") });
+      await settle();
+
+      const error = windowError();
       expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
+      for (const testid of [
+        "access-window-start-day",
+        "access-window-start-time",
+        "access-window-end",
+      ]) {
+        const control = query(`[data-testid='${testid}']`);
+        expect(control?.getAttribute("aria-labelledby")).toContain("-label");
+        expect(control?.getAttribute("aria-describedby")).toBe(error?.id);
+      }
+    });
+
+    /** Entering Custom is one click, so leaving it has to be too. */
+    it("keeps the way back out of Custom reachable from the calendar", async () => {
+      await openHumanForm();
+
+      useCustomEnd();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(query("[data-testid='access-window-end-back']")).not.toBeNull();
     });
   });
 

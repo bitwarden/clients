@@ -19,7 +19,12 @@ export function formatDuration(
   return formatterFor(locale, unit, unitDisplay).format(value);
 }
 
-function formatterFor(
+/**
+ * The cached `Intl.NumberFormat` for one locale/unit/display triple. Exported because
+ * `format-span.ts` formats the same units for the same locales, and construction is the
+ * expensive half of the API.
+ */
+export function formatterFor(
   locale: string,
   unit: DurationUnit,
   unitDisplay: Intl.NumberFormatOptions["unitDisplay"],
