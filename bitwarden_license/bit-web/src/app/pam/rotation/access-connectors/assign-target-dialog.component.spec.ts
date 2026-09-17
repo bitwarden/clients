@@ -26,10 +26,10 @@ describe("AssignTargetDialogComponent", () => {
   let component: AssignTargetDialogComponent;
   let dialogRef: jest.Mocked<DialogRef<string | undefined>>;
 
-  const daemon = {
+  const accessConnector = {
     id: "d-1",
     organizationId: "org-1",
-    name: "My Daemon",
+    name: "My access connector",
     assignments: [],
   } as unknown as AccessConnector;
 
@@ -40,7 +40,7 @@ describe("AssignTargetDialogComponent", () => {
     options: TargetSystem[],
     noActiveAutomaticSystems = false,
   ): Promise<void> {
-    const params: AssignTargetDialogParams = { daemon, options, noActiveAutomaticSystems };
+    const params: AssignTargetDialogParams = { accessConnector, options, noActiveAutomaticSystems };
     dialogRef = {
       close: jest.fn().mockReturnValue(Promise.resolve()),
     } as unknown as jest.Mocked<DialogRef<string | undefined>>;

@@ -106,7 +106,7 @@ const COMMON_BINDINGS = `
 /** The connector detail page's flavour: two text columns. */
 const targetTemplate = `
   <pam-assignment-picker
-    idPrefix="daemon-detail"
+    idPrefix="access-connector-detail"
     headingKey="pamAccessConnectorAssignments"
     selectLabelKey="pamAccessConnectorAssignSelectLabel"
     assignLabelKey="pamAccessConnectorAssignConfirm"
