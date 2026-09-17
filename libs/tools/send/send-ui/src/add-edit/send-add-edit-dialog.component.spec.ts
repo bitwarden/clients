@@ -63,14 +63,9 @@ class FakeDialogRef implements DialogRef<SendItemDialogResult> {
 }
 
 describe("SendAddEditDialogComponent + DefaultSendFormService integration", () => {
-  // Regression guard for PM-42963: a code review of the initial fix found that only the explicit
-  // Cancel button called `abortPendingSubmission()` — the dialog's header X and Escape key close
-  // the dialog through the same `DialogRef.close()`/`closePredicate` mechanism but bypassed it
-  // entirely, so the orphaned/corrupted-file-Send bug still reproduced through those paths. These
-  // tests drive `dialogRef.close()` directly (as the X/Escape do) through the REAL
-  // `DefaultSendFormService` and REAL (legacy) `SendApiService` — only the bottom-most
-  // `ApiService`/`FileUploadService` HTTP layer is mocked — to prove the fix holds through the
-  // actual component wiring, not just each service in isolation.
+  // Drives `dialogRef.close()` directly through the real `DefaultSendFormService`/`SendApiService`
+  // stack — not just the Cancel button — to prove an in-flight file upload is aborted no matter
+  // which close path (the header X, Escape, or Cancel) triggers it.
 
   let apiService: MockProxy<ApiService>;
   let fileUploadService: MockProxy<FileUploadService>;
