@@ -34,7 +34,7 @@ export interface FilterDialogParams {
 
 /** A toggle reports no labels, so its `active` state stands in for its one selection. */
 function optionCount(filter: FilterPresenter): number {
-  return Math.max(filter.summaryLabels().length, filter.active() ? 1 : 0);
+  return Math.max(filter.selections().length, filter.active() ? 1 : 0);
 }
 
 /** The small-screen filter view. Opened by `bit-table-toolbar`. */

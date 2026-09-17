@@ -13,6 +13,7 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { BerryComponent } from "../berry/berry.component";
 import { IconTileComponent } from "../icon-tile";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { TooltipDirective } from "../tooltip";
@@ -82,6 +83,101 @@ describe("FilterMenuComponent", () => {
 
     expect(menu.isSelected("abc")).toBe(true);
     expect(menu.summary()).toBe("abc");
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu #multi key="type" placeholderText="Type" multiple>
+      <bit-filter-option [value]="'login'">Login</bit-filter-option>
+      <bit-filter-option [value]="'card'">Card</bit-filter-option>
+    </bit-filter-menu>
+    <bit-filter-menu #single key="vault" placeholderText="Vault">
+      <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class SelectionHostComponent {
+  readonly multi = viewChild.required<FilterMenuComponent>("multi");
+  readonly single = viewChild.required<FilterMenuComponent>("single");
+}
+
+describe("FilterMenuComponent selections", () => {
+  let fixture: ComponentFixture<SelectionHostComponent>;
+  let host: SelectionHostComponent;
+
+  /** The committed count the chip's berry shows; normally only a menu close updates it. */
+  const berryValue = (menu: FilterMenuComponent) =>
+    fixture.debugElement
+      .queryAll(By.directive(BerryComponent))
+      .map((el) => el.componentInstance as BerryComponent)
+      [menu === host.multi() ? 0 : 1].value();
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SelectionHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SelectionHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("pairs each selected option's label with the value that produced it", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([
+      { value: "login", label: "Login" },
+      { value: "card", label: "Card" },
+    ]);
+  });
+
+  it("drops a single selection and leaves the rest", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    host.multi().deselect("login");
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([{ value: "card", label: "Card" }]);
+    expect(host.multi().isSelected("login")).toBe(false);
+    expect(host.multi().active()).toBe(true);
+  });
+
+  it("commits the berry on deselect, since nothing closed the menu to do it", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+    expect(berryValue(host.multi())).toBe(2);
+
+    host.multi().deselect("login");
+    fixture.detectChanges();
+
+    expect(berryValue(host.multi())).toBe(1);
+  });
+
+  it("ignores a value that isn't selected", () => {
+    host.multi().setValue(["login"]);
+    fixture.detectChanges();
+
+    host.multi().deselect("card");
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([{ value: "login", label: "Login" }]);
+  });
+
+  it("leaves a single-select chip alone — it clears rather than deselects", () => {
+    host.single().setValue("mine");
+    fixture.detectChanges();
+
+    host.single().deselect("mine");
+    fixture.detectChanges();
+
+    expect(host.single().selections()).toEqual([{ value: "mine", label: "My vault" }]);
   });
 });
 

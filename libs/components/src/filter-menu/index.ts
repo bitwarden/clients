@@ -20,4 +20,5 @@ export {
   type FilterHost,
   type FilterOptionRow,
   type FilterPresenter,
+  type FilterSelection,
 } from "./filter-tokens";
