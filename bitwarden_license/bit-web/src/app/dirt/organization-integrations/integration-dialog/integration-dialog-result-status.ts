@@ -5,6 +5,7 @@
 export const IntegrationDialogResultStatus = {
   Edited: "edit",
   Delete: "delete",
+  SavedViaCallback: "saved",
 } as const;
 
 export type IntegrationDialogResultStatusType =
