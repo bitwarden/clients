@@ -67,12 +67,12 @@ describe("toAuditRow", () => {
 
   it("carries the target system and access connector a fleet event names", () => {
     const event = new AccessAuditEventResponse({
-      Kind: AccessAuditEventKind.DaemonAssignedToTarget,
+      Kind: AccessAuditEventKind.AccessConnectorAssignedToTarget,
       OccurredAt: "2026-06-30T12:00:00Z",
       OrganizationId: "org-1",
       ActorName: "admin",
       TargetSystemName: "prod-postgres-01",
-      DaemonName: "eu-west-rotator",
+      AccessConnectorName: "eu-west-rotator",
       Automated: false,
     });
 

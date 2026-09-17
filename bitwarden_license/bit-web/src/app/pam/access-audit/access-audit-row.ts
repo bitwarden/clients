@@ -101,13 +101,14 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.RotationReportRejected]: "pamAuditKindRotationReportRejected",
   [AccessAuditEventKind.ManualRotationDue]: "pamAuditKindManualRotationDue",
   [AccessAuditEventKind.ManualRotationRecorded]: "pamAuditKindManualRotationRecorded",
-  [AccessAuditEventKind.DaemonRegistered]: "pamAuditKindAccessConnectorRegistered",
-  [AccessAuditEventKind.DaemonRevoked]: "pamAuditKindAccessConnectorRevoked",
-  [AccessAuditEventKind.DaemonDisabled]: "pamAuditKindAccessConnectorDeactivated",
-  [AccessAuditEventKind.DaemonEnabled]: "pamAuditKindAccessConnectorActivated",
-  [AccessAuditEventKind.DaemonDeleted]: "pamAuditKindAccessConnectorDeleted",
-  [AccessAuditEventKind.DaemonAssignedToTarget]: "pamAuditKindAccessConnectorAssigned",
-  [AccessAuditEventKind.DaemonUnassignedFromTarget]: "pamAuditKindAccessConnectorUnassigned",
+  [AccessAuditEventKind.AccessConnectorRegistered]: "pamAuditKindAccessConnectorRegistered",
+  [AccessAuditEventKind.AccessConnectorRevoked]: "pamAuditKindAccessConnectorRevoked",
+  [AccessAuditEventKind.AccessConnectorDisabled]: "pamAuditKindAccessConnectorDeactivated",
+  [AccessAuditEventKind.AccessConnectorEnabled]: "pamAuditKindAccessConnectorActivated",
+  [AccessAuditEventKind.AccessConnectorDeleted]: "pamAuditKindAccessConnectorDeleted",
+  [AccessAuditEventKind.AccessConnectorAssignedToTarget]: "pamAuditKindAccessConnectorAssigned",
+  [AccessAuditEventKind.AccessConnectorUnassignedFromTarget]:
+    "pamAuditKindAccessConnectorUnassigned",
   [AccessAuditEventKind.TargetSystemRegistered]: "pamAuditKindTargetRegistered",
   [AccessAuditEventKind.TargetSystemDisabled]: "pamAuditKindTargetDeactivated",
   [AccessAuditEventKind.TargetSystemEnabled]: "pamAuditKindTargetActivated",
@@ -125,7 +126,7 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
 }
 
 /**
- * The kinds no action emits: the seven the server marks `Deferred`, plus `DaemonRevoked`, which the reversible
+ * The kinds no action emits: the seven the server marks `Deferred`, plus `AccessConnectorRevoked`, which the reversible
  * activate/deactivate pair replaced. Labelled, so a stored row still reads, but kept out of the Event filter, where
  * selecting one could only ever return nothing.
  */
@@ -137,7 +138,7 @@ export const UNEMITTED_AUDIT_KINDS: ReadonlySet<AccessAuditEventKind> = new Set(
   AccessAuditEventKind.LeasingKillSwitchTriggered,
   AccessAuditEventKind.LeasingFreezeEnabled,
   AccessAuditEventKind.LeasingFreezeLifted,
-  AccessAuditEventKind.DaemonRevoked,
+  AccessAuditEventKind.AccessConnectorRevoked,
 ]);
 
 function isTimestamp(value: string | null): value is string {
@@ -188,9 +189,7 @@ export function toAuditRow(
     ruleName: event.ruleName,
     ruleId: event.ruleId,
     targetSystemName: event.targetSystemName,
-    // The wire still says `DaemonName`: the product renamed the daemon to the access connector, the
-    // protocol did not. This is the only line that has to know that.
-    accessConnectorName: event.daemonName,
+    accessConnectorName: event.accessConnectorName,
     detail: event.detail,
     automated: event.automated,
     inDoubt: event.incomplete,
