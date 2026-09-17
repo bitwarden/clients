@@ -80,7 +80,7 @@ export class AuditExportService {
       collectionName: row.collectionName ?? "",
       ruleName: row.ruleName ?? "",
       targetSystemName: row.targetSystemName ?? "",
-      daemonName: row.daemonName ?? "",
+      accessConnectorName: row.daemonName ?? "",
       grantedDuration:
         row.duration == null
           ? ""
