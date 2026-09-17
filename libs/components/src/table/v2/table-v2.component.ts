@@ -661,13 +661,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
   }
 
-  /**
-   * Toggles select-all, then writes the checkbox state back to the DOM.
-   *
-   * The click natively mutates `checked`/`indeterminate` before this runs, and Angular only writes
-   * a binding when its value *changes* — so whenever an aggregate lands on the value it already
-   * had, the browser's mutation would survive and strand the box out of sync with the selection.
-   */
+  /** Toggles select-all, then writes the checkbox state back to the DOM. */
   protected onToggleAll(event: Event, sel: TableSelectionModel<T>): void {
     sel.toggleAll();
     const input = event.target as HTMLInputElement;
