@@ -6,8 +6,10 @@ import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
@@ -38,6 +40,7 @@ const mockAccountService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockToastService = {
@@ -47,6 +50,14 @@ const mockToastService = {
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockLogService = {
+  error: () => {},
+};
+
+const mockServerSettingsService = {
+  isEmailVerificationDisabled$: of(false),
 };
 
 const mockInviteLinkUrl =
@@ -86,6 +97,8 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: ToastService, useValue: mockToastService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
       ],
     }),
     applicationConfig({
@@ -141,10 +154,9 @@ const makeRender =
           {
             provide: OrgDomainApiServiceAbstraction,
             useValue: {
-              getAllByOrgId: () =>
+              getAllMiniByOrgId: () =>
                 Promise.resolve(
-                  verifiedDomainNames.map((name, i) => ({
-                    id: `domain-${i}`,
+                  verifiedDomainNames.map((name) => ({
                     domainName: name,
                     verifiedDate: "2025-01-01T00:00:00Z",
                   })),
