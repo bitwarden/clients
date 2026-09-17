@@ -49,7 +49,7 @@ describe("AuditExportService", () => {
             pamAuditKindLeaseActivated: "Lease activated",
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindLeaseExtended: "Lease extended",
-            pamAuditKindDaemonAssigned: "Daemon assigned to target",
+            pamAuditKindAccessConnectorAssigned: "Access connector assigned to target",
             pamInboxDurationHours: "__$1__ hours",
             pamInboxDuration1Hour: "1 hour",
           }),
@@ -72,7 +72,7 @@ describe("AuditExportService", () => {
         collectionName: "production",
         ruleName: "Production access",
         targetSystemName: "",
-        daemonName: "",
+        accessConnectorName: "",
         grantedDuration: "4 hours",
         extendedUntil: "",
         detail: "Approved for the incident window.",
@@ -127,7 +127,7 @@ describe("AuditExportService", () => {
         collectionName: "",
         ruleName: "",
         targetSystemName: "",
-        daemonName: "",
+        accessConnectorName: "",
         grantedDuration: "",
         extendedUntil: "",
         detail: "",
@@ -140,10 +140,10 @@ describe("AuditExportService", () => {
     });
 
     // A fleet event names neither a cipher nor a rule; the two columns below are the only record of what it acted on.
-    it("carries the target system and daemon a fleet event names", () => {
+    it("carries the target system and access connector a fleet event names", () => {
       const exported = service.toAuditExport(
         row({
-          kindLabelKey: "pamAuditKindDaemonAssigned",
+          kindLabelKey: "pamAuditKindAccessConnectorAssigned",
           cipherName: null,
           collectionName: null,
           ruleName: null,
@@ -153,7 +153,7 @@ describe("AuditExportService", () => {
       );
 
       expect(exported.targetSystemName).toBe("prod-postgres-01");
-      expect(exported.daemonName).toBe("eu-west-rotator");
+      expect(exported.accessConnectorName).toBe("eu-west-rotator");
     });
 
     // Names come from local vault state; an item the exporter can't decrypt has none, correctly.
