@@ -1146,8 +1146,9 @@ describe("AccessAuditComponent", () => {
       expect(chips).toHaveLength(5);
       expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
 
+      // The trigger's label is its rendered text; the chip carries no title attribute to match on.
       const timePeriod = chips.find((chip) =>
-        chip.querySelector("button")?.getAttribute("title")?.startsWith("Time period"),
+        chip.querySelector("button")?.textContent?.trim().startsWith("Time period"),
       )!;
       expect(timePeriod).not.toBeUndefined();
       expect(timePeriod.hasAttribute("multiple")).toBe(false);
