@@ -39,10 +39,10 @@ import {
 } from "../testing/rotation-builders";
 
 import {
-  DaemonAssignment,
-  DaemonDetailComponent,
-  daemonDetailDiscardGuard,
-} from "./daemon-detail.component";
+  AccessConnectorAssignment,
+  AccessConnectorDetailComponent,
+  accessConnectorDetailDiscardGuard,
+} from "./access-connector-detail.component";
 
 /** Echoes the key, with the qualified-name key rendered so its two halves stay readable. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -64,22 +64,22 @@ type DetailApi = {
       assignedTargetSystemIds: { value: TargetSystemId[] };
     };
   };
-  assignments: () => DaemonAssignment[];
+  assignments: () => AccessConnectorAssignment[];
   assignOptions: () => SelectItemView[];
   noEligibleTargetSystems: () => boolean;
   assignTargets: (selected: SelectItemView[]) => Promise<readonly string[]>;
-  unassignTarget: (assignment: DaemonAssignment) => Promise<boolean>;
+  unassignTarget: (assignment: AccessConnectorAssignment) => Promise<boolean>;
   submit: () => Promise<void>;
-  deleteDaemon: () => Promise<void>;
+  deleteAccessConnector: () => Promise<void>;
   confirmDiscard: () => Promise<boolean>;
-  daemon: () => AccessConnectorDetail | null;
+  accessConnector: () => AccessConnectorDetail | null;
 };
 
-function makeDaemon(overrides: Partial<AccessConnector> = {}): AccessConnectorDetail {
+function makeAccessConnector(overrides: Partial<AccessConnector> = {}): AccessConnectorDetail {
   return accessConnectorDetail({
     connector: accessConnector({
-      id: connectorId("daemon-1"),
-      name: "On-prem daemon",
+      id: connectorId("access-connector-1"),
+      name: "On-prem accessConnector",
       assignedTargetSystemIds: [sysId("ts-1")],
       ...overrides,
     }),
@@ -107,13 +107,13 @@ function pick(system: TargetSystem): SelectItemView {
   return { id: String(system.id), listName: system.name, labelName: system.name };
 }
 
-function daemonProviders(
+function accessConnectorProviders(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  daemonId = connectorId("daemon-1"),
+  accessConnectorId = connectorId("access-connector-1"),
   dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
   tab = "configuration",
 ) {
-  const params = { organizationId: ORGANIZATION_ID, daemonId, tab };
+  const params = { organizationId: ORGANIZATION_ID, accessConnectorId, tab };
   return [
     provideRouter([]),
     { provide: RotationSdkService, useValue: rotationSdk },
@@ -133,7 +133,7 @@ function daemonProviders(
 
 async function setup(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  daemonId = connectorId("daemon-1"),
+  accessConnectorId = connectorId("access-connector-1"),
   dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
   {
     renderTemplate = false,
@@ -146,7 +146,9 @@ async function setup(
   } = {},
 ) {
   if (!renderTemplate) {
-    TestBed.overrideComponent(DaemonDetailComponent, { set: { template: "", imports: [] } });
+    TestBed.overrideComponent(AccessConnectorDetailComponent, {
+      set: { template: "", imports: [] },
+    });
   }
   if (cipherNames != null) {
     TestBed.overrideProvider(OrgCiphersService, {
@@ -159,12 +161,15 @@ async function setup(
     });
   }
   await TestBed.configureTestingModule({
-    imports: [DaemonDetailComponent, NoopAnimationsModule],
-    providers: daemonProviders(rotationSdk, daemonId, dialogService, tab),
+    imports: [AccessConnectorDetailComponent, NoopAnimationsModule],
+    providers: accessConnectorProviders(rotationSdk, accessConnectorId, dialogService, tab),
   }).compileComponents();
 }
 
-function fieldText(rendered: ComponentFixture<DaemonDetailComponent>, testId: string): string {
+function fieldText(
+  rendered: ComponentFixture<AccessConnectorDetailComponent>,
+  testId: string,
+): string {
   const el = (rendered.nativeElement as HTMLElement).querySelector(`[data-testid="${testId}"]`);
   return el?.textContent?.trim() ?? "";
 }
@@ -180,13 +185,13 @@ function stageActive(comp: DetailApi, active: boolean): void {
   comp.formGroup.controls.active.markAsDirty();
 }
 
-describe("DaemonDetailComponent", () => {
-  let fixture: ComponentFixture<DaemonDetailComponent>;
+describe("AccessConnectorDetailComponent", () => {
+  let fixture: ComponentFixture<AccessConnectorDetailComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
   /** Creates the component and settles the two loads the page kicks off in its constructor. */
   async function createComponent(): Promise<DetailApi> {
-    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture = TestBed.createComponent(AccessConnectorDetailComponent);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -194,8 +199,8 @@ describe("DaemonDetailComponent", () => {
   }
 
   function runGuard(comp: DetailApi): Promise<boolean> {
-    return daemonDetailDiscardGuard(
-      comp as unknown as DaemonDetailComponent,
+    return accessConnectorDetailDiscardGuard(
+      comp as unknown as AccessConnectorDetailComponent,
       null as never,
       null as never,
       null as never,
@@ -209,17 +214,20 @@ describe("DaemonDetailComponent", () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it("loads the daemon on init", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+  it("loads the accessConnector on init", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
     await setup(rotationSdk);
     const comp = await createComponent();
 
-    expect(rotationSdk.getConnector).toHaveBeenCalledWith(ORGANIZATION_ID, connectorId("daemon-1"));
-    expect(comp.titleText()).toBe("On-prem daemon");
+    expect(rotationSdk.getConnector).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      connectorId("access-connector-1"),
+    );
+    expect(comp.titleText()).toBe("On-prem accessConnector");
   });
 
   it("seeds the form from the loaded connector, so nothing starts staged", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
     await setup(rotationSdk);
     const comp = await createComponent();
 
@@ -230,7 +238,7 @@ describe("DaemonDetailComponent", () => {
   });
 
   it("resolves assignment ids to target-system names", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
     await setup(rotationSdk);
     const comp = await createComponent();
 
@@ -249,7 +257,7 @@ describe("DaemonDetailComponent", () => {
 
   it("tells two same-named assignments apart by their integration", async () => {
     rotationSdk.getConnector.mockResolvedValue(
-      makeDaemon({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
+      makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
     );
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
     await setup(rotationSdk);
@@ -262,7 +270,7 @@ describe("DaemonDetailComponent", () => {
   });
 
   it("offers only the unassigned active automatic targets in the picker", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
     await setup(rotationSdk);
     const comp = await createComponent();
@@ -289,7 +297,7 @@ describe("DaemonDetailComponent", () => {
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
-      expect(el.querySelector('[data-testid="daemon-detail-loading"]')).toBeNull();
+      expect(el.querySelector('[data-testid="access-connector-detail-loading"]')).toBeNull();
       expect(nav).not.toHaveBeenCalled();
     });
 
@@ -310,12 +318,12 @@ describe("DaemonDetailComponent", () => {
 
     it("re-reads the connector from the error state, and shows it once it lands", async () => {
       rotationSdk.getConnector.mockRejectedValueOnce(new Error("boom"));
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
 
       await createComponent();
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
 
       (fixture.nativeElement as HTMLElement)
         .querySelector<HTMLButtonElement>("#rotation-load-error_button_retry")!
@@ -325,13 +333,13 @@ describe("DaemonDetailComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).toBeNull();
-      expect(el.querySelector("#daemon-detail_checkbox_active")).not.toBeNull();
+      expect(el.querySelector("#access-connector-detail_checkbox_active")).not.toBeNull();
     });
   });
 
   describe("staging", () => {
-    async function mount(daemon = makeDaemon()): Promise<DetailApi> {
-      rotationSdk.getConnector.mockResolvedValue(daemon);
+    async function mount(accessConnector = makeAccessConnector()): Promise<DetailApi> {
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       await setup(rotationSdk);
       return await createComponent();
@@ -368,8 +376,8 @@ describe("DaemonDetailComponent", () => {
 
     it("does not confirm a removal that has not been written yet", async () => {
       const dialog = mock<DialogService>();
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
-      await setup(rotationSdk, connectorId("daemon-1"), dialog);
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      await setup(rotationSdk, connectorId("access-connector-1"), dialog);
       const comp = await createComponent();
 
       await comp.unassignTarget(comp.assignments()[0]);
@@ -442,16 +450,16 @@ describe("DaemonDetailComponent", () => {
   describe("saving", () => {
     let dialog: ReturnType<typeof mock<DialogService>>;
 
-    async function mount(daemon = makeDaemon()): Promise<DetailApi> {
+    async function mount(accessConnector = makeAccessConnector()): Promise<DetailApi> {
       dialog = mock<DialogService>();
       dialog.openSimpleDialog.mockResolvedValue(true);
-      rotationSdk.getConnector.mockResolvedValue(daemon);
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       rotationSdk.assignTarget.mockResolvedValue(undefined);
       rotationSdk.unassignTarget.mockResolvedValue(undefined);
       rotationSdk.enableConnector.mockResolvedValue(undefined);
       rotationSdk.disableConnector.mockResolvedValue(undefined);
-      await setup(rotationSdk, connectorId("daemon-1"), dialog);
+      await setup(rotationSdk, connectorId("access-connector-1"), dialog);
       return await createComponent();
     }
 
@@ -475,12 +483,12 @@ describe("DaemonDetailComponent", () => {
 
       expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
         ORGANIZATION_ID,
-        connectorId("daemon-1"),
+        connectorId("access-connector-1"),
         sysId("ts-2"),
       );
       expect(rotationSdk.unassignTarget).toHaveBeenCalledWith(
         ORGANIZATION_ID,
-        connectorId("daemon-1"),
+        connectorId("access-connector-1"),
         sysId("ts-1"),
       );
       expect(comp.assignments().map((a) => a.id)).toEqual([sysId("ts-2")]);
@@ -493,7 +501,7 @@ describe("DaemonDetailComponent", () => {
 
     it("activates before the assignment writes, so the server can accept them", async () => {
       const calls: string[] = [];
-      const comp = await mount(makeDaemon({ status: AccessConnectorStatus.Disabled }));
+      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
       rotationSdk.enableConnector.mockImplementation(async () => {
         calls.push("enable");
       });
@@ -556,7 +564,7 @@ describe("DaemonDetailComponent", () => {
     });
 
     it("does not confirm an activation", async () => {
-      const comp = await mount(makeDaemon({ status: AccessConnectorStatus.Disabled }));
+      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
       stageActive(comp, true);
 
       await comp.submit();
@@ -584,7 +592,7 @@ describe("DaemonDetailComponent", () => {
     });
 
     it("keeps the writes that did land, so a retry only carries the rest", async () => {
-      const comp = await mount(makeDaemon({ assignedTargetSystemIds: [] }));
+      const comp = await mount(makeAccessConnector({ assignedTargetSystemIds: [] }));
       rotationSdk.assignTarget
         .mockResolvedValueOnce(undefined)
         .mockRejectedValueOnce(new Error("boom"));
@@ -597,7 +605,7 @@ describe("DaemonDetailComponent", () => {
     });
 
     it("stops before the assignment writes when the activation fails", async () => {
-      const comp = await mount(makeDaemon({ status: AccessConnectorStatus.Disabled }));
+      const comp = await mount(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
       rotationSdk.enableConnector.mockRejectedValue(new Error("offline"));
       stageActive(comp, true);
       await comp.assignTargets([pick(makeOtherSystem())]);
@@ -616,8 +624,8 @@ describe("DaemonDetailComponent", () => {
 
       await comp.submit();
 
-      expect(comp.daemon()?.connector.creationDate).toBe(seeded);
-      expect(comp.daemon()?.connector.lastHeartbeatAt).toBe(seeded);
+      expect(comp.accessConnector()?.connector.creationDate).toBe(seeded);
+      expect(comp.accessConnector()?.connector.lastHeartbeatAt).toBe(seeded);
     });
   });
 
@@ -627,11 +635,11 @@ describe("DaemonDetailComponent", () => {
     async function mount(): Promise<DetailApi> {
       dialog = mock<DialogService>();
       dialog.openSimpleDialog.mockResolvedValue(true);
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       rotationSdk.assignTarget.mockResolvedValue(undefined);
       rotationSdk.deleteConnector.mockResolvedValue(undefined);
-      await setup(rotationSdk, connectorId("daemon-1"), dialog);
+      await setup(rotationSdk, connectorId("access-connector-1"), dialog);
       return await createComponent();
     }
 
@@ -694,28 +702,28 @@ describe("DaemonDetailComponent", () => {
       jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
       await comp.assignTargets([pick(makeOtherSystem())]);
 
-      await comp.deleteDaemon();
+      await comp.deleteAccessConnector();
 
       expect(rotationSdk.deleteConnector).toHaveBeenCalled();
       await expect(runGuard(comp)).resolves.toBe(true);
     });
   });
 
-  it("deletes the daemon after confirmation and navigates back", async () => {
-    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+  it("deletes the accessConnector after confirmation and navigates back", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
     rotationSdk.deleteConnector.mockResolvedValue(undefined);
     const dialog = mock<DialogService>();
     dialog.openSimpleDialog.mockResolvedValue(true);
-    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    await setup(rotationSdk, connectorId("access-connector-1"), dialog);
     const router = TestBed.inject(Router);
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
     const comp = await createComponent();
 
-    await comp.deleteDaemon();
+    await comp.deleteAccessConnector();
 
     expect(rotationSdk.deleteConnector).toHaveBeenCalledWith(
       ORGANIZATION_ID,
-      connectorId("daemon-1"),
+      connectorId("access-connector-1"),
     );
     expect(nav).toHaveBeenCalled();
   });
@@ -723,9 +731,9 @@ describe("DaemonDetailComponent", () => {
   describe("rendered assignment section", () => {
     const query = (selector: string) => fixture.nativeElement.querySelector(selector);
 
-    async function render(daemon = makeDaemon()): Promise<DetailApi> {
-      rotationSdk.getConnector.mockResolvedValue(daemon);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+    async function render(accessConnector = makeAccessConnector()): Promise<DetailApi> {
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       return await createComponent();
@@ -736,7 +744,7 @@ describe("DaemonDetailComponent", () => {
       await render();
 
       expect(query("pam-assignment-picker")).toBeTruthy();
-      expect(query("#daemon-detail_multi-select_options")).toBeTruthy();
+      expect(query("#access-connector-detail_multi-select_options")).toBeTruthy();
       const rows = fixture.nativeElement.querySelectorAll("tbody tr");
       expect(rows).toHaveLength(1);
       expect(rows[0].textContent).toContain("Prod Entra");
@@ -744,16 +752,18 @@ describe("DaemonDetailComponent", () => {
 
     it("gives each remove control an accessible name that names the target system", async () => {
       rotationSdk.getConnector.mockResolvedValue(
-        makeDaemon({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
+        makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
       );
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
 
       expect(
-        query(`#daemon-detail_button_unassign-${sysId("ts-1")}`).getAttribute("aria-label"),
+        query(`#access-connector-detail_button_unassign-${sysId("ts-1")}`).getAttribute(
+          "aria-label",
+        ),
       ).toBe("pamAccessConnectorUnassign");
       const kinds = Array.from(
         fixture.nativeElement.querySelectorAll("tbody tr td:nth-child(2)"),
@@ -767,7 +777,7 @@ describe("DaemonDetailComponent", () => {
 
       expect(query("tbody tr td:nth-child(3)").textContent).toContain(uuidAsString(sysId("ts-1")));
 
-      query(`#daemon-detail_button_copy-target-id-${sysId("ts-1")}`).click();
+      query(`#access-connector-detail_button_copy-target-id-${sysId("ts-1")}`).click();
 
       expect(TestBed.inject(PlatformUtilsService).copyToClipboard).toHaveBeenCalledWith(
         uuidAsString(sysId("ts-1")),
@@ -775,14 +785,14 @@ describe("DaemonDetailComponent", () => {
     });
 
     it("shows the empty row when nothing is assigned", async () => {
-      await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(fixture.nativeElement.textContent).toContain("pamAccessConnectorAssignmentsEmpty");
     });
 
     it("marks a staged assignment as pending rather than as saved", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      const comp = await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      const comp = await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       await comp.assignTargets([pick(makeOtherSystem())]);
       fixture.detectChanges();
@@ -805,9 +815,9 @@ describe("DaemonDetailComponent", () => {
 
     it("keeps Assign aria-disabled with its tooltip while the connector is staged inactive", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render(makeDaemon({ status: AccessConnectorStatus.Disabled }));
+      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
 
-      const assign = query("#daemon-detail_button_assign");
+      const assign = query("#access-connector-detail_button_assign");
       expect(assign).toBeTruthy();
       expect(assign.getAttribute("aria-disabled")).toBe("true");
       expect(assign.getAttribute("aria-describedby")).toBeTruthy();
@@ -815,17 +825,17 @@ describe("DaemonDetailComponent", () => {
 
     it("links to Target systems when the org has none to assign", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([]);
-      await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
-      expect(query("#daemon-detail_anchor_go-to").getAttribute("href")).toBe(
+      expect(query("#access-connector-detail_anchor_go-to").getAttribute("href")).toBe(
         `/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems`,
       );
     });
 
     it("leaves the Target systems link out while eligible targets exist", async () => {
-      await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
-      expect(query("#daemon-detail_anchor_go-to")).toBeNull();
+      expect(query("#access-connector-detail_anchor_go-to")).toBeNull();
     });
   });
 
@@ -834,43 +844,43 @@ describe("DaemonDetailComponent", () => {
       (fixture.nativeElement as HTMLElement).querySelector("pam-assignment-picker bit-hint")
         ?.textContent;
 
-    async function render(daemon: AccessConnectorDetail): Promise<void> {
-      rotationSdk.getConnector.mockResolvedValue(daemon);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+    async function render(accessConnector: AccessConnectorDetail): Promise<void> {
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
     }
 
     it("explains what can be assigned while eligible targets remain", async () => {
-      await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(hintText()).toContain("pamAccessConnectorAssignSelectHint");
     });
 
     it("keeps the standing hint when every eligible target is already assigned", async () => {
-      await render(makeDaemon());
+      await render(makeAccessConnector());
 
       expect(hintText()).toContain("pamAccessConnectorAssignSelectHint");
     });
 
     it("answers a staged-inactive connector first, since nothing else is actionable", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await render(makeDaemon({ status: AccessConnectorStatus.Disabled }));
+      await render(makeAccessConnector({ status: AccessConnectorStatus.Disabled }));
 
       expect(hintText()).toContain("pamAccessConnectorAssignTargetDisabled");
     });
 
     it("says none exist when the org has no active automatic target system", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([]);
-      await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(hintText()).toContain("pamAccessConnectorAssignNoTargetSystems");
     });
 
     it("reports the load failure rather than claiming the org has no target systems", async () => {
       rotationSdk.listTargetSystems.mockRejectedValue(new Error("offline"));
-      await render(makeDaemon({ assignedTargetSystemIds: [] }));
+      await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(hintText()).toContain("pamAccessConnectorTargetSystemsLoadError");
     });
@@ -880,8 +890,8 @@ describe("DaemonDetailComponent", () => {
     const query = (selector: string) => fixture.nativeElement.querySelector(selector);
 
     it("offers a Configuration tab and a History tab, each with a route of its own", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
@@ -893,7 +903,7 @@ describe("DaemonDetailComponent", () => {
         "pamAccessConnectorTabConfiguration",
         "pamAccessConnectorTabHistory",
       ]);
-      const base = `/organizations/${ORGANIZATION_ID}/pam/rotation/access-connectors/${connectorId("daemon-1")}`;
+      const base = `/organizations/${ORGANIZATION_ID}/pam/rotation/access-connectors/${connectorId("access-connector-1")}`;
       expect(links.map((el) => el.querySelector("a")?.getAttribute("href"))).toEqual([
         `${base}/configuration`,
         `${base}/history`,
@@ -901,24 +911,28 @@ describe("DaemonDetailComponent", () => {
     });
 
     it("reads the open tab from the route", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), { tab: "history" });
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
+        tab: "history",
+      });
       const comp = await createComponent();
 
       expect(comp.activeTab()).toBe("history");
     });
 
     it("falls back to Configuration for a tab segment it does not know", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), { tab: "nonsense" });
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
+        tab: "nonsense",
+      });
       const comp = await createComponent();
 
       expect(comp.activeTab()).toBe("configuration");
     });
 
     it("keeps the details card and the assignment picker on the Configuration tab", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
@@ -932,14 +946,14 @@ describe("DaemonDetailComponent", () => {
       let settleConfigs!: (configs: RotationConfig[]) => void;
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("daemon-1") }),
+          connector: accessConnector({ id: connectorId("access-connector-1") }),
           jobs: [rotationJob()],
         }),
       );
       rotationSdk.listConfigs.mockReturnValue(
         new Promise<RotationConfig[]>((resolve) => (settleConfigs = resolve)),
       );
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         cipherNames: new Map(),
       });
@@ -952,12 +966,12 @@ describe("DaemonDetailComponent", () => {
     it("puts the history table on the History tab, naming each job's managed credential", async () => {
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("daemon-1") }),
+          connector: accessConnector({ id: connectorId("access-connector-1") }),
           jobs: [rotationJob()],
         }),
       );
       rotationSdk.listConfigs.mockResolvedValue([]);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         tab: "history",
       });
@@ -972,14 +986,14 @@ describe("DaemonDetailComponent", () => {
     it("names each job by the credential it rotated", async () => {
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("daemon-1") }),
+          connector: accessConnector({ id: connectorId("access-connector-1") }),
           jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
         }),
       );
       rotationSdk.listConfigs.mockResolvedValue([
         rotationConfig({ id: configId("cfg-1"), cipherId: CIPHER_ID }),
       ]);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         tab: "history",
         cipherNames: new Map([[CIPHER_ID, "Prod service account"]]),
@@ -992,14 +1006,14 @@ describe("DaemonDetailComponent", () => {
     it("falls back to the rotation config id when no name resolved", async () => {
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
-          connector: accessConnector({ id: connectorId("daemon-1") }),
+          connector: accessConnector({ id: connectorId("access-connector-1") }),
           jobs: [rotationJob({ rotationConfigId: configId("cfg-1") })],
         }),
       );
       rotationSdk.listConfigs.mockResolvedValue([
         rotationConfig({ id: configId("cfg-1"), cipherId: CIPHER_ID }),
       ]);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         tab: "history",
         cipherNames: new Map(),
@@ -1010,8 +1024,8 @@ describe("DaemonDetailComponent", () => {
     });
 
     it("names the tab and the section it opens with the same word", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         tab: "history",
       });
@@ -1033,9 +1047,9 @@ describe("DaemonDetailComponent", () => {
       return new DatePipe(TestBed.inject(LOCALE_ID)).transform(seeded, "medium") ?? "";
     }
 
-    async function renderDetail(daemon: AccessConnectorDetail) {
-      rotationSdk.getConnector.mockResolvedValue(daemon);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+    async function renderDetail(accessConnector: AccessConnectorDetail) {
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
@@ -1043,34 +1057,34 @@ describe("DaemonDetailComponent", () => {
     }
 
     it("renders the creation date", async () => {
-      const rendered = await renderDetail(makeDaemon());
+      const rendered = await renderDetail(makeAccessConnector());
 
       expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
     });
 
     it("renders the last heartbeat as the last seen time", async () => {
-      const rendered = await renderDetail(makeDaemon());
+      const rendered = await renderDetail(makeAccessConnector());
 
       expect(fieldText(rendered, "connector-last-seen")).toBe(expectedMedium());
     });
 
     it("renders 'Never' for a connector that has not checked in yet", async () => {
-      const rendered = await renderDetail(makeDaemon({ lastHeartbeatAt: undefined }));
+      const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: undefined }));
 
       expect(fieldText(rendered, "connector-last-seen")).toBe("never");
     });
 
     it("still renders the creation date when the connector has never been seen", async () => {
-      const rendered = await renderDetail(makeDaemon({ lastHeartbeatAt: undefined }));
+      const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: undefined }));
 
       expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
     });
   });
 
   describe("action row (rendered)", () => {
-    async function render(daemon: AccessConnectorDetail): Promise<HTMLElement> {
-      rotationSdk.getConnector.mockResolvedValue(daemon);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+    async function render(accessConnector: AccessConnectorDetail): Promise<HTMLElement> {
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
@@ -1078,50 +1092,56 @@ describe("DaemonDetailComponent", () => {
     }
 
     function actionRow(el: HTMLElement): HTMLElement {
-      return el.querySelector("#daemon-detail_button_save")?.parentElement as HTMLElement;
+      return el.querySelector("#access-connector-detail_button_save")?.parentElement as HTMLElement;
     }
 
     it("leaves the page header with its title and breadcrumbs only", async () => {
-      const el = await render(makeDaemon());
+      const el = await render(makeAccessConnector());
 
       const header = el.querySelector("bit-header") as HTMLElement;
       expect(header).toBeTruthy();
-      expect(header.querySelector("#daemon-detail_checkbox_active")).toBeNull();
-      expect(header.querySelector("#daemon-detail_button_delete")).toBeNull();
+      expect(header.querySelector("#access-connector-detail_checkbox_active")).toBeNull();
+      expect(header.querySelector("#access-connector-detail_button_delete")).toBeNull();
     });
 
     it("puts Save and Delete in one row, Save first", async () => {
-      const el = await render(makeDaemon());
+      const el = await render(makeAccessConnector());
 
       const row = actionRow(el);
       expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
-        "daemon-detail_button_save",
-        "daemon-detail_button_delete",
+        "access-connector-detail_button_save",
+        "access-connector-detail_button_delete",
       ]);
     });
 
     it("submits the form from Save and pushes Delete to the far end", async () => {
-      const el = await render(makeDaemon());
+      const el = await render(makeAccessConnector());
 
-      expect(el.querySelector("#daemon-detail_button_save")?.getAttribute("type")).toBe("submit");
+      expect(el.querySelector("#access-connector-detail_button_save")?.getAttribute("type")).toBe(
+        "submit",
+      );
       expect(
-        el.querySelector("#daemon-detail_button_delete")?.classList.contains("tw-ms-auto"),
+        el
+          .querySelector("#access-connector-detail_button_delete")
+          ?.classList.contains("tw-ms-auto"),
       ).toBe(true);
     });
 
     it("is the only action row on the page, with no card of its own for the deletion", async () => {
-      const el = await render(makeDaemon());
+      const el = await render(makeAccessConnector());
 
-      expect(el.querySelectorAll("#daemon-detail_button_delete")).toHaveLength(1);
+      expect(el.querySelectorAll("#access-connector-detail_button_delete")).toHaveLength(1);
       expect(actionRow(el).closest("bit-card")).toBeNull();
       expect(el.textContent).not.toContain("pamAccessConnectorDeleteConfirmContent");
     });
 
     it("states the status as a form field in a card rather than an action-row button", async () => {
-      const el = await render(makeDaemon());
+      const el = await render(makeAccessConnector());
 
-      expect(actionRow(el).querySelector("#daemon-detail_checkbox_active")).toBeNull();
-      const checkbox = el.querySelector("#daemon-detail_checkbox_active") as HTMLInputElement;
+      expect(actionRow(el).querySelector("#access-connector-detail_checkbox_active")).toBeNull();
+      const checkbox = el.querySelector(
+        "#access-connector-detail_checkbox_active",
+      ) as HTMLInputElement;
       expect(checkbox).toBeTruthy();
       expect(checkbox.closest("bit-card")).toBeTruthy();
       expect(el.textContent).toContain("pamAccessConnectorActiveHint");
@@ -1129,33 +1149,37 @@ describe("DaemonDetailComponent", () => {
   });
 
   describe("status card", () => {
-    async function renderCheckbox(daemon: AccessConnectorDetail): Promise<HTMLInputElement> {
-      rotationSdk.getConnector.mockResolvedValue(daemon);
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+    async function renderCheckbox(
+      accessConnector: AccessConnectorDetail,
+    ): Promise<HTMLInputElement> {
+      rotationSdk.getConnector.mockResolvedValue(accessConnector);
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
       });
       await createComponent();
       await fixture.whenStable();
       fixture.detectChanges();
       return (fixture.nativeElement as HTMLElement).querySelector(
-        "#daemon-detail_checkbox_active",
+        "#access-connector-detail_checkbox_active",
       ) as HTMLInputElement;
     }
 
     it("checks the box for an active connector", async () => {
-      const checkbox = await renderCheckbox(makeDaemon());
+      const checkbox = await renderCheckbox(makeAccessConnector());
 
       expect(checkbox.checked).toBe(true);
     });
 
     it("clears the box for an inactive connector", async () => {
-      const checkbox = await renderCheckbox(makeDaemon({ status: AccessConnectorStatus.Disabled }));
+      const checkbox = await renderCheckbox(
+        makeAccessConnector({ status: AccessConnectorStatus.Disabled }),
+      );
 
       expect(checkbox.checked).toBe(false);
     });
 
     it("stages the flip without writing it or moving the saved-status badge", async () => {
-      const checkbox = await renderCheckbox(makeDaemon());
+      const checkbox = await renderCheckbox(makeAccessConnector());
       const comp = fixture.componentInstance as unknown as DetailApi;
 
       checkbox.click();
@@ -1165,8 +1189,9 @@ describe("DaemonDetailComponent", () => {
       expect(comp.stagedActive()).toBe(false);
       expect(comp.formGroup.dirty).toBe(true);
       expect(
-        (fixture.nativeElement as HTMLElement).querySelector("#daemon-detail_badge_status")
-          ?.textContent,
+        (fixture.nativeElement as HTMLElement).querySelector(
+          "#access-connector-detail_badge_status",
+        )?.textContent,
       ).toContain("pamAccessConnectorStatusActive");
     });
   });
@@ -1185,14 +1210,14 @@ describe("DaemonDetailComponent", () => {
 
     /** Renders the page with its load still in flight. */
     async function renderLoading(tab = "configuration") {
-      rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
       jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
         tab,
       });
-      fixture = TestBed.createComponent(DaemonDetailComponent);
+      fixture = TestBed.createComponent(AccessConnectorDetailComponent);
       fixture.detectChanges();
     }
 
@@ -1212,7 +1237,7 @@ describe("DaemonDetailComponent", () => {
     it("stands skeleton cards in for the configuration form, in real furniture", async () => {
       await renderSkeleton();
 
-      const loading = query('[data-testid="daemon-detail-loading"]');
+      const loading = query('[data-testid="access-connector-detail-loading"]');
       expect(query("bit-spinner")).toBeNull();
       expect(loading).not.toBeNull();
       expect(loading.querySelector("bit-skeleton")).not.toBeNull();
@@ -1223,15 +1248,15 @@ describe("DaemonDetailComponent", () => {
     it("keeps the placeholder itself out of the accessibility tree", async () => {
       await renderLoading();
 
-      expect(query('[data-testid="daemon-detail-loading"]').getAttribute("aria-hidden")).toBe(
-        "true",
-      );
+      expect(
+        query('[data-testid="access-connector-detail-loading"]').getAttribute("aria-hidden"),
+      ).toBe("true");
     });
 
     it("mirrors the history table instead when the history tab is the one loading", async () => {
       await renderSkeleton("history");
 
-      const loading = query('[data-testid="daemon-detail-loading"]');
+      const loading = query('[data-testid="access-connector-detail-loading"]');
       expect(loading.querySelector("app-rotation-history-skeleton")).not.toBeNull();
       expect(loading.textContent).toContain("pamRotationHistoryColumnResult");
       expect(loading.textContent).not.toContain("pamAccessConnectorDetailsHeading");
@@ -1258,17 +1283,17 @@ describe("DaemonDetailComponent", () => {
       await settle();
       advance(1000);
 
-      expect(query('[data-testid="daemon-detail-loading"]')).toBeNull();
+      expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
       expect(query("bit-skeleton")).toBeNull();
       expect(query("form")).not.toBeNull();
-      expect(query("#daemon-detail_checkbox_active")).not.toBeNull();
+      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
     });
 
     it("renders the page's own chrome, not a blank area, before the delay is up", async () => {
       await renderLoading();
       advance(999);
 
-      expect(query('[data-testid="daemon-detail-loading"]')).not.toBeNull();
+      expect(query('[data-testid="access-connector-detail-loading"]')).not.toBeNull();
       expect(query("bit-skeleton")).toBeNull();
       expect(query("pam-detail-breadcrumb")).not.toBeNull();
     });
@@ -1280,8 +1305,8 @@ describe("DaemonDetailComponent", () => {
       advance(1000);
 
       expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="daemon-detail-loading"]')).toBeNull();
-      expect(query("#daemon-detail_checkbox_active")).not.toBeNull();
+      expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
+      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
     });
 
     it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
@@ -1296,7 +1321,7 @@ describe("DaemonDetailComponent", () => {
       advance(700);
 
       expect(query("bit-skeleton")).toBeNull();
-      expect(query("#daemon-detail_checkbox_active")).not.toBeNull();
+      expect(query("#access-connector-detail_checkbox_active")).not.toBeNull();
     });
 
     it("announces the load at once, not on the placeholder's clock", async () => {

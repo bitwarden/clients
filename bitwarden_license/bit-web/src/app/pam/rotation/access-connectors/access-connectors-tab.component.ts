@@ -58,14 +58,14 @@ import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { accessConnectorConnectionLabelKey } from "./access-connector-label";
+import { AccessConnectorRegisterDialogComponent } from "./access-connector-register-dialog.component";
+import { AccessConnectorRow, AccessConnectorsService } from "./access-connectors.service";
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
-import { DaemonRegisterDialogComponent } from "./daemon-register-dialog.component";
-import { DaemonRow, DaemonsService } from "./daemons.service";
 
 /**
- * A {@link DaemonRow} with the row menu's own state added.
+ * A {@link AccessConnectorRow} with the row menu's own state added.
  */
-export type DaemonTabRow = DaemonRow & {
+export type AccessConnectorTabRow = AccessConnectorRow & {
   /**
    * Why no target system can be assigned to this connector right now, as the i18n key the menu
    * item's tooltip states, or null when one can.
@@ -74,8 +74,8 @@ export type DaemonTabRow = DaemonRow & {
 };
 
 @Component({
-  selector: "app-daemons-tab",
-  templateUrl: "./daemons-tab.component.html",
+  selector: "app-access-connectors-tab",
+  templateUrl: "./access-connectors-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -102,20 +102,24 @@ export type DaemonTabRow = DaemonRow & {
     I18nPipe,
   ],
 })
-export class DaemonsTabComponent {
+export class AccessConnectorsTabComponent {
   protected readonly noItemsIcon = NoResults;
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly daemonsService = inject(DaemonsService);
+  private readonly accessConnectorsService = inject(AccessConnectorsService);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
 
-  protected readonly loading = toSignal(this.daemonsService.loading$, { initialValue: true });
-  protected readonly loadError = toSignal(this.daemonsService.loadError$, { initialValue: null });
+  protected readonly loading = toSignal(this.accessConnectorsService.loading$, {
+    initialValue: true,
+  });
+  protected readonly loadError = toSignal(this.accessConnectorsService.loadError$, {
+    initialValue: null,
+  });
 
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
@@ -127,8 +131,8 @@ export class DaemonsTabComponent {
 
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
-  private readonly serviceRows = toSignal(this.daemonsService.rows$, {
-    initialValue: [] as DaemonRow[],
+  private readonly serviceRows = toSignal(this.accessConnectorsService.rows$, {
+    initialValue: [] as AccessConnectorRow[],
   });
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
     initialValue: [] as TargetSystem[],
@@ -154,7 +158,7 @@ export class DaemonsTabComponent {
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() != null,
   );
 
-  private readonly rows = computed<DaemonTabRow[]>(() => {
+  private readonly rows = computed<AccessConnectorTabRow[]>(() => {
     const eligible = this.automaticSystems();
     const known = this.targetSystemsKnown();
     return this.serviceRows().map((row) => ({
@@ -163,7 +167,7 @@ export class DaemonsTabComponent {
     }));
   });
 
-  protected readonly dataSource = new TableDataSource<DaemonTabRow>();
+  protected readonly dataSource = new TableDataSource<AccessConnectorTabRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
@@ -232,7 +236,7 @@ export class DaemonsTabComponent {
   protected readonly totalRows = computed(() => this.rows().length);
 
   private assignTargetsBlockedKey(
-    row: DaemonRow,
+    row: AccessConnectorRow,
     eligible: readonly TargetSystem[],
     targetSystemsKnown: boolean,
   ): string | null {
@@ -245,14 +249,15 @@ export class DaemonsTabComponent {
     if (eligible.length === 0) {
       return "pamAccessConnectorAssignNoTargetSystems";
     }
-    return assignableTargetSystems(row.daemon.assignedTargetSystemIds, eligible).length === 0
+    return assignableTargetSystems(row.accessConnector.assignedTargetSystemIds, eligible).length ===
+      0
       ? "pamAccessConnectorAssignNoOptions"
       : null;
   }
 
   private async loadAll(organizationId: OrganizationId): Promise<void> {
     await Promise.all([
-      this.daemonsService.load(organizationId),
+      this.accessConnectorsService.load(organizationId),
       this.targetSystemsService.load(organizationId),
     ]);
   }
@@ -265,22 +270,22 @@ export class DaemonsTabComponent {
     return this.loadAll(this.organizationId());
   };
 
-  /** Navigate to the daemon detail page (sibling of the shell). */
-  protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>
+  /** Navigate to the access connector detail page (sibling of the shell). */
+  protected readonly openDetail = (row: AccessConnectorRow): Promise<boolean> =>
     this.router.navigate(["..", "access-connectors", row.id], { relativeTo: this.route });
 
   /**
-   * Open the daemon registration dialog and refresh the shared list on success.
+   * Open the access connector registration dialog and refresh the shared list on success.
    * Owned by the empty state; the shell's header button covers the non-empty list.
    */
-  protected readonly registerDaemon = async (): Promise<void> => {
+  protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
-    const ref = DaemonRegisterDialogComponent.open(this.dialogService, {
+    const ref = AccessConnectorRegisterDialogComponent.open(this.dialogService, {
       data: { organizationId: orgId },
     });
     const result = await ref.closed.toPromise();
     if (result) {
-      await this.daemonsService.registerCompleted(orgId);
+      await this.accessConnectorsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamAccessConnectorRegistered"),
@@ -296,7 +301,7 @@ export class DaemonsTabComponent {
    * an emptiness the org may not have, and a read that failed says so instead of opening at all.
    * The wait is gated on the component, so leaving the tab mid-wait opens nothing.
    */
-  protected readonly openAssignDialog = (row: DaemonRow): Promise<void> =>
+  protected readonly openAssignDialog = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const stillMounted = await firstValueFrom(
         this.targetSystemsService.loading$.pipe(
@@ -318,17 +323,27 @@ export class DaemonsTabComponent {
       }
 
       const activeSystems = this.automaticSystems();
-      const options = assignableTargetSystems(row.daemon.assignedTargetSystemIds, activeSystems);
+      const options = assignableTargetSystems(
+        row.accessConnector.assignedTargetSystemIds,
+        activeSystems,
+      );
 
       const ref = AssignTargetDialogComponent.open(this.dialogService, {
-        data: { daemon: row.daemon, options, noActiveAutomaticSystems: activeSystems.length === 0 },
+        data: {
+          accessConnector: row.accessConnector,
+          options,
+          noActiveAutomaticSystems: activeSystems.length === 0,
+        },
       });
       const targetSystemId = await ref.closed.toPromise();
       if (!targetSystemId) {
         return;
       }
       try {
-        await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
+        await this.accessConnectorsService.assign(
+          row.accessConnector,
+          asUuid<TargetSystemId>(targetSystemId),
+        );
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorAssigned"),
@@ -339,7 +354,7 @@ export class DaemonsTabComponent {
     });
 
   protected readonly unassign = (
-    row: DaemonRow,
+    row: AccessConnectorRow,
     targetSystemId: string,
     targetName: string,
   ): Promise<void> =>
@@ -355,7 +370,10 @@ export class DaemonsTabComponent {
         return;
       }
       try {
-        await this.daemonsService.unassign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
+        await this.accessConnectorsService.unassign(
+          row.accessConnector,
+          asUuid<TargetSystemId>(targetSystemId),
+        );
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorUnassigned"),
@@ -365,7 +383,7 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly disable = (row: DaemonRow): Promise<void> =>
+  protected readonly disable = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog(
         accessConnectorDeactivateConfirmOptions(row.name),
@@ -374,7 +392,7 @@ export class DaemonsTabComponent {
         return;
       }
       try {
-        await this.daemonsService.setEnabled(row.daemon, false);
+        await this.accessConnectorsService.setEnabled(row.accessConnector, false);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorDeactivated"),
@@ -384,10 +402,10 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly enable = (row: DaemonRow): Promise<void> =>
+  protected readonly enable = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       try {
-        await this.daemonsService.setEnabled(row.daemon, true);
+        await this.accessConnectorsService.setEnabled(row.accessConnector, true);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorActivated"),
@@ -397,7 +415,7 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly confirmDelete = (row: DaemonRow): Promise<void> =>
+  protected readonly confirmDelete = (row: AccessConnectorRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog(
         accessConnectorDeleteConfirmOptions(row.name),
@@ -406,7 +424,7 @@ export class DaemonsTabComponent {
         return;
       }
       try {
-        await this.daemonsService.delete(row.daemon);
+        await this.accessConnectorsService.delete(row.accessConnector);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorDeleted"),
