@@ -395,8 +395,8 @@ class FlatTooltipHostComponent {
 
 /**
  * Every row truncates its label, so each one carries a tooltip with the full text — the
- * regression this covers is a row that truncates with nothing on hover. The chip trigger
- * truncates too, so it carries one as well.
+ * regression this covers is a row that truncates with nothing on hover. The chip trigger is the
+ * exception: it carries no label tooltip, only a `disabledTooltip`.
  */
 describe("FilterMenuComponent row tooltips", () => {
   const setUp = async <T extends { showRows: WritableSignal<boolean> }>(
@@ -418,19 +418,28 @@ describe("FilterMenuComponent row tooltips", () => {
     return fixture;
   };
 
-  /** Each tooltipped element, paired with the text it renders, in row order. */
-  const tooltips = (fixture: ComponentFixture<unknown>) =>
-    fixture.debugElement.queryAll(By.directive(TooltipDirective)).map((row) => ({
-      tooltip: (row.injector.get(TooltipDirective) as TooltipDirective).tooltipContent(),
-      text: (row.nativeElement as HTMLElement).textContent?.replace(/\s+/g, " ").trim(),
-    }));
+  /**
+   * Each tooltipped row, paired with the text it renders, in row order. Scoped to the stamped
+   * rows, which sit outside the chip — the trigger has a tooltip directive but no label content
+   * for it.
+   */
+  const tooltips = (fixture: ComponentFixture<unknown>) => {
+    const chip = fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .nativeElement as HTMLElement;
+
+    return fixture.debugElement
+      .queryAll(By.directive(TooltipDirective))
+      .filter((row) => !chip.contains(row.nativeElement as HTMLElement))
+      .map((row) => ({
+        tooltip: (row.injector.get(TooltipDirective) as TooltipDirective).tooltipContent(),
+        text: (row.nativeElement as HTMLElement).textContent?.replace(/\s+/g, " ").trim(),
+      }));
+  };
 
   it("tooltips each multi-select tree row, sections and nested options included", async () => {
     const fixture = await setUp(TreeTooltipHostComponent);
 
-    // The chip trigger leads: it precedes the stamped rows in the host's DOM order.
     expect(tooltips(fixture).map((row) => row.tooltip)).toEqual([
-      "Shared folders",
       LONG_SECTION,
       LONG_PARENT,
       LONG_CHILD,
@@ -442,7 +451,6 @@ describe("FilterMenuComponent row tooltips", () => {
 
     // `mockI18nService` echoes the key, so the unset row's label is "all".
     expect(tooltips(fixture).map((row) => row.tooltip)).toEqual([
-      "My folders",
       "all",
       LONG_PARENT,
       LONG_SECTION,
@@ -474,9 +482,9 @@ describe("FilterMenuComponent row tooltips", () => {
 class DisabledHostComponent {}
 
 /**
- * A disabled chip is `aria-disabled`, not `disabled`, so it stays focusable and its tooltip can
- * still read out a truncated label. The regression that buys is a disabled chip whose full label
- * is unreachable by keyboard.
+ * A disabled chip is `aria-disabled`, not `disabled`, so it stays focusable and a
+ * `disabledTooltip` can still reach a keyboard user. `MenuTriggerForDirective` is what keeps it
+ * from opening, not the missing attribute.
  */
 describe("FilterMenuComponent disabled trigger", () => {
   let fixture: ComponentFixture<DisabledHostComponent>;
@@ -501,12 +509,12 @@ describe("FilterMenuComponent disabled trigger", () => {
     expect(trigger().disabled).toBe(false);
   });
 
-  it("keeps the trigger's tooltip so the label stays reachable while disabled", () => {
+  it("leaves the trigger untooltipped when disabled with no reason supplied", () => {
     const tooltip = fixture.debugElement
       .query(By.directive(MenuTriggerForDirective))
       .injector.get(TooltipDirective);
 
-    expect(tooltip.tooltipContent()).toBe("Shared folders");
+    expect(tooltip.tooltipContent()).toBe("");
   });
 
   it("does not open the menu when the disabled trigger is clicked", () => {
@@ -543,9 +551,8 @@ class DisabledReasonHostComponent {
 }
 
 /**
- * `disabledTooltip` is the reason a chip is disabled — something the label can't convey, so unlike
- * the label it has to reach assistive tech. It rides the trigger's `aria-describedby`, which is
- * why it is the one tooltip on this component that opts into `addTooltipToDescribedby`.
+ * `disabledTooltip` is the reason a chip is disabled — something the label can't convey. It is the
+ * chip's only tooltip, and it rides the trigger's `aria-describedby` so assistive tech hears it.
  */
 describe("FilterMenuComponent disabledTooltip", () => {
   let fixture: ComponentFixture<DisabledReasonHostComponent>;
@@ -569,7 +576,7 @@ describe("FilterMenuComponent disabledTooltip", () => {
       .query(By.directive(MenuTriggerForDirective))
       .injector.get(TooltipDirective);
 
-  it("shows the reason in place of the label while disabled", () => {
+  it("tooltips the trigger with the reason while disabled", () => {
     expect(tooltip().tooltipContent()).toBe("No shared folders to show");
   });
 
@@ -588,21 +595,21 @@ describe("FilterMenuComponent disabledTooltip", () => {
     expect(triggerEl().classList).toContain("tw-pointer-events-auto");
   });
 
-  it("falls back to the label, and describes nothing, once enabled", () => {
+  it("drops the tooltip, and describes nothing, once enabled", () => {
     fixture.componentInstance.off.set(false);
     fixture.detectChanges();
 
-    expect(tooltip().tooltipContent()).toBe("Shared folders");
+    expect(tooltip().tooltipContent()).toBe("");
     // The label is already the trigger's accessible name; repeating it as a description is noise.
     expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
     expect(triggerEl().classList).not.toContain("tw-pointer-events-auto");
   });
 
-  it("falls back to the label when disabled with no reason supplied", () => {
+  it("drops the tooltip when disabled with no reason supplied", () => {
     fixture.componentInstance.reason.set("");
     fixture.detectChanges();
 
-    expect(tooltip().tooltipContent()).toBe("Shared folders");
+    expect(tooltip().tooltipContent()).toBe("");
     expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
   });
 });

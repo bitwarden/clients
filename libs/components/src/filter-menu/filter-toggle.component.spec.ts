@@ -19,8 +19,9 @@ class DisabledToggleHostComponent {
 }
 
 /**
- * A disabled toggle is `aria-disabled`, not `disabled`, so it stays focusable and its tooltip can
- * still read out a truncated label. `flip()` is what keeps it inert, not the missing attribute.
+ * A disabled toggle is `aria-disabled`, not `disabled`, so it stays focusable and a
+ * `disabledTooltip` can still reach a keyboard user. `flip()` is what keeps it inert, not the
+ * missing attribute.
  */
 describe("FilterToggleComponent disabled", () => {
   let fixture: ComponentFixture<DisabledToggleHostComponent>;
@@ -43,10 +44,10 @@ describe("FilterToggleComponent disabled", () => {
     expect(chip().disabled).toBe(false);
   });
 
-  it("keeps the chip's tooltip so the label stays reachable while disabled", () => {
+  it("leaves the chip untooltipped when disabled with no reason supplied", () => {
     const tooltip = fixture.debugElement.query(By.css("button")).injector.get(TooltipDirective);
 
-    expect(tooltip.tooltipContent()).toBe(fixture.componentInstance.label);
+    expect(tooltip.tooltipContent()).toBe("");
   });
 
   it("does not flip when the disabled chip is clicked", () => {
@@ -80,8 +81,8 @@ class DisabledReasonHostComponent {
 }
 
 /**
- * `disabledTooltip` is the reason a chip is disabled — something the label can't convey, so unlike
- * the label it has to reach assistive tech via the chip's `aria-describedby`.
+ * `disabledTooltip` is the reason a chip is disabled — something the label can't convey. It is the
+ * chip's only tooltip, and it reaches assistive tech via the chip's `aria-describedby`.
  */
 describe("FilterToggleComponent disabledTooltip", () => {
   let fixture: ComponentFixture<DisabledReasonHostComponent>;
@@ -100,7 +101,7 @@ describe("FilterToggleComponent disabledTooltip", () => {
 
   const tooltip = () => fixture.debugElement.query(By.css("button")).injector.get(TooltipDirective);
 
-  it("shows the reason in place of the label while disabled", () => {
+  it("tooltips the chip with the reason while disabled", () => {
     expect(tooltip().tooltipContent()).toBe("No favorites to show");
   });
 
@@ -118,11 +119,11 @@ describe("FilterToggleComponent disabledTooltip", () => {
     expect(chipEl().classList).toContain("tw-pointer-events-auto");
   });
 
-  it("falls back to the label, and describes nothing, once enabled", () => {
+  it("drops the tooltip, and describes nothing, once enabled", () => {
     fixture.componentInstance.off.set(false);
     fixture.detectChanges();
 
-    expect(tooltip().tooltipContent()).toBe("Favorites");
+    expect(tooltip().tooltipContent()).toBe("");
     expect(chipEl().hasAttribute("aria-describedby")).toBe(false);
   });
 });
