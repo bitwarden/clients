@@ -69,7 +69,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     // until the subscriptions below get around to setting them. Seeding them first is what makes
     // the announcement land, and with it a remote unlock on the first hop rather than the next
     // interval.
-    await this.seedDestinations();
+    await this.setDestinationsInitially();
 
     await peer.start();
 
@@ -111,7 +111,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
    * {@link watchDestinations} keeps them updated from there; this only covers the window before
    * its first emission, which is the window the peer announces itself in.
    */
-  private async seedDestinations(): Promise<void> {
+  private async setDestinationsInitially(): Promise<void> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
 
     for (const userId of Object.keys(accounts) as UserId[]) {
