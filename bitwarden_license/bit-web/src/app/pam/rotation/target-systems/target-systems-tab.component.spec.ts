@@ -7,6 +7,8 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
 import { DaemonsService } from "../daemons/daemons.service";
@@ -63,6 +65,7 @@ describe("TargetSystemsTabComponent", () => {
   let router: Router;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
+  let platformUtilsService: ReturnType<typeof mock<PlatformUtilsService>>;
 
   async function createComponent({ renderTemplate = false } = {}) {
     if (!renderTemplate) {
@@ -78,6 +81,7 @@ describe("TargetSystemsTabComponent", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -118,6 +122,7 @@ describe("TargetSystemsTabComponent", () => {
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(false);
     toastService = mock<ToastService>();
+    platformUtilsService = mock<PlatformUtilsService>();
 
     await createComponent();
   });
@@ -809,6 +814,43 @@ describe("TargetSystemsTabComponent", () => {
     });
   });
 
+  describe("copy system id", () => {
+    it("hands the clipboard the whole id, which is what a connector's config keys on", async () => {
+      TestBed.resetTestingModule();
+      const system = makeSystem({ id: sysId("sys-copy") });
+      targetSystemsService.systems$.next([system]);
+      await createComponent({ renderTemplate: true });
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .click();
+      fixture.detectChanges();
+
+      document
+        .querySelector<HTMLButtonElement>(
+          '.bit-menu-panel [id^="target-systems-tab_button_copy-id"]',
+        )!
+        .click();
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(uuidAsString(system.id));
+    });
+
+    it("offers the item for every target, whatever its method or status", () => {
+      targetSystemsService.systems$.next([
+        makeSystem({ id: sysId("sys-a"), method: TargetSystemMethod.Manual }),
+        makeSystem({ id: sysId("sys-b"), status: TargetSystemStatus.Disabled }),
+      ]);
+      fixture.detectChanges();
+
+      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
+        .data;
+      expect(rows.map((r) => r.idText)).toEqual([
+        uuidAsString(sysId("sys-a")),
+        uuidAsString(sysId("sys-b")),
+      ]);
+    });
+  });
+
   describe("canAddManagedCredential row flag", () => {
     it("is true for any active target, whatever its method", () => {
       targetSystemsService.systems$.next([
@@ -1298,6 +1340,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },

@@ -15,9 +15,11 @@ import {
   ButtonModule,
   CardComponent,
   CheckboxModule,
+  CopyClickDirective,
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
   SelectItemView,
@@ -105,8 +107,10 @@ export type DaemonAssignment = Omit<TargetSystemLabel, "id"> &
     ButtonModule,
     CardComponent,
     CheckboxModule,
+    CopyClickDirective,
     FormFieldModule,
     HeaderComponent,
+    IconButtonModule,
     RotationHistoryComponent,
     RotationHistorySkeletonComponent,
     RotationLoadErrorComponent,
@@ -289,6 +293,7 @@ export class DaemonDetailComponent {
   protected readonly assignmentColumns: readonly AssignmentPickerColumn[] = [
     { headerKey: "pamAccessConnectorAssignTargetLabel" },
     { headerKey: "pamTargetSystemTypeColumn" },
+    { headerKey: "pamTargetSystemIdLabel" },
   ];
 
   protected readonly assignmentHints: AssignmentPickerHints = {

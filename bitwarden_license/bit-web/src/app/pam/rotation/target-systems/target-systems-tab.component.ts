@@ -16,10 +16,11 @@ import { filter, firstValueFrom, map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
+  CopyClickDirective,
   DialogService,
   FILTER_CONTROL,
   FilterMenuModule,
@@ -66,6 +67,8 @@ import { TargetSystemsService } from "./target-systems.service";
 /** A flattened, presentation-ready view of a {@link TargetSystem}. */
 export type TargetSystemRow = {
   id: TargetSystemId;
+  /** {@link id} as the string the copy control hands the clipboard. */
+  idText: string;
   system: TargetSystem;
   name: string;
   /**
@@ -108,6 +111,7 @@ export type TargetSystemRow = {
     CommonModule,
     ReactiveFormsModule,
     BadgeModule,
+    CopyClickDirective,
     FilterMenuModule,
     IconButtonModule,
     IconModule,
@@ -451,6 +455,7 @@ export class TargetSystemsTabComponent {
         : ("pamTargetSystemStatusInactive" as const);
       return {
         id: system.id,
+        idText: uuidAsString(system.id),
         system,
         name: system.name,
         methodLabelKey,
