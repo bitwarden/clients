@@ -234,6 +234,22 @@
                 {{ assignment.qualifierKey | i18n }}
               }
             </td>
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-1">
+                <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
+                <button
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  buttonType="subtleGhost"
+                  size="small"
+                  [appCopyClick]="assignment.id"
+                  showToast
+                  [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+                  [label]="'pamTargetSystemCopyId' | i18n"
+                  id="daemon-detail_button_copy-target-id-{{ assignment.id }}"
+                ></button>
+              </div>
+            </td>
           </ng-template>
         }
       }
