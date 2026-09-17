@@ -145,6 +145,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
     );
 
+    // Read lazily, not captured: `formFieldQueryString` is rebuilt whenever autofill settings
+    // change, and observation scope has to follow the definition currently in force.
+    this.domQueryService.setFieldPredicate(
+      (root) => root.querySelector(this.formFieldQueryString) != null,
+    );
+
     this.shadowTracker = new ShadowHostHydrationTracker(
       this.domQueryService,
       this.mutationObserver,

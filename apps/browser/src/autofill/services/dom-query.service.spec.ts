@@ -1,3 +1,5 @@
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import { flushPromises, mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 
 import { DomQueryService } from "./dom-query.service";
@@ -123,16 +125,10 @@ describe("DomQueryService", () => {
       expect(treeWalkerCallback).toHaveBeenCalled();
     });
 
-    describe("field-presence observer scoping", () => {
+    describe("shadow root observer options", () => {
       const isInput = (element: Element) => element.tagName === "INPUT";
-      const fullObserverConfig = {
-        attributes: true,
-        attributeFilter: expect.any(Array),
-        childList: true,
-        subtree: true,
-      };
 
-      it("attaches the full field-scoped observer to a field-bearing shadow root", () => {
+      it("observes every shadow root with the shared field-scoped options", () => {
         domQueryService["pageContainsShadowDom"] = true;
         const host = document.createElement("div");
         const shadowRoot = host.attachShadow({ mode: "open" });
@@ -141,10 +137,16 @@ describe("DomQueryService", () => {
 
         domQueryService.query(host, "input", isInput, mutationObserver);
 
-        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, fullObserverConfig);
+        // Asserts filter matches light-DOM observer (cannot drift apart).
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, {
+          attributes: true,
+          attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+          childList: true,
+          subtree: true,
+        });
       });
 
-      it("attaches only a shallow childList watch to a field-less shadow root", () => {
+      it("observes a field-less shadow root with childList + subtree (no attributes)", () => {
         domQueryService["pageContainsShadowDom"] = true;
         const host = document.createElement("div");
         const shadowRoot = host.attachShadow({ mode: "open" });
@@ -153,24 +155,75 @@ describe("DomQueryService", () => {
 
         domQueryService.query(host, "input", isInput, mutationObserver);
 
-        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, { childList: true });
+        // Field-less roots: subtree required for deep injection, but no attribute filter.
+        // Relevance is gated in shadowMutationsCouldAffectFields.
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, { childList: true, subtree: true });
       });
 
-      it("promotes a field-less root to the full observer once a field is injected", () => {
+      // Regression: `subtree` required; collection cache-first, mutations are only trigger.
+      it("delivers a record when a field is injected below a shadow root's direct children", async () => {
         domQueryService["pageContainsShadowDom"] = true;
+        const callback = jest.fn();
+        const observer = new MutationObserver(callback);
+        const host = document.createElement("div");
+        document.body.appendChild(host);
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        const wrapper = document.createElement("div");
+        const inner = document.createElement("div");
+        wrapper.appendChild(inner);
+        shadowRoot.appendChild(wrapper);
+
+        domQueryService.query(host, "input", isInput, observer);
+
+        // Two levels below the root, so a watch without `subtree` never sees it.
+        inner.appendChild(document.createElement("input"));
+        await Promise.resolve();
+
+        expect(callback).toHaveBeenCalled();
+        observer.disconnect();
+        host.remove();
+      });
+
+      it("scopes observation by the registered field predicate, not the caller's query", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        // The collector honors `span[data-bwautofill]`; a bare `input, select, textarea` guess
+        // does not, so a root holding only such a span must still be watched for attributes.
+        domQueryService.setFieldPredicate(
+          (root) => root.querySelector("span[data-bwautofill]") != null,
+        );
         const host = document.createElement("div");
         const shadowRoot = host.attachShadow({ mode: "open" });
-        shadowRoot.appendChild(document.createElement("div"));
+        const span = document.createElement("span");
+        span.setAttribute("data-bwautofill", "true");
+        shadowRoot.appendChild(span);
         const observeSpy = jest.spyOn(mutationObserver, "observe");
 
         domQueryService.query(host, "input", isInput, mutationObserver);
-        expect(observeSpy).toHaveBeenLastCalledWith(shadowRoot, { childList: true });
 
-        // The shallow watch fires on the injection, re-querying finds the new field.
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, {
+          attributes: true,
+          attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+          childList: true,
+          subtree: true,
+        });
+      });
+
+      // `observe()` replaces a target's options, so a re-enrollment that read the root
+      // differently would strip attribute observation the root already had.
+      it("never downgrades a field-bearing root to the shallow options", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
         shadowRoot.appendChild(document.createElement("input"));
+
         domQueryService.query(host, "input", isInput, mutationObserver);
 
-        expect(observeSpy).toHaveBeenLastCalledWith(shadowRoot, fullObserverConfig);
+        // Field definition narrows underneath us — settings change, or a differing filter.
+        domQueryService.setFieldPredicate(() => false);
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        expect(observeSpy).not.toHaveBeenCalled();
       });
     });
   });
@@ -383,6 +436,23 @@ describe("DomQueryService", () => {
       expect(domQueryService.checkForNewShadowRoots([host]).foundNewRoot).toBe(false);
     });
 
+    it("does not enroll an owned host's root during a collection walk", () => {
+      const owned = document.createElement("div");
+      const ownedRoot = owned.attachShadow({ mode: "open" });
+      document.body.appendChild(owned);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === owned);
+      const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+      domQueryService.queryWithUnresolvedShadowHosts(
+        document.documentElement,
+        () => false,
+        mutationObserver,
+      );
+
+      expect(domQueryService["knownShadowRoots"].has(ownedRoot)).toBe(false);
+      expect(observeSpy).not.toHaveBeenCalledWith(ownedRoot, expect.anything());
+    });
+
     it("detects a different host of the same tag — matched by identity, not tag name", () => {
       const owned = document.createElement("div");
       owned.attachShadow({ mode: "open" });
@@ -444,7 +514,6 @@ describe("DomQueryService", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
-      // Add a form field so the root is observed with full options
       shadowRoot.appendChild(document.createElement("input"));
       document.body.appendChild(customElement);
       const observeSpy = jest.spyOn(mutationObserver, "observe");
@@ -729,8 +798,7 @@ describe("DomQueryService", () => {
         expect(unresolvedHosts).toEqual(new Set([pending]));
         // A root is recorded as known only paired with an observer watching it.
         expect(domQueryService["knownShadowRoots"].has(hydratedRoot)).toBe(true);
-        // Field-less root (filter matches nothing) gets shallow observation
-        expect(observeSpy).toHaveBeenCalledWith(hydratedRoot, { childList: true });
+        expect(observeSpy).toHaveBeenCalledWith(hydratedRoot, { childList: true, subtree: true });
       });
     });
 

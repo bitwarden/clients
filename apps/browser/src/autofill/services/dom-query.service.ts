@@ -17,7 +17,11 @@ const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 // Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
-/** Default field detector: any input, select, or textarea element. */
+/**
+ * Fallback for {@link DomQueryService.setFieldPredicate}, used only before the collector registers
+ * its own definition. Narrower than the real one — no `span[data-bwautofill]`, no ignore filters —
+ * so it is a starting guess, never the arbiter.
+ */
 function anyField(root: ParentNode): boolean {
   return root.querySelector("input, select, textarea") != null;
 }
@@ -31,7 +35,6 @@ type ShadowScanContext = {
   unresolvedHosts: Set<Element>;
   discoveredRoots: Set<ShadowRoot>;
   observer?: MutationObserver;
-  fieldDetector: (root: ShadowRoot) => boolean;
 };
 
 export class DomQueryService implements DomQueryServiceInterface {
@@ -40,7 +43,12 @@ export class DomQueryService implements DomQueryServiceInterface {
   // Stale entries (roots whose hosts left the DOM) are harmless — querying them
   // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
   private knownShadowRoots = new Set<ShadowRoot>();
+  // Roots currently watched with attributes. Enrollment may only promote into this set, never
+  // out of it: `observe()` replaces a target's options, so re-enrolling a field-bearing root
+  // with the shallow set would silently drop attribute observation it already had.
+  private fullyObservedShadowRoots = new WeakSet<ShadowRoot>();
   private isOwnedShadowHost: (host: Element) => boolean = () => false;
+  private hasFieldsInRoot: (root: ParentNode) => boolean = anyField;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -159,17 +167,24 @@ export class DomQueryService implements DomQueryServiceInterface {
     this.isOwnedShadowHost = predicate;
   };
 
+  /**
+   * The collector owns what counts as a field; this service only decides how closely to watch a
+   * root. Registering the collector's definition here keeps one answer for every enrollment site —
+   * derive it per-site and the sites disagree, which downgrades roots that were watched correctly.
+   */
+  setFieldPredicate = (predicate: (root: ParentNode) => boolean): void => {
+    this.hasFieldsInRoot = predicate;
+  };
+
   /** Also collects still-shadow-less hosts, so the caller can re-scan them after hydration. */
   checkForNewShadowRoots = (
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
-    fieldDetector: (root: ShadowRoot) => boolean = anyField,
   ): ShadowRootScanResult => {
     const scan: ShadowScanContext = {
       unresolvedHosts: new Set(),
       discoveredRoots: new Set(),
       observer: mutationObserver,
-      fieldDetector,
     };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
@@ -223,6 +238,8 @@ export class DomQueryService implements DomQueryServiceInterface {
    */
   resetObservedShadowRoots = (): void => {
     this.knownShadowRoots.clear();
+    // The old observer is gone, so no root carries options worth protecting from downgrade.
+    this.fullyObservedShadowRoots = new WeakSet();
   };
 
   // `ShadowRoot.host` is non-nullable per spec; persists after host removal from document.
@@ -385,12 +402,12 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
-      const fieldsInRoot = this.queryElements<T>(shadowRoot, queryString);
-      elements = elements.concat(fieldsInRoot);
+      elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
 
       if (mutationObserver) {
-        this.observeShadowRoot(mutationObserver, shadowRoot, fieldsInRoot.length > 0);
-        this.knownShadowRoots.add(shadowRoot);
+        // Not `queryString` — that is the caller's selector, which may be `"form"` or a submit
+        // button. Observation scope follows the field predicate, never the current query.
+        this.enrollShadowRoot(shadowRoot, mutationObserver);
       }
     }
 
@@ -407,28 +424,6 @@ export class DomQueryService implements DomQueryServiceInterface {
     // Avoid a redundant pre-check querySelector — querySelectorAll already
     // returns an empty NodeList when nothing matches, at no extra cost.
     return Array.from(root.querySelectorAll(queryString)) as T[];
-  }
-
-  // Roots with no fields use shallow observation (childList only) to avoid watching attributes.
-  // If a field is added as a direct child of the root, the shallow watch detects it and triggers re-query and
-  // promotion to full observation. If a field is added nested inside a wrapper element, detection defers to the
-  // next collection batch.
-  private observeShadowRoot(
-    mutationObserver: MutationObserver,
-    shadowRoot: ShadowRoot,
-    hasFields: boolean,
-  ): void {
-    mutationObserver.observe(
-      shadowRoot,
-      hasFields
-        ? {
-            attributes: true,
-            attributeFilter: SHADOW_OBSERVER_ATTRIBUTE_FILTER,
-            childList: true,
-            subtree: true,
-          }
-        : { childList: true },
-    );
   }
 
   // No cycle guard — `attachShadow` throws on re-attach, `ShadowRoot.host` is
@@ -480,7 +475,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       scan.discoveredRoots.add(root);
       // With an observer in hand, enroll here rather than re-finding the root in a later walk.
       if (scan.observer) {
-        this.enrollShadowRoot(root, scan.observer, scan.fieldDetector);
+        this.enrollShadowRoot(root, scan.observer);
       }
     }
     // Descend even into a new root — its own un-hydrated hosts still belong in the sink.
@@ -488,15 +483,35 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
-   * Always both, in that order, so `knownShadowRoots` never holds a root we aren't watching.
+   * Observes a root and records it as known, always in that order, so `knownShadowRoots` never
+   * holds a root we aren't watching. The one home for that pairing; every enrollment site goes
+   * through it, and each asks {@link hasFieldsInRoot} so they cannot disagree.
+   *
+   * A field-less root is watched shallowly — `childList` and `subtree`, no attributes — which is
+   * where the saving comes from: no attribute records for cosmetic churn in a root that holds
+   * nothing to fill. Injecting a field anywhere beneath it still delivers a childList record, and
+   * the re-query that follows promotes the root to full observation.
    */
-  private enrollShadowRoot = (
-    root: ShadowRoot,
-    observer: MutationObserver,
-    fieldDetector: (root: ShadowRoot) => boolean,
-  ): void => {
-    const hasFields = fieldDetector(root);
-    this.observeShadowRoot(observer, root, hasFields);
+  private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
+    // Promote-only: `observe()` replaces options, so a root already watched with attributes must
+    // not be re-observed shallowly, however the current call happens to read it.
+    if (this.fullyObservedShadowRoots.has(root)) {
+      return;
+    }
+
+    const hasFields = this.hasFieldsInRoot(root);
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      ...(hasFields && {
+        attributes: true,
+        attributeFilter: SHADOW_OBSERVER_ATTRIBUTE_FILTER,
+      }),
+    });
+
+    if (hasFields) {
+      this.fullyObservedShadowRoots.add(root);
+    }
     this.knownShadowRoots.add(root);
   };
 
@@ -636,11 +651,11 @@ export class DomQueryService implements DomQueryServiceInterface {
       // latch is false, which is when no probe happens at all.
       let nodeShadowRoot: ShadowRoot | null = null;
       if (this.pageContainsShadowDom) {
-        nodeShadowRoot = currentElement.shadowRoot ?? this.getShadowRoot(currentElement);
+        // Must go through `getShadowRoot` — reading `currentElement.shadowRoot` directly would
+        // skip its owned-host check and enroll the extension's own inline menu below.
+        nodeShadowRoot = this.getShadowRoot(currentElement);
       }
       if (nodeShadowRoot) {
-        // Descend before measuring the field-presence delta; over-counting nested fields only over-observes.
-        const fieldsBefore = treeWalkerQueryResults.length;
         this.buildTreeWalkerNodesQueryResults(
           nodeShadowRoot,
           treeWalkerQueryResults,
@@ -650,10 +665,10 @@ export class DomQueryService implements DomQueryServiceInterface {
         );
 
         if (mutationObserver) {
-          const hasFields = treeWalkerQueryResults.length > fieldsBefore;
-          // Always observe to allow promoting from shallow to full options if fields are added
-          this.observeShadowRoot(mutationObserver, nodeShadowRoot, hasFields);
-          this.knownShadowRoots.add(nodeShadowRoot);
+          // Not the walk's result count — `filterCallback` varies by caller (one counts `<form>`
+          // elements, another does not), so a root's observation scope would swing with whoever
+          // happened to walk it last.
+          this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
         }
       } else {
         this.sinkUnresolvedHost(currentElement, unresolvedHosts);
