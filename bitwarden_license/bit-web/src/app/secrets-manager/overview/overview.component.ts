@@ -26,6 +26,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
 import { OrganizationCounts } from "../models/view/counts.view";
@@ -49,6 +50,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../secrets/dialog/secret-dialog.component";
+import { SecretVersionDialogService } from "../secrets/dialog/secret-version-dialog.service";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -85,7 +87,7 @@ type OrganizationTasks = {
 export class OverviewComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   private tableSize = 10;
-  private organizationId: string;
+  private organizationId: OrganizationId;
   protected organizationName: string;
   protected userIsAdmin: boolean;
   protected showOnboarding = false;
@@ -117,6 +119,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
     private router: Router,
+    private secretVersionDialogService: SecretVersionDialogService,
   ) {}
 
   ngOnInit() {
@@ -138,7 +141,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     );
 
     org$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
-      this.organizationId = org.id;
+      this.organizationId = org.id as OrganizationId;
       this.organization = org;
       this.organizationName = org.name;
       this.userIsAdmin = org.isAdmin;
@@ -228,6 +231,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.dialogService.closeAll();
   }
 
   private getRecentItems<T extends { revisionDate: string }[]>(items: T, length: number): T {
@@ -317,7 +321,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   openEditSecret(secretId: string) {
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    this.dialogService.closeAll();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Edit,
@@ -346,7 +351,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   openNewSecretDialog() {
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    this.dialogService.closeAll();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Add,
@@ -371,6 +377,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   copySecretUuid(id: string) {
     SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
+
+  async openVersionHistory(secretId: string) {
+    await this.secretVersionDialogService.openVersionHistory(this.organizationId, secretId);
   }
 
   protected async hideOnboarding() {
