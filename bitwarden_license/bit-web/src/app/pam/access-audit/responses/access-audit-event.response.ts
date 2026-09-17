@@ -95,7 +95,11 @@ export class AccessAuditEventResponse extends BaseResponse {
   ruleName: string | null;
   /** The target system's name — plaintext org configuration, for rotation and target administration events. */
   targetSystemName: string | null;
-  /** The daemon's name — plaintext org configuration, for rotation and daemon administration events. */
+  /**
+   * The access connector's name — plaintext org configuration, for rotation and fleet administration
+   * events. Named for the wire field, which predates the rename; `toAuditRow` carries it as
+   * `accessConnectorName` from here on.
+   */
   daemonName: string | null;
   /** True when there's no human actor — a system / automatic event. */
   automated: boolean;

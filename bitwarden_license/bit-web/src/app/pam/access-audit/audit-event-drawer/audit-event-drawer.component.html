@@ -86,8 +86,8 @@
             {{ row.cipherName }}
           } @else if (row.ruleName) {
             {{ row.ruleName }}
-          } @else if (row.daemonName) {
-            {{ row.daemonName }}
+          } @else if (row.accessConnectorName) {
+            {{ row.accessConnectorName }}
           } @else if (row.targetSystemName) {
             {{ row.targetSystemName }}
           } @else {
@@ -132,8 +132,8 @@
           {{ "pamAuditAccessConnector" | i18n }}
         </dt>
         <dd class="tw-m-0 tw-break-words" data-testid="drawer-access-connector">
-          @if (row.daemonName) {
-            {{ row.daemonName }}
+          @if (row.accessConnectorName) {
+            {{ row.accessConnectorName }}
           } @else {
             <span class="tw-text-muted">—</span>
           }
