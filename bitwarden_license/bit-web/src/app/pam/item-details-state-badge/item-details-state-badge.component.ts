@@ -1,31 +1,31 @@
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { catchError, combineLatest, from, map, merge, Observable, of, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { isGovernedCipher } from "../helpers/governed-cipher";
+import { liveActiveLease } from "../helpers/lease-liveness";
+import { CipherAccessStateService } from "../services/cipher-access-state.service";
 
 /**
  * Binds `ITEM_DETAILS_STATE_BADGE` for the open item: the access-state pill on the
  * item-details card's name row, via the shared {@link AccessStateBadgeComponent}.
  *
- * Separate from `VaultRowLeaseBadgeComponent` since refresh semantics differ: this re-reads on
- * {@link AccessRefreshService} so a card mutation can't leave a contradicting pill, while a
+ * Separate from `VaultRowLeaseBadgeComponent` since refresh semantics differ: this reads through
+ * {@link CipherAccessStateService} so a card mutation can't leave a contradicting pill, while a
  * vault list reads once per row instead.
  *
  * {@link isGovernedCipher} keeps a plain item from firing a PAM read; a null state renders no
  * element, not even the spacing wrapper.
  *
  * An ACTIVE lease shows no pill here, since the banner heading below already runs its own
- * countdown and two independent timers would drift visibly.
+ * countdown and two independent timers would drift visibly. The pill comes BACK when that lease
+ * runs out — {@link CipherAccessStateService} re-emits at its `notAfter`.
  */
 @Component({
   selector: "app-pam-item-details-state-badge",
@@ -38,9 +38,7 @@ export class ItemDetailsStateBadgeComponent {
   readonly cipher = input<CipherView | null>(null);
 
   private readonly configService = inject(ConfigService);
-  private readonly accessRequestSdkService = inject(AccessRequestSdkService);
-  private readonly accessRefreshService = inject(AccessRefreshService);
-  private readonly logService = inject(LogService);
+  private readonly cipherAccessStateService = inject(CipherAccessStateService);
 
   private readonly state$: Observable<AccessBadgeState | null> = combineLatest([
     toObservable(this.cipher),
@@ -50,20 +48,15 @@ export class ItemDetailsStateBadgeComponent {
       if (!enabled || cipher == null || cipher.id == null || !isGovernedCipher(cipher)) {
         return of(null);
       }
-      const cipherId = String(cipher.id);
-      return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-        switchMap(() =>
-          from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
-            map(cipherAccessBadgeState),
-            map((badge) => (badge?.kind === "active" ? null : badge)),
-            catchError((e: unknown) => {
-              // An unreadable access state renders no pill rather than an error: the item itself
-              // is still useful, and the banner below behaves the same way.
-              this.logService.error(e);
-              return of(null);
-            }),
-          ),
-        ),
+      return this.cipherAccessStateService.state$(String(cipher.id)).pipe(
+        // Suppressed on a LIVE lease rather than on the SDK's `active` ranking. The two part ways
+        // exactly when the lease has lapsed but the re-read still carries it — a server whose
+        // clock trails this one — and suppressing on the ranking there would hide the pill for
+        // good while the banner below had already fallen back to "Request access". Letting the
+        // lapsed `active` badge through instead lands it on `AccessStateBadgeComponent`'s own
+        // `remainingMs <= 0` fallback, which renders the resting "Access ended" recipe.
+        map((state) => (liveActiveLease(state, Date.now()) != null ? null : state)),
+        map(cipherAccessBadgeState),
       );
     }),
   );

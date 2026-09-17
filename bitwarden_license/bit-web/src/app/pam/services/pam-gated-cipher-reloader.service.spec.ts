@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { NEVER, Subscription } from "rxjs";
 
@@ -8,15 +9,25 @@ import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.r
 
 import { AccessEventService } from "../abstractions/access-event.service";
 import type { CipherAccessStateView } from "../abstractions/access-lease";
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import { drainMicrotasks } from "../testing/drain-microtasks";
 
+import { CipherAccessStateService } from "./cipher-access-state.service";
 import { DefaultAccessRefreshService } from "./default-access-refresh.service";
 import { PamGatedCipherReloader } from "./pam-gated-cipher-reloader.service";
 
 const CIPHER_ID = "cipher-1";
 
-function stateWithLease(leaseId: string): CipherAccessStateView {
-  return { cipherId: CIPHER_ID, activeLease: { id: leaseId } } as unknown as CipherAccessStateView;
+/**
+ * `notAfter` is not optional decoration: the reloader treats a lease as access only while its
+ * window is still open, so a fixture without one describes a lease that has already lapsed.
+ */
+function stateWithLease(leaseId: string, notAfterMs = Date.now() + 30 * 60 * 1000) {
+  return {
+    cipherId: CIPHER_ID,
+    activeLease: { id: leaseId, notAfter: new Date(notAfterMs).toISOString() },
+  } as unknown as CipherAccessStateView;
 }
 
 function stateWithoutLease(): CipherAccessStateView {
@@ -54,6 +65,12 @@ describe("PamGatedCipherReloader", () => {
   /** Lets the promise chain inside the pipeline settle. */
   const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+  /**
+   * The same, under fake timers: `setTimeout` no longer runs on its own. The expiry cases need a
+   * fake clock — a real one would mean waiting out a lease.
+   */
+  const settleFake = drainMicrotasks;
+
   beforeEach(() => {
     requestsApi = mock<AccessRequestSdkService>();
     apiService = mock<ApiService>();
@@ -64,12 +81,27 @@ describe("PamGatedCipherReloader", () => {
       approverInboxChanged$: () => NEVER,
     };
     accessRefresh = new DefaultAccessRefreshService(accessEvents);
-    reloader = new PamGatedCipherReloader(requestsApi, accessRefresh, apiService, logService);
+    // The real state stream, not a stub: the expiry cases below are exactly the seam between the
+    // two, so a stubbed one would test nothing.
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AccessRequestSdkService, useValue: requestsApi },
+        { provide: AccessRefreshService, useValue: accessRefresh },
+        { provide: LogService, useValue: logService },
+        CipherAccessStateService,
+      ],
+    });
+    reloader = new PamGatedCipherReloader(
+      TestBed.inject(CipherAccessStateService),
+      apiService,
+      logService,
+    );
   });
 
   afterEach(() => {
     subscription?.unsubscribe();
     subscription = undefined;
+    jest.useRealTimers();
   });
 
   it("emits null while no lease covers the cipher, and fetches nothing", async () => {
@@ -147,6 +179,67 @@ describe("PamGatedCipherReloader", () => {
 
     expect(emissions).toHaveLength(2);
     expect(emissions[1]).toBeNull();
+  });
+
+  it("re-locks when the lease's window closes with nothing else happening", async () => {
+    // PM-41837: a lease running out is announced by nobody — no mutation here, no server push —
+    // so the open item has to notice the moment passing on its own.
+    jest.useFakeTimers();
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      stateWithLease("lease-1", Date.now() + 150_000),
+    );
+    apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
+
+    const emissions = collect();
+    await settleFake();
+    expect(emissions[0]).toBeInstanceOf(Cipher);
+
+    // The state read is unchanged: the server has not been asked again, and would still say the
+    // lease is there if it were.
+    jest.advanceTimersByTime(150_000);
+    await settleFake();
+
+    expect(emissions).toHaveLength(2);
+    expect(emissions[1]).toBeNull();
+  });
+
+  it("stays revealed while the lease's window is still open", async () => {
+    jest.useFakeTimers();
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      stateWithLease("lease-1", Date.now() + 150_000),
+    );
+    apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
+
+    const emissions = collect();
+    await settleFake();
+
+    jest.advanceTimersByTime(149_000);
+    await settleFake();
+
+    expect(emissions).toHaveLength(1);
+  });
+
+  it("re-reads once the lease lapses, and does not loop on the answer", async () => {
+    jest.useFakeTimers();
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      stateWithLease("lease-1", Date.now() + 60_000),
+    );
+    apiService.getFullCipherDetails.mockResolvedValue(cipherResponse());
+
+    collect();
+    await settleFake();
+    expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
+
+    // The re-read answers with the lease still on it — a server whose clock trails this one. The
+    // item stays locked, and a second timer must NOT be armed against a moment already past.
+    jest.advanceTimersByTime(60_000);
+    await settleFake();
+    expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(2);
+
+    jest.advanceTimersByTime(600_000);
+    await settleFake();
+
+    expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(2);
   });
 
   it("does not re-fetch when an unrelated change leaves the same lease in place", async () => {

@@ -9,6 +9,7 @@ import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
 import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import { CipherAccessStateService } from "../services/cipher-access-state.service";
 
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge.component";
 
@@ -31,6 +32,21 @@ describe("ItemDetailsStateBadgeComponent", () => {
   async function settle(): Promise<void> {
     await fixture.whenStable();
     fixture.detectChanges();
+  }
+
+  /**
+   * A state under an active lease. `activeLease` and the `active` badge travel together on the
+   * wire — the SDK ranks the badge FROM the lease — so a fixture carrying only the badge would
+   * describe a response the server cannot produce, and would miss that this host suppresses on
+   * the lease's own window rather than on the ranking.
+   */
+  function activeLeaseState(notAfterMs: number): CipherAccessStateView {
+    const notAfter = new Date(notAfterMs).toISOString();
+    return {
+      cipherId: "cipher-1",
+      activeLease: { id: "lease-1", notAfter },
+      badgeState: { active: { expiresAt: notAfter } },
+    } as unknown as CipherAccessStateView;
   }
 
   function gatedCipher(): CipherView {
@@ -59,6 +75,7 @@ describe("ItemDetailsStateBadgeComponent", () => {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
         },
+        CipherAccessStateService,
       ],
     });
   });
@@ -123,9 +140,9 @@ describe("ItemDetailsStateBadgeComponent", () => {
   });
 
   it("renders nothing for an active lease, so the banner heading is the only countdown", async () => {
-    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
-      badgeState: { active: { expiresAt: new Date(Date.now() + 12 * 60 * 1000).toISOString() } },
-    } as unknown as CipherAccessStateView);
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() + 12 * 60 * 1000),
+    );
 
     create(gatedCipher());
     await settle();
@@ -134,6 +151,24 @@ describe("ItemDetailsStateBadgeComponent", () => {
     expect(
       fixture.nativeElement.querySelector("[data-testid='item-details-state-badge']"),
     ).toBeNull();
+  });
+
+  it("shows the badge again for a lease the server still reports past its window", async () => {
+    // The suppression is on the lease's window, not on the SDK's `active` ranking: a server whose
+    // clock trails this one would otherwise hide the pill for good, while the banner below had
+    // already fallen back to "Request access". Left visible, the shared badge component renders
+    // its own "Access ended" recipe for a countdown that has run out.
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() - 1_000),
+    );
+
+    create(gatedCipher());
+    await settle();
+
+    expect(component["badge"]()?.kind).toBe("active");
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
+    ).not.toBeNull();
   });
 
   it("renders nothing when the access-state read fails", async () => {

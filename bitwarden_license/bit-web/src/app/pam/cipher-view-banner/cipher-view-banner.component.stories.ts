@@ -15,6 +15,7 @@ import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { CipherAccessStateService } from "../services/cipher-access-state.service";
 import {
   HOUR,
   MINUTE,
@@ -122,6 +123,9 @@ function pam(
         useValue: { cancelOutstandingRequest: () => Promise.resolve() },
       },
       { provide: LeasingErrorService, useValue: { isLeasingError: () => false } },
+      // Explicit, because the stubs above live in the module injector: a `providedIn: "root"`
+      // service would be built in the environment injector and never see them.
+      CipherAccessStateService,
       {
         provide: DialogService,
         useValue: {
@@ -318,6 +322,9 @@ export const StateReadFails: Story = {
         },
         { provide: AccessRequestCancelService, useValue: {} },
         { provide: LeasingErrorService, useValue: { isLeasingError: () => false } },
+        // Explicit, because the stubs above live in the module injector: a `providedIn: "root"`
+        // service would be built in the environment injector and never see them.
+        CipherAccessStateService,
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
       ],
