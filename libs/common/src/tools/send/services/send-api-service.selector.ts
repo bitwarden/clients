@@ -82,8 +82,9 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     view: SendView,
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
+    signal?: AbortSignal,
   ): Promise<Send> {
-    return (await this.getService()).saveView(view, file, plaintextPassword);
+    return (await this.getService()).saveView(view, file, plaintextPassword, signal);
   }
 
   async delete(id: string): Promise<any> {

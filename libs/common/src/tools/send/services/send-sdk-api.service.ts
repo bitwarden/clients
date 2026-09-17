@@ -140,12 +140,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     view: SendView,
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
+    signal?: AbortSignal,
   ): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const sdkView =
       view.id == null && view.type === SendType.File
-        ? await this.createFileSend(view, file, userId, plaintextPassword)
+        ? await this.createFileSend(view, file, userId, plaintextPassword, signal)
         : await this.mutateSend(view, userId, plaintextPassword);
 
     return await this.refreshAfterMutation(sdkView.id as unknown as string);
@@ -312,7 +313,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     file: File | ArrayBuffer | null,
     userId: UserId,
     plaintextPassword?: string,
+    signal?: AbortSignal,
   ): Promise<SdkSendView> {
+    // Bail before doing any network work if the caller already abandoned this submission —
+    // otherwise a cancel that lands before this point still uploads the whole file only to
+    // immediately delete it.
+    if (signal?.aborted) {
+      throw new DOMException("Send creation was cancelled", "AbortError");
+    }
+
     if (file == null) {
       throw new Error("File send creation requires file data.");
     }
@@ -370,10 +379,20 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
             throw error;
           }
 
+          // The upload can't be interrupted mid-flight, but if the caller abandoned this
+          // submission while it was in progress, don't leave a completed-but-unwanted send
+          // behind — roll it back the same way a failed upload would be.
+          if (signal?.aborted) {
+            await this.rollbackFileSend(sendsClient, sendId);
+            throw new DOMException("Send creation was cancelled", "AbortError");
+          }
+
           return sendView;
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to create file send: ${error}`);
+          if (!(error instanceof DOMException && error.name === "AbortError")) {
+            this.logService.error(`Failed to create file send: ${error}`);
+          }
           throw error;
         }),
       ),

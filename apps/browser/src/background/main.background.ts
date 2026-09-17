@@ -1255,6 +1255,7 @@ export default class MainBackground {
       this.apiService,
       this.fileUploadService,
       this.sendService,
+      this.logService,
     );
     this.sendApiService = new SendApiServiceSelector(
       this.configService,

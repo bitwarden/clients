@@ -741,6 +741,7 @@ export class ServiceContainer {
       this.apiService,
       this.fileUploadService,
       this.sendService,
+      this.logService,
     );
 
     this.sendApiService = new SendApiServiceSelector(
