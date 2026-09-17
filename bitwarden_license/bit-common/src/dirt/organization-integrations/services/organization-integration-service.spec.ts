@@ -438,8 +438,6 @@ describe("OrganizationIntegrationService", () => {
       const error = new ErrorResponse({ Message: "Authentication failed: invalid token." }, 400);
       integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
       const result = await service.update(
         orgId,
         integrationId,
