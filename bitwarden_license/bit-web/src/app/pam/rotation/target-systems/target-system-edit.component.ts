@@ -45,6 +45,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { apiErrorBodyMessage } from "../../abstractions/api-error";
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import {
+  accessConnectorConnectionLabelKey,
+  accessConnectorStatusLabelKey,
+} from "../access-connectors/access-connector-label";
+import {
   AssignmentPickerColumn,
   AssignmentPickerComponent,
   AssignmentPickerHints,
@@ -55,10 +59,6 @@ import {
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
-import {
-  accessConnectorConnectionLabelKey,
-  accessConnectorStatusLabelKey,
-} from "../daemons/access-connector-label";
 import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
 import {
   AccessConnector,
@@ -297,7 +297,7 @@ export class TargetSystemEditComponent {
 
   /**
    * The method in play is Automatic. Gates the integration (kind) card and the session-termination
-   * control — both are Automatic-only (Manual systems have no integration and no daemon session).
+   * control — both are Automatic-only (Manual systems have no integration and no access connector session).
    */
   protected readonly isAutomatic = computed(() => this.method() === TargetSystemMethod.Automatic);
 
@@ -305,7 +305,7 @@ export class TargetSystemEditComponent {
   protected readonly isManual = computed(() => this.method() === TargetSystemMethod.Manual);
 
   /**
-   * The password-policy card is shown for both methods: enforced by the daemon under Automatic,
+   * The password-policy card is shown for both methods: enforced by the access connector under Automatic,
    * followed by the operator by hand under Manual.
    */
   protected readonly showPolicyCard = computed(() => this.isAutomatic() || this.isManual());
@@ -716,7 +716,7 @@ export class TargetSystemEditComponent {
       await this.rotationSdk.updateTargetSystem(this.organizationId, this.targetSystemId!, {
         name,
         passwordPolicy: this.buildPasswordPolicy(),
-        // Automatic follows native/custom-script rules; Manual has no daemon session to terminate.
+        // Automatic follows native/custom-script rules; Manual has no access connector session to terminate.
         supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
       });
     } catch (e) {
