@@ -17,10 +17,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,6 +25,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -67,7 +65,6 @@ export class GroupAddEditService {
         Validators.required,
         Validators.maxLength(100),
       ]),
-      // set to readonly in the template
       externalId: this.formBuilder.control<string | null>({ value: "", disabled: false }),
       members: this.formBuilder.control<AccessItemValue[] | null>([]),
       collections: this.formBuilder.control<AccessItemValue[] | null>([]),
@@ -77,9 +74,8 @@ export class GroupAddEditService {
   organization$(organizationId: string): Observable<Organization | undefined> {
     return this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) =>
-        this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
-      ),
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(organizationId),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }

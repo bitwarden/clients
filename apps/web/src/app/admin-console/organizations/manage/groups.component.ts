@@ -7,12 +7,12 @@ import {
   BehaviorSubject,
   combineLatest,
   concatMap,
+  firstValueFrom,
   from,
   lastValueFrom,
   map,
   Observable,
   switchMap,
-  tap,
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
@@ -36,6 +36,7 @@ import {
   DialogService,
   IconModule,
   ScrollLayoutDirective,
+  SearchModule,
   TableDataSource,
   ToastService,
 } from "@bitwarden/components";
@@ -97,6 +98,7 @@ const groupsFilter = (filter: string) => {
     ScrollingModule,
     ScrollLayoutDirective,
     IconModule,
+    SearchModule,
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
@@ -116,7 +118,6 @@ export class GroupsComponent {
   private readonly configService = inject(ConfigService);
 
   protected readonly loading = signal(true);
-  protected readonly organizationId = signal<string | undefined>(undefined);
 
   protected readonly dataSource = new TableDataSource<GroupDetailsRow>();
   protected readonly searchControl = new FormControl("");
@@ -133,12 +134,12 @@ export class GroupsComponent {
     { initialValue: false },
   );
 
+  private readonly organizationId$ = this.route.params.pipe(map((params) => params.organizationId));
+
   constructor() {
-    this.route.params
+    this.organizationId$
       .pipe(
-        tap((params) => this.organizationId.set(params.organizationId)),
-        switchMap((params) => {
-          const organizationId: string = params.organizationId;
+        switchMap((organizationId) => {
           return combineLatest([
             // collectionMap
             from(this.apiService.getCollections(organizationId)).pipe(
@@ -182,7 +183,7 @@ export class GroupsComponent {
     group: GroupDetailsRow,
     startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info,
   ) {
-    const organizationId = this.organizationId();
+    const organizationId = await firstValueFrom(this.organizationId$);
     if (organizationId == null) {
       return;
     }
@@ -204,7 +205,7 @@ export class GroupsComponent {
   }
 
   async add(startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info) {
-    const organizationId = this.organizationId();
+    const organizationId = await firstValueFrom(this.organizationId$);
     if (organizationId == null) {
       return;
     }
@@ -232,7 +233,7 @@ export class GroupsComponent {
       return false;
     }
 
-    const organizationId = this.organizationId();
+    const organizationId = await firstValueFrom(this.organizationId$);
     if (organizationId == null) {
       return;
     }
@@ -268,7 +269,7 @@ export class GroupsComponent {
       return false;
     }
 
-    const organizationId = this.organizationId();
+    const organizationId = await firstValueFrom(this.organizationId$);
     if (organizationId == null) {
       return;
     }
