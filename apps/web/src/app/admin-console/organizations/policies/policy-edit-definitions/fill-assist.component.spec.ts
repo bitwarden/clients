@@ -25,10 +25,10 @@ import { FillAssistPolicy, FillAssistPolicyComponent } from "./fill-assist.compo
 
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
-const DEFAULT_URL = "https://github.com/bitwarden/map-the-web/releases/latest/download";
+const DEFAULT_URL = "https://fillassist.bitwarden.com";
 // Host+path form of the default, matching what appears in the form input
 // (the `https://` is rendered as an uneditable `bitPrefix` in the template).
-const DEFAULT_URL_HOST_PATH = "github.com/bitwarden/map-the-web/releases/latest/download";
+const DEFAULT_URL_HOST_PATH = "fillassist.bitwarden.com";
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -124,7 +124,7 @@ describe("FillAssistPolicyComponent", () => {
   it("strips the https:// prefix when loading rulesUrl from policy data on init", () => {
     // Stored data is a canonical full URL; the form shows just the host+path
     // because the template renders `https://` as an uneditable `bitPrefix`.
-    const customUrl = "https://github.com/acme-org/map-the-web/releases/latest/download";
+    const customUrl = "https://fillassist.bitwarden.com";
     fixture.componentRef.setInput(
       "policyResponse",
       makePolicyResponse(true, { rulesUrl: customUrl }),
@@ -133,7 +133,7 @@ describe("FillAssistPolicyComponent", () => {
     component.ngOnInit();
 
     expect(component.data?.value?.rulesUrl).toBe(
-      "github.com/acme-org/map-the-web/releases/latest/download",
+      "fillassist.bitwarden.com",
     );
   });
 
