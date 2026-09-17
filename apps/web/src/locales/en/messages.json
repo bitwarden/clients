@@ -19444,6 +19444,12 @@
   "pamTargetSystemGeneralInfoHeading": {
     "message": "General information"
   },
+  "pamTargetSystemIdLabel": {
+    "message": "System ID"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Copy system ID"
+  },
   "pamTargetSystemNamePlaceholder": {
     "message": "Enter a name"
   },
