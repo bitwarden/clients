@@ -424,8 +424,7 @@ code {
   gap: 0.5rem;
 }
 
-.btn-primary,
-.btn-secondary {
+.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -449,22 +448,39 @@ code {
   color: #fff !important;
 }
 
-.btn-secondary {
-  color: var(--fg-brand);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-brand-soft);
-}
-.btn-secondary:hover {
-  background: var(--bg-brand-softer);
-  border-color: var(--fg-brand);
-}
-.btn-secondary .icon-mail {
-  flex-shrink: 0;
+.sidebar-help-actions .btn-primary {
+  width: 100%;
 }
 
-.sidebar-help-actions .btn-primary,
-.sidebar-help-actions .btn-secondary {
-  width: 100%;
+/* The feedback address is rendered as selectable text, not a mailto: link, so readers
+   without a mail client still have something they can copy. */
+.sidebar-help-email {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--fg-body);
+}
+.sidebar-help-email .icon-mail {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--fg-body-subtle);
+}
+.sidebar-help-address {
+  font-weight: 500;
+  /* The sidebar is ~216px of usable width and the address is 33 characters, so it wraps.
+     `user-select: all` makes one click grab the whole thing to copy. */
+  overflow-wrap: anywhere;
+  -webkit-user-select: all;
+  user-select: all;
+}
+/* Hold each half together so the address wraps only at the explicit <wbr> after the `@`. Left to
+   itself it breaks at the hyphen in `privileged-controls`, or mid-domain, either of which reads
+   like the address is hyphenated rather than wrapped. */
+.sidebar-help-address-part {
+  white-space: nowrap;
 }
 
 section {
