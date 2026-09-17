@@ -11,6 +11,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -149,6 +150,10 @@ export default {
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
+        {
+          provide: PlatformUtilsService,
+          useValue: { copyToClipboard: (): void => undefined },
+        },
         provideRouter(routes, withHashLocation()),
         { provide: RotationSdkService, useValue: rotationSdk },
         { provide: ToastService, useValue: { showToast: () => {} } },
