@@ -86,7 +86,6 @@ import {
   cidrRowControl,
   IpAllowlistEditorComponent,
 } from "./ip-allowlist/ip-allowlist-editor.component";
-import { RuleBypassableCiphersCalloutComponent } from "./rule-bypassable-ciphers-callout/rule-bypassable-ciphers-callout.component";
 
 /**
  * Routed page for creating or editing a PAM access rule. Edit mode fetches the rule via
@@ -123,7 +122,6 @@ import { RuleBypassableCiphersCalloutComponent } from "./rule-bypassable-ciphers
     TypographyModule,
     I18nPipe,
     ContainerComponent,
-    RuleBypassableCiphersCalloutComponent,
   ],
 })
 export class AccessRuleEditComponent {
@@ -142,9 +140,8 @@ export class AccessRuleEditComponent {
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  // Protected, not private: the bypassable-ciphers callout takes both as inputs.
-  protected readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  protected readonly accessRuleId = this.route.snapshot.params.accessRuleId as
+  private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
+  private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
   /**
    * Set by the list's "Make a copy": the rule was just created from another one and its name
