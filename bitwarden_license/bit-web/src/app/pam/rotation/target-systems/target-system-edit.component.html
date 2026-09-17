@@ -309,10 +309,32 @@
             </p>
           }
 
-          <bit-form-field disableMargin>
+          <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput type="text" id="target-system-edit_input_name" formControlName="name" />
           </bit-form-field>
+
+          @if (systemIdText(); as systemId) {
+            <div data-testid="target-system-edit-system-id">
+              <p class="tw-mb-0 tw-text-sm tw-font-bold tw-text-muted">
+                {{ "pamTargetSystemIdLabel" | i18n }}
+              </p>
+              <div class="tw-flex tw-items-center tw-gap-1">
+                <span class="tw-font-mono tw-text-sm tw-break-all">{{ systemId }}</span>
+                <button
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  buttonType="subtleGhost"
+                  size="small"
+                  id="target-system-edit_button_copy-id"
+                  [appCopyClick]="systemId"
+                  showToast
+                  [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+                  [label]="'pamTargetSystemCopyId' | i18n"
+                ></button>
+              </div>
+            </div>
+          }
         </bit-card>
       </bit-section>
 

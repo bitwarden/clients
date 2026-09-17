@@ -9,6 +9,8 @@ import { of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
@@ -117,6 +119,7 @@ function daemonProviders(
     { provide: RotationSdkService, useValue: rotationSdk },
     { provide: I18nService, useValue: i18nFake },
     { provide: ToastService, useValue: mock<ToastService>() },
+    { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
     { provide: DialogService, useValue: dialogService },
     { provide: AccountService, useValue: mock<AccountService>() },
     { provide: OrganizationService, useValue: mock<OrganizationService>() },
@@ -756,6 +759,19 @@ describe("DaemonDetailComponent", () => {
         fixture.nativeElement.querySelectorAll("tbody tr td:nth-child(2)"),
       ).map((cell) => (cell as HTMLElement).textContent?.trim());
       expect(kinds).toEqual(["pamTargetSystemTypeEntra", "pamTargetSystemTypeCustomScript"]);
+    });
+
+    it("states each assigned target's id and copies it whole", async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      await render();
+
+      expect(query("tbody tr td:nth-child(3)").textContent).toContain(uuidAsString(sysId("ts-1")));
+
+      query(`#daemon-detail_button_copy-target-id-${sysId("ts-1")}`).click();
+
+      expect(TestBed.inject(PlatformUtilsService).copyToClipboard).toHaveBeenCalledWith(
+        uuidAsString(sysId("ts-1")),
+      );
     });
 
     it("shows the empty row when nothing is assigned", async () => {
