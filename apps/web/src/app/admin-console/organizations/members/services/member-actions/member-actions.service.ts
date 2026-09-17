@@ -1,9 +1,8 @@
 import { inject, Injectable, signal, WritableSignal } from "@angular/core";
-import { lastValueFrom, firstValueFrom, take } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, switchMap, take } from "rxjs";
 
 import {
   OrganizationUserApiService,
-  OrganizationUserBulkResponse,
   OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
@@ -12,23 +11,40 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  asUuid,
+  SdkService,
+  uuidAsString,
+} from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
+import {
+  OrganizationId as SdkOrganizationId,
+  OrganizationUserBulkResponse as SdkOrganizationUserBulkResponse,
+  OrganizationUserId,
+  OrganizationUsersManagementClient,
+  OrganizationUserStatusType,
+} from "@bitwarden/sdk-internal";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
+import {
+  BulkActionResult,
+  MemberActionResult,
+  OrganizationUserBulkResult,
+  REQUESTS_PER_BATCH,
+} from "./member-actions.types";
 
 @Injectable({ providedIn: "root" })
 export class MemberActionsService {
@@ -42,6 +58,8 @@ export class MemberActionsService {
   private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
   private userNamePipe = inject(UserNamePipe);
   private memberDialogManager = inject(MemberDialogManagerService);
+  private accountService = inject(AccountService);
+  private sdkService = inject(SdkService);
 
   readonly isProcessing = signal(false);
 
@@ -134,10 +152,15 @@ export class MemberActionsService {
   async reinviteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.postOrganizationUserReinvite(organization.id, userId);
+      await this.withMembersClient((client) =>
+        client.reinvite(
+          asUuid<SdkOrganizationId>(organization.id),
+          asUuid<OrganizationUserId>(userId),
+        ),
+      );
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.sdkErrorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -160,12 +183,14 @@ export class MemberActionsService {
     this.startProcessing();
 
     try {
-      const response = await this.organizationUserApiService.postOrganizationUserSendInvite(
-        organization.id,
-        userIds,
+      const response = await this.withMembersClient((client) =>
+        client.send_staged_invites(
+          asUuid<SdkOrganizationId>(organization.id),
+          userIds.map((id) => asUuid<OrganizationUserId>(id)),
+        ),
       );
 
-      for (const memberResult of response.data) {
+      for (const memberResult of response.map(toBulkResult)) {
         if (memberResult.error) {
           result.failed.push({ id: memberResult.id, error: memberResult.error });
         } else {
@@ -179,7 +204,7 @@ export class MemberActionsService {
     } catch (error) {
       result.failed = userIds.map((id) => ({
         id,
-        error: (error as Error).message ?? String(error),
+        error: this.sdkErrorMessage(error),
       }));
     } finally {
       this.endProcessing();
@@ -214,12 +239,14 @@ export class MemberActionsService {
     this.startProcessing(users.length);
 
     try {
-      result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) => {
-        const userIds = userBatch.map((u) => u.id);
-        return this.organizationUserApiService.postManyOrganizationUserReinvite(
-          organization.id,
-          userIds,
+      result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, async (userBatch) => {
+        const response = await this.withMembersClient((client) =>
+          client.bulk_reinvite(
+            asUuid<SdkOrganizationId>(organization.id),
+            userBatch.map((u) => asUuid<OrganizationUserId>(u.id)),
+          ),
         );
+        return response.map(toBulkResult);
       });
 
       if (result.failed.length > 0) {
@@ -234,7 +261,7 @@ export class MemberActionsService {
     } catch (error) {
       result.failed = users.map((user) => ({
         id: user.id,
-        error: (error as Error).message ?? String(error),
+        error: this.sdkErrorMessage(error),
       }));
     } finally {
       this.endProcessing();
@@ -289,33 +316,27 @@ export class MemberActionsService {
   private async processBatchedOperation(
     users: OrganizationUserView[],
     batchSize: number,
-    processBatch: (
-      batch: OrganizationUserView[],
-    ) => Promise<ListResponse<OrganizationUserBulkResponse>>,
+    processBatch: (batch: OrganizationUserView[]) => Promise<OrganizationUserBulkResult[]>,
   ): Promise<BulkActionResult> {
-    const allSuccessful: OrganizationUserBulkResponse[] = [];
+    const allSuccessful: OrganizationUserBulkResult[] = [];
     const allFailed: { id: string; error: string }[] = [];
 
     for (let i = 0; i < users.length; i += batchSize) {
       const batch = users.slice(i, i + batchSize);
 
       try {
-        const result = await processBatch(batch);
-
-        if (result?.data) {
-          for (const response of result.data) {
-            if (response.error) {
-              allFailed.push({ id: response.id, error: response.error });
-            } else {
-              allSuccessful.push(response);
-            }
+        for (const response of await processBatch(batch)) {
+          if (response.error) {
+            allFailed.push({ id: response.id, error: response.error });
+          } else {
+            allSuccessful.push(response);
           }
         }
       } catch (error) {
         allFailed.push(
           ...batch.map((user) => ({
             id: user.id,
-            error: (error as Error).message ?? String(error),
+            error: this.sdkErrorMessage(error),
           })),
         );
       }
@@ -327,6 +348,48 @@ export class MemberActionsService {
       successful: allSuccessful,
       failed: allFailed,
     };
+  }
+
+  /**
+   * Runs one operation against the member administration client of the active user. The account is
+   * pinned at call time so a mutation is never replayed against a different user, and the client is
+   * only valid inside the callback.
+   */
+  private withMembersClient<T>(
+    operation: (client: OrganizationUsersManagementClient) => Promise<T>,
+  ): Promise<T> {
+    return firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        take(1),
+        switchMap((userId) => this.sdkService.userClient$(userId)),
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          return await operation(ref.value.organization_users_management());
+        }),
+      ),
+    );
+  }
+
+  /**
+   * The SDK renders a rejected request as `error in response: status code <status>: <json body>`.
+   * The server's own message inside that body is the one worth showing; anything else passes through.
+   */
+  private sdkErrorMessage(error: unknown): string {
+    const message = (error as Error).message ?? String(error);
+    const bodyStart = message.indexOf("{");
+    if (bodyStart === -1) {
+      return message;
+    }
+
+    try {
+      const body = JSON.parse(message.slice(bodyStart, message.lastIndexOf("}") + 1)) as {
+        message?: unknown;
+      };
+      return typeof body.message === "string" ? body.message : message;
+    } catch {
+      return message;
+    }
   }
 
   /**
@@ -377,4 +440,8 @@ export class MemberActionsService {
       this.logService.error(`Handled exception: ${e}`);
     }
   }
+}
+
+function toBulkResult(result: SdkOrganizationUserBulkResponse): OrganizationUserBulkResult {
+  return { id: uuidAsString(result.id), error: result.error };
 }

@@ -585,7 +585,7 @@ describe("MembersComponent", () => {
       canReinvite: true,
     };
 
-    const sent = (id: string) => ({ id, error: "" });
+    const sent = (id: string) => ({ id });
 
     beforeEach(() => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(true);
@@ -612,7 +612,10 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [sent(invitedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
@@ -628,7 +631,10 @@ describe("MembersComponent", () => {
         successful: [sent(stagedUser.id)],
         failed: [],
       });
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [sent(invitedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
@@ -731,7 +737,10 @@ describe("MembersComponent", () => {
         successful: [],
         failed: [{ id: stagedUser.id, error: "No seats available" }],
       });
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [sent(invitedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
@@ -746,7 +755,10 @@ describe("MembersComponent", () => {
     it("opens the status dialog for the resend portion when self-hosted", async () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [sent(invitedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
@@ -762,7 +774,10 @@ describe("MembersComponent", () => {
         successful: [sent(stagedUser.id)],
         failed: [],
       });
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [sent(invitedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
@@ -808,7 +823,10 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({
+        successful: [sent(invitedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 

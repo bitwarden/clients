@@ -71,8 +71,7 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
 
   private async fetchPreloginDataFromSdk(email: string): Promise<PasswordPreloginData> {
     const client = await firstValueFrom(this.sdkService.client$);
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const loginClient = client.auth().login({ identityUrl: env.getIdentityUrl() });
+    const loginClient = client.auth().login();
     const sdkResponse: SdkPasswordPreloginResponse = await loginClient.get_password_prelogin(email);
     const kdfConfig = fromSdkKdfConfig(sdkResponse.kdf);
     kdfConfig.validateKdfConfigForPrelogin();

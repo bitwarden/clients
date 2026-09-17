@@ -19,7 +19,6 @@ import {
   take,
 } from "rxjs";
 
-import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -69,7 +68,10 @@ import {
 } from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "./services/member-actions/member-actions.service";
-import { MemberActionResult } from "./services/member-actions/member-actions.types";
+import {
+  MemberActionResult,
+  OrganizationUserBulkResult,
+} from "./services/member-actions/member-actions.types";
 
 interface BulkMemberFlags {
   showBulkRestoreUsers: boolean;
@@ -505,7 +507,7 @@ export class MembersComponent {
   private async sendStagedInvites(
     organization: Organization,
     stagedUsers: OrganizationUserView[],
-  ): Promise<OrganizationUserBulkResponse[]> {
+  ): Promise<OrganizationUserBulkResult[]> {
     if (stagedUsers.length === 0) {
       return [];
     }
@@ -529,7 +531,7 @@ export class MembersComponent {
   private async resendInvites(
     organization: Organization,
     invitedUsers: OrganizationUserView[],
-  ): Promise<OrganizationUserBulkResponse[]> {
+  ): Promise<OrganizationUserBulkResult[]> {
     if (invitedUsers.length === 0) {
       return [];
     }
