@@ -1628,14 +1628,14 @@ describe("AccessAuditComponent", () => {
     });
 
     // PM-43606: a fleet event names no cipher and no rule, so the Item cell read as a dash.
-    it("names the daemon a fleet event acted on, with its target as the tooltip", async () => {
+    it("names the access connector a fleet event acted on, with its target as the tooltip", async () => {
       await render([
         event({
-          Kind: "daemonAssignedToTarget",
+          Kind: "accessConnectorAssignedToTarget",
           ActorId: null,
           Automated: true,
           TargetSystemName: "prod-postgres-01",
-          DaemonName: "eu-west-rotator",
+          AccessConnectorName: "eu-west-rotator",
         }),
       ]);
 
@@ -1643,7 +1643,7 @@ describe("AccessAuditComponent", () => {
       expect(cells()[4].textContent).toContain("eu-west-rotator");
     });
 
-    it("names the target system when the fleet event has no daemon", async () => {
+    it("names the target system when the fleet event has no access connector", async () => {
       await render([event({ Kind: "targetSystemRenamed", TargetSystemName: "prod-postgres-01" })]);
 
       expect(cells()[4].textContent).toContain("prod-postgres-01");
