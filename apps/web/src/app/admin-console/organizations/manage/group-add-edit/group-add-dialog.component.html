@@ -2,7 +2,7 @@
   <span bitDialogTitle>{{ title() }}</span>
   <div bitDialogContent>
     @if (loaded$ | async) {
-      <bit-tab-group [(selectedIndex)]="tabIndex">
+      <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
         <bit-tab label="{{ 'groupInfo' | i18n }}">
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>

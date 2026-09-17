@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 
@@ -50,7 +50,7 @@ export class GroupAddDialogComponent {
   protected readonly PermissionMode = PermissionMode;
   protected readonly ResultType = GroupAddEditDialogResultType;
 
-  protected readonly tabIndex = this.params.initialTab ?? GroupAddEditTabType.Info;
+  protected readonly tabIndex = signal<number>(this.params.initialTab ?? GroupAddEditTabType.Info);
   protected readonly title = computed(() =>
     this.i18nService.t(this.btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup"),
   );
@@ -87,7 +87,7 @@ export class GroupAddDialogComponent {
     this.groupForm.markAllAsTouched();
 
     if (this.groupForm.invalid) {
-      if (this.tabIndex !== GroupAddEditTabType.Info) {
+      if (this.tabIndex() !== GroupAddEditTabType.Info) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t(

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 
@@ -70,7 +70,7 @@ export class GroupEditDialogComponent {
   protected readonly PermissionMode = PermissionMode;
   protected readonly ResultType = GroupAddEditDialogResultType;
 
-  protected readonly tabIndex = this.params.initialTab ?? GroupAddEditTabType.Info;
+  protected readonly tabIndex = signal<number>(this.params.initialTab ?? GroupAddEditTabType.Info);
   protected readonly title = this.i18nService.t("editGroup");
   protected readonly groupForm: GroupFormGroup = this.groupAddEditService.buildForm();
 
@@ -141,7 +141,7 @@ export class GroupEditDialogComponent {
     this.groupForm.markAllAsTouched();
 
     if (this.groupForm.invalid) {
-      if (this.tabIndex !== GroupAddEditTabType.Info) {
+      if (this.tabIndex() !== GroupAddEditTabType.Info) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t(
