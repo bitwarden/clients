@@ -251,6 +251,20 @@ describe("TrendWidgetComponent", () => {
       expect(toggles[2].nativeElement.textContent.trim()).toBe("members");
     });
 
+    it("should let the toggle group wrapper grow to fill the row", () => {
+      // bit-toggle-group decides inline vs dropdown from its own host width via a
+      // ResizeObserver. A shrink-to-fit flex item is always exactly as wide as the
+      // toggle group's content, so once the group collapses to a dropdown the host
+      // never gets wider and it can never return to inline (PM-40146 / PM-41982).
+      // The wrapper must grow to fill the row so the host reflects available width,
+      // and keep tw-min-w-0 so it can still shrink below content width.
+      const toggleGroup = fixture.debugElement.query(By.css("bit-toggle-group"));
+      const wrapper: HTMLElement = toggleGroup.nativeElement.parentElement;
+
+      expect(wrapper.classList).toContain("tw-grow");
+      expect(wrapper.classList).toContain("tw-min-w-0");
+    });
+
     it("should update selectedView signal and emit viewChanged event when toggle is clicked", () => {
       const viewChangedSpy = jest.fn();
       component.viewChanged.subscribe(viewChangedSpy);
