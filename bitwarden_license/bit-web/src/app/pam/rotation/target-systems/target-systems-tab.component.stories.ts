@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -94,6 +95,10 @@ export default {
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
+        {
+          provide: PlatformUtilsService,
+          useValue: { copyToClipboard: (): void => undefined },
+        },
         provideRouter(routes, withHashLocation()),
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },

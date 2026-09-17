@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   CalloutComponent,
@@ -91,6 +92,7 @@ async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkServic
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
+      { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -117,6 +119,7 @@ async function setupCreateWithTemplate(template: string): Promise<
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
+      { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -146,6 +149,7 @@ async function setupCreateWithQueryParams(queryParams: Record<string, string>) {
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
+      { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -184,6 +188,7 @@ async function setupEdit(
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
+      { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -530,6 +535,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { organizationId: ORG_ID }, queryParams: {} } },
@@ -555,6 +561,11 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector("#target-system-edit_radio_automatic")).toBeTruthy();
     expect(el.querySelector("#target-system-edit_radio_manual")).toBeTruthy();
+  });
+
+  it("says nothing about a system id, which a target does not have until it is saved", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-testid="target-system-edit-system-id"]')).toBeNull();
   });
 
   it("renders a consequence hint under each method radio", () => {
@@ -732,6 +743,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -772,6 +784,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: toastService2 },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -826,6 +839,75 @@ describe("TargetSystemEditComponent — edit mode", () => {
       expect(caseToast.showToast).not.toHaveBeenCalled();
     },
   );
+});
+
+describe("TargetSystemEditComponent — system id (rendered)", () => {
+  const SYSTEM_ID = sysId("sys-1");
+
+  let fixture: ComponentFixture<TargetSystemEditComponent>;
+  let platformUtilsService: ReturnType<typeof mock<PlatformUtilsService>>;
+
+  async function setup(routeTargetSystemId: string = uuidAsString(SYSTEM_ID)): Promise<void> {
+    TestBed.resetTestingModule();
+    const rotationSdk = mock<RotationSdkService>();
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID })]);
+    rotationSdk.listConnectors.mockResolvedValue([]);
+    rotationSdk.listConfigs.mockResolvedValue([]);
+    platformUtilsService = mock<PlatformUtilsService>();
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemEditComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: RotationSdkService, useValue: rotationSdk },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { params: { organizationId: ORG_ID, targetSystemId: routeTargetSystemId } },
+          },
+        },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  function idBlock(): HTMLElement | null {
+    return (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="target-system-edit-system-id"]',
+    );
+  }
+
+  it("states the id in full, so a paste into a connector's config can be checked by eye", async () => {
+    await setup();
+
+    expect(idBlock()?.textContent).toContain(uuidAsString(SYSTEM_ID));
+  });
+
+  it("copies the id", async () => {
+    await setup();
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>("#target-system-edit_button_copy-id")!
+      .click();
+
+    expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(uuidAsString(SYSTEM_ID));
+  });
+
+  it("copies the stored id, not the route's spelling of it", async () => {
+    await setup(uuidAsString(SYSTEM_ID).toUpperCase());
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>("#target-system-edit_button_copy-id")!
+      .click();
+
+    expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(uuidAsString(SYSTEM_ID));
+  });
 });
 
 describe("TargetSystemEditComponent — discard guard", () => {
@@ -1031,6 +1113,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
@@ -1142,6 +1225,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
@@ -1615,6 +1699,7 @@ describe("TargetSystemEditComponent — outstanding setup hint", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } } },
@@ -1841,6 +1926,7 @@ describe("TargetSystemEditComponent — loading skeleton", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -2014,6 +2100,7 @@ describe("TargetSystemEditComponent — load error state", () => {
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -2158,6 +2245,7 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: ActivatedRoute,
           useValue: {
