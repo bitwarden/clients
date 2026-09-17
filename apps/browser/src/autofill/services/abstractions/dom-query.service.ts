@@ -6,7 +6,6 @@ export interface DomQueryService {
     queryString: string,
     treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
-    forceDeepQueryAttempt?: boolean,
   ): T[];
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,

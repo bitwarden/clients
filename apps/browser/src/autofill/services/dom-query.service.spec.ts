@@ -53,7 +53,7 @@ describe("DomQueryService", () => {
     );
   });
 
-  describe("deepQueryElements", () => {
+  describe("query — shadow-piercing collection", () => {
     it("queries form field elements that are nested within a ShadowDOM", () => {
       const root = document.createElement("div");
       const shadowRoot = root.attachShadow({ mode: "open" });
@@ -96,7 +96,8 @@ describe("DomQueryService", () => {
       expect(formFieldElements).toStrictEqual([input]);
     });
 
-    it("will fallback to using the TreeWalker API if a depth larger than 4 ShadowDOM elements is encountered", () => {
+    it("collects a field nested deeper than the shadow recursion cap", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
@@ -116,13 +117,16 @@ describe("DomQueryService", () => {
       shadowRoot3.appendChild(root4);
       shadowRoot2.appendChild(root3);
       shadowRoot1.appendChild(root2);
-      const treeWalkerCallback = jest
-        .fn()
-        .mockImplementation(() => (element: Element) => element.tagName === "INPUT");
+      // Five levels, one past MAX_DEEP_QUERY_RECURSION_DEPTH, so the walk cannot rely on any
+      // bounded recursion to reach the field.
+      const formFieldElements = domQueryService.query(
+        shadowRoot1,
+        "input",
+        (element: Element) => element.tagName === "INPUT",
+        mutationObserver,
+      );
 
-      domQueryService.query(shadowRoot1, "input", treeWalkerCallback, mutationObserver);
-
-      expect(treeWalkerCallback).toHaveBeenCalled();
+      expect(formFieldElements).toStrictEqual([input]);
     });
 
     describe("shadow root observer options", () => {

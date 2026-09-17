@@ -79,26 +79,18 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param queryString - The query string to match elements against
    * @param treeWalkerFilter - The filter callback to use for the treeWalker query
    * @param mutationObserver - The MutationObserver to use for observing shadow roots
-   * @param forceDeepQueryAttempt - Whether to force a deep query attempt
    */
   query<T>(
     root: Document | ShadowRoot | Element,
+    // Unused since the deep-query path was removed. Kept because every caller passes a real
+    // selector and it is the definition collection is consolidating onto; see
+    // `buildFormFieldQueryString`. Retiring it is a decision about that migration, not cleanup.
     queryString: string,
     treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
-    forceDeepQueryAttempt?: boolean,
   ): T[] {
-    if (!forceDeepQueryAttempt) {
-      return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
-        .elements;
-    }
-
-    try {
-      return this.deepQueryElements<T>(root, queryString, mutationObserver);
-    } catch {
-      return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
-        .elements;
-    }
+    return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
+      .elements;
   }
 
   /** {@link query} plus the un-hydrated custom-element hosts seen along the way. */
@@ -367,49 +359,6 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
-   * Queries all elements in the DOM that match the given query string.
-   * Also, recursively queries all shadow roots for the element.
-   *
-   * @param root - The root element to start the query from
-   * @param queryString - The query string to match elements against
-   * @param mutationObserver - The MutationObserver to use for observing shadow roots
-   */
-  private deepQueryElements<T>(
-    root: Document | ShadowRoot | Element,
-    queryString: string,
-    mutationObserver?: MutationObserver,
-  ): T[] {
-    let elements = this.queryElements<T>(root, queryString);
-
-    if (!this.pageContainsShadowDom) {
-      return elements;
-    }
-
-    // Re-use the already-discovered shadow roots when possible to avoid the
-    // expensive querySelectorAll("*") + tag-name scan on every call.
-    // FIXME: shadow roots added to the main document after initialization are not
-    // included in this set until `resetObservedShadowRoots()` is called. (i.e.
-    // when the mutation observer is rebuilt)
-    const shadowRoots =
-      this.knownShadowRoots.size > 0
-        ? Array.from(this.knownShadowRoots)
-        : this.recursivelyQueryShadowRoots(root);
-
-    for (let index = 0; index < shadowRoots.length; index++) {
-      const shadowRoot = shadowRoots[index];
-      elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
-
-      if (mutationObserver) {
-        // Not `queryString` — that is the caller's selector, which may be `"form"` or a submit
-        // button. Observation scope follows the field predicate, never the current query.
-        this.enrollShadowRoot(shadowRoot, mutationObserver);
-      }
-    }
-
-    return elements;
-  }
-
-  /**
    * Queries the DOM for elements based on the given query string.
    *
    * @param root - The root element to start the query from
@@ -504,31 +453,6 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
     this.knownShadowRoots.add(root);
   };
-
-  /**
-   * Recursively queries all shadow roots found within the given root element.
-   * Will also set up a mutation observer on the shadow root if the
-   * `isObservingShadowRoot` parameter is set to true.
-   *
-   * @param root - The root element to start the query from
-   * @param depth - The depth of the recursion
-   */
-  private recursivelyQueryShadowRoots(
-    root: Document | ShadowRoot | Element,
-    depth: number = 0,
-  ): ShadowRoot[] {
-    if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
-      throw new Error("Max recursion depth reached");
-    }
-
-    let shadowRoots = this.queryShadowRoots(root);
-    for (let index = 0; index < shadowRoots.length; index++) {
-      const shadowRoot = shadowRoots[index];
-      shadowRoots = shadowRoots.concat(this.recursivelyQueryShadowRoots(shadowRoot, depth + 1));
-    }
-
-    return shadowRoots;
-  }
 
   /**
    * Queries any immediate shadow roots found within the given root element.
