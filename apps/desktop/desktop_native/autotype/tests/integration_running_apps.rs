@@ -60,10 +60,10 @@ fn print_running_apps() {
 /// samples `get_active_app()` once and prints the result.
 ///
 /// ```text
-/// RUST_LOG=debug cargo test -p autotype --test active_app_after_delay -- --ignored --nocapture
+/// RUST_LOG=debug cargo test -p autotype --test integration_running_apps active_app_after_delay -- --ignored --nocapture
 /// ```
 #[test]
-#[ignore = "manual: needs a human operator in a desktop env to surface a "]
+#[ignore = "manual: needs a human operator in a desktop env to focus a target app"]
 #[allow(clippy::print_stdout)]
 fn active_app_after_delay() {
     init_tracing();
