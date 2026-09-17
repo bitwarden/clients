@@ -1,17 +1,15 @@
 import { OverlayModule } from "@angular/cdk/overlay";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from "@angular/router";
-import { filter, map, startWith, concatMap, firstValueFrom, switchMap } from "rxjs";
+import { filter, map, startWith, firstValueFrom, switchMap } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import {
@@ -50,16 +48,13 @@ export class ReportsHomeComponent {
     startWith(this.isReportsHomepageRouteUrl(this.router.url)),
   );
 
+  private readonly organizations$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+  );
+
   protected readonly reports$ = this.route.params.pipe(
-    concatMap((params) =>
-      getUserId(this.accountService.activeAccount$).pipe(
-        concatMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(params.organizationId)),
-        ),
-      ),
-    ),
+    switchMap((params) => this.organizations$.pipe(getById(params.organizationId))),
     switchMap((org) => this.buildReports(org?.productTierType)),
   );
 
