@@ -1118,16 +1118,29 @@ describe("AccessAuditComponent", () => {
       expect(toolbar.querySelector("input[type=datetime-local]")).toBeNull();
     });
 
-    it("keeps the actions out of the wrapping row, right-aligned above it", async () => {
+    it("lines the actions up with the chips, at the end of the same row", async () => {
       const toolbar = await renderToolbar();
 
       const actions = toolbar.querySelector("#access-audit_container_actions")!;
       const filters = toolbar.querySelector("#access-audit_container_filters")!;
-      expect(actions.classList).toContain("tw-justify-end");
+      expect(toolbar.classList).toContain("tw-justify-between");
+      expect(toolbar.classList).toContain("tw-items-center");
+      // The chips read first, so the visual order and the tab order agree.
+      expect(filters.compareDocumentPosition(actions)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
       for (const button of ["#access-audit_button_refresh", "#access-audit_button_export"]) {
         expect(actions.querySelector(button)).not.toBeNull();
         expect(filters.querySelector(button)).toBeNull();
       }
+    });
+
+    // Only the chip block wraps; the actions must not drop under the table's left edge.
+    it("keeps the actions out of the wrap", async () => {
+      const toolbar = await renderToolbar();
+
+      expect(toolbar.classList).not.toContain("tw-flex-wrap");
+      expect(toolbar.querySelector("#access-audit_container_actions")!.classList).toContain(
+        "tw-shrink-0",
+      );
     });
 
     // The chips are all one height, so nothing in the row needs an offset to line up.

@@ -48,29 +48,15 @@
     </bit-status-lockup>
   }
   @case ("ready") {
-    <div class="tw-mb-4 tw-flex tw-flex-col tw-gap-3" id="access-audit_container_toolbar">
-      <div class="tw-flex tw-justify-end tw-gap-3" id="access-audit_container_actions">
-        <button
-          type="button"
-          bitButton
-          buttonType="primary"
-          id="access-audit_button_refresh"
-          [bitAction]="load"
-        >
-          {{ "update" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          id="access-audit_button_export"
-          endIcon="bwi-import"
-          [bitAction]="exportCsv"
-          [disabled]="rows().length === 0"
-        >
-          {{ "exportVerb" | i18n }}
-        </button>
-      </div>
+    <!--
+      One band: the chips read from the start of the row, the page's own actions sit at its end.
+      Only the chip block wraps — the actions keep their place on the first line rather than
+      dropping below a wrapped chip row, which would leave them under the table's left edge.
+    -->
+    <div
+      class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-gap-3"
+      id="access-audit_container_toolbar"
+    >
       <div
         class="tw-flex tw-flex-wrap tw-items-center tw-gap-3"
         id="access-audit_container_filters"
@@ -166,6 +152,28 @@
             {{ "clearAll" | i18n }}
           </button>
         }
+      </div>
+      <div class="tw-flex tw-shrink-0 tw-gap-3" id="access-audit_container_actions">
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          id="access-audit_button_refresh"
+          [bitAction]="load"
+        >
+          {{ "update" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          id="access-audit_button_export"
+          endIcon="bwi-import"
+          [bitAction]="exportCsv"
+          [disabled]="rows().length === 0"
+        >
+          {{ "exportVerb" | i18n }}
+        </button>
       </div>
     </div>
 
