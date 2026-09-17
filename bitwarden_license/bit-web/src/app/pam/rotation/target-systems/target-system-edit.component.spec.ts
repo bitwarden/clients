@@ -489,6 +489,66 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect(request).toMatchObject({ supportsSessionTermination: false });
   });
 
+  it("sends the policy and no integration fields for a manual target", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({ name: "Legacy mainframe", method: TargetSystemMethod.Manual });
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: false,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
+    expect(request.method).toBe("manual");
+    expect(request).toMatchObject({ passwordPolicy: expect.objectContaining({ minLength: 14 }) });
+    expect(request).not.toHaveProperty("kind");
+    expect(request).not.toHaveProperty("supportsSessionTermination");
+  });
+
+  it("surfaces the server's sentence when the SDK wraps an error response", async () => {
+    rotationSdk.createTargetSystem.mockRejectedValue(
+      new Error(
+        'error in response: status code 400 Bad Request: {"message":"Name is required.","object":"error"}',
+      ),
+    );
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({ name: "My System", method: TargetSystemMethod.Manual });
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: false,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "Name is required." }),
+    );
+  });
+
   it("shows error toast on API failure", async () => {
     rotationSdk.createTargetSystem.mockRejectedValue(new Error("network fail"));
     jest.spyOn(router, "navigate").mockResolvedValue(true);
