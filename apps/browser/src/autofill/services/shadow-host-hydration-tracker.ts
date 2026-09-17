@@ -1,4 +1,4 @@
-import { nodeIsElement } from "../utils";
+import { isCustomElement, nodeIsElement } from "../utils";
 
 import { DomQueryService } from "./abstractions/dom-query.service";
 
@@ -334,7 +334,7 @@ export class ShadowHostHydrationTracker {
     }
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes ?? []) {
-        if (!this.isShadowRootCandidate(node)) {
+        if (!this.couldContainShadowHost(node)) {
           continue;
         }
         this.pendingMutationAddedElements.add(node);
@@ -347,7 +347,12 @@ export class ShadowHostHydrationTracker {
     }
   }
 
-  private isShadowRootCandidate(node: Node): node is Element {
+  /**
+   * Asks "is this subtree worth putting in a scan batch," not "can this element host a root":
+   * {@link DomQueryService.checkForNewShadowRoots} walks descendants, so any element with children
+   * may cover a host deeper down. Deliberately broader than a can-this-element-host-a-root test.
+   */
+  private couldContainShadowHost(node: Node): node is Element {
     if (!nodeIsElement(node)) {
       return false;
     }
@@ -355,7 +360,7 @@ export class ShadowHostHydrationTracker {
       return true;
     }
     // Custom element — `attachShadow` may run after observation.
-    if (node.tagName.includes("-")) {
+    if (isCustomElement(node)) {
       return true;
     }
     return node.firstElementChild !== null;

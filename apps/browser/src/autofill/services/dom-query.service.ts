@@ -3,10 +3,9 @@ import {
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
-  SHADOW_ROOT_CANDIDATE_NODE_NAMES,
 } from "@bitwarden/common/autofill/constants";
 
-import { nodeIsElement } from "../utils";
+import { isCustomElement, isShadowRootCandidate, nodeIsElement } from "../utils";
 
 import {
   DomQueryService as DomQueryServiceInterface,
@@ -459,7 +458,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   private sinkUnresolvedHost = (element: Element, sink: Set<Element>): void => {
     if (
       sink.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
-      element.tagName.includes("-") &&
+      isCustomElement(element) &&
       !element.shadowRoot &&
       !this.isOwnedShadowHost(element)
     ) {
@@ -579,9 +578,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
 
     // skip nodes that cannot contain shadow roots
-    const isCandidate =
-      SHADOW_ROOT_CANDIDATE_NODE_NAMES.has(node.nodeName) || node.nodeName.includes("-");
-    if (!isCandidate) {
+    if (!isShadowRootCandidate(node)) {
       return null;
     }
 
