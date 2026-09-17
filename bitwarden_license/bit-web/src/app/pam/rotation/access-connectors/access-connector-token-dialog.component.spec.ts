@@ -6,20 +6,20 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import {
-  DaemonTokenDialogComponent,
-  DaemonTokenDialogParams,
-} from "./daemon-token-dialog.component";
+  AccessConnectorTokenDialogComponent,
+  AccessConnectorTokenDialogParams,
+} from "./access-connector-token-dialog.component";
 
-describe("DaemonTokenDialogComponent", () => {
-  let fixture: ComponentFixture<DaemonTokenDialogComponent>;
-  let component: DaemonTokenDialogComponent;
+describe("AccessConnectorTokenDialogComponent", () => {
+  let fixture: ComponentFixture<AccessConnectorTokenDialogComponent>;
+  let component: AccessConnectorTokenDialogComponent;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let toastService: jest.Mocked<ToastService>;
   let dialogRef: jest.Mocked<DialogRef>;
   let i18nService: jest.Mocked<I18nService>;
 
-  const params: DaemonTokenDialogParams = {
-    daemonName: "Prod Daemon",
+  const params: AccessConnectorTokenDialogParams = {
+    accessConnectorName: "Prod AccessConnector",
     token: "0.access-connector.api-id.secret:keyb64==",
   };
 
@@ -34,7 +34,7 @@ describe("DaemonTokenDialogComponent", () => {
     } as unknown as jest.Mocked<I18nService>;
 
     await TestBed.configureTestingModule({
-      imports: [DaemonTokenDialogComponent],
+      imports: [AccessConnectorTokenDialogComponent],
       providers: [
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: dialogRef },
@@ -44,14 +44,14 @@ describe("DaemonTokenDialogComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DaemonTokenDialogComponent);
+    fixture = TestBed.createComponent(AccessConnectorTokenDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it("renders the token in a readonly input", () => {
     const input = fixture.nativeElement.querySelector(
-      "#daemon-token-dialog_input_token",
+      "#access-connector-token-dialog_input_token",
     ) as HTMLInputElement;
     expect(input).toBeTruthy();
     expect(input.readOnly).toBe(true);
@@ -91,20 +91,23 @@ describe("DaemonTokenDialogComponent", () => {
     });
 
     it("requests a dialog that cannot be dismissed by Escape, backdrop or the header X", () => {
-      const result = DaemonTokenDialogComponent.open(dialogService, { data: params });
+      const result = AccessConnectorTokenDialogComponent.open(dialogService, { data: params });
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        DaemonTokenDialogComponent,
+        AccessConnectorTokenDialogComponent,
         expect.objectContaining({ data: params, disableClose: true }),
       );
       expect(result).toBe(openedRef);
     });
 
     it("ignores a caller that asks for a dismissable dialog", () => {
-      DaemonTokenDialogComponent.open(dialogService, { data: params, disableClose: false });
+      AccessConnectorTokenDialogComponent.open(dialogService, {
+        data: params,
+        disableClose: false,
+      });
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        DaemonTokenDialogComponent,
+        AccessConnectorTokenDialogComponent,
         expect.objectContaining({ disableClose: true }),
       );
     });
