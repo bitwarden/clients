@@ -1916,6 +1916,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 výsledek",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ výsledků",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Žádné filtry neodpovídají \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Vymazat hledání"
   },
@@ -2539,11 +2563,80 @@
   "noItemsInTrashDesc": {
     "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
   },
+  "noItemsInTrashDescription": {
+    "message": "Položky, které smažete, se zobrazí zde a budou trvale smazány po 30 dnech."
+  },
   "noItemsInVault": {
     "message": "Žádné položky v trezoru"
   },
+  "noItemsInMyVault": {
+    "message": "Žádné položky v mém trezoru"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Žádné položky ve $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Žádné položky ve $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Žádné položky v mých položkách"
+  },
+  "noItemsInVaults": {
+    "message": "Vaše trezory jsou prázdné"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Vybraným filtrům neodpovídají žádné položky"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Žádné položky neodpovídají \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Přidejte položky do této sdílené složky a poté povolte přístup ostatním členům k $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Moje položky jsou Vaše soukromé prostory pro ukládání položek, které zůstávají ve vlastnictví $VAULT_NAME$, ale nejsou viditelné pro ostatní členy.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nemáte žádné složky."
+  },
+  "emptyFoldersDescription": {
+    "message": "Používejte složky k organizaci předmětů v trezoru. Jsou jen pro Vás - nikdo jiný je nebude vidět ani používat."
+  },
+  "emptyVaultsDescription": {
+    "message": "Chcete-li začít, přidejte přihlašovací údaje, průkazy, karty a další položky."
   },
   "emptyFavorites": {
     "message": "Nemáte oblíbené žádné položky"
@@ -3807,6 +3900,9 @@
     "message": "Nedovolí členům vytvářet a ukládat položky týkající se platebních karet. Pokud bude tato zásada zapnuta, stávající karty budou automaticky skryty.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Nedovolit členům vytvářet a ukládat položky karet. Existující karty budou skryty."
+  },
   "restrictCardTypeImport": {
     "message": "Nelze importovat typy položek karty"
   },
@@ -4172,8 +4268,11 @@
   "passkeyLoginFound": {
     "message": "Přihlašovací účty, které podporují přístupové klíče"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "Ve Vašem úložišti jsme našli $COUNT$ přihlašovacích údajů, které podporují přístupové klíče. Chcete-li tyto účty ještě více zabezpečit, zvažte nastavení těchto klíčů, pokud to možné. Zdroj: passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Skvělé zprávy! Našli jsme "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ přihlášení",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4280,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "Ve Vašich úložištích jsme našli $COUNT$ přihlašovacích údajů, které podporují přístupové klíče. Chcete-li tyto účty ještě více zabezpečit, zvažte nastavení těchto klíčů, pokud to možné. Zdroj: passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " ve Vašem trezoru, které podporují přístupové klíče. Chcete-li tyto účty ještě více zabezpečit, zvažte nastavení těchto klíčů, pokud to možné. Zdroj: passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " ve Vašich trezorech, které podporují přístupové klíče. Chcete-li tyto účty ještě více zabezpečit, zvažte nastavení těchto klíčů, pokud to možné. Zdroj: passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "Ve Vašem trezoru nebyly nalezeny žádné účty, které by podporovaly přístupové klíče, aniž by byl některý z nich nastaven."
@@ -7405,6 +7501,57 @@
   "deactivateLink": {
     "message": "Deaktivovat odkaz"
   },
+  "requireAdminConfirmation": {
+    "message": "Vyžadovat potvrzení správce"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "Před přidáním do trezoru organizace musí správce ručně schválit nové členy."
+  },
+  "setYourAllowedDomains": {
+    "message": "Nastavte povolené domény"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Přidejte povolené e-mailové domény (např. acme.com), aby jen uživatelé s odpovídajícími e-maily mohli použít tento pozvánkový odkaz. Můžete jej kdykoliv aktualizovat."
+  },
+  "adjustTheLink": {
+    "message": "Upravit odkaz"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Vaše potřeby se změnily a odkaz se s Vámi může změnit. <strong>Obnovte</strong> odkaz pro zneplatnění starého odkazu a vytvoření nového."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Vaše potřeby se změnily a odkaz se s Vámi může změnit."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Znovu vygenerujte</strong> odkaz pro zneplatnění starého odkazu a vytvoření nového."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Vyžadujte potvrzení správce</strong> pro schválení nových členů, než se mohou připojit k organizaci."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Sdílet odkaz kdekoli"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Zkopírujte odkaz a vložte jej tam, kde ho Váš tým najde: do kontrolního seznamu pro onboarding, do kanálu #new-joiners na Slacku, do dokumentů v Notionu nebo do e-mailové šablony."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "Zobrazit průvodce onboardingem do Bitwardenu"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ z $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Dokončit"
+  },
   "inviteByLinkDesc": {
     "message": "Pozvěte členy do Vaší organizace s odkazem. Pokud ještě nebyla zadána žádná role, budou přidáni jako výchozí uživatel."
   },
@@ -7719,9 +7866,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Vyberte sadu minimálních požadavků na hesla vytvářená uživateli."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Nastaví požadavky pro generátor hesel.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Nastavte sadu minimálních požadavků na hesla vytvářená uživateli."
   },
   "generatedPassword": {
     "message": "Vygenerované heslo"
@@ -7774,7 +7920,7 @@
   "minimumNumberOfWords": {
     "message": "Minimální počet slov"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Typ hesla",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7978,9 +8124,8 @@
   "singleOrgDesc": {
     "message": "Omezí uživatelům možnost připojit se k jiným organizacím."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Omezí uživatelům možnost připojit se k jiným sdíleným trezorům nebo organizacím.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Členové se nemohou připojit k dalším trezorům organizace."
   },
   "singleOrgPolicyDescV2": {
     "message": "Členové této organizace se nemohou stát členy jiných organizací. Stávajícím členům, kteří jsou členy jiných organizací, bude po aktivaci této zásady odebrán přístup. Tato zásada se nevztahuje na vlastníky a správce."
@@ -8002,13 +8147,9 @@
     "message": "Vyžadovat SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Vyžaduje přihlášení uživatelů pomocí metody jednotného podnikového přihlášení.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Vyžaduje, aby se členové přihlašovali pomocí podnikového SSO. Tato zásada se nebude vztahovat na vlastníky a správce.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Vyžadovat, aby se všichni členové přihlašovali pomocí SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Vyžadovat jednotné přihlášení (SSO)"
@@ -8426,9 +8567,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "Všechny položky uživatele budou vlastněny a spravovány organizací. Správci a vlastníci jsou osvobozeni. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Bude vyžadovat, aby členové ukládali položky do organizace tím, že odeberou vlastní osobní trezor.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "Všechny položky členů budou vlastněny a spravovány organizací."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Zjistěte více o centralizovaném vlastnictví",
@@ -8666,6 +8806,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "Povolí členům automatické vyplňování v desktopové verzi. Členové budou moci automatické vyplňování v desktopovém klientovi ručně vypnout."
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Povolit automatické psaní pro uživatele."
+  },
   "disableSend": {
     "message": "Odebrat Send"
   },
@@ -8714,10 +8857,6 @@
     "message": "Spravovat Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Spravovat Send a sdílení",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8726,9 +8865,9 @@
     "message": "Nastavte, jak mohou členové používat Send. Tato zásada se bude vztahovat na zprávy odeslané po jejím aktivování. Správci a vlastníci jsou z této zásady vyňati.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Nastavte volby funkce Send.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Spravuje, jak členové používají Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Volby Send",
@@ -9185,9 +9324,8 @@
   "accountRecoveryPolicy": {
     "message": "Správa obnovení účtu"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Povolí správcům v organizaci resetovat hlavní hesla uživatelů organizace.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Umožnit správcům, aby pomohli členům získat přístup ke svým účtům."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
@@ -9586,9 +9724,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Nastavte maximální časový limit relace pro všechny členy kromě vlastníků."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Nastaví maximální časový limit trezoru pro všechny uživatele.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Nastaví maximální časový limit relace pro uživatele."
   },
   "maximumAllowedTimeout": {
     "message": "Maximální povolený časový limit"
@@ -9716,18 +9853,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace Vám brání v exportu Vašeho osobního trezoru."
   },
-  "activateAutofillPolicy": {
-    "message": "Aktivovat automatické vyplnění"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Povolit automatické vyplňování při načítání stránky"
   },
   "activateAutofillPolicyDescription": {
     "message": "Aktivuje automatické vyplnění při načítání stránky pro rozšíření prohlížeče pro všechny existující i nové členy."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automaticky vyplní přihlašovací údaje na webových stránkách a aplikacích.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "V rozšíření prohlížeče pro všechny členy povolí nastavení automatického vyplňování při načtení stránky."
   },
   "activateAutofillPolicyDescV2": {
     "message": "V rozšíření prohlížeče povolte nastavení automatického vyplňování při načtení stránky pro všechny stávající i nové členy. Mějte na paměti, že napadené nebo nedůvěryhodné webové stránky mohou"
@@ -10396,9 +10529,6 @@
   "billingHistory": {
     "message": "Historie fakturace"
   },
-  "backToReports": {
-    "message": "Zpět do hlášení"
-  },
   "organizationPicker": {
     "message": "Výběr organizace"
   },
@@ -10499,6 +10629,10 @@
   "random": {
     "message": "Náhodně",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Název webu",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Náhodné slovo"
@@ -10957,6 +11091,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Zbývá jen $COUNT$ uživatelů. Odeberte e-mailovou adresu, nebo aktualizujte svůj tarif.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11790,35 +11933,8 @@
   "switchProducts": {
     "message": "Přepnout produkty"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $SEATCOUNT$ členů. Chcete-li pozvat více členů, přejděte na placený plán.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Chcete-li pozvat více členů, přejděte na placený plán.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Obraťte se na vlastníka organizace a aktualizujte Váš plán a pozvěte více členů.",
+  "seatLimitReachedContactOwner": {
+    "message": "Byl dosažen limit počtu uživatelů: $SEATCOUNT$. Pro aktualizaci tarifu kontaktujte vlastníka organizace.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13154,14 +13270,14 @@
   "unexpectedErrorSend": {
     "message": "Při načítání tohoto Sendu došlo k neočekávané chybě. Zkuste to znovu později."
   },
-  "seatLimitReached": {
-    "message": "Dosažen limit počtu uživatelů"
-  },
-  "contactYourProvider": {
-    "message": "Obraťte se na svého poskytovatele pro nákup dalších uživatelů."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Byl dosažen limit počtu uživatelů. Kontaktujte svého poskytovatele pro zakoupení dalších uživatelů."
+  "seatLimitReachedContactProvider": {
+    "message": "Byl dosažen limit počtu uživatelů: $SEATCOUNT$. Kontaktujte svého poskytovatele pro zakoupení dalších uživatelů.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Přístup ke sbírce je omezen"
@@ -14550,24 +14666,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "Ověření SSO"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Rodinné organizace mohou mít až $SEATCOUNT$ členů. Chcete-li pozvat více členů, přejděte na placený plán.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Bezplatné rodinné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Rodinné organizace mohou mít až $SEATCOUNT$ členů. Chcete-li obnovit přístup tohoto člena, přejděte na placený plán.",
     "placeholders": {
@@ -14925,6 +15023,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Odebere možnost, aby si členové mohli uplatnit bezplatný tarif \"Families\".",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Neumožní členům využívat plán \"Families\", který sponzoruje Vaše organizace."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Platba bankovním účtem je dostupná jen pro zákazníky ve Spojených státech. Budete požádáni o ověření Vašeho bankovního účtu. Mikrovklad provedeme během následujících 1-2 pracovních dnů. Pro ověření bankovního účtu zadejte kód popisu výpisu z této zálohy na fakturační stránce organizace. Pokud bankovní účet neověříte, bude to mít za následek neprovedení platby a pozastavení předplatného."
@@ -15374,6 +15475,9 @@
     "message": "Chybějící webová stránka"
   },
   "removeUnlockWithPinPolicyTitle": {
+    "message": "Odebrat odemknutí pomocí PIN"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
     "message": "Odebrat odemknutí pomocí PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
@@ -17046,6 +17150,9 @@
   },
   "singleOrgPrerequisite": {
     "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
+  },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "Před aktivací této zásady musí být povoleno jednotné členství v organizaci."
   },
   "enableBanner": {
     "message": "Povolit banner"

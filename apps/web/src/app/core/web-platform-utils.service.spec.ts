@@ -138,27 +138,67 @@ describe("Web Platform Utils Service", () => {
       });
     };
 
+    const setUserAgentData = (userAgentData?: unknown) => {
+      Object.defineProperty(navigator, "userAgentData", {
+        value: userAgentData,
+        configurable: true,
+      });
+    };
+
     afterEach(() => {
       // Reset to original after each test
       setUserAgent(originalUserAgent);
+      delete (navigator as any).userAgentData;
     });
 
     const testData: {
       userAgent: string;
       expectedDevice: DeviceType;
       windowProps?: Record<string, any>;
+      userAgentData?: unknown;
     }[] = [
       {
-        // DuckDuckGo macoOS browser v1.13
+        // DuckDuckGo macoOS browser v1.13. The macOS build is WebKit-based and exposes no
+        // userAgentData, so the Ddg user agent suffix is the only available signal.
         userAgent:
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Safari/605.1.15 Ddg/18.3.1",
         expectedDevice: DeviceType.DuckDuckGoBrowser,
       },
-      // DuckDuckGo Windows browser v0.109.7, which does not present the Ddg suffix and is therefore detected as Edge
       {
+        // DuckDuckGo Windows browser v0.109.7. Its user agent carries an Edg/ suffix and no
+        // Ddg suffix, so the userAgentData brand list is what distinguishes it from Edge.
         userAgent:
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+        userAgentData: {
+          brands: [
+            { brand: "Not=A?Brand", version: "99" },
+            { brand: "DuckDuckGo", version: "151" },
+            { brand: "Chromium", version: "151" },
+          ],
+        },
+        expectedDevice: DeviceType.DuckDuckGoBrowser,
+      },
+      {
+        // Regression guard: a brand list without a DuckDuckGo entry must not be claimed by
+        // the DuckDuckGo check, even though it also contains Chromium.
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+        userAgentData: {
+          brands: [
+            { brand: "Not=A?Brand", version: "99" },
+            { brand: "Chromium", version: "135" },
+            { brand: "Microsoft Edge", version: "135" },
+          ],
+        },
         expectedDevice: DeviceType.EdgeBrowser,
+      },
+      {
+        // Regression guard: userAgentData present but without a brand list must not throw.
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        userAgentData: {},
+        expectedDevice: DeviceType.ChromeBrowser,
+        windowProps: { chrome: {} },
       },
       {
         userAgent:
@@ -195,8 +235,9 @@ describe("Web Platform Utils Service", () => {
 
     test.each(testData)(
       "returns $expectedDevice for User-Agent: $userAgent",
-      ({ userAgent, expectedDevice, windowProps }) => {
+      ({ userAgent, expectedDevice, windowProps, userAgentData }) => {
         setUserAgent(userAgent);
+        setUserAgentData(userAgentData);
         setWindowProperties(windowProps);
         const result = webPlatformUtilsService.getDevice();
         expect(result).toBe(expectedDevice);
@@ -205,6 +246,15 @@ describe("Web Platform Utils Service", () => {
   });
 
   describe("isChromium", () => {
+    const originalUserAgent = navigator.userAgent;
+
+    const setUserAgent = (userAgent: string) => {
+      Object.defineProperty(navigator, "userAgent", {
+        value: userAgent,
+        configurable: true,
+      });
+    };
+
     const chromiumDevices = [
       DeviceType.ChromeBrowser,
       DeviceType.EdgeBrowser,
@@ -216,12 +266,12 @@ describe("Web Platform Utils Service", () => {
       DeviceType.FirefoxBrowser,
       DeviceType.SafariBrowser,
       DeviceType.IEBrowser,
-      DeviceType.DuckDuckGoBrowser,
       DeviceType.UnknownBrowser,
     ];
 
     afterEach(() => {
       jest.restoreAllMocks();
+      setUserAgent(originalUserAgent);
     });
 
     test.each(chromiumDevices)("returns true when getDevice() is %s", (deviceType) => {
@@ -231,6 +281,30 @@ describe("Web Platform Utils Service", () => {
 
     test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
       jest.spyOn(webPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(webPlatformUtilsService.isChromium()).toBe(false);
+    });
+
+    // DuckDuckGo is the one browser whose engine depends on the platform: Chromium on
+    // Windows, WebKit on macOS.
+    it("returns true for DuckDuckGo on Windows", () => {
+      jest
+        .spyOn(webPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoBrowser);
+      setUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+      );
+
+      expect(webPlatformUtilsService.isChromium()).toBe(true);
+    });
+
+    it("returns false for DuckDuckGo on macOS", () => {
+      jest
+        .spyOn(webPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoBrowser);
+      setUserAgent(
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Safari/605.1.15 Ddg/18.3.1",
+      );
+
       expect(webPlatformUtilsService.isChromium()).toBe(false);
     });
   });

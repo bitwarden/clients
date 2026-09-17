@@ -2,9 +2,9 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { applicationConfig, componentWrapperDecorator, Meta, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -67,7 +67,12 @@ import {
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
-import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  VaultCopyButtonsService,
+  VaultNavItemType,
+  VaultNavService,
+} from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
 import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
@@ -246,6 +251,11 @@ const FILTER_ORGANIZATION_OPTIONS = [
   { value: { id: STORY_ORG_ID } as Organization, label: "Acme Co", icon: "bwi-business" as const },
 ];
 
+// The names the collection groups are labeled from, keyed by organization id.
+const FILTER_ORGANIZATION_NAMES = new Map(
+  FILTER_ORGANIZATION_OPTIONS.map((option) => [option.value.id, option.label]),
+);
+
 const FILTER_COLLECTION_OPTIONS = [
   {
     value: { id: "00000000-0000-4000-8000-0000000000fa", name: "Engineering" } as CollectionView,
@@ -412,6 +422,8 @@ const buildProviders = (args: StoryArgs) => {
         favoriteCiphers$: of(populated ? FAVORITE_CIPHERS : []),
         remainingCiphers$: of(populated ? ALL_ITEM_CIPHERS : []),
         filteredCiphers$: of(allItems),
+        // The folder chip's options come from the unsearched list, not the rendered rows.
+        activeCiphers$: of(allItems),
         autoFillCiphers$: of(populated ? AUTOFILL_CIPHERS : []),
         cipherCount$: of(allItems.length),
         searchText$: of(""),
@@ -449,13 +461,50 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     {
+      // The header's vault switcher reads the account's vaults; two entries render the switcher.
+      provide: VaultNavService,
+      useValue: {
+        viewModel$: () =>
+          of({
+            vaults: [
+              {
+                id: MY_VAULT_ID,
+                type: VaultNavItemType.Personal,
+                label: "My vault",
+                icon: "bwi-user",
+                // The real nav puts the avatar color here. Not `brand` — All items already is.
+                color: "coral",
+              },
+              {
+                id: STORY_ORG_ID,
+                type: VaultNavItemType.Organization,
+                label: "Acme Co",
+                icon: "bwi-business",
+              },
+            ],
+            organizationDataOwnership: false,
+          }),
+      },
+    },
+    {
       provide: VaultPopupListTableFiltersService,
       useValue: {
         restoreFilters$: () => of({}),
         saveFilters: () => {},
+        cachedFilters: signal({}),
+        clearVaultScopedFilters: () => {},
+        vaultScopedFiltersCleared$: NEVER,
+        suspended$: () => of(false),
+        selectedFilters$: of({
+          cipherType: null,
+          organization: [] as string[],
+          collection: [] as string[],
+          folder: [] as string[],
+        }),
         selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
+        organizationNames$: of(FILTER_ORGANIZATION_NAMES),
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
       },
@@ -570,10 +619,17 @@ const buildProviders = (args: StoryArgs) => {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(false) },
     },
-    { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
+    {
+      provide: OrganizationService,
+      useValue: { hasOrganizations: () => of(false), memberOrganizations$: () => of([]) },
+    },
     {
       provide: InternalOrganizationServiceAbstraction,
-      useValue: { organizations$: () => of([]), hasOrganizations: () => of(false) },
+      useValue: {
+        organizations$: () => of([]),
+        hasOrganizations: () => of(false),
+        memberOrganizations$: () => of([]),
+      },
     },
     { provide: CollectionService, useValue: { decryptedCollections$: () => of([]) } },
     {
@@ -599,7 +655,7 @@ const buildProviders = (args: StoryArgs) => {
     },
     {
       provide: AvatarService,
-      useValue: { avatarColor$: of("#175DDC") },
+      useValue: { avatarColor$: of("coral") },
     },
     {
       provide: AuthService,
@@ -635,7 +691,12 @@ const buildProviders = (args: StoryArgs) => {
     },
     {
       provide: ActivatedRoute,
-      useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
+      useValue: {
+        snapshot: { queryParams: {}, paramMap: new Map() },
+        queryParams: of({}),
+        // `vaultScope` combines this in a field initializer, so it must be a stream.
+        paramMap: of(convertToParamMap({})),
+      },
     },
     {
       provide: I18nService,
@@ -756,8 +817,10 @@ const buildProviders = (args: StoryArgs) => {
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
           launchWebsiteForName: "Launch __$1__",
-          // New-item dropdown / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
+          // New-item dropdown / FAB / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
           // resolve or the dropdown throws while rendering.
+          addItem: "Add item",
+          newFolder: "New folder",
           new: "New",
           add: "Add",
           typeNote: "Note",
@@ -780,6 +843,29 @@ const buildProviders = (args: StoryArgs) => {
           reviewXAtRiskPassword: "Review __$1__ at-risk password",
           reviewXAtRiskPasswordsPlural: "Review __$1__ at-risk passwords",
           atRiskLoginsSecured: "At-risk logins secured",
+          launchWebsite: "Launch website",
+          noDetailsToCopy: "No details to copy",
+          importItems: "Import items",
+          noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+          noItemsMatchSelectedFilters: "No items match selected filters",
+          noItemsInMyVault: "No items in My vault",
+          noItemsInVaults: "Your vaults are empty",
+          noItemsInOrganizationVault: (name) => `No items in ${name}`,
+          noItemsInSharedFolder: (name) => `No items in ${name}`,
+          emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+          emptySharedFolderDescription: (name) =>
+            `Add items to this shared folder, then give access to other ${name} members.`,
+          noItemsInTrash: "No items in trash",
+          noItemsInTrashDescription:
+            "Items you delete will appear here and be permanently deleted after 30 days.",
+          noItemsInArchive: "No items in archive",
+          noItemsInArchiveDesc:
+            "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
+          appLogoLabel: "Bitwarden logo",
+          emptyMyItems: "No items in My items",
+          emptyMyItemsDescription:
+            "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+          switchVault: "Switch vault",
         }),
     },
   ];

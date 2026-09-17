@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -7,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService } from "../../dialog";
 import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component";
 import { SearchComponent } from "../../search/search.component";
+import { TooltipDirective } from "../../tooltip";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
@@ -31,6 +33,18 @@ class HostComponent {
   readonly toggle = viewChild.required(FilterToggleComponent);
 }
 
+/** A search-only toolbar: no filter chips projected, so no filter row should lay out. */
+@Component({
+  imports: [BitTableToolbarComponent, SearchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-toolbar>
+      <bit-search placeholder="Search"></bit-search>
+    </bit-table-toolbar>
+  `,
+})
+class SearchOnlyHostComponent {}
+
 describe("BitTableToolbarComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
@@ -40,9 +54,16 @@ describe("BitTableToolbarComponent", () => {
       "#bit-table-toolbar_button_clear-all",
     ) as HTMLButtonElement | null;
 
+  // The button stays in the DOM so the overflow list's item set never changes; `tw-hidden`
+  // is what hides it. Assert on visibility rather than presence.
+  const clearAllVisible = () => {
+    const button = clearAllButton();
+    return button != null && !button.classList.contains("tw-hidden");
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent],
+      imports: [HostComponent, SearchOnlyHostComponent],
       providers: [
         {
           provide: I18nService,
@@ -64,15 +85,15 @@ describe("BitTableToolbarComponent", () => {
     fixture.detectChanges();
   });
 
-  it("does not render the clear-all button when no filter is active", () => {
-    expect(clearAllButton()).toBeNull();
+  it("hides the clear-all button when no filter is active", () => {
+    expect(clearAllVisible()).toBe(false);
   });
 
-  it("renders the clear-all button once a filter becomes active", () => {
+  it("shows the clear-all button once a filter becomes active", () => {
     host.toggle().flip();
     fixture.detectChanges();
 
-    expect(clearAllButton()).not.toBeNull();
+    expect(clearAllVisible()).toBe(true);
   });
 
   it("clears active filter chips but leaves the search term untouched", () => {
@@ -88,6 +109,25 @@ describe("BitTableToolbarComponent", () => {
 
     expect(host.toggle().active()).toBe(false);
     expect(host.search().value()).toBe("vault");
-    expect(clearAllButton()).toBeNull();
+    expect(clearAllVisible()).toBe(false);
+  });
+  it("tooltips an active filter chip with its full applied label", () => {
+    host.toggle().flip();
+    fixture.detectChanges();
+
+    const chip = fixture.debugElement.query(By.css("bit-chip"));
+    expect(chip).not.toBeNull();
+    expect(chip.injector.get(TooltipDirective).tooltipContent()).toBe("Favorites");
+  });
+
+  it("leaves the filter row free of element children when no filters are projected", () => {
+    const searchOnly = TestBed.createComponent(SearchOnlyHostComponent);
+    searchOnly.detectChanges();
+
+    // `empty:tw-hidden` collapses the row, and `:empty` ignores comments but not elements
+    // -- so an unconditional child here would leave an empty strip under the search row.
+    const filterRow = searchOnly.nativeElement.querySelector("[bitOverflowList]") as HTMLElement;
+    expect(filterRow).not.toBeNull();
+    expect(filterRow.childElementCount).toBe(0);
   });
 });

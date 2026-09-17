@@ -37,6 +37,7 @@ export { PasswordHistoryViewComponent } from "./components/password-history-view
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
+export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
 export * from "./components/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
@@ -57,6 +58,7 @@ export {
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
 export * from "./components/shared-folders";
+export * from "./components/empty-vault";
 export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
@@ -129,7 +131,13 @@ export {
   CollectionDialogTab,
 } from "./tokens/collection-dialog.token";
 
-export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
+export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+
+export {
+  VaultBatchBarService,
+  VaultBatchBarConfig,
+  VaultSelectionSource,
+} from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
@@ -138,7 +146,10 @@ export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { organizationVaultGuard } from "./routing/organization-vault.guard";
 export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
+export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
+export { VAULT_BASE_ROUTE } from "./routing/vault-base-route";
+export { type VaultScopeRouteData } from "./routing/vault-filter-scope";
 export {
   matchesType,
   matchesFavorite,
@@ -147,3 +158,5 @@ export {
   matchesFolder,
   idString,
 } from "./utils/vault-filter-predicates";
+export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
+export * from "./directives/remount-on.directive";
