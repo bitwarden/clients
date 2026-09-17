@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Privileged Controls: Private Preview guide | Bitwarden</title>
+    <title>Privileged Controls: Private preview guide | Bitwarden</title>
     <link rel="stylesheet" href="guide.css" />
   </head>
   <body>
@@ -45,7 +45,7 @@
             alt="Bitwarden Privileged Controls"
           />
         </div>
-        <span class="preview-tag">Private Preview</span>
+        <span class="preview-tag">Private preview</span>
       </div>
     </header>
 
@@ -62,22 +62,22 @@
             <li>
               <a href="#approve-someone-elses-request">Approve someone else&#8217;s request</a>
             </li>
-            <li><a href="#hand-a-credential-back">Hand a credential back</a></li>
+            <li><a href="#end-your-access-early">End your access early</a></li>
             <li>
               <a href="#set-up-automatic-password-rotation">Set up automatic password rotation</a>
             </li>
             <li><a href="#see-who-used-what">See who used what</a></li>
-            <li><a href="#change-or-remove-protection">Change or remove protection</a></li>
-            <li><a href="#what-wed-like-you-to-test">What we&#8217;d like you to test</a></li>
+            <li><a href="#change-or-remove-an-access-rule">Change or remove an access rule</a></li>
+            <li><a href="#what-to-test">What to test</a></li>
             <li>
               <a href="#whats-not-in-this-preview-yet">What&#8217;s not in this preview yet</a>
             </li>
             <li><a href="#limits-and-timings">Limits and timings</a></li>
-            <li><a href="#send-us-feedback">Send us feedback</a></li>
+            <li><a href="#send-feedback">Send feedback</a></li>
           </ol>
         </div>
         <div class="sidebar-help">
-          <p class="sidebar-help-label">Private Preview feedback</p>
+          <p class="sidebar-help-label">Private preview feedback</p>
           <div class="sidebar-help-actions">
             <a
               class="btn-primary"
@@ -122,7 +122,7 @@
       <main class="content" id="main">
         <div class="doc-intro">
           <h1>Privileged Controls</h1>
-          <p class="preview-label">Private Preview</p>
+          <p class="preview-label">Private preview</p>
           <p class="lede">
             Privileged Controls is an add-on for Bitwarden Enterprise organizations that limits
             standing access to sensitive credentials. Protected credentials remain hidden until
@@ -131,16 +131,16 @@
           </p>
           <p>
             This guide explains how Privileged Controls works, how to configure it, how to request
-            and approve access, and what to test during the Private Preview. Configuration sections
-            are for organization administrators. Request and approval sections also apply to members
-            and approvers.
+            and approve access, and what to test during the private preview. Configuration sections
+            are for organization admins. Request and approval sections also apply to members and
+            approvers.
           </p>
         </div>
 
         <div class="callout callout-note">
           <span class="callout-label">Note</span>
           <p>
-            This guide covers the Private Preview and is not final documentation. Screens and labels
+            This guide covers the private preview and is not final documentation. Screens and labels
             may change, and some capabilities are incomplete. Before evaluating a specific feature,
             review <a href="#whats-not-in-this-preview-yet">What's not in this preview yet</a>.
           </p>
@@ -149,21 +149,22 @@
         <section id="what-privileged-controls-does">
           <h2>What Privileged Controls does</h2>
           <p>
-            Privileged credentials include production database passwords, domain administrator
-            accounts, and root credentials for infrastructure. When stored as ordinary shared
-            credentials, they can remain readable to every member with collection access and may
-            stay valid indefinitely.
+            Privileged credentials include production database passwords, domain admin accounts, and
+            root credentials for infrastructure. Without the additional protections of Privileged
+            Controls, shared credentials can remain readable to every member with collection access
+            and may stay valid indefinitely.
           </p>
           <p>Privileged Controls reduces both forms of standing access:</p>
           <p>
             <strong>The credential remains hidden until access is granted.</strong> Members can see
             that the item exists, including its name and website, but the server never sends the
-            password or other secret fields to the client, so a modified client cannot reveal them.
+            username, password, or other credential fields to the client, so a modified client
+            cannot reveal them.
           </p>
           <p>
             <strong>Access is time-limited.</strong> When a request is granted, the member can use
-            the credential only for the permitted window. When access ends, the secret fields are
-            hidden again.
+            the credential only for the permitted window. When access ends, the credential fields
+            are hidden again.
           </p>
           <p>
             <strong>Credentials can be rotated.</strong> Rotation changes the password on the target
@@ -178,39 +179,37 @@
           <h3 id="how-it-fits-together">How it fits together</h3>
           <p>A typical access cycle works as follows:</p>
           <ol class="steps">
-            <li>You create an <code>Access Rule</code> and apply it to a collection.</li>
+            <li>You create an <code>access rule</code> and apply it to a collection.</li>
             <li>
               Items in that collection become <code>privileged</code>: visible, but with their
-              secrets hidden.
+              credential fields hidden.
             </li>
             <li>A member <code>requests access</code> to one.</li>
             <li>
-              Depending on the Access Rule, the request is approved automatically or sent to an
+              Depending on the access rule, the request is approved automatically or sent to an
               approver group.
             </li>
             <li>
               Once the request is approved, the member <code>starts</code> their access, and the
               clock begins.
             </li>
-            <li>The member uses the credential, then hands it back or lets the time run out.</li>
+            <li>The member uses the credential, then ends access or lets the time run out.</li>
             <li>
               If the credential is under <code>rotation</code>, finishing can trigger a new
               password.
             </li>
-            <li>
-              The audit log records every step.
-              <div class="callout callout-tip">
-                <span class="callout-label">Tip</span>
-                <p>
-                  <strong>Approval does not reveal the credential.</strong> After a request is
-                  approved, the member must select <code>Start access</code> before the credential
-                  becomes available. See
-                  <a href="#when-your-access-actually-starts">When your access actually starts</a>
-                  for timing details.
-                </p>
-              </div>
-            </li>
+            <li>The audit log records every step.</li>
           </ol>
+          <div class="callout callout-tip">
+            <span class="callout-label">Tip</span>
+            <p>
+              <strong>Approval does not reveal the credential.</strong> After a request is approved,
+              the member must select <code>Start access</code> before the credential becomes
+              available. See
+              <a href="#when-your-access-actually-starts">When your access actually starts</a>
+              for timing details.
+            </p>
+          </div>
         </section>
 
         <section id="the-four-capabilities">
@@ -219,10 +218,9 @@
           <h3 id="decide-who-gets-access-and-for-how-long">
             Decide who gets access, and for how long
           </h3>
-          <p class="dfn">Access Rules</p>
           <p>
-            An Access Rule defines the policy for one or more collections. Every item in a protected
-            collection is governed by that rule.
+            An access rule defines the access requirements for one or more collections. Every item
+            in a privileged collection is governed by that rule.
           </p>
           <p>
             A rule has two groups of settings. <code>Access duration</code> sets the default and
@@ -237,17 +235,15 @@
           </p>
 
           <h3 id="get-a-credential-when-you-need-it">Get a credential when you need it</h3>
-          <p class="dfn">Credential leasing</p>
           <p>
-            Members request access from the protected item. Depending on the rule, the request is
-            approved immediately or sent to an approver group with the member's reason. After
-            approval, the member selects <code>Start access</code> to reveal the credential. If the
-            rule allows extensions, the member can extend active access once, up to the rule's
-            maximum duration.
+            Credential leasing is how members reach a privileged item. They request access from the
+            item itself. Depending on the rule, the request is approved immediately or sent to an
+            approver group with the member's reason. After approval, the member selects
+            <code>Start access</code> to reveal the credential. If the rule allows extensions, the
+            member can extend active access once, up to the rule's maximum duration.
           </p>
 
           <h3 id="change-credentials-automatically">Change credentials automatically</h3>
-          <p class="dfn">Password rotation</p>
           <p>
             Password rotation links a vault item to a target system through an access connector.
             Bitwarden can then rotate the password on a schedule, on demand, or when a member ends
@@ -263,11 +259,10 @@
           </p>
 
           <h3 id="capability-audit-trail">See who used what</h3>
-          <p class="dfn">Audit trail</p>
           <p>
-            The server records requests, approval decisions, access starts and ends, and rotation
-            activity. The audit trail shows who requested and used a credential, who approved or
-            denied access, the recorded reasons, and relevant timestamps.
+            The audit trail records requests, approval decisions, access starts and ends, and
+            rotation activity. It shows who requested and used a credential, who approved or denied
+            access, the recorded reasons, and relevant timestamps.
           </p>
         </section>
 
@@ -278,17 +273,17 @@
             anything to work through this guide.
           </p>
 
-          <h3 id="what-we-provide">What we provide</h3>
+          <h3 id="what-bitwarden-provides">What Bitwarden provides</h3>
           <ul>
             <li>
               <strong>A mock organization</strong> on the Bitwarden preview instance with Privileged
               Controls enabled. It is separate from your production tenant.
             </li>
             <li>
-              <strong>Two test accounts:</strong> an administrator account for configuration and an
-              account with <code>Manage</code> permission for approvals. Because users cannot
-              approve their own requests, use the second account yourself or assign it to a
-              colleague when testing the approval flow.
+              <strong>Two test accounts:</strong> an admin account for configuration and an account
+              with <code>Manage</code> permission for approvals. Because users cannot approve their
+              own requests, use the second account yourself or assign it to a colleague when testing
+              the approval flow.
             </li>
             <li>
               <strong>Seeded collections and credentials</strong> for testing request and approval
@@ -309,7 +304,7 @@
             <span class="callout-label">Warning</span>
             <p>
               <strong>Do not use production credentials in the preview environment.</strong> The
-              Private Preview does not carry the guarantees of a production Bitwarden deployment.
+              private preview does not carry the guarantees of a production Bitwarden deployment.
               Use test credentials and test accounts only.
             </p>
           </div>
@@ -317,12 +312,12 @@
             <span class="callout-label">Note</span>
             <p>
               The access connector is not distributed in this preview, so running one yourself is
-              not part of the exercise. If you want to evaluate that and give us early
-              developer-experience feedback, email us at
+              not part of the exercise. To evaluate it and give early developer-experience feedback,
+              email
               <a href="mailto:privileged-controls@bitwarden.com"
                 >privileged-controls@bitwarden.com</a
               >
-              and we will provide the connector and its own guide.
+              and Bitwarden will provide the connector and its own guide.
             </p>
           </div>
           <div class="callout callout-tip">
@@ -362,7 +357,7 @@
           </ol>
           <p>
             Name the collection for the resource it protects rather than the team that uses it. For
-            example, prefer <code>Production database</code> to <code>Ops team</code>. Access Rules
+            example, prefer <code>Production database</code> to <code>Ops team</code>. Access rules
             apply at the collection level.
           </p>
           <p>Add a single login item to it.</p>
@@ -379,7 +374,7 @@
             </p>
           </div>
 
-          <h3 id="create-an-access-rule">Create an Access Rule</h3>
+          <h3 id="create-an-access-rule">Create an access rule</h3>
           <ol class="steps">
             <li>
               Open the <code>Admin Console</code> and select <code>Privileged Controls</code> &rarr;
@@ -520,7 +515,7 @@
           <div class="callout callout-note">
             <span class="callout-label">Note</span>
             <p>
-              A collection can only be protected by one rule at a time. If you select a collection
+              A collection can only be governed by one rule at a time. If you select a collection
               that already has one, you will be asked to pick different collections.
             </p>
           </div>
@@ -531,18 +526,19 @@
             <code>Status</code>.
           </p>
 
-          <h3 id="check-that-every-route-to-the-item-is-protected">
-            Check that every route to the item is protected
+          <h3 id="check-that-every-route-to-the-item-is-governed-by-a-rule">
+            Check that every route to the item is governed by a rule
           </h3>
           <p>
             Bitwarden access is the union of a member's collection permissions. If an item is in
             several collections, a member can reach it through any one they belong to, so an item
-            that is also in an unprotected collection stays readable to that collection's members. A
-            rule restricts a member only when every path they have to the item is protected.
+            that is also in a collection with no access rule stays readable to that collection's
+            members. A rule restricts a member only when every path they have to the item is
+            governed by one.
           </p>
           <p>
             The <code>Access rules</code> page identifies items in scope that are still reachable
-            through an unprotected path. Resolve these warnings before relying on the rule to
+            through a path with no access rule. Resolve these warnings before relying on the rule to
             restrict access.
           </p>
 
@@ -555,38 +551,38 @@
           <figure class="shot">
             <img
               src="images/screenshot-05.jpg"
-              alt="The Controlled access column. A protected item carries a Privileged badge; an unprotected one reads No access rule"
+              alt="The Controlled access column. A privileged item carries a Privileged badge; an item with no rule reads No access rule"
               loading="lazy"
             />
             <figcaption>
-              The Controlled access column. A protected item carries a Privileged badge; an
-              unprotected one reads No access rule
+              The Controlled access column. A privileged item carries a Privileged badge; an item
+              with no rule reads No access rule
             </figcaption>
           </figure>
           <div class="callout callout-tip">
             <span class="callout-label">Tip</span>
             <p>
               In the vault, use <code>Filters</code> &rarr; <code>Controlled access</code> &rarr;
-              <code>Privileged</code> or <code>My requests</code> to find protected items and
+              <code>Privileged</code> or <code>My requests</code> to find privileged items and
               requests.
             </p>
           </div>
           <p>
             Open the item. Its name and website are still there, and you can still copy the website
             from <code>Autofill options</code>. The password, any TOTP verification code, and every
-            other secret field are absent, not merely masked. A card at the top reads
+            other credential field are absent, not merely masked. A card at the top reads
             <code>You can request access</code>, with "Credentials are masked until access is
             granted." beneath it, and below that the longest access this item allows.
           </p>
-          <p>Organization administrator status does not by itself reveal the protected password.</p>
+          <p>Organization admin status does not by itself reveal a privileged credential.</p>
           <figure class="shot">
             <img
               src="images/screenshot-06.jpg"
-              alt="A protected item before access is requested. The credential fields are absent, not masked"
+              alt="A privileged item before access is requested. The credential fields are absent, not masked"
               loading="lazy"
             />
             <figcaption>
-              A protected item before access is requested. The credential fields are absent, not
+              A privileged item before access is requested. The credential fields are absent, not
               masked
             </figcaption>
           </figure>
@@ -624,12 +620,12 @@
 
         <section id="request-access-to-a-credential">
           <h2>Request access to a credential</h2>
-          <p>The request flow depends on whether the Access Rule requires approval.</p>
+          <p>The request flow depends on whether the access rule requires approval.</p>
 
           <h3 id="when-nobody-has-to-approve">When nobody has to approve</h3>
           <ol class="steps">
             <li>
-              Find the item in your organization vault. Protected items show a
+              Find the item in your organization vault. Privileged items show a
               <code>Privileged</code> badge in the <code>Controlled access</code> column.
             </li>
             <li>
@@ -642,17 +638,17 @@
             </li>
             <li>Optionally, enter a reason in <code>Reason (optional)</code>.</li>
             <li>
-              Select <code>Request access</code>. You are granted it immediately, a message confirms
-              that access is approved and prompts you to select Start access, and the item's badge
-              changes to <code>Ready to use</code>.
+              Select <code>Request access</code>. You are granted it immediately, a message reads
+              "Access approved &mdash; select Start access to begin.", and the item's badge changes
+              to <code>Ready to use</code>.
             </li>
             <li>
               Select <code>Start access</code>. You will see "Access started.", and the item card
               displays the remaining access time.
             </li>
             <li>
-              Copy or use the credential. The secret fields appear in the existing item view; you do
-              not need to reopen the item.
+              Copy or use the credential. The credential fields appear in the existing item view;
+              you do not need to reopen the item.
               <figure class="shot">
                 <img
                   src="images/screenshot-07.jpg"
@@ -693,8 +689,8 @@
           </ol>
           <ol class="steps" start="5">
             <li>
-              Select <code>Request access</code>. A message confirms that your request was submitted
-              and is awaiting approval, the item card changes to
+              Select <code>Request access</code>. The message "Request submitted &mdash; awaiting
+              approval." appears, the item card changes to
               <code>Access request pending approval</code>, and the vault badge changes to
               <code>Pending approval</code>.
             </li>
@@ -910,8 +906,8 @@
           </p>
           <p>
             To approve a request, you need <code>Manage</code> permission on the item's collection
-            or membership in an approver group for the item. Organization administrator status alone
-            does not grant approval permission.
+            or membership in an approver group for the item. Organization admin status alone does
+            not grant approval permission.
           </p>
           <ol class="steps">
             <li>Open <code>Access requests</code> and select the <code>Approvals</code> tab.</li>
@@ -1024,8 +1020,8 @@
           </div>
         </section>
 
-        <section id="hand-a-credential-back">
-          <h2>Hand a credential back</h2>
+        <section id="end-your-access-early">
+          <h2>End your access early</h2>
           <p>
             When you have finished with a credential and there is still time on the clock, you can
             end your access rather than letting it run down.
@@ -1083,7 +1079,7 @@
             <code>Privileged Controls</code> &rarr; <code>Rotation</code>.
           </p>
           <p>
-            For the Private Preview, the parts of rotation that run in your own infrastructure are
+            For the private preview, the parts of rotation that run in your own infrastructure are
             already set up for you. An access connector is registered and running, and target
             systems are configured against it. What is left for you to do is the part most
             organizations will spend their time on: deciding which credentials rotate, on what
@@ -1271,14 +1267,13 @@
           </p>
           <p>
             The custom script path, and the access connector that runs it, are not part of the
-            Private Preview. The connector is not distributed yet, so there is nothing to deploy and
+            private preview. The connector is not distributed yet, so there is nothing to deploy and
             no script contract to write against.
           </p>
           <p>
-            If you want to evaluate that side of rotation and give us early developer-experience
-            feedback, email us at
+            To evaluate that side of rotation and give early developer-experience feedback, email
             <a href="mailto:privileged-controls@bitwarden.com">privileged-controls@bitwarden.com</a
-            >. We will provide the connector and its own guide.
+            >. Bitwarden will provide the connector and its own guide.
           </p>
           <div class="callout callout-warn">
             <span class="callout-label">Warning</span>
@@ -1306,9 +1301,9 @@
             without writing one.
           </p>
           <p>
-            History is permission-scoped. Members see their own requests. Approvers and
-            administrators see requests and access for collections they have permission to view,
-            including requests they did not decide.
+            History is permission-scoped. Members see their own requests. Approvers and admins see
+            requests and access for collections they have permission to view, including requests
+            they did not decide.
           </p>
 
           <h3 id="the-full-audit-log">The full audit log</h3>
@@ -1414,8 +1409,8 @@
           </div>
         </section>
 
-        <section id="change-or-remove-protection">
-          <h2>Change or remove protection</h2>
+        <section id="change-or-remove-an-access-rule">
+          <h2>Change or remove an access rule</h2>
           <p>
             Rule changes apply prospectively. Editing, deactivating, or deleting a rule does not
             revoke access that has already been granted.
@@ -1441,7 +1436,7 @@
                 </li>
                 <li>
                   <code>Delete</code> to remove it permanently. The collections survive; they simply
-                  stop being protected.
+                  stop being privileged.
                 </li>
               </ul>
             </li>
@@ -1485,8 +1480,7 @@
                     >
                   </td>
                   <td>
-                    A collection can only be protected by one rule. Take it off the other rule
-                    first.
+                    A collection can only be governed by one rule. Take it off the other rule first.
                   </td>
                 </tr>
                 <tr>
@@ -1499,7 +1493,7 @@
                   <td>The rule was deleted after the page loaded. Refresh the list.</td>
                 </tr>
                 <tr>
-                  <td>Items are still protected after deleting the rule</td>
+                  <td>Items are still privileged after deleting the rule</td>
                   <td>
                     Check whether another rule also covers that collection, and give the vault a
                     moment to refresh.
@@ -1508,14 +1502,14 @@
                 <tr>
                   <td>Items became visible to people you did not expect</td>
                   <td>
-                    Removing protection exposes whatever the collection's permissions already
-                    allowed. Deleting a rule does not change who is in the collection.
+                    Removing the rule exposes whatever the collection's permissions already allowed.
+                    Deleting a rule does not change who is in the collection.
                   </td>
                 </tr>
                 <tr>
-                  <td>A copied rule protects nothing</td>
+                  <td>A copied rule governs nothing</td>
                   <td>
-                    Copied rules do not include collections because each collection can be protected
+                    Copied rules do not include collections because each collection can be governed
                     by only one rule.
                   </td>
                 </tr>
@@ -1524,8 +1518,8 @@
           </div>
         </section>
 
-        <section id="what-wed-like-you-to-test">
-          <h2>What we'd like you to test</h2>
+        <section id="what-to-test">
+          <h2>What to test</h2>
           <p>
             Test the workflows you would use. You do not need to complete every item. Report both
             what worked and what you could not complete or chose to skip.
@@ -1534,8 +1528,8 @@
           <h3 id="test-setting-things-up">Setting things up</h3>
           <ul class="check">
             <li>
-              Create a rule from each of the three templates. Note whether the templates match
-              policies you would use and whether another template would be useful.
+              Create a rule from each of the three templates. Note whether the templates match the
+              access requirements you would set and whether another template would be useful.
             </li>
             <li>Create one <code>Custom</code> rule from scratch and compare the effort.</li>
             <li>
@@ -1543,7 +1537,7 @@
             </li>
             <li>
               Set <code>Maximum duration</code> to <code>No cap</code> and assess whether that
-              option is appropriate for your policies.
+              option is appropriate for your organization's security requirements.
             </li>
             <li>
               Tick <code>Restrict by IP address</code> and try saving without entering any ranges.
@@ -1557,8 +1551,8 @@
               permission.
             </li>
             <li>
-              Leave a second, unprotected route to a credential and assess whether the warning
-              clearly identifies the exposure.
+              Leave a second route to a credential with no access rule on it, and assess whether the
+              warning clearly identifies the exposure.
             </li>
             <li>Try to apply two rules to one collection.</li>
             <li>
@@ -1608,11 +1602,11 @@
               Put one of the seeded credentials under rotation against an existing target system.
             </li>
             <li>
-              Set a schedule and assess whether the interval and cron options match the cadences
-              your policies require.
+              Set a schedule and assess whether the interval and cron options match the rotation
+              cadences your organization requires.
             </li>
             <li>Run a rotation on demand and review the resulting job status.</li>
-            <li>Set a credential to rotate on hand-back, then lease it and give it back.</li>
+            <li>Set a credential to rotate when access ends, then request access and end it.</li>
             <li>
               Read a credential's rotation <code>History</code> and assess whether a job's result,
               duration and attempt count tell you what you would need to know.
@@ -1646,7 +1640,7 @@
             <li>Remove someone from a collection while they hold access.</li>
           </ul>
 
-          <h3 id="test-what-we-most-want-to-hear-about">What we most want to hear about</h3>
+          <h3 id="test-most-useful-feedback">Most useful feedback</h3>
           <ul>
             <li>UI wording that did not match the resulting behavior.</li>
             <li>
@@ -1677,15 +1671,16 @@
             all happen in the web app.
           </p>
           <p>
-            <strong>No organization-wide controls.</strong> The preview does not include a kill
-            switch to revoke all active leases, a freeze on new access, or a governance dashboard
-            for organization-wide active access. Individual access can still be revoked.
+            <strong>No organization-wide controls.</strong> The preview does not include an
+            emergency off switch to revoke all active access, a freeze on new access, or a
+            governance dashboard for organization-wide active access. Individual access can still be
+            revoked.
           </p>
           <p>
             <strong>The access connector is not distributed yet.</strong> Rotation runs against a
-            connector we host for the preview, so you cannot deploy one in your own environment or
-            rotate credentials on your own systems. That includes the custom script path, which runs
-            on the connector. To evaluate this side of rotation, email us at
+            connector Bitwarden hosts for the preview, so you cannot deploy one in your own
+            environment or rotate credentials on your own systems. That includes the custom script
+            path, which runs on the connector. To evaluate this side of rotation, email
             <a href="mailto:privileged-controls@bitwarden.com">privileged-controls@bitwarden.com</a
             >.
           </p>
@@ -1693,8 +1688,8 @@
             <strong>Limited rotation integrations.</strong> Automatic rotation covers Microsoft
             Entra ID, plus the custom script path for anything you can automate yourself. Other
             systems can be tracked as manual rotation obligations. Your feedback on which systems
-            you need will shape which integrations come next, so tell us what would matter most in
-            your estate.
+            you need will shape which integrations come next, so note what would matter most in your
+            estate.
           </p>
           <p>
             <strong>Rotation settings are per credential.</strong> You cannot yet apply a rotation
@@ -1708,7 +1703,7 @@
           </p>
           <p>
             <strong>Vault export behavior is not final.</strong> Do not treat the current export
-            behavior for protected items as the expected general-availability behavior.
+            behavior for privileged items as the expected general-availability behavior.
           </p>
           <p>
             <strong>UI wording may change.</strong> Rotation screens are still being revised, so
@@ -1790,7 +1785,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>See that a protected item exists, and request access to it</td>
+                  <td>See that a privileged item exists, and request access to it</td>
                   <td>Membership of a collection holding it</td>
                 </tr>
                 <tr>
@@ -1810,36 +1805,34 @@
                 </tr>
                 <tr>
                   <td>Revoke someone else's active access</td>
-                  <td>
-                    Membership of an approver group for that item, or organization administrator
-                  </td>
+                  <td>Membership of an approver group for that item, or organization admin</td>
                 </tr>
                 <tr>
-                  <td>Create, edit or delete Access Rules</td>
-                  <td>Organization <code>owner</code> or <code>administrator</code></td>
+                  <td>Create, edit or delete access rules</td>
+                  <td>Organization <code>owner</code> or <code>admin</code></td>
                 </tr>
                 <tr>
                   <td>Configure rotation, connectors and target systems</td>
-                  <td>Organization <code>owner</code> or <code>administrator</code></td>
+                  <td>Organization <code>owner</code> or <code>admin</code></td>
                 </tr>
               </tbody>
             </table>
           </div>
           <p>
             <strong>Approving is not administering.</strong> A collection manager who is not an
-            administrator can approve requests but cannot change rules. An administrator with no
-            Manage permission on a collection cannot approve its requests.
+            admin can approve requests but cannot change rules. An admin with no Manage permission
+            on a collection cannot approve its requests.
           </p>
           <p>
             <strong>Users cannot approve their own requests.</strong> This restriction also applies
-            to organization administrators and owners.
+            to organization admins and owners.
           </p>
         </section>
 
-        <section id="send-us-feedback">
-          <h2>Send us feedback</h2>
+        <section id="send-feedback">
+          <h2>Send feedback</h2>
           <p>
-            Email us at
+            Email
             <a href="mailto:privileged-controls@bitwarden.com">privileged-controls@bitwarden.com</a
             >. Please include:
           </p>
@@ -1847,10 +1840,10 @@
             <li>What you were trying to do.</li>
             <li>What you expected, and what happened instead.</li>
             <li>The exact wording of anything on screen, if it is relevant.</li>
-            <li>Roughly when it happened, so we can find it.</li>
+            <li>Roughly when it happened, so the team can find it.</li>
           </ul>
           <p>
-            We will also hold a research interview with each preview participant.
+            Bitwarden will also hold a research interview with each preview participant.
             <a
               href="https://app.reclaim.ai/m/privileged-controls/private-preview"
               target="_blank"
@@ -1859,7 +1852,7 @@
             >. Keep notes during testing, especially on initial confusion, unexpected behavior, and
             missing information, so you can refer to them during the interview.
           </p>
-          <p>Thank you for taking part in the Private Preview.</p>
+          <p>Thank you for taking part in the private preview.</p>
         </section>
       </main>
 
