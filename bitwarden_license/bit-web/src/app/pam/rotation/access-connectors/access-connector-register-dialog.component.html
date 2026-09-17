@@ -9,7 +9,7 @@
       <input
         bitInput
         formControlName="name"
-        id="daemon-register-dialog_input_name"
+        id="access-connector-register-dialog_input_name"
         [placeholder]="'pamAccessConnectorNamePlaceholder' | i18n"
       />
       <bit-hint>{{ "pamAccessConnectorNameHint" | i18n }}</bit-hint>
@@ -22,7 +22,7 @@
       bitButton
       buttonType="primary"
       bitFormButton
-      id="daemon-register-dialog_button_submit"
+      id="access-connector-register-dialog_button_submit"
     >
       {{ "pamAccessConnectorRegister" | i18n }}
     </button>
@@ -32,7 +32,7 @@
       buttonType="secondary"
       bitFormButton
       (click)="cancel()"
-      id="daemon-register-dialog_button_cancel"
+      id="access-connector-register-dialog_button_cancel"
     >
       {{ "cancel" | i18n }}
     </button>
