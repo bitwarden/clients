@@ -7,9 +7,13 @@
 //   .debug/desktop-profile/           app data (vault, settings, logs)
 //   .debug/.bitwarden-ssh-agent.sock  SSH agent socket
 //   .debug/s.<name>                   IPC sockets
+//
+// Set NO_BUILD=1 to launch the existing ./build as-is, without the native build, the webpack
+// watchers, or the wipe that precedes them.
 ////
 
 const { execFileSync } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 
 const concurrently = require("concurrently");
@@ -37,6 +41,10 @@ const DEBUG_MARKER = "--bitwarden-debug-run";
 
 const WEBPACK = path.resolve(__dirname, "../../../node_modules/.bin/webpack");
 
+const NO_BUILD = process.env.NO_BUILD === "1" || process.env.NO_BUILD === "true";
+// What the watchers produce, and what Electron is launched against.
+const BUILD_ENTRYPOINTS = ["./build/main.js", "./build/index.html", "./build/app/main.js"];
+
 // `exec` replaces the shell with the child, so kill signals reach the child itself instead of a
 // wrapper that leaves an orphan behind. cmd.exe has no equivalent, but concurrently reaps the
 // whole tree there via `taskkill /F /T`.
@@ -59,30 +67,49 @@ function killStrayClients() {
 killStrayClients();
 process.on("exit", killStrayClients);
 
-rimraf.sync("build");
+const electronCommand = `${EXEC}"${electronBinary}" --no-sandbox ${INSPECT_FLAG} --remote-debugging-port=9222 ${DEBUG_MARKER} ${args.join(
+  " ",
+)} ./build`;
+
+const buildCommands = [
+  {
+    name: "Main",
+    command: `npm run build-native && ${watchCommand("main")}`,
+    prefixColor: "yellow",
+  },
+  {
+    name: "Prel",
+    command: watchCommand("preload"),
+    prefixColor: "magenta",
+  },
+  {
+    name: "Rend",
+    command: watchCommand("renderer"),
+    prefixColor: "cyan",
+  },
+];
+
+if (NO_BUILD) {
+  const missing = BUILD_ENTRYPOINTS.filter((entrypoint) => !fs.existsSync(entrypoint));
+  if (missing.length > 0) {
+    throw new Error(
+      `NO_BUILD is set but ${missing.join(", ")} missing. Run without NO_BUILD once.`,
+    );
+  }
+} else {
+  // The watchers rebuild from scratch, so anything left here is stale by definition.
+  rimraf.sync("build");
+}
 
 const { commands } = concurrently(
   [
-    {
-      name: "Main",
-      command: `npm run build-native && ${watchCommand("main")}`,
-      prefixColor: "yellow",
-    },
-    {
-      name: "Prel",
-      command: watchCommand("preload"),
-      prefixColor: "magenta",
-    },
-    {
-      name: "Rend",
-      command: watchCommand("renderer"),
-      prefixColor: "cyan",
-    },
+    ...(NO_BUILD ? [] : buildCommands),
     {
       name: "Elec",
-      command: `npx wait-on ./build/main.js ./build/index.html ./build/app/main.js && ${EXEC}"${electronBinary}" --no-sandbox ${INSPECT_FLAG} --remote-debugging-port=9222 ${DEBUG_MARKER} ${args.join(
-        " ",
-      )} ./build`,
+      // Without the watchers there is nothing to wait for; the build was checked above.
+      command: NO_BUILD
+        ? electronCommand
+        : `npx wait-on ${BUILD_ENTRYPOINTS.join(" ")} && ${electronCommand}`,
       prefixColor: "green",
     },
   ],
