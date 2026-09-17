@@ -69,32 +69,32 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 /**
  * The detail page's two tabs, each with a URL of its own; Configuration is the default.
  */
-const DAEMON_DETAIL_TABS = ["configuration", "history"] as const;
+const ACCESS_CONNECTOR_DETAIL_TABS = ["configuration", "history"] as const;
 
 /**
  * Whether a listed assignment is saved, or only staged for a save that has not happened yet.
  */
-export type DaemonAssignmentPending = "add" | "remove" | null;
+export type AccessConnectorAssignmentPending = "add" | "remove" | null;
 
 /**
  * An assigned target system, named for the row that lists it.
  */
-export type DaemonAssignment = Omit<TargetSystemLabel, "id"> &
+export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
   AssignmentPickerRow & {
     readonly targetSystemId: TargetSystemId;
-    readonly pending: DaemonAssignmentPending;
+    readonly pending: AccessConnectorAssignmentPending;
   };
 
 /**
- * Routed detail page for a single rotation daemon — a sibling of the rotation shell, matching
- * the target-system / rotation-config detail pages. Reached from the daemons tab.
+ * Routed detail page for a single rotation access connector — a sibling of the rotation shell, matching
+ * the target-system / rotation-config detail pages. Reached from the access connectors tab.
  *
  * Shows status, connection, assigned target systems (via a page-scoped
  * {@link TargetSystemsService}), and recent rotation activity via the shared
  * {@link RotationHistoryComponent}.
  */
 @Component({
-  templateUrl: "./daemon-detail.component.html",
+  templateUrl: "./access-connector-detail.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TargetSystemsService, OrgCiphersService],
   imports: [
@@ -125,7 +125,7 @@ export type DaemonAssignment = Omit<TargetSystemLabel, "id"> &
     I18nPipe,
   ],
 })
-export class DaemonDetailComponent {
+export class AccessConnectorDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly rotationSdk = inject(RotationSdkService);
@@ -137,7 +137,9 @@ export class DaemonDetailComponent {
   private readonly formBuilder = inject(FormBuilder);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly daemonId = asUuid<AccessConnectorId>(this.route.snapshot.params.daemonId);
+  private readonly accessConnectorId = asUuid<AccessConnectorId>(
+    this.route.snapshot.params.accessConnectorId,
+  );
 
   protected readonly loading = signal(true);
 
@@ -149,7 +151,7 @@ export class DaemonDetailComponent {
 
   /** The error from the last read of the connector, or null when it succeeded. */
   protected readonly loadError = signal<unknown | null>(null);
-  protected readonly daemon = signal<AccessConnectorDetail | null>(null);
+  protected readonly accessConnector = signal<AccessConnectorDetail | null>(null);
 
   /**
    * The connector as the operator has asked for it, which is what the page renders and what
@@ -172,12 +174,12 @@ export class DaemonDetailComponent {
   /** The tab the URL names. */
   protected readonly activeTab = toSignal(
     this.route.paramMap.pipe(
-      map((params) => tabFromSegment(params.get("tab"), DAEMON_DETAIL_TABS)),
+      map((params) => tabFromSegment(params.get("tab"), ACCESS_CONNECTOR_DETAIL_TABS)),
     ),
     {
       initialValue: tabFromSegment(
         this.route.snapshot.params.tab as string | undefined,
-        DAEMON_DETAIL_TABS,
+        ACCESS_CONNECTOR_DETAIL_TABS,
       ),
     },
   );
@@ -196,10 +198,14 @@ export class DaemonDetailComponent {
 
   protected readonly configurationTabRoute = [
     ...this.connectorsListRoute,
-    this.daemonId,
+    this.accessConnectorId,
     "configuration",
   ];
-  protected readonly historyTabRoute = [...this.connectorsListRoute, this.daemonId, "history"];
+  protected readonly historyTabRoute = [
+    ...this.connectorsListRoute,
+    this.accessConnectorId,
+    "history",
+  ];
 
   private readonly systemById = toSignal(this.targetSystemsService.systemById$, {
     initialValue: new Map(),
@@ -234,7 +240,7 @@ export class DaemonDetailComponent {
   });
 
   /** The connector itself; the detail's other half is its recent job history. */
-  private readonly connector = computed(() => this.daemon()?.connector ?? null);
+  private readonly connector = computed(() => this.accessConnector()?.connector ?? null);
 
   /** The assignments as last read from the server, which the staged list is diffed against. */
   private readonly savedAssignmentIds = computed<readonly TargetSystemId[]>(
@@ -242,7 +248,7 @@ export class DaemonDetailComponent {
   );
 
   /** Every target the table lists: what is saved, then what has been staged on top of it. */
-  protected readonly assignments = computed<DaemonAssignment[]>(() => {
+  protected readonly assignments = computed<AccessConnectorAssignment[]>(() => {
     const systemById = this.systemById();
     const saved = this.savedAssignmentIds();
     const stagedIds = this.stagedAssignmentIds();
@@ -252,7 +258,7 @@ export class DaemonDetailComponent {
     const listed = [...saved, ...stagedIds.filter((id) => !savedSet.has(String(id)))];
     return listed.map((id) => {
       const label = targetSystemLabel(this.i18nService, id, systemById.get(id));
-      const pending: DaemonAssignmentPending = !savedSet.has(String(id))
+      const pending: AccessConnectorAssignmentPending = !savedSet.has(String(id))
         ? "add"
         : !stagedSet.has(String(id))
           ? "remove"
@@ -329,7 +335,9 @@ export class DaemonDetailComponent {
   };
 
   /** Stage one target's removal. */
-  protected readonly unassignTarget = async (assignment: DaemonAssignment): Promise<boolean> => {
+  protected readonly unassignTarget = async (
+    assignment: AccessConnectorAssignment,
+  ): Promise<boolean> => {
     const targetSystemId = assignment.targetSystemId;
     if (!this.stagedAssignmentIds().some((id) => id === targetSystemId)) {
       return false;
@@ -376,8 +384,8 @@ export class DaemonDetailComponent {
     });
   };
 
-  /** Delete the daemon permanently after confirming, then return to the list. */
-  protected readonly deleteDaemon = async (): Promise<void> => {
+  /** Delete the access connector permanently after confirming, then return to the list. */
+  protected readonly deleteAccessConnector = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null) {
       return;
@@ -473,15 +481,15 @@ export class DaemonDetailComponent {
     this.loading.set(true);
     this.loadError.set(null);
     try {
-      const [daemon] = await Promise.all([
-        this.loadDaemon(),
+      const [accessConnector] = await Promise.all([
+        this.loadAccessConnector(),
         // Load target systems so assignment IDs resolve to names.
         this.targetSystemsService.load(this.organizationId),
       ]);
-      if (daemon != null) {
-        this.daemon.set(daemon);
+      if (accessConnector != null) {
+        this.accessConnector.set(accessConnector);
         this.resetForm();
-        if (daemon.jobs.length > 0) {
+        if (accessConnector.jobs.length > 0) {
           void this.loadCredentialNames();
         }
       }
@@ -523,9 +531,9 @@ export class DaemonDetailComponent {
   }
 
   /** Reads the connector, recording a failure rather than leaving the page to guess from a null. */
-  private async loadDaemon(): Promise<AccessConnectorDetail | null> {
+  private async loadAccessConnector(): Promise<AccessConnectorDetail | null> {
     try {
-      return await this.rotationSdk.getConnector(this.organizationId, this.daemonId);
+      return await this.rotationSdk.getConnector(this.organizationId, this.accessConnectorId);
     } catch (e) {
       this.loadError.set(e);
       return null;
@@ -537,29 +545,32 @@ export class DaemonDetailComponent {
     return this.router.navigate(this.connectorsListRoute);
   }
 
-  /** Patch the loaded daemon's status locally (new reference for OnPush; jobs + fields carried over). */
+  /** Patch the loaded access connector's status locally (new reference for OnPush; jobs + fields carried over). */
   private patchStatus(status: AccessConnectorStatus): void {
-    const daemon = this.daemon();
-    if (daemon == null) {
+    const accessConnector = this.accessConnector();
+    if (accessConnector == null) {
       return;
     }
-    this.daemon.set({ ...daemon, connector: { ...daemon.connector, status } });
+    this.accessConnector.set({
+      ...accessConnector,
+      connector: { ...accessConnector.connector, status },
+    });
   }
 
   /**
-   * Patch the loaded daemon's assignments locally (new reference for OnPush; jobs + fields carried
+   * Patch the loaded access connector's assignments locally (new reference for OnPush; jobs + fields carried
    * over).
    */
   private patchAssignments(update: (ids: TargetSystemId[]) => TargetSystemId[]): void {
-    const daemon = this.daemon();
-    if (daemon == null) {
+    const accessConnector = this.accessConnector();
+    if (accessConnector == null) {
       return;
     }
-    this.daemon.set({
-      ...daemon,
+    this.accessConnector.set({
+      ...accessConnector,
       connector: {
-        ...daemon.connector,
-        assignedTargetSystemIds: update(daemon.connector.assignedTargetSystemIds),
+        ...accessConnector.connector,
+        assignedTargetSystemIds: update(accessConnector.connector.assignedTargetSystemIds),
       },
     });
   }
@@ -573,5 +584,6 @@ export class DaemonDetailComponent {
   }
 }
 
-export const daemonDetailDiscardGuard: CanDeactivateFn<DaemonDetailComponent> = (component) =>
-  component.confirmDiscard();
+export const accessConnectorDetailDiscardGuard: CanDeactivateFn<AccessConnectorDetailComponent> = (
+  component,
+) => component.confirmDiscard();

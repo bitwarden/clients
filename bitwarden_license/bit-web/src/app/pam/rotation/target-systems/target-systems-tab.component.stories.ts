@@ -13,7 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { DaemonsService } from "../daemons/daemons.service";
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { AccessConnector, TargetSystem } from "../rotation";
 import { ORGANIZATION_ID, sysId, targetSystem } from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
@@ -61,9 +61,9 @@ function rotationServices(systems: TargetSystem[]) {
         },
       },
       {
-        provide: DaemonsService,
+        provide: AccessConnectorsService,
         useValue: {
-          daemons$: of([] as AccessConnector[]),
+          accessConnectors$: of([] as AccessConnector[]),
           loading$: of(false),
           loadError$: of(null),
           load: () => Promise.resolve(),
