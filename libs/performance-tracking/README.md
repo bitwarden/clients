@@ -2,8 +2,13 @@
 
 Owned by: platform
 
-Performance tracing primitives. Wraps `performance.mark` / `performance.measure` so entries show up as
-custom tracks in the Chrome DevTools performance panel, and debug-logs the same data.
+Performance tracing primitives. Delegates to the SDK's `bitwarden-performance-tracking` crate, which
+wraps `performance.mark` / `performance.measure` so entries show up as custom tracks in the Chrome
+DevTools performance panel, and debug-logs the same data.
+
+Events fired before `SdkLoadService` has initialized the SDK's WASM module are dropped — tracking is
+a debugging aid, and an exception escaping into the operation being measured is worse than a missing
+entry.
 
 Entries are organized by three names:
 
@@ -44,4 +49,4 @@ performanceTracking.logEvent({
 ```
 
 Angular consumers should use [`@bitwarden/performance-tracking-angular`](../performance-tracking-angular/README.md),
-which wires the debug sink to `LogService`.
+which provides this service through Angular DI.

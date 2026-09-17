@@ -3,8 +3,8 @@
 Owned by: platform
 
 Angular wrapper for [`@bitwarden/performance-tracking`](../performance-tracking/README.md). Provides
-`PerformanceTrackingAngularService`, an `@Injectable` subclass of `DefaultPerformanceTrackingService`
-that routes performance debug output to `LogService`.
+`PerformanceTrackingAngularService`, an `@Injectable` subclass of
+`DefaultPerformanceTrackingService`.
 
 ## Usage
 

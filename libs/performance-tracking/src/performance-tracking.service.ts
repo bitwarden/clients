@@ -1,30 +1,12 @@
-import { EventProperties, PerformanceEvent, PerformanceEventDescriptor } from "./performance-event";
+import { PerformanceEvent, PerformanceEventDescriptor } from "./performance-event";
 
 export abstract class PerformanceTrackingService {
-  /**
-   * Helper wrapper around `performance.measure` to log a measurement. Should also debug-log the data.
-   *
-   * @deprecated Use `startEvent` and `finish` instead, which provide a better API
-   * @param start Start time of the measurement.
-   * @param trackGroup A track-group for the measurement, should generally be the team owning the domain.
-   * @param track A track for the measurement, should generally be the class name.
-   * @param measureName A descriptive name for the measurement.
-   * @param properties Additional properties to include.
-   */
-  abstract measure(
-    start: DOMHighResTimeStamp,
-    trackGroup: string,
-    track: string,
-    measureName: string,
-    properties?: EventProperties,
-  ): PerformanceMeasure;
-
   /**
    * Helper wrapper around `performance.mark` to log a mark. Should also debug-log the data.
    *
    * @param name Name of the mark to create.
    */
-  abstract mark(name: string): PerformanceMark;
+  abstract mark(name: string): void;
 
   /**
    * Starts a timed event. The caller holds on to the returned event, optionally marks intermediate
@@ -49,5 +31,5 @@ export abstract class PerformanceTrackingService {
    * performance panel, the event is written with a fixed, nominal duration and flagged with the
    * `instant` property so it is not mistaken for a real measurement.
    */
-  abstract logEvent(descriptor: PerformanceEventDescriptor): PerformanceMeasure;
+  abstract logEvent(descriptor: PerformanceEventDescriptor): void;
 }

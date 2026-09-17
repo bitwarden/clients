@@ -1,125 +1,72 @@
+import {
+  PerformanceEvent as SdkPerformanceEvent,
+  logPerformanceEvent,
+  logPerformanceMark,
+  startPerformanceEvent,
+} from "@bitwarden/sdk-internal";
+
 import { EventProperties, PerformanceEvent, PerformanceEventDescriptor } from "./performance-event";
-import { PerformanceLogSink } from "./performance-log-sink";
 import { PerformanceTrackingService } from "./performance-tracking.service";
 
 /**
- * Nominal duration given to `logEvent` entries. A zero-length entry cannot be clicked in the
- * devtools performance panel, so point-in-time events are widened to stay selectable.
+ * Draws entries through the SDK's `bitwarden-performance-tracking` crate, so an entry written by a
+ * client and one written inside the SDK read the same on the devtools timeline.
  */
-export const INSTANT_EVENT_DURATION_MS = 50;
-
-/** Property flagging an entry whose duration is nominal rather than measured. */
-export const INSTANT_EVENT_PROPERTY = "instant";
-
-const DEVTOOLS_TRACK_ENTRY = "track-entry";
-const DEVTOOLS_MARKER = "marker";
-
 export class DefaultPerformanceTrackingService implements PerformanceTrackingService {
-  constructor(private readonly log: PerformanceLogSink = () => {}) {}
-
-  measure(
-    start: DOMHighResTimeStamp,
-    trackGroup: string,
-    track: string,
-    name?: string,
-    properties?: EventProperties,
-  ): PerformanceMeasure {
-    return this.writeMeasure(start, performance.now(), trackGroup, track, name, properties);
-  }
-
-  mark(name: string): PerformanceMark {
-    const mark = performance.mark(name, {
-      detail: {
-        devtools: {
-          dataType: DEVTOOLS_MARKER,
-        },
-      },
-    });
-
-    this.log(mark.name, new Date().toISOString());
-
-    return mark;
+  mark(name: string): void {
+    whenLoaded(() => logPerformanceMark(name));
   }
 
   startEvent(descriptor: PerformanceEventDescriptor): PerformanceEvent {
-    return new ScopedPerformanceEvent(this, descriptor, performance.now());
-  }
+    const { namespace, category, name, properties } = descriptor;
 
-  logEvent(descriptor: PerformanceEventDescriptor): PerformanceMeasure {
-    const start = performance.now();
-    const properties: EventProperties = [
-      ...(descriptor.properties ?? []),
-      [INSTANT_EVENT_PROPERTY, true],
-    ];
-
-    return this.writeMeasure(
-      start,
-      start + INSTANT_EVENT_DURATION_MS,
-      descriptor.namespace,
-      descriptor.category,
-      descriptor.name,
-      properties,
+    return new SdkScopedEvent(
+      whenLoaded(() => startPerformanceEvent(namespace, category, name, properties)),
     );
   }
 
-  /** Single `performance.measure` call site shared by `measure` and `logEvent`. */
-  private writeMeasure(
-    start: DOMHighResTimeStamp,
-    end: DOMHighResTimeStamp,
-    trackGroup: string,
-    track: string,
-    name?: string,
-    properties?: EventProperties,
-  ): PerformanceMeasure {
-    const measureName = `[${track}]: ${name}`;
+  logEvent(descriptor: PerformanceEventDescriptor): void {
+    const { namespace, category, name, properties } = descriptor;
 
-    const measure = performance.measure(measureName, {
-      start,
-      end,
-      detail: {
-        devtools: {
-          dataType: DEVTOOLS_TRACK_ENTRY,
-          track,
-          trackGroup,
-          properties,
-        },
-      },
-    });
-
-    this.log(`${measureName} took ${measure.duration}`, properties);
-
-    return measure;
+    whenLoaded(() => logPerformanceEvent(namespace, category, name, properties));
   }
 }
 
-/** Event bound to the descriptor and start time captured by `startEvent`. */
-class ScopedPerformanceEvent extends PerformanceEvent {
-  private measure: PerformanceMeasure | null = null;
-
-  constructor(
-    private readonly tracking: DefaultPerformanceTrackingService,
-    private readonly descriptor: PerformanceEventDescriptor,
-    private readonly start: DOMHighResTimeStamp,
-  ) {
+/** Event bound to the SDK handle `startEvent` created, if the SDK was loaded at the time. */
+class SdkScopedEvent extends PerformanceEvent {
+  constructor(private event?: SdkPerformanceEvent) {
     super();
   }
 
-  mark(name: string): PerformanceMark {
-    const { category, name: eventName } = this.descriptor;
-
-    return this.tracking.mark(`[${category}] ${eventName}: ${name}`);
+  mark(name: string): void {
+    whenLoaded(() => this.event?.mark(name));
   }
 
-  finish(properties?: EventProperties): PerformanceMeasure {
-    if (this.measure != null) {
-      return this.measure;
+  finish(properties?: EventProperties): void {
+    const event = this.event;
+    if (event == null) {
+      return;
     }
 
-    const { namespace, category, name } = this.descriptor;
-    const merged = [...(this.descriptor.properties ?? []), ...(properties ?? [])];
+    // `finish` consumes the handle on the Rust side, so a second call would fault on a freed
+    // pointer rather than write a second entry.
+    this.event = undefined;
 
-    this.measure = this.tracking.measure(this.start, namespace, category, name, merged);
+    whenLoaded(() => event.finish(properties));
+  }
+}
 
-    return this.measure;
+/**
+ * Runs `call` if the SDK's WASM module is initialized, and drops the event if it is not.
+ *
+ * Performance tracking is wired up long before `SdkLoadService` has run, and calling into an
+ * uninitialized module throws. Tracking is a debugging aid, so a dropped entry is always preferable
+ * to an exception escaping into the operation being measured.
+ */
+function whenLoaded<T>(call: () => T): T | undefined {
+  try {
+    return call();
+  } catch {
+    return undefined;
   }
 }

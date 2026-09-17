@@ -33,13 +33,13 @@ export abstract class PerformanceEvent {
    *
    * @param name Name of the mark, scoped to this event.
    */
-  abstract mark(name: string): PerformanceMark;
+  abstract mark(name: string): void;
 
   /**
    * Writes the measurement spanning from the event's start until now. Calling this more than once
-   * has no further effect; the original measurement is returned.
+   * has no further effect.
    *
    * @param properties Additional properties, merged with the ones given at start.
    */
-  abstract finish(properties?: EventProperties): PerformanceMeasure;
+  abstract finish(properties?: EventProperties): void;
 }
