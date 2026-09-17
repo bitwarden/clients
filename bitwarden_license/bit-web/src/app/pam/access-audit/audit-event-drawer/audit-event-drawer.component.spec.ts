@@ -44,7 +44,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     ruleName: "Approval required",
     ruleId: "rule-1",
     targetSystemName: null,
-    daemonName: null,
+    accessConnectorName: null,
     detail: "Approved for the incident window.",
     automated: false,
     inDoubt: false,
@@ -226,7 +226,7 @@ describe("AuditEventDrawerComponent", () => {
           cipherId: null,
           ruleName: null,
           targetSystemName: "prod-postgres-01",
-          daemonName: "eu-west-rotator",
+          accessConnectorName: "eu-west-rotator",
         }),
       });
 
@@ -297,7 +297,7 @@ describe("AuditEventDrawerComponent", () => {
       ruleName: null,
       ruleId: null,
       targetSystemName: null,
-      daemonName: null,
+      accessConnectorName: null,
       detail: null,
       requestId: null,
       leaseId: null,
