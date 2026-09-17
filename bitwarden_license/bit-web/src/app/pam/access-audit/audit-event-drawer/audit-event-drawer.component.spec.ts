@@ -96,7 +96,7 @@ describe("AuditEventDrawerComponent", () => {
             pamAuditColumnDetail: "Detail",
             pamColumnWindow: "Window",
             pamAuditTargetSystem: "Target system",
-            pamAuditDaemon: "Daemon",
+            pamAuditAccessConnector: "Access connector",
             pamAccessRequestTitle: "Access request",
             pamAccessRequestLeaseTitle: "Access",
             pamResolverAccessRule: "Access rule",
@@ -218,8 +218,8 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("item")).toBe("Production access");
     });
 
-    // PM-43606: a fleet event names neither, so Item read as a dash while the pane held the daemon all along.
-    it("falls back to the daemon when the event names neither an item nor a rule", async () => {
+    // PM-43606: a fleet event names neither, so Item read as a dash while the pane held the connector all along.
+    it("falls back to the access connector when the event names neither an item nor a rule", async () => {
       await render({
         row: row({
           cipherName: null,
@@ -232,10 +232,10 @@ describe("AuditEventDrawerComponent", () => {
 
       expect(text("item")).toBe("eu-west-rotator");
       expect(text("target-system")).toBe("prod-postgres-01");
-      expect(text("daemon")).toBe("eu-west-rotator");
+      expect(text("access-connector")).toBe("eu-west-rotator");
     });
 
-    it("falls back to the target system when the event names no daemon either", async () => {
+    it("falls back to the target system when the event names no access connector either", async () => {
       await render({
         row: row({
           cipherName: null,
@@ -246,7 +246,7 @@ describe("AuditEventDrawerComponent", () => {
       });
 
       expect(text("item")).toBe("prod-postgres-01");
-      expect(text("daemon")).toBe("—");
+      expect(text("access-connector")).toBe("—");
     });
 
     // "System" is a value, not an absence — an automated event has an actor, just not a person.
@@ -312,7 +312,7 @@ describe("AuditEventDrawerComponent", () => {
       "item",
       "collection",
       "target-system",
-      "daemon",
+      "access-connector",
       "duration",
       "window",
       "detail",

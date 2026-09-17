@@ -23,8 +23,11 @@ export type AuditExport = {
   ruleName: string;
   /** The target system named by a rotation or target administration event. Empty on every other kind. */
   targetSystemName: string;
-  /** The daemon named by a rotation or daemon administration event. Empty on every other kind. */
-  daemonName: string;
+  /**
+   * The access connector named by a rotation or fleet administration event. Empty on every other kind.
+   * The wire field behind it is still `DaemonName` — the product name changed, the protocol's has not.
+   */
+  accessConnectorName: string;
   /** The length of the granted access window, localized as the Duration cell localizes it. */
   grantedDuration: string;
   /**
