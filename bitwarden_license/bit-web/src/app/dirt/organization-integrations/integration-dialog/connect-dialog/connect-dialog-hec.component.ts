@@ -21,7 +21,7 @@ import {
 
 export type HecConnectDialogParams = {
   settings: Integration;
-  saveCallback?: (url: string, bearerToken: string, index: string) => Promise<string | null>;
+  saveCallback: (url: string, bearerToken: string, index: string) => Promise<string | null>;
 };
 
 export interface HecConnectDialogResult {

@@ -22,7 +22,7 @@ import {
 
 export type ConnectViaHecTokenDialogParams = {
   settings: Integration;
-  saveCallback?: (url: string, token: string) => Promise<string | null>;
+  saveCallback: (url: string, token: string) => Promise<string | null>;
 };
 
 export interface ConnectViaHecTokenDialogResult {
