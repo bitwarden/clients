@@ -15,6 +15,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -61,6 +62,7 @@ const mockToastService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockEventCollectionService = {
@@ -70,6 +72,10 @@ const mockEventCollectionService = {
 
 const mockLogService = {
   error: () => {},
+};
+
+const mockServerSettingsService = {
+  isEmailVerificationDisabled$: of(false),
 };
 
 const mockDialogRef = {
@@ -246,6 +252,7 @@ export default {
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
         { provide: LogService, useValue: mockLogService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
           provide: OrgDomainApiServiceAbstraction,
           useValue: { getAllMiniByOrgId: () => Promise.resolve([]) },

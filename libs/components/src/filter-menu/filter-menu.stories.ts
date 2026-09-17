@@ -8,7 +8,7 @@ import { TOOLTIP_DELAY_MS } from "../tooltip";
 import { I18nMockService } from "../utils";
 
 import { FilterMenuModule } from "./filter-menu.module";
-import { FilterOptionIconTile } from "./filter-option.component";
+import { FilterOptionIconTile, FilterOptionNode } from "./filter-option.component";
 
 /**
  * Each chip declares a `key` and owns its own selection — no `ngModel`. Inside a
@@ -100,6 +100,42 @@ class FilterMenuDividerDemoComponent {}
   `,
 })
 class FilterMenuNestedDemoComponent {}
+
+/**
+ * The same tree as {@link FilterMenuNestedDemoComponent}, built from data via `[options]` on the
+ * menu instead of literal markup — the depth-unknown-ahead-of-time path a collection/folder tree
+ * needs.
+ */
+@Component({
+  selector: "filter-menu-data-driven-nested-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Collections" multiple [options]="tree">
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuDataDrivenNestedDemoComponent {
+  protected readonly tree: FilterOptionNode<string>[] = [
+    {
+      value: "eng",
+      label: "Engineering",
+      count: 15,
+      options: [
+        { value: "monitoring", label: "Monitoring", count: 20 },
+        {
+          value: "infra",
+          label: "Infrastructure",
+          count: 6,
+          options: [{ value: "cicd", label: "CI/CD", count: 2 }],
+        },
+      ],
+    },
+    { value: "ops", label: "Operations", count: 3 },
+  ];
+}
 
 /**
  * Nine rows alternating individual and group, each group opening the next level down.
@@ -249,6 +285,7 @@ export default {
         FilterMenuDemoComponent,
         FilterMenuDividerDemoComponent,
         FilterMenuNestedDemoComponent,
+        FilterMenuDataDrivenNestedDemoComponent,
         FilterMenuNestedTilesDemoComponent,
         FilterMenuEmptyDemoComponent,
         FilterMenuLongLabelsDemoComponent,
@@ -317,6 +354,17 @@ export const IconTiles: Story = {
 export const NestedOptions: Story = {
   render: () => ({
     template: `<filter-menu-nested-demo></filter-menu-nested-demo>`,
+  }),
+};
+
+/**
+ * The same tree as {@link NestedOptions}, built from data via `[options]` on the menu instead of
+ * literal markup — for a tree whose depth isn't known ahead of time, like a collection or folder
+ * list.
+ */
+export const DataDrivenNestedOptions: Story = {
+  render: () => ({
+    template: `<filter-menu-data-driven-nested-demo></filter-menu-data-driven-nested-demo>`,
   }),
 };
 

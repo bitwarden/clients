@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
@@ -90,6 +91,10 @@ async function createComponent(
 
   const validationService = mock<ValidationService>();
 
+  const serverSettingsService = mock<DefaultServerSettingsService>({
+    isEmailVerificationDisabled$: of(false),
+  });
+
   await TestBed.configureTestingModule({
     imports: [ByLinkTabComponent],
     providers: [
@@ -104,6 +109,7 @@ async function createComponent(
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
+      { provide: DefaultServerSettingsService, useValue: serverSettingsService },
     ],
   }).compileComponents();
 
