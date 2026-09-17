@@ -93,6 +93,7 @@ const mockLogService = { error: () => {} };
 const mockActivatedRoute = {
   params: of({ organizationId: ORG_ID }),
   queryParams: of({}),
+  data: of({}),
 };
 
 function makeGroupService(groups: GroupDetailsView[]) {
