@@ -11,7 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
-import { DaemonsService } from "../daemons/daemons.service";
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import {
   AccessConnectorStatus,
   type AccessConnector,
@@ -54,8 +54,8 @@ describe("TargetSystemsTabComponent", () => {
     setEnabled: jest.Mock;
     delete: jest.Mock;
   };
-  let daemonsService: {
-    daemons$: BehaviorSubject<AccessConnector[]>;
+  let accessConnectorsService: {
+    accessConnectors$: BehaviorSubject<AccessConnector[]>;
     loading$: BehaviorSubject<boolean>;
     loadError$: BehaviorSubject<unknown | null>;
     load: jest.Mock;
@@ -77,7 +77,7 @@ describe("TargetSystemsTabComponent", () => {
       providers: [
         provideRouter([]),
         { provide: TargetSystemsService, useValue: targetSystemsService },
-        { provide: DaemonsService, useValue: daemonsService },
+        { provide: AccessConnectorsService, useValue: accessConnectorsService },
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
@@ -111,8 +111,8 @@ describe("TargetSystemsTabComponent", () => {
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
     };
-    daemonsService = {
-      daemons$: new BehaviorSubject<AccessConnector[]>([]),
+    accessConnectorsService = {
+      accessConnectors$: new BehaviorSubject<AccessConnector[]>([]),
       loading$: new BehaviorSubject<boolean>(false),
       loadError$: new BehaviorSubject<unknown | null>(null),
       load: jest.fn().mockResolvedValue(undefined),
@@ -319,7 +319,7 @@ describe("TargetSystemsTabComponent", () => {
         name: "Prod Entra",
         status: TargetSystemStatus.Disabled,
       });
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({ id: connectorId("c-1"), assignedTargetSystemIds: [sys.id] }),
       ]);
       fixture.detectChanges();
@@ -340,7 +340,7 @@ describe("TargetSystemsTabComponent", () => {
 
     it("names the connector assignments the delete takes with it", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1"), name: "Prod Entra" });
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({ id: connectorId("c-1"), assignedTargetSystemIds: [sys.id] }),
       ]);
       fixture.detectChanges();
@@ -365,7 +365,7 @@ describe("TargetSystemsTabComponent", () => {
         name: "Prod Entra",
         status: TargetSystemStatus.Active,
       });
-      daemonsService.loadError$.next(new Error("boom"));
+      accessConnectorsService.loadError$.next(new Error("boom"));
       fixture.detectChanges();
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
@@ -390,20 +390,20 @@ describe("TargetSystemsTabComponent", () => {
       flushMicrotasks();
 
       expect(targetSystemsService.delete).not.toHaveBeenCalled();
-      expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
+      expect(accessConnectorsService.forgetTargetSystem).not.toHaveBeenCalled();
     }));
 
-    it("prunes the deleted target from daemon assignments", fakeAsync(() => {
+    it("prunes the deleted target from accessConnector assignments", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       void (component as unknown as DeleteComp).confirmDelete(sys);
       flushMicrotasks();
 
-      expect(daemonsService.forgetTargetSystem).toHaveBeenCalledWith(sysId("sys-1"));
+      expect(accessConnectorsService.forgetTargetSystem).toHaveBeenCalledWith(sysId("sys-1"));
     }));
 
-    it("surfaces an error toast and leaves daemon assignments alone when the server refuses", fakeAsync(() => {
+    it("surfaces an error toast and leaves accessConnector assignments alone when the server refuses", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
       dialogService.openSimpleDialog.mockResolvedValue(true);
       targetSystemsService.delete.mockRejectedValue(new Error("target system in use"));
@@ -414,7 +414,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
-      expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
+      expect(accessConnectorsService.forgetTargetSystem).not.toHaveBeenCalled();
     }));
   });
 
@@ -486,8 +486,8 @@ describe("TargetSystemsTabComponent", () => {
         id: connectorId("c-1"),
         status: AccessConnectorStatus.Enabled,
       });
-      daemonsService.daemons$.next([connector]);
-      daemonsService.assign.mockReturnValue(pending.promise);
+      accessConnectorsService.accessConnectors$.next([connector]);
+      accessConnectorsService.assign.mockReturnValue(pending.promise);
       dialogService.open.mockReturnValue({ closed: of(connectorId("c-1")) } as any);
       const sys = makeSystem();
       const comp = guarded();
@@ -506,8 +506,8 @@ describe("TargetSystemsTabComponent", () => {
         id: connectorId("c-1"),
         status: AccessConnectorStatus.Enabled,
       });
-      daemonsService.daemons$.next([connector]);
-      daemonsService.assign.mockReturnValue(pending.promise);
+      accessConnectorsService.accessConnectors$.next([connector]);
+      accessConnectorsService.assign.mockReturnValue(pending.promise);
       dialogService.open.mockReturnValue({ closed: of(connectorId("c-1")) } as any);
       const sys = makeSystem();
       const comp = guarded();
@@ -517,7 +517,7 @@ describe("TargetSystemsTabComponent", () => {
       pending.settle();
       await Promise.all([first, second]);
 
-      expect(daemonsService.assign).toHaveBeenCalledTimes(1);
+      expect(accessConnectorsService.assign).toHaveBeenCalledTimes(1);
     });
 
     it("allows a second action on a different row while one is in flight", async () => {
@@ -689,7 +689,7 @@ describe("TargetSystemsTabComponent", () => {
     async function openRowMenu(connectors: AccessConnector[]): Promise<HTMLButtonElement> {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([target]);
-      daemonsService.daemons$.next(connectors);
+      accessConnectorsService.accessConnectors$.next(connectors);
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
@@ -714,8 +714,8 @@ describe("TargetSystemsTabComponent", () => {
 
     afterEach(() => {
       targetSystemsService.systems$.next([]);
-      daemonsService.daemons$.next([]);
-      daemonsService.loading$.next(false);
+      accessConnectorsService.accessConnectors$.next([]);
+      accessConnectorsService.loading$.next(false);
     });
 
     it("renders the assign item without aria-disabled when a connector can be assigned", async () => {
@@ -771,9 +771,9 @@ describe("TargetSystemsTabComponent", () => {
     it("states the failure on the assign item when the connector read failed", async () => {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([target]);
-      daemonsService.daemons$.next([]);
-      daemonsService.loading$.next(false);
-      daemonsService.loadError$.next(new Error("boom"));
+      accessConnectorsService.accessConnectors$.next([]);
+      accessConnectorsService.loading$.next(false);
+      accessConnectorsService.loadError$.next(new Error("boom"));
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
@@ -795,8 +795,8 @@ describe("TargetSystemsTabComponent", () => {
     it("leaves the assign item live while the connector list is still being read", async () => {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([target]);
-      daemonsService.daemons$.next([]);
-      daemonsService.loading$.next(true);
+      accessConnectorsService.accessConnectors$.next([]);
+      accessConnectorsService.loading$.next(true);
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
@@ -927,13 +927,13 @@ describe("TargetSystemsTabComponent", () => {
         id: connectorId("c-1"),
         status: AccessConnectorStatus.Enabled,
       });
-      daemonsService.daemons$.next([connector]);
+      accessConnectorsService.accessConnectors$.next([connector]);
       dialogService.open.mockReturnValue({ closed: of(connectorId("c-1")) } as any);
 
       void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       flushMicrotasks();
 
-      expect(daemonsService.assign).toHaveBeenCalledWith(connector, sys.id);
+      expect(accessConnectorsService.assign).toHaveBeenCalledWith(connector, sys.id);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
@@ -946,7 +946,7 @@ describe("TargetSystemsTabComponent", () => {
       void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       flushMicrotasks();
 
-      expect(daemonsService.assign).not.toHaveBeenCalled();
+      expect(accessConnectorsService.assign).not.toHaveBeenCalled();
     }));
 
     it("excludes connectors already assigned to this target and disabled connectors from the options", fakeAsync(() => {
@@ -964,7 +964,7 @@ describe("TargetSystemsTabComponent", () => {
         id: connectorId("c-available"),
         status: AccessConnectorStatus.Enabled,
       });
-      daemonsService.daemons$.next([alreadyAssigned, disabled, available]);
+      accessConnectorsService.accessConnectors$.next([alreadyAssigned, disabled, available]);
       dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
 
       void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
@@ -980,7 +980,7 @@ describe("TargetSystemsTabComponent", () => {
 
     it("tells the dialog the org has no active connector at all", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({ id: connectorId("c-disabled"), status: AccessConnectorStatus.Disabled }),
       ]);
       dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
@@ -998,7 +998,7 @@ describe("TargetSystemsTabComponent", () => {
 
     it("tells the dialog the active connectors are all already on this target", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({
           id: connectorId("c-assigned"),
           status: AccessConnectorStatus.Enabled,
@@ -1021,7 +1021,7 @@ describe("TargetSystemsTabComponent", () => {
 
     it("does not claim the org is empty when there is an option to offer", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({ id: connectorId("c-1"), status: AccessConnectorStatus.Enabled }),
       ]);
       dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
@@ -1042,7 +1042,7 @@ describe("TargetSystemsTabComponent", () => {
         method: TargetSystemMethod.Automatic,
       });
       targetSystemsService.systems$.next([sys]);
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({ id: connectorId("c-disabled"), status: AccessConnectorStatus.Disabled }),
       ]);
       dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
@@ -1064,7 +1064,7 @@ describe("TargetSystemsTabComponent", () => {
 
     it("holds the dialog until the connector read lands, then offers what it read", async () => {
       const sys = makeSystem({ id: sysId("sys-1") });
-      daemonsService.loading$.next(true);
+      accessConnectorsService.loading$.next(true);
       dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
 
       const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
@@ -1078,8 +1078,8 @@ describe("TargetSystemsTabComponent", () => {
         id: connectorId("c-late"),
         status: AccessConnectorStatus.Enabled,
       });
-      daemonsService.daemons$.next([connector]);
-      daemonsService.loading$.next(false);
+      accessConnectorsService.accessConnectors$.next([connector]);
+      accessConnectorsService.loading$.next(false);
       await call;
 
       expect(dialogService.open).toHaveBeenCalledWith(
@@ -1092,13 +1092,13 @@ describe("TargetSystemsTabComponent", () => {
 
     it("states the failure instead of opening when the read lands as an error", async () => {
       const sys = makeSystem({ id: sysId("sys-1") });
-      daemonsService.loading$.next(true);
+      accessConnectorsService.loading$.next(true);
 
       const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       await Promise.resolve();
 
-      daemonsService.loadError$.next(new Error("boom"));
-      daemonsService.loading$.next(false);
+      accessConnectorsService.loadError$.next(new Error("boom"));
+      accessConnectorsService.loading$.next(false);
       await call;
 
       expect(dialogService.open).not.toHaveBeenCalled();
@@ -1112,17 +1112,17 @@ describe("TargetSystemsTabComponent", () => {
 
     it("opens nothing when the tab is left while the connector read is in flight", async () => {
       const sys = makeSystem({ id: sysId("sys-1") });
-      daemonsService.loading$.next(true);
+      accessConnectorsService.loading$.next(true);
       dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
 
       const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       await Promise.resolve();
 
       fixture.destroy();
-      daemonsService.daemons$.next([
+      accessConnectorsService.accessConnectors$.next([
         accessConnector({ id: connectorId("c-late"), status: AccessConnectorStatus.Enabled }),
       ]);
-      daemonsService.loading$.next(false);
+      accessConnectorsService.loading$.next(false);
       await call;
 
       expect(dialogService.open).not.toHaveBeenCalled();
@@ -1327,9 +1327,9 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
           },
         },
         {
-          provide: DaemonsService,
+          provide: AccessConnectorsService,
           useValue: {
-            daemons$: new BehaviorSubject<AccessConnector[]>([]),
+            accessConnectors$: new BehaviorSubject<AccessConnector[]>([]),
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
             load: jest.fn().mockResolvedValue(undefined),

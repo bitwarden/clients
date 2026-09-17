@@ -15,8 +15,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { DaemonRegisterDialogComponent } from "./daemons/daemon-register-dialog.component";
-import { DaemonsService } from "./daemons/daemons.service";
+import { AccessConnectorRegisterDialogComponent } from "./access-connectors/access-connector-register-dialog.component";
+import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { AccessConnector, RotationConfig, TargetSystem } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
@@ -42,7 +42,7 @@ export class RotationShellComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly configsService = inject(RotationConfigsService);
-  private readonly daemonsService = inject(DaemonsService);
+  private readonly accessConnectorsService = inject(AccessConnectorsService);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
@@ -80,11 +80,11 @@ export class RotationShellComponent {
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 
-  /** Whether any daemons exist; hides the "New daemon" header button, since the empty state owns that action. */
-  private readonly daemons = toSignal(this.daemonsService.daemons$, {
+  /** Whether any access connectors exist; hides the "New access connector" header button, since the empty state owns that action. */
+  private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
     initialValue: [] as AccessConnector[],
   });
-  protected readonly hasDaemons = computed(() => this.daemons().length > 0);
+  protected readonly hasAccessConnectors = computed(() => this.accessConnectors().length > 0);
 
   constructor() {
     // Loads on org change, and again on remount when the user navigates back from a form page.
@@ -101,15 +101,15 @@ export class RotationShellComponent {
   protected readonly createTargetSystem = (): Promise<boolean> =>
     this.router.navigate(["target-systems", "new"], { relativeTo: this.route });
 
-  /** Open the daemon registration dialog and refresh the shared list on success. */
-  protected readonly registerDaemon = async (): Promise<void> => {
+  /** Open the access connector registration dialog and refresh the shared list on success. */
+  protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
-    const ref = DaemonRegisterDialogComponent.open(this.dialogService, {
+    const ref = AccessConnectorRegisterDialogComponent.open(this.dialogService, {
       data: { organizationId: orgId },
     });
     const result = await ref.closed.toPromise();
     if (result) {
-      await this.daemonsService.registerCompleted(orgId);
+      await this.accessConnectorsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamAccessConnectorRegistered"),
