@@ -1,6 +1,6 @@
 @let cart = this.cart();
 @let term = this.term();
-@let hideTerm = this.hidePricingTerm();
+@let hideTerm = this.hideTerm();
 <div class="tw-size-full">
   <div class="tw-flex tw-items-center tw-pb-2 tw-gap-2">
     <div class="tw-flex tw-items-center">
@@ -419,7 +419,7 @@
         <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">{{ "total" | i18n }}</h3>
         <div bitTypography="body1" class="tw-text-muted" data-testid="final-total">
           {{ total() | currency: "USD" : "symbol" }}
-          @if (!hidePricingTerm()) {
+          @if (!hideTerm) {
             / {{ term }}
           }
         </div>

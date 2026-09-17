@@ -178,6 +178,14 @@ export const adaptInvoicePreviewToCart = (
     };
   };
 
+  // A mid-cycle change can return an "all-proration" invoice: only one-time proration adjustments,
+  // with no recurring seat, storage, or service-account line items.
+  const allProrationInvoice =
+    pm.seats == null &&
+    passwordManager.additionalStorage == null &&
+    sm.seats == null &&
+    secretsManager?.additionalServiceAccounts == null;
+
   const cart: Cart = {
     passwordManager: {
       ...(pm.seats ? { seats: labelProratedMonths(pm.seats) } : {}),
@@ -201,6 +209,7 @@ export const adaptInvoicePreviewToCart = (
         }
       : {}),
     cadence: preview.cadence,
+    ...(allProrationInvoice ? { hidePricingTerm: true } : {}),
     ...(preview.discounts ? { discounts: preview.discounts } : {}),
     estimatedTax: preview.estimatedTax,
     total: preview.amountDue,
