@@ -155,6 +155,17 @@
               <bit-icon name="bwi-pencil-square" class="tw-text-muted"></bit-icon>
               {{ "pamTargetSystemEditTarget" | i18n }}
             </button>
+            <button
+              type="button"
+              bitMenuItem
+              [appCopyClick]="r.idText"
+              showToast
+              [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+              id="target-systems-tab_button_copy-id-{{ r.id }}"
+            >
+              <bit-icon name="bwi-clone" class="tw-text-muted"></bit-icon>
+              {{ "pamTargetSystemCopyId" | i18n }}
+            </button>
             @if (r.canAddManagedCredential) {
               <button
                 type="button"
