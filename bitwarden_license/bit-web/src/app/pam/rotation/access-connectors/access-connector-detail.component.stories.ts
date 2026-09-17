@@ -36,7 +36,7 @@ import {
 } from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
 
-import { DaemonDetailComponent } from "./daemon-detail.component";
+import { AccessConnectorDetailComponent } from "./access-connector-detail.component";
 
 const SAMPLE_DETAIL = accessConnectorDetail({
   connector: accessConnector({ name: "Prod on-prem connector" }),
@@ -131,18 +131,21 @@ const routes: Routes = [
       { path: "access-connectors", children: [] },
       { path: "target-systems", children: [] },
       {
-        path: "access-connectors/:daemonId",
+        path: "access-connectors/:accessConnectorId",
         pathMatch: "full",
-        redirectTo: "access-connectors/:daemonId/configuration",
+        redirectTo: "access-connectors/:accessConnectorId/configuration",
       },
-      { path: "access-connectors/:daemonId/:tab", component: DaemonDetailComponent },
+      {
+        path: "access-connectors/:accessConnectorId/:tab",
+        component: AccessConnectorDetailComponent,
+      },
     ],
   },
 ];
 
 export default {
   title: "Web/PAM/Rotation/Access Connector Detail",
-  component: DaemonDetailComponent,
+  component: AccessConnectorDetailComponent,
   render: () => ({ template: `<router-outlet></router-outlet>` }),
   decorators: [
     componentWrapperDecorator((story) => `<div class="tw-p-6">${story}</div>`),
@@ -175,9 +178,9 @@ export default {
       ],
     }),
   ],
-} as Meta<DaemonDetailComponent>;
+} as Meta<AccessConnectorDetailComponent>;
 
-type Story = StoryObj<DaemonDetailComponent>;
+type Story = StoryObj<AccessConnectorDetailComponent>;
 
 /** The breadcrumb trail reads "Access connectors > Prod on-prem connector" — the connector's own name. */
 export const Default: Story = {

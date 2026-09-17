@@ -7,7 +7,7 @@
 @if (loadError()) {
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
 } @else if (loadingVisible()) {
-  <div aria-hidden="true" data-testid="daemons-loading">
+  <div aria-hidden="true" data-testid="access-connectors-loading">
     <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
       @if (showSkeleton()) {
         <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
@@ -55,8 +55,8 @@
       type="button"
       bitButton
       buttonType="primary"
-      [bitAction]="registerDaemon"
-      id="daemons-tab_button_register-empty"
+      [bitAction]="registerAccessConnector"
+      id="access-connectors-tab_button_register-empty"
     >
       {{ "pamAccessConnectorNew" | i18n }}
     </button>
@@ -113,7 +113,7 @@
             bitLink
             linkType="primary"
             (click)="openDetail(r)"
-            id="daemons-tab_button_detail-{{ r.id }}"
+            id="access-connectors-tab_button_detail-{{ r.id }}"
           >
             {{ r.name }}
           </button>
@@ -154,7 +154,7 @@
               "
               [bitPopoverTriggerFor]="assignmentsPopover"
               position="below-start"
-              id="daemons-tab_button_assignments-{{ r.id }}"
+              id="access-connectors-tab_button_assignments-{{ r.id }}"
             ></button>
             <bit-popover #assignmentsPopover [title]="'pamAccessConnectorAssignments' | i18n">
               <div class="tw-flex tw-flex-wrap tw-gap-1">
@@ -173,7 +173,7 @@
             bitIconButton="bwi-ellipsis-h"
             [bitMenuTriggerFor]="rowMenu"
             label="{{ 'options' | i18n }}"
-            id="daemons-tab_button_menu-{{ r.id }}"
+            id="access-connectors-tab_button_menu-{{ r.id }}"
           ></button>
           <bit-menu #rowMenu>
             <button type="button" bitMenuItem (click)="openDetail(r)">
@@ -188,7 +188,7 @@
                 [bitTooltip]="blockedKey | i18n"
                 [addTooltipToDescribedby]="true"
                 (click)="$event.stopPropagation()"
-                id="daemons-tab_button_assign-locked-{{ r.id }}"
+                id="access-connectors-tab_button_assign-locked-{{ r.id }}"
               >
                 <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
                 {{ "pamAccessConnectorAssignTargets" | i18n }}
@@ -199,15 +199,15 @@
                 bitMenuItem
                 [disabled]="isRowBusy(r.id)"
                 (click)="openAssignDialog(r)"
-                id="daemons-tab_button_assign-{{ r.id }}"
+                id="access-connectors-tab_button_assign-{{ r.id }}"
               >
                 <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
                 {{ "pamAccessConnectorAssignTargets" | i18n }}
               </button>
             }
-            @if (r.daemon.assignedTargetSystemIds.length > 0) {
+            @if (r.accessConnector.assignedTargetSystemIds.length > 0) {
               @for (
-                assignmentId of r.daemon.assignedTargetSystemIds;
+                assignmentId of r.accessConnector.assignedTargetSystemIds;
                 track assignmentId;
                 let i = $index
               ) {

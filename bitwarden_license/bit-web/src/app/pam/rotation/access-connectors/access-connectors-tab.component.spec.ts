@@ -15,25 +15,25 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing/rotation-builders";
 
-import { DaemonsTabComponent } from "./daemons-tab.component";
-import { DaemonsService, DaemonRow } from "./daemons.service";
+import { AccessConnectorsTabComponent } from "./access-connectors-tab.component";
+import { AccessConnectorsService, AccessConnectorRow } from "./access-connectors.service";
 
-describe("DaemonsTabComponent", () => {
-  let fixture: ComponentFixture<DaemonsTabComponent>;
-  let daemonsService: jest.Mocked<DaemonsService>;
+describe("AccessConnectorsTabComponent", () => {
+  let fixture: ComponentFixture<AccessConnectorsTabComponent>;
+  let accessConnectorsService: jest.Mocked<AccessConnectorsService>;
   let targetSystemsService: jest.Mocked<TargetSystemsService>;
   let dialogService: jest.Mocked<DialogService>;
   let toastService: jest.Mocked<ToastService>;
   let i18nService: jest.Mocked<I18nService>;
 
-  const rows$ = new BehaviorSubject<DaemonRow[]>([]);
+  const rows$ = new BehaviorSubject<AccessConnectorRow[]>([]);
   const loading$ = new BehaviorSubject<boolean>(false);
   const loadError$ = new BehaviorSubject<unknown | null>(null);
   const targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
-  function makeDaemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
-    const id = overrides.id ?? connectorId("daemon-1");
-    const name = overrides.name ?? "Test Daemon";
+  function makeAccessConnectorRow(overrides: Partial<AccessConnectorRow> = {}): AccessConnectorRow {
+    const id = overrides.id ?? connectorId("access-connector-1");
+    const name = overrides.name ?? "Test AccessConnector";
     return {
       id,
       name,
@@ -43,20 +43,25 @@ describe("DaemonsTabComponent", () => {
       enabled: true,
       canAssign: true,
       ...overrides,
-      daemon: accessConnector({ id, name, isConnected: true, ...(overrides.daemon ?? {}) }),
+      accessConnector: accessConnector({
+        id,
+        name,
+        isConnected: true,
+        ...(overrides.accessConnector ?? {}),
+      }),
     };
   }
 
   async function createComponent({ renderTemplate = false } = {}) {
     if (!renderTemplate) {
-      TestBed.overrideComponent(DaemonsTabComponent, { set: { template: "" } });
+      TestBed.overrideComponent(AccessConnectorsTabComponent, { set: { template: "" } });
     }
 
     await TestBed.configureTestingModule({
-      imports: [DaemonsTabComponent, NoopAnimationsModule],
+      imports: [AccessConnectorsTabComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
-        { provide: DaemonsService, useValue: daemonsService },
+        { provide: AccessConnectorsService, useValue: accessConnectorsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
@@ -68,14 +73,14 @@ describe("DaemonsTabComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DaemonsTabComponent);
+    fixture = TestBed.createComponent(AccessConnectorsTabComponent);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
   }
 
   beforeEach(async () => {
-    daemonsService = {
+    accessConnectorsService = {
       loading$: loading$.asObservable(),
       loadError$: loadError$.asObservable(),
       rows$: rows$.asObservable(),
@@ -85,7 +90,7 @@ describe("DaemonsTabComponent", () => {
       unassign: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
-    } as unknown as jest.Mocked<DaemonsService>;
+    } as unknown as jest.Mocked<AccessConnectorsService>;
 
     targetSystemsLoadError$.next(null);
     targetSystemsService = {
@@ -104,33 +109,33 @@ describe("DaemonsTabComponent", () => {
     await createComponent();
   });
 
-  it("calls daemonsService.load on init", async () => {
-    expect(daemonsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+  it("calls accessConnectorsService.load on init", async () => {
+    expect(accessConnectorsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
   });
 
-  it("navigates to the daemon detail page on openDetail", async () => {
+  it("navigates to the accessConnector detail page on openDetail", async () => {
     const router = TestBed.inject(Router);
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    const row = makeDaemonRow({ id: connectorId("daemon-9") });
+    const row = makeAccessConnectorRow({ id: connectorId("access-connector-9") });
 
     const component = fixture.componentInstance as unknown as {
-      openDetail: (row: DaemonRow) => Promise<boolean>;
+      openDetail: (row: AccessConnectorRow) => Promise<boolean>;
     };
     await component.openDetail(row);
 
     expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "access-connectors", connectorId("daemon-9")],
+      ["..", "access-connectors", connectorId("access-connector-9")],
       expect.objectContaining({ relativeTo: expect.anything() }),
     );
   });
 
   it("sets the dataSource.data from the rows signal", () => {
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
     rows$.next([row]);
     fixture.detectChanges();
 
     const component = fixture.componentInstance as unknown as {
-      dataSource: { data: DaemonRow[] };
+      dataSource: { data: AccessConnectorRow[] };
     };
     expect(component.dataSource.data).toEqual([
       { ...row, assignTargetsBlockedKey: "pamAccessConnectorAssignNoTargetSystems" },
@@ -140,100 +145,103 @@ describe("DaemonsTabComponent", () => {
   it("applies a name filter to the dataSource", () => {
     const component = fixture.componentInstance as unknown as {
       searchControl: { setValue: (v: string) => void };
-      dataSource: { filter: ((row: DaemonRow) => boolean) | null };
+      dataSource: { filter: ((row: AccessConnectorRow) => boolean) | null };
     };
     component.searchControl.setValue("prod");
     fixture.detectChanges();
 
     // The filter function should accept rows whose name contains the search text.
-    const matchRow = makeDaemonRow({ name: "production-daemon" });
-    const noMatchRow = makeDaemonRow({ id: connectorId("d2"), name: "staging" });
+    const matchRow = makeAccessConnectorRow({ name: "production-access-connector" });
+    const noMatchRow = makeAccessConnectorRow({ id: connectorId("d2"), name: "staging" });
 
     expect(component.dataSource.filter!(matchRow)).toBe(true);
     expect(component.dataSource.filter!(noMatchRow)).toBe(false);
   });
 
-  it("calls daemonsService.setEnabled(false) on disable after confirmation", async () => {
+  it("calls accessConnectorsService.setEnabled(false) on disable after confirmation", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
 
     const component = fixture.componentInstance as unknown as {
-      disable: (row: DaemonRow) => Promise<void>;
+      disable: (row: AccessConnectorRow) => Promise<void>;
     };
     await component.disable(row);
 
-    expect(daemonsService.setEnabled).toHaveBeenCalledWith(row.daemon, false);
+    expect(accessConnectorsService.setEnabled).toHaveBeenCalledWith(row.accessConnector, false);
   });
 
   it("does not disable when confirmation is canceled", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
 
     const component = fixture.componentInstance as unknown as {
-      disable: (row: DaemonRow) => Promise<void>;
+      disable: (row: AccessConnectorRow) => Promise<void>;
     };
     await component.disable(row);
 
-    expect(daemonsService.setEnabled).not.toHaveBeenCalled();
+    expect(accessConnectorsService.setEnabled).not.toHaveBeenCalled();
   });
 
-  it("calls daemonsService.setEnabled(true) on enable", async () => {
-    const row = makeDaemonRow({ enabled: false });
+  it("calls accessConnectorsService.setEnabled(true) on enable", async () => {
+    const row = makeAccessConnectorRow({ enabled: false });
 
     const component = fixture.componentInstance as unknown as {
-      enable: (row: DaemonRow) => Promise<void>;
+      enable: (row: AccessConnectorRow) => Promise<void>;
     };
     await component.enable(row);
 
-    expect(daemonsService.setEnabled).toHaveBeenCalledWith(row.daemon, true);
+    expect(accessConnectorsService.setEnabled).toHaveBeenCalledWith(row.accessConnector, true);
   });
 
-  it("calls daemonsService.delete after confirmation", async () => {
+  it("calls accessConnectorsService.delete after confirmation", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
 
     const component = fixture.componentInstance as unknown as {
-      confirmDelete: (row: DaemonRow) => Promise<void>;
+      confirmDelete: (row: AccessConnectorRow) => Promise<void>;
     };
     await component.confirmDelete(row);
 
-    expect(daemonsService.delete).toHaveBeenCalledWith(row.daemon);
+    expect(accessConnectorsService.delete).toHaveBeenCalledWith(row.accessConnector);
   });
 
   it("does not delete when confirmation is canceled", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
 
     const component = fixture.componentInstance as unknown as {
-      confirmDelete: (row: DaemonRow) => Promise<void>;
+      confirmDelete: (row: AccessConnectorRow) => Promise<void>;
     };
     await component.confirmDelete(row);
 
-    expect(daemonsService.delete).not.toHaveBeenCalled();
+    expect(accessConnectorsService.delete).not.toHaveBeenCalled();
   });
 
-  it("calls daemonsService.unassign after confirmation", async () => {
+  it("calls accessConnectorsService.unassign after confirmation", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
 
     const component = fixture.componentInstance as unknown as {
-      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
     };
     await component.unassign(row, sysId("ts-1"), "Prod");
 
-    expect(daemonsService.unassign).toHaveBeenCalledWith(row.daemon, sysId("ts-1"));
+    expect(accessConnectorsService.unassign).toHaveBeenCalledWith(
+      row.accessConnector,
+      sysId("ts-1"),
+    );
   });
 
   it("does not unassign when confirmation is canceled", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
-    const row = makeDaemonRow();
+    const row = makeAccessConnectorRow();
 
     const component = fixture.componentInstance as unknown as {
-      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
     };
     await component.unassign(row, sysId("ts-1"), "Prod");
 
-    expect(daemonsService.unassign).not.toHaveBeenCalled();
+    expect(accessConnectorsService.unassign).not.toHaveBeenCalled();
     expect(toastService.showToast).not.toHaveBeenCalled();
   });
 
@@ -243,10 +251,10 @@ describe("DaemonsTabComponent", () => {
    */
   describe("a refused mutation", () => {
     type Actions = {
-      disable: (row: DaemonRow) => Promise<void>;
-      enable: (row: DaemonRow) => Promise<void>;
-      confirmDelete: (row: DaemonRow) => Promise<void>;
-      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      disable: (row: AccessConnectorRow) => Promise<void>;
+      enable: (row: AccessConnectorRow) => Promise<void>;
+      confirmDelete: (row: AccessConnectorRow) => Promise<void>;
+      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
     };
 
     beforeEach(() => {
@@ -265,33 +273,33 @@ describe("DaemonsTabComponent", () => {
     }
 
     it("reports a refused deactivation", async () => {
-      (daemonsService.setEnabled as jest.Mock).mockRejectedValue(new Error("boom"));
+      (accessConnectorsService.setEnabled as jest.Mock).mockRejectedValue(new Error("boom"));
 
-      await actions().disable(makeDaemonRow());
+      await actions().disable(makeAccessConnectorRow());
 
       expectedErrorToast();
     });
 
     it("reports a refused activation", async () => {
-      (daemonsService.setEnabled as jest.Mock).mockRejectedValue(new Error("boom"));
+      (accessConnectorsService.setEnabled as jest.Mock).mockRejectedValue(new Error("boom"));
 
-      await actions().enable(makeDaemonRow());
+      await actions().enable(makeAccessConnectorRow());
 
       expectedErrorToast();
     });
 
     it("reports a refused delete", async () => {
-      (daemonsService.delete as jest.Mock).mockRejectedValue(new Error("boom"));
+      (accessConnectorsService.delete as jest.Mock).mockRejectedValue(new Error("boom"));
 
-      await actions().confirmDelete(makeDaemonRow());
+      await actions().confirmDelete(makeAccessConnectorRow());
 
       expectedErrorToast();
     });
 
     it("reports a refused unassign", async () => {
-      (daemonsService.unassign as jest.Mock).mockRejectedValue(new Error("boom"));
+      (accessConnectorsService.unassign as jest.Mock).mockRejectedValue(new Error("boom"));
 
-      await actions().unassign(makeDaemonRow(), sysId("ts-1"), "Prod");
+      await actions().unassign(makeAccessConnectorRow(), sysId("ts-1"), "Prod");
 
       expectedErrorToast();
     });
@@ -299,9 +307,9 @@ describe("DaemonsTabComponent", () => {
 
   describe("in-flight row guard", () => {
     type Guarded = {
-      disable: (row: DaemonRow) => Promise<void>;
-      confirmDelete: (row: DaemonRow) => Promise<void>;
-      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      disable: (row: AccessConnectorRow) => Promise<void>;
+      confirmDelete: (row: AccessConnectorRow) => Promise<void>;
+      unassign: (row: AccessConnectorRow, targetId: TargetSystemId, name: string) => Promise<void>;
       isRowBusy: (rowId: AccessConnectorId) => boolean;
     };
 
@@ -315,8 +323,8 @@ describe("DaemonsTabComponent", () => {
 
     it("does not dispatch a second setEnabled while the first is unsettled", async () => {
       const pending = deferred();
-      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
-      const row = makeDaemonRow();
+      (accessConnectorsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeAccessConnectorRow();
       const component = guarded();
 
       const first = component.disable(row);
@@ -324,13 +332,13 @@ describe("DaemonsTabComponent", () => {
       pending.settle();
       await Promise.all([first, second]);
 
-      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(1);
+      expect(accessConnectorsService.setEnabled).toHaveBeenCalledTimes(1);
     });
 
     it("does not dispatch a second delete while the first is unsettled", async () => {
       const pending = deferred();
-      (daemonsService.delete as jest.Mock).mockReturnValue(pending.promise);
-      const row = makeDaemonRow();
+      (accessConnectorsService.delete as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeAccessConnectorRow();
       const component = guarded();
 
       const first = component.confirmDelete(row);
@@ -338,13 +346,13 @@ describe("DaemonsTabComponent", () => {
       pending.settle();
       await Promise.all([first, second]);
 
-      expect(daemonsService.delete).toHaveBeenCalledTimes(1);
+      expect(accessConnectorsService.delete).toHaveBeenCalledTimes(1);
     });
 
     it("re-enables the row once the request settles", async () => {
       const pending = deferred();
-      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
-      const row = makeDaemonRow();
+      (accessConnectorsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeAccessConnectorRow();
       const component = guarded();
 
       const first = component.disable(row);
@@ -355,13 +363,13 @@ describe("DaemonsTabComponent", () => {
       expect(component.isRowBusy(row.id)).toBe(false);
 
       await component.disable(row);
-      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+      expect(accessConnectorsService.setEnabled).toHaveBeenCalledTimes(2);
     });
 
     it("marks the row busy under the id the row menu binds, on every action", async () => {
       const pending = deferred();
-      (daemonsService.unassign as jest.Mock).mockReturnValue(pending.promise);
-      const row = makeDaemonRow({ id: connectorId("row-key") });
+      (accessConnectorsService.unassign as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeAccessConnectorRow({ id: connectorId("row-key") });
       const component = guarded();
 
       const first = component.unassign(row, sysId("ts-1"), "Prod");
@@ -374,9 +382,9 @@ describe("DaemonsTabComponent", () => {
 
     it("allows a second action on a different row while one is in flight", async () => {
       const pending = deferred();
-      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
-      const rowA = makeDaemonRow({ id: connectorId("1") });
-      const rowB = makeDaemonRow({ id: connectorId("2") });
+      (accessConnectorsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const rowA = makeAccessConnectorRow({ id: connectorId("1") });
+      const rowB = makeAccessConnectorRow({ id: connectorId("2") });
       const component = guarded();
 
       const first = component.disable(rowA);
@@ -384,22 +392,25 @@ describe("DaemonsTabComponent", () => {
       pending.settle();
       await Promise.all([first, second]);
 
-      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+      expect(accessConnectorsService.setEnabled).toHaveBeenCalledTimes(2);
     });
   });
 
   describe("openAssignDialog", () => {
     const activeSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
 
-    function daemonWithAssignments(...ids: TargetSystemId[]): DaemonRow {
-      const row = makeDaemonRow();
+    function accessConnectorWithAssignments(...ids: TargetSystemId[]): AccessConnectorRow {
+      const row = makeAccessConnectorRow();
       return {
         ...row,
-        daemon: { ...row.daemon, assignedTargetSystemIds: ids } as unknown as AccessConnector,
+        accessConnector: {
+          ...row.accessConnector,
+          assignedTargetSystemIds: ids,
+        } as unknown as AccessConnector,
       };
     }
 
-    async function openWith(systems: TargetSystem[], row: DaemonRow): Promise<void> {
+    async function openWith(systems: TargetSystem[], row: AccessConnectorRow): Promise<void> {
       TestBed.resetTestingModule();
       targetSystemsService = {
         automaticSystems$: of(systems),
@@ -411,7 +422,7 @@ describe("DaemonsTabComponent", () => {
 
       (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
       const component = fixture.componentInstance as unknown as {
-        openAssignDialog: (row: DaemonRow) => Promise<void>;
+        openAssignDialog: (row: AccessConnectorRow) => Promise<void>;
       };
       await component.openAssignDialog(row);
     }
@@ -423,7 +434,7 @@ describe("DaemonsTabComponent", () => {
     async function componentWith(
       targetSystemsLoading$: BehaviorSubject<boolean>,
       systems: TargetSystem[] = [],
-    ): Promise<{ openAssignDialog: (row: DaemonRow) => Promise<void> }> {
+    ): Promise<{ openAssignDialog: (row: AccessConnectorRow) => Promise<void> }> {
       TestBed.resetTestingModule();
       targetSystemsService = {
         automaticSystems$: of(systems),
@@ -433,7 +444,7 @@ describe("DaemonsTabComponent", () => {
       } as unknown as jest.Mocked<TargetSystemsService>;
       await createComponent();
       return fixture.componentInstance as unknown as {
-        openAssignDialog: (row: DaemonRow) => Promise<void>;
+        openAssignDialog: (row: AccessConnectorRow) => Promise<void>;
       };
     }
 
@@ -442,7 +453,7 @@ describe("DaemonsTabComponent", () => {
       const component = await componentWith(targetSystemsLoading$, [activeSystem]);
       (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
 
-      const opening = component.openAssignDialog(daemonWithAssignments());
+      const opening = component.openAssignDialog(accessConnectorWithAssignments());
       await Promise.resolve();
       expect(dialogService.open).not.toHaveBeenCalled();
 
@@ -457,7 +468,7 @@ describe("DaemonsTabComponent", () => {
       const targetSystemsLoading$ = new BehaviorSubject(true);
       const component = await componentWith(targetSystemsLoading$);
 
-      const opening = component.openAssignDialog(daemonWithAssignments());
+      const opening = component.openAssignDialog(accessConnectorWithAssignments());
       targetSystemsLoadError$.next(new Error("boom"));
       targetSystemsLoading$.next(false);
       await opening;
@@ -476,7 +487,7 @@ describe("DaemonsTabComponent", () => {
       const component = await componentWith(targetSystemsLoading$, [activeSystem]);
       (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
 
-      const opening = component.openAssignDialog(daemonWithAssignments());
+      const opening = component.openAssignDialog(accessConnectorWithAssignments());
       fixture.destroy();
       targetSystemsLoading$.next(false);
       await opening;
@@ -485,7 +496,7 @@ describe("DaemonsTabComponent", () => {
     });
 
     it("flags that the org has no active automatic target system", async () => {
-      await openWith([], daemonWithAssignments());
+      await openWith([], accessConnectorWithAssignments());
 
       expect(dialogData().options).toEqual([]);
       expect(dialogData().noActiveAutomaticSystems).toBe(true);
@@ -500,16 +511,19 @@ describe("DaemonsTabComponent", () => {
         load: jest.fn().mockResolvedValue(undefined),
       } as unknown as jest.Mocked<TargetSystemsService>;
       await createComponent();
-      const row = daemonWithAssignments();
+      const row = accessConnectorWithAssignments();
       (dialogService.open as jest.Mock).mockReturnValue({ closed: of(String(activeSystem.id)) });
 
       await (
         fixture.componentInstance as unknown as {
-          openAssignDialog: (row: DaemonRow) => Promise<void>;
+          openAssignDialog: (row: AccessConnectorRow) => Promise<void>;
         }
       ).openAssignDialog(row);
 
-      expect(daemonsService.assign).toHaveBeenCalledWith(row.daemon, activeSystem.id);
+      expect(accessConnectorsService.assign).toHaveBeenCalledWith(
+        row.accessConnector,
+        activeSystem.id,
+      );
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
@@ -525,21 +539,21 @@ describe("DaemonsTabComponent", () => {
       } as unknown as jest.Mocked<TargetSystemsService>;
       await createComponent();
       (dialogService.open as jest.Mock).mockReturnValue({ closed: of(String(activeSystem.id)) });
-      (daemonsService.assign as jest.Mock).mockRejectedValue(new Error("boom"));
+      (accessConnectorsService.assign as jest.Mock).mockRejectedValue(new Error("boom"));
 
       await (
         fixture.componentInstance as unknown as {
-          openAssignDialog: (row: DaemonRow) => Promise<void>;
+          openAssignDialog: (row: AccessConnectorRow) => Promise<void>;
         }
-      ).openAssignDialog(daemonWithAssignments());
+      ).openAssignDialog(accessConnectorWithAssignments());
 
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
     });
 
-    it("does not flag when the only active system is already assigned to this daemon", async () => {
-      await openWith([activeSystem], daemonWithAssignments(activeSystem.id));
+    it("does not flag when the only active system is already assigned to this accessConnector", async () => {
+      await openWith([activeSystem], accessConnectorWithAssignments(activeSystem.id));
 
       expect(dialogData().options).toEqual([]);
       expect(dialogData().noActiveAutomaticSystems).toBe(false);
@@ -549,16 +563,16 @@ describe("DaemonsTabComponent", () => {
   describe("assign availability", () => {
     const eligibleSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
 
-    function assignRow(canAssign: boolean, assignedIds: TargetSystemId[] = []): DaemonRow {
-      return makeDaemonRow({
+    function assignRow(canAssign: boolean, assignedIds: TargetSystemId[] = []): AccessConnectorRow {
+      return makeAccessConnectorRow({
         canAssign,
         enabled: canAssign,
-        daemon: { assignedTargetSystemIds: assignedIds } as unknown as AccessConnector,
+        accessConnector: { assignedTargetSystemIds: assignedIds } as unknown as AccessConnector,
       });
     }
 
     async function openRowMenu(
-      row: DaemonRow,
+      row: AccessConnectorRow,
       eligible: TargetSystem[] = [eligibleSystem],
     ): Promise<HTMLButtonElement> {
       TestBed.resetTestingModule();
@@ -572,12 +586,12 @@ describe("DaemonsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('button[id^="daemons-tab_button_menu-"]')!
+        .querySelector<HTMLButtonElement>('button[id^="access-connectors-tab_button_menu-"]')!
         .click();
       fixture.detectChanges();
 
       return document.querySelector<HTMLButtonElement>(
-        '.bit-menu-panel [id^="daemons-tab_button_assign-"]',
+        '.bit-menu-panel [id^="access-connectors-tab_button_assign-"]',
       )!;
     }
 
@@ -640,13 +654,15 @@ describe("DaemonsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('button[id^="daemons-tab_button_menu-"]')!
+        .querySelector<HTMLButtonElement>('button[id^="access-connectors-tab_button_menu-"]')!
         .click();
       fixture.detectChanges();
 
       expect(
         document
-          .querySelector<HTMLButtonElement>('.bit-menu-panel [id^="daemons-tab_button_assign-"]')!
+          .querySelector<HTMLButtonElement>(
+            '.bit-menu-panel [id^="access-connectors-tab_button_assign-"]',
+          )!
           .getAttribute("aria-disabled"),
       ).toBeNull();
     });
@@ -698,7 +714,7 @@ describe("DaemonsTabComponent", () => {
   describe("name column", () => {
     beforeEach(async () => {
       TestBed.resetTestingModule();
-      rows$.next([makeDaemonRow({ name: "dc01 connector" })]);
+      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
 
       await createComponent({ renderTemplate: true });
     });
@@ -709,7 +725,7 @@ describe("DaemonsTabComponent", () => {
 
     function nameCellButton(): HTMLButtonElement {
       return (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
-        'tbody tr td:first-child button[id^="daemons-tab_button_detail-"]',
+        'tbody tr td:first-child button[id^="access-connectors-tab_button_detail-"]',
       )!;
     }
 
@@ -759,7 +775,7 @@ describe("DaemonsTabComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.querySelector('[data-testid="daemons-loading"]')).toBeNull();
+      expect(el.querySelector('[data-testid="access-connectors-loading"]')).toBeNull();
 
       loading$.next(false);
     });
@@ -767,7 +783,7 @@ describe("DaemonsTabComponent", () => {
     it("retries both loads from the error state", async () => {
       loadError$.next(new Error("boom"));
       fixture.detectChanges();
-      (daemonsService.load as jest.Mock).mockClear();
+      (accessConnectorsService.load as jest.Mock).mockClear();
       (targetSystemsService.load as jest.Mock).mockClear();
 
       (fixture.nativeElement as HTMLElement)
@@ -775,7 +791,7 @@ describe("DaemonsTabComponent", () => {
         .click();
       await fixture.whenStable();
 
-      expect(daemonsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+      expect(accessConnectorsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
       expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
   });
@@ -812,7 +828,7 @@ describe("DaemonsTabComponent", () => {
     it("stands a skeleton table in for the list, carrying the real columns", () => {
       showSkeleton();
       const el = fixture.nativeElement as HTMLElement;
-      const loading = el.querySelector('[data-testid="daemons-loading"]');
+      const loading = el.querySelector('[data-testid="access-connectors-loading"]');
 
       expect(el.querySelector("bit-spinner")).toBeNull();
       expect(loading).not.toBeNull();
@@ -823,7 +839,7 @@ describe("DaemonsTabComponent", () => {
 
     it("keeps the placeholder itself out of the accessibility tree", () => {
       const loading = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="daemons-loading"]',
+        '[data-testid="access-connectors-loading"]',
       );
 
       expect(loading!.getAttribute("aria-hidden")).toBe("true");
@@ -836,8 +852,9 @@ describe("DaemonsTabComponent", () => {
       expect(el.querySelector("bit-search")).toBeNull();
       expect(el.querySelector("bit-filter-menu")).toBeNull();
       expect(
-        el.querySelectorAll('[data-testid="daemons-loading"] > div:first-child bit-skeleton')
-          .length,
+        el.querySelectorAll(
+          '[data-testid="access-connectors-loading"] > div:first-child bit-skeleton',
+        ).length,
       ).toBeGreaterThan(0);
     });
 
@@ -853,16 +870,17 @@ describe("DaemonsTabComponent", () => {
 
     it("replaces the skeleton with the real rows, and announces the arrival", () => {
       showSkeleton();
-      rows$.next([makeDaemonRow({ name: "dc01 connector" })]);
+      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
       loading$.next(false);
       advance(1000);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="daemons-loading"]')).toBeNull();
+      expect(el.querySelector('[data-testid="access-connectors-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(
-        el.querySelector('tbody tr td:first-child button[id^="daemons-tab_button_detail-"]')!
-          .textContent,
+        el.querySelector(
+          'tbody tr td:first-child button[id^="access-connectors-tab_button_detail-"]',
+        )!.textContent,
       ).toContain("dc01 connector");
       expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
         "pamAccessConnectorsLoaded",
@@ -873,7 +891,7 @@ describe("DaemonsTabComponent", () => {
       advance(999);
 
       const el = fixture.nativeElement as HTMLElement;
-      const loading = el.querySelector('[data-testid="daemons-loading"]');
+      const loading = el.querySelector('[data-testid="access-connectors-loading"]');
       expect(loading).not.toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(loading!.textContent).toContain("pamAccessConnectorConnection");
@@ -881,20 +899,20 @@ describe("DaemonsTabComponent", () => {
 
     it("never draws the placeholder for a list that arrives inside the delay", () => {
       advance(500);
-      rows$.next([makeDaemonRow({ name: "dc01 connector" })]);
+      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
       loading$.next(false);
       advance(1000);
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector('[data-testid="daemons-loading"]')).toBeNull();
+      expect(el.querySelector('[data-testid="access-connectors-loading"]')).toBeNull();
     });
 
     it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
       showSkeleton();
       expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
 
-      rows$.next([makeDaemonRow({ name: "dc01 connector" })]);
+      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
       loading$.next(false);
       advance(300);
 
@@ -915,16 +933,16 @@ describe("DaemonsTabComponent", () => {
   });
 });
 
-describe("DaemonsTabComponent toolbar filters", () => {
+describe("AccessConnectorsTabComponent toolbar filters", () => {
   /** The component's protected surface, as these tests read it. */
   type FiltersComp = {
-    dataSource: { filteredData?: DaemonRow[] };
+    dataSource: { filteredData?: AccessConnectorRow[] };
     searchControl: { setValue: (value: string) => void };
     statusOptions: () => { value: string; label: string }[];
     connectionOptions: () => { value: boolean; label: string }[];
   };
 
-  let fixture: ComponentFixture<DaemonsTabComponent>;
+  let fixture: ComponentFixture<AccessConnectorsTabComponent>;
   let component: FiltersComp;
 
   function makeRow(overrides: {
@@ -932,7 +950,7 @@ describe("DaemonsTabComponent toolbar filters", () => {
     name: string;
     enabled: boolean;
     isConnected: boolean;
-  }): DaemonRow {
+  }): AccessConnectorRow {
     const { id, name, enabled, isConnected } = overrides;
     return {
       id,
@@ -944,7 +962,7 @@ describe("DaemonsTabComponent toolbar filters", () => {
       assignmentNames: [],
       enabled,
       canAssign: enabled,
-      daemon: accessConnector({
+      accessConnector: accessConnector({
         id,
         name,
         status: enabled ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled,
@@ -973,17 +991,17 @@ describe("DaemonsTabComponent toolbar filters", () => {
   });
 
   /** Renders the real template. */
-  function setup(rows: DaemonRow[]) {
+  function setup(rows: AccessConnectorRow[]) {
     TestBed.configureTestingModule({
-      imports: [DaemonsTabComponent],
+      imports: [AccessConnectorsTabComponent],
       providers: [
         provideRouter([]),
         {
-          provide: DaemonsService,
+          provide: AccessConnectorsService,
           useValue: {
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
-            rows$: new BehaviorSubject<DaemonRow[]>(rows),
+            rows$: new BehaviorSubject<AccessConnectorRow[]>(rows),
             load: jest.fn().mockResolvedValue(undefined),
             registerCompleted: jest.fn().mockResolvedValue(undefined),
             assign: jest.fn().mockResolvedValue(undefined),
@@ -1011,7 +1029,7 @@ describe("DaemonsTabComponent toolbar filters", () => {
       ],
     });
 
-    fixture = TestBed.createComponent(DaemonsTabComponent);
+    fixture = TestBed.createComponent(AccessConnectorsTabComponent);
     component = fixture.componentInstance as unknown as FiltersComp;
     fixture.detectChanges();
   }
@@ -1087,11 +1105,11 @@ describe("DaemonsTabComponent toolbar filters", () => {
   });
 });
 
-describe("DaemonsTabComponent assigned targets column", () => {
-  let fixture: ComponentFixture<DaemonsTabComponent>;
+describe("AccessConnectorsTabComponent assigned targets column", () => {
+  let fixture: ComponentFixture<AccessConnectorsTabComponent>;
   let overlayContainer: OverlayContainer;
 
-  function makeRow(id: string, assignmentNames: string[]): DaemonRow {
+  function makeRow(id: string, assignmentNames: string[]): AccessConnectorRow {
     return {
       id: connectorId(id),
       name: id,
@@ -1100,22 +1118,22 @@ describe("DaemonsTabComponent assigned targets column", () => {
       assignmentNames,
       enabled: true,
       canAssign: true,
-      daemon: accessConnector({ id: connectorId(id), name: id }),
+      accessConnector: accessConnector({ id: connectorId(id), name: id }),
     };
   }
 
   /** Renders the real template. */
-  function setup(rows: DaemonRow[]) {
+  function setup(rows: AccessConnectorRow[]) {
     TestBed.configureTestingModule({
-      imports: [DaemonsTabComponent],
+      imports: [AccessConnectorsTabComponent],
       providers: [
         provideRouter([]),
         {
-          provide: DaemonsService,
+          provide: AccessConnectorsService,
           useValue: {
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
-            rows$: new BehaviorSubject<DaemonRow[]>(rows),
+            rows$: new BehaviorSubject<AccessConnectorRow[]>(rows),
             load: jest.fn().mockResolvedValue(undefined),
             registerCompleted: jest.fn().mockResolvedValue(undefined),
             assign: jest.fn().mockResolvedValue(undefined),
@@ -1149,14 +1167,14 @@ describe("DaemonsTabComponent assigned targets column", () => {
       ],
     });
 
-    fixture = TestBed.createComponent(DaemonsTabComponent);
+    fixture = TestBed.createComponent(AccessConnectorsTabComponent);
     overlayContainer = TestBed.inject(OverlayContainer);
     fixture.detectChanges();
   }
 
   function countButtons(): HTMLButtonElement[] {
     return fixture.debugElement
-      .queryAll(By.css('button[id^="daemons-tab_button_assignments-"]'))
+      .queryAll(By.css('button[id^="access-connectors-tab_button_assignments-"]'))
       .map((de) => de.nativeElement as HTMLButtonElement);
   }
 
