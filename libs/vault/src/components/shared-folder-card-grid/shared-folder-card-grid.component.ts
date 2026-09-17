@@ -318,9 +318,8 @@ export class SharedFolderCardGridComponent {
     }
 
     // The grid sits above its own trigger, so the cards that just appeared are behind the user's
-    // focus and would otherwise go unnoticed. Moving focus to the first of them puts a keyboard or
-    // screen-reader user at the start of what the trigger revealed, and leaves the rest a tab away.
-    // Only the toggle moves focus: a grid the host renders expanded has revealed nothing.
+    // focus and would otherwise go unnoticed. Only the toggle moves focus: a grid the host renders
+    // expanded has revealed nothing.
     focusAfterRender(this.injector, () => this.cardLinks()[firstRevealedIndex]?.nativeElement);
   }
 }

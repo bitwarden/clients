@@ -463,15 +463,13 @@ describe("SharedFolderCardGridComponent", () => {
     });
   });
 
-  // The revealed cards render above the trigger, behind the user's focus, so an expand hands focus
-  // to the first of them rather than leaving the user to tab backwards to find them.
+  // Why the expand moves focus: see SharedFolderCardGridComponent.toggleExpanded.
   describe("focus on expansion", () => {
     it("moves focus to the first card the trigger reveals", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
 
       await clickTrigger();
 
-      // The tenth card: first of the four the three rows on show had cut off.
       expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT + 4);
       expect(document.activeElement).toBe(cards()[COLLAPSED_CARD_COUNT]);
     });
@@ -501,8 +499,7 @@ describe("SharedFolderCardGridComponent", () => {
       expect(cards()).not.toContain(document.activeElement);
     });
 
-    // Collapsing reveals nothing, and the trigger the user just pressed is still there to hold
-    // focus — the browser leaves it where it is.
+    // The browser leaves focus on the trigger: collapsing reveals nothing to move it to.
     it("keeps focus on the trigger when it collapses the grid again", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
 
