@@ -70,6 +70,10 @@ export class EventService {
     let msg = "";
     let humanReadableMsg = "";
 
+    const machineAccountAuditLogsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Sm2060MachineAccountAuditLogs,
+    );
+
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     if (vfo1Enabled) {
       const vfo1Result = this.getEventMessageVfo1(ev, options);
@@ -898,16 +902,20 @@ export class EventService {
         );
         break;
       case EventType.AccessToken_Created:
-        msg = humanReadableMsg = this.i18nService.t(
-          "accessTokenCreatedForServiceAccountId",
-          this.formatServiceAccountId(ev, options),
-        );
+        if (machineAccountAuditLogsEnabled) {
+          msg = humanReadableMsg = this.i18nService.t(
+            "accessTokenCreatedForServiceAccountId",
+            this.formatServiceAccountId(ev, options),
+          );
+        }
         break;
       case EventType.AccessToken_Revoked:
-        msg = humanReadableMsg = this.i18nService.t(
-          "accessTokenRevokedForServiceAccountId",
-          this.formatServiceAccountId(ev, options),
-        );
+        if (machineAccountAuditLogsEnabled) {
+          msg = humanReadableMsg = this.i18nService.t(
+            "accessTokenRevokedForServiceAccountId",
+            this.formatServiceAccountId(ev, options),
+          );
+        }
         break;
       case EventType.PhishingBlocker_SiteAccessed:
         msg = this.i18nService.t("phishingBlockerSiteAccessed");
