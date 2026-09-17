@@ -30,6 +30,7 @@ import type {
 import { formatDuration } from "../date/format-duration";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
+import { MyLeasesService } from "../services/my-leases.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
@@ -144,6 +145,7 @@ describe("CipherViewBannerComponent", () => {
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
   let organizations$: BehaviorSubject<Organization[]>;
+  let myLeases: MockProxy<MyLeasesService>;
 
   function gatedCipher(overrides: Partial<CipherView> = {}): CipherView {
     const cipher = new CipherView();
@@ -218,6 +220,11 @@ describe("CipherViewBannerComponent", () => {
     requestsApi.preCheck.mockResolvedValue(preCheck());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
+    // No lease held by default: the widened gate only opens for an ungated cipher the caller
+    // still holds a lease on.
+    myLeases = mock<MyLeasesService>();
+    myLeases.hasActiveLease$.mockReturnValue(of(false));
+
     // Uses the real fan-out, not a mock, since notify-then-re-read is the behavior under test.
     const accessRefresh = new DefaultAccessRefreshService({
       accessChanged$: () => NEVER,
@@ -254,6 +261,7 @@ describe("CipherViewBannerComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
+        { provide: MyLeasesService, useValue: myLeases },
       ],
     });
   });
@@ -394,6 +402,27 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query("bit-card")).toBeNull();
+    });
+
+    // PM-43689: the item gained a collection carrying no rule after the lease was minted, so the
+    // server hands back the full credential and neither `partial` nor `leaseGated` is set. The
+    // lease is still live and still the holder's to extend or end.
+    it("reads access state for an ungated cipher the caller still holds a lease on", async () => {
+      myLeases.hasActiveLease$.mockReturnValue(of(true));
+
+      await create(gatedCipher({ partial: false }));
+
+      expect(myLeases.hasActiveLease$).toHaveBeenCalledWith("cipher-1");
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledWith("cipher-1");
+    });
+
+    it("offers no request form for an ungated cipher, lease held or not", async () => {
+      myLeases.hasActiveLease$.mockReturnValue(of(true));
+
+      await create(gatedCipher({ partial: false }));
+
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      expect(query("[data-testid='cipher-view-banner-request']")).toBeNull();
     });
   });
 
