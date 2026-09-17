@@ -19897,9 +19897,6 @@
   "pamAuditKindRotationConfigDeleted": {
     "message": "Rotation config deleted"
   },
-  "pamAuditKindRotationOffered": {
-    "message": "Rotation offered to daemon"
-  },
   "pamAuditKindRotationOfferedToConnector": {
     "message": "Rotation offered to access connector"
   },
@@ -19933,35 +19930,29 @@
   "pamAuditKindManualRotationRecorded": {
     "message": "Manual rotation recorded"
   },
-  "pamAuditKindDaemonRegistered": {
-    "message": "Daemon registered"
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Access connector registered"
   },
-  "pamAuditKindDaemonRevoked": {
-    "message": "Daemon revoked"
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Access connector revoked"
   },
-  "pamAuditKindDaemonDisabled": {
-    "message": "Daemon disabled"
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Access connector deactivated"
   },
-  "pamAuditKindDaemonEnabled": {
-    "message": "Daemon enabled"
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Access connector activated"
   },
-  "pamAuditKindDaemonDeleted": {
-    "message": "Daemon deleted"
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Access connector deleted"
   },
-  "pamAuditKindDaemonAssigned": {
-    "message": "Daemon assigned to target"
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Access connector assigned to target"
   },
-  "pamAuditKindDaemonUnassigned": {
-    "message": "Daemon unassigned from target"
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Access connector unassigned from target"
   },
   "pamAuditKindTargetRegistered": {
     "message": "Target system registered"
-  },
-  "pamAuditKindTargetDisabled": {
-    "message": "Target system disabled"
-  },
-  "pamAuditKindTargetEnabled": {
-    "message": "Target system enabled"
   },
   "pamAuditKindTargetDeactivated": {
     "message": "Target system deactivated"
@@ -19981,8 +19972,8 @@
   "pamAuditTargetSystem": {
     "message": "Target system"
   },
-  "pamAuditDaemon": {
-    "message": "Daemon"
+  "pamAuditAccessConnector": {
+    "message": "Access connector"
   },
   "pamAccessConnectorAssignmentCountSingular": {
     "message": "$COUNT$ target",
