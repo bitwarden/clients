@@ -41,8 +41,8 @@ export type AuditRow = {
   ruleId: string | null;
   /** The target system's name, for rotation and target administration events; null for others. */
   targetSystemName: string | null;
-  /** The daemon's name, for rotation and daemon administration events; null for others. */
-  daemonName: string | null;
+  /** The access connector's name, for rotation and fleet administration events; null for others. */
+  accessConnectorName: string | null;
   /** An approver comment or a revoke reason. */
   detail: string | null;
   /** True for a system / automatic event (expiry, an automatic decision). */
@@ -188,7 +188,9 @@ export function toAuditRow(
     ruleName: event.ruleName,
     ruleId: event.ruleId,
     targetSystemName: event.targetSystemName,
-    daemonName: event.daemonName,
+    // The wire still says `DaemonName`: the product renamed the daemon to the access connector, the
+    // protocol did not. This is the only line that has to know that.
+    accessConnectorName: event.daemonName,
     detail: event.detail,
     automated: event.automated,
     inDoubt: event.incomplete,
