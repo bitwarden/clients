@@ -148,7 +148,7 @@ export class BitTableToolbarComponent {
     "tw-items-center",
     "tw-gap-2",
     this.insetX(),
-    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5"]),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5", "tw-min-h-[60px]"]),
     "empty:tw-hidden",
     ...(this.collapsed()
       ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]

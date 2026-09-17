@@ -211,8 +211,9 @@ export class FilterMenuComponent
   readonly options = input<FilterOptionNode<unknown>[]>([]);
 
   /**
-   * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
-   * {@link disabled} is true. Pass an already-localized string.
+   * Tooltip text to explain why the chip is disabled. The chip carries no tooltip otherwise, so
+   * this is the only one it shows, and only while {@link disabled} is true. Pass an
+   * already-localized string.
    */
   readonly disabledTooltip = input("");
 
@@ -333,9 +334,12 @@ export class FilterMenuComponent
     () => this.disabled() && this.disabledTooltip().length > 0,
   );
 
-  /** The trigger's tooltip: the disabled reason when there is one, else the label. */
+  /**
+   * The trigger's tooltip: the disabled reason, and nothing otherwise. The label is already the
+   * trigger's accessible name, so it gets no tooltip of its own.
+   */
   protected readonly triggerTooltip = computed(() =>
-    this.showDisabledReason() ? this.disabledTooltip() : this.displayLabel(),
+    this.showDisabledReason() ? this.disabledTooltip() : "",
   );
 
   /** Live count of selected options (`multiple` only). Source for the committed berry value. */
