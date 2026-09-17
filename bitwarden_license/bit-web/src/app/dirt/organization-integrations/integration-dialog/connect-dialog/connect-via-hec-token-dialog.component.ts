@@ -86,32 +86,26 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
       return;
     }
 
-    if (this.connectInfo.saveCallback) {
-      const { url, token } = this.formGroup.getRawValue();
-      try {
-        const errorMessage = await this.connectInfo.saveCallback(url ?? "", token ?? "");
-        if (errorMessage !== null) {
-          // 400: server rejected the config — show error, keep dialog open
-          this.toastService.showToast({
-            variant: "error",
-            title: "",
-            message: errorMessage || this.i18nService.t("failedToSaveIntegration"),
-          });
-          return;
-        }
-        // null = success; callback already showed toast and updated state
-        await this.dialogRef.close(
-          this.getDialogResult(IntegrationDialogResultStatus.SavedViaCallback),
-        );
-      } catch {
-        // Other errors: callback already showed toast; close without result
-        await this.dialogRef.close();
+    const { url, token } = this.formGroup.getRawValue();
+    try {
+      const errorMessage = await this.connectInfo.saveCallback(url ?? "", token ?? "");
+      if (errorMessage !== null) {
+        // 400: server rejected the config — show error, keep dialog open
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: errorMessage || this.i18nService.t("failedToSaveIntegration"),
+        });
+        return;
       }
-      return;
+      // null = success; callback already showed toast and updated state
+      await this.dialogRef.close(
+        this.getDialogResult(IntegrationDialogResultStatus.SavedViaCallback),
+      );
+    } catch {
+      // Other errors: callback already showed toast; close without result
+      await this.dialogRef.close();
     }
-
-    const result = this.getDialogResult(IntegrationDialogResultStatus.Edited);
-    await this.dialogRef.close(result);
   };
 
   delete = async (): Promise<void> => {
