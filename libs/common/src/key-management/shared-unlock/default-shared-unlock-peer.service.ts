@@ -63,6 +63,14 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
 
     const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
     this.peer = peer;
+
+    // Starting announces this peer's state once, so it does not wait out a sync interval to be
+    // discovered — but a sync for a user with no destinations yet is dropped, which is every user
+    // until the subscriptions below get around to setting them. Seeding them first is what makes
+    // the announcement land, and with it a remote unlock on the first hop rather than the next
+    // interval.
+    await this.seedDestinations();
+
     await peer.start();
 
     this.accountService.accounts$
@@ -95,6 +103,21 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
         },
       });
     });
+  }
+
+  /**
+   * Gives the peer the current destinations of every logged-in account, once.
+   *
+   * {@link watchDestinations} keeps them updated from there; this only covers the window before
+   * its first emission, which is the window the peer announces itself in.
+   */
+  private async seedDestinations(): Promise<void> {
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+
+    for (const userId of Object.keys(accounts) as UserId[]) {
+      const destinations = await firstValueFrom(this.destinations$(userId));
+      this.setDestinations(userId, destinations);
+    }
   }
 
   /**
@@ -149,7 +172,11 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
   private watchDestinations(userId: UserId): Subscription {
     return this.destinations$(userId)
       .pipe(distinctUntilChanged(sameDestinations))
-      .subscribe((destinations) => this.peer?.set_destinations(asUuid(userId), destinations));
+      .subscribe((destinations) => this.setDestinations(userId, destinations));
+  }
+
+  private setDestinations(userId: UserId, destinations: SharedUnlockClient[]): void {
+    this.peer?.set_destinations(asUuid(userId), destinations);
   }
 
   /**
