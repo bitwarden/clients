@@ -39,6 +39,7 @@ import { DefaultAccessEventService } from "./services/default-access-event.servi
 import { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
+import { MyLeasesService } from "./services/my-leases.service";
 import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
@@ -151,6 +152,13 @@ export function providePam(): SafeProvider[] {
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
       deps: [AccessRuleSdkService, LogService],
+    }),
+    // Root-level for the same reason: one cached per-caller lease read serves every item opened,
+    // so the banner's gate can recognise a leased item the server no longer gates.
+    safeProvider({
+      provide: MyLeasesService,
+      useClass: MyLeasesService,
+      deps: [AccessLeaseSdkService, LogService],
     }),
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
