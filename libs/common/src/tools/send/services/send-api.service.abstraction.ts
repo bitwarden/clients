@@ -66,7 +66,7 @@ export abstract class SendApiService {
    *   user set or changed the password. `undefined`/`null` means "no password change".
    *   Protected Data: implementations must never log it or place it in error messages.
    * @param signal An optional signal the caller can abort to cancel the save. This does not
-   *   interrupt an in-flight file upload, but for a file send create, if the signal is aborted by
+   *   interrupt an in-flight file upload, but for a file send create/edit, if the signal is aborted by
    *   the time the upload finishes, the send is rolled back (deleted) instead of being returned,
    *   and an `AbortError` is thrown.
    * @returns The persisted send in its wire-encrypted form, as stored in local state.

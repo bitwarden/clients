@@ -4,6 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -14,6 +15,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { newGuid } from "@bitwarden/guid";
 import { LogService } from "@bitwarden/logging";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -39,11 +41,17 @@ describe("ShareItemFormComponent", () => {
   let shareLinkService: MockProxy<ShareLinkService>;
   let i18nService: MockProxy<I18nService>;
   // Mock SendPolicyService observables
-  const deletionDatePolicyInfo$ = new BehaviorSubject<{
+  let deletionDatePolicyInfo$: BehaviorSubject<{
     deletionHours: SendDeletionDatePreset | null;
     orgId: OrganizationId | null;
-  } | null>(null);
-  const allowedDomains$ = new BehaviorSubject<string[]>([]);
+  } | null>;
+  let allowedDomains$: BehaviorSubject<string[]>;
+  let organizations$: BehaviorSubject<
+    {
+      id: OrganizationId;
+      name: string;
+    }[]
+  >;
 
   beforeEach(async () => {
     platformUtilsService = mock<PlatformUtilsService>();
@@ -59,6 +67,18 @@ describe("ShareItemFormComponent", () => {
 
     const folderService = mock<FolderService>();
     folderService.folderViews$.mockReturnValue(of([]));
+
+    deletionDatePolicyInfo$ = new BehaviorSubject<{
+      deletionHours: SendDeletionDatePreset | null;
+      orgId: OrganizationId | null;
+    } | null>(null);
+    allowedDomains$ = new BehaviorSubject<string[]>([]);
+    organizations$ = new BehaviorSubject<
+      {
+        id: OrganizationId;
+        name: string;
+      }[]
+    >([]);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, ShareItemFormComponent],
@@ -83,6 +103,7 @@ describe("ShareItemFormComponent", () => {
         { provide: FolderService, useValue: folderService },
         { provide: SendPolicyService, useValue: { deletionDatePolicyInfo$, allowedDomains$ } },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
       ],
     }).compileComponents();
 
@@ -176,7 +197,9 @@ describe("ShareItemFormComponent", () => {
   });
 
   it("should set the deletion date field to comply with any Send Controls policies", async () => {
-    deletionDatePolicyInfo$.next({ deletionHours: 72, orgId: null });
+    const orgId = newGuid() as unknown as OrganizationId;
+    organizations$.next([{ name: "Test Org", id: orgId }]);
+    deletionDatePolicyInfo$.next({ deletionHours: 72, orgId });
     hostFixture.detectChanges();
     const expiryHoursFormControl = component.form.get("expiryHours");
     expect(expiryHoursFormControl?.value).toEqual(72);
