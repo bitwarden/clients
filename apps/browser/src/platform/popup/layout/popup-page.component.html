@@ -8,24 +8,19 @@
 >
   <ng-content select="[slot=full-width-notice]"></ng-content>
   <!--
-    x padding on this container is designed to always be a minimum of 0.75rem (equivalent to tailwind's tw-px-3), or 0.5rem (equivalent
-    to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
-    640px in width (equivalent to tailwind's `sm` breakpoint)
+    Opted in, the seam belongs to `bitCollapseOnScroll`; opted out, this wrapper draws it. Hidden
+    while the slot projects nothing — `:has()`, since a binding would go stale under OnPush.
   -->
-  @let hideNonScrollable = loading() || aboveScrollArea.childElementCount === 0;
-  <!-- Opted in, the seam belongs to `bitCollapseOnScroll`; opted out, this wrapper draws it. -->
   <div
-    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent"
-    [class.tw-invisible]="hideNonScrollable"
-    [class.!tw-border-none]="hideNonScrollable || collapseAboveScrollArea()"
+    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent [&:not(:has([data-above-scroll-area]>*))]:tw-hidden"
+    [class.tw-hidden]="loading()"
+    [class.!tw-border-none]="collapseAboveScrollArea()"
     [class.!tw-border-border-base]="!collapseAboveScrollArea() && isScrolled()"
   >
     <div [bitCollapseOnScroll]="collapseAboveScrollArea()">
       <div
-        #aboveScrollArea
         data-above-scroll-area
         class="tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
-        [class.!tw-p-0]="hideNonScrollable"
       >
         <ng-content select="[slot=above-scroll-area]"></ng-content>
       </div>
