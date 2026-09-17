@@ -24,7 +24,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     ruleName: "Production access",
     ruleId: "rule-1",
     targetSystemName: null,
-    daemonName: null,
+    accessConnectorName: null,
     detail: "Approved for the incident window.",
     automated: false,
     inDoubt: false,
@@ -148,7 +148,7 @@ describe("AuditExportService", () => {
           collectionName: null,
           ruleName: null,
           targetSystemName: "prod-postgres-01",
-          daemonName: "eu-west-rotator",
+          accessConnectorName: "eu-west-rotator",
         }),
       );
 
