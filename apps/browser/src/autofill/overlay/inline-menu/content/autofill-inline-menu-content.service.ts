@@ -575,10 +575,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       ...(includeCandidates ? ["[popover]", "dialog"] : []),
     ].join(",");
 
-    // Exclude by identity, matching every other ownership test in this service. Encoding the
-    // exclusion in the selector could not work: `:not(TAG)` only constrains the one branch of the
-    // selector list it sits in, so `:modal` — and `[popover]`, which our own elements match —
-    // returned the menu as unowned.
+    // Exclude by identity: `:not(TAG)` constrains only the selector-list branch it sits in, so
+    // `:modal` and `[popover]` still matched the menu's own elements.
     return Array.from(globalThis.document.querySelectorAll(selector)).filter(
       (element) => !this.isElementInlineMenu(element as HTMLElement),
     );
@@ -634,10 +632,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    // The cached nodes, not a tag-name lookup: the generated name is visible in the DOM, so a
-    // page that plants a copy earlier in document order would win `getElementsByTagName(...)[0]`
-    // and take the refresh meant for our own element. `isConnected` stands in for the
-    // undefined that lookup returned when the element was absent.
+    // The cached nodes, not `getElementsByTagName(...)[0]`: the generated tag name is visible in
+    // the DOM, so a page could plant a copy earlier in document order and capture the refresh.
     const buttonInDocument = this.buttonElement?.isConnected ? this.buttonElement : undefined;
     const listInDocument = this.listElement?.isConnected ? this.listElement : undefined;
 

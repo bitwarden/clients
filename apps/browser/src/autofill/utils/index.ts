@@ -209,8 +209,6 @@ export function elementIsFillableFormField(
 
 /**
  * Identifies whether an element is an instance of a specific tag name.
- *
- * @param element - The element to check.
  * @param tagName -  The tag name to check against.
  */
 export function elementIsInstanceOf<T extends Element>(
@@ -294,8 +292,6 @@ export function elementIsDescriptionTermElement(element: Element): element is HT
 
 /**
  * Identifies whether a node is an HTML element.
- *
- * @param node - The node to check.
  */
 export function nodeIsElement(node: Node): node is Element {
   if (!node) {
@@ -323,10 +319,9 @@ const RESERVED_HYPHENATED_LOCAL_NAMES = Object.freeze(
  * Identifies whether an element is a custom element.
  * https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
  *
- * Reads `localName`, never `nodeName`/`tagName`: those are uppercased for HTML-namespace elements,
- * so the spec's "no ASCII upper alphas" rule applied to them would reject every custom element on
- * the page. The spec's valid-local-name and leading-lower-alpha rules need no check — the HTML
- * parser and `createElement` both guarantee them within the HTML namespace.
+ * Reads `localName`, never `nodeName`/`tagName` — those are uppercased for HTML-namespace
+ * elements and would fail the spec's "no ASCII upper alphas" rule. The other spec rules need no
+ * check: the HTML parser and `createElement` guarantee them.
  *
  * @param element - The element to check.
  */

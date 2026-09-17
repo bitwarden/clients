@@ -347,11 +347,8 @@ export class ShadowHostHydrationTracker {
     }
   }
 
-  /**
-   * Asks "is this subtree worth putting in a scan batch," not "can this element host a root":
-   * {@link DomQueryService.checkForNewShadowRoots} walks descendants, so any element with children
-   * may cover a host deeper down. Deliberately broader than a can-this-element-host-a-root test.
-   */
+  // Broader than a can-this-element-host-a-root test: `checkForNewShadowRoots` walks descendants,
+  // so any element with children may cover a host deeper down.
   private couldContainShadowHost(node: Node): node is Element {
     if (!nodeIsElement(node)) {
       return false;

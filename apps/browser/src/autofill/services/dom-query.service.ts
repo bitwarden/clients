@@ -17,11 +17,7 @@ const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 // Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
-/**
- * Fallback for {@link DomQueryService.setFieldPredicate}, used only before the collector registers
- * its own definition. Narrower than the real one — no `span[data-bwautofill]`, no ignore filters —
- * so it is a starting guess, never the arbiter.
- */
+/** Fallback until the collector registers its own via {@link DomQueryService.setFieldPredicate}. */
 function anyField(root: ParentNode): boolean {
   return root.querySelector("input, select, textarea") != null;
 }
@@ -147,13 +143,6 @@ export class DomQueryService implements DomQueryServiceInterface {
    * Narrows a batch to the records that happened inside a page shadow root. Lightweight — reads
    * `getRootNode()` per record and queries nothing.
    *
-   * Returns the records rather than a boolean so a caller can judge their relevance against the
-   * shadow records alone. A batch mixes light-DOM and shadow records freely, so "does this batch
-   * contain a shadow record" and "is this batch relevant" are different questions asked of
-   * different subsets; answering the second over the whole batch lets one unrelated light-DOM
-   * record speak for the shadow ones.
-   *
-   * @param mutations - The mutation records to filter
    * @returns The subset whose target is inside a non-owned shadow root
    */
   shadowRootMutations = (mutations: MutationRecord[]): MutationRecord[] => {
@@ -176,8 +165,7 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   /**
    * The collector owns what counts as a field; this service only decides how closely to watch a
-   * root. Registering the collector's definition here keeps one answer for every enrollment site —
-   * derive it per-site and the sites disagree, which downgrades roots that were watched correctly.
+   * root. One registered definition means every enrollment site gets the same answer.
    */
   setFieldPredicate = (predicate: (root: ParentNode) => boolean): void => {
     this.hasFieldsInRoot = predicate;
@@ -491,13 +479,8 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   /**
    * Observes a root and records it as known, always in that order, so `knownShadowRoots` never
-   * holds a root we aren't watching. The one home for that pairing; every enrollment site goes
-   * through it, and each asks {@link hasFieldsInRoot} so they cannot disagree.
-   *
-   * A field-less root is watched shallowly — `childList` and `subtree`, no attributes — which is
-   * where the saving comes from: no attribute records for cosmetic churn in a root that holds
-   * nothing to fill. Injecting a field anywhere beneath it still delivers a childList record, and
-   * the re-query that follows promotes the root to full observation.
+   * holds a root we aren't watching. A field-less root is watched shallowly (no attributes); a
+   * childList record beneath it drives the re-query that promotes it.
    */
   private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
     // Promote-only: `observe()` replaces options, so a root already watched with attributes must
@@ -672,9 +655,7 @@ export class DomQueryService implements DomQueryServiceInterface {
         );
 
         if (mutationObserver) {
-          // Not the walk's result count — `filterCallback` varies by caller (one counts `<form>`
-          // elements, another does not), so a root's observation scope would swing with whoever
-          // happened to walk it last.
+          // Not the walk's result count — `filterCallback` varies by caller, so scope would swing.
           this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
         }
       } else {

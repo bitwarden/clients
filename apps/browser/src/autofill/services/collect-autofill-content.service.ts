@@ -1749,25 +1749,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Whether any of these shadow-root mutations could change the set of fillable fields. Pass only
-   * records whose target is inside a shadow root — a light-DOM record would pass the attribute
-   * branch below and defeat the gate.
+   * Pass only records whose target is inside a shadow root — a light-DOM record would pass the
+   * attribute branch below and defeat the gate.
    *
    * Attribute records are relevant by construction: the observer's `attributeFilter` already
-   * narrowed them to autofill-relevant names. For childList records, a mutation matters when it
-   * adds or removes a field, or a host whose fields we cannot see past its shadow boundary.
+   * narrowed them to autofill-relevant names.
    *
-   * Narrow on purpose — the point is to not re-collect for cosmetic churn in field-less shadows.
-   * Two cases it skips are covered elsewhere: fields nested in light DOM by
-   * {@link nodeListContainsFormField}, and a host under a plain wrapper by
-   * {@link ShadowHostHydrationTracker}, whose `firstElementChild` branch admits the wrapper and
-   * whose scan pierces shadow boundaries to request the same
-   * {@link debouncedRequirePageDetailsUpdate}.
-   *
-   * One case is covered nowhere: a childless plain element carrying a closed shadow root. Both
-   * this check and the tracker read `node.shadowRoot`, which is null for closed roots, so neither
-   * sees it. Widening either to admit every childless element would readmit the churn this exists
-   * to reject, so the gap stands.
+   * Narrow on purpose: re-collecting for cosmetic churn in field-less shadows is the cost this
+   * avoids. Fields nested in light DOM are covered by {@link nodeListContainsFormField}, a host
+   * under a plain wrapper by {@link ShadowHostHydrationTracker}. Covered nowhere: a childless
+   * plain element with a closed root, which reads as `node.shadowRoot === null` to both.
    */
   private shadowMutationsCouldAffectFields(mutations: MutationRecord[]): boolean {
     for (const mutation of mutations) {
@@ -1779,12 +1770,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      // Two property reads per node, so ahead of the `querySelector` subtree walk below. Narrower
-      // than the `attachShadow` allowlist on purpose — that set holds DIV/SPAN/P, so gating on it
-      // would admit the cosmetic churn this check exists to reject. Removed nodes count too: a
+      // Cheaper than the `querySelector` walk below, so it runs first. Removed nodes count too: a
       // removed host can carry fields no querySelector of ours could see through its boundary.
       for (const nodes of [mutation.addedNodes, mutation.removedNodes]) {
-        // Tolerates an absent list, as `nodeListContainsFormField` does.
         for (const node of nodes ?? []) {
           if (nodeIsElement(node) && (node.shadowRoot != null || isCustomElement(node))) {
             return true;
