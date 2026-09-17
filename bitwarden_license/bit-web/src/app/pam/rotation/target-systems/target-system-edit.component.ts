@@ -42,6 +42,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { apiErrorBodyMessage } from "../../abstractions/api-error";
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import {
   AssignmentPickerColumn,
@@ -924,11 +925,14 @@ export class TargetSystemEditComponent {
   }
 
   private showError(e: unknown): void {
-    const message =
+    const serverMessage =
       e instanceof ErrorResponse
-        ? (e.message ?? this.i18nService.t("unexpectedError"))
-        : this.i18nService.t("unexpectedError");
-    this.toastService.showToast({ variant: "error", message });
+        ? e.message
+        : apiErrorBodyMessage(e instanceof Error ? e.message : "");
+    this.toastService.showToast({
+      variant: "error",
+      message: serverMessage ?? this.i18nService.t("unexpectedError"),
+    });
   }
 }
 
