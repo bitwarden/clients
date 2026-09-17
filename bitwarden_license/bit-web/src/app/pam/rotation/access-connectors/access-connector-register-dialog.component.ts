@@ -19,9 +19,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RotationSdkService } from "../rotation-sdk.service";
 
-import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
+import { AccessConnectorTokenDialogComponent } from "./access-connector-token-dialog.component";
 
-export type DaemonRegisterDialogParams = {
+export type AccessConnectorRegisterDialogParams = {
   organizationId: OrganizationId;
 };
 
@@ -29,19 +29,19 @@ export type DaemonRegisterDialogParams = {
  * Result of a successful registration. `undefined` means the dialog was dismissed
  * without registering (cancel, X, backdrop, escape).
  */
-export type DaemonRegisterDialogResult = { registered: true } | undefined;
+export type AccessConnectorRegisterDialogResult = { registered: true } | undefined;
 
 /**
- * Name-entry dialog for registering a new rotation daemon.
+ * Name-entry dialog for registering a new rotation access connector.
  *
  * On successful submit:
  * 1. Calls {@link RotationSdkService.registerConnector} to derive the key + POST to the server.
  * 2. Closes itself, awaiting the promise {@link DialogRef.close} returns.
- * 3. Opens {@link DaemonTokenDialogComponent} to show the one-time token.
+ * 3. Opens {@link AccessConnectorTokenDialogComponent} to show the one-time token.
  */
 @Component({
-  selector: "app-daemon-register-dialog",
-  templateUrl: "./daemon-register-dialog.component.html",
+  selector: "app-access-connector-register-dialog",
+  templateUrl: "./access-connector-register-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
@@ -52,9 +52,9 @@ export type DaemonRegisterDialogResult = { registered: true } | undefined;
     I18nPipe,
   ],
 })
-export class DaemonRegisterDialogComponent {
-  protected readonly params = inject<DaemonRegisterDialogParams>(DIALOG_DATA);
-  private readonly dialogRef = inject<DialogRef<DaemonRegisterDialogResult>>(DialogRef);
+export class AccessConnectorRegisterDialogComponent {
+  protected readonly params = inject<AccessConnectorRegisterDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<AccessConnectorRegisterDialogResult>>(DialogRef);
   private readonly dialogService = inject(DialogService);
   private readonly rotationSdk = inject(RotationSdkService);
   private readonly toastService = inject(ToastService);
@@ -79,9 +79,9 @@ export class DaemonRegisterDialogComponent {
 
       await this.dialogRef.close({ registered: true });
 
-      // Show the operator-entered name (not the daemon's GUID) as the dialog subtitle.
-      DaemonTokenDialogComponent.open(this.dialogService, {
-        data: { daemonName: name, token },
+      // Show the operator-entered name (not the access connector's GUID) as the dialog subtitle.
+      AccessConnectorTokenDialogComponent.open(this.dialogService, {
+        data: { accessConnectorName: name, token },
       });
     } catch (e) {
       const message =
@@ -98,11 +98,11 @@ export class DaemonRegisterDialogComponent {
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<DaemonRegisterDialogParams>,
-  ): DialogRef<DaemonRegisterDialogResult> {
-    return dialogService.open<DaemonRegisterDialogResult, DaemonRegisterDialogParams>(
-      DaemonRegisterDialogComponent,
-      config,
-    );
+    config: DialogConfig<AccessConnectorRegisterDialogParams>,
+  ): DialogRef<AccessConnectorRegisterDialogResult> {
+    return dialogService.open<
+      AccessConnectorRegisterDialogResult,
+      AccessConnectorRegisterDialogParams
+    >(AccessConnectorRegisterDialogComponent, config);
   }
 }
