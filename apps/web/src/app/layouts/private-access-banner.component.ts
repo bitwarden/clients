@@ -54,7 +54,11 @@ export class PrivateAccessBannerPlacementService {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivateAccessBannerComponent implements OnInit, AfterViewInit, OnDestroy {
-  protected readonly helpUrl = "/help/privileged-controls/index.html";
+  // Directory URL, not `index.html`: both the self-host static server (`UseDefaultFiles`)
+  // and webpack-dev-server resolve it to `index.html`. The trailing slash is load-bearing —
+  // without it the server 301s to add it, and the guide's relative asset paths would
+  // otherwise resolve against `/help/`.
+  protected readonly helpUrl = "/help/privileged-controls/";
 
   readonly placement = input<PrivateAccessBannerPlacement>("app");
 
