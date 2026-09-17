@@ -9,9 +9,9 @@
           bitCheckbox
           type="checkbox"
           [attr.aria-label]="'selectAllRows' | i18n"
-          [checked]="sel.headerChecked()"
+          [checked]="sel.allSelected()"
           [indeterminate]="sel.indeterminate()"
-          (change)="sel.toggleAll()"
+          (change)="onToggleAll($event, sel)"
         />
       }
     </label>
