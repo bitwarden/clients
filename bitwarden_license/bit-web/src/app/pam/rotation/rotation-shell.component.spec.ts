@@ -10,7 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, ToastService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { DaemonsService } from "./daemons/daemons.service";
+import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { RotationShellComponent } from "./rotation-shell.component";
 import { rotationRoutes } from "./rotation.routes";
@@ -30,8 +30,11 @@ describe("RotationShellComponent", () => {
   let awaitingManualCount$: BehaviorSubject<number>;
   let configs$: BehaviorSubject<unknown[]>;
   let loadMock: jest.Mock;
-  let daemons$: BehaviorSubject<unknown[]>;
-  let daemonsService: { daemons$: BehaviorSubject<unknown[]>; registerCompleted: jest.Mock };
+  let accessConnectors$: BehaviorSubject<unknown[]>;
+  let accessConnectorsService: {
+    accessConnectors$: BehaviorSubject<unknown[]>;
+    registerCompleted: jest.Mock;
+  };
   let targetSystemsService: { systems$: BehaviorSubject<unknown[]> };
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -42,8 +45,11 @@ describe("RotationShellComponent", () => {
     awaitingManualCount$ = new BehaviorSubject<number>(0);
     configs$ = new BehaviorSubject<unknown[]>([]);
     loadMock = jest.fn().mockResolvedValue(undefined);
-    daemons$ = new BehaviorSubject<unknown[]>([]);
-    daemonsService = { daemons$, registerCompleted: jest.fn().mockResolvedValue(undefined) };
+    accessConnectors$ = new BehaviorSubject<unknown[]>([]);
+    accessConnectorsService = {
+      accessConnectors$,
+      registerCompleted: jest.fn().mockResolvedValue(undefined),
+    };
     targetSystemsService = { systems$: new BehaviorSubject<unknown[]>([]) };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -65,7 +71,7 @@ describe("RotationShellComponent", () => {
           provide: RotationConfigsService,
           useValue: { awaitingManualCount$, configs$, load: loadMock },
         },
-        { provide: DaemonsService, useValue: daemonsService },
+        { provide: AccessConnectorsService, useValue: accessConnectorsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
@@ -124,15 +130,15 @@ describe("RotationShellComponent", () => {
     expect(shell.hasConfigs()).toBe(true);
   });
 
-  it("exposes hasDaemons from the daemons stream", async () => {
+  it("exposes hasAccessConnectors from the accessConnectors stream", async () => {
     await init();
-    const shell = fixture.componentInstance as unknown as { hasDaemons: () => boolean };
-    expect(shell.hasDaemons()).toBe(false);
+    const shell = fixture.componentInstance as unknown as { hasAccessConnectors: () => boolean };
+    expect(shell.hasAccessConnectors()).toBe(false);
 
-    daemons$.next([{ id: "daemon-1" }]);
+    accessConnectors$.next([{ id: "access-connector-1" }]);
     fixture.detectChanges();
 
-    expect(shell.hasDaemons()).toBe(true);
+    expect(shell.hasAccessConnectors()).toBe(true);
   });
 
   it("navigates to the managed-credential create page on createManagedCredential", async () => {
@@ -165,29 +171,29 @@ describe("RotationShellComponent", () => {
     );
   });
 
-  it("refreshes daemons and toasts after a successful registration", async () => {
+  it("refreshes accessConnectors and toasts after a successful registration", async () => {
     await init();
     dialogService.open.mockReturnValue({ closed: of(true) } as never);
 
     await (
-      fixture.componentInstance as unknown as { registerDaemon: () => Promise<void> }
-    ).registerDaemon();
+      fixture.componentInstance as unknown as { registerAccessConnector: () => Promise<void> }
+    ).registerAccessConnector();
 
-    expect(daemonsService.registerCompleted).toHaveBeenCalledWith(ORG_ID);
+    expect(accessConnectorsService.registerCompleted).toHaveBeenCalledWith(ORG_ID);
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "success" }),
     );
   });
 
-  it("does not refresh daemons when registration is canceled", async () => {
+  it("does not refresh accessConnectors when registration is canceled", async () => {
     await init();
     dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
 
     await (
-      fixture.componentInstance as unknown as { registerDaemon: () => Promise<void> }
-    ).registerDaemon();
+      fixture.componentInstance as unknown as { registerAccessConnector: () => Promise<void> }
+    ).registerAccessConnector();
 
-    expect(daemonsService.registerCompleted).not.toHaveBeenCalled();
+    expect(accessConnectorsService.registerCompleted).not.toHaveBeenCalled();
     expect(toastService.showToast).not.toHaveBeenCalled();
   });
 });
@@ -234,8 +240,11 @@ describe("RotationShellComponent (real router)", () => {
           },
         },
         {
-          provide: DaemonsService,
-          useValue: { daemons$: new BehaviorSubject<unknown[]>([]), registerCompleted: jest.fn() },
+          provide: AccessConnectorsService,
+          useValue: {
+            accessConnectors$: new BehaviorSubject<unknown[]>([]),
+            registerCompleted: jest.fn(),
+          },
         },
         {
           provide: TargetSystemsService,

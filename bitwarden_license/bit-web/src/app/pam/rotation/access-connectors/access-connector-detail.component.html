@@ -7,12 +7,12 @@
     [truncate]="true"
   />
   <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
-    @if (daemon()) {
+    @if (accessConnector()) {
       <span class="tw-sr-only">{{ "status" | i18n }}:</span>
       <span
         bitBadge
         [variant]="enabled() ? 'success' : 'secondary'"
-        id="daemon-detail_badge_status"
+        id="access-connector-detail_badge_status"
         >{{
           (enabled() ? "pamAccessConnectorStatusActive" : "pamAccessConnectorStatusInactive") | i18n
         }}</span
@@ -41,7 +41,7 @@
 } @else if (loadingVisible()) {
   <div
     aria-hidden="true"
-    data-testid="daemon-detail-loading"
+    data-testid="access-connector-detail-loading"
     [class.tw-max-w-4xl]="activeTab() !== 'history'"
   >
     @if (showSkeleton()) {
@@ -96,7 +96,7 @@
       }
     }
   </div>
-} @else if (daemon(); as d) {
+} @else if (accessConnector(); as d) {
   <form [formGroup]="formGroup" [bitSubmit]="submit">
     <div [class.tw-max-w-4xl]="activeTab() !== 'history'">
       @switch (activeTab()) {
@@ -131,7 +131,7 @@
                 <input
                   type="checkbox"
                   bitCheckbox
-                  id="daemon-detail_checkbox_active"
+                  id="access-connector-detail_checkbox_active"
                   formControlName="active"
                 />
                 <bit-label>{{ "pamAccessConnectorStatusActive" | i18n }}</bit-label>
@@ -188,7 +188,7 @@
 
           <!-- Assigned targets -->
           <pam-assignment-picker
-            idPrefix="daemon-detail"
+            idPrefix="access-connector-detail"
             headingKey="pamAccessConnectorAssignments"
             selectLabelKey="pamAccessConnectorAssignSelectLabel"
             assignLabelKey="pamAccessConnectorAssignConfirm"
@@ -246,7 +246,7 @@
                   showToast
                   [valueLabel]="'pamTargetSystemIdLabel' | i18n"
                   [label]="'pamTargetSystemCopyId' | i18n"
-                  id="daemon-detail_button_copy-target-id-{{ assignment.id }}"
+                  id="access-connector-detail_button_copy-target-id-{{ assignment.id }}"
                 ></button>
               </div>
             </td>
@@ -260,7 +260,7 @@
           bitButton
           buttonType="primary"
           bitFormButton
-          id="daemon-detail_button_save"
+          id="access-connector-detail_button_save"
         >
           {{ "save" | i18n }}
         </button>
@@ -269,9 +269,9 @@
           bitButton
           buttonType="danger"
           bitFormButton
-          [bitAction]="deleteDaemon"
+          [bitAction]="deleteAccessConnector"
           class="tw-ms-auto"
-          id="daemon-detail_button_delete"
+          id="access-connector-detail_button_delete"
         >
           {{ "delete" | i18n }}
         </button>

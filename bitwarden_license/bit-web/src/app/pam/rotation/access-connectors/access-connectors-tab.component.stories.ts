@@ -10,22 +10,22 @@ import { AccessConnector, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing/rotation-builders";
 
-import { DaemonsTabComponent } from "./daemons-tab.component";
-import { DaemonRow, DaemonsService } from "./daemons.service";
+import { AccessConnectorsTabComponent } from "./access-connectors-tab.component";
+import { AccessConnectorRow, AccessConnectorsService } from "./access-connectors.service";
 
-function row(daemon: AccessConnector, assignmentNames: string[] = []): DaemonRow {
+function row(accessConnector: AccessConnector, assignmentNames: string[] = []): AccessConnectorRow {
   return {
-    id: daemon.id,
-    name: daemon.name,
+    id: accessConnector.id,
+    name: accessConnector.name,
     statusLabelKey:
-      daemon.status === "enabled"
+      accessConnector.status === "enabled"
         ? "pamAccessConnectorStatusActive"
         : "pamAccessConnectorStatusInactive",
-    isConnected: daemon.isConnected,
+    isConnected: accessConnector.isConnected,
     assignmentNames,
-    enabled: daemon.status === "enabled",
-    canAssign: daemon.status === "enabled",
-    daemon,
+    enabled: accessConnector.status === "enabled",
+    canAssign: accessConnector.status === "enabled",
+    accessConnector,
   };
 }
 
@@ -54,7 +54,7 @@ const CONNECTOR_SHARED = accessConnector({
   assignedTargetSystemIds: [sysId("1")],
 });
 
-const ROWS: DaemonRow[] = [
+const ROWS: AccessConnectorRow[] = [
   row(CONNECTOR_PROD, ["Prod Entra"]),
   row(CONNECTOR_EU, ["Prod Entra", "Reporting SQL"]),
   row(CONNECTOR_STAGING, []),
@@ -68,16 +68,16 @@ const ROWS: DaemonRow[] = [
   ]),
 ];
 
-function rotationServices(rows: DaemonRow[]) {
+function rotationServices(rows: AccessConnectorRow[]) {
   return moduleMetadata({
     providers: [
       {
-        provide: DaemonsService,
+        provide: AccessConnectorsService,
         useValue: {
           loading$: of(false),
           loadError$: of(null),
           rows$: of(rows),
-          daemons$: of(rows.map((r) => r.daemon)),
+          accessConnectors$: of(rows.map((r) => r.accessConnector)),
           load: () => Promise.resolve(),
           registerCompleted: () => Promise.resolve(),
           assign: () => Promise.resolve(),
@@ -101,7 +101,7 @@ function rotationServices(rows: DaemonRow[]) {
 
 export default {
   title: "Web/PAM/Rotation/Access Connectors Tab",
-  component: DaemonsTabComponent,
+  component: AccessConnectorsTabComponent,
   decorators: [
     applicationConfig({
       providers: [
@@ -155,9 +155,9 @@ export default {
       ],
     }),
   ],
-} as Meta<DaemonsTabComponent>;
+} as Meta<AccessConnectorsTabComponent>;
 
-type Story = StoryObj<DaemonsTabComponent>;
+type Story = StoryObj<AccessConnectorsTabComponent>;
 
 export const Default: Story = {
   decorators: [rotationServices(ROWS)],

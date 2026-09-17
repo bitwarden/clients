@@ -16,38 +16,38 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type DaemonTokenDialogParams = {
-  /** The daemon's name (or ID) shown as a subtitle. */
-  daemonName: string;
+export type AccessConnectorTokenDialogParams = {
+  /** The access connector's name (or ID) shown as a subtitle. */
+  accessConnectorName: string;
   /**
    * The one-time token to display.
    *
-   * SECURITY: shown exactly once; never log it. Deliver out-of-band (e.g. paste into the daemon
+   * SECURITY: shown exactly once; never log it. Deliver out-of-band (e.g. paste into the access connector
    * config). Format: `0.access-connector.{apiKeyId}.{clientSecret}:{keyMaterialBase64}`.
    */
   token: string;
 };
 
 /**
- * Read-only copy-once dialog for the daemon registration token.
+ * Read-only copy-once dialog for the access connector registration token.
  *
  * Warning callout → single-line read-only token field with an inline copy button (copies,
  * toasts, and leaves the dialog open) → Close button.
  *
  * No way to re-fetch the token after this closes; a lost token means deleting and
- * re-registering the daemon.
+ * re-registering the access connector.
  *
  * Opened with `disableClose`, so Escape, a backdrop click and the header X cannot
  * dismiss it — the footer Close button is the only exit.
  */
 @Component({
-  selector: "app-daemon-token-dialog",
-  templateUrl: "./daemon-token-dialog.component.html",
+  selector: "app-access-connector-token-dialog",
+  templateUrl: "./access-connector-token-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonModule, CalloutModule, DialogModule, FormFieldModule, IconButtonModule, I18nPipe],
 })
-export class DaemonTokenDialogComponent {
-  protected readonly params = inject<DaemonTokenDialogParams>(DIALOG_DATA);
+export class AccessConnectorTokenDialogComponent {
+  protected readonly params = inject<AccessConnectorTokenDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef>(DialogRef);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
@@ -67,11 +67,14 @@ export class DaemonTokenDialogComponent {
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<DaemonTokenDialogParams>,
+    config: DialogConfig<AccessConnectorTokenDialogParams>,
   ): DialogRef<void> {
-    return dialogService.open<void, DaemonTokenDialogParams>(DaemonTokenDialogComponent, {
-      ...config,
-      disableClose: true,
-    });
+    return dialogService.open<void, AccessConnectorTokenDialogParams>(
+      AccessConnectorTokenDialogComponent,
+      {
+        ...config,
+        disableClose: true,
+      },
+    );
   }
 }

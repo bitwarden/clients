@@ -1,13 +1,13 @@
 <app-header [title]="'pamRotationTitle' | i18n">
   @switch (activeTab()) {
     @case ("access-connectors") {
-      @if (hasDaemons()) {
+      @if (hasAccessConnectors()) {
         <button
           type="button"
           bitButton
           buttonType="primary"
-          [bitAction]="registerDaemon"
-          id="rotation-shell_button_new-daemon"
+          [bitAction]="registerAccessConnector"
+          id="rotation-shell_button_new-access-connector"
         >
           {{ "pamAccessConnectorNew" | i18n }}
         </button>

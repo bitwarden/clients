@@ -38,9 +38,9 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { assignableConnectors, eligibleConnectors } from "../assignable";
 import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
-import { DaemonsService } from "../daemons/daemons.service";
 import { filterOptions } from "../filter-options";
 import {
   AccessConnector,
@@ -133,7 +133,7 @@ export class TargetSystemsTabComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly targetSystemsService = inject(TargetSystemsService);
-  private readonly daemonsService = inject(DaemonsService);
+  private readonly accessConnectorsService = inject(AccessConnectorsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -159,17 +159,19 @@ export class TargetSystemsTabComponent {
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
-  private readonly daemons = toSignal(this.daemonsService.daemons$, {
+  private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
     initialValue: [] as AccessConnector[],
   });
-  private readonly daemonsLoading = toSignal(this.daemonsService.loading$, { initialValue: true });
-  private readonly daemonsLoadError = toSignal(this.daemonsService.loadError$, {
+  private readonly accessConnectorsLoading = toSignal(this.accessConnectorsService.loading$, {
+    initialValue: true,
+  });
+  private readonly accessConnectorsLoadError = toSignal(this.accessConnectorsService.loadError$, {
     initialValue: null,
   });
 
   /** Whether the connector list has actually been read. */
   private readonly connectorsKnown = computed(
-    () => !this.daemonsLoading() && this.daemonsLoadError() == null,
+    () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() == null,
   );
 
   /**
@@ -177,11 +179,11 @@ export class TargetSystemsTabComponent {
    * finished.
    */
   private readonly connectorsUnavailable = computed(
-    () => !this.daemonsLoading() && this.daemonsLoadError() != null,
+    () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() != null,
   );
 
   /** The table's rows, and the set the toolbar chips derive their options from. */
-  private readonly rows = computed(() => this.buildRows(this.systems(), this.daemons()));
+  private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
@@ -262,7 +264,7 @@ export class TargetSystemsTabComponent {
   private async loadAll(organizationId: OrganizationId): Promise<void> {
     await Promise.all([
       this.targetSystemsService.load(organizationId),
-      this.daemonsService.load(organizationId),
+      this.accessConnectorsService.load(organizationId),
     ]);
   }
 
@@ -312,7 +314,7 @@ export class TargetSystemsTabComponent {
   protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const stillMounted = await firstValueFrom(
-        this.daemonsService.loading$.pipe(
+        this.accessConnectorsService.loading$.pipe(
           filter((inFlight) => !inFlight),
           map(() => true),
           takeUntilDestroyed(this.destroyRef),
@@ -330,7 +332,7 @@ export class TargetSystemsTabComponent {
         return;
       }
 
-      const connectors = this.daemons();
+      const connectors = this.accessConnectors();
       const options = assignableConnectors(system.id, connectors);
       const noneEligible = eligibleConnectors(connectors).length === 0;
 
@@ -342,12 +344,12 @@ export class TargetSystemsTabComponent {
         return;
       }
       const accessConnectorId = asUuid<AccessConnectorId>(selectedId);
-      const daemon = this.daemons().find((d) => d.id === accessConnectorId);
-      if (!daemon) {
+      const accessConnector = this.accessConnectors().find((d) => d.id === accessConnectorId);
+      if (!accessConnector) {
         return;
       }
       try {
-        await this.daemonsService.assign(daemon, system.id);
+        await this.accessConnectorsService.assign(accessConnector, system.id);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
@@ -410,7 +412,9 @@ export class TargetSystemsTabComponent {
     this.busyRows.run(system.id, async () => {
       const dropsAssignments =
         this.connectorsKnown() &&
-        this.daemons().some((connector) => connector.assignedTargetSystemIds.includes(system.id));
+        this.accessConnectors().some((connector) =>
+          connector.assignedTargetSystemIds.includes(system.id),
+        );
       const active = system.status === TargetSystemStatus.Active;
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamTargetSystemDeleteTitle" },
@@ -432,8 +436,8 @@ export class TargetSystemsTabComponent {
       try {
         await this.targetSystemsService.delete(system);
         // The server drops the connector assignments with the target; mirror that locally so the
-        // daemons tab does not keep projecting the dangling ID.
-        this.daemonsService.forgetTargetSystem(system.id);
+        // access connectors tab does not keep projecting the dangling ID.
+        this.accessConnectorsService.forgetTargetSystem(system.id);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamTargetSystemDeleteSuccess"),

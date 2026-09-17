@@ -1,6 +1,6 @@
 import { ActivatedRouteSnapshot, Route } from "@angular/router";
 
-import { daemonDetailDiscardGuard } from "./daemons/daemon-detail.component";
+import { accessConnectorDetailDiscardGuard } from "./access-connectors/access-connector-detail.component";
 import { rotationConfigEditDiscardGuard } from "./managed-credentials/rotation-config-edit.component";
 import { ROTATION_TABS } from "./rotation-links";
 import { rotationRoutes } from "./rotation.routes";
@@ -62,17 +62,17 @@ describe("rotationRoutes", () => {
   });
 
   describe("the access connector detail page", () => {
-    const tabRoute = () => routeAt(`${ROTATION_TABS.accessConnectors}/:daemonId/:tab`);
+    const tabRoute = () => routeAt(`${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`);
 
     it("holds an exit for unsaved input", () => {
-      expect(tabRoute().canDeactivate).toEqual([daemonDetailDiscardGuard]);
+      expect(tabRoute().canDeactivate).toEqual([accessConnectorDetailDiscardGuard]);
     });
 
     it("leaves the guard alone for a move between the page's own tabs", () => {
       const stayed = rerunsGuards(
         tabRoute(),
-        { daemonId: "con-1", tab: "configuration" },
-        { daemonId: "con-1", tab: "history" },
+        { accessConnectorId: "con-1", tab: "configuration" },
+        { accessConnectorId: "con-1", tab: "history" },
       );
 
       expect(stayed).toBe(false);
@@ -81,8 +81,8 @@ describe("rotationRoutes", () => {
     it("re-runs the guard when the URL names a different connector", () => {
       const left = rerunsGuards(
         tabRoute(),
-        { daemonId: "con-1", tab: "configuration" },
-        { daemonId: "con-2", tab: "configuration" },
+        { accessConnectorId: "con-1", tab: "configuration" },
+        { accessConnectorId: "con-2", tab: "configuration" },
       );
 
       expect(left).toBe(true);

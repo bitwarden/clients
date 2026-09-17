@@ -16,14 +16,14 @@ import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, connectorId } from "../testing/rotation-builders";
 
 import {
-  DaemonRegisterDialogComponent,
-  DaemonRegisterDialogParams,
-} from "./daemon-register-dialog.component";
-import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
+  AccessConnectorRegisterDialogComponent,
+  AccessConnectorRegisterDialogParams,
+} from "./access-connector-register-dialog.component";
+import { AccessConnectorTokenDialogComponent } from "./access-connector-token-dialog.component";
 
-describe("DaemonRegisterDialogComponent", () => {
-  let fixture: ComponentFixture<DaemonRegisterDialogComponent>;
-  let component: DaemonRegisterDialogComponent;
+describe("AccessConnectorRegisterDialogComponent", () => {
+  let fixture: ComponentFixture<AccessConnectorRegisterDialogComponent>;
+  let component: AccessConnectorRegisterDialogComponent;
   let rotationSdk: jest.Mocked<RotationSdkService>;
   let dialogRef: jest.Mocked<DialogRef>;
   let toastService: jest.Mocked<ToastService>;
@@ -35,12 +35,12 @@ describe("DaemonRegisterDialogComponent", () => {
   let injectedDialogService: DialogService;
 
   const orgId = ORGANIZATION_ID as OrganizationId;
-  const params: DaemonRegisterDialogParams = { organizationId: orgId };
+  const params: AccessConnectorRegisterDialogParams = { organizationId: orgId };
 
   const fakeRegistration = {
     id: connectorId("d-1"),
     organizationId: ORGANIZATION_ID,
-    name: "Good Daemon",
+    name: "Good AccessConnector",
     status: "enabled",
     creationDate: "2026-01-01T00:00:00Z",
     token: "0.access-connector.api-id.secret:keyb64",
@@ -62,7 +62,7 @@ describe("DaemonRegisterDialogComponent", () => {
     } as unknown as jest.Mocked<I18nService>;
 
     await TestBed.configureTestingModule({
-      imports: [DaemonRegisterDialogComponent],
+      imports: [AccessConnectorRegisterDialogComponent],
       providers: [
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: dialogRef },
@@ -70,14 +70,14 @@ describe("DaemonRegisterDialogComponent", () => {
         { provide: I18nService, useValue: i18nService },
       ],
     })
-      .overrideComponent(DaemonRegisterDialogComponent, {
+      .overrideComponent(AccessConnectorRegisterDialogComponent, {
         set: {
           providers: [{ provide: RotationSdkService, useValue: rotationSdk }],
         },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(DaemonRegisterDialogComponent);
+    fixture = TestBed.createComponent(AccessConnectorRegisterDialogComponent);
     component = fixture.componentInstance;
     // Retrieves the DialogService the component actually uses, which may come from
     // DialogModule, not the test override.
@@ -86,15 +86,17 @@ describe("DaemonRegisterDialogComponent", () => {
   });
 
   it("renders the form with a name field", () => {
-    const input = fixture.nativeElement.querySelector("#daemon-register-dialog_input_name");
+    const input = fixture.nativeElement.querySelector(
+      "#access-connector-register-dialog_input_name",
+    );
     expect(input).toBeTruthy();
   });
 
   it("calls rotationSdk.registerConnector with the form name on submit", async () => {
-    (component as any).form.controls.name.setValue("My Daemon");
+    (component as any).form.controls.name.setValue("My access connector");
     await (component as any).submit();
 
-    expect(rotationSdk.registerConnector).toHaveBeenCalledWith(orgId, "My Daemon");
+    expect(rotationSdk.registerConnector).toHaveBeenCalledWith(orgId, "My access connector");
   });
 
   it("does not submit when name is empty", async () => {
@@ -105,7 +107,7 @@ describe("DaemonRegisterDialogComponent", () => {
   });
 
   it("closes the dialog after successful registration", async () => {
-    (component as any).form.controls.name.setValue("Good Daemon");
+    (component as any).form.controls.name.setValue("Good AccessConnector");
     await (component as any).submit();
 
     expect(dialogRef.close).toHaveBeenCalledWith({ registered: true });
@@ -116,15 +118,15 @@ describe("DaemonRegisterDialogComponent", () => {
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
-    (component as any).form.controls.name.setValue("Good Daemon");
+    (component as any).form.controls.name.setValue("Good AccessConnector");
     await (component as any).submit();
 
     expect(openSpy).toHaveBeenCalledWith(
-      DaemonTokenDialogComponent,
+      AccessConnectorTokenDialogComponent,
       expect.objectContaining({
         data: expect.objectContaining({
           token: fakeRegistration.token,
-          daemonName: "Good Daemon",
+          accessConnectorName: "Good AccessConnector",
         }),
       }),
     );
@@ -139,7 +141,7 @@ describe("DaemonRegisterDialogComponent", () => {
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
-    (component as any).form.controls.name.setValue("Good Daemon");
+    (component as any).form.controls.name.setValue("Good AccessConnector");
     const submitted = (component as any).submit();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -149,14 +151,14 @@ describe("DaemonRegisterDialogComponent", () => {
     resolveClose({ closed: true });
     await submitted;
 
-    expect(openSpy).toHaveBeenCalledWith(DaemonTokenDialogComponent, expect.anything());
+    expect(openSpy).toHaveBeenCalledWith(AccessConnectorTokenDialogComponent, expect.anything());
   });
 
   it("does not open the token dialog when registration fails", async () => {
     rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
     const openSpy = jest.spyOn(injectedDialogService, "open");
 
-    (component as any).form.controls.name.setValue("Bad Daemon");
+    (component as any).form.controls.name.setValue("Bad AccessConnector");
     await (component as any).submit();
 
     expect(openSpy).not.toHaveBeenCalled();
@@ -164,7 +166,7 @@ describe("DaemonRegisterDialogComponent", () => {
 
   it("shows an error toast when registration fails", async () => {
     rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
-    (component as any).form.controls.name.setValue("Bad Daemon");
+    (component as any).form.controls.name.setValue("Bad AccessConnector");
     await (component as any).submit();
 
     expect(toastService.showToast).toHaveBeenCalledWith(
