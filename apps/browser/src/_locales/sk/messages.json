@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "V zozname sa nenachádzajú žiadne priečinky."
   },
+  "noFoldersFilter": {
+    "message": "Žiadne priečinky"
+  },
   "helpFeedback": {
     "message": "Pomoc a spätná väzba"
   },
@@ -4059,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Chyba pri získavaní údajov automatického vypĺňania"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedenú položku v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položky, aby sa zistilo, či je možné ju obnoviť."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznícku podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položiek, aby sa zistilo, či je možné ich obnoviť."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "aby ste predišli ďalším stratám údajov.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položiek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovať ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovať všetky ID"
   },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
@@ -5820,6 +5832,9 @@
   },
   "switchAccounts": {
     "message": "Prepnúť účty"
+  },
+  "switchVault": {
+    "message": "Prepnúť trezor"
   },
   "switchToAccount": {
     "message": "Prepnúť na účet"
@@ -8116,5 +8131,84 @@
   },
   "editItemsHidePass": {
     "message": "Upraviť položky, skryté heslá"
+  },
+  "shareVerb": {
+    "message": "Zdieľať"
+  },
+  "peopleWhoCanView": {
+    "message": "Ľudia, ktorí môžu zobraziť položky",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po zdieľaní tohto odkazu budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tejto položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz exspiruje po tomto dátume, príjemcovia si však môžu ponechať informácie, ktoré im boli predtým zdieľané. Ak chcete zrušiť prístup, vygenerujte nové prihlasovacie údaje.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkaz exspiruje po",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorazové zdieľanie",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktívne odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz bol skopírovaný do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz bol uložený a skopírovaný do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodarilo sa skopírovať odkaz na zdieľanie do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz na zdieľanie bol odstránený",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodarilo sa odstrániť odkaz na zdieľanie",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Zdieľať cez odkaz",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Zdieľať položku v trezore $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Zdieľať",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Exspiruje",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Exspiruje",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
   }
 }
