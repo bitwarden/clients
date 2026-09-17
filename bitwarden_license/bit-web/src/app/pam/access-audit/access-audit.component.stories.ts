@@ -59,7 +59,7 @@ function event(overrides: Record<string, unknown>): AccessAuditEventResponse {
     collectionName: null,
     ruleName: null,
     targetSystemName: null,
-    daemonName: null,
+    accessConnectorName: null,
     automated: false,
     incomplete: false,
     ...overrides,
@@ -173,7 +173,7 @@ const EVENTS: AccessAuditEventResponse[] = [
 /**
  * The rotation and fleet half of the trail, which read as a column of "Unknown event" until the client caught up
  * with the server's vocabulary (PM-43606). Every one is system-driven, and the fleet three name no cipher at all,
- * so the Item cell falls through to the daemon and the target.
+ * so the Item cell falls through to the access connector and the target.
  */
 const ROTATION_EVENTS: AccessAuditEventResponse[] = [
   event({
@@ -186,7 +186,7 @@ const ROTATION_EVENTS: AccessAuditEventResponse[] = [
     requesterId: null,
     requesterName: null,
     requesterEmail: null,
-    daemonName: "eu-west-rotator",
+    accessConnectorName: "eu-west-rotator",
     automated: true,
   }),
   event({
@@ -199,12 +199,12 @@ const ROTATION_EVENTS: AccessAuditEventResponse[] = [
     requesterId: null,
     requesterName: null,
     requesterEmail: null,
-    daemonName: "eu-west-rotator",
+    accessConnectorName: "eu-west-rotator",
     detail: "Connection refused; 2 attempts left.",
     automated: true,
   }),
   event({
-    kind: AccessAuditEventKind.DaemonAssignedToTarget,
+    kind: AccessAuditEventKind.AccessConnectorAssignedToTarget,
     occurredAt: fromNow(-25 * MINUTE),
     cipherId: null,
     collectionId: null,
@@ -213,7 +213,7 @@ const ROTATION_EVENTS: AccessAuditEventResponse[] = [
     requesterName: null,
     requesterEmail: null,
     targetSystemName: "prod-postgres-01",
-    daemonName: "eu-west-rotator",
+    accessConnectorName: "eu-west-rotator",
     ...APPROVER,
   }),
   event({
@@ -576,8 +576,8 @@ export const SingleEvent: Story = {
 };
 
 /**
- * A trail from an organization with rotation configured, where the daemon- and sweep-driven kinds outnumber the
- * human ones. Each names its own subject: a rotation the cipher it rotated, a fleet event the daemon and target
+ * A trail from an organization with rotation configured, where the connector- and sweep-driven kinds outnumber the
+ * human ones. Each names its own subject: a rotation the cipher it rotated, a fleet event the connector and target
  * it concerned.
  */
 export const RotationTrail: Story = {
