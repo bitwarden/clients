@@ -526,21 +526,27 @@
             <code>Status</code>.
           </p>
 
-          <h3 id="check-that-every-route-to-the-item-is-governed-by-a-rule">
-            Check that every route to the item is governed by a rule
-          </h3>
-          <p>
-            Bitwarden access is the union of a member's collection permissions. If an item is in
-            several collections, a member can reach it through any one they belong to, so an item
-            that is also in a collection with no access rule stays readable to that collection's
-            members. A rule restricts a member only when every path they have to the item is
-            governed by one.
-          </p>
-          <p>
-            The <code>Access rules</code> page identifies items in scope that are still reachable
-            through a path with no access rule. Resolve these warnings before relying on the rule to
-            restrict access.
-          </p>
+          <!--
+            Hidden for the private preview: the Access rules page does not yet flag items that are
+            reachable through a path with no access rule, so this section describes a warning
+            testers cannot see. Restore it when that check ships.
+
+            <h3 id="check-that-every-route-to-the-item-is-governed-by-a-rule">
+              Check that every route to the item is governed by a rule
+            </h3>
+            <p>
+              Bitwarden access is the union of a member's collection permissions. If an item is in
+              several collections, a member can reach it through any one they belong to, so an item
+              that is also in a collection with no access rule stays readable to that collection's
+              members. A rule restricts a member only when every path they have to the item is
+              governed by one.
+            </p>
+            <p>
+              The <code>Access rules</code> page identifies items in scope that are still reachable
+              through a path with no access rule. Resolve these warnings before relying on the rule
+              to restrict access.
+            </p>
+          -->
 
           <h3 id="see-what-a-member-sees">See what a member sees</h3>
           <p>
@@ -1550,10 +1556,15 @@
               Define a specific approver group rather than defaulting to everyone with Manage
               permission.
             </li>
-            <li>
-              Leave a second route to a credential with no access rule on it, and assess whether the
-              warning clearly identifies the exposure.
-            </li>
+            <!--
+              Hidden alongside the "Check that every route to the item is governed by a rule"
+              section above: there is no warning for testers to assess yet.
+
+              <li>
+                Leave a second route to a credential with no access rule on it, and assess whether
+                the warning clearly identifies the exposure.
+              </li>
+            -->
             <li>Try to apply two rules to one collection.</li>
             <li>
               Set a maximum duration that matches your operational needs. Note whether the available
