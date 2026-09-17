@@ -60,7 +60,7 @@ function mapToAccessSelections(
 export class GroupEditDialogComponent {
   private readonly params = inject<GroupEditDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef<GroupAddEditDialogResultType>>(DialogRef);
-  private readonly service = inject(GroupAddEditService);
+  private readonly groupAddEditService = inject(GroupAddEditService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
 
@@ -72,31 +72,45 @@ export class GroupEditDialogComponent {
 
   protected readonly tabIndex = this.params.initialTab ?? GroupAddEditTabType.Info;
   protected readonly title = this.i18nService.t("editGroup");
-  protected readonly groupForm: GroupFormGroup = this.service.buildForm();
+  protected readonly groupForm: GroupFormGroup = this.groupAddEditService.buildForm();
 
-  // Template streams (consumed via async pipe)
-  protected readonly collections$ = this.service.collectionAccessItems$(
+  private readonly organization$ = this.groupAddEditService.organization$(this.organizationId);
+  private readonly groupDetails$ = this.groupAddEditService.groupDetails$(
     this.organizationId,
     this.groupId,
   );
-  protected readonly members$ = this.service.memberAccessItems$(this.organizationId, this.groupId);
-  protected readonly loaded$ = this.service.loaded$(this.organizationId, this.groupId);
-  protected readonly cannotAddSelfToGroup$ = this.service.cannotAddSelfToGroup$(
+
+  protected readonly collections$ = this.groupAddEditService.collectionAccessItems$(
     this.organizationId,
-    this.groupId,
+    this.organization$,
+    this.groupDetails$,
   );
-  protected readonly canAssignAccessToAnyCollection$ = this.service.canAssignAccessToAnyCollection$(
+  protected readonly members$ = this.groupAddEditService.memberAccessItems$(
     this.organizationId,
+    this.organization$,
+    this.groupDetails$,
+  );
+  protected readonly loaded$ = this.groupAddEditService.loaded$(
+    this.organization$,
+    this.collections$,
+    this.members$,
+    this.groupDetails$,
+  );
+  protected readonly cannotAddSelfToGroup$ = this.groupAddEditService.cannotAddSelfToGroup$(
+    this.organization$,
+    this.groupDetails$,
+  );
+  protected readonly canAssignAccessToAnyCollection$ = this.organization$.pipe(
+    map((organization) => organization?.canAssignAccessToAnyCollection ?? false),
   );
 
   /**
    * Group details drive both the form patch below and the delete-flow group name; expose as a
    * signal so the template can render `group()?.name` reactively.
    */
-  protected readonly group = toSignal(
-    this.service.groupDetails$(this.organizationId, this.groupId).pipe(takeUntilDestroyed()),
-    { initialValue: undefined },
-  );
+  protected readonly group = toSignal(this.groupDetails$.pipe(takeUntilDestroyed()), {
+    initialValue: undefined,
+  });
 
   private readonly collections = toSignal(this.collections$.pipe(takeUntilDestroyed()), {
     initialValue: [] as AccessItemView[],
@@ -139,7 +153,7 @@ export class GroupEditDialogComponent {
       return;
     }
 
-    await this.service.save(this.groupForm, this.organizationId, this.groupId);
+    await this.groupAddEditService.save(this.groupForm, this.organizationId, this.groupId);
     await this.dialogRef.close(GroupAddEditDialogResultType.Saved);
   };
 
@@ -148,7 +162,7 @@ export class GroupEditDialogComponent {
     if (group == null) {
       return false;
     }
-    const deleted = await this.service.confirmAndDelete(
+    const deleted = await this.groupAddEditService.confirmAndDelete(
       this.organizationId,
       this.groupId,
       group.name,

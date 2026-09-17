@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { combineLatest, firstValueFrom, map, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, of, shareReplay, startWith, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -102,7 +102,10 @@ export class BulkCollectionsDialogComponent {
     this.organizationUserApiService.getAllMiniUserDetails(this.params.organizationId),
   ]).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
-  protected readonly loading$ = this.formData$.pipe(map((formData) => formData == null));
+  protected readonly loading$ = this.formData$.pipe(
+    map(() => false),
+    startWith(true),
+  );
   protected readonly accessItems$ = this.formData$.pipe(
     map((formData) => {
       if (formData == null) {

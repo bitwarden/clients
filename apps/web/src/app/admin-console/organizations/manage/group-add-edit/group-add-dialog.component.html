@@ -1,5 +1,5 @@
 <form [formGroup]="groupForm" [bitSubmit]="submit" bit-dialog dialogSize="large">
-  <span bitDialogTitle>{{ title }}</span>
+  <span bitDialogTitle>{{ title() }}</span>
   <div bitDialogContent>
     @if (loaded$ | async) {
       <bit-tab-group [(selectedIndex)]="tabIndex">

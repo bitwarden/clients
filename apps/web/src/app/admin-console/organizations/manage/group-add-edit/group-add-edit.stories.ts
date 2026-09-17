@@ -240,8 +240,8 @@ export const EditGroup: EditStory = {
  * Group provisioned through Directory Connector — the read-only External ID field is shown on the
  * Group info tab with a copy button.
  */
-export const EditGroupWithExternalId: Story = {
-  render: makeRender(
+export const EditGroupWithExternalId: EditStory = {
+  render: makeEditRender(
     { organizationId: ORG_ID, groupId: GROUP_ID },
     mockOrganization(),
     mockGroupDetailsWithExternalId,

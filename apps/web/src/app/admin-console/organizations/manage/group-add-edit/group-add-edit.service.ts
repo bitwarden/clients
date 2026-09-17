@@ -132,41 +132,24 @@ export class GroupAddEditService {
     );
   }
 
-  allowAdminAccessToAllCollectionItems$(organizationId: string): Observable<boolean> {
-    return this.organization$(organizationId).pipe(
-      map((organization) => organization?.allowAdminAccessToAllCollectionItems ?? false),
-    );
-  }
-
-  canAssignAccessToAnyCollection$(organizationId: string): Observable<boolean> {
-    return combineLatest([
-      this.organization$(organizationId),
-      this.allowAdminAccessToAllCollectionItems$(organizationId),
-    ]).pipe(
+  cannotAddSelfToGroup$(
+    organization$: Observable<Organization | undefined>,
+    groupDetails$: Observable<AddEditGroupDetail | undefined>,
+  ): Observable<boolean> {
+    return combineLatest([organization$, groupDetails$]).pipe(
       map(
-        ([org, allowAdminAccessToAllCollectionItems]) =>
-          org != null &&
-          (org.canEditAnyCollection ||
-            // Manage Groups custom permission cannot edit any collection but they can assign
-            // access from this dialog if permitted by collection management settings.
-            (org.permissions.manageGroups && allowAdminAccessToAllCollectionItems)),
+        ([organization, groupDetails]) =>
+          !(organization?.allowAdminAccessToAllCollectionItems ?? false) && groupDetails != null,
       ),
     );
   }
 
-  cannotAddSelfToGroup$(organizationId: string, groupId?: string): Observable<boolean> {
-    return combineLatest([
-      this.allowAdminAccessToAllCollectionItems$(organizationId),
-      this.groupDetails$(organizationId, groupId),
-    ]).pipe(map(([allowAdminAccess, groupDetails]) => !allowAdminAccess && groupDetails != null));
-  }
-
-  collectionAccessItems$(organizationId: string, groupId?: string): Observable<AccessItemView[]> {
-    return combineLatest([
-      this.orgCollections$(organizationId),
-      this.organization$(organizationId),
-      this.groupDetails$(organizationId, groupId),
-    ]).pipe(
+  collectionAccessItems$(
+    organizationId: string,
+    organization$: Observable<Organization | undefined>,
+    groupDetails$: Observable<AddEditGroupDetail | undefined>,
+  ): Observable<AccessItemView[]> {
+    return combineLatest([this.orgCollections$(organizationId), organization$, groupDetails$]).pipe(
       map(([collections, organization, group]) =>
         organization == null ? [] : this.mapToAccessItemViews(collections, organization, group),
       ),
@@ -178,12 +161,16 @@ export class GroupAddEditService {
    * Members list for the members tab. Excludes the current user when they are not already in
    * the group and are not permitted to add themselves.
    */
-  memberAccessItems$(organizationId: string, groupId?: string): Observable<AccessMemberItemView[]> {
+  memberAccessItems$(
+    organizationId: string,
+    organization$: Observable<Organization | undefined>,
+    groupDetails$: Observable<AddEditGroupDetail | undefined>,
+  ): Observable<AccessMemberItemView[]> {
     return combineLatest([
       this.orgMembers$(organizationId),
-      this.cannotAddSelfToGroup$(organizationId, groupId),
+      this.cannotAddSelfToGroup$(organization$, groupDetails$),
       this.accountService.activeAccount$,
-      this.groupDetails$(organizationId, groupId),
+      groupDetails$,
     ]).pipe(
       map(([members, restrictGroupAccess, activeAccount, group]) => {
         if (!restrictGroupAccess || activeAccount == null) {
@@ -202,12 +189,17 @@ export class GroupAddEditService {
   }
 
   /** Emits `true` once the derived view state has settled and the dialog can render its form. */
-  loaded$(organizationId: string, groupId?: string): Observable<boolean> {
+  loaded$(
+    organization$: Observable<Organization | undefined>,
+    collectionAccessItems$: Observable<AccessItemView[]>,
+    memberAccessItems$: Observable<AccessMemberItemView[]>,
+    groupDetails$: Observable<AddEditGroupDetail | undefined>,
+  ): Observable<boolean> {
     return combineLatest([
-      this.organization$(organizationId),
-      this.collectionAccessItems$(organizationId, groupId),
-      this.memberAccessItems$(organizationId, groupId),
-      this.groupDetails$(organizationId, groupId),
+      organization$,
+      collectionAccessItems$,
+      memberAccessItems$,
+      groupDetails$,
     ]).pipe(
       map(([organization]) => organization != null),
       distinctUntilChanged(),

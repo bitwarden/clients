@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,7 +35,7 @@ import {
 export class GroupAddDialogComponent {
   private readonly params = inject<GroupAddDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef<GroupAddEditDialogResultType>>(DialogRef);
-  private readonly service = inject(GroupAddEditService);
+  private readonly groupAddEditService = inject(GroupAddEditService);
   private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
@@ -50,19 +51,36 @@ export class GroupAddDialogComponent {
   protected readonly ResultType = GroupAddEditDialogResultType;
 
   protected readonly tabIndex = this.params.initialTab ?? GroupAddEditTabType.Info;
-  protected readonly title = this.i18nService.t(
-    this.btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup",
+  protected readonly title = computed(() =>
+    this.i18nService.t(this.btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup"),
   );
-  protected readonly groupForm: GroupFormGroup = this.service.buildForm();
+  protected readonly groupForm: GroupFormGroup = this.groupAddEditService.buildForm();
 
-  protected readonly collections$ = this.service.collectionAccessItems$(this.organizationId);
-  protected readonly members$ = this.service.memberAccessItems$(this.organizationId);
-  protected readonly loaded$ = this.service.loaded$(this.organizationId);
-  protected readonly cannotAddSelfToGroup$ = this.service.cannotAddSelfToGroup$(
+  private readonly organization$ = this.groupAddEditService.organization$(this.organizationId);
+  private readonly groupDetails$ = this.groupAddEditService.groupDetails$(this.organizationId);
+
+  protected readonly collections$ = this.groupAddEditService.collectionAccessItems$(
     this.organizationId,
+    this.organization$,
+    this.groupDetails$,
   );
-  protected readonly canAssignAccessToAnyCollection$ = this.service.canAssignAccessToAnyCollection$(
+  protected readonly members$ = this.groupAddEditService.memberAccessItems$(
     this.organizationId,
+    this.organization$,
+    this.groupDetails$,
+  );
+  protected readonly loaded$ = this.groupAddEditService.loaded$(
+    this.organization$,
+    this.collections$,
+    this.members$,
+    this.groupDetails$,
+  );
+  protected readonly cannotAddSelfToGroup$ = this.groupAddEditService.cannotAddSelfToGroup$(
+    this.organization$,
+    this.groupDetails$,
+  );
+  protected readonly canAssignAccessToAnyCollection$ = this.organization$.pipe(
+    map((organization) => organization?.canAssignAccessToAnyCollection ?? false),
   );
 
   readonly submit = async (): Promise<void> => {
@@ -81,7 +99,7 @@ export class GroupAddDialogComponent {
       return;
     }
 
-    await this.service.save(this.groupForm, this.organizationId);
+    await this.groupAddEditService.save(this.groupForm, this.organizationId);
     await this.dialogRef.close(GroupAddEditDialogResultType.Saved);
   };
 }

@@ -108,7 +108,6 @@ export default {
   component: GroupsComponent,
   decorators: [
     moduleMetadata({
-      declarations: [GroupsComponent],
       imports: [
         SharedOrganizationModule,
         StubHeaderComponent,
@@ -118,6 +117,7 @@ export default {
         IconModule,
         Vfo1IconPipe,
         Vfo1I18nPipe,
+        GroupsComponent,
       ],
       providers: [
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
