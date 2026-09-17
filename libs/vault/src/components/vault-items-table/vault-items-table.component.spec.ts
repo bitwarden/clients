@@ -1879,6 +1879,53 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBar.selected()).toEqual([]);
     });
 
+    // The header checkbox is a user-mutated DOM node, and Angular writes a binding only when its
+    // value changes — so these assert the rendered `input`, not just the model aggregates.
+    describe("header checkbox DOM", () => {
+      const header = (): HTMLInputElement =>
+        fixture.nativeElement.querySelector('bit-header-row input[type="checkbox"]');
+
+      const setRows = (count: number) => {
+        fixture.componentRef.setInput(
+          "ciphers",
+          Array.from({ length: count }, (_, i) => cipherView({ id: `c${i}`, name: `Item ${i}` })),
+        );
+        fixture.detectChanges();
+      };
+
+      it("unchecks when a capped select-all is cleared from the batch bar", () => {
+        setRows(MAX_SELECTION_COUNT + 1);
+
+        header().click();
+        fixture.detectChanges();
+        expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
+
+        batchBar.source()!.clear();
+        fixture.detectChanges();
+
+        expect(header().checked).toBe(false);
+        expect(header().indeterminate).toBe(false);
+      });
+
+      it("checks when select-all runs from a partial selection", () => {
+        setRows(6);
+
+        const firstRow: HTMLInputElement = fixture.nativeElement.querySelector(
+          "bit-row input[data-selection-input]",
+        );
+        firstRow.click();
+        fixture.detectChanges();
+        expect(header().indeterminate).toBe(true);
+
+        header().click();
+        fixture.detectChanges();
+
+        expect(selectionModel().count()).toBe(6);
+        expect(header().checked).toBe(true);
+        expect(header().indeterminate).toBe(false);
+      });
+    });
+
     it("keeps the batch bar in agreement after rows are re-emitted", () => {
       fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
       fixture.detectChanges();
