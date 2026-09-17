@@ -21,7 +21,11 @@ import {
   FilterDialogComponent,
   FilterDialogParams,
 } from "../../filter-menu/filter-dialog.component";
-import { FILTER_PRESENTER, FilterPresenter } from "../../filter-menu/filter-tokens";
+import {
+  FILTER_PRESENTER,
+  FilterPresenter,
+  FilterSelection,
+} from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
 import {
   OverflowItemDirective,
@@ -210,6 +214,14 @@ export class BitTableToolbarComponent {
   protected appliedLabel(filter: FilterPresenter): string {
     const summary = filter.summary();
     return summary ? `${filter.label()}: ${summary}` : filter.label();
+  }
+
+  /**
+   * A per-option chip's `filter: option` label, used as both its tooltip and its accessible
+   * name. Built here rather than in the template so no whitespace lands around the colon.
+   */
+  protected accessibleLabel(filter: FilterPresenter, selection: FilterSelection): string {
+    return `${filter.label()}: ${selection.label}`;
   }
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
