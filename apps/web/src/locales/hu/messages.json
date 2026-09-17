@@ -1275,6 +1275,9 @@
   "foldersFilterTooltip": {
     "message": "Adjunk hozzá mappákat az elemekhez az itteni szűréshez."
   },
+  "myItemsFilterTooltip": {
+    "message": "Adjunk hozzá elemeket a Saját elemekhez az itteni szűréshez."
+  },
   "sharedFolderFilterTooltip": {
     "message": "Elemek hozzáadása egy megosztott mappához a szűréshez itt."
   },
@@ -1700,6 +1703,14 @@
     "message": "Felhasználónév másolása",
     "description": "Copy username to clipboard"
   },
+  "copyExternalId": {
+    "message": "Külső azonosító másolása",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "SSO külső azonosító másolása",
+    "description": "Copy SSO external ID to clipboard"
+  },
   "copyNumber": {
     "message": "Szám másolása",
     "description": "Copy credit card number"
@@ -1917,11 +1928,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 találat",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ találat",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1931,7 +1942,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "Nincs egyező szűrő: \"$SEARCH$“",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -3901,7 +3912,7 @@
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictedItemTypePolicyDescListVfo1": {
-    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
+    "message": "Ne engedjük meg a tagoknak, hogy kártya elemeket hozzanak létre és tároljanak. A meglévő kártyák rejtve maradnak."
   },
   "restrictCardTypeImport": {
     "message": "A kártya elem típusokat nem lehet importálni."
@@ -4685,6 +4696,15 @@
   "reinstateSubscription": {
     "message": "Előfizetés visszaállítása"
   },
+  "keepSubscription": {
+    "message": "Előfizetés megtartása"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Az előfizetés lejárt és hamarosan szüneteltetésre kerül."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Az előfizetés lejárt és szünetel."
+  },
   "reinstateConfirmation": {
     "message": "Biztosan eltávolításra kerüljön a függőben levő törlés kérés és visszaállításra kerüljön az előfizetés?"
   },
@@ -5418,10 +5438,6 @@
   },
   "collectionInfo": {
     "message": "Gyűjtemény adatok"
-  },
-  "sharedFolderInfo": {
-    "message": "Megosztott mappa infó",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Biztosan törlésre kerüljön ez a gyűjtemény?"
@@ -7480,6 +7496,9 @@
   "inviteLinkRegenerated": {
     "message": "A meghívó hivatkozás ismételten generálásra került."
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "A meghívó hivatkozás frissítésre került."
+  },
   "regenerateInviteLink": {
     "message": "Meghívó hivatkozás ismételt generálása"
   },
@@ -7502,43 +7521,43 @@
     "message": "Kikapcsolási hivatkozás"
   },
   "requireAdminConfirmation": {
-    "message": "Require admin confirmation"
+    "message": "Adminisztrátori megerősítés szükséges."
   },
   "requireAdminConfirmationHint": {
-    "message": "An admin must manually approve new members before they’re added to the organization vault."
+    "message": "Az adminisztrátornak manuálisan kell jóváhagynia az új tagokat a szervezeti széfhez hozzáadás előtt."
   },
   "setYourAllowedDomains": {
-    "message": "Set your allowed domains"
+    "message": "Állítsuk be az engedélyezett tartományokat."
   },
   "setYourAllowedDomainsCoachMarkBody": {
-    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+    "message": "Engedélyezett email tartományok hozzáadása (például acme.com), így csak az egyező emailekkel rendelkező felhasználók használhatják ezt a meghívó hivatkozást. Ez bármikor frissíthető."
   },
   "adjustTheLink": {
-    "message": "Adjust the link"
+    "message": "Hivatkozás beállítása"
   },
   "adjustTheLinkCoachMarkBody": {
-    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+    "message": "Az igények változnak és a hivatkozás ezzel együtt változhat. A hivatkozás <strong>újragenerálása</strong> érvényteleníteni a régi hivatkozást és egy újat hoz létre."
   },
   "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
+    "message": "Az igények változnak és a hivatkozás ezzel együtt változhat."
   },
   "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+    "message": "<strong>Generáljuk újra</strong> a hivatkozást a régi hivatkozás érvénytelenítéséhez és egy új létrehozásához."
   },
   "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+    "message": "<strong>Szükséges az adminisztrátori megerősítés</strong> az új tagok jóváhagyásához a szervezethez csatlakozásuk előtt."
   },
   "shareTheLinkAnywhere": {
-    "message": "Share the link anywhere"
+    "message": "Osszuk meg a hivatkozást bárhol."
   },
   "shareTheLinkAnywhereCoachMarkBody": {
-    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+    "message": "Másoljuk ki és illesszük be a hivatkozást, ahol csapat megtalálja azt: a beállítási ellenőrzőlistát, egy Slack #new-joiners csatornát, Notion dokumentumokat vagy egy email sablont."
   },
   "viewBitwardenOnboardingGuide": {
-    "message": "View Bitwarden onboarding guide"
+    "message": "Bitwarden beüzemelési útmutató megtekintése"
   },
   "coachMarkStepOfTotal": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ / $TOTAL$",
     "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
     "placeholders": {
       "current": {
@@ -7550,10 +7569,13 @@
     }
   },
   "finish": {
-    "message": "Finish"
+    "message": "Befejezés"
   },
   "inviteByLinkDesc": {
     "message": "Hívjunk meg tagokat a szervezetbe egy hivatkozással. Ha még nincs megadva szerepkör, akkor alapértelmezett felhasználóként kerülnek hozzáadásra."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "A meghívó hivatkozás használata biztonsági kockázatot jelenthet saját üzemeltetésű környezetben, mivel a felhasználóknak nem kell ellenőrizniük az emailjeiket."
   },
   "byContinuingYouAgreeToThe": {
     "message": "A folytatással elfogadjuk"
@@ -7867,7 +7889,7 @@
     "message": "Válasszunk ki egy minimális követelmény készletet bármely tag által generált jelszóhoz."
   },
   "passwordGeneratorPolicyDescListVfo1": {
-    "message": "Set minimum requirements for any member-generated passwords."
+    "message": "Állatsuk be a minimális követelményeket bármely tag által generált jelszóhoz."
   },
   "generatedPassword": {
     "message": "Generált jelszó"
@@ -7921,7 +7943,7 @@
     "message": "Szavak minimális száma"
   },
   "overridePasswordTypePolicyV2": {
-    "message": "Password type",
+    "message": "Jelszótípus",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -8125,7 +8147,7 @@
     "message": "Korlátozza a felhasználókat más szervezetekhez csatlakozásban."
   },
   "singleOrgPolicyDescListVfo1": {
-    "message": "Members cannot join other organization vaults."
+    "message": "A tagok nem csatlakozhatnak más szervezeti széfekhez."
   },
   "singleOrgPolicyDescV2": {
     "message": "Ezen szervezet tagjai nem csatlakozhatnak más szervezetekhez. A más szervezetekhez tartozó meglévő tagok hozzáférése visszavonásra kerül, ha ez a szabályzat engedélyezve van. Ez a házirend nem érvényesül a tulajdonosok és az adminisztrátorok számára."
@@ -8148,7 +8170,7 @@
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListV2Vfo1": {
-    "message": "Require members to log in using SSO.",
+    "message": "Követeljük meg a tagoktól, hogy SSO használatával jelentkezzenek be.",
     "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
@@ -8568,7 +8590,7 @@
     "message": "Az összes tagi elem a szervezet tulajdonában és kezelésében lesz. Az adminisztrátorok és a tulajdonosok mentesülnek. "
   },
   "centralizeDataOwnershipDescListVfo1": {
-    "message": "All member items will be owned and managed by the organization."
+    "message": "Minden tagi elem a szervezet tulajdonában és kezelésében lesz."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "További információ a központosított tulajdonról",
@@ -8807,7 +8829,7 @@
     "message": "Asztali autotípia engedélyezése a tagok számára. A tagok manuálisan kikapcsolhatják az autotipizálást az asztali kliensben."
   },
   "desktopAutotypePolicyDescVfo1": {
-    "message": "Enable desktop autotype for members."
+    "message": "Asztali autotípia engedélyezése a tagok számára."
   },
   "disableSend": {
     "message": "Send letiltása"
@@ -8853,20 +8875,20 @@
   "sendControls": {
     "message": "Send vezérlések"
   },
-  "manageSend": {
-    "message": "Send elemek kezelése",
+  "manageSendV2": {
+    "message": "Send elem kezelése és megosztás",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Állítsuk be a Send elemek létrehozásának és szerkesztésének opcióit, beleértve a Send elemek eltávolításának lehetőségét.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Kezeljük, hogy a tagok hogyan használják a Send szolgáltatást. Ez a házirend a házirend bekapcsolása után létrehozott Send elemekre vonatkozik. Az adminisztrátorok és a tulajdonosok mentesülnek a szabály alól.",
+  "sendControlsPolicyDescV5": {
+    "message": "Kezeljük, hogy a tagok hogyan használják a széf elemek Send szolgáltatását és megosztását. Ez a házirend nem érvényesül a tulajdonosok és az adminisztrátorok számára.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
-    "message": "Manage how members use Send.",
+    "message": "Kezeljük, hogy a tagok hogyan használják a Send szolgáltatást.",
     "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -9325,7 +9347,7 @@
     "message": "Fiók-helyreállítási adminisztráció"
   },
   "accountRecoveryPolicyDescListVfo1": {
-    "message": "Allow admins to help members regain access to their accounts."
+    "message": "Engedélyezzük az adminisztrátoroknak, hogy segítsenek a tagoknak visszaszerezni a fiókat."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "A házirend aktiválása előtt be kell kapcsolni az önálló szervezet Vállalati házirendjét."
@@ -9533,16 +9555,25 @@
   "decryptionError": {
     "message": "Visszafejtési hiba"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  "couldNotDecryptVaultItem": {
+    "message": "A Bitwarden nem tudta visszafejteni a lentebb felsorolt széf elemet. Lépjünk kapcsolatba a Bitwarden ügyfélszolgálatával és adjuk meg az alábbi elem azonosítót, hogy megtudjuk, helyreállítható-e."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Ügyfélszolgálat elérése",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "A Bitwarden nem tudta visszafejteni a lentebb felsorolt széf elemeket. Lépjünk kapcsolatba a Bitwarden ügyfélszolgálatával és adjuk meg az alábbi elemek azonosítót, hogy megtudjuk, helyreállíthatók-e."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "további adatvesztés elkerülése érdekében.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Elem azonosító",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Elem azonosítók",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Azonosító másolása"
+  },
+  "copyAllIds": {
+    "message": "Összes azonosító másolása"
   },
   "accountRecoveryManageUsers": {
     "message": "A felhasználók kezelését engedélyezni kell a Jelszó visszaállításának kezelése jogosultsággal is."
@@ -9725,7 +9756,7 @@
     "message": "Állítsunk be egy maximális munkamenet időtúllépést minden tag számára a tulajdonosokat kivéve."
   },
   "sessionTimeoutPolicyDescriptionListVfo1": {
-    "message": "Set a maximum session timeout for members."
+    "message": "Állítsunk be maximális munkamenet időtúllépést a tagoknak."
   },
   "maximumAllowedTimeout": {
     "message": "Maximálisan engedélyezett időkifutás"
@@ -9860,7 +9891,7 @@
     "message": "Bekapcsolja az automatikus kitöltést az oldalbetöltési beállításokkal a böngésző bővítményben minden meglévő és új tag esetében."
   },
   "activateAutofillPolicyDescriptionListVfo1": {
-    "message": "Enable autofill on page load setting in the browser extension for all members."
+    "message": "Bekapcsolja az automatikus kitöltést az oldalbetöltési beállításokkal a böngésző bővítményben minden tag esetében."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Az automatikus kitöltés engedélyezése az oldalbetöltés beállításánál a böngésző bővítményben az összes meglévő és új tag esetében. Legyünk tudatában annak, hogy a veszélyeztetett vagy megbízhatatlan webhelyek képesek"
@@ -10631,7 +10662,7 @@
     "description": "Generates domain-based username using random letters"
   },
   "websiteName": {
-    "message": "Website name",
+    "message": "Webhelynév",
     "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
@@ -10919,18 +10950,6 @@
   "scimLearnMore": {
     "message": "Bővebben a SCIM-ről"
   },
-  "scimIntegrationDescription": {
-    "message": "A felhasználók és csoportok automatikusan biztosítása a kívánt identitás szolgáltatóval a SCIM szolgáltatáson keresztül. Támogatott integrációk keresése",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "SCIM engedélyezése",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Állítsuk be a kívánt azonosító szolgáltatót a webcím és a SCIM API kulcs konfigurálásával.",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Ez az API kulcs hozzáféréssel rendelkezik a szervezeten belüli felhasználók kezeléséhez. Célszerű titokban tartani."
   },
@@ -11095,7 +11114,7 @@
     }
   },
   "tooManyEmailsForRemainingSeats": {
-    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "message": "Csak $COUNT$ hely maradt. Távolítsunk el egy email címet vagy frissítsük a csomagot.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -11277,6 +11296,48 @@
   },
   "hardDeleteSecrets": {
     "message": "A titkos kulcsok végleges törlése"
+  },
+  "currentVersion": {
+    "message": "Aktuális verzió",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Módosítva: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "A titkos kód érték másolásra került.",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "A titkos kód visszaállításra került a kiválasztott verzióra.",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Titkos kód visszaállítása",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Biztosan vissza szeretnénk állítani ezt a titkos kódot a kiválasztott verzióra? A jelenlegi érték lecserélődik.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Előző verziók",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Verziótörténet",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Nincs verziótörténet.",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Válasszzuk ki azokat a projekteket, amelyekhez a titkos kód társítva lesz. Csak az ezekhez a projektekhez hozzáféréssel rendelkező szervezeti felhasználók láthatják a titkos kódot.",
@@ -11934,7 +11995,7 @@
     "message": "Termékváltás"
   },
   "seatLimitReachedContactOwner": {
-    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",
+    "message": "$SEATCOUNT$ hely korlát elérésre került. A csomag frissítéséhez lépjünk kapcsolatba a szervezet tulajdonosával.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12457,6 +12518,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Biztosan visszaállításra kerüljenek ezek a titkos kulcsok?"
+  },
+  "restoreThisVersion": {
+    "message": "Ezen verzió visszaállítása"
   },
   "secretRestoredSuccessToast": {
     "message": "A titkos kulcs visszaállításra került."
@@ -13271,7 +13335,7 @@
     "message": "Váratlan hiba történt a Send betöltésekor. Próbáljuk újra később."
   },
   "seatLimitReachedContactProvider": {
-    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your provider to purchase additional seats.",
+    "message": "$SEATCOUNT$ hely korlát elérésre került. További helyek vásárlásához lépjünk kapcsolatba szolgáltatóval.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -15025,7 +15089,7 @@
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipDescV2Vfo1": {
-    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
+    "message": "Ne engedjük meg a tagoknak, hogy beváltsák a szervezet által szponzorált Családi csomagot."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "A bankszámlával történő fizetés csak az Egyesült Államokban élő ügyfelek számára érhető el. A bankszámlát igazolni kell. A fejlesztők a következő 1-2 munkanapon belül mikrobetétet teljesítenek. A bankszámla ellenőrzéséhez írjuk be az utalás leíró kódját a szervezet számlázási oldalán. Ha elmulasztjuk a bankszámla igazolását, az a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
@@ -15478,7 +15542,7 @@
     "message": "Feloldás eltávolítása PIN kóddal"
   },
   "removeUnlockWithPinPolicyTitleVfo1": {
-    "message": "Remove unlock with PIN"
+    "message": "Feloldás eltávolítása PIN kóddal"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "A tagok nem oldhatják fel a fiókjuk zárolását PIN kóddal."
@@ -17152,7 +17216,7 @@
     "message": "A házirend aktiválása előtt be kell kapcsolni az onálló szervezet házirendjét."
   },
   "singleOrgPrerequisiteVfo1": {
-    "message": "The single organization membership policy must be turned on before activating this policy."
+    "message": "Az önálló szervezeti tagsági szabályzatot be kell kapcsolni a szabályzat aktiválása előtt."
   },
   "enableBanner": {
     "message": "Hirdetőtábla engedélyezése"
@@ -17686,5 +17750,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Hívjuk meg az egész csapatot egyetlen hivatkozással"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Bárki, aki rendelkezik vállalati email címmel, használhatja a meghívó hivatkozást, hogy csatlakozzon szervezethez. Dobjuk be a beépített erőforrásokba, hogy az új alkalmazottak csatlakozhassanak, amikor készen állnak."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "A tagok meghívása párbeszédpanel előnézete, amely az új hivatkozási fület mutatja."
+  },
+  "showMeHow": {
+    "message": "Hogyan történik"
+  },
+  "shareVerb": {
+    "message": "Megosztás"
+  },
+  "peopleWhoCanView": {
+    "message": "Akik megtekinthetik",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "A hivatkozás megosztása után a címzetteknek ellenőrizniük kell emailjüket egy kóddal az elem megtekintéséhez.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Ez a hivatkozás ezen időpont után lejár, de a címzettek megtarthatják a korábban megosztott információkat. A hozzáférés visszavonásához állítsuk vissza a hitelesítő adatokat.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "A hivatkozás lejárata",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Egyszeri megosztás",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktív hivatkozások",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "A hivatkozás vágólapra került.",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nem lehet létrehozni megosztási hivatkozást.",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "A hivatkozás mentésre és vágólapra került.",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nem sikerült a megosztási hivatkozást a vágólapra másolni.",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "A megosztott hivatkozás törlésre került.",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "A megosztási hivatkozást törlése nem sikerült.",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Megosztás hivatkozással",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Megosztás $ITEM$ széf elemre",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Lejárat",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ a következő elemet osztotta meg.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "kiegészítő szolgáltatás fiókok"
+  },
+  "additionalStorageGbLower": {
+    "message": "kiegészítő tárhely GB"
+  },
+  "membersLower": {
+    "message": "tagok"
+  },
+  "memberLower": {
+    "message": "tag"
+  },
+  "annualLower": {
+    "message": "éves"
+  },
+  "monthlyLower": {
+    "message": "havi"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ előfizetés",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Megtartás és újra aktiválás"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Az előfizetés már aktív."
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Ez visszavonja a lemondási kérelmet és újraaktiválja az előfizetést."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Az előfizetés részletei nem töltődnek be."
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "A számlázási szolgáltatás nem érhető el, ezért most nem lehet megjeleníteni az előfizetést és az árakat. Magát az előfizetését ez nem érinti."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Jelszó kezelő arányos díj"
+  },
+  "storageProratedCharge": {
+    "message": "Tárolás arányos díj"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Titkos kód kezelő arányos díj"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Szolgáltatás fiókok arányos díj"
   }
 }
