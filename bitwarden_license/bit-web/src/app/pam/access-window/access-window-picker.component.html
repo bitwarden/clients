@@ -1,0 +1,388 @@
+<div class="tw-flex tw-flex-col tw-gap-3" (focusout)="markTouched()">
+  <!--
+    Start and End on one row, because that is what they are: the two ends of a single range.
+    Stacked they read as two unrelated questions, and the eye has to travel down and back to
+    compare them. `flex-wrap` puts them back on separate lines when the card is too narrow to
+    hold both, which is what happens on the browser extension and once the End drops to Custom.
+
+    A `group` rather than a bare div: the caption above each pair is visual grouping only, so
+    without this a screen reader meets four unrelated buttons with no shared context.
+  -->
+  <div
+    role="group"
+    [attr.aria-label]="'pamAccessWindowLabel' | i18n"
+    class="tw-flex tw-flex-wrap tw-items-start tw-gap-x-6 tw-gap-y-3"
+  >
+    <!-- START --------------------------------------------------------------- -->
+    <div class="tw-flex tw-flex-col tw-gap-1">
+      <span bitTypography="helper" class="tw-font-semibold tw-text-fg-heading">
+        {{ "pamAccessWindowStart" | i18n }}
+      </span>
+
+      <!--
+        The accessible name for each control below, carried once and outside the mode branches so
+        the id stays stable across them. The visible caption cannot do this job: it names the pair,
+        and "Start" alone does not say whether a control holds the day or the time.
+      -->
+      <span id="access-window-start-day-label" class="tw-sr-only">
+        {{ "startDate" | i18n }}
+      </span>
+      <span id="access-window-start-time-label" class="tw-sr-only">
+        {{ "pamAccessWindowStartTime" | i18n }}
+      </span>
+
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <!--
+          Day: the calendar, always. There is no menu of named days in front of it — see the
+          class doc; the grid rests on today, which is what the overwhelming majority of starts
+          are, and reading a date off a grid is what the requester came to do for the rest.
+        -->
+        <button
+          id="access-window-start-day"
+          type="button"
+          [class]="triggerClasses()"
+          [disabled]="disabled()"
+          [bitMenuTriggerFor]="startCalendar"
+          (click)="openCalendar()"
+          aria-labelledby="access-window-start-day-label access-window-start-day"
+          [attr.aria-invalid]="ariaInvalid()"
+          [attr.aria-describedby]="ariaErrorId()"
+          data-testid="access-window-start-day"
+        >
+          <span class="tw-truncate">{{ startDayLabel() }}</span>
+          <bit-icon name="bwi-angle-down" class="tw-shrink-0 tw-text-xs" />
+        </button>
+        <bit-menu #startCalendar ariaRole="dialog" [ariaLabel]="'pamAccessWindowPickADay' | i18n">
+          <app-pam-day-picker
+            [selected]="startDate()"
+            [today]="referenceDay()"
+            [resetOn]="calendarOpens()"
+            (daySelected)="selectStartDay($event)"
+          />
+        </bit-menu>
+
+        <!-- Time: either the suggestion menu, or the typed field it hands off to -->
+        @if (startTimeMode() === "suggested") {
+          <button
+            id="access-window-start-time"
+            type="button"
+            [class]="triggerClasses()"
+            [disabled]="disabled()"
+            [bitMenuTriggerFor]="startTimeMenu"
+            (click)="refreshClock()"
+            aria-labelledby="access-window-start-time-label access-window-start-time"
+            [attr.aria-invalid]="ariaInvalid()"
+            [attr.aria-describedby]="ariaErrorId()"
+            data-testid="access-window-start-time"
+          >
+            <bit-icon name="bwi-clock" class="tw-shrink-0 tw-text-fg-body-subtle" />
+            <span class="tw-truncate">{{ startTimeLabel() }}</span>
+            <!-- The relative reading the End trigger's span is the counterpart of. -->
+            @if (startTimeDetail(); as detail) {
+              <span class="tw-shrink-0 tw-text-xs tw-text-fg-body-subtle">· {{ detail }}</span>
+            }
+            <bit-icon name="bwi-angle-down" class="tw-shrink-0 tw-text-xs" />
+          </button>
+          <bit-menu #startTimeMenu>
+            <!--
+              Capped and scrolled rather than shortened: the grid across a day is up to 48
+              half-hour slots, which is the granularity a requester expects from a scheduler, but
+              an uncapped menu of them runs off the viewport. Custom sits in the menu's footer so
+              it stays reachable without scrolling to the bottom of the day.
+            -->
+            <div class="tw-flex tw-max-h-72 tw-flex-col tw-gap-1 tw-overflow-y-auto">
+              @for (row of startRows(); track row.key) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="selectStartTime(row)"
+                  [attr.aria-current]="row.key === startMs() ? 'true' : null"
+                >
+                  <span class="tw-flex tw-items-baseline tw-gap-2">
+                    <span [class.tw-font-bold]="row.key === startMs()">{{ row.time }}</span>
+                    @if (row.detail) {
+                      <span class="tw-text-xs tw-text-fg-body-subtle">{{ row.detail }}</span>
+                    }
+                  </span>
+                </button>
+              }
+            </div>
+            <button slot="footer" type="button" bitMenuItem (click)="useCustomStartTime()">
+              {{ "pamAccessWindowCustom" | i18n }}
+            </button>
+          </bit-menu>
+        } @else {
+          <div [class]="affixBoxClasses()">
+            <input
+              #startTimeInput
+              id="access-window-start-time"
+              type="time"
+              [class]="affixedClasses"
+              [value]="startTime()"
+              [disabled]="disabled()"
+              (change)="setCustomStartTime($event)"
+              aria-labelledby="access-window-start-time-label"
+              [attr.aria-invalid]="ariaInvalid()"
+              [attr.aria-describedby]="ariaErrorId()"
+              data-testid="access-window-start-time-custom"
+            />
+            <button
+              type="button"
+              bitIconButton="bwi-list"
+              size="small"
+              [label]="'pamAccessWindowSuggestions' | i18n"
+              [disabled]="disabled()"
+              (click)="useSuggestedStartTime()"
+              data-testid="access-window-start-time-suggestions"
+            ></button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- END ----------------------------------------------------------------- -->
+    <div class="tw-flex tw-flex-col tw-gap-1">
+      <!--
+        This caption doubles as the programmatic name for the combined trigger below it, which
+        holds a whole instant rather than a time: "End time" would be a narrower promise than the
+        control keeps once its value carries a day.
+      -->
+      <span
+        id="access-window-end-label"
+        bitTypography="helper"
+        class="tw-font-semibold tw-text-fg-heading"
+      >
+        {{ "pamAccessWindowEnd" | i18n }}
+      </span>
+
+      <span id="access-window-end-day-label" class="tw-sr-only">
+        {{ "endDate" | i18n }}
+      </span>
+      <span id="access-window-end-time-label" class="tw-sr-only">
+        {{ "pamAccessWindowEndTime" | i18n }}
+      </span>
+
+      @if (endMode() === "suggested") {
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+          <button
+            id="access-window-end"
+            type="button"
+            [class]="triggerClasses()"
+            [disabled]="disabled() || start() === null"
+            [bitMenuTriggerFor]="endMenu"
+            (click)="refreshClock()"
+            aria-labelledby="access-window-end-label access-window-end"
+            [attr.aria-invalid]="ariaInvalid()"
+            [attr.aria-describedby]="ariaErrorId()"
+            data-testid="access-window-end"
+          >
+            <bit-icon name="bwi-clock" class="tw-shrink-0 tw-text-fg-body-subtle" />
+            <span class="tw-truncate">{{ endLabel() }}</span>
+            @if (endSpanLabel(); as span) {
+              <span class="tw-shrink-0 tw-text-xs tw-text-fg-body-subtle">· {{ span }}</span>
+            }
+            <bit-icon name="bwi-angle-down" class="tw-shrink-0 tw-text-xs" />
+          </button>
+          <bit-menu #endMenu>
+            <div class="tw-flex tw-max-h-72 tw-flex-col tw-gap-1 tw-overflow-y-auto">
+              @for (row of endRows(); track row.key) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="selectEnd(row)"
+                  [attr.aria-current]="row.key === endMs() ? 'true' : null"
+                >
+                  <span class="tw-flex tw-items-baseline tw-gap-2">
+                    <span [class.tw-font-bold]="row.key === endMs()">
+                      {{ row.day ? row.day + ", " + row.time : row.time }}
+                    </span>
+                    @if (row.detail) {
+                      <span class="tw-text-xs tw-text-fg-body-subtle">{{ row.detail }}</span>
+                    }
+                  </span>
+                </button>
+              } @empty {
+                <!--
+                  Reachable, not defensive: every end is filtered to "after the start, still
+                  ahead of now, inside the cap", and those go contradictory once the clock passes
+                  the start's own cap — a form left open long enough gets here.
+                -->
+                <p
+                  bitTypography="helper"
+                  class="tw-m-0 tw-px-2 tw-py-1 tw-text-fg-body-subtle"
+                  data-testid="access-window-end-empty"
+                >
+                  {{ "pamAccessWindowNoEndsAvailable" | i18n }}
+                </p>
+              }
+            </div>
+            <button slot="footer" type="button" bitMenuItem (click)="useCustomEnd()">
+              {{ "pamAccessWindowCustom" | i18n }}
+            </button>
+          </bit-menu>
+        </div>
+      } @else {
+        <!--
+          Custom on the End side opens the day/time pair the Start side carries, with the day
+          already on its calendar: the only reason to be here is an end the merged list doesn't
+          reach, and that is almost always a different day.
+        -->
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+          <!--
+            The calendar is bounded at both ends: an end before the start is not a window, and one
+            past the cap is not a window this rule grants. The days outside that range are
+            disabled rather than absent, so the grid still reads as a calendar.
+          -->
+          <button
+            #endCalendarTrigger
+            id="access-window-end-day"
+            type="button"
+            [class]="triggerClasses()"
+            [disabled]="disabled()"
+            [bitMenuTriggerFor]="endCalendar"
+            (click)="openCalendar()"
+            aria-labelledby="access-window-end-day-label access-window-end-day"
+            [attr.aria-invalid]="ariaInvalid()"
+            [attr.aria-describedby]="ariaErrorId()"
+            data-testid="access-window-end-day"
+          >
+            <span class="tw-truncate">{{ endDayLabel() }}</span>
+            <bit-icon name="bwi-angle-down" class="tw-shrink-0 tw-text-xs" />
+          </button>
+          <bit-menu #endCalendar ariaRole="dialog" [ariaLabel]="'pamAccessWindowPickADay' | i18n">
+            <app-pam-day-picker
+              [selected]="endDate()"
+              [today]="referenceDay()"
+              [earliest]="start()"
+              [latest]="latestEnd()"
+              [resetOn]="calendarOpens()"
+              (daySelected)="setEndDate($event)"
+            />
+          </bit-menu>
+
+          <!-- End time -->
+          @if (endTimeMode() === "suggested") {
+            <button
+              id="access-window-end-time"
+              type="button"
+              [class]="triggerClasses()"
+              [disabled]="disabled()"
+              [bitMenuTriggerFor]="endTimeMenu"
+              (click)="refreshClock()"
+              aria-labelledby="access-window-end-time-label access-window-end-time"
+              [attr.aria-invalid]="ariaInvalid()"
+              [attr.aria-describedby]="ariaErrorId()"
+              data-testid="access-window-end-time"
+            >
+              <bit-icon name="bwi-clock" class="tw-shrink-0 tw-text-fg-body-subtle" />
+              <span class="tw-truncate">{{ endTimeLabel() }}</span>
+              <bit-icon name="bwi-angle-down" class="tw-shrink-0 tw-text-xs" />
+            </button>
+            <bit-menu #endTimeMenu>
+              <div class="tw-flex tw-max-h-72 tw-flex-col tw-gap-1 tw-overflow-y-auto">
+                @for (row of endTimeRows(); track row.key) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="selectEndTime(row)"
+                    [attr.aria-current]="row.key === endMs() ? 'true' : null"
+                  >
+                    <span class="tw-flex tw-items-baseline tw-gap-2">
+                      <span [class.tw-font-bold]="row.key === endMs()">{{ row.time }}</span>
+                      @if (row.detail) {
+                        <span class="tw-text-xs tw-text-fg-body-subtle">{{ row.detail }}</span>
+                      }
+                    </span>
+                  </button>
+                } @empty {
+                  <!-- Every hour of this day is outside the window; the message below says so. -->
+                  <p
+                    bitTypography="helper"
+                    class="tw-m-0 tw-px-2 tw-py-1 tw-text-fg-body-subtle"
+                    data-testid="access-window-end-time-empty"
+                  >
+                    {{ "pamAccessWindowNoTimesOnThisDay" | i18n }}
+                  </p>
+                }
+              </div>
+              <button slot="footer" type="button" bitMenuItem (click)="useCustomEndTime()">
+                {{ "pamAccessWindowCustom" | i18n }}
+              </button>
+            </bit-menu>
+          } @else {
+            <div [class]="affixBoxClasses()">
+              <input
+                #endTimeInput
+                id="access-window-end-time"
+                type="time"
+                [class]="affixedClasses"
+                [value]="endTime()"
+                [disabled]="disabled()"
+                (change)="setCustomEndTime($event)"
+                aria-labelledby="access-window-end-time-label"
+                [attr.aria-invalid]="ariaInvalid()"
+                [attr.aria-describedby]="ariaErrorId()"
+                data-testid="access-window-end-time-custom"
+              />
+              <button
+                type="button"
+                bitIconButton="bwi-list"
+                size="small"
+                [label]="'pamAccessWindowSuggestions' | i18n"
+                [disabled]="disabled()"
+                (click)="useSuggestedEndTime()"
+                data-testid="access-window-end-time-suggestions"
+              ></button>
+            </div>
+          }
+
+          <!--
+            Leaving Custom stays one click, because entering it is: this side opens straight into
+            the calendar, so hiding the way out until the time control happens to be on its
+            suggestions would make the exit a step deeper than the entrance. It sits outside the
+            boxes and carries a different icon than a control's own affix for the same reason an
+            affix is inside one: an affix returns its own control to a list, this undoes the
+            choice of Custom for the whole side.
+          -->
+          <button
+            type="button"
+            bitIconButton="bwi-undo"
+            size="small"
+            [label]="'pamAccessWindowBackToSuggestions' | i18n"
+            [disabled]="disabled()"
+            (click)="useSuggestedEnd()"
+            data-testid="access-window-end-back"
+          ></button>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (summary(); as summaryLine) {
+    <p
+      bitTypography="helper"
+      class="tw-m-0 tw-text-fg-body-subtle"
+      aria-live="polite"
+      data-testid="access-window-summary"
+    >
+      {{ summaryLine }}
+    </p>
+  }
+
+  <!--
+    Kept alongside the summary rather than replacing it: together they say what was asked for and
+    why it cannot be granted, which is more than either says alone.
+  -->
+  @if (errorText(); as message) {
+    <p
+      id="access-window-error"
+      bitTypography="helper"
+      class="tw-m-0 tw-text-danger"
+      role="alert"
+      aria-live="assertive"
+      data-testid="access-window-error"
+    >
+      {{ message }}
+    </p>
+  }
+</div>

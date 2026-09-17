@@ -1,0 +1,79 @@
+<div class="tw-w-64 tw-p-1" role="group" [attr.aria-label]="'pamAccessWindowPickADay' | i18n">
+  <div class="tw-mb-2 tw-flex tw-items-center tw-justify-between tw-gap-1">
+    <button
+      type="button"
+      bitIconButton="bwi-angle-left"
+      size="small"
+      [disabled]="!canStepBack()"
+      [label]="'pamAccessWindowPreviousMonth' | i18n"
+      (click)="step(-1)"
+    ></button>
+    <span bitTypography="body2" class="tw-font-semibold tw-text-fg-heading" aria-live="polite">
+      {{ monthLabel() }}
+    </span>
+    <button
+      type="button"
+      bitIconButton="bwi-angle-right"
+      size="small"
+      [disabled]="!canStepForward()"
+      [label]="'pamAccessWindowNextMonth' | i18n"
+      (click)="step(1)"
+    ></button>
+  </div>
+
+  <table class="tw-w-full tw-table-fixed tw-border-collapse">
+    <thead>
+      <tr>
+        @for (weekday of weekdayLabels(); track $index) {
+          <th
+            scope="col"
+            class="tw-pb-1 tw-text-center tw-text-xs tw-font-normal tw-text-fg-body-subtle"
+          >
+            {{ weekday }}
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (week of weeks(); track $index) {
+        <tr>
+          @for (cell of week; track $index) {
+            <td class="tw-p-0 tw-text-center">
+              @if (cell) {
+                <!--
+                  The number alone is what a sighted reader needs in a grid captioned by month and
+                  weekday; the full date goes on aria-label so a screen reader gets the same
+                  context the grid supplies visually.
+
+                  `cdkFocusInitial` on the selected day is load-bearing: the menu traps and
+                  auto-captures focus for a dialog-role popover, and without a named target that
+                  lands on the month arrow and pops its tooltip the instant the calendar opens.
+                  The current date is also simply the right place for focus to start.
+                -->
+                <button
+                  type="button"
+                  class="tw-m-0.5 tw-size-8 tw-rounded-full tw-border-none tw-bg-transparent tw-text-sm tw-text-fg-body focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus enabled:hover:tw-bg-bg-brand-softer disabled:tw-cursor-default disabled:tw-text-fg-inactive"
+                  [class.!tw-bg-bg-brand]="cell.value === selected()"
+                  [class.!tw-text-fg-contrast]="cell.value === selected()"
+                  [class.tw-font-bold]="cell.value === todayValue()"
+                  [class.tw-ring-1]="cell.value === todayValue() && cell.value !== selected()"
+                  [class.tw-ring-border-brand]="
+                    cell.value === todayValue() && cell.value !== selected()
+                  "
+                  bitMenuClose
+                  [attr.cdkFocusInitial]="cell.value === selected() ? '' : null"
+                  [disabled]="!cell.selectable"
+                  [attr.aria-label]="cell.label"
+                  [attr.aria-current]="cell.value === selected() ? 'date' : null"
+                  (click)="select(cell)"
+                >
+                  {{ cell.day }}
+                </button>
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

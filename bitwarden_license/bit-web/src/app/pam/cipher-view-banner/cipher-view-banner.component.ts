@@ -5,7 +5,6 @@ import {
   DestroyRef,
   ElementRef,
   Injector,
-  LOCALE_ID,
   NgZone,
   OnInit,
   afterNextRender,
@@ -16,7 +15,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   catchError,
@@ -62,33 +61,29 @@ import {
   MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   type RequestDurationOption,
-  type RequestWindowProblem,
   activateAccessErrorMessageKey,
   apiErrorBodyMessage,
   classifyRequestAccessError,
-  composeRequestWindow,
-  defaultRequestWindow,
-  midnightCrossingEnd,
   requestDurationOptions,
   requestedWindowSeconds,
-  toDateInputValue,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
+import {
+  type AccessWindowFormValue,
+  EMPTY_ACCESS_WINDOW,
+  composeAccessWindow,
+  defaultAccessWindow,
+} from "../access-window";
+import { AccessWindowPickerComponent } from "../access-window/access-window-picker.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
-import { formatDuration } from "../date/format-duration";
 import { formatRemaining } from "../date/format-remaining";
 import { isGovernedCipher } from "../helpers/governed-cipher";
 import { isUnlicensedError } from "../helpers/pam-license-error";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 import { callerOrganizations$, unlicensedForPam } from "../services/pam-membership";
-
-import {
-  REQUEST_WINDOW_ERROR_KEY,
-  requestWindowEndValidator,
-} from "./request-access-window.validators";
 
 /**
  * Cipher-view banner for PAM-governed items — the requester's entry point into the leasing flow.
@@ -103,6 +98,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./cipher-view-banner.component.html",
   imports: [
+    AccessWindowPickerComponent,
     AsyncActionsModule,
     ButtonModule,
     CardComponent,
@@ -138,7 +134,6 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
-  private readonly locale = inject(LOCALE_ID);
 
   /** Ticks every second so the live countdown and a scheduled window's opening stay current. */
   private readonly nowMs = signal(Date.now());
@@ -383,14 +378,6 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * Floor for the human path's date picker, pinned when the fold-out opened.
-   *
-   * An affordance only — reactive forms don't read `min`, so `requestWindowEndValidator` is the
-   * real check.
-   */
-  protected readonly minRequestDate = signal("");
-
-  /**
    * `freesAt` for a held single-active-lease slot; `null` means free, unknown, or unsupported —
    * deliberately conflated as free.
    */
@@ -401,34 +388,20 @@ export class CipherViewBannerComponent implements OnInit {
     reason: [""],
   });
 
+  /**
+   * The human path's window, held as one composite control.
+   *
+   * {@link AccessWindowPickerComponent} owns both the editing and the validation of it — it is
+   * registered as a validator on this control and reports the same
+   * {@link RequestWindowProblem} set the three separate inputs used to, so the messages and the
+   * server checks they mirror are unchanged.
+   */
   protected readonly humanForm = this.formBuilder.nonNullable.group({
-    date: ["", Validators.required],
-    start: ["", Validators.required],
-    end: [
-      "",
-      [
-        Validators.required,
-        // Reads the cap live through the signal, not the value captured when the form was built.
-        requestWindowEndValidator(
-          () => this.maxWindowSeconds(),
-          (problem, max) => this.windowProblemMessage(problem, max),
-        ),
-      ],
-    ],
+    // Spelled out rather than given as the `[value]` shorthand: the shorthand reads an array as
+    // the control's own value, and a window IS an object, so the shorthand infers the wrong type.
+    window: this.formBuilder.nonNullable.control<AccessWindowFormValue>(EMPTY_ACCESS_WINDOW),
     reason: ["", [Validators.required, nonBlank]],
   });
-
-  /**
-   * The human form's live values. Read through a signal rather than off the controls so the
-   * next-day hint below recomputes as the requester types; the form's own validity is not enough,
-   * since the hint has to move on edits that leave the window perfectly valid.
-   */
-  private readonly humanFormValue = toSignal(this.humanForm.valueChanges, {
-    initialValue: this.humanForm.value,
-  });
-
-  /** The end instant when the requested window crosses midnight, `null` otherwise. */
-  protected readonly nextDayEnd = computed(() => midnightCrossingEnd(this.humanFormValue()));
 
   constructor() {
     // Closes the fold-out with the card, or it reopens stale, seeded from an old rule, on remount.
@@ -440,19 +413,6 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Subscribed to the sibling controls, not the group, to avoid re-entrant validation.
-    const { date, start, end } = this.humanForm.controls;
-    merge(date.valueChanges, start.valueChanges)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        end.updateValueAndValidity();
-        // Narrow on purpose: only a fresh window error from a sibling edit, so this never nags a blank
-        // End or races `BitInputDirective.onInput`'s own `markAsUntouched`.
-        if (end.errors?.[REQUEST_WINDOW_ERROR_KEY] != null) {
-          end.markAsTouched();
-        }
-      });
-
     // Kept outside the Angular zone: an in-zone periodic timer never lets NgZone settle, which would
     // hang `fixture.whenStable()`. The signal write still drives change detection.
     this.ngZone.runOutsideAngular(() => {
@@ -491,7 +451,7 @@ export class CipherViewBannerComponent implements OnInit {
       durationSeconds: DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
       reason: "",
     });
-    this.humanForm.reset({ date: "", start: "", end: "", reason: "" });
+    this.humanForm.reset({ window: EMPTY_ACCESS_WINDOW, reason: "" });
     this.loadingRequestForm.set(true);
     try {
       const cipherId = this.cipher().id;
@@ -514,11 +474,11 @@ export class CipherViewBannerComponent implements OnInit {
       this.requestBounds.set(bounds);
 
       if (preCheck.approvalMode === "human") {
-        // One clock reading for both, so the picker's floor is exactly the day it pre-fills.
-        const openedAt = new Date();
-        const { date, start, end } = defaultRequestWindow(openedAt, bounds.defaultSeconds);
-        this.minRequestDate.set(toDateInputValue(openedAt));
-        this.humanForm.patchValue({ date: date ?? "", start: start ?? "", end: end ?? "" });
+        // Seeded from the rule's own default, capped by the rule's own maximum — the picker
+        // offers nothing outside those bounds, so the resting window should not either.
+        this.humanForm.patchValue({
+          window: defaultAccessWindow(new Date(), bounds.defaultSeconds, bounds.maxSeconds),
+        });
         // `canStartLease` answers about now, and this window is in the future, so a slot taken right
         // now does not warrant a contention warning.
       } else {
@@ -541,20 +501,6 @@ export class CipherViewBannerComponent implements OnInit {
     }
   }
 
-  private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
-    switch (problem) {
-      case "zeroLengthWindow":
-        return this.i18nService.t("requestAccessModalEndEqualsStart");
-      case "endInPast":
-        return this.i18nService.t("requestAccessModalWindowInPast");
-      case "exceedsMaxWindow":
-        return this.i18nService.t(
-          "requestAccessModalWindowExceedsMax",
-          formatDuration(this.locale, maxWindowSeconds, "long"),
-        );
-    }
-  }
-
   // `[bitAction]` owns the button's busy state and serialises re-entrant clicks, so this only has to
   // guard on form validity.
   protected readonly submitRequest = async (): Promise<void> => {
@@ -567,7 +513,7 @@ export class CipherViewBannerComponent implements OnInit {
     // `markAllAsTouched` does not re-run validators, so a fold-out left open past its own seeded
     // window still carries a stale verdict; re-validate before trusting `form.invalid`.
     if (mode === "human") {
-      this.humanForm.controls.end.updateValueAndValidity();
+      this.humanForm.controls.window.updateValueAndValidity();
     }
     form.markAllAsTouched();
     if (form.invalid) {
@@ -733,8 +679,8 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   private buildHumanRequest(): AccessRequestCreateRequest | null {
-    const { date, start, end, reason } = this.humanForm.getRawValue();
-    const window = composeRequestWindow({ date, start, end });
+    const { window: requested, reason } = this.humanForm.getRawValue();
+    const window = composeAccessWindow(requested);
     if (window == null) {
       return null;
     }
