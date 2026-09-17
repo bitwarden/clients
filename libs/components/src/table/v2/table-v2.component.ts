@@ -663,7 +663,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /**
    * Keeps the checkbox in sync with the selection, which the bindings alone don't guarantee.
-   * Without this it strands — checked with nothing selected, or empty with every row selected.
+   * Without it the box can end up checked when nothing is selected, or empty when everything is.
    */
   protected onToggleAll(event: Event, sel: TableSelectionModel<T>): void {
     sel.toggleAll();
