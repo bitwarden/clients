@@ -17494,8 +17494,14 @@
   "pamAccessRuleDuration1d": {
     "message": "1 day"
   },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
   },
   "pamAccessRuleSingleActiveUser": {
     "message": "Only 1 user can have active access at a time"

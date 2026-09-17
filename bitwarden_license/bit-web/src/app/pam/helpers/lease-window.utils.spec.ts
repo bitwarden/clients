@@ -15,6 +15,26 @@ describe("ACCESS_RULE_DURATION_PRESETS", () => {
 
     expect(preset?.labelKey).toBe("pamAccessRuleDuration1d");
   });
+
+  it("labels every multi-day preset in the unit the list promotes it to", () => {
+    // Same hazard as the 24h case, for the presets the list renders in days.
+    const dayPresets = ACCESS_RULE_DURATION_PRESETS.filter(
+      (p) => pickDurationUnit(p.seconds).unit === "day",
+    );
+
+    expect(dayPresets.map((p) => [p.seconds, p.labelKey])).toEqual([
+      [24 * 60 * 60, "pamAccessRuleDuration1d"],
+      [2 * 24 * 60 * 60, "pamAccessRuleDuration2d"],
+      [7 * 24 * 60 * 60, "pamAccessRuleDuration7d"],
+      [30 * 24 * 60 * 60, "pamAccessRuleDuration30d"],
+    ]);
+  });
+
+  it("offers the presets in ascending order, so the pickers read low to high", () => {
+    const seconds = ACCESS_RULE_DURATION_PRESETS.map((p) => p.seconds);
+
+    expect(seconds).toEqual([...seconds].sort((a, b) => a - b));
+  });
 });
 
 describe("pickDurationUnit", () => {
