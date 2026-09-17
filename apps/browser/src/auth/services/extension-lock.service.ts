@@ -10,6 +10,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { StateEventRunnerService } from "@bitwarden/state";
 import { DefaultLockService, LockSource } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
@@ -29,6 +30,7 @@ export class ExtensionLockService extends DefaultLockService {
     processReloadService: ProcessReloadServiceAbstraction,
     logService: LogService,
     keyService: KeyService,
+    performanceTracking: PerformanceTrackingService,
     private readonly main: MainBackground,
   ) {
     super(
@@ -45,6 +47,7 @@ export class ExtensionLockService extends DefaultLockService {
       processReloadService,
       logService,
       keyService,
+      performanceTracking,
     );
   }
 

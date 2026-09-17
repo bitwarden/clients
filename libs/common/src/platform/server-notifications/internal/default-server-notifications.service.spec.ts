@@ -5,6 +5,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -31,6 +32,13 @@ import {
 import { SignalRConnectionService, SignalRNotification } from "./signalr-connection.service";
 import { WebPushConnectionService, WebPushConnector } from "./webpush-connection.service";
 import { WorkerWebPushConnectionService } from "./worker-webpush-connection.service";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 describe("NotificationsService", () => {
   let syncService: MockProxy<SyncService>;
@@ -131,6 +139,7 @@ describe("NotificationsService", () => {
       configService,
       autoConfirmService,
       billingAccountProfileStateService,
+      mockPerformanceTracking(),
     );
   });
 

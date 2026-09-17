@@ -149,6 +149,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   SHARE_ITEM_PRESENTER,
@@ -238,12 +239,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService, IpcService],
+    deps: [TokenService, BiometricStateService, IpcService, PerformanceTrackingService],
   }),
   safeProvider({
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService, IpcService],
+    deps: [TokenService, BiometricStateService, IpcService, PerformanceTrackingService],
   }),
   safeProvider({
     provide: DeviceManagementComponentServiceAbstraction,
@@ -354,7 +355,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SECURE_STORAGE,
     useClass: ElectronRendererSecureStorageService,
-    deps: [],
+    deps: [PerformanceTrackingService],
   }),
   safeProvider({ provide: MEMORY_STORAGE, useClass: MemoryStorageService, deps: [] }),
   safeProvider({

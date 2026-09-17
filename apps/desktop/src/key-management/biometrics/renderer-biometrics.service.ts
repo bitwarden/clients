@@ -11,6 +11,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import {
   CryptoClient,
   ipcRegisterBiometricsHandlers,
@@ -29,6 +30,10 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
 // should only happen after shared unlock has rolled out since otherwise the desktop app
 // inadvertently gets unlocked but not locked again.
 const SET_USERKEY_UNLOCK = false;
+
+const UNLOCK_NAMESPACE = "Unlock";
+const AUTHENTICATE_CATEGORY = "Biometrics authenticate";
+const UNLOCK_CATEGORY = "Biometrics unlock";
 
 /**
  * SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
@@ -76,12 +81,23 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     private tokenService: TokenService,
     private biometricStateService: BiometricStateService,
     private ipcService: IpcService,
+    private performanceTracking: PerformanceTrackingService,
   ) {
     super();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
-    return await ipc.keyManagement.biometric.authenticateWithBiometrics();
+    // Spans the OS prompt, so the duration is mostly the user's own response time.
+    const event = this.performanceTracking.startEvent({
+      namespace: UNLOCK_NAMESPACE,
+      category: AUTHENTICATE_CATEGORY,
+      name: "authenticate",
+    });
+
+    const authenticated = await ipc.keyManagement.biometric.authenticateWithBiometrics();
+    event.finish();
+
+    return authenticated;
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
@@ -89,7 +105,15 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+    const event = this.performanceTracking.startEvent({
+      namespace: UNLOCK_NAMESPACE,
+      category: UNLOCK_CATEGORY,
+      name: "unlock",
+    });
+
     const userKey = await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
+    event.finish();
+
     if (userKey == null) {
       return null;
     }

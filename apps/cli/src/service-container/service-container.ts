@@ -214,6 +214,10 @@ import {
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import {
+  DefaultPerformanceTrackingService,
+  PerformanceTrackingService,
+} from "@bitwarden/performance-tracking";
+import {
   ActiveUserStateProvider,
   DerivedStateProvider,
   GlobalStateProvider,
@@ -327,6 +331,7 @@ export class ServiceContainer {
   newPolicyService: InternalNewPolicyService;
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
+  performanceTrackingService: PerformanceTrackingService;
   sendService: SendService;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadService;
@@ -415,6 +420,9 @@ export class ServiceContainer {
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
+    );
+    this.performanceTrackingService = new DefaultPerformanceTrackingService(
+      (message, ...optionalParams) => this.logService.debug(message, ...optionalParams),
     );
     this.cryptoFunctionService = new NodeCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(
@@ -808,6 +816,7 @@ export class ServiceContainer {
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
       this.autoUnlockService,
+      this.performanceTrackingService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -1047,6 +1056,7 @@ export class ServiceContainer {
       processReloadService,
       this.logService,
       this.keyService,
+      this.performanceTrackingService,
     );
 
     this.vaultTimeoutService = new DefaultVaultTimeoutService(
@@ -1090,6 +1100,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.sdkService,
+      this.performanceTrackingService,
     );
 
     this.totpService = new TotpService(this.sdkService);

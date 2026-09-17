@@ -14,10 +14,18 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { StateEventRunnerService } from "@bitwarden/state";
 
 import { LockSource } from "./lock-source.enum";
 import { DefaultLockService } from "./lock.service";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 describe("DefaultLockService", () => {
   const mockUser1 = "user1" as UserId;
@@ -51,6 +59,7 @@ describe("DefaultLockService", () => {
     processReloadService,
     logService,
     keyService,
+    mockPerformanceTracking(),
   );
 
   describe("lockAll", () => {
@@ -68,7 +77,12 @@ describe("DefaultLockService", () => {
       processReloadService,
       logService,
       keyService,
+      mockPerformanceTracking(),
     );
+
+    beforeEach(() => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+    });
 
     it("locks the active account last", async () => {
       await accountService.addAccount(
@@ -99,6 +113,21 @@ describe("DefaultLockService", () => {
 
       // Active user should be called last
       expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual, true);
+    });
+
+    it("skips already locked users", async () => {
+      authService.authStatusFor$.mockImplementation((userId) =>
+        of(userId === mockUser2 ? AuthenticationStatus.Locked : AuthenticationStatus.Unlocked),
+      );
+
+      const lockSpy = jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
+      lockSpy.mockClear();
+
+      await sut.lockAll(LockSource.Manual);
+
+      expect(lockSpy).not.toHaveBeenCalledWith(mockUser2, expect.anything(), expect.anything());
     });
 
     it("reloads the process once, after all users are locked", async () => {

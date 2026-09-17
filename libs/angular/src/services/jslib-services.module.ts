@@ -409,6 +409,8 @@ import {
   OrganizationInviteLinkApiService,
   OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
+import { PerformanceTrackingAngularService } from "@bitwarden/performance-tracking-angular";
 import { DefaultTaskSchedulerService, TaskSchedulerService } from "@bitwarden/scheduling";
 import {
   ActiveUserStateProvider,
@@ -817,6 +819,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: PerformanceTrackingService,
+    useClass: PerformanceTrackingAngularService,
+    deps: [LogService],
+  }),
+  safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
     deps: [SdkService, LogService],
@@ -1067,6 +1074,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       SdkService,
+      PerformanceTrackingService,
     ],
   }),
   safeProvider({
@@ -1089,6 +1097,7 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       V2UpgradeTokenStateService,
       AutoUnlockService,
+      PerformanceTrackingService,
     ],
   }),
   safeProvider({
@@ -1279,6 +1288,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       AutomaticUserConfirmationService,
       BillingAccountProfileStateService,
+      PerformanceTrackingService,
     ],
   }),
   safeProvider({
@@ -2130,6 +2140,7 @@ const safeProviders: SafeProvider[] = [
       ProcessReloadServiceAbstraction,
       LogService,
       KeyService,
+      PerformanceTrackingService,
     ],
   }),
   safeProvider({

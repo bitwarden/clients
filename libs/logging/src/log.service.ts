@@ -10,6 +10,8 @@ export abstract class LogService {
   /**
    * Helper wrapper around `performance.measure` to log a measurement. Should also debug-log the data.
    *
+   * @deprecated Use `PerformanceTrackingService` from `@bitwarden/performance-tracking` instead.
+   *
    * @param start Start time of the measurement.
    * @param trackGroup A track-group for the measurement, should generally be the team owning the domain.
    * @param track A track for the measurement, should generally be the class name.
@@ -26,6 +28,8 @@ export abstract class LogService {
 
   /**
    * Helper wrapper around `performance.mark` to log a mark. Should also debug-log the data.
+   *
+   * @deprecated Use `PerformanceTrackingService` from `@bitwarden/performance-tracking` instead.
    *
    * @param name Name of the mark to create.
    */

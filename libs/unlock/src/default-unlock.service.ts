@@ -20,6 +20,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { EventProperties, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import {
   EncString,
   InitUserCryptoMethod,
@@ -48,6 +49,10 @@ export type KeyConnectorUnlockData = {
   keyConnectorKeyWrappedUserKey: EncString;
 };
 
+/** Track group for the unlock performance events, see {@link PerformanceTrackingService}. */
+const PERFORMANCE_NAMESPACE = "Unlock";
+const PERFORMANCE_CATEGORY = "DefaultUnlockService";
+
 export class DefaultUnlockService implements UnlockService {
   private onUnlockActions: Array<
     (userId: UserId, userKey: SymmetricCryptoKey, method: UnlockMethod) => Promise<void>
@@ -67,6 +72,7 @@ export class DefaultUnlockService implements UnlockService {
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private autoUnlockService: AutoUnlockService,
+    private performanceTracking: PerformanceTrackingService,
   ) {}
 
   registerOnUnlockAction(
@@ -76,7 +82,7 @@ export class DefaultUnlockService implements UnlockService {
   }
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
-    const startTime = performance.now();
+    const event = this.startUnlockEvent("unlockWithPin");
     await this.unlockWithMethod(
       userId,
       {
@@ -86,11 +92,11 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.Pin,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithPin");
+    event.finish();
   }
 
   async unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void> {
-    const startTime = performance.now();
+    const event = this.startUnlockEvent("unlockWithMasterPassword");
     await this.unlockWithMethod(
       userId,
       {
@@ -106,15 +112,11 @@ export class DefaultUnlockService implements UnlockService {
       await this.getMasterPasswordUnlockData(userId),
       userId,
     );
-    this.logService.measure(
-      startTime,
-      "Unlock",
-      "DefaultUnlockService",
-      "unlockWithMasterPassword",
-    );
+    event.finish();
   }
 
   async unlockWithBiometrics(userId: UserId): Promise<void> {
+    const event = this.startUnlockEvent("unlockWithBiometrics");
     // First, get the biometrics-protected user key. This will prompt the user to authenticate with biometrics.
     const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
     if (!userKey) {
@@ -122,7 +124,6 @@ export class DefaultUnlockService implements UnlockService {
     }
 
     // Now that we have the biometrics-protected user key, we can initialize the SDK with it to complete the unlock process.
-    const startTime = performance.now();
     await this.unlockWithMethod(
       userId,
       {
@@ -132,7 +133,7 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.Biometrics,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
+    event.finish();
   }
 
   async unlockWithKeyConnector(
@@ -142,7 +143,7 @@ export class DefaultUnlockService implements UnlockService {
     // The SDK is responsible for fetching the key-connector-key from the key-connector using the
     // key-connector-unlock-data. It will unwrap the provided key and set it to state, unlocking
     // the vault.
-    const startTime = performance.now();
+    const event = this.startUnlockEvent("unlockWithKeyConnector");
     await this.unlockWithMethod(
       userId,
       {
@@ -153,7 +154,7 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.KeyConnector,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
+    event.finish();
   }
 
   async unlockWithDecryptedUserKey(
@@ -161,7 +162,7 @@ export class DefaultUnlockService implements UnlockService {
     userKey: SymmetricCryptoKey,
     method: UnlockMethod = UnlockMethod.DecryptedUserKey,
   ): Promise<void> {
-    const startTime = performance.now();
+    const event = this.startUnlockEvent("unlockWithDecryptedUserKey");
     await this.unlockWithMethod(
       userId,
       {
@@ -171,16 +172,11 @@ export class DefaultUnlockService implements UnlockService {
       },
       method,
     );
-    this.logService.measure(
-      startTime,
-      "Unlock",
-      "DefaultUnlockService",
-      "unlockWithDecryptedUserKey",
-    );
+    event.finish();
   }
 
   async unlockFromSharedUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
-    const startTime = performance.now();
+    const event = this.startUnlockEvent("unlockFromSharedUnlock");
     await this.unlockWithMethod(
       userId,
       {
@@ -190,10 +186,11 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.SharedUnlock,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockFromSharedUnlock");
+    event.finish();
   }
 
   async unlockWithAutoUnlockKey(userId: UserId): Promise<boolean> {
+    const event = this.startUnlockEvent("unlockWithAutoUnlockKey");
     if (userId == null) {
       return false;
     }
@@ -203,7 +200,6 @@ export class DefaultUnlockService implements UnlockService {
       return false;
     }
 
-    const startTime = performance.now();
     await this.unlockWithMethod(
       userId,
       {
@@ -213,8 +209,18 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.AutoKey,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithAutoUnlockKey");
+    event.finish();
     return true;
+  }
+
+  /** Starts a performance event on the unlock track for `name`. */
+  private startUnlockEvent(name: string, properties?: EventProperties) {
+    return this.performanceTracking.startEvent({
+      namespace: PERFORMANCE_NAMESPACE,
+      category: PERFORMANCE_CATEGORY,
+      name,
+      properties,
+    });
   }
 
   private async unlockWithMethod(

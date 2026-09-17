@@ -1,15 +1,25 @@
+import {
+  DefaultPerformanceTrackingService,
+  EventProperties,
+} from "@bitwarden/performance-tracking";
+
 import { LogLevel } from "./log-level";
 import { LogRecorder } from "./log-recorder";
 import { LogService } from "./log.service";
 
 export class ConsoleLogService implements LogService {
-  protected timersMap: Map<string, [number, number]> = new Map();
+  private readonly performanceTracking: DefaultPerformanceTrackingService;
 
   constructor(
     protected isDev: boolean,
     protected filter: ((level: LogLevel) => boolean) | null = null,
     protected recorder: LogRecorder | null = null,
-  ) {}
+  ) {
+    // Backwards compatibility. We will migrate the callers off and remove this
+    this.performanceTracking = new DefaultPerformanceTrackingService((message, ...optionalParams) =>
+      this.debug(message, ...optionalParams),
+    );
+  }
 
   debug(message?: any, ...optionalParams: any[]) {
     if (!this.isDev) {
@@ -68,37 +78,12 @@ export class ConsoleLogService implements LogService {
     trackGroup: string,
     track: string,
     name?: string,
-    properties?: [string, any][],
+    properties?: EventProperties,
   ): PerformanceMeasure {
-    const measureName = `[${track}]: ${name}`;
-
-    const measure = performance.measure(measureName, {
-      start: start,
-      detail: {
-        devtools: {
-          dataType: "track-entry",
-          track,
-          trackGroup,
-          properties,
-        },
-      },
-    });
-
-    this.debug(`${measureName} took ${measure.duration}`, properties);
-    return measure;
+    return this.performanceTracking.measure(start, trackGroup, track, name, properties);
   }
 
   mark(name: string): PerformanceMark {
-    const mark = performance.mark(name, {
-      detail: {
-        devtools: {
-          dataType: "marker",
-        },
-      },
-    });
-
-    this.debug(mark.name, new Date().toISOString());
-
-    return mark;
+    return this.performanceTracking.mark(name);
   }
 }
