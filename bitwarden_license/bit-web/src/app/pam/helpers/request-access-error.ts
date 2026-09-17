@@ -10,6 +10,7 @@ import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
  *
  * Every entry must be the sentence the SERVER actually throws; a refusal the SDK raises before
  * the wire belongs in {@link REQUEST_ACCESS_SDK_ERRORS} instead, and the two are not kept in step.
+ * A sentence the server interpolates a value into is matched by {@link EXCEEDS_MAX_PATTERN}.
  */
 export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   ReasonRequired: "A reason is required for items that need human approval.",
@@ -28,13 +29,6 @@ export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   WindowInPast: "The end date must be in the future.",
   StartEndRequired: "A start and end date are required.",
   PositiveDurationRequired: "A positive duration is required.",
-  /**
-   * Pins the GLOBAL 24h ceiling; the server interpolates the governing rule's own
-   * `EffectiveMax`, so a narrower rule cap misses this entry and falls through to generic copy.
-   * Only reachable on skew, since the form already narrows its picker to the rule's cap.
-   */
-  DurationExceedsMax: "The requested duration exceeds the maximum of 86400 seconds.",
-  WindowExceedsMax: "The requested window exceeds the maximum of 86400 seconds.",
   NotLeasingGated: "This item does not require a lease.",
   /**
    * The caller holds no Privileged Controls license. The banner blocks the form before a submit
@@ -56,6 +50,16 @@ export const REQUEST_ACCESS_SDK_ERRORS = Object.freeze({
   WindowInPast: "The requested window has already ended.",
 } as const);
 
+/**
+ * The refusal the server interpolates its `EffectiveMax` into, so no fixed sentence can match it —
+ * pinning one cap here degrades every narrower rule to generic copy.
+ *
+ * Captures the noun as well as the number: the duration and window paths differ only in that word,
+ * and a duration refusal must not be worded as a window one.
+ */
+const EXCEEDS_MAX_PATTERN =
+  /The requested (duration|window) exceeds the maximum of (\d+) seconds\./;
+
 /** How the cipher-view banner should respond to a failed access-request submit. */
 export type RequestAccessErrorOutcome =
   /**
@@ -70,6 +74,18 @@ export type RequestAccessErrorOutcome =
    * since both are already prose in the requester's language.
    */
   | { readonly kind: "inline"; readonly serverMessage: string; readonly field?: "reason" }
+  /**
+   * The server refused the requested length. `maxSeconds` is the maximum it applied, which may be
+   * narrower than the one the form was told about, and `scope` is which path it refused. Both are
+   * carried so a caller holding a localized string for that path can render it; `serverMessage` is
+   * the sentence to fall back on where it has none.
+   */
+  | {
+      readonly kind: "exceedsMax";
+      readonly scope: "duration" | "window";
+      readonly maxSeconds: number;
+      readonly serverMessage: string;
+    }
   /** Unrecognised — fall back to the generic "could not request access" copy. */
   | { readonly kind: "generic" };
 
@@ -91,14 +107,12 @@ const RECONCILIATION_TOAST_KEYS: ReadonlyArray<{ serverMessage: string; toastKey
 /** Every message echoed inline under the form, from either source — the requester's fix is the same either way. */
 const INLINE_MESSAGES: ReadonlyArray<string> = [
   REQUEST_ACCESS_SERVER_ERRORS.PositiveDurationRequired,
-  REQUEST_ACCESS_SERVER_ERRORS.DurationExceedsMax,
   REQUEST_ACCESS_SERVER_ERRORS.AutomaticGotWindow,
   REQUEST_ACCESS_SERVER_ERRORS.HumanGotDuration,
   REQUEST_ACCESS_SERVER_ERRORS.StartEndRequired,
   REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd,
   REQUEST_ACCESS_SERVER_ERRORS.WindowInPast,
   REQUEST_ACCESS_SDK_ERRORS.WindowInPast,
-  REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
   REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
   REQUEST_ACCESS_SERVER_ERRORS.Unlicensed,
 ];
@@ -109,6 +123,9 @@ const INLINE_MESSAGES: ReadonlyArray<string> = [
  * Matched with `includes` rather than equality: the wasm boundary hands the server's 400 body up
  * as `LeasingError.message`, which may carry a wrapper prefix. The catalog entries are long,
  * distinct sentences, so a substring match is unambiguous while tolerating that framing.
+ *
+ * An {@link EXCEEDS_MAX_PATTERN} hit returns `exceedsMax` rather than `inline`, since that one
+ * refusal is worth re-rendering in the requester's own language.
  */
 export function classifyRequestAccessError(
   message: string | null | undefined,
@@ -133,5 +150,18 @@ export function classifyRequestAccessError(
   }
 
   const inline = INLINE_MESSAGES.find((entry) => message.includes(entry));
-  return inline != null ? { kind: "inline", serverMessage: inline } : { kind: "generic" };
+  if (inline != null) {
+    return { kind: "inline", serverMessage: inline };
+  }
+
+  // Reports the captured maximum rather than the sentence; nothing here can know it in advance.
+  const interpolated = EXCEEDS_MAX_PATTERN.exec(message);
+  return interpolated != null
+    ? {
+        kind: "exceedsMax",
+        scope: interpolated[1] === "duration" ? "duration" : "window",
+        maxSeconds: Number(interpolated[2]),
+        serverMessage: interpolated[0],
+      }
+    : { kind: "generic" };
 }

@@ -19,8 +19,10 @@ export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
 
 /**
  * Preset durations for the requester's own duration picker (the cipher-view banner). Narrower
- * than {@link ACCESS_RULE_DURATION_PRESETS}, topping out at the server's 24h cap
- * ({@link MAX_REQUEST_ACCESS_WINDOW_SECONDS}).
+ * than {@link ACCESS_RULE_DURATION_PRESETS} and topping out at a day, which is a judgement about
+ * what a requester should reach for by default rather than a limit — the server's own ceiling is
+ * far higher, and a rule permitting longer still offers its cap through
+ * {@link requestDurationOptions}.
  */
 export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
   seconds: number;
