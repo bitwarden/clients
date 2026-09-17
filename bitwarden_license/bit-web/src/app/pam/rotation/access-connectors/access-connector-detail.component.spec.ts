@@ -15,14 +15,13 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
-import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import { OrgCiphersService } from "../org-ciphers.service";
 import { AccessConnectorStatus, TargetSystemKind } from "../rotation";
 import type {
   AccessConnector,
   AccessConnectorDetail,
-  RotationConfigView,
-  TargetSystemView,
+  RotationConfig,
+  TargetSystem,
   TargetSystemId,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
@@ -37,12 +36,12 @@ import {
   rotationJob,
   sysId,
   targetSystem,
-  targetSystemSealedFields,
 } from "../testing/rotation-builders";
 
 import {
   AccessConnectorAssignment,
   AccessConnectorDetailComponent,
+  accessConnectorDetailDiscardGuard,
 } from "./access-connector-detail.component";
 
 /** Echoes the key, with the qualified-name key rendered so its two halves stay readable. */
@@ -52,6 +51,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
+/** The component's protected surface, as the tests drive it. */
 type DetailApi = {
   titleText: () => string;
   activeTab: () => string;
@@ -71,7 +71,7 @@ type DetailApi = {
   unassignTarget: (assignment: AccessConnectorAssignment) => Promise<boolean>;
   submit: () => Promise<void>;
   deleteAccessConnector: () => Promise<void>;
-  unsavedChanges: () => boolean;
+  confirmDiscard: () => Promise<boolean>;
   accessConnector: () => AccessConnectorDetail | null;
 };
 
@@ -86,28 +86,24 @@ function makeAccessConnector(overrides: Partial<AccessConnector> = {}): AccessCo
   });
 }
 
-function makeSystem(): TargetSystemView {
+function makeSystem(): TargetSystem {
   return targetSystem({ id: sysId("ts-1"), name: "Prod Entra" });
 }
 
-function makeOtherSystem(): TargetSystemView {
-  return targetSystem({
-    id: sysId("ts-2"),
-    name: "Prod scripted host",
-    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
-  });
+function makeOtherSystem(): TargetSystem {
+  return targetSystem({ id: sysId("ts-2"), name: "Prod MSSQL", kind: TargetSystemKind.Mssql });
 }
 
 /** A second target sharing the first's name, differing only in its integration. */
-function makeSameNamedSystem(): TargetSystemView {
+function makeSameNamedSystem(): TargetSystem {
   return targetSystem({
     id: sysId("ts-2"),
     name: "Prod Entra",
-    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
+    kind: TargetSystemKind.CustomScript,
   });
 }
 
-function pick(system: TargetSystemView): SelectItemView {
+function pick(system: TargetSystem): SelectItemView {
   return { id: String(system.id), listName: system.name, labelName: system.name };
 }
 
@@ -178,11 +174,12 @@ function fieldText(
   return el?.textContent?.trim() ?? "";
 }
 
-function pendingOf(comp: DetailApi, system: TargetSystemView): string | null | undefined {
+/** The pending state of one listed assignment, by id. */
+function pendingOf(comp: DetailApi, system: TargetSystem): string | null | undefined {
   return comp.assignments().find((a) => a.targetSystemId === system.id)?.pending;
 }
 
-/** Flips the Active checkbox and marks it dirty, as its value accessor does. */
+/** Flips the Active checkbox the way its value accessor does: a new value, and a dirty control. */
 function stageActive(comp: DetailApi, active: boolean): void {
   comp.formGroup.controls.active.setValue(active);
   comp.formGroup.controls.active.markAsDirty();
@@ -192,13 +189,22 @@ describe("AccessConnectorDetailComponent", () => {
   let fixture: ComponentFixture<AccessConnectorDetailComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
-  /** Creates the component and settles the loads its constructor starts. */
+  /** Creates the component and settles the two loads the page kicks off in its constructor. */
   async function createComponent(): Promise<DetailApi> {
     fixture = TestBed.createComponent(AccessConnectorDetailComponent);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
     return fixture.componentInstance as unknown as DetailApi;
+  }
+
+  function runGuard(comp: DetailApi): Promise<boolean> {
+    return accessConnectorDetailDiscardGuard(
+      comp as unknown as AccessConnectorDetailComponent,
+      null as never,
+      null as never,
+      null as never,
+    ) as Promise<boolean>;
   }
 
   beforeEach(() => {
@@ -272,8 +278,8 @@ describe("AccessConnectorDetailComponent", () => {
     expect(comp.assignOptions()).toEqual([
       {
         id: String(sysId("ts-2")),
-        listName: "Prod scripted host (pamTargetSystemTypeCustomScript)",
-        labelName: "Prod scripted host (pamTargetSystemTypeCustomScript)",
+        listName: "Prod MSSQL (pamTargetSystemTypeMssql)",
+        labelName: "Prod MSSQL (pamTargetSystemTypeMssql)",
       },
     ]);
   });
@@ -585,27 +591,6 @@ describe("AccessConnectorDetailComponent", () => {
       );
     });
 
-    it("shows the server's reason when the SDK refuses a write", async () => {
-      const comp = await mount();
-      rotationSdk.assignTarget.mockRejectedValue(
-        Object.assign(
-          new Error(
-            'error in response: status code 400 Bad Request: {"object":"error",' +
-              '"message":"The target system no longer exists."}',
-          ),
-          { name: "RotationError", variant: "Api" },
-        ),
-      );
-      await comp.assignTargets([pick(makeOtherSystem())]);
-
-      await comp.submit();
-
-      expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "The target system no longer exists.",
-      });
-    });
-
     it("keeps the writes that did land, so a retry only carries the rest", async () => {
       const comp = await mount(makeAccessConnector({ assignedTargetSystemIds: [] }));
       rotationSdk.assignTarget
@@ -661,7 +646,7 @@ describe("AccessConnectorDetailComponent", () => {
     it("lets an untouched page go without asking", async () => {
       const comp = await mount();
 
-      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
+      await expect(runGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
     });
 
@@ -669,7 +654,7 @@ describe("AccessConnectorDetailComponent", () => {
       const comp = await mount();
       await comp.assignTargets([pick(makeOtherSystem())]);
 
-      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
+      await expect(runGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({ title: { key: "discardEditsTitle" } }),
       );
@@ -679,7 +664,7 @@ describe("AccessConnectorDetailComponent", () => {
       const comp = await mount();
       await comp.unassignTarget(comp.assignments()[0]);
 
-      await leaveThroughGuard(comp);
+      await runGuard(comp);
 
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
     });
@@ -688,7 +673,7 @@ describe("AccessConnectorDetailComponent", () => {
       const comp = await mount();
       stageActive(comp, false);
 
-      await leaveThroughGuard(comp);
+      await runGuard(comp);
 
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
     });
@@ -698,7 +683,7 @@ describe("AccessConnectorDetailComponent", () => {
       dialog.openSimpleDialog.mockResolvedValue(false);
       await comp.assignTargets([pick(makeOtherSystem())]);
 
-      await expect(leaveThroughGuard(comp)).resolves.toBe(false);
+      await expect(runGuard(comp)).resolves.toBe(false);
     });
 
     it("stops asking once the staged changes are saved", async () => {
@@ -706,7 +691,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.assignTargets([pick(makeOtherSystem())]);
       await comp.submit();
 
-      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
+      await expect(runGuard(comp)).resolves.toBe(true);
       expect(dialog.openSimpleDialog).not.toHaveBeenCalledWith(
         expect.objectContaining({ title: { key: "discardEditsTitle" } }),
       );
@@ -720,7 +705,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.deleteAccessConnector();
 
       expect(rotationSdk.deleteConnector).toHaveBeenCalled();
-      await expect(leaveThroughGuard(comp)).resolves.toBe(true);
+      await expect(runGuard(comp)).resolves.toBe(true);
     });
   });
 
@@ -745,11 +730,6 @@ describe("AccessConnectorDetailComponent", () => {
 
   describe("rendered assignment section", () => {
     const query = (selector: string) => fixture.nativeElement.querySelector(selector);
-    const bodyRows = (): HTMLElement[] => [
-      ...fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"),
-    ];
-    const columnTexts = (index: number): (string | undefined)[] =>
-      bodyRows().map((row) => row.querySelectorAll("bit-cell")[index]?.textContent?.trim());
 
     async function render(accessConnector = makeAccessConnector()): Promise<DetailApi> {
       rotationSdk.getConnector.mockResolvedValue(accessConnector);
@@ -765,7 +745,7 @@ describe("AccessConnectorDetailComponent", () => {
 
       expect(query("pam-assignment-picker")).toBeTruthy();
       expect(query("#access-connector-detail_multi-select_options")).toBeTruthy();
-      const rows = bodyRows();
+      const rows = fixture.nativeElement.querySelectorAll("tbody tr");
       expect(rows).toHaveLength(1);
       expect(rows[0].textContent).toContain("Prod Entra");
     });
@@ -785,17 +765,17 @@ describe("AccessConnectorDetailComponent", () => {
           "aria-label",
         ),
       ).toBe("pamAccessConnectorUnassign");
-      expect(columnTexts(1)).toEqual([
-        "pamTargetSystemTypeEntra",
-        "pamTargetSystemTypeCustomScript",
-      ]);
+      const kinds = Array.from(
+        fixture.nativeElement.querySelectorAll("tbody tr td:nth-child(2)"),
+      ).map((cell) => (cell as HTMLElement).textContent?.trim());
+      expect(kinds).toEqual(["pamTargetSystemTypeEntra", "pamTargetSystemTypeCustomScript"]);
     });
 
     it("states each assigned target's id and copies it whole", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       await render();
 
-      expect(columnTexts(2)[0]).toContain(uuidAsString(sysId("ts-1")));
+      expect(query("tbody tr td:nth-child(3)").textContent).toContain(uuidAsString(sysId("ts-1")));
 
       query(`#access-connector-detail_button_copy-target-id-${sysId("ts-1")}`).click();
 
@@ -817,7 +797,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.assignTargets([pick(makeOtherSystem())]);
       fixture.detectChanges();
 
-      const row = bodyRows()[0];
+      const row = fixture.nativeElement.querySelector("tbody tr");
       expect(row.textContent).toContain("pamRotationAssignmentPendingAssign");
       expect(row.querySelector(".tw-line-through")).toBeNull();
     });
@@ -828,7 +808,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.unassignTarget(comp.assignments()[0]);
       fixture.detectChanges();
 
-      const row = bodyRows()[0];
+      const row = fixture.nativeElement.querySelector("tbody tr");
       expect(row.textContent).toContain("pamRotationAssignmentPendingUnassign");
       expect(row.querySelector(".tw-line-through")?.textContent?.trim()).toBe("Prod Entra");
     });
@@ -856,50 +836,6 @@ describe("AccessConnectorDetailComponent", () => {
       await render(makeAccessConnector({ assignedTargetSystemIds: [] }));
 
       expect(query("#access-connector-detail_anchor_go-to")).toBeNull();
-    });
-
-    it("draws each assignment's cells as bit-cell", async () => {
-      rotationSdk.getConnector.mockResolvedValue(
-        makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
-      );
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      await createComponent();
-
-      const rows = [...fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row")];
-      expect(rows).toHaveLength(2);
-      for (const bitRow of rows) {
-        expect(bitRow.querySelectorAll("bit-cell")).toHaveLength(4);
-        expect(bitRow.querySelectorAll("[role=cell]")).toHaveLength(4);
-        expect(bitRow.querySelectorAll("td")).toHaveLength(0);
-      }
-      expect(
-        rows[0].querySelector(
-          `bit-cell #access-connector-detail_button_copy-target-id-${sysId("ts-1")}`,
-        ),
-      ).not.toBeNull();
-    });
-
-    it("keeps the pending badge out of the name's truncating box", async () => {
-      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
-      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
-        renderTemplate: true,
-      });
-      const comp = await createComponent();
-
-      await comp.unassignTarget(comp.assignments()[0]);
-      fixture.detectChanges();
-
-      const nameCell = fixture.nativeElement.querySelector("bit-table-v2 bit-row bit-cell");
-      const badge = [...nameCell.querySelectorAll("[bitBadge]")].find((b: Element) =>
-        b.textContent?.includes("pamRotationAssignmentPendingUnassign"),
-      ) as Element | undefined;
-      expect(badge).toBeDefined();
-      expect(badge!.closest(".tw-text-ellipsis")).toBeNull();
-      expect(nameCell.querySelector(".tw-text-ellipsis")?.textContent).toContain("Prod Entra");
     });
   });
 
@@ -1007,7 +943,7 @@ describe("AccessConnectorDetailComponent", () => {
     });
 
     it("renders the Configuration tab while the credential-name reads are still in flight", async () => {
-      let settleConfigs!: (configs: RotationConfigView[]) => void;
+      let settleConfigs!: (configs: RotationConfig[]) => void;
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
           connector: accessConnector({ id: connectorId("access-connector-1") }),
@@ -1015,7 +951,7 @@ describe("AccessConnectorDetailComponent", () => {
         }),
       );
       rotationSdk.listConfigs.mockReturnValue(
-        new Promise<RotationConfigView[]>((resolve) => (settleConfigs = resolve)),
+        new Promise<RotationConfig[]>((resolve) => (settleConfigs = resolve)),
       );
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
@@ -1046,6 +982,7 @@ describe("AccessConnectorDetailComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("pamRotationConfigColumnCredential");
     });
 
+    /** The Credential column is the one place a connector's jobs are named by what they rotate. */
     it("names each job by the credential it rotated", async () => {
       rotationSdk.getConnector.mockResolvedValue(
         accessConnectorDetail({
@@ -1255,7 +1192,7 @@ describe("AccessConnectorDetailComponent", () => {
         (fixture.nativeElement as HTMLElement).querySelector(
           "#access-connector-detail_badge_status",
         )?.textContent,
-      ).toContain("active");
+      ).toContain("pamAccessConnectorStatusActive");
     });
   });
 
@@ -1264,12 +1201,14 @@ describe("AccessConnectorDetailComponent", () => {
 
     afterEach(() => jest.useRealTimers());
 
+    /** Runs the placeholder's clock on. */
     function advance(ms: number): void {
       fixture.detectChanges();
       jest.advanceTimersByTime(ms);
       fixture.detectChanges();
     }
 
+    /** Renders the page with its load still in flight. */
     async function renderLoading(tab = "configuration") {
       rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
@@ -1282,6 +1221,7 @@ describe("AccessConnectorDetailComponent", () => {
       fixture.detectChanges();
     }
 
+    /** Renders the page mid-load with its placeholder already drawn. */
     async function renderSkeleton(tab = "configuration") {
       await renderLoading(tab);
       advance(1000);

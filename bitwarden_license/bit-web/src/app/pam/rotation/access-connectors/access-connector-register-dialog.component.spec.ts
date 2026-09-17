@@ -28,7 +28,10 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   let dialogRef: jest.Mocked<DialogRef>;
   let toastService: jest.Mocked<ToastService>;
   let i18nService: jest.Mocked<I18nService>;
-  /** The component's own DialogService, which DialogModule may provide over the test's. */
+  /**
+   * The DialogService actually injected into the component (which may come from
+   * DialogModule's own providers rather than the test-level override).
+   */
   let injectedDialogService: DialogService;
 
   const orgId = ORGANIZATION_ID as OrganizationId;
@@ -37,7 +40,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   const fakeRegistration = {
     id: connectorId("d-1"),
     organizationId: ORGANIZATION_ID,
-    name: "Good access connector",
+    name: "Good AccessConnector",
     status: "enabled",
     creationDate: "2026-01-01T00:00:00Z",
     token: "0.access-connector.api-id.secret:keyb64",
@@ -76,6 +79,8 @@ describe("AccessConnectorRegisterDialogComponent", () => {
 
     fixture = TestBed.createComponent(AccessConnectorRegisterDialogComponent);
     component = fixture.componentInstance;
+    // Retrieves the DialogService the component actually uses, which may come from
+    // DialogModule, not the test override.
     injectedDialogService = fixture.debugElement.injector.get(DialogService);
     fixture.detectChanges();
   });
@@ -102,7 +107,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   });
 
   it("closes the dialog after successful registration", async () => {
-    (component as any).form.controls.name.setValue("Good access connector");
+    (component as any).form.controls.name.setValue("Good AccessConnector");
     await (component as any).submit();
 
     expect(dialogRef.close).toHaveBeenCalledWith({ registered: true });
@@ -113,7 +118,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
-    (component as any).form.controls.name.setValue("Good access connector");
+    (component as any).form.controls.name.setValue("Good AccessConnector");
     await (component as any).submit();
 
     expect(openSpy).toHaveBeenCalledWith(
@@ -121,7 +126,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       expect.objectContaining({
         data: expect.objectContaining({
           token: fakeRegistration.token,
-          accessConnectorName: "Good access connector",
+          accessConnectorName: "Good AccessConnector",
         }),
       }),
     );
@@ -136,7 +141,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
-    (component as any).form.controls.name.setValue("Good access connector");
+    (component as any).form.controls.name.setValue("Good AccessConnector");
     const submitted = (component as any).submit();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -153,7 +158,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
     rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
     const openSpy = jest.spyOn(injectedDialogService, "open");
 
-    (component as any).form.controls.name.setValue("Bad access connector");
+    (component as any).form.controls.name.setValue("Bad AccessConnector");
     await (component as any).submit();
 
     expect(openSpy).not.toHaveBeenCalled();
@@ -161,31 +166,12 @@ describe("AccessConnectorRegisterDialogComponent", () => {
 
   it("shows an error toast when registration fails", async () => {
     rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
-    (component as any).form.controls.name.setValue("Bad access connector");
+    (component as any).form.controls.name.setValue("Bad AccessConnector");
     await (component as any).submit();
 
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "error" }),
     );
-  });
-
-  it("shows the server's reason when the SDK refuses the registration", async () => {
-    rotationSdk.registerConnector.mockRejectedValue(
-      Object.assign(
-        new Error(
-          'error in response: status code 400 Bad Request: {"object":"error",' +
-            '"message":"An access connector with this name already exists."}',
-        ),
-        { name: "RotationError", variant: "Api" },
-      ),
-    );
-    (component as any).form.controls.name.setValue("Duplicate access connector");
-    await (component as any).submit();
-
-    expect(toastService.showToast).toHaveBeenCalledWith({
-      variant: "error",
-      message: "An access connector with this name already exists.",
-    });
   });
 
   it("closes with undefined on cancel", () => {

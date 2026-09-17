@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
 import { map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -12,7 +12,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
-  BitCellComponent,
   ButtonModule,
   CardComponent,
   CheckboxModule,
@@ -26,6 +25,7 @@ import {
   SelectItemView,
   SkeletonComponent,
   SkeletonTextComponent,
+  TableModule,
   TabsModule,
   ToastService,
   TypographyModule,
@@ -37,7 +37,7 @@ import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
 } from "../../helpers/access-connector-confirm";
-import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
+import { discardEditsConfirmOptions } from "../../helpers/discard-confirm";
 import {
   AssignmentPickerColumn,
   AssignmentPickerComponent,
@@ -53,12 +53,11 @@ import {
   AccessConnectorDetail,
   AccessConnectorId,
   AccessConnectorStatus,
-  RotationConfigView,
+  RotationConfig,
   RotationConfigId,
-  TargetSystemView,
+  TargetSystem,
   TargetSystemId,
 } from "../rotation";
-import { rotationErrorMessage } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -67,11 +66,19 @@ import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemLabel, targetSystemLabel } from "../target-systems/target-system-label";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+/**
+ * The detail page's two tabs, each with a URL of its own; Configuration is the default.
+ */
 const ACCESS_CONNECTOR_DETAIL_TABS = ["configuration", "history"] as const;
 
-/** `null` for a saved assignment, otherwise the staged change not yet saved. */
+/**
+ * Whether a listed assignment is saved, or only staged for a save that has not happened yet.
+ */
 export type AccessConnectorAssignmentPending = "add" | "remove" | null;
 
+/**
+ * An assigned target system, named for the row that lists it.
+ */
 export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
   AssignmentPickerRow & {
     readonly targetSystemId: TargetSystemId;
@@ -79,8 +86,12 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
   };
 
 /**
- * Detail page for one access connector, a sibling of the rotation shell. It provides its own
- * {@link TargetSystemsService} and {@link OrgCiphersService}, since the shell's don't reach it.
+ * Routed detail page for a single rotation access connector — a sibling of the rotation shell, matching
+ * the target-system / rotation-config detail pages. Reached from the access connectors tab.
+ *
+ * Shows status, connection, assigned target systems (via a page-scoped
+ * {@link TargetSystemsService}), and recent rotation activity via the shared
+ * {@link RotationHistoryComponent}.
  */
 @Component({
   templateUrl: "./access-connector-detail.component.html",
@@ -92,7 +103,6 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     AssignmentPickerComponent,
     AsyncActionsModule,
     BadgeModule,
-    BitCellComponent,
     DetailBreadcrumbComponent,
     ButtonModule,
     CardComponent,
@@ -109,12 +119,13 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     SectionHeaderComponent,
     SkeletonComponent,
     SkeletonTextComponent,
+    TableModule,
     TabsModule,
     TypographyModule,
     I18nPipe,
   ],
 })
-export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
+export class AccessConnectorDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly rotationSdk = inject(RotationSdkService);
@@ -135,17 +146,20 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
   protected readonly showSkeleton = showSkeletonWhile(this.loading);
 
+  /** Whether the loading branch is on screen. */
   protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
 
+  /** The error from the last read of the connector, or null when it succeeded. */
   protected readonly loadError = signal<unknown | null>(null);
   protected readonly accessConnector = signal<AccessConnectorDetail | null>(null);
 
   /**
-   * The staged connector, which the page renders and {@link submit} diffs against the saved one.
+   * The connector as the operator has asked for it, which is what the page renders and what
+   * {@link submit} diffs against the loaded connector.
    */
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     active: false,
-    assignedTargetSystemIds: this.formBuilder.nonNullable.control<TargetSystemId[]>([]),
+    assignedTargetSystemIds: [[] as TargetSystemId[]],
   });
 
   private readonly staged = toSignal(
@@ -157,6 +171,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
 
   private readonly stagedAssignmentIds = computed(() => this.staged().assignedTargetSystemIds);
 
+  /** The tab the URL names. */
   protected readonly activeTab = toSignal(
     this.route.paramMap.pipe(
       map((params) => tabFromSegment(params.get("tab"), ACCESS_CONNECTOR_DETAIL_TABS)),
@@ -197,7 +212,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   });
 
   /** The org's rotation configs, loaded only when there is job history to label. */
-  private readonly rotationConfigs = signal<RotationConfigView[]>([]);
+  private readonly rotationConfigs = signal<RotationConfig[]>([]);
 
   private readonly cipherNameById = toSignal(this.orgCiphers.cipherNameById$, {
     initialValue: new Map<CipherId, string>(),
@@ -217,16 +232,17 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   });
 
   private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
-    initialValue: [] as TargetSystemView[],
+    initialValue: [] as TargetSystem[],
   });
 
   protected readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {
     initialValue: null as unknown,
   });
 
+  /** The connector itself; the detail's other half is its recent job history. */
   private readonly connector = computed(() => this.accessConnector()?.connector ?? null);
 
-  /** The saved assignments, which the staged list is diffed against. */
+  /** The assignments as last read from the server, which the staged list is diffed against. */
   private readonly savedAssignmentIds = computed<readonly TargetSystemId[]>(
     () => this.connector()?.assignedTargetSystemIds ?? [],
   );
@@ -264,7 +280,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     () => this.connector()?.status === AccessConnectorStatus.Enabled,
   );
 
-  /** The automatic target systems the staged list does not hold, as picker rows. */
+  /** The active automatic target systems the staged list does not already hold, as picker rows. */
   protected readonly assignOptions = computed<SelectItemView[]>(() => {
     const staged = new Set<string>(this.stagedAssignmentIds().map(String));
     return this.automaticSystems()
@@ -275,7 +291,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
       });
   });
 
-  /** True when the org has nothing eligible at all, rather than having assigned it all. */
+  /** True when the org has nothing eligible at all, as opposed to having assigned it all already. */
   protected readonly noEligibleTargetSystems = computed(
     () => this.targetSystemsLoadError() == null && this.automaticSystems().length === 0,
   );
@@ -330,10 +346,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     return true;
   };
 
-  /**
-   * Enables before writing assignments and disables after, since only an enabled connector can be
-   * assigned.
-   */
+  /** Write the staged connector: the status change, then the assignments it gained and lost. */
   protected readonly submit = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null) {
@@ -371,6 +384,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     });
   };
 
+  /** Delete the access connector permanently after confirming, then return to the list. */
   protected readonly deleteAccessConnector = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null) {
@@ -394,8 +408,13 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     }
   };
 
-  unsavedChanges(): boolean {
-    return this.formGroup.dirty;
+  /** Confirm before staged edits are thrown away. */
+  async confirmDiscard(): Promise<boolean> {
+    if (!this.formGroup.dirty) {
+      return true;
+    }
+
+    return await this.dialogService.openSimpleDialog(discardEditsConfirmOptions());
   }
 
   private confirmDeactivate(name: string): Promise<boolean> {
@@ -403,8 +422,12 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   }
 
   /**
-   * The server assigns only to an enabled connector, so unchecking Active drops staged additions.
-   * Staged removals survive, since the server still honours them for an inactive connector.
+   * Drop the assignments staged on top of the saved list.
+   *
+   * The server takes `assignTarget` only while the connector is enabled, so a staged addition
+   * cannot outlive the Active checkbox that {@link assignTargets} required to stage it. Staged
+   * removals survive: taking an assignment away from a connector that is on its way to inactive
+   * is a request the server still honours.
    */
   private dropStagedAssignmentAdditions(): void {
     const saved = new Set<string>(this.savedAssignmentIds().map(String));
@@ -420,6 +443,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     control.markAsDirty();
   }
 
+  /** Applies one status change, patching the local copy once the server has taken it. */
   private async writeStatus(id: AccessConnectorId, active: boolean): Promise<void> {
     if (active) {
       await this.rotationSdk.enableConnector(this.organizationId, id);
@@ -429,7 +453,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     this.patchStatus(active ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled);
   }
 
-  /** One call at a time; a refusal stops the rest and leaves earlier writes saved. */
+  /** Applies the assignment diff one call at a time, stopping at the first refusal. */
   private async writeAssignments(
     id: AccessConnectorId,
     toAssign: readonly TargetSystemId[],
@@ -474,6 +498,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     }
   }
 
+  /** Seed the form from the loaded connector. */
   private resetForm(): void {
     this.formGroup.setValue({
       active: this.enabled(),
@@ -483,8 +508,15 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   }
 
   /**
-   * Not awaited, so first paint doesn't wait on decrypting every org cipher. A failure only costs
-   * the Credential column its names; it falls back to the rotation config id.
+   * Resolve the names of the managed credentials this connector's jobs rotated.
+   *
+   * Only worth the org-wide config and cipher reads when there is history to label, and a failure
+   * costs the History tab its Credential names rather than the page: the table falls back to the
+   * rotation config id, which still tells an operator which credential to look up.
+   *
+   * Left to settle on its own rather than awaited, for the same reason: the names land in a signal
+   * the Credential column reads, and the column already renders without them, so the Configuration
+   * tab does not spend its first paint waiting on a decrypt of every cipher in the organization.
    */
   private async loadCredentialNames(): Promise<void> {
     try {
@@ -498,7 +530,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     }
   }
 
-  /** Records a failure, so the page needn't guess from a null. */
+  /** Reads the connector, recording a failure rather than leaving the page to guess from a null. */
   private async loadAccessConnector(): Promise<AccessConnectorDetail | null> {
     try {
       return await this.rotationSdk.getConnector(this.organizationId, this.accessConnectorId);
@@ -513,6 +545,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     return this.router.navigate(this.connectorsListRoute);
   }
 
+  /** Patch the loaded access connector's status locally (new reference for OnPush; jobs + fields carried over). */
   private patchStatus(status: AccessConnectorStatus): void {
     const accessConnector = this.accessConnector();
     if (accessConnector == null) {
@@ -524,6 +557,10 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     });
   }
 
+  /**
+   * Patch the loaded access connector's assignments locally (new reference for OnPush; jobs + fields carried
+   * over).
+   */
   private patchAssignments(update: (ids: TargetSystemId[]) => TargetSystemId[]): void {
     const accessConnector = this.accessConnector();
     if (accessConnector == null) {
@@ -540,9 +577,13 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
 
   private showError(e: unknown): void {
     const message =
-      rotationErrorMessage(e) ??
-      (e instanceof ErrorResponse ? e.message : undefined) ??
-      this.i18nService.t("unexpectedError");
+      e instanceof ErrorResponse
+        ? (e.message ?? this.i18nService.t("unexpectedError"))
+        : this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
 }
+
+export const accessConnectorDetailDiscardGuard: CanDeactivateFn<AccessConnectorDetailComponent> = (
+  component,
+) => component.confirmDiscard();

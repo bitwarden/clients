@@ -13,7 +13,9 @@
         bitBadge
         [variant]="enabled() ? 'success' : 'secondary'"
         id="access-connector-detail_badge_status"
-        >{{ (enabled() ? "active" : "inactive") | i18n }}</span
+        >{{
+          (enabled() ? "pamAccessConnectorStatusActive" : "pamAccessConnectorStatusInactive") | i18n
+        }}</span
       >
     }
   </span>
@@ -119,6 +121,7 @@
           </bit-section>
         }
         @default {
+          <!-- Status -->
           <bit-section>
             <bit-section-header>
               <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
@@ -131,12 +134,13 @@
                   id="access-connector-detail_checkbox_active"
                   formControlName="active"
                 />
-                <bit-label>{{ "active" | i18n }}</bit-label>
+                <bit-label>{{ "pamAccessConnectorStatusActive" | i18n }}</bit-label>
                 <bit-hint>{{ "pamAccessConnectorActiveHint" | i18n }}</bit-hint>
               </bit-form-control>
             </bit-card>
           </bit-section>
 
+          <!-- Details -->
           <bit-section>
             <bit-section-header>
               <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
@@ -182,10 +186,12 @@
             </bit-card>
           </bit-section>
 
+          <!-- Assigned targets -->
           <pam-assignment-picker
             idPrefix="access-connector-detail"
             headingKey="pamAccessConnectorAssignments"
             selectLabelKey="pamAccessConnectorAssignSelectLabel"
+            assignLabelKey="pamAccessConnectorAssignConfirm"
             unassignLabelKey="pamAccessConnectorUnassign"
             emptyKey="pamAccessConnectorAssignmentsEmpty"
             goToLabelKey="pamAccessConnectorAssignGoToTargetSystems"
@@ -204,7 +210,7 @@
           />
 
           <ng-template #assignmentRow let-assignment>
-            <bit-cell>
+            <td bitCell>
               <span
                 [class.tw-line-through]="assignment.pending === 'remove'"
                 [class.tw-text-muted]="assignment.pending === 'remove'"
@@ -212,23 +218,23 @@
               >
               @switch (assignment.pending) {
                 @case ("add") {
-                  <span slot="end" bitBadge variant="subtle">{{
+                  <span bitBadge variant="subtle" class="tw-ms-2">{{
                     "pamRotationAssignmentPendingAssign" | i18n
                   }}</span>
                 }
                 @case ("remove") {
-                  <span slot="end" bitBadge variant="subtle">{{
+                  <span bitBadge variant="subtle" class="tw-ms-2">{{
                     "pamRotationAssignmentPendingUnassign" | i18n
                   }}</span>
                 }
               }
-            </bit-cell>
-            <bit-cell class="tw-text-muted">
+            </td>
+            <td bitCell class="tw-text-muted">
               @if (assignment.qualifierKey) {
                 {{ assignment.qualifierKey | i18n }}
               }
-            </bit-cell>
-            <bit-cell [truncate]="false">
+            </td>
+            <td bitCell>
               <div class="tw-flex tw-items-center tw-gap-1">
                 <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
                 <button
@@ -243,7 +249,7 @@
                   id="access-connector-detail_button_copy-target-id-{{ assignment.id }}"
                 ></button>
               </div>
-            </bit-cell>
+            </td>
           </ng-template>
         }
       }

@@ -6,7 +6,7 @@ import { of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 
-import { AccessConnector, TargetSystemView } from "../rotation";
+import { AccessConnector, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing/rotation-builders";
 
@@ -17,7 +17,10 @@ function row(accessConnector: AccessConnector, assignmentNames: string[] = []): 
   return {
     id: accessConnector.id,
     name: accessConnector.name,
-    statusLabelKey: accessConnector.status === "enabled" ? "active" : "inactive",
+    statusLabelKey:
+      accessConnector.status === "enabled"
+        ? "pamAccessConnectorStatusActive"
+        : "pamAccessConnectorStatusInactive",
     isConnected: accessConnector.isConnected,
     assignmentNames,
     enabled: accessConnector.status === "enabled",
@@ -86,7 +89,7 @@ function rotationServices(rows: AccessConnectorRow[]) {
       {
         provide: TargetSystemsService,
         useValue: {
-          automaticSystems$: of([{ id: sysId("1") }] as TargetSystemView[]),
+          automaticSystems$: of([{ id: sysId("1") }] as TargetSystem[]),
           loading$: of(false),
           loadError$: of(null),
           load: () => Promise.resolve(),
@@ -119,9 +122,6 @@ export default {
               removeItem: "Remove __$1__",
               search: "Search",
               resetSearch: "Reset search",
-              itemCount: "__$1__ items",
-              clearAll: "Clear all",
-              filters: "Filters",
               pamAccessConnectorSearch: "Search access connectors",
               pamAccessConnectorEmptyStateTitle: "No access connectors registered",
               pamAccessConnectorEmptyStateDescription:
@@ -146,8 +146,8 @@ export default {
               pamAccessConnectorActivate: "Activate",
               pamAccessConnectorDeleteAccessConnector: "Delete access connector",
               pamAccessConnectorNoResults: "No access connectors match your search.",
-              active: "Active",
-              inactive: "Inactive",
+              pamAccessConnectorStatusActive: "Active",
+              pamAccessConnectorStatusInactive: "Inactive",
             }),
         },
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
@@ -163,6 +163,7 @@ export const Default: Story = {
   decorators: [rotationServices(ROWS)],
 };
 
+/** No access connectors have been registered yet. */
 export const Empty: Story = {
   decorators: [rotationServices([])],
 };

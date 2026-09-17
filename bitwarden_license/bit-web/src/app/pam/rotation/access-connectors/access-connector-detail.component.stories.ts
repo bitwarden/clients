@@ -182,7 +182,7 @@ export default {
 
 type Story = StoryObj<AccessConnectorDetailComponent>;
 
-/** The breadcrumb trail ends in the connector's own name. */
+/** The breadcrumb trail reads "Access connectors > Prod on-prem connector" — the connector's own name. */
 export const Default: Story = {
   decorators: [
     atUrl(
@@ -199,7 +199,7 @@ export const LongName: Story = {
   ],
 };
 
-/** The Connection field's badge reads "Disconnected". */
+/** Disconnected connector: the Connection field's badge reads "Disconnected". */
 export const Offline: Story = {
   decorators: [
     atUrl(
@@ -217,7 +217,8 @@ export const NeverSeen: Story = {
 };
 
 /**
- * The status badge reads "Inactive", and the target picker stays visible but disabled with a
+ * Inactive connector: the header's status badge reads "Inactive" and the Active checkbox is
+ * cleared, while the target picker and its Assign button stay visible but disabled, with a
  * tooltip saying why.
  */
 export const Disabled: Story = {
@@ -228,7 +229,10 @@ export const Disabled: Story = {
   ],
 };
 
-/** Two assigned targets with their own Remove buttons, so the picker has nothing to offer. */
+/**
+ * Two assigned targets, on the Configuration tab: the assignments table lists both targets with
+ * their own Remove buttons and the picker has nothing left to offer.
+ */
 export const Populated: Story = {
   decorators: [
     atUrl(
