@@ -64,11 +64,9 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
     this.peer = peer;
 
-    // Starting announces this peer's state once, so it does not wait out a sync interval to be
-    // discovered — but a sync for a user with no destinations yet is dropped, which is every user
-    // until the subscriptions below get around to setting them. Seeding them first is what makes
-    // the announcement land, and with it a remote unlock on the first hop rather than the next
-    // interval.
+    // Prevent a race condition where the subscription for destinations sets the allowed destinations
+    // only after the first sync, thus dropping the first announcement, and delaying the first sync
+    // by the sync interval
     await this.setDestinationsInitially();
 
     await peer.start();
