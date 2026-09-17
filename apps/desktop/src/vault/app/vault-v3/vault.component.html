@@ -47,7 +47,9 @@
       [collections]="scopedCollections"
       [scope]="vaultScope()"
     ></vault-shared-folder-card-grid>
+    <!-- Remounted per scope: the table reads its filters from the URL once, at mount. -->
     <app-vault-list-table
+      *vaultRemountOn="filterScopeKey()"
       class="tw-flex-1 tw-min-h-0"
       [ciphers]="ciphers"
       [folders]="folders()"
