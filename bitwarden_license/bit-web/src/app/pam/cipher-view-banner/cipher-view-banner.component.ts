@@ -59,7 +59,6 @@ import {
   AccessRequestSdkService,
   DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
   LeasingErrorService,
-  MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   type RequestDurationOption,
   type RequestWindowProblem,
@@ -377,10 +376,11 @@ export class CipherViewBannerComponent implements OnInit {
       : requestDurationOptions(bounds.maxSeconds, bounds.defaultSeconds);
   });
 
-  /** The cap the human path's window must fit inside, for the message under the time fields. */
-  protected readonly maxWindowSeconds = computed(
-    () => this.requestBounds()?.maxSeconds ?? MAX_REQUEST_ACCESS_WINDOW_SECONDS,
-  );
+  /**
+   * The cap the human path's window must fit inside, for the message under the time fields.
+   * `null` until the pre-check resolves the governing rule; no form renders before then.
+   */
+  protected readonly maxWindowSeconds = computed(() => this.requestBounds()?.maxSeconds ?? null);
 
   /**
    * Floor for the human path's date picker, pinned when the fold-out opened.
@@ -774,6 +774,16 @@ export class CipherViewBannerComponent implements OnInit {
           this.humanForm.controls.reason.setErrors({ required: true });
         }
         this.requestError.set(outcome.serverMessage);
+        return;
+      case "exceedsMax":
+        // Localized only where a string already exists. The automatic path has none, and its
+        // refusal is reachable only on pre-check/submit skew, so it echoes the server instead of
+        // earning new copy.
+        this.requestError.set(
+          outcome.scope === "window"
+            ? this.windowProblemMessage("exceedsMaxWindow", outcome.maxSeconds)
+            : outcome.serverMessage,
+        );
         return;
       case "generic":
         this.logService.error(e);
