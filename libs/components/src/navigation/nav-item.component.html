@@ -140,6 +140,8 @@
               [state]="{
                 focusAfterNav: focusAfterNavTarget(),
               }"
+              [bitTooltip]="open ? '' : text()"
+              tooltipPosition="right-center"
               data-testid="nav-item-interactive"
             >
               <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
@@ -154,6 +156,8 @@
               [attr.aria-current]="ariaCurrentValue()"
               [attr.aria-label]="ariaLabel() || text()"
               (click)="mainContentClicked.emit()"
+              [bitTooltip]="open ? '' : text()"
+              tooltipPosition="right-center"
               data-testid="nav-item-interactive"
             >
               <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
@@ -175,8 +179,10 @@
 
   <!-- Main content of `NavItem` -->
   <ng-template #anchorAndButtonContent>
+    <!-- Native title covers the truncated label when open; collapsed, `bitTooltip` owns it and a
+         lingering title would show a second, unthemed tooltip behind ours. -->
     <div
-      [title]="text()"
+      [attr.title]="open ? text() : null"
       class="tw-p-2 tw-flex tw-items-center tw-h-full"
       [class.tw-gap-1]="hasStartIconTile()"
       [class.tw-text-center]="!open"

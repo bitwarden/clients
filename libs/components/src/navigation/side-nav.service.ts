@@ -1,36 +1,25 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
+import { Observable, fromEvent, map, startWith } from "rxjs";
 
-import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
+import { getRootFontSizePx, pxToRem } from "../shared";
 
-import { getRootFontSizePx } from "../shared";
-
-const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
-  deserializer: (s) => s,
-});
+import { resolveArrowStep, resolveDragFromClosed, resolveDragFromOpen } from "./side-nav-resize";
+import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 
 export type SideNavVersion = "default" | "vfo1";
 
+/**
+ * The side nav state machine: open/closed, push/overlay, transition gating, and what a resize
+ * gesture means.
+ *
+ * Width itself lives in `SideNavWidthService` and the gesture arithmetic in `side-nav-resize.ts`.
+ * This class never touches disk — it only picks a verb: `display` to paint a width, `commit` to
+ * make it the user's preference.
+ */
 @Injectable({
   providedIn: "root",
 })
 export class SideNavService {
-  // Units in rem
-  readonly DEFAULT_OPEN_WIDTH = 18;
-  readonly MIN_OPEN_WIDTH = 15;
-  readonly MAX_OPEN_WIDTH = 24;
-
-  /**
-   * Width of the collapsed nav (icon strip / siderail).
-   *
-   * Applied explicitly when closed because the v2 layout's content lives inside a
-   * `container-type: size` element, which reports zero intrinsic width and would
-   * otherwise let the nav collapse to nothing. Matches the siderail width the layout
-   * reserves for the closed nav.
-   */
-  readonly CLOSED_WIDTH = 4;
-
   private rootFontSizePx: number;
 
   readonly version = signal<SideNavVersion>("default");
@@ -57,95 +46,184 @@ export class SideNavService {
    */
   readonly userCollapsePreference = signal<"open" | "closed" | null>(null);
 
-  /**
-   * Local component state width
-   *
-   * This observable has immediate pixel-perfect updates for the sidebar display width to use
-   */
-  private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
-  readonly width$ = this._width$.asObservable();
-
-  /** Current nav width as a signal, for use in grid column calculations. */
-  readonly widthRem = toSignal(this.width$, { initialValue: this.DEFAULT_OPEN_WIDTH });
+  /** True while the user is actively dragging the resize handle. Disables CSS transitions during drag. */
+  readonly isDragging = signal(false);
 
   /**
-   * State provider width
-   *
-   * This observable is used to initialize the component state and will be periodically synced
-   * to the local _width$ state to avoid excessive writes
+   * True once the browser has painted the layout's first measurement, so the initial open/width
+   * state is on screen before transitions turn on and the nav does not animate in on page load.
    */
-  private readonly widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
-  readonly widthState$ = this.widthState.state$.pipe(
-    map((width) => width ?? this.DEFAULT_OPEN_WIDTH),
-  );
+  private readonly layoutReady = signal(false);
+
+  /** True once the initial width and layout have settled, so width changes may animate. */
+  readonly transitionsEnabled = computed(() => this.widthService.hydrated() && this.layoutReady());
+
+  /**
+   * Visual width override (in rem) applied during a drag via a direct style binding: the preview
+   * below the minimum width when dragging out from collapsed, and the tension shrink when an open
+   * nav is dragged toward the snap threshold. Drives width alone — the nav keeps its closed styling
+   * until it actually opens. Never persisted. Null when no drag is in progress.
+   */
+  readonly dragDisplayWidth = signal<number | null>(null);
+
+  /** Owns the width and decides what is persisted. This service never writes to disk itself. */
+  private readonly widthService = inject(SideNavWidthService);
+
+  /** True once the saved width has been read from disk, so callers can tell startup from a resize. */
+  readonly widthHydrated = this.widthService.hydrated;
+
+  private readonly _widthResizedByUser = signal(false);
+
+  /** True once the user has resized the nav themselves, which ends startup on its own. */
+  readonly widthResizedByUser = this._widthResizedByUser.asReadonly();
+
+  /** Current nav width, in rem. */
+  readonly widthRem = this.widthService.width;
 
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
     this.rootFontSizePx = getRootFontSizePx();
-
-    // Initialize the resizable width from state provider
-    this.widthState$.pipe(first()).subscribe((width: number) => {
-      this._width$.next(width);
-    });
-
-    // Periodically sync to state provider when component state changes
-    this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
-      void this.widthState.update(() => width);
-    });
   }
 
   /**
-   * Toggle the open/close state of the side nav
+   * Called by LayoutComponent from its first ResizeObserver callback. That callback runs before the
+   * browser paints the frame, and so do `afterNextRender` and `requestAnimationFrame` — arming the
+   * width transition in any of them means arming it in the same frame that first paints the width,
+   * and the nav animates in on page load. `setTimeout` is the next macrotask, i.e. after the paint.
    */
+  armTransitionsAfterFirstPaint() {
+    if (!this.layoutReady()) {
+      setTimeout(() => this.layoutReady.set(true));
+    }
+  }
+
+  /** Toggle the open/close state of the side nav. */
   toggle() {
-    this.userCollapsePreference.set(this.open() ? "closed" : "open");
-    this.open.set(!this.open());
+    if (this.open()) {
+      this.userCollapsePreference.set("closed");
+      this.open.set(false);
+      return;
+    }
+
+    this._expand();
   }
 
   /**
-   * Set new side nav width from drag event coordinates
+   * Set new side nav width from drag event coordinates.
    *
-   * @param eventXCoordinate x coordinate of the pointer's bounding client rect
+   * @param eventXPointer x coordinate of the pointer
    * @param dragElementXCoordinate x coordinate of the drag element's bounding client rect
    */
   setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
-    const newWidthInPixels = eventXPointer - dragElementXCoordinate;
+    this.isDragging.set(true);
+    this._widthResizedByUser.set(true);
 
-    const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
+    const newWidthInRem = pxToRem(eventXPointer - dragElementXCoordinate, this.rootFontSizePx);
 
-    this._setWidthWithinMinMax(newWidthInRem);
+    if (!this.open()) {
+      // Dragging out from collapsed — a preview drives the visual width without changing `open`,
+      // so push/overlay mode and open-state styling stay put until the nav actually opens.
+      const step = resolveDragFromClosed(newWidthInRem);
+
+      if (step.action === "preview") {
+        this.dragDisplayWidth.set(step.width);
+        return;
+      }
+
+      this.dragDisplayWidth.set(null);
+
+      if (step.action === "open") {
+        // The width hands off to the width service now that the nav is genuinely open.
+        this.userCollapsePreference.set("open");
+        this.open.set(true);
+        this.widthService.display(this.widthService.clamp(step.width));
+      }
+      return;
+    }
+
+    const step = resolveDragFromOpen(newWidthInRem);
+
+    if (step.action === "tension") {
+      this.dragDisplayWidth.set(step.width);
+      return;
+    }
+
+    this.dragDisplayWidth.set(null);
+
+    if (step.action === "collapse") {
+      this.userCollapsePreference.set("closed");
+      this.open.set(false);
+      // Discard the widths this drag painted on the way down and go back to the user's.
+      this.widthService.display(this.widthService.saved());
+      return;
+    }
+
+    this.widthService.display(this.widthService.clamp(step.width));
   }
 
   /**
-   * Set new side nav width from arrow key events
+   * Set new side nav width from arrow key events.
    *
    * @param key event key, must be either ArrowRight or ArrowLeft
    */
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
-    const currentWidth = this._width$.getValue();
+    this._widthResizedByUser.set(true);
 
-    const delta = key === "ArrowLeft" ? -1 : 1;
-    const newWidth = currentWidth + delta;
+    const step = resolveArrowStep(key, this.widthRem(), this.open());
 
-    this._setWidthWithinMinMax(newWidth);
+    switch (step.action) {
+      case "expand":
+        this._expand();
+        return;
+      case "collapse":
+        this.userCollapsePreference.set("closed");
+        this.open.set(false);
+        return;
+      case "commit":
+        this.widthService.commit(step.width);
+        return;
+      case "noop":
+        return;
+    }
   }
 
-  /**
-   * Calculate and set the new width, not going out of the min/max bounds
-   * @param newWidth desired new width: number
-   */
-  private _setWidthWithinMinMax(newWidth: number) {
-    const width = Math.min(Math.max(newWidth, this.MIN_OPEN_WIDTH), this.MAX_OPEN_WIDTH);
+  /** A drag only ever paints. Release is the single place it becomes a preference, so a gesture
+   *  that ends collapsed cannot overwrite the width the user had. */
+  onDragEnd() {
+    this.isDragging.set(false);
 
-    this._width$.next(width);
+    const preview = this.dragDisplayWidth();
+    this.dragDisplayWidth.set(null);
+
+    if (!this.open()) {
+      // Released in the collapsed preview zone — open at the width the user already had.
+      // Otherwise the drag snapped closed, which says nothing about the width.
+      if (preview !== null) {
+        this._expand();
+      }
+      return;
+    }
+
+    if (preview !== null) {
+      // Released in the tension zone — spring back to the minimum.
+      this.widthService.commit(SIDE_NAV_WIDTH_BOUNDS.min);
+      return;
+    }
+
+    // Released while open — the painted width is the width the user chose.
+    this.widthService.commit(this.widthRem());
+  }
+
+  /** Open at the width the user last chose. Display-only, so restoring it is not a new
+   *  preference and a later collapse still returns to the same width. */
+  private _expand() {
+    this.userCollapsePreference.set("open");
+    this.open.set(true);
+    this.widthService.display(this.widthService.saved());
   }
 }
 
-/**
- * Helper function for subscribing to media query events
- * @param query media query to validate against
- * @returns Observable<boolean>
- */
+/** Emits whether `query` matches, starting with its current value. */
 export const media = (query: string): Observable<boolean> => {
   const mediaQuery = window.matchMedia(query);
   return fromEvent<MediaQueryList>(mediaQuery, "change").pipe(
