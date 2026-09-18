@@ -69,9 +69,8 @@ describe("DecideDialogComponent", () => {
     fixture.detectChanges();
   }
 
-  /** Read-only fields render their value on the input, not as element text. */
   function fieldValue(id: string): string {
-    return (fixture.nativeElement.querySelector(`#${id}`) as HTMLInputElement).value;
+    return (fixture.nativeElement.querySelector(`#${id}`) as HTMLElement).textContent!.trim();
   }
 
   beforeEach(() => {
@@ -97,8 +96,8 @@ describe("DecideDialogComponent", () => {
     expect(summary.textContent).toContain("Production");
     expect(summary.textContent).toContain("Grace");
     expect(summary.textContent).toContain("grace@example.com");
-    expect(fieldValue("pam-request-summary_input_reason")).toContain("prod incident");
-    expect(fieldValue("pam-request-summary_input_access-requested")).toContain(
+    expect(fieldValue("pam-request-summary_value_reason")).toContain("prod incident");
+    expect(fieldValue("pam-request-summary_value_access-requested")).toContain(
       "pamInboxDuration1Hour",
     );
   });
@@ -115,10 +114,10 @@ describe("DecideDialogComponent", () => {
     await create("approve", approvalRow({ reason: undefined }));
 
     const reason = fixture.nativeElement.querySelector(
-      "#pam-request-summary_input_reason",
-    ) as HTMLInputElement;
-    expect(reason.value).toBe("");
-    expect(reason.placeholder).toContain("pamInboxReasonMissing");
+      "#pam-request-summary_value_reason",
+    ) as HTMLElement;
+    expect(reason.textContent).toContain("pamInboxReasonMissing");
+    expect(reason.classList).toContain("tw-text-muted");
   });
 
   it("closes with the trimmed comment and the verdict on confirm", async () => {
