@@ -184,8 +184,7 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
  * The default rules feed base URL. Composed with resource paths
  * (e.g. `manifest.json`) at fetch time.
  */
-export const DEFAULT_FILL_ASSIST_RULES_URL =
-  "https://fillassist.bitwarden.com";
+export const DEFAULT_FILL_ASSIST_RULES_URL = "https://fillassist.bitwarden.com";
 
 /**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in

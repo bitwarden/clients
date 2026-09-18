@@ -132,9 +132,7 @@ describe("FillAssistPolicyComponent", () => {
 
     component.ngOnInit();
 
-    expect(component.data?.value?.rulesUrl).toBe(
-      "fillassist.bitwarden.com",
-    );
+    expect(component.data?.value?.rulesUrl).toBe("fillassist.bitwarden.com");
   });
 
   it("keeps the default rulesUrl when policy data is null", () => {

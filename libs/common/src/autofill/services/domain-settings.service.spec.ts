@@ -816,8 +816,7 @@ describe("DefaultDomainSettingsService", () => {
   });
 
   describe("effectiveFillAssistRulesUrl$", () => {
-    const DEFAULT_URL_TRAILING =
-      "https://fillassist.bitwarden.com/";
+    const DEFAULT_URL_TRAILING = "https://fillassist.bitwarden.com/";
 
     beforeEach(() => {
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
