@@ -331,6 +331,19 @@ describe("FamiliesForEnterpriseSetupComponent", () => {
       expect(component.showNewOrganization).toBe(false);
     });
 
+    it("applies the preselection when the flag resolves after the organization list emitted", async () => {
+      await setup(false, { organizations: [familiesOrg("org-1", "Jensen family")] });
+      expect(component.formGroup.value.selectedFamilyOrganizationId).toBe("");
+
+      vfo1Enabled.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.formGroup.value.selectedFamilyOrganizationId).toBe("createNew");
+      expect(component.showNewOrganization).toBe(true);
+    });
+
     it("flag off: shows the create form for a user with no Families organization without touching the control", async () => {
       await setup(false, { organizations: [] });
 

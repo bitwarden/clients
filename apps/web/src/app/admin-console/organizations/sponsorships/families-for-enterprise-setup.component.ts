@@ -1,7 +1,8 @@
 import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 import { first, map, takeUntil } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -53,6 +54,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   _selectedFamilyOrganizationId = "";
 
   protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+  private readonly vfo1Enabled$ = toObservable(this.vfo1Enabled);
   protected sponsoringOrganizationName?: string;
 
   private _destroy = new Subject<void>();
@@ -150,15 +152,18 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
       this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId!;
     });
-    this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
-      if (this.vfo1Enabled()) {
-        if (!this.formGroup.value.selectedFamilyOrganizationId) {
-          this.formGroup.patchValue({ selectedFamilyOrganizationId: "createNew" });
+    // Both inputs are async state; re-evaluate the default whenever either settles.
+    combineLatest([this.existingFamilyOrganizations$, this.vfo1Enabled$])
+      .pipe(takeUntil(this._destroy))
+      .subscribe(([orgs, vfo1Enabled]) => {
+        if (vfo1Enabled) {
+          if (!this.formGroup.value.selectedFamilyOrganizationId) {
+            this.formGroup.patchValue({ selectedFamilyOrganizationId: "createNew" });
+          }
+        } else if (orgs.length === 0) {
+          this.selectedFamilyOrganizationId = "createNew";
         }
-      } else if (orgs.length === 0) {
-        this.selectedFamilyOrganizationId = "createNew";
-      }
-    });
+      });
   }
 
   ngOnDestroy(): void {
