@@ -155,6 +155,7 @@ export class WebVaultItemActionsService {
       });
 
       if (!confirmed) {
+        await this.clearItemQueryParams();
         return;
       }
     }

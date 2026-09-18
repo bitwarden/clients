@@ -240,6 +240,22 @@ describe("WebVaultItemActionsService", () => {
 
       expect(itemDialogOpen).not.toHaveBeenCalled();
     });
+
+    it("clears the item query params when the passkey warning is declined", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      cipherService.get.mockResolvedValue(
+        buildStoredCipher({ login: { fido2Credentials: [{}] } } as unknown as Partial<Cipher>),
+      );
+
+      await service.cloneById(cipherId);
+
+      expect(router.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { cipherId: null, itemId: null, action: null },
+        }),
+      );
+    });
   });
 
   describe("by id", () => {
