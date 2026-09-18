@@ -21,6 +21,7 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
+import { humanDecision } from "../testing/decision-builders";
 
 import { ApproverInboxService } from "./approver-inbox.service";
 
@@ -200,10 +201,12 @@ describe("ApproverInboxService", () => {
       await service.load();
     });
 
-    it("removes the row from the inbox and moves it to history on success", async () => {
-      approvalApi.decide.mockResolvedValue(
+    it("removes the row from the inbox and takes history from the re-read", async () => {
+      approvalApi.decide.mockResolvedValue(request({ id: "req-1", status: "approved" }));
+      approvalApi.listInbox.mockResolvedValue([]);
+      approvalApi.listHistory.mockResolvedValue([
         request({ id: "req-1", status: "approved", resolvedAt: "2026-08-17T12:00:00.000Z" }),
-      );
+      ]);
 
       await service.decide("req-1" as unknown as AccessRequestId, "approve", "fine");
 
@@ -213,22 +216,25 @@ describe("ApproverInboxService", () => {
       expect(history[0].status).toBe("approved");
     });
 
-    it("keeps the fields the decision response does not populate", async () => {
-      // Only status/resolvedAt/decisions come back; replacing the row wholesale would blank the
-      // requester's resolved name.
+    it("names the approver from the re-read, not from the decision response", async () => {
+      // The response carries the approver's id alone; only the list read resolves it to a name.
       approvalApi.decide.mockResolvedValue(
-        request({ id: "req-1", status: "approved", requesterName: undefined }),
+        request({ id: "req-1", status: "approved", decisions: [humanDecision({ id: "user-9" })] }),
       );
-      nameResolver.resolveNames.mockResolvedValue({
-        ...emptyResolvedNames(),
-        cipherNameById: new Map([["cipher-1", "Prod database"]]),
-      } as ResolvedNames);
-      await service.load();
+      approvalApi.listInbox.mockResolvedValue([]);
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          status: "approved",
+          decisions: [humanDecision({ id: "user-9", name: "Ada Lovelace" })],
+        }),
+      ]);
 
       await service.decide("req-1" as unknown as AccessRequestId, "approve", undefined);
 
       const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].cipherName).toBe("Prod database");
+      expect(history[0].resolverName).toBe("Ada Lovelace");
+      expect(history[0].resolverLabelKey).toBeNull();
     });
 
     it("puts the row back and rethrows when the decision fails", async () => {
