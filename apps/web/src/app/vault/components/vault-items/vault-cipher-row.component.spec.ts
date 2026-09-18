@@ -20,6 +20,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
@@ -199,6 +200,27 @@ describe("VaultCipherRowComponent", () => {
       component.disabled = false;
     });
 
+    const menuTrigger = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]');
+
+    const openMenuAndGetContent = (): string => {
+      fixture.detectChanges();
+
+      const trigger = menuTrigger();
+      expect(trigger).toBeTruthy();
+
+      trigger!.click();
+      fixture.detectChanges();
+
+      return overlayContainer.getContainerElement().innerHTML;
+    };
+
+    const withLaunchableUri = () => {
+      const uri = new LoginUriView();
+      uri.uri = "https://example.com";
+      cipher.login.uris = [uri];
+    };
+
     it("isPartial reflects the cipher's partial flag", () => {
       cipher.partial = true;
       expect(component["isPartial"]).toBe(true);
@@ -225,6 +247,33 @@ describe("VaultCipherRowComponent", () => {
         'input[type="checkbox"]',
       ) as HTMLInputElement;
       expect(checkbox.disabled).toBe(false);
+    });
+
+    it("offers launch and nothing else on a partial row", () => {
+      cipher.partial = true;
+      cipher.viewPassword = true;
+      withLaunchableUri();
+
+      const overlayContent = openMenuAndGetContent();
+
+      expect(overlayContent).toContain("launch");
+      expect(overlayContent).not.toContain("appcopyfield");
+      expect(overlayContent).not.toContain("bit-menu-divider");
+      expect(overlayContent).not.toContain("favorite");
+    });
+
+    it("withholds the overflow trigger when a partial row has nothing to offer", () => {
+      cipher.partial = true;
+      fixture.detectChanges();
+
+      expect(menuTrigger()).toBeNull();
+    });
+
+    it("keeps the overflow trigger on a normal row with no launchable uri", () => {
+      cipher.partial = false;
+      fixture.detectChanges();
+
+      expect(menuTrigger()).not.toBeNull();
     });
   });
 

@@ -15,7 +15,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -65,6 +65,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   private readonly quickCopyActionsSetting = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
+  );
+
+  protected readonly showCopyAndLaunchActions = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM28091_AddCopyAndQuickLaunchActions),
     { initialValue: false },
   );
 
@@ -172,8 +177,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ];
   protected organization?: Organization;
 
-  protected showCopyAndLaunchActions$: Observable<boolean>;
-
   constructor(
     private i18nService: I18nService,
     private accountService: AccountService,
@@ -182,11 +185,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private configService: ConfigService,
     @Optional() @Inject(VAULT_ROW_LEASE_BADGE) protected leaseBadge: Type<unknown> | null,
     @Optional() protected accessActions: VaultRowAccessActionsService | null,
-  ) {
-    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
-    );
-  }
+  ) {}
 
   /**
    * Lifecycle hook for component initialization.
@@ -258,6 +257,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get launchUri() {
     return CipherViewLikeUtils.getLaunchUri(this.cipher);
+  }
+
+  protected get showLaunchInMenu() {
+    return !this.showCopyAndLaunchActions() && this.canLaunch;
   }
 
   protected get subtitle() {

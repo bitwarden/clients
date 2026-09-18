@@ -125,8 +125,9 @@
     }
   </bit-menu>
   @if (!decryptionFailure) {
+    @let cancelableRequest = (accessActions?.cancelableRequest$(cipher) | async) ?? false;
     <span class="tw-relative tw-inline-flex tw-items-center">
-      @if (showCopyAndLaunchActions$ | async) {
+      @if (showCopyAndLaunchActions()) {
         <div
           class="tw-absolute tw-right-full tw-inset-y-0 tw-flex tw-items-center tw-gap-2 tw-pr-2 tw-opacity-0 tw-pointer-events-none tw-transition-opacity group-hover/cipher-row:tw-opacity-100 group-hover/cipher-row:tw-pointer-events-auto group-has-[:focus-visible]/cipher-row:tw-opacity-100 group-has-[:focus-visible]/cipher-row:tw-pointer-events-auto [&:has([aria-expanded='true'])]:tw-opacity-100 [&:has([aria-expanded='true'])]:tw-pointer-events-auto"
         >
@@ -148,17 +149,26 @@
         </div>
       }
 
-      <button
-        [bitMenuTriggerFor]="cipherOptions"
-        [disabled]="disabled"
-        size="small"
-        bitIconButton="bwi-ellipsis-v"
-        type="button"
-        appStopProp
-        label="{{ 'moreOptions' | i18n }}"
-      ></button>
+      @if (!isPartial || showLaunchInMenu || cancelableRequest) {
+        <button
+          [bitMenuTriggerFor]="cipherOptions"
+          [disabled]="disabled"
+          size="small"
+          bitIconButton="bwi-ellipsis-v"
+          type="button"
+          appStopProp
+          label="{{ 'moreOptions' | i18n }}"
+        ></button>
+      }
       <bit-menu #cipherOptions>
-        @if (!(showCopyAndLaunchActions$ | async)) {
+        @if (isPartial) {
+          @if (showLaunchInMenu) {
+            <button type="button" bitMenuItem (click)="openUri(launchUri)">
+              <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
+              {{ "launch" | i18n }}
+            </button>
+          }
+        } @else if (!showCopyAndLaunchActions()) {
           @if (isLoginCipher) {
             <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
