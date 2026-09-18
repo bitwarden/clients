@@ -18,9 +18,13 @@ function system(overrides: Partial<TargetSystem> = {}): TargetSystem {
 
 describe("targetSystemQualifierKey", () => {
   it("uses the integration when there is one", () => {
-    expect(targetSystemQualifierKey(system({ kind: TargetSystemKind.Mssql }))).toBe(
-      "pamTargetSystemTypeMssql",
+    expect(targetSystemQualifierKey(system({ kind: TargetSystemKind.Entra }))).toBe(
+      "pamTargetSystemTypeEntra",
     );
+  });
+
+  it("states nothing about mssql, which this client no longer offers", () => {
+    expect(targetSystemQualifierKey(system({ kind: TargetSystemKind.Mssql }))).toBeNull();
   });
 
   it("falls back to the method for a manual target, which has no integration", () => {
