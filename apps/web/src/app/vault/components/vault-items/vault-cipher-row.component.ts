@@ -241,6 +241,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.getLaunchUri(this.cipher);
   }
 
+  /** A gated row withholds every other action, so the menu surfaces launch on its own. */
+  protected get showLaunchInMenu() {
+    return this.isPartial && this.canLaunch;
+  }
+
   protected get subtitle() {
     return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
