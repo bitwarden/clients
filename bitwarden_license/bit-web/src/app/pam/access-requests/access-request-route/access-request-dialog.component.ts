@@ -45,6 +45,7 @@ import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
+import { DurationShortPipe } from "../../date/duration-short.pipe";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
@@ -99,6 +100,7 @@ export type AccessRequestDialogParams = {
     StatusLockupComponent,
     SvgComponent,
     TypographyModule,
+    DurationShortPipe,
     RemainingTimePipe,
     RequestSummaryComponent,
     SummaryFieldComponent,
@@ -234,14 +236,36 @@ export class AccessRequestDialogComponent implements OnInit {
   protected readonly leaseActive = computed(() => this.request()?.producedLeaseStatus === "active");
 
   /**
-   * Whether to show the live "ends in X" countdown: the produced lease is active and its window
-   * is still open. The countdown itself is rendered via the `remainingTime` pipe in the template.
+   * The applied extension's added time and the end it moved the lease to; null when the lease was
+   * never extended. A lease may be extended once, so the whole delta belongs to that extension.
    */
-  protected readonly showLeaseRemaining = computed(() => {
+  protected readonly extension = computed(() => {
     const request = this.request();
-    return (
-      request != null && this.leaseActive() && Date.parse(request.leaseNotAfter) > this.nowMs()
-    );
+    if (request?.producedLeaseNotAfter == null) {
+      return null;
+    }
+    const addedMs = Date.parse(request.producedLeaseNotAfter) - Date.parse(request.leaseNotAfter);
+    return addedMs <= 0
+      ? null
+      : { addedSeconds: addedMs / 1000, until: request.producedLeaseNotAfter };
+  });
+
+  /**
+   * The live "ends in X" countdown's target — the produced lease's own end — while that lease is
+   * active and its window still open; null when there is nothing to count down.
+   *
+   * Read off `producedLeaseNotAfter`, not `leaseNotAfter`: the latter is the activation window
+   * pinned at submit, which an extension never restamps, so reading it here had the dialog
+   * contradict the Active access table on an extended lease (PAM-151). Falls back to it for a
+   * server predating the field, where the two agree anyway.
+   */
+  protected readonly leaseEndsAt = computed(() => {
+    const request = this.request();
+    if (request == null || !this.leaseActive()) {
+      return null;
+    }
+    const endsAt = request.producedLeaseNotAfter ?? request.leaseNotAfter;
+    return Date.parse(endsAt) > this.nowMs() ? endsAt : null;
   });
 
   /** The requester can start an approved request while its window can still produce access. */
