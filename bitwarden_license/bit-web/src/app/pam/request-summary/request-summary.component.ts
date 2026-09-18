@@ -45,7 +45,7 @@ export class RequestSummaryComponent {
   readonly requesterEmail = input<string | null>(null);
   readonly duration = input<LabelValue | null>(null);
   readonly relativeStart = input<LabelValue | null>(null);
-  /** The fully-formatted window, shown on hover behind the coarse "4 hours, tomorrow" label. */
+  /** The fully-formatted "from – to" window, shown as a second line under the coarse "4 hours, tomorrow" label. */
   readonly exactWindow = input<string>("");
   readonly reason = input<string | null>(null);
 

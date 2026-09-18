@@ -48,9 +48,12 @@
     </pam-summary-field>
 
     <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
-      <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
-        accessRequested()
-      }}</span>
+      <span id="pam-request-summary_value_access-requested">{{ accessRequested() }}</span>
+      @if (exactWindow(); as window) {
+        <span id="pam-request-summary_value_exact-window" class="tw-block tw-text-fg-body-subtle">
+          {{ window }}
+        </span>
+      }
     </pam-summary-field>
 
     <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
