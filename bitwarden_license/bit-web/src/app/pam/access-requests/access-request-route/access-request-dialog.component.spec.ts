@@ -280,7 +280,7 @@ describe("AccessRequestDialogComponent", () => {
       create();
 
       const decisions = component["decisions"]();
-      expect(decisions[1].labelKey).toBe("pamAuditKindLeaseEndedByHolder");
+      expect(decisions[1].labelKey).toBe("pamAuditKindAccessEndedByRequester");
       expect(text()).not.toContain("pamStatusDenied");
     });
 
@@ -297,7 +297,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(component["decisions"]()[1].labelKey).toBe("pamAuditKindLeaseRevoked");
+      expect(component["decisions"]()[1].labelKey).toBe("pamAuditKindAccessRevoked");
     });
   });
 

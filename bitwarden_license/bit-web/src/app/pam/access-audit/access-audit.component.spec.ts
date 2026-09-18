@@ -167,19 +167,19 @@ describe("AccessAuditComponent", () => {
             pamAuditKindRequestCanceled: "Request canceled",
             pamAuditKindRequestExpiredUnanswered: "Request expired without a decision",
             pamAuditKindRequestExpiredUnactivated: "Approval expired unused",
-            pamAuditKindLeaseActivated: "Lease activated",
+            pamAuditKindAccessActivated: "Access activated",
             pamAuditKindLeaseActivationRejected: "Activation rejected",
-            pamAuditKindLeaseExtended: "Lease extended",
-            pamAuditKindLeaseRevoked: "Lease revoked",
-            pamAuditKindLeaseExpired: "Lease expired",
+            pamAuditKindAccessExtended: "Access extended",
+            pamAuditKindAccessRevoked: "Access revoked",
+            pamAuditKindAccessExpired: "Access expired",
             pamAuditKindCredentialAccessed: "Credential accessed",
             pamAuditKindCredentialAccessDenied: "Credential access denied",
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindRuleUpdated: "Access rule updated",
             pamAuditKindRuleDeleted: "Access rule deleted",
             pamAuditKindLeasingKillSwitchTriggered: "Kill switch triggered",
-            pamAuditKindLeasingFreezeEnabled: "Leasing frozen",
-            pamAuditKindLeasingFreezeLifted: "Leasing unfrozen",
+            pamAuditKindAccessFreezeEnabled: "Access freeze enabled",
+            pamAuditKindAccessFreezeLifted: "Access freeze lifted",
             pamAuditKindRotationConfigCreated: "Rotation config created",
             pamAuditKindRotationSettingsUpdated: "Rotation settings updated",
             pamAuditKindRotationAccountUpdated: "Rotation account updated",
@@ -210,7 +210,7 @@ describe("AccessAuditComponent", () => {
             pamAuditKindTargetRenamed: "Target system renamed",
             pamAuditKindTargetPolicyUpdated: "Target password policy updated",
             pamAuditKindTargetDeleted: "Target system deleted",
-            pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
+            pamAuditKindAccessEndedByRequester: "Access ended by requester",
             pamAuditKindUnknown: "Unknown event",
             loadMore: "Load more",
             exportVerb: "Export",
@@ -525,7 +525,7 @@ describe("AccessAuditComponent", () => {
   });
 
   // Server-side, a holder-ended lease is still LeaseRevoked; the column relabels it for display.
-  it("folds a holder-ended lease into the Lease revoked filter, and still labels the row its own way", async () => {
+  it("folds a holder-ended lease into the Access revoked filter, and still labels the row its own way", async () => {
     returnsTrail([
       event({ Kind: "leaseRevoked", ActorId: "user-1", ActorName: "Ada", RequesterId: "user-2" }),
       event({ Kind: "leaseRevoked", ActorId: "user-2", ActorName: "Grace", RequesterId: "user-2" }),
@@ -533,13 +533,13 @@ describe("AccessAuditComponent", () => {
     await renderReady();
 
     expect(component().kindOptions()).not.toContainEqual(
-      expect.objectContaining({ label: "Lease ended by holder" }),
+      expect.objectContaining({ label: "Access ended by requester" }),
     );
     expect(
       component()
         .rows()
         .map((row: any) => row.kindLabelKey),
-    ).toEqual(["pamAuditKindLeaseRevoked", "pamAuditKindLeaseEndedByHolder"]);
+    ).toEqual(["pamAuditKindAccessRevoked", "pamAuditKindAccessEndedByRequester"]);
 
     selectFilter("kind", ["leaseRevoked"]);
     await fixture.whenStable();
@@ -1025,7 +1025,7 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
 
       expect(component().kindOptions()).toEqual(before);
-      expect(before).toContainEqual({ label: "Lease activated", value: "leaseActivated" });
+      expect(before).toContainEqual({ label: "Access activated", value: "leaseActivated" });
     });
 
     it("does not re-read the member lookup on a refresh", async () => {
