@@ -39,6 +39,7 @@ import {
 import { orgIconTile, personalIconTile } from "../../../models/vault-icon-tile";
 import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
+import { collectionDisplayName } from "../../../utils/collection-display-name";
 import {
   CipherFormConfig,
   OptionalInitialValues,
@@ -498,12 +499,16 @@ export class ItemDetailsSectionComponent implements OnInit {
         const bIsDefaultCollection = b.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
         return aIsDefaultCollection - bIsDefaultCollection;
       })
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        listName: c.name,
-        labelName: c.name,
-      }));
+      .map((c) => {
+        const name = collectionDisplayName(c, this.i18nService);
+
+        return {
+          id: c.id,
+          name,
+          listName: name,
+          labelName: name,
+        };
+      });
 
     collectionsControl.reset();
     collectionsControl.enable();

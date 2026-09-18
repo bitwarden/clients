@@ -70,6 +70,7 @@ import {
 import { orgIconTile } from "../models/vault-icon-tile";
 import { Vfo1I18nPipe } from "../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
+import { collectionDisplayName } from "../utils/collection-display-name";
 
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
@@ -477,8 +478,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         ),
         id: c.id,
-        labelName: c.name,
-        listName: c.name,
+        labelName: collectionDisplayName(c, this.i18nService),
+        listName: collectionDisplayName(c, this.i18nService),
       }));
 
     // Select assigned collections for a single cipher.
@@ -490,8 +491,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         {
           icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
           id: this.params.activeCollection.id,
-          labelName: this.params.activeCollection.name,
-          listName: this.params.activeCollection.name,
+          labelName: collectionDisplayName(this.params.activeCollection, this.i18nService),
+          listName: collectionDisplayName(this.params.activeCollection, this.i18nService),
         },
       ]);
     }
@@ -585,8 +586,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
             c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
           ),
           id: c.id,
-          labelName: c.name,
-          listName: c.name,
+          labelName: collectionDisplayName(c, this.i18nService),
+          listName: collectionDisplayName(c, this.i18nService),
         }));
       });
   }
@@ -740,7 +741,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           !c.canEditItems(organization)
         );
       })
-      .map((c) => c.name);
+      .map((c) => collectionDisplayName(c, this.i18nService));
   }
 
   /**
