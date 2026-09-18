@@ -9,7 +9,12 @@ import type {
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
 
-import { AccessEventService, AccessLeaseSdkService, AccessRequestSdkService } from "..";
+import {
+  AccessEventService,
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+} from "..";
 
 import {
   AccessNameResolverService,
@@ -63,6 +68,7 @@ describe("MyAccessService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
+  let accessRefresh: MockProxy<AccessRefreshService>;
   let push$: Subject<void>;
 
   beforeEach(() => {
@@ -70,6 +76,7 @@ describe("MyAccessService", () => {
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
+    accessRefresh = mock<AccessRefreshService>();
 
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
     leasesApi.listMyLeases.mockResolvedValue([]);
@@ -82,6 +89,7 @@ describe("MyAccessService", () => {
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
+        { provide: AccessRefreshService, useValue: accessRefresh },
       ],
     });
 
@@ -239,6 +247,15 @@ describe("MyAccessService", () => {
       expect(history[0].status).toBe("canceled");
     });
 
+    it("announces a landed cancel, so the nav badge re-reads without waiting on a push", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+
+      await service.cancel("req-1" as unknown as AccessRequestId);
+
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+
     it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
       await service.load();
@@ -250,6 +267,7 @@ describe("MyAccessService", () => {
       const pending = await firstValueFrom(service.pendingRows$);
       expect(pending.map((r) => r.id)).toEqual(["req-1"]);
       expect(pending[0].status).toBe("pending");
+      expect(accessRefresh.notifyAccessChanged).not.toHaveBeenCalled();
     });
   });
 
@@ -275,6 +293,7 @@ describe("MyAccessService", () => {
       const history = await firstValueFrom(service.historyRows$);
       expect(history.map((r) => r.id)).toEqual(["req-1"]);
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusCanceled");
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
     });
 
     it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {
@@ -308,6 +327,7 @@ describe("MyAccessService", () => {
       expect(requestsApi.activateAccessRequest).toHaveBeenCalledWith("req-1");
       expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
       expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
     });
   });
 

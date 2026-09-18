@@ -10,6 +10,7 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 import { ApprovalSdkService } from "../abstractions/approval-sdk.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 
+import { DefaultAccessRefreshService } from "./default-access-refresh.service";
 import { DefaultPamNavBadgeService } from "./pam-nav-badge.service";
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
@@ -31,6 +32,7 @@ describe("DefaultPamNavBadgeService", () => {
   let push$: Subject<void>;
   let inboxPush$: Subject<void>;
   let accessEvents: AccessEventService;
+  let accessRefresh: DefaultAccessRefreshService;
   let approvalPrivileges: ApprovalPrivilegeService;
   let service: DefaultPamNavBadgeService;
   const subscriptions: Subscription[] = [];
@@ -58,6 +60,8 @@ describe("DefaultPamNavBadgeService", () => {
       accessChanged$: () => push$.asObservable(),
       approverInboxChanged$: () => inboxPush$.asObservable(),
     };
+    // The real one, so a push reaches the badge the same way it does in the app: through it.
+    accessRefresh = new DefaultAccessRefreshService(accessEvents);
     approvalPrivileges = { canApprove$ } as unknown as ApprovalPrivilegeService;
 
     configService.getFeatureFlag$.mockReturnValue(enabled$ as never);
@@ -69,6 +73,7 @@ describe("DefaultPamNavBadgeService", () => {
       approvalsApi,
       approvalPrivileges,
       accessEvents,
+      accessRefresh,
       configService,
       logService,
     );
@@ -172,6 +177,33 @@ describe("DefaultPamNavBadgeService", () => {
     await settle();
 
     expect(seen.at(-1)).toBe(1);
+  });
+
+  it("drops the approver's own decision without waiting on a push", async () => {
+    // The approver decides in this tab; the push that would re-read may be late, or never come.
+    approvalsApi.listInbox.mockResolvedValue([request("pending")]);
+    const seen = watch();
+    await settle();
+    expect(seen.at(-1)).toBe(1);
+
+    approvalsApi.listInbox.mockResolvedValue([]);
+    accessRefresh.notifyAccessChanged();
+    await settle();
+
+    expect(seen.at(-1)).toBe(0);
+  });
+
+  it("drops the caller's own cancel or start without waiting on a push", async () => {
+    requestsApi.listMyAccessRequests.mockResolvedValue([request("pending")]);
+    const seen = watch();
+    await settle();
+    expect(seen.at(-1)).toBe(1);
+
+    requestsApi.listMyAccessRequests.mockResolvedValue([request("canceled")]);
+    accessRefresh.notifyAccessChanged("cipher-1");
+    await settle();
+
+    expect(seen.at(-1)).toBe(0);
   });
 
   it("does not re-emit when the count is unchanged", async () => {

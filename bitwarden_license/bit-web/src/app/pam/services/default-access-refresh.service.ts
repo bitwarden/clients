@@ -21,9 +21,9 @@ export class DefaultAccessRefreshService implements AccessRefreshService {
 
   constructor(private accessEventService: AccessEventService) {}
 
-  accessChanged$(cipherId: string): Observable<void> {
+  accessChanged$(cipherId?: string): Observable<void> {
     const local$ = this.changed$.pipe(
-      filter((changed) => changed === undefined || changed === cipherId),
+      filter((changed) => cipherId === undefined || changed === undefined || changed === cipherId),
       // Annotated: the repo builds apps without `strictNullChecks`, where a bare `undefined` widens
       // to `any` and trips `noImplicitAny` on the inferred return type.
       map((): void => undefined),
