@@ -191,20 +191,24 @@ export class NativeMessagingMain {
       case "darwin": {
         const nmhs = this.getDarwinNMHS();
         for (const [key, browserDirectory] of Object.entries(nmhs)) {
-          if (existsSync(browserDirectory)) {
-            const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
-            const manifestPath = path.join(nmhsPath, "com.8bit.bitwarden.json");
-
-            let manifest: any = await this.generateChromeJson(binaryPath);
-            if (key === "Firefox" || key === "Zen") {
-              // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nmhsPath, { recursive: true });
-              manifest = await this.generateFirefoxJson(binaryPath);
-            }
-
-            await this.writeManifest(manifestPath, manifest);
-          } else {
+          if (!existsSync(browserDirectory)) {
             this.logService.warning(`${key} not found, skipping.`);
+            continue;
+          }
+
+          const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
+          const manifestPath = path.join(nmhsPath, "com.8bit.bitwarden.json");
+
+          try {
+            await fs.mkdir(nmhsPath, { recursive: true });
+            await this.writeManifest(
+              manifestPath,
+              key === "Firefox" || key === "Zen"
+                ? await this.generateFirefoxJson(binaryPath)
+                : await this.generateChromeJson(binaryPath),
+            );
+          } catch (e) {
+            this.logService.error(`[Native messaging] Failed to set up ${key}, skipping:`, e);
           }
         }
         break;
@@ -217,46 +221,40 @@ export class NativeMessagingMain {
 
         // Unsandboxed browser
         for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
-          if (existsSync(browserDirectory)) {
-            let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
-            if (key === "Firefox") {
-              nhmsPath = path.join(browserDirectory, "native-messaging-hosts");
-            }
-            const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
-
-            if (key === "Firefox") {
-              // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nhmsPath, { recursive: true });
-            }
-
-            await this.linkOrCopy(binaryPath, browserBinaryPath);
-            this.logService.info(
-              `[Native messaging] Hard-linked ${binaryPath} to ${browserBinaryPath}`,
-            );
-
-            if (key === "Firefox") {
-              await this.writeManifest(
-                path.join(nhmsPath, "com.8bit.bitwarden.json"),
-                await this.generateFirefoxJson(browserBinaryPath),
-              );
-            } else {
-              await this.writeManifest(
-                path.join(nhmsPath, "com.8bit.bitwarden.json"),
-                await this.generateChromeJson(browserBinaryPath),
-              );
-            }
-          } else {
+          if (!existsSync(browserDirectory)) {
             this.logService.warning(`${key} not found, skipping.`);
+            continue;
+          }
+
+          const nmhsPath = path.join(
+            browserDirectory,
+            key === "Firefox" ? "native-messaging-hosts" : "NativeMessagingHosts",
+          );
+          const browserBinaryPath = path.join(nmhsPath, ".bitwarden_desktop_proxy");
+
+          try {
+            await fs.mkdir(nmhsPath, { recursive: true });
+            await this.linkOrCopy(binaryPath, browserBinaryPath);
+            await this.writeManifest(
+              path.join(nmhsPath, "com.8bit.bitwarden.json"),
+              key === "Firefox"
+                ? await this.generateFirefoxJson(browserBinaryPath)
+                : await this.generateChromeJson(browserBinaryPath),
+            );
+          } catch (e) {
+            this.logService.error(`[Native messaging] Failed to set up ${key}, skipping:`, e);
           }
         }
 
         for (const [key, value] of Object.entries(this.getFlatpakNMHS())) {
-          if (existsSync(value)) {
+          if (!existsSync(value)) {
+            this.logService.warning(`${key} not found, skipping.`);
+            continue;
+          }
+
+          try {
             const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
             await this.linkOrCopy(binaryPath, sandboxedProxyBinaryPath);
-            this.logService.info(
-              `[Native messaging] Hard-linked ${binaryPath} to ${sandboxedProxyBinaryPath}`,
-            );
 
             if (key === "Firefox") {
               await this.writeManifest(
@@ -271,8 +269,11 @@ export class NativeMessagingMain {
             } else {
               this.logService.warning(`Flatpak ${key} not supported, skipping.`);
             }
-          } else {
-            this.logService.warning(`${key} not found, skipping.`);
+          } catch (e) {
+            this.logService.error(
+              `[Native messaging] Failed to set up Flatpak ${key}, skipping:`,
+              e,
+            );
           }
         }
 
