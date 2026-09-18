@@ -4,7 +4,14 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { HecConfiguration } from "@bitwarden/bit-common/dirt/organization-integrations/models/configuration/hec-configuration";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-configuration-config/configuration-template/hec-template";
-import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -14,6 +21,7 @@ import {
 
 export type HecConnectDialogParams = {
   settings: Integration;
+  saveCallback: (url: string, bearerToken: string, index: string) => Promise<string | null>;
 };
 
 export interface HecConnectDialogResult {
@@ -47,6 +55,8 @@ export class ConnectHecDialogComponent implements OnInit {
     protected formBuilder: FormBuilder,
     private dialogRef: DialogRef<HecConnectDialogResult>,
     private dialogService: DialogService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
   ngOnInit(): void {
@@ -82,11 +92,31 @@ export class ConnectHecDialogComponent implements OnInit {
       this.formGroup.markAllAsTouched();
       return;
     }
-    const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
-    await this.dialogRef.close(result);
-
-    return;
+    const { url, bearerToken, index } = this.formGroup.getRawValue();
+    try {
+      const errorMessage = await this.connectInfo.saveCallback(
+        url ?? "",
+        bearerToken ?? "",
+        index ?? "",
+      );
+      if (errorMessage !== null) {
+        // 400: server rejected the config — show error, keep dialog open
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: errorMessage || this.i18nService.t("failedToSaveIntegration"),
+        });
+        return;
+      }
+      // null = success; callback already showed toast and updated state
+      await this.dialogRef.close(
+        this.getHecConnectDialogResult(IntegrationDialogResultStatus.SavedViaCallback),
+      );
+    } catch {
+      // Other errors: callback already showed toast; close without result
+      await this.dialogRef.close();
+    }
   };
 
   delete = async (): Promise<void> => {
