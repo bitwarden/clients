@@ -183,6 +183,9 @@
   "foldersFilterTooltip": {
     "message": "Adicione pastas aos itens para os filtrar aqui."
   },
+  "myItemsFilterTooltip": {
+    "message": "Adicione itens a Os meus itens para os filtrar aqui."
+  },
   "sharedFolderFilterTooltip": {
     "message": "Adicione itens a uma pasta partilhada para os filtrar aqui."
   },
@@ -802,16 +805,25 @@
   "decryptionError": {
     "message": "Erro de desencriptação"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  "couldNotDecryptVaultItem": {
+    "message": "O Bitwarden não conseguiu desencriptar o item do cofre apresentado abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça o ID do item abaixo para verificar se é possível recuperá-lo."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contacte o serviço de apoio ao cliente",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "O Bitwarden não conseguiu desencriptar os itens do cofre apresentados abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça os IDs dos itens abaixo para verificar se é possível recuperá-los."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar perdas adicionais de dados.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID do item",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "IDs dos itens",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copiar ID"
+  },
+  "copyAllIds": {
+    "message": "Copiar todos os IDs"
   },
   "january": {
     "message": "Janeiro"
@@ -4629,10 +4641,10 @@
     "message": "Selecionar uma coleção"
   },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -5982,6 +5994,9 @@
   "enableAutotypeShortcutPreview": {
     "message": "Ativar o atalho de digitação automática (Pré-visualização da funcionalidade)"
   },
+  "enableAutotypeGaShortcut": {
+    "message": "Ativar o atalho de introdução automática"
+  },
   "enableAutotypeShortcutDescription": {
     "message": "Certifique-se de que está no campo correto antes de utilizar o atalho para evitar preencher dados no local errado."
   },
@@ -6394,7 +6409,7 @@
     "message": "Adicione uma pasta partilhada para partilhar itens do cofre de forma segura com outros membros."
   },
   "sendPasswordHelperText": {
-    "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
+    "message": "Os destinatários terão de introduzir a palavra-passe para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
@@ -6848,5 +6863,80 @@
   },
   "editItemsHidePass": {
     "message": "Editar itens, palavras-passe ocultas"
+  },
+  "shareVerb": {
+    "message": "Partilhar"
+  },
+  "peopleWhoCanView": {
+    "message": "Pessoas com acesso de visualização",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Depois de partilhar este link, os destinatários terão de verificar o seu e-mail com um código para ver o item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Este link expira após esta data, mas os destinatários podem conservar as informações partilhadas anteriormente. Gere novamente a credencial para revogar o acesso.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "O link expira após",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Partilha única",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Links ativos",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copiado para a área de transferência",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Não foi possível criar o link de partilha",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link guardado e copiado para a área de transferência",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Não foi possível copiar o link de partilha para a área de transferência",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Link de partilha eliminado",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Não foi possível eliminar o link de partilha",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Partilhar através de um link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Partilha do item $ITEM$ do cofre",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expira a",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expira a",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
   }
 }

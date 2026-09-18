@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ extra gedeelde mappen weergegeven boven deze knop",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 extra gedeelde map weergegeven boven deze knop",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Mijn map"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Voeg mappen toe aan items om ze hier te filteren."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Items toevoegen aan Mijn items om ze hier te filteren."
   },
   "sharedFolderFilterTooltip": {
     "message": "Add items to a shared folder to filter here."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Extern ID kopiëren",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "SSO extern ID kopiëren",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Nummer Kopiëren",
@@ -3461,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
   "importTargetHintFolder": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -4685,6 +4688,15 @@
   "reinstateSubscription": {
     "message": "Abonnement opnieuw activeren"
   },
+  "keepSubscription": {
+    "message": "Abonnement behouden"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Je abonnement is verlopen en zal binnenkort worden onderbroken."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Je abonnement is verlopen en is onderbroken."
+  },
   "reinstateConfirmation": {
     "message": "Weet je zeker dat je de lopende opzegging wilt verwijderen en je abonnement opnieuw wilt activeren?"
   },
@@ -5418,10 +5430,6 @@
   },
   "collectionInfo": {
     "message": "Collectieinformatie"
-  },
-  "sharedFolderInfo": {
-    "message": "Gedeelde map-informatie",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Weet je zeker dat je deze verzameling wilt verwijderen?"
@@ -7480,6 +7488,9 @@
   "inviteLinkRegenerated": {
     "message": "Uitnodigingslink opnieuw gegenereerd"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Uitnodigingslink bijgewerkt"
+  },
   "regenerateInviteLink": {
     "message": "Uitnodigingslink opnieuw genereren"
   },
@@ -7554,6 +7565,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Leden met een link uitnodigen voor je organisatie. Als er nog geen rol is opgegeven, worden ze toegevoegd als een standaardgebruiker."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Het gebruik van een uitnodigingslink kan een beveiligingsrisico vormen in je zelf gehoste omgeving, omdat gebruikers hun e-mailadres niet hoeven te verifiëren."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Door verder te gaan, ga je akkoord met de"
@@ -8853,16 +8867,16 @@
   "sendControls": {
     "message": "Send-instellingen"
   },
-  "manageSend": {
-    "message": "Send beheren",
+  "manageSendV2": {
+    "message": "Send en delen beheren",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Instellingen voor het aanmaken en bewerken van Sends, inclusief de mogelijkheid tot het verwijderen van Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Beheer hoe leden Send gebruiken. Dit beleid is van toepassing op Sends die zijn aangemaakt nadat je dit  beleid inschakelt. Beheerders en eigenaren zijn vrijgesteld.",
+  "sendControlsPolicyDescV5": {
+    "message": "Beheer hoe leden Send en het delen van kluisitems gebruiken. Dit beleid zal niet worden afgedwongen voor eigenaren en admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9547,25 @@
   "decryptionError": {
     "message": "Ontsleutelingsfout"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden kon het onderstaande kluisitem niet ontsleutelen. Neem contact op met Bitwarden Customer Support en geef het item ID hieronder om te zien of het kan worden hersteld."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Neem contact op met de klantenservice",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden kon de onderstaande kluisitems niet ontsleutelen. Neem contact op met Bitwarden Customer Support en geef het item ID hieronder om te zien of het kan worden hersteld."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "om extra dataverlies te voorkomen.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": ""
+  },
+  "copyAllIds": {
+    "message": "Alle ID's kopiëren"
   },
   "accountRecoveryManageUsers": {
     "message": "Gebruikers beheren moet je ook accountherstel beheren toekennen"
@@ -10919,18 +10942,6 @@
   "scimLearnMore": {
     "message": "Meer informatie over SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Automatisch in gebruikers en groepen voorzien via SCIM-provisioning van je voorkeursprovider. Onderteunde integraties vinden",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "SCIM inschakelen",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Stel je voorkeurs voorkeursprovider voor identiteiten in door de URL SCIM API-sleutel te configureren",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Deze API-sleutel heeft toegang tot het beheer van gebruikers binnen je organisatie. Het moet geheim blijven."
   },
@@ -11277,6 +11288,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Geheimen definitief verwijderen"
+  },
+  "currentVersion": {
+    "message": "Huidige versie",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Gewijzigd door: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Geheime waarde gekopieerd",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Geheim teruggezet naar de geselecteerde versie",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Versie geheim herstellen",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Weet je zeker dat u dit geheim naar de geselecteerde versie wilt herstellen? De huidige waarde zal worden vervangen.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Vorige versies",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Versiegeschiedenis",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Geen versiegeschiedenis",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Kies projecten om het geheim aan te koppelen. Alleen gebruikers uit de organisatie met toegang tot deze projecten kunnen het geheim zien.",
@@ -12457,6 +12510,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Weet je zeker dat je deze geheimen wilt herstellen?"
+  },
+  "restoreThisVersion": {
+    "message": "Deze versie herstellen"
   },
   "secretRestoredSuccessToast": {
     "message": "Geheim hersteld"
@@ -17686,5 +17742,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Je hele team uitnodigen met één link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Iedereen met een bedrijfse-mailadres kan de uitnodigingslink gebruiken om voor deelname aan je organisatie. Sleep het neer in onboarding bronnen, zodat nieuwe medewerkers kunnen deelnemen wanneer ze klaar zijn."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Preview van het dialoogvenster voor het uitnodigen van leden met het nieuwe tabblad"
+  },
+  "showMeHow": {
+    "message": "Laat mij zien hoe"
+  },
+  "shareVerb": {
+    "message": "Delen"
+  },
+  "peopleWhoCanView": {
+    "message": "Mensen die kunnen bekijken",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Na het delen van deze link moeten individuen hun e-mailadres met een code verifiëren om het item te kunnen bekijken.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Deze link verloopt na deze datum, maar ontvangers kunnen eerder gedeelde informatie bewaren. Hergenereer het inloggegevens voor het intrekken van toegang.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link verloopt na",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Eenmalig delen",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Actieve links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link gekopieerd naar klembord",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Kan deel-link niet aanmaken",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link opgeslagen en gekopieerd naar klembord",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Kan deel-link niet naar klembord kopiëren",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Deel-link verwijderd",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Kan deel-link niet verwijderen",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Deel via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Delen voor kluisitem $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Verloopt",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ heeft het volgende item met je gedeeld.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "extra service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "extra opslagruimte (GB)"
+  },
+  "membersLower": {
+    "message": "leden"
+  },
+  "memberLower": {
+    "message": "lid"
+  },
+  "annualLower": {
+    "message": "jaarlijks"
+  },
+  "monthlyLower": {
+    "message": "maandelijks"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$-abonnement",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Behouden en heractiverev"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Abonnement is nu actief"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Dit maakt jeannuleringsverzoek ongedaan en heactiveert je abonnement."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Abonnementdetails laden niet"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Onze factureringsdienst is niet beschikbaar, dus kunnen we je abonnement en prijzen op dit moment niet weergeven. Je abonnement zelf is niet beïnvloed."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Pro-rata-kosten wachtwoordbeheerder"
+  },
+  "storageProratedCharge": {
+    "message": "Pro-rata opslagkosten"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Pro-rata kosten Secret Manager"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Pro-rata-kosten service-accounts"
   }
 }

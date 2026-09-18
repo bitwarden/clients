@@ -62,9 +62,18 @@ export abstract class SendFormService {
 
   /**
    * Submits the Send form. This will return `undefined` if the Send form had errors preventing
-   * its submission, and throw any errors it receives from encryption, decryption, or the API call
+   * its submission, and throw any errors it receives from encryption, decryption, or the API call.
+   *
+   * If `abortPendingSubmission()` is called after a file Send's content has already been
+   * uploaded, the created Send is rolled back and this resolves to `undefined` rather than
+   * throwing.
    */
   abstract submitSendForm(): Promise<SendView>;
+
+  /**
+   * Aborts an in-flight `submitSendForm()` call, if any. A no-op if no submission is in progress.
+   */
+  abstract abortPendingSubmission(): void;
 
   /** Returns whether the Send form currently has edits */
   abstract sendFormHasEdits(): boolean;

@@ -252,6 +252,20 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
+    it("should return verificationError when API returns 400", async () => {
+      const error = new ErrorResponse({ Message: "Authentication failed: invalid token." }, 400);
+      integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
+
+      const result = await service.save(orgId, OrganizationIntegrationType.Hec, config, template);
+
+      expect(result).toEqual({
+        mustBeOwner: false,
+        success: false,
+        verificationError: "Authentication failed: invalid token.",
+        organizationIntegrationResult: undefined,
+      });
+    });
+
     it("should rethrow non-404 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
@@ -416,6 +430,27 @@ describe("OrganizationIntegrationService", () => {
       expect(result).toEqual({
         mustBeOwner: true,
         success: false,
+        organizationIntegrationResult: undefined,
+      });
+    });
+
+    it("should return verificationError when API returns 400", async () => {
+      const error = new ErrorResponse({ Message: "Authentication failed: invalid token." }, 400);
+      integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
+
+      const result = await service.update(
+        orgId,
+        integrationId,
+        OrganizationIntegrationType.Hec,
+        configurationId,
+        config,
+        template,
+      );
+
+      expect(result).toEqual({
+        mustBeOwner: false,
+        success: false,
+        verificationError: "Authentication failed: invalid token.",
         organizationIntegrationResult: undefined,
       });
     });

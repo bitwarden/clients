@@ -34,6 +34,9 @@ import {
   ButtonModule,
   DialogService,
   FilterControl,
+  FilterMenuComponent,
+  FilterOptionRow,
+  FilterSectionComponent,
   SelectionConfig,
 } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
@@ -237,6 +240,11 @@ describe("VaultItemsTableComponent", () => {
       throw new Error(`No FilterControl registered under key "${key}"`);
     }
     return control;
+  }
+
+  /** The `bit-filter-menu` registered under `key` — every `FilterControl` here is one. */
+  function filterMenu(key: string): FilterMenuComponent {
+    return filterControl(key) as unknown as FilterMenuComponent;
   }
 
   /**
@@ -1333,7 +1341,7 @@ describe("VaultItemsTableComponent", () => {
       const acme = groups.find((g: { organizationId: string }) => g.organizationId === "org-1");
       const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
 
-      expect(acme?.collections.map((c: CollectionView) => c.id)).toEqual([
+      expect(acme?.collections.map((c) => c.value)).toEqual([
         "col-0",
         "col-2",
         "col-4",
@@ -1341,7 +1349,7 @@ describe("VaultItemsTableComponent", () => {
         "col-8",
         "col-10",
       ]);
-      expect(contoso?.collections.map((c: CollectionView) => c.id)).toEqual([
+      expect(contoso?.collections.map((c) => c.value)).toEqual([
         "col-1",
         "col-3",
         "col-5",
@@ -1361,7 +1369,7 @@ describe("VaultItemsTableComponent", () => {
 
       expect(groups.map((g: { name: string }) => g.name)).toEqual(["Acme corporation", "Contoso"]);
       const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
-      expect(contoso?.collections.map((c: CollectionView) => c.name)).toEqual([
+      expect(contoso?.collections.map((c) => c.label)).toEqual([
         "A collection",
         "B collection",
         "Collection 01",
@@ -1383,6 +1391,204 @@ describe("VaultItemsTableComponent", () => {
       );
 
       expect(orphanGroup?.name).toBe("organization");
+    });
+
+    it("builds nested shared folders recursively regardless of input order", () => {
+      const parent = { id: "parent", name: "Engineering" } as CollectionView;
+      const child = { id: "child", name: "Engineering/Backend" } as CollectionView;
+      const grandchild = {
+        id: "grandchild",
+        name: "Engineering/Backend/Infrastructure",
+      } as CollectionView;
+
+      const result = component["buildNestedSharedFolders"]([grandchild, parent, child]);
+
+      expect(result).toEqual([
+        {
+          value: "parent",
+          label: "Engineering",
+          options: [
+            {
+              value: "child",
+              label: "Backend",
+              options: [
+                {
+                  value: "grandchild",
+                  label: "Infrastructure",
+                  options: [],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("keeps a nested collection's full path as its name when its parent is unavailable", () => {
+      const collection = { id: "child", name: "Engineering/Backend" } as CollectionView;
+
+      expect(component["buildNestedSharedFolders"]([collection])).toEqual([
+        { value: "child", label: "Engineering/Backend", options: [] },
+      ]);
+    });
+
+    it("nests a descendant under its nearest existing ancestor when an intermediate parent is unavailable", () => {
+      const parent = { id: "parent", name: "Engineering" } as CollectionView;
+      const descendant = {
+        id: "descendant",
+        name: "Engineering/Backend/Infrastructure",
+      } as CollectionView;
+
+      expect(component["buildNestedSharedFolders"]([parent, descendant])).toEqual([
+        {
+          value: "parent",
+          label: "Engineering",
+          options: [
+            {
+              value: "descendant",
+              label: "Backend/Infrastructure",
+              options: [],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("never nests collections belonging to different organizations together", () => {
+      const orgAParent = {
+        id: "org-a-parent",
+        organizationId: "org-a",
+        name: "Finance",
+      } as CollectionView;
+      const orgBChild = {
+        id: "org-b-child",
+        organizationId: "org-b",
+        name: "Finance/Reports",
+      } as CollectionView;
+
+      expect(component["buildNestedSharedFolders"]([orgAParent, orgBChild])).toEqual([
+        { value: "org-a-parent", label: "Finance", options: [] },
+        { value: "org-b-child", label: "Finance/Reports", options: [] },
+      ]);
+    });
+
+    it("returns top-level collections spanning multiple organizations in one global alphabetical order, not clustered by organization", () => {
+      const zeta = { id: "zeta", organizationId: "org-a", name: "Zeta" } as CollectionView;
+      const alpha = { id: "alpha", organizationId: "org-a", name: "Alpha" } as CollectionView;
+      const beta = { id: "beta", organizationId: "org-b", name: "Beta" } as CollectionView;
+
+      const result = component["buildNestedSharedFolders"]([zeta, alpha, beta]);
+
+      expect(result.map((o) => o.value)).toEqual(["alpha", "beta", "zeta"]);
+    });
+
+    describe("rendering the nested tree", () => {
+      /**
+       * A shared folder option by value, read from the chip's own option tree — data-driven
+       * options are plain rows, never stamped as `bit-filter-option` components.
+       */
+      function findOption(value: string): FilterOptionRow {
+        const option = (filterMenu("sharedFolder")["allOptions"]() as FilterOptionRow[]).find(
+          (o) => o.value() === value,
+        );
+        if (!option) {
+          throw new Error(`No option found for value ${value}`);
+        }
+        return option;
+      }
+
+      it("nests a rendered option under its parent, flat (ungrouped) list", () => {
+        fixture.componentRef.setInput("collections", [
+          { id: "parent", name: "Engineering", organizationId: "org-1" } as CollectionView,
+          { id: "child", name: "Engineering/Backend", organizationId: "org-1" } as CollectionView,
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupSharedFolders"]()).toBe(false);
+        expect(
+          findOption("parent")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["child"]);
+      });
+
+      it("nests a rendered option under its bit-filter-section, grouped by organization", () => {
+        fixture.componentRef.setInput("collections", [
+          ...manyCollections(9),
+          { id: "parent", name: "Engineering", organizationId: "org-1" } as CollectionView,
+          { id: "child", name: "Engineering/Backend", organizationId: "org-1" } as CollectionView,
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupSharedFolders"]()).toBe(true);
+        const section = fixture.debugElement
+          .queryAll(By.directive(FilterSectionComponent))
+          .map((el) => el.componentInstance as FilterSectionComponent)
+          .find((s) => s.label() === "Acme corporation");
+
+        expect(section?.children().map((o) => o.value())).toContain("parent");
+        expect(section?.children().map((o) => o.value())).not.toContain("child");
+        expect(
+          findOption("parent")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["child"]);
+      });
+    });
+  });
+
+  describe("nesting My folders", () => {
+    it("builds nested folders recursively regardless of input order", () => {
+      const parent = { id: "parent", name: "Travel" } as FolderView;
+      const child = { id: "child", name: "Travel/Flights" } as FolderView;
+      const grandchild = {
+        id: "grandchild",
+        name: "Travel/Flights/Domestic",
+      } as FolderView;
+
+      const result = component["buildNestedFolders"]([grandchild, parent, child]);
+
+      expect(result).toEqual([
+        {
+          value: "parent",
+          label: "Travel",
+          options: [
+            {
+              value: "child",
+              label: "Flights",
+              options: [
+                {
+                  value: "grandchild",
+                  label: "Domestic",
+                  options: [],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("keeps a nested folder's full path as its name when its parent is unavailable", () => {
+      const folder = { id: "child", name: "Travel/Flights" } as FolderView;
+
+      expect(component["buildNestedFolders"]([folder])).toEqual([
+        { value: "child", label: "Travel/Flights", options: [] },
+      ]);
+    });
+
+    it("nests a rendered option under its parent", () => {
+      fixture.componentRef.setInput("folders", [
+        { id: "parent", name: "Travel" } as FolderView,
+        { id: "child", name: "Travel/Flights" } as FolderView,
+      ]);
+      fixture.detectChanges();
+
+      const parentOption = (filterMenu("folder")["allOptions"]() as FilterOptionRow[]).find(
+        (o) => o.value() === "parent",
+      );
+
+      expect(parentOption?.children().map((c) => c.value())).toEqual(["child"]);
     });
   });
 
@@ -1671,6 +1877,53 @@ describe("VaultItemsTableComponent", () => {
 
       expect(selectionModel().count()).toBe(0);
       expect(batchBar.selected()).toEqual([]);
+    });
+
+    // The header checkbox is a user-mutated DOM node, and Angular writes a binding only when its
+    // value changes — so these assert the rendered `input`, not just the model aggregates.
+    describe("header checkbox DOM", () => {
+      const header = (): HTMLInputElement =>
+        fixture.nativeElement.querySelector('bit-header-row input[type="checkbox"]');
+
+      const setRows = (count: number) => {
+        fixture.componentRef.setInput(
+          "ciphers",
+          Array.from({ length: count }, (_, i) => cipherView({ id: `c${i}`, name: `Item ${i}` })),
+        );
+        fixture.detectChanges();
+      };
+
+      it("unchecks when a capped select-all is cleared from the batch bar", () => {
+        setRows(MAX_SELECTION_COUNT + 1);
+
+        header().click();
+        fixture.detectChanges();
+        expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
+
+        batchBar.source()!.clear();
+        fixture.detectChanges();
+
+        expect(header().checked).toBe(false);
+        expect(header().indeterminate).toBe(false);
+      });
+
+      it("checks when select-all runs from a partial selection", () => {
+        setRows(6);
+
+        const firstRow: HTMLInputElement = fixture.nativeElement.querySelector(
+          "bit-row input[data-selection-input]",
+        );
+        firstRow.click();
+        fixture.detectChanges();
+        expect(header().indeterminate).toBe(true);
+
+        header().click();
+        fixture.detectChanges();
+
+        expect(selectionModel().count()).toBe(6);
+        expect(header().checked).toBe(true);
+        expect(header().indeterminate).toBe(false);
+      });
     });
 
     it("keeps the batch bar in agreement after rows are re-emitted", () => {

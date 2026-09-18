@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, viewChild } from "@angular/
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  AsyncActionsModule,
   ButtonModule,
   DIALOG_DATA,
   DialogModule,
@@ -21,16 +22,23 @@ export interface ShareItemDrawerData {
   templateUrl: "share-item-drawer.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DialogModule, ButtonModule, I18nPipe, ShareItemFormComponent, IconModule],
+  imports: [
+    DialogModule,
+    ButtonModule,
+    I18nPipe,
+    ShareItemFormComponent,
+    IconModule,
+    AsyncActionsModule,
+  ],
 })
 export class ShareItemDrawerComponent {
   private readonly dialogRef = inject(DialogRef);
   protected readonly data: ShareItemDrawerData = inject(DIALOG_DATA);
   protected readonly shareItemForm = viewChild.required(ShareItemFormComponent);
 
-  protected async createAndCopyLink(): Promise<void> {
+  protected readonly createAndCopyLink = async () => {
     await this.shareItemForm().createAndCopyLink();
-  }
+  };
 
   protected async close(): Promise<void> {
     await this.dialogRef.close();

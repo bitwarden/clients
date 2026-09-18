@@ -2256,6 +2256,90 @@ describe("AutofillService", () => {
 
       expect(result).toBeNull();
     });
+
+    describe("cross-origin iframe (VULN-752)", () => {
+      it("flags the fill script when the frame is untrusted", async () => {
+        const usernameField = buildTargetedField({
+          opid: "targeted_field_0_username",
+          fieldQualifier: AutofillTargetingRuleTypes.username,
+          formCategory: FormPurposeCategories.AccountLogin,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ username: "victim", uris: [] });
+        jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValueOnce(true);
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([usernameField]),
+          options,
+        );
+
+        expect(result?.untrustedIframe).toBe(true);
+      });
+
+      it("skips the iframe check for non-Login ciphers", async () => {
+        const cardholderField = buildTargetedField({
+          opid: "targeted_field_0_cardholderName",
+          fieldQualifier: AutofillTargetingRuleTypes.cardholderName,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Card;
+        options.cipher.card = mock<CardView>({ cardholderName: "M. Moss" });
+        jest.spyOn(autofillService as any, "inUntrustedIframe");
+
+        await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([cardholderField]),
+          options,
+        );
+
+        expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
+      });
+
+      it("skips the iframe check for the transient generated-password cipher", async () => {
+        const newPasswordField = buildTargetedField({
+          opid: "targeted_field_0_newPassword",
+          type: "password",
+          fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.id = "";
+        options.cipher.login = mock<LoginView>({ password: "generated-pass", uris: [] });
+        options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+        jest.spyOn(autofillService as any, "inUntrustedIframe");
+
+        await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([newPasswordField]),
+          options,
+        );
+
+        expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
+      });
+
+      it("still runs the iframe check when a saved cipher is filled into a targeted newPassword field", async () => {
+        // A saved cipher can be selected while a targeted newPassword field is focused,
+        // producing PasswordGeneration inlineMenuFillType with a real (id-bearing) cipher.
+        const newPasswordField = buildTargetedField({
+          opid: "targeted_field_0_newPassword",
+          type: "password",
+          fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.id = "saved-cipher-id";
+        options.cipher.login = mock<LoginView>({ password: "stored-pass", uris: [] });
+        options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+        jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValueOnce(true);
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([newPasswordField]),
+          options,
+        );
+
+        expect(autofillService["inUntrustedIframe"]).toHaveBeenCalled();
+        expect(result?.untrustedIframe).toBe(true);
+      });
+    });
   });
 
   describe("generateLoginFillScript", () => {

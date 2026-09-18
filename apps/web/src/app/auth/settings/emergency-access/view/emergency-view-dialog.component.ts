@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { EMPTY, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -20,7 +19,7 @@ import {
   DialogModule,
   DialogService,
 } from "@bitwarden/components";
-import { CipherViewComponent } from "@bitwarden/vault";
+import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */

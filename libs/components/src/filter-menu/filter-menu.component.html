@@ -30,8 +30,11 @@
   }
 </bit-chip-content>
 
-<!-- Instantiates the projected declarations so the chip can draw rows from their data. -->
-<div class="tw-hidden"><ng-content></ng-content></div>
+<!-- Instantiates projected content so the chip can draw rows from it; data-driven options need no
+     such trick, since they're plain rows built from `options()`, never stamped as components. -->
+<div class="tw-hidden">
+  <ng-content></ng-content>
+</div>
 
 <!-- Single-select rows are flat: nesting requires `multiple`, enforced in the component. -->
 <ng-template #optionRow let-option>
@@ -299,7 +302,7 @@
               </div>
             }
             @if (section.open()) {
-              @for (option of section.options(); track option.value()) {
+              @for (option of section.children(); track option.value()) {
                 @if (rowVisible(option)) {
                   <ng-container
                     *ngTemplateOutlet="optionRow; context: { $implicit: option }"

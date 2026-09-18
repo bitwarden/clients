@@ -20,7 +20,7 @@ import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent, isDev } from "../utils";
+import { cleanUserAgent, DEV_ICON_FILE, isDev } from "../utils";
 
 import {
   isLinux,
@@ -429,6 +429,18 @@ export class WindowMain {
   }
 
   /**
+   * Window icon. Only Linux and Windows draw one; macOS uses the bundle/dock icon, which
+   * entry.ts badges separately for dev runs.
+   */
+  private windowIcon(): string | undefined {
+    if (isDev()) {
+      return path.join(__dirname, "images", DEV_ICON_FILE);
+    }
+
+    return isLinux() ? path.join(__dirname, "/images/icon.png") : undefined;
+  }
+
+  /**
    * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
    * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
@@ -452,7 +464,7 @@ export class WindowMain {
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
       title: app.name,
-      icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
+      icon: this.windowIcon(),
       titleBarStyle: isMac() ? "hiddenInset" : undefined,
       show: false,
       backgroundColor: await this.getBackgroundColor(),

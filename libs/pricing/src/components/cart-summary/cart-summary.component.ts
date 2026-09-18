@@ -61,6 +61,9 @@ export class CartSummaryComponent {
     const {
       passwordManager: { seats },
     } = this.cart();
+    if (!seats) {
+      return 0;
+    }
     return seats.quantity * seats.cost;
   });
 
@@ -180,14 +183,25 @@ export class CartSummaryComponent {
   });
 
   /**
-   * Calculates the subtotal before discount and tax
+   * Hides pricing term through input or the cart.
+   */
+  readonly hideTerm = computed(
+    () => this.hidePricingTerm() || (this.cart().hidePricingTerm ?? false),
+  );
+
+  /**
+   * The subtotal before cart-level discount and tax
    */
   readonly subtotal = computed<number>(
     () =>
       this.passwordManagerSeatsTotal() +
       this.additionalStorageTotal() +
       this.secretsManagerSeatsTotal() +
-      this.additionalServiceAccountsTotal(),
+      this.additionalServiceAccountsTotal() +
+      [this.cart().passwordManager.prorationCharges, this.cart().secretsManager?.prorationCharges]
+        .flatMap((charges) => charges ?? [])
+        .reduce((sum, charge) => sum + charge.cost, 0) -
+      this.lineDiscountTotal(),
   );
 
   /**
@@ -246,15 +260,12 @@ export class CartSummaryComponent {
   });
 
   /**
-   * Calculates the total of all line items including discounts, credit and tax
+   * Calculates the total of all line items including discounts, credit and tax. Per-line
+   * discounts are already netted into {@link subtotal}, so only the cart-level discount is
+   * subtracted here.
    */
   private readonly computedTotal = computed<number>(
-    () =>
-      this.subtotal() -
-      this.discountAmount() -
-      this.lineDiscountTotal() -
-      this.creditAmount() +
-      this.estimatedTax(),
+    () => this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax(),
   );
 
   /**

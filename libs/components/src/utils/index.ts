@@ -6,4 +6,5 @@ export * from "./i18n-mock.service";
 export * from "./query-param-store";
 export * from "./responsive-utils";
 export * from "./scroll-direction";
+export * from "./settled-height";
 export * from "./state-mock";

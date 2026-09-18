@@ -88,7 +88,9 @@ describe("getLabel", () => {
 
   beforeEach(() => {
     i18nService = mock<I18nService>();
-    (i18nService.t as jest.Mock).mockImplementation((key: string) => key);
+    (i18nService.t as jest.Mock).mockImplementation((key: string, ...args: string[]) =>
+      [key, ...args].join(" "),
+    );
   });
 
   describe("without a server-supplied label", () => {
@@ -142,6 +144,47 @@ describe("getLabel", () => {
     it("should fall back to the derived label when the label is an empty string", () => {
       const discount: CartDiscount = { type: DiscountTypes.PercentOff, value: 25, label: "" };
       expect(getLabel(i18nService, discount)).toBe("25% discount");
+    });
+  });
+
+  describe("with a repeating duration", () => {
+    it("should append the duration for a 12-month coupon as one year", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        durationInMonths: 12,
+      };
+      expect(getLabel(i18nService, discount)).toBe("25% discount discountForOneYear");
+    });
+
+    it("should append the month count for other durations", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        durationInMonths: 6,
+      };
+      expect(getLabel(i18nService, discount)).toBe("25% discount discountForMonths 6");
+    });
+
+    it("should append the duration after a server-supplied label", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        label: "Launch promotion",
+        durationInMonths: 12,
+      };
+      expect(getLabel(i18nService, discount)).toBe("Launch promotion discountForOneYear");
+    });
+  });
+
+  describe("without a repeating duration", () => {
+    it("should return the label unchanged when durationInMonths is absent", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        label: "Launch promotion",
+      };
+      expect(getLabel(i18nService, discount)).toBe("Launch promotion");
     });
   });
 });

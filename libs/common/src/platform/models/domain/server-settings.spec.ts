@@ -34,4 +34,21 @@ describe("ServerSettings", () => {
       expect(settings.suppressOnboardingInterstitials).toBe(false);
     });
   });
+
+  describe("disableEmailVerification", () => {
+    it("defaults disableEmailVerification to false", () => {
+      const settings = new ServerSettings();
+      expect(settings.disableEmailVerification).toBe(false);
+    });
+
+    it("sets disableEmailVerification to true when provided", () => {
+      const settings = new ServerSettings({ disableEmailVerification: true });
+      expect(settings.disableEmailVerification).toBe(true);
+    });
+
+    it("sets disableEmailVerification to false when provided", () => {
+      const settings = new ServerSettings({ disableEmailVerification: false });
+      expect(settings.disableEmailVerification).toBe(false);
+    });
+  });
 });

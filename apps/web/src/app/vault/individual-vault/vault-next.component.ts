@@ -62,6 +62,7 @@ import {
   VaultOrganizationUserNotificationsComponent,
   VaultBatchActionComponent,
   VaultBatchBarService,
+  VaultRemountOnDirective,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
@@ -70,11 +71,14 @@ import {
   organizationInScope,
   organizationVaultPage,
   OrganizationVaultPage,
+  parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   scopedSharedFolderId,
+  scopeKey,
+  MY_ITEMS_ROUTE,
   sharedFolderNameForScope,
   VaultScopeType,
   defaultUserCollectionId,
@@ -130,6 +134,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
+    VaultRemountOnDirective,
     SharedFolderCardGridComponent,
   ],
   providers: [
@@ -227,6 +232,21 @@ export class VaultNextComponent implements OnInit {
   protected readonly headerTile = computed(() =>
     vaultScopeHeaderTile(this.vaultScope(), this.vaultNav()),
   );
+
+  protected readonly parsedVaultScope = computed(
+    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  );
+
+  /**
+   * The scope key the vault table's filter state belongs to. Keyed off the parsed scope rather
+   * than {@link vaultScope}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = computed(() => scopeKey(this.parsedVaultScope()));
+
+  protected readonly collectionSelected = computed(() => {
+    const seg = this.collectionSegment();
+    return seg != null && seg !== MY_ITEMS_ROUTE;
+  });
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a

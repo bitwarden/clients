@@ -9,7 +9,7 @@
       type="button"
       id="share-item-drawer_button_copy-link"
       buttonType="primary"
-      (click)="createAndCopyLink()"
+      [bitAction]="createAndCopyLink"
       [disabled]="shareItemForm()?.form?.invalid"
       startIcon="bwi-share-link"
     >

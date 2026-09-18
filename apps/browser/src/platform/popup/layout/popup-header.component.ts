@@ -5,6 +5,7 @@ import {
   ElementRef,
   booleanAttribute,
   computed,
+  effect,
   inject,
   input,
   linkedSignal,
@@ -14,16 +15,19 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import {
   AsyncActionsModule,
   ButtonType,
+  CollapseRegion,
   FunctionReturningAwaitable,
   IconButtonModule,
+  ScrollCollapseService,
   ScrollLayoutService,
-  scrollDirection,
+  settledHeight,
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -47,6 +51,7 @@ import { PopupPageComponent } from "./popup-page.component";
 })
 export class PopupHeaderComponent {
   private readonly popupRouterCacheService = inject(PopupRouterCacheService);
+  private readonly scrollCollapse = inject(ScrollCollapseService);
   private readonly scrollLayout = inject(ScrollLayoutService);
 
   /**
@@ -71,7 +76,7 @@ export class PopupHeaderComponent {
     { initialValue: false },
   );
 
-  protected readonly logo = BitwardenLogo;
+  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
 
   /**
    * Background treatment of the page title bar.
@@ -105,13 +110,41 @@ export class PopupHeaderComponent {
   private readonly titleBar = viewChild<ElementRef<HTMLElement>>("titleBar");
 
   /**
+   * The bar's collapsible height, which gates every region's collapse on this page. Settled
+   * rather than live, since the height moves with compact mode and with a title that wraps.
+   */
+  private readonly height = settledHeight(
+    this.titleBar,
+    computed(() => !this.titleBarHidden()),
+  );
+
+  /**
+   * No `seam`: the bar's bottom border is its structural edge rather than a scroll affordance, so
+   * it draws unconditionally and the page's seam belongs to a region below.
+   */
+  private readonly region: CollapseRegion = { height: this.height };
+
+  constructor() {
+    // Counted only while the bar can actually collapse, so it doesn't inflate the collapsible
+    // height for the regions that can.
+    effect((onCleanup) => {
+      if (!this.vfo1Enabled() || this.hideTitleBar()) {
+        return;
+      }
+
+      this.scrollCollapse.register(this.region);
+      onCleanup(() => this.scrollCollapse.unregister(this.region));
+    });
+  }
+
+  /**
    * The popup viewport is short, so the title bar gets out of the way while the user reads down the
    * page. The app bar stays pinned.
+   *
+   * Shared via `ScrollCollapseService` so every region collapsing on this page makes one decision;
+   * each collapse gives its height back to the scroller, so per-region signals would fight.
    */
-  private readonly scrollDirection = scrollDirection(this.scrollLayout.scrollableRef, {
-    // Measured live because the height moves with compact mode and with a title that wraps
-    minScrollable: () => this.titleBar()?.nativeElement.offsetHeight ?? 0,
-  });
+  private readonly scrollDirection = this.scrollCollapse.direction;
 
   /**
    * TODO: remove with the VFO1Foundation flag. Grows a border under an `alt` bar once the page
@@ -131,7 +164,8 @@ export class PopupHeaderComponent {
     () =>
       this.vfo1Enabled() &&
       !this.hideTitleBar() &&
-      (this.scrollDirection() === "down" || this.scrollLayout.restoredScrolled()),
+      // A restored scroll position reports `"down"` through the service.
+      this.scrollDirection() === "down",
   );
 
   /**

@@ -33,7 +33,10 @@ import {
   StorybookGlobalStateProvider,
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
+import {
+  collapsedSideNavDecorator,
+  positionFixedWrapperDecorator,
+} from "@bitwarden/components/src/stories/storybook-decorators";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -476,10 +479,12 @@ export const RealisticSideNavV2: Story = {
 };
 
 /**
- * Same as `RealisticSideNavV2`, but with the account menu's collapsed (icon-only) trigger —
- * the state the header uses when the nav itself is collapsed.
+ * Same as `RealisticSideNavV2`, but collapsed to the icon rail, with the account menu in its
+ * icon-only trigger state. Collapsed items have no visible label, so this is the story that shows
+ * the `bitTooltip` affordance naming them on hover and keyboard focus.
  */
 export const RealisticSideNavV2CollapsedAccount: Story = {
+  decorators: [collapsedSideNavDecorator],
   render: (args) => ({
     props: { ...args, logo: SideNavLogo },
     template: `

@@ -30,6 +30,7 @@ export type IntegrationModificationResult = {
   mustBeOwner: boolean;
   success: boolean;
   anotherIntegrationWithSameTypeExists?: boolean;
+  verificationError?: string;
   organizationIntegrationResult?: OrganizationIntegration | undefined;
 };
 
@@ -138,6 +139,16 @@ export class OrganizationIntegrationService {
           anotherIntegrationWithSameTypeExists: true,
         };
       }
+
+      if (error instanceof ErrorResponse && error.statusCode === 400) {
+        return {
+          mustBeOwner: false,
+          success: false,
+          verificationError: error.message || undefined,
+          organizationIntegrationResult: undefined,
+        };
+      }
+
       throw error;
     }
   }
@@ -207,6 +218,16 @@ export class OrganizationIntegrationService {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
         return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
       }
+
+      if (error instanceof ErrorResponse && error.statusCode === 400) {
+        return {
+          mustBeOwner: false,
+          success: false,
+          verificationError: error.message || undefined,
+          organizationIntegrationResult: undefined,
+        };
+      }
+
       throw error;
     }
   }

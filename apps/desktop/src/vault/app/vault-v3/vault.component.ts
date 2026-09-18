@@ -130,10 +130,13 @@ import {
   organizationNameForScope,
   organizationVaultPage,
   OrganizationVaultPage,
+  parseVaultScope,
   resolveVaultScope,
+  scopeKey,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
   VaultBreadcrumbsComponent,
+  VaultRemountOnDirective,
   sharedFolderNameForScope,
   VaultNavService,
   vaultScopeCommands,
@@ -184,6 +187,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     SharedFolderCardGridComponent,
     VaultBreadcrumbsComponent,
     IconTileComponent,
+    VaultRemountOnDirective,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -322,6 +326,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  /**
+   * The scope key the vault table's filter state belongs to. Read from the route rather than from
+   * {@link vaultScope$}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = toSignal(
+    combineLatest([this.route.paramMap, this.route.data]).pipe(
+      map(([params, data]) =>
+        scopeKey(
+          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
+            ALL_ITEMS_SCOPE,
+        ),
+      ),
+    ),
+    { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
+  );
 
   /** {@link vaultNav$} as a signal for use in computed properties. */
   private readonly vaultNav = toSignal(this.vaultNav$);

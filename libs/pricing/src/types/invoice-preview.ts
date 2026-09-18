@@ -48,6 +48,8 @@ export type InvoicePreviewDiscount = {
   amount: number;
   /** The coupon name. */
   label?: string;
+  /** Number of months the coupon repeats for; absent for perpetual or once-only coupons. */
+  durationInMonths?: number;
 };
 
 export type InvoicePreviewItem = {
@@ -57,12 +59,9 @@ export type InvoicePreviewItem = {
   discounts?: InvoicePreviewDiscount[];
 };
 
-/**
- * A single proration entry. Retained in full for parity with the server contract; the client
- * currently renders only the summed `credit` as one collapsed credit row, so `months`, `charge`,
- * `tax` and `total` are unused client-side.
- */
+/** A single proration entry. */
 export type PurchasableProration = {
+  reference?: PurchasableReference;
   credit: number;
   charge: number;
   tax: number;
@@ -72,7 +71,8 @@ export type PurchasableProration = {
 
 export type InvoicePreview = {
   passwordManager: {
-    seats: InvoicePreviewItem;
+    /** Absent on a transition invoice whose only lines are prorations. */
+    seats?: InvoicePreviewItem;
     additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };

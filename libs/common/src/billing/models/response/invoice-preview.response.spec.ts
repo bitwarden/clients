@@ -121,6 +121,34 @@ describe("InvoicePreviewResponse", () => {
       expect(response.secretsManager!.prorations).toHaveLength(1);
     });
 
+    it("should parse an all-proration password manager section without seats", () => {
+      // A transition invoice carries only proration lines; the seat position is null on the wire.
+      const response = new InvoicePreviewResponse({
+        ...minimal(),
+        PasswordManager: {
+          Seats: null,
+          Prorations: [
+            {
+              Reference: "pm-seat",
+              Credit: 37.64,
+              Charge: 188.22,
+              Tax: 12.05,
+              Total: 150.58,
+              Months: 6,
+            },
+          ],
+        },
+      });
+
+      expect(response.passwordManager.seats).toBeUndefined();
+      expect(response.passwordManager.prorations![0]).toMatchObject({
+        reference: "pm-seat",
+        credit: 37.64,
+        charge: 188.22,
+        total: 150.58,
+      });
+    });
+
     it("should not set nextPaymentAttempt when the server omits it", () => {
       const response = new InvoicePreviewResponse({ ...minimal(), NextPaymentAttempt: null });
 
@@ -204,6 +232,24 @@ describe("InvoicePreviewResponse", () => {
       });
 
       expect(response.discounts![0].amount).toBe(0);
+    });
+
+    it("should parse a discount's DurationInMonths when present", () => {
+      const response = new InvoicePreviewResponse({
+        ...base(),
+        Discounts: [{ Type: "percent-off", Value: 20, Amount: 10, DurationInMonths: 12 }],
+      });
+
+      expect(response.discounts![0].durationInMonths).toBe(12);
+    });
+
+    it("should leave durationInMonths undefined when the discount has no duration", () => {
+      const response = new InvoicePreviewResponse({
+        ...base(),
+        Discounts: [{ Type: "percent-off", Value: 20, Amount: 10 }],
+      });
+
+      expect(response.discounts![0].durationInMonths).toBeUndefined();
     });
 
     it("should NOT throw on an unrecognized purchasable reference", () => {

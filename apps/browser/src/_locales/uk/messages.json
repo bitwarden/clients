@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Немає тек."
   },
+  "noFoldersFilter": {
+    "message": "Немає тек"
+  },
   "helpFeedback": {
     "message": "Допомога і зворотний зв'язок"
   },
@@ -4059,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Помилка отримання даних автозаповнення"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden не вдалося розшифрувати запис у сховищі, перерахований нижче. Зверніться до служби підтримки Bitwarden і надайте ID запису нижче, щоб дізнатися, чи можна його відновити."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Зверніться до служби підтримки клієнтів,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden не вдалося розшифрувати записи у сховищі, перерахованих нижче. Зверніться до служби підтримки Bitwarden і надайте ID записів нижче, щоб дізнатися, чи можна їх відновити."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "щоб уникнути втрати даних.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID запису",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID записів",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Копіювати ID"
+  },
+  "copyAllIds": {
+    "message": "Копіювати всі ID"
   },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
@@ -5129,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -5820,6 +5838,9 @@
   },
   "switchAccounts": {
     "message": "Перемкнути облікові записи"
+  },
+  "switchVault": {
+    "message": "Перемкнути сховище"
   },
   "switchToAccount": {
     "message": "Перемкнути на обліковий запис"
@@ -8116,5 +8137,84 @@
   },
   "editItemsHidePass": {
     "message": "Редагування записів, прихованих паролів"
+  },
+  "shareVerb": {
+    "message": "Поділитися"
+  },
+  "peopleWhoCanView": {
+    "message": "Люди, які можуть переглядати",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Після того як ви надішлете це посилання, одержувачі повинні будуть підтвердити свою електронну адресу за допомогою коду, щоб переглянути цей матеріал.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Це посилання втратить чинність після зазначеної дати, але одержувачі можуть зберегти інформацію, якою з ними раніше поділилися. Щоб скасувати доступ, створіть нові облікові дані.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Термін дії посилання закінчується після",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Одноразовий обмін",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Активні посилання",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Посилання скопійовано в буфер обміну",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не вдалося створити посилання для спільного доступу",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Посилання збережено та скопійовано до буфера обміну",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Не вдалося скопіювати посилання на спільний доступ у буфер обміну",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Посилання для спільного доступу видалено",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Не вдалося видалити посилання на спільний доступ",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Спільний доступ за посиланням",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Поділитися записом сховища $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Поділитися",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Закінчується",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Закінчується",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Невідомий запис. Можливо, вам доведеться подати запит на дозвіл для доступу до цього запису."
   }
 }

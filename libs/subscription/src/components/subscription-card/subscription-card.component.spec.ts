@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Cart } from "@bitwarden/pricing";
 
-import { BitwardenSubscription, SubscriptionCardComponent } from "../..";
+import { BitwardenSubscription, SubscriptionCardComponent, SubscriptionPreview } from "../..";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;
@@ -47,8 +47,8 @@ describe("SubscriptionCardComponent", () => {
         contactSupportShort: "Contact support",
         yourSubscriptionIsExpired: "Your subscription is expired",
         yourSubscriptionIsCanceled: "Your subscription is canceled",
-        yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${params[0]}`,
-        reinstateSubscription: "Reinstate subscription",
+        subscriptionPendingCanceled: "The subscription has been marked for cancellation",
+        keepSubscription: "Keep subscription",
         resubscribe: "Resubscribe",
         upgradeYourPlan: "Upgrade your plan",
         premiumShareEvenMore: "Premium share even more",
@@ -56,6 +56,8 @@ describe("SubscriptionCardComponent", () => {
         youHaveAGracePeriod: `You have a grace period of ${params[0]} days ending ${params[1]}`,
         manageInvoices: "Manage invoices",
         toReactivateYourSubscription: "To reactivate your subscription",
+        subscriptionPastDueWillPauseSoon: "Your subscription is past due and will be paused soon.",
+        subscriptionPastDuePaused: "Your subscription is past due and has been paused.",
       };
       return translations[key] || key;
     },
@@ -302,7 +304,7 @@ describe("SubscriptionCardComponent", () => {
 
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Reinstate subscription");
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Keep subscription");
     });
 
     it("should display upgrade callout for active status when showUpgradeButton is true", () => {
@@ -365,6 +367,21 @@ describe("SubscriptionCardComponent", () => {
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
+    });
+
+    it("does not display callout without suspension details", () => {
+      fixture.componentRef.setInput("title", "Test Plan");
+      fixture.componentRef.setInput("subscription", {
+        cart: mockCart,
+        status: "past_due",
+      } satisfies SubscriptionPreview);
+      fixture.detectChanges();
+
+      const calloutData = component.callout();
+      expect(calloutData).toBeNull();
+
+      const callout = fixture.debugElement.query(By.css("bit-callout"));
+      expect(callout).toBeNull();
     });
 
     it("should display canceled callout with resubscribe action", () => {
@@ -645,6 +662,30 @@ describe("SubscriptionCardComponent", () => {
 
       const cartSummary = fixture.debugElement.query(By.css("billing-cart-summary"));
       expect(cartSummary).toBeTruthy();
+    });
+
+    it("shows the will-be-paused message in the header for past_due without a suspension date", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "past_due",
+      } as BitwardenSubscription);
+
+      const header = fixture.nativeElement.querySelector(
+        '[data-test-id="cart-summary-header-custom"]',
+      );
+      expect(header?.textContent).toContain("will be paused soon");
+    });
+
+    it("shows the has-been-paused message in the header for unpaid without a suspension date", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "unpaid",
+      } as BitwardenSubscription);
+
+      const header = fixture.nativeElement.querySelector(
+        '[data-test-id="cart-summary-header-custom"]',
+      );
+      expect(header?.textContent).toContain("has been paused");
     });
   });
 

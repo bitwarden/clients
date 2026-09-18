@@ -47,6 +47,7 @@ import {
   VaultNavItemViewModel,
   VaultBatchBarService,
   VaultNavService,
+  VaultRemountOnDirective,
   VaultsNavViewModel,
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
@@ -314,10 +315,17 @@ describe("VaultNextComponent", () => {
           // table needs search and copy services), so NO_ERRORS_SCHEMA stands in for them. It has to
           // be declared here rather than on the TestBed module — a standalone component resolves
           // schemas from its own metadata. The i18n pipe stays, since a schema does not cover an
-          // unresolved pipe.
+          // unresolved pipe, and neither does it cover a structural directive — without
+          // `VaultRemountOnDirective` the table's template would never be instantiated.
           // `CoachmarkComponent` stays for the same reason the pipes do: the toolbar reads
           // `#importCoachmark.popover()`, which a schema-stubbed element cannot answer.
-          imports: [I18nPipe, Vfo1I18nPipe, CoachmarkComponent, PopoverModule],
+          imports: [
+            I18nPipe,
+            Vfo1I18nPipe,
+            VaultRemountOnDirective,
+            CoachmarkComponent,
+            PopoverModule,
+          ],
           schemas: [NO_ERRORS_SCHEMA],
           providers: [
             { provide: WebVaultItemActionsService, useValue: itemActions },
@@ -690,6 +698,58 @@ describe("VaultNextComponent", () => {
         orgCollection,
         otherOrgCollection,
       ]);
+    });
+  });
+
+  describe("filterScopeKey", () => {
+    const sharedFolderId = "cccc3333-dddd-4eee-8fff-aaaa44445555";
+    const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+
+    it("changes when the route moves to another vault", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      const myVault = component().filterScopeKey();
+
+      scopeTo(organizationId);
+
+      expect(component().filterScopeKey()).not.toBe(myVault);
+    });
+
+    it("changes when the route drills into a shared folder", () => {
+      scopeTo(organizationId);
+      const organizationVault = component().filterScopeKey();
+
+      scopeTo(organizationId, sharedFolderId);
+
+      expect(component().filterScopeKey()).not.toBe(organizationVault);
+    });
+
+    it("holds steady when the nav resolves a my-items segment to its collection", () => {
+      scopeTo(organizationId, MY_ITEMS_ROUTE);
+      const key = component().filterScopeKey();
+
+      vaultNav$.next({
+        vaults: [
+          personalNavItem,
+          {
+            ...buildOrgNavItem(organizationId, "Acme corporation"),
+            defaultUserCollectionId: myItemsId,
+          },
+        ],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+
+      expect(component().filterScopeKey()).toBe(key);
+    });
+
+    it("holds steady across a route change that names the same scope", () => {
+      scopeTo(organizationId);
+      const key = component().filterScopeKey();
+
+      paramMap$.next(convertToParamMap({ vaultId: organizationId, itemId: "an-item" }));
+      fixture.detectChanges();
+
+      expect(component().filterScopeKey()).toBe(key);
     });
   });
 
