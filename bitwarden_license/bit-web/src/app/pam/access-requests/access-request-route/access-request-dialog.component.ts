@@ -42,7 +42,10 @@ import {
   reasonText,
   relativeStart,
 } from "../..";
+import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
+import { ApproverActionsService } from "../../approvals/approver-actions.service";
+import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
@@ -72,14 +75,15 @@ export type AccessRequestDialogParams = {
 };
 
 /**
- * One of the caller's own access requests, opened over the access-requests shell by the
- * `/pam/requests/:id` route; the host route owns the URL and close navigation, this dialog owns
- * the view.
+ * One access request, opened over the access-requests shell by the `/pam/requests/:id` route;
+ * the host route owns the URL and close navigation, this dialog owns the view.
  *
- * `getAccessRequest` is user-scoped, so every request belongs to the viewer — only Start /
- * Cancel / End, no approver plumbing.
+ * The same link reaches the requester and the request's approvers, so the footer follows the
+ * viewer: Start / Cancel / End for the requester, Approve / Deny, Withdraw approval or Revoke
+ * for an approver. Neither side ever sees the other's actions.
  *
- * Data, name resolution, and mutations live in {@link AccessRequestDetailService}.
+ * Data, name resolution, and mutations live in {@link AccessRequestDetailService}; an approver's
+ * confirms and toasts in {@link ApproverActionsService}, shared with the Approvals and History tabs.
  */
 @Component({
   selector: "pam-access-request-dialog",
@@ -101,12 +105,14 @@ export type AccessRequestDialogParams = {
     RequestSummaryComponent,
     SummaryFieldComponent,
   ],
+  providers: [ApproverActionsService],
 })
 export class AccessRequestDialogComponent implements OnInit {
   protected readonly noResultsSvg = NoResults;
 
   private readonly detail = inject<AccessRequestDialogParams>(DIALOG_DATA).detail;
   private readonly dialogService = inject(DialogService);
+  private readonly approverActions = inject(ApproverActionsService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
@@ -121,6 +127,13 @@ export class AccessRequestDialogComponent implements OnInit {
     initialValue: new Map<string, CipherView>(),
   });
   private readonly names = toSignal(this.detail.names$, { initialValue: emptyResolvedNames() });
+  private readonly viewer = toSignal(this.detail.viewer$, { initialValue: null });
+  private readonly approvalRow = toSignal(this.detail.approvalRow$, { initialValue: null });
+  private readonly managed = toSignal(this.detail.managed$, { initialValue: false });
+  private readonly isRequester = computed(() => this.viewer() === "requester");
+  private readonly isApprover = computed(() => this.viewer() === "approver");
+  /** An approver looking at a decided request on a collection they manage. */
+  private readonly approverManages = computed(() => this.isApprover() && this.managed());
 
   /** Cipher name resolved from local vault state; falls back to the raw id. */
   protected readonly cipherName = computed(() => {
@@ -151,6 +164,9 @@ export class AccessRequestDialogComponent implements OnInit {
   protected readonly cancelling = signal(false);
   protected readonly starting = signal(false);
   protected readonly ending = signal(false);
+  protected readonly deciding = signal(false);
+  protected readonly withdrawing = signal(false);
+  protected readonly revoking = signal(false);
 
   protected readonly badge = computed(() => {
     const request = this.request();
@@ -235,6 +251,7 @@ export class AccessRequestDialogComponent implements OnInit {
     const request = this.request();
     return (
       request != null &&
+      this.isRequester() &&
       request.status === "approved" &&
       request.producedLeaseId == null &&
       Date.parse(request.leaseNotAfter) > this.nowMs()
@@ -244,7 +261,7 @@ export class AccessRequestDialogComponent implements OnInit {
   /** The requester can withdraw a pending request, or an approved one whose window has not lapsed. */
   protected readonly canCancel = computed(() => {
     const request = this.request();
-    if (request == null) {
+    if (request == null || !this.isRequester()) {
       return false;
     }
     if (request.status === "pending") {
@@ -258,7 +275,25 @@ export class AccessRequestDialogComponent implements OnInit {
   });
 
   /** The holder can end their own active lease early. */
-  protected readonly canEndLease = computed(() => this.leaseActive());
+  protected readonly canEndLease = computed(() => this.isRequester() && this.leaseActive());
+
+  /** An approver can decide a request still waiting in their inbox. */
+  protected readonly canDecide = computed(() => this.isApprover() && this.approvalRow() != null);
+
+  /** An approver can withdraw an approval the requester has not started — as the History tab does. */
+  protected readonly canWithdrawApproval = computed(() => {
+    const request = this.request();
+    return request != null && this.approverManages() && isUnstartedApproval(request);
+  });
+
+  /**
+   * An approver can end access someone is using right now on a collection they manage. No window
+   * check: an extension runs the lease past the request's `leaseNotAfter`, as History allows for.
+   */
+  protected readonly canRevoke = computed(() => {
+    const request = this.request();
+    return request != null && this.approverManages() && isLiveManagedLease(request);
+  });
 
   ngOnInit(): void {
     // Kept outside the Angular zone so a periodic in-zone timer never blocks `whenStable()`; the
@@ -361,6 +396,41 @@ export class AccessRequestDialogComponent implements OnInit {
     } finally {
       this.ending.set(false);
     }
+  }
+
+  /** Decide through the same dialog, toasts and failure handling as the Approvals inbox. */
+  protected async decide(verdict: AccessDecisionVerdict): Promise<void> {
+    const row = this.approvalRow();
+    if (row == null || !this.canDecide() || this.deciding()) {
+      return;
+    }
+    await this.approverActions.decide(
+      { verdict, row, cipher: this.cipherFor(row.request.cipherId) },
+      (decided, comment) => this.detail.decide(decided, comment),
+      (busy) => this.deciding.set(busy),
+    );
+  }
+
+  protected async withdrawApproval(): Promise<void> {
+    if (!this.canWithdrawApproval() || this.withdrawing()) {
+      return;
+    }
+    await this.approverActions.withdrawApproval(
+      this.cipherName() ?? "",
+      () => this.detail.withdrawApproval(),
+      (busy) => this.withdrawing.set(busy),
+    );
+  }
+
+  protected async revoke(): Promise<void> {
+    const leaseId = this.request()?.producedLeaseId;
+    if (leaseId == null || !this.canRevoke() || this.revoking()) {
+      return;
+    }
+    await this.approverActions.revoke(
+      () => this.detail.revokeLease(leaseId),
+      (busy) => this.revoking.set(busy),
+    );
   }
 
   /**
