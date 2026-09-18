@@ -28,19 +28,28 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   ROUTE, not on the component, because routed children inherit a parent route's
   providers but not a component's — that is what lets the tabs share one load.
 - `access-requests/access-request-route/` — `/pam/requests/:id`. A real route, not a
-  click handler, because the rows link to it and the planned `EmailApprovalDeepLink`
-  lands on it; but a DIALOG over the shell rather than a page of its own. It is a
-  fourth child of the shell route, so the header and tab bar stay mounted;
+  click handler, because the rows link to it and both the requester's and the approvers'
+  emails deep-link to it; but a DIALOG over the shell rather than a page of its own. It
+  is a fourth child of the shell route, so the header and tab bar stay mounted;
   `access-request-route.component` is the host (opens the dialog, renders the tab the
   caller came from behind it, and on close REPLACES the URL with `/pam/<that tab>`, so a
   dismissed dialog is never left addressable and never stacked on top of), and
-  `access-request-dialog.component` is the view. `originTab` picks that tab off the
-  previous navigation's URL, matched on the whole `/pam/<tab>` shape, so an approver
-  opening a row keeps the Approvals inbox behind the dialog rather than watching it swap
-  to their own requests; My requests is only the fallback, for a caller from outside the
-  tabs or a cold load. Do not step the browser back on close instead: the router's
-  `previousNavigation` says only that this SPA session navigated before, never that the
-  browser has an entry below this one to go back to.
+  `access-request-dialog.component` is the view. The same link serves both sides, so the
+  dialog's footer follows `viewer$`: Start / Cancel / End for the requester, Approve /
+  Deny, Withdraw approval or Revoke for an approver, never the other side's. Approver
+  actions go through the shell's `ApproverInboxService`, which also decides whether the
+  viewer may take them, and their confirms and toasts through `ApproverActionsService`,
+  the one the Approvals and History tabs use. It is provided on each component, since a
+  route provider never reaches a dialog. `originTab` picks the tab off the previous navigation's URL,
+  matched on the whole `/pam/<tab>` shape (`tabFrom` returns undefined for anything
+  else), so an approver opening a row keeps the Approvals inbox behind the dialog rather
+  than watching it swap to their own requests. With no tab to read, from outside the
+  tabs or on a cold load, the fallback follows the viewer: Approvals for an approver,
+  My requests for the requester. No tab renders until `viewer$` resolves, so neither
+  lands behind the dialog first; a load that settles without a request (not found or
+  failed) falls back to My requests. Do not step the browser back on close instead: the
+  router's `previousNavigation` says only that this SPA session navigated before, never
+  that the browser has an entry below this one to go back to.
   `AccessRequestDetailService` is provided on the host component, not the route config,
   because it reads the `:id` off `ActivatedRoute` — a route-level provider resolves in
   the route's environment injector, where that lookup falls through to the root route.
