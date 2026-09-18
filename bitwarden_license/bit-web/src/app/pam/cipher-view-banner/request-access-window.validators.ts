@@ -27,7 +27,7 @@ export type RequestWindowError = { problem: RequestWindowProblem; message: strin
  * `maxWindowSeconds` and `now` are callbacks, not captured values.
  */
 export function requestWindowEndValidator(
-  maxWindowSeconds: () => number,
+  maxWindowSeconds: () => number | null,
   message: (problem: RequestWindowProblem, maxWindowSeconds: number) => string,
   now: () => Date = () => new Date(),
 ): (control: AbstractControl) => ValidationErrors | null {
@@ -44,6 +44,10 @@ export function requestWindowEndValidator(
       end: control.value,
     };
     const max = maxWindowSeconds();
+    // No cap yet means the pre-check has not landed, and no form renders until it has.
+    if (max == null) {
+      return null;
+    }
     const problem = requestWindowProblem(requested, max, now());
     if (problem == null) {
       return null;
