@@ -337,6 +337,87 @@ describe("AccessRequestDialogComponent", () => {
     });
   });
 
+  describe("the produced lease", () => {
+    const activeLease = {
+      status: "approved",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
+    };
+
+    function remaining(): string | null {
+      return (
+        fixture.nativeElement.querySelector('[data-testid="request-detail-remaining"]')
+          ?.textContent ?? null
+      );
+    }
+
+    function extendedBadge(): string | null {
+      return (
+        fixture.nativeElement.querySelector('[data-testid="request-detail-lease-extended"]')
+          ?.textContent ?? null
+      );
+    }
+
+    it("counts down the lease's own end, not the request's activation window", () => {
+      detail.request$.next(
+        request({
+          ...activeLease,
+          leaseNotAfter: new Date(Date.now() + 7 * 60 * 1000).toISOString(),
+          producedLeaseNotAfter: new Date(Date.now() + 37 * 60 * 1000).toISOString(),
+        }),
+      );
+
+      create();
+
+      expect(remaining()).toContain("37m");
+    });
+
+    it("falls back to the activation window when the server sends no lease end", () => {
+      detail.request$.next(
+        request({
+          ...activeLease,
+          leaseNotAfter: new Date(Date.now() + 7 * 60 * 1000).toISOString(),
+        }),
+      );
+
+      create();
+
+      expect(remaining()).toContain("7m");
+    });
+
+    it("withholds the countdown once the lease's own end has passed", () => {
+      detail.request$.next(
+        request({ ...activeLease, leaseNotAfter: FUTURE, producedLeaseNotAfter: PAST }),
+      );
+
+      create();
+
+      expect(remaining()).toBeNull();
+    });
+
+    it("badges the time an extension added, and the end it moved the lease to", () => {
+      detail.request$.next(
+        request({
+          ...activeLease,
+          leaseNotAfter: new Date(Date.now() + 7 * 60 * 1000).toISOString(),
+          producedLeaseNotAfter: new Date(Date.now() + 37 * 60 * 1000).toISOString(),
+        }),
+      );
+
+      create();
+
+      expect(extendedBadge()).toContain("pamExtendedBadge 30m");
+    });
+
+    it("badges no extension when the lease still ends where the request said", () => {
+      detail.request$.next(request({ ...activeLease, producedLeaseNotAfter: FUTURE }));
+
+      create();
+
+      expect(extendedBadge()).toBeNull();
+    });
+  });
+
   describe("action gating", () => {
     it("offers Start only for an approved request still inside its window", () => {
       detail.request$.next(request({ status: "approved" }));

@@ -19,17 +19,27 @@
         [reason]="reason()"
       >
         <pam-summary-field [label]="'pamColumnStatus' | i18n">
-          @if (badge()?.badgeState; as state) {
-            <app-pam-access-state-badge [state]="state" />
-          } @else if (badge()?.statusBadge; as b) {
-            <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
-          }
+          <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            @if (badge()?.badgeState; as state) {
+              <app-pam-access-state-badge [state]="state" />
+            } @else if (badge()?.statusBadge; as b) {
+              <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
+            }
+            @if (extension(); as ext) {
+              <span bitBadge variant="secondary" data-testid="request-detail-lease-extended">
+                {{
+                  "pamExtendedBadge"
+                    | i18n: (ext.addedSeconds | durationShort) : (ext.until | date: "short")
+                }}
+              </span>
+            }
+          </span>
         </pam-summary-field>
 
-        @if (showLeaseRemaining()) {
+        @if (leaseEndsAt(); as endsAt) {
           <pam-summary-field [label]="'pamColumnRemaining' | i18n">
             <span data-testid="request-detail-remaining">{{
-              r.leaseNotAfter | remainingTime: nowMs()
+              endsAt | remainingTime: nowMs()
             }}</span>
           </pam-summary-field>
         }
