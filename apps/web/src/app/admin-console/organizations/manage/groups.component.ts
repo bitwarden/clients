@@ -1,5 +1,5 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -134,9 +134,12 @@ export class GroupsComponent {
     { initialValue: false },
   );
 
-  protected readonly filteredCount = toSignal(
-    this.dataSource.connect().pipe(map((rows) => rows.length)),
-    { initialValue: 0 },
+  private readonly rows = signal<GroupDetailsRow[]>([]);
+  private readonly search = toSignal(this.searchControl.valueChanges.pipe(debounceTime(200)), {
+    initialValue: this.searchControl.value,
+  });
+  protected readonly filteredCount = computed(
+    () => this.rows().filter(groupsFilter(this.search() ?? "")).length,
   );
 
   private readonly organizationId$ = this.route.params.pipe(map((params) => params.organizationId));
@@ -171,6 +174,7 @@ export class GroupsComponent {
       )
       .subscribe((groups) => {
         this.dataSource.data = groups;
+        this.rows.set(groups);
         this.loading.set(false);
       });
 
@@ -306,6 +310,7 @@ export class GroupsComponent {
   private removeGroup(groupRow: GroupDetailsRow) {
     // Assign a new array to dataSource.data to trigger the setters and update the table
     this.dataSource.data = this.dataSource.data.filter((g) => g !== groupRow);
+    this.rows.set(this.dataSource.data);
   }
 
   private toCollectionMap(
