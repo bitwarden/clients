@@ -75,6 +75,70 @@ describe("CliDesktopIpcTransport", () => {
     transport.disconnect();
   });
 
+  describe("drain", () => {
+    it("closes the proxy's input and waits for it to exit", async () => {
+      const proxy = createProxyProcess();
+      const onDisconnect = jest.fn();
+      const transport = new CliDesktopIpcTransport(
+        logService,
+        receive,
+        onDisconnect,
+        () => "/installed/desktop_proxy",
+        () => proxy.process,
+      );
+
+      const send = transport.send({
+        destination: "DesktopRenderer",
+        payload: new Uint8Array([1]),
+      } as OutgoingMessage);
+      proxy.stdout.write(encodeNativeMessagingFrame({ command: "connected" }));
+      await send;
+
+      const drained = transport.drain();
+      expect(proxy.stdin.writableEnded).toBe(true);
+
+      // Only resolves once the proxy has had its say, so the last frame is not cut off.
+      proxy.process.emit("exit", 0, null);
+      await drained;
+
+      expect(onDisconnect).toHaveBeenCalled();
+    });
+
+    it("gives up on a proxy that never exits", async () => {
+      const proxy = createProxyProcess();
+      const transport = new CliDesktopIpcTransport(
+        logService,
+        receive,
+        undefined,
+        () => "/installed/desktop_proxy",
+        () => proxy.process,
+      );
+
+      const send = transport.send({
+        destination: "DesktopRenderer",
+        payload: new Uint8Array([1]),
+      } as OutgoingMessage);
+      proxy.stdout.write(encodeNativeMessagingFrame({ command: "connected" }));
+      await send;
+
+      await transport.drain(0);
+
+      expect(proxy.process.kill).toHaveBeenCalled();
+    });
+
+    it("is a no-op when no proxy was ever started", async () => {
+      const transport = new CliDesktopIpcTransport(
+        logService,
+        receive,
+        undefined,
+        () => "/installed/desktop_proxy",
+        () => createProxyProcess().process,
+      );
+
+      await expect(transport.drain()).resolves.toBeUndefined();
+    });
+  });
+
   it("rejects the connection when the proxy exits before connecting", async () => {
     const proxy = createProxyProcess();
     const transport = new CliDesktopIpcTransport(
