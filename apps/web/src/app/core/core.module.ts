@@ -45,6 +45,7 @@ import {
   LoginEmailService,
   LogoutService,
 } from "@bitwarden/auth/common";
+import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -70,13 +71,13 @@ import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   DefaultSharedUnlockSettingsService,
@@ -151,11 +152,19 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { OrganizationInviteLinkApiService } from "@bitwarden/organization-invite-link";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import {
+  SHARE_ITEM_PRESENTER,
+  SHARE_PASSWORD_REPROMPT,
+  ShareButtonComponent,
+  ShareItemDrawerPresenter,
+} from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   DefaultVaultNavService,
+  PasswordRepromptService,
+  SHARE_ITEM_ENTRY_POINT,
   SshImportPromptService,
   VaultNavService,
 } from "@bitwarden/vault";
@@ -252,6 +261,13 @@ const safeProviders: SafeProvider[] = [
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
+    multi: true,
+  }),
+  // Web-only automation capability.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (win: Window) => new ProcessReloadCapability(() => win.location.reload()),
+    deps: [WINDOW],
     multi: true,
   }),
   safeProvider({
@@ -403,8 +419,6 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       Router,
-      AccountService,
-      ConfigService,
       ToastService,
       I18nServiceAbstraction,
     ],
@@ -601,6 +615,24 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       LegacyCompatKeyService,
     ],
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_ITEM_ENTRY_POINT,
+    useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: ShareItemDrawerPresenter,
+    deps: [],
   }),
 ];
 

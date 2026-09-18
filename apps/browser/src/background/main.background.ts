@@ -6,7 +6,6 @@ import {
   EMPTY,
   NEVER,
   Observable,
-  Subject,
   concatMap,
   concat,
   filter,
@@ -110,7 +109,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -123,7 +121,7 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import {
   SharedUnlockPeerService,
   SharedUnlockSettingsService,
@@ -166,9 +164,11 @@ import {
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
-// eslint-disable-next-line no-restricted-imports -- Used for dependency creation
-import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
+import {
+  IntraprocessMessageSender,
+  MessageListener,
+  MessageSender,
+} from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -217,6 +217,7 @@ import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -297,6 +298,11 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   ActiveUserStateProvider,
@@ -370,6 +376,7 @@ import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserProcessReloadService } from "../key-management/browser-process-reload.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { BackgroundUnlockService } from "../key-management/unlock/background-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
@@ -377,8 +384,7 @@ import { BrowserActionsService } from "../platform/actions/browser-actions.servi
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 /* eslint-disable no-restricted-imports */
@@ -390,6 +396,7 @@ import { BrowserTaskSchedulerService } from "../platform/services/abstractions/b
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
+import { BrowserManagedConfigReader } from "../platform/services/browser-managed-config-reader";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
@@ -492,6 +499,7 @@ export default class MainBackground {
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
+  sendDecryptionService: SendDecryptionService;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<BrowserFido2ParentWindowReference>;
@@ -528,8 +536,9 @@ export default class MainBackground {
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
-  // eslint-disable-next-line rxjs/no-exposed-subjects -- Needed to give access to services module
-  intraprocessMessagingSubject: Subject<Message<Record<string, unknown>>>;
+  // `#` rather than `private` because `BitwardenMain` is assigned to a worker property,
+  // where an erased annotation would leave the channel ambient
+  readonly #intraprocessMessageSender: IntraprocessMessageSender;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -547,6 +556,8 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  managedSettingsService: ManagedSettingsService;
+  private managedConfigReader?: BrowserManagedConfigReader;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -622,18 +633,15 @@ export default class MainBackground {
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
 
-    this.intraprocessMessagingSubject = new Subject<Message<Record<string, unknown>>>();
+    this.#intraprocessMessageSender = new IntraprocessMessageSender();
 
     this.messagingService = MessageSender.combine(
-      new SubjectMessageSender(this.intraprocessMessagingSubject),
+      this.#intraprocessMessageSender,
       new ChromeMessageSender(this.logService),
     );
 
     const messageListener = new MessageListener(
-      merge(
-        this.intraprocessMessagingSubject.asObservable(), // For messages from the same context
-        fromChromeRuntimeMessaging(), // For messages from other contexts
-      ),
+      this.#intraprocessMessageSender.messages$({ external$: fromChromeRuntimeMessaging() }),
     );
 
     this.offscreenDocumentService = new DefaultOffscreenDocumentService(this.logService);
@@ -958,6 +966,23 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -970,6 +995,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -980,6 +1006,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.managedSettingsService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
@@ -1207,6 +1234,11 @@ export default class MainBackground {
       this.legacyCompatKeyService,
     );
 
+    this.sendDecryptionService = new SendDecryptionService(
+      this.sdkService,
+      this.configService,
+      this.legacyCompatKeyService,
+    );
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
       this.accountService,
@@ -1216,11 +1248,14 @@ export default class MainBackground {
       this.sendStateProvider,
       this.encryptService,
       this.configService,
+      this.sdkService,
+      this.sendDecryptionService,
     );
     const legacySendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
       this.sendService,
+      this.logService,
     );
     this.sendApiService = new SendApiServiceSelector(
       this.configService,
@@ -1231,6 +1266,7 @@ export default class MainBackground {
         this.sendService,
         this.accountService,
         this.logService,
+        this.sendDecryptionService,
       ),
     );
 
@@ -1482,31 +1518,20 @@ export default class MainBackground {
       this.logService,
     );
 
-    const systemUtilsServiceReloadCallback = async () => {
-      await this.taskSchedulerService.clearAllScheduledTasks();
-
-      // Close browser action popup before reloading to prevent zombie popup with invalidated context.
-      // The 'reloadProcess' message is sent by ProcessReloadService before this callback runs,
-      // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
-      await BrowserPopupUtils.waitForAllPopupsClose();
-
-      BrowserApi.reloadExtension();
-    };
-
     this.systemService = new SystemService(
       this.platformUtilsService,
       this.autofillSettingsService,
       this.taskSchedulerService,
     );
 
-    this.processReloadService = new DefaultProcessReloadService(
+    this.processReloadService = new BrowserProcessReloadService(
       this.pinService,
       this.messagingService,
-      systemUtilsServiceReloadCallback,
       this.vaultTimeoutSettingsService,
       this.accountService,
       this.logService,
       this.authService,
+      this.taskSchedulerService,
     );
 
     // Background
@@ -1561,7 +1586,6 @@ export default class MainBackground {
       this.autofillService,
       this.platformUtilsService as BrowserPlatformUtilsService,
       this.autofillSettingsService,
-      this.processReloadService,
       this.environmentService,
       this.messagingService,
       this.logService,
@@ -1805,6 +1829,11 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
+    // Acquired first so no consumer can observe an empty profile that acquisition would have
+    // filled. Pushing before the SDK loads is safe: the profile is mirrored into the SDK handle
+    // lazily, once the WASM module is ready. Absent when a dev source supplies the profile instead.
+    await this.managedConfigReader?.init();
+
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
@@ -1835,8 +1864,8 @@ export default class MainBackground {
     // injection, so the onConnect listener is registered before any frame
     // connects.
     this.autofillLifecycleService.init();
-    this.autofillOrchestrator.init();
     await this.runtimeBackground.init();
+    this.autofillOrchestrator.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
@@ -2065,7 +2094,7 @@ export default class MainBackground {
     }
     await this.mainContextMenuHandler?.noAccess();
     await this.systemService.clearPendingClipboard();
-    await this.processReloadService.startProcessReload();
+    await this.processReloadService.reloadProcess();
   }
 
   private async needsStorageReseed(userId: UserId): Promise<boolean> {

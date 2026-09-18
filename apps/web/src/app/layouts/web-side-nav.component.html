@@ -8,7 +8,13 @@
     @if (sideNavService.version() === "default") {
       <bit-nav-divider></bit-nav-divider>
     }
-    <navigation-product-switcher></navigation-product-switcher>
+    <navigation-product-switcher [variant]="variant()"></navigation-product-switcher>
+  </ng-container>
+
+  <ng-container slot="account">
+    @if (vfo1FoundationEnabled()) {
+      <app-account-menu [expanded]="sideNavService.open()"></app-account-menu>
+    }
   </ng-container>
 
   <ng-container slot="callout">

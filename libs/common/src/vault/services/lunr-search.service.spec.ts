@@ -1,6 +1,11 @@
+import { CipherListView } from "@bitwarden/sdk-internal";
+
 import { LogService } from "../../platform/abstractions/log.service";
 import { OrganizationId, UserId } from "../../types/guid";
+import { CipherType } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
+import { LoginView } from "../models/view/login.view";
 
 import { LunrSearchService } from "./lunr-search.service";
 
@@ -12,6 +17,26 @@ function createCipherView(id: string, name: string, revisionDate?: Date): Cipher
     cipher.revisionDate = revisionDate;
   }
   return cipher;
+}
+
+function createLoginCipherView(id: string, name: string, uris: string[]): CipherView {
+  const cipher = createCipherView(id, name);
+  cipher.type = CipherType.Login;
+  cipher.login = new LoginView();
+  cipher.login.uris = uris.map((uri) => {
+    const uriView = new LoginUriView();
+    uriView.uri = uri;
+    return uriView;
+  });
+  return cipher;
+}
+
+function createLoginCipherListView(id: string, name: string, uris: string[]): CipherListView {
+  return {
+    id,
+    name,
+    type: { login: { uris: uris.map((uri) => ({ uri })) } },
+  } as unknown as CipherListView;
 }
 
 describe("LunrSearchService", () => {
@@ -119,5 +144,46 @@ describe("LunrSearchService", () => {
     expect(
       mockLogService.info.mock.calls.filter((call) => call[0] === "Starting Lunr index build"),
     ).toHaveLength(2);
+  });
+
+  describe("login URI indexing", () => {
+    it("indexes the URI hostname for a CipherView login", async () => {
+      const ciphers = [
+        createLoginCipherView("11111111-1111-1111-1111-111111111111", "Work Login", [
+          "https://example.com/path",
+        ]),
+      ];
+
+      const result = await service.searchCiphers(userId, null, ">example.com", ciphers);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("indexes the URI hostname for a CipherListView login", async () => {
+      const ciphers = [
+        createLoginCipherListView("11111111-1111-1111-1111-111111111111", "Work Login", [
+          "https://example.com/path",
+        ]),
+      ];
+
+      const result = await service.searchCiphers(userId, null, ">example.com", ciphers);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("does not index the literal word 'null' when a URI has no parseable hostname", async () => {
+      const ciphers = [
+        createLoginCipherView("11111111-1111-1111-1111-111111111111", "Work Login", [
+          "data:text/plain,hello",
+        ]),
+        createLoginCipherListView("22222222-2222-2222-2222-222222222222", "Other Login", [
+          "data:text/plain,hello",
+        ]),
+      ];
+
+      const result = await service.searchCiphers(userId, null, ">null", ciphers);
+
+      expect(result).toEqual([]);
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, Observable } from "rxjs";
 
@@ -21,6 +21,12 @@ import { SharedModule } from "../../shared";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountMenuComponent {
+  /**
+   * Shows the name and email next to the avatar. Used by the side-nav footer trigger when the
+   * nav is expanded; the header trigger leaves this off and stays icon-only.
+   */
+  readonly expanded = input(false);
+
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly accountService = inject(AccountService);

@@ -66,6 +66,7 @@ import {
   getEmailBatchLimit,
   inputEmailLimitValidator,
   isDynamicSeatPlan,
+  isSeatConstrainedEmailBatch,
 } from "../member-dialog/validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
@@ -76,6 +77,7 @@ export interface InviteMembersDialogParams {
   isOnSecretsManagerStandalone: boolean;
   occupiedSeatCount: number;
   allOrganizationUsers: OrganizationUserView[];
+  showCoachMarks?: boolean;
 }
 
 @Component({
@@ -124,7 +126,7 @@ export class InviteMembersDialogComponent {
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
-  protected readonly selectedTabIndex = signal(0);
+  protected readonly selectedTabIndex = signal(this.params.showCoachMarks ? 1 : 0);
   protected readonly moreSettingsOpen = signal(false);
 
   protected byLinkTabDirty(): boolean {
@@ -249,18 +251,27 @@ export class InviteMembersDialogComponent {
 
   constructor() {
     this.organization$.pipe(takeUntilDestroyed()).subscribe((organization) => {
-      const emailBatchLimit = getEmailBatchLimit(organization, this.params.occupiedSeatCount);
-      this.setFormValidators(emailBatchLimit);
+      this.setFormValidators(organization);
     });
   }
 
-  private setFormValidators(emailBatchLimit: number) {
+  private setFormValidators(organization: Organization) {
+    const batchLimit = getEmailBatchLimit(organization, this.params.occupiedSeatCount);
+    const seatConstrained = isSeatConstrainedEmailBatch(
+      organization,
+      this.params.occupiedSeatCount,
+    );
+
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
       inputEmailLimitValidator(
-        emailBatchLimit,
-        (maxEmailsCount: number) => this.i18nService.t("tooManyEmails", maxEmailsCount),
+        batchLimit,
+        (maxEmailsCount: number) =>
+          this.i18nService.t(
+            seatConstrained ? "tooManyEmailsForRemainingSeats" : "tooManyEmails",
+            maxEmailsCount,
+          ),
         this.params.allOrganizationUsers.map((u) => u.email),
       ),
       revokedEmailsValidator(

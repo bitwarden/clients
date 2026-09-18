@@ -7,6 +7,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendService } from "@bitwarden/common/tools/send/services//send.service.abstraction";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 
 import { Response } from "../../../models/response";
 import { SendResponse } from "../models/send.response";
@@ -17,6 +18,7 @@ export class SendRemovePasswordCommand {
     private sendApiService: SendApiService,
     private environmentService: EnvironmentService,
     private accountService: AccountService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   async run(id: string) {
@@ -25,7 +27,7 @@ export class SendRemovePasswordCommand {
 
       const updatedSend = await firstValueFrom(this.sendService.get$(id));
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const decSend = await updatedSend.decrypt(activeUserId);
+      const decSend = await this.sendDecryptionService.decryptSend(updatedSend, activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
       const sendUrl = env.getSendUrl();
       const res = new SendResponse(decSend, sendUrl);
