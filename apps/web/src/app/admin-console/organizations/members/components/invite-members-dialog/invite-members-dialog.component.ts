@@ -299,7 +299,14 @@ export class InviteMembersDialogComponent {
   }
 
   private async handleInviteUsers(organizationId: OrganizationId) {
-    const emails = [...new Set((this.formGroup.value.emails ?? "").trim().split(/\s*,\s*/))];
+    const emails = [
+      ...new Set(
+        (this.formGroup.value.emails ?? "")
+          .split(",")
+          .map((email) => email.trim())
+          .filter((email) => email !== ""),
+      ),
+    ];
     const type = this.formGroup.value.type ?? OrganizationUserType.User;
     const groups = (this.formGroup.value.groups ?? []).map((m) => m.id);
     const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? false;
