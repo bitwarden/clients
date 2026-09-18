@@ -487,15 +487,15 @@ describe("EventService PAM events", () => {
     [EventType.Pam_AccessRequest_Approved, "pamEventApprovedAccessRequest", accessRequestId],
     [EventType.Pam_AccessRequest_Denied, "pamEventDeniedAccessRequest", accessRequestId],
     [EventType.Pam_AccessRequest_Cancelled, "pamEventCancelledAccessRequest", accessRequestId],
-    [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccessLease", accessLeaseId],
+    [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccess", accessLeaseId],
     [
       EventType.Pam_AccessLease_ActivationRejected,
       "pamEventRejectedAccessLeaseActivation",
       accessRequestId,
     ],
-    [EventType.Pam_AccessLease_Extended, "pamEventExtendedAccessLease", accessLeaseId],
-    [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccessLease", accessLeaseId],
-    [EventType.Pam_AccessLease_Expired, "pamEventExpiredAccessLease", accessLeaseId],
+    [EventType.Pam_AccessLease_Extended, "pamEventExtendedAccess", accessLeaseId],
+    [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccess", accessLeaseId],
+    [EventType.Pam_AccessLease_Expired, "pamEventExpiredAccess", accessLeaseId],
   ])("renders %s with its own message and the subject id", async (type, key, subjectId) => {
     const info = await sut.getEventInfo(pamEvent(type as EventType));
 
