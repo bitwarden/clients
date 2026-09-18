@@ -192,10 +192,10 @@ describe("AccessRequestDialogComponent", () => {
       const rendered = fixture.nativeElement.textContent as string;
       expect(rendered.split("pamInboxRequester").length - 1).toBe(1);
       expect(
-        fixture.nativeElement.querySelectorAll("#pam-request-summary_input_reason"),
+        fixture.nativeElement.querySelectorAll("#pam-request-summary_value_reason"),
       ).toHaveLength(1);
       expect(
-        fixture.nativeElement.querySelectorAll("#pam-request-summary_input_access-requested"),
+        fixture.nativeElement.querySelectorAll("#pam-request-summary_value_access-requested"),
       ).toHaveLength(1);
     });
 
