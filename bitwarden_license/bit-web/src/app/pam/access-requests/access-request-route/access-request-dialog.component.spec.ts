@@ -301,6 +301,42 @@ describe("AccessRequestDialogComponent", () => {
     });
   });
 
+  describe("status and remaining time", () => {
+    function remaining(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[data-testid="request-detail-remaining"]');
+    }
+
+    it("shows the status once, even after the request produced access", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" }),
+      );
+
+      create();
+
+      expect(text().split("pamColumnStatus").length - 1).toBe(1);
+    });
+
+    it("adds the remaining time under the status while access is running", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+
+      create();
+
+      expect(remaining()).not.toBeNull();
+    });
+
+    it("drops the remaining time once access has ended", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" }),
+      );
+
+      create();
+
+      expect(remaining()).toBeNull();
+    });
+  });
+
   describe("action gating", () => {
     it("offers Start only for an approved request still inside its window", () => {
       detail.request$.next(request({ status: "approved" }));

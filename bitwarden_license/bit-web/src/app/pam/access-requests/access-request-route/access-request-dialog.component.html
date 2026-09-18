@@ -26,6 +26,14 @@
           }
         </pam-summary-field>
 
+        @if (showLeaseRemaining()) {
+          <pam-summary-field [label]="'pamColumnRemaining' | i18n">
+            <span data-testid="request-detail-remaining">{{
+              r.leaseNotAfter | remainingTime: nowMs()
+            }}</span>
+          </pam-summary-field>
+        }
+
         <pam-summary-field [label]="'pamColumnSubmitted' | i18n">
           {{ r.submittedAt | date: "medium" }}
         </pam-summary-field>
@@ -36,26 +44,6 @@
           </pam-summary-field>
         }
       </pam-request-summary>
-
-      @if (r.producedLeaseId) {
-        <h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestLeaseTitle" | i18n }}</h2>
-        <bit-card class="tw-mb-4" data-testid="request-detail-access">
-          <div class="tw-flex tw-flex-col tw-gap-4">
-            <pam-summary-field [label]="'pamColumnStatus' | i18n">
-              @if (leaseActive()) {
-                <span bitBadge variant="success">{{ "pamStatusActivated" | i18n }}</span>
-              } @else if (badge()?.statusBadge; as b) {
-                <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
-              }
-            </pam-summary-field>
-            @if (showLeaseRemaining()) {
-              <pam-summary-field [label]="'pamColumnRemaining' | i18n">
-                {{ r.leaseNotAfter | remainingTime: nowMs() }}
-              </pam-summary-field>
-            }
-          </div>
-        </bit-card>
-      }
 
       @if (decisions().length > 0) {
         <h2 bitTypography="h6" class="tw-mb-2">
