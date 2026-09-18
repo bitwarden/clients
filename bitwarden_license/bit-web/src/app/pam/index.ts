@@ -96,7 +96,6 @@ export {
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";
 export {
-  MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   composeRequestWindow,
   defaultRequestWindow,
   midnightCrossingEnd,
