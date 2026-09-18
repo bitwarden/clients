@@ -14,6 +14,8 @@ const PIN_DIALOG_INPUT = 'input[type="password"][formcontrolname="pin"]';
 const REQUIRE_MASTER_PASSWORD_CHECKBOX =
   'input[formcontrolname="requireMasterPasswordOnClientRestart"]';
 const OK_TEXT = /^ok$/i;
+const SETTING_WRITE_TIMEOUT = 10_000;
+const DISABLE_RETRY_TIMEOUT = 60_000;
 const CLOSE_DIALOG_TEXT = /^close$/i;
 
 export async function enablePin(
@@ -45,13 +47,17 @@ export async function enablePin(
 }
 
 export async function disablePin(page: Page, driver: AutomationDriver): Promise<void> {
-  const settings = await openSettings(page, driver);
-  const pinSetting = settings.locator(PIN_SETTING_CHECKBOX);
+  // The setting writes through to state asynchronously and reverts itself when
+  // that fails, so the toggle is retried from a freshly opened dialog.
+  await expect(async () => {
+    const settings = await openSettings(page, driver);
+    const pinSetting = settings.locator(PIN_SETTING_CHECKBOX);
 
-  await pinSetting.uncheck();
-  await expect(pinSetting).not.toBeChecked();
+    await pinSetting.uncheck();
+    await expect(pinSetting).not.toBeChecked({ timeout: SETTING_WRITE_TIMEOUT });
 
-  await closeSettings(settings);
+    await closeSettings(settings);
+  }).toPass({ timeout: DISABLE_RETRY_TIMEOUT });
 }
 
 async function openSettings(page: Page, driver: AutomationDriver) {
