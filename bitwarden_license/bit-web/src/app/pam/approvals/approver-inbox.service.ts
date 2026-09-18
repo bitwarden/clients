@@ -189,8 +189,8 @@ export class ApproverInboxService {
    * Records an approve or deny. Removes the row from the inbox first so a slow server can't
    * leave a decided request sitting there; restores it and rethrows on failure.
    *
-   * The decided request moves to history carrying its existing fields, since the decision
-   * response only populates `status`, `resolvedAt` and the decision itself.
+   * Reloads on success instead of moving the row to history itself: the decision response names
+   * neither the approver nor the requester, which only the list reads resolve.
    */
   async decide(
     id: AccessRequestId,
@@ -198,31 +198,19 @@ export class ApproverInboxService {
     comment: string | undefined,
   ): Promise<void> {
     const current = this._inbox$.value;
+    // -1 means it is already gone (a double click, or another approver got there first); the call
+    // still goes through, so one click is always one request.
     const index = current.findIndex((request) => uuidAsString(request.id) === uuidAsString(id));
-    if (index === -1) {
-      // Already gone (a double click, or another approver got there first). Still calls
-      // through, so one click is always one request.
-      await this.approvalApi.decide(id, { verdict, comment });
-      return;
+    if (index !== -1) {
+      this._inbox$.next(current.filter((_, i) => i !== index));
     }
-
-    const row = current[index];
-    this._inbox$.next(current.filter((_, i) => i !== index));
     try {
-      const resolved = await this.approvalApi.decide(id, { verdict, comment });
-      this._history$.next([
-        {
-          ...row,
-          status: resolved.status,
-          resolvedAt: resolved.resolvedAt,
-          decisions: resolved.decisions,
-        },
-        ...this._history$.value,
-      ]);
+      await this.approvalApi.decide(id, { verdict, comment });
     } catch (e) {
       this._inbox$.next(current);
       throw e;
     }
+    await this.load();
   }
 
   /**
@@ -244,16 +232,13 @@ export class ApproverInboxService {
    * Withdraw an approval the requester has not yet started. Served by the SDK
    * (`access_requests().cancel()`), the same call the requester's own cancel makes; the server
    * records it as the approver's decision.
+   *
+   * Reloads instead of restamping the status here, so the row's resolver names whoever withdrew
+   * the approval rather than whoever granted it.
    */
   async cancelApproval(requestId: AccessRequestId): Promise<void> {
-    const current = this._history$.value;
-    this._history$.next(patchRequest(current, requestId, { status: "denied" }));
-    try {
-      await this.requestsApi.cancelAccessRequest(requestId);
-    } catch (e) {
-      this._history$.next(current);
-      throw e;
-    }
+    await this.requestsApi.cancelAccessRequest(requestId);
+    await this.load();
   }
 }
 
