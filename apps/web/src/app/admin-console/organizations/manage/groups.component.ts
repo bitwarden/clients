@@ -134,6 +134,11 @@ export class GroupsComponent {
     { initialValue: false },
   );
 
+  protected readonly filteredCount = toSignal(
+    this.dataSource.connect().pipe(map((rows) => rows.length)),
+    { initialValue: 0 },
+  );
+
   private readonly organizationId$ = this.route.params.pipe(map((params) => params.organizationId));
 
   constructor() {
