@@ -14,9 +14,10 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import {
   AsyncActionsModule,
   ButtonType,
@@ -71,7 +72,7 @@ export class PopupHeaderComponent {
     { initialValue: false },
   );
 
-  protected readonly logo = BitwardenLogo;
+  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
 
   /**
    * Background treatment of the page title bar.
@@ -127,9 +128,11 @@ export class PopupHeaderComponent {
     this.titleBarSuppressed() ? "side-nav" : "primaryGhost",
   );
 
-  /** Collapsed by scroll, unlike `titleBarSuppressed` — the bar is still there and focusable. */
   protected readonly titleBarHidden = computed(
-    () => this.vfo1Enabled() && !this.hideTitleBar() && this.scrollDirection() === "down",
+    () =>
+      this.vfo1Enabled() &&
+      !this.hideTitleBar() &&
+      (this.scrollDirection() === "down" || this.scrollLayout.restoredScrolled()),
   );
 
   /**
@@ -224,7 +227,9 @@ export class PopupHeaderComponent {
     // TODO: remove with the VFO1Foundation flag — move these three back into the base list above.
     // See `titleBarAnimated`: declaring the transition before the bar collapses would animate the
     // padding and border that arrive with the flag rather than the collapse.
-    if (this.titleBarAnimated()) {
+    //
+    // A restore re-establishes a state the page held, so the bar arrives collapsed.
+    if (this.titleBarAnimated() && !this.scrollLayout.restoredScrolled()) {
       classes.push(
         "motion-safe:tw-transition-[grid-template-rows,padding]",
         "tw-duration-200",

@@ -1,5 +1,5 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -34,13 +34,20 @@ import {
   ButtonModule,
   DialogService,
   FilterControl,
+  FilterMenuComponent,
+  FilterOptionRow,
+  FilterSectionComponent,
+  SelectionConfig,
 } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
+import { VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
+  MAX_SELECTION_COUNT,
   VaultItemsTableColumn,
   VaultItemsTableComponent,
   VaultItemsTableFilters,
@@ -119,10 +126,30 @@ class BareToolbarHostComponent {
   readonly show = signal(true);
 }
 
+function batchBarDouble() {
+  const source = signal<VaultSelectionSource<CipherViewLike> | undefined>(undefined);
+  const selected = computed(() => source()?.selected() ?? []);
+  return {
+    source,
+    selected,
+    selectedCount: computed(() => selected().length),
+    barVisible: computed(() => selected().length > 0),
+    registerSelection: (next: VaultSelectionSource<CipherViewLike>) => {
+      source.set(next);
+      return () => {
+        if (source() === next) {
+          source.set(undefined);
+        }
+      };
+    },
+  };
+}
+
 describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
+  let batchBar: ReturnType<typeof batchBarDouble>;
 
   // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
   // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
@@ -140,6 +167,7 @@ describe("VaultItemsTableComponent", () => {
   });
 
   beforeEach(async () => {
+    batchBar = batchBarDouble();
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -179,6 +207,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+        { provide: VaultBatchBarService, useValue: batchBar },
       ],
     }).compileComponents();
 
@@ -211,6 +240,11 @@ describe("VaultItemsTableComponent", () => {
       throw new Error(`No FilterControl registered under key "${key}"`);
     }
     return control;
+  }
+
+  /** The `bit-filter-menu` registered under `key` — every `FilterControl` here is one. */
+  function filterMenu(key: string): FilterMenuComponent {
+    return filterControl(key) as unknown as FilterMenuComponent;
   }
 
   /**
@@ -382,6 +416,23 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipherView({ favorite: true }), { favorites: true })).toBe(true);
       // Off, the toggle must not exclude non-favorites.
       expect(applyFilter(cipherView({ favorite: false }), { favorites: false })).toBe(true);
+    });
+
+    it("filters to the My items collection only when the toggle is on", () => {
+      fixture.componentRef.setInput("defaultCollectionId", "col-1");
+      const mine = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-1"] as never,
+      });
+      const notMine = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-2"] as never,
+      });
+
+      expect(applyFilter(mine, { myItems: true })).toBe(true);
+      expect(applyFilter(notMine, { myItems: true })).toBe(false);
+      // Off, the toggle must not exclude anything.
+      expect(applyFilter(notMine, { myItems: false })).toBe(true);
     });
 
     describe("vault (multi-select)", () => {
@@ -717,7 +768,7 @@ describe("VaultItemsTableComponent", () => {
         fixture.componentRef.setInput("ciphers", [cipherView({ favorite: true })]);
 
         expect(component["noFavorites"]()).toBe(false);
-        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        // Empty, not just falsy — the chip treats only an empty string as "no reason".
         expect(component["favoritesDisabledTooltip"]()).toBe("");
       });
     });
@@ -735,6 +786,28 @@ describe("VaultItemsTableComponent", () => {
 
         expect(component["noFolders"]()).toBe(false);
         expect(component["foldersDisabledTooltip"]()).toBe("");
+      });
+    });
+
+    describe("My items", () => {
+      it("is disabled with a tooltip when no cipher belongs to the My items collection", () => {
+        fixture.componentRef.setInput("defaultCollectionId", "col-1");
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never, collectionIds: ["col-2"] as never }),
+        ]);
+
+        expect(component["noMyItems"]()).toBe(true);
+        expect(component["myItemsDisabledTooltip"]()).toBe("myItemsFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when a cipher belongs to the My items collection", () => {
+        fixture.componentRef.setInput("defaultCollectionId", "col-1");
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never, collectionIds: ["col-1"] as never }),
+        ]);
+
+        expect(component["noMyItems"]()).toBe(false);
+        expect(component["myItemsDisabledTooltip"]()).toBe("");
       });
     });
 
@@ -765,9 +838,50 @@ describe("VaultItemsTableComponent", () => {
         ]);
 
         expect(component["noSharedFolderOptions"]()).toBe(false);
-        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        // Empty, not just falsy — the chip treats only an empty string as "no reason".
         expect(component["sharedFolderDisabledTooltip"]()).toBe("");
       });
+    });
+  });
+
+  describe("showMyItems", () => {
+    it("shows only on an organization's All vault items page, when it has a My items collection", () => {
+      fixture.componentRef.setInput("defaultCollectionId", "col-1");
+
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+      });
+      expect(component["showMyItems"]()).toBe(true);
+
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+        collectionId: "col-1",
+      });
+      expect(component["showMyItems"]()).toBe(false);
+
+      // Outside an organization scope.
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.MyVault });
+      expect(component["showMyItems"]()).toBe(false);
+
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+      });
+      fixture.componentRef.setInput("defaultCollectionId", undefined);
+      expect(component["showMyItems"]()).toBe(false);
+    });
+
+    it("shows for an owner or admin exempt from the policy, as long as their org has a My items collection", () => {
+      fixture.componentRef.setInput("orgRequiresDataOwnership", false);
+      fixture.componentRef.setInput("defaultCollectionId", "col-1");
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+      });
+
+      expect(component["showMyItems"]()).toBe(true);
     });
   });
 
@@ -1227,7 +1341,7 @@ describe("VaultItemsTableComponent", () => {
       const acme = groups.find((g: { organizationId: string }) => g.organizationId === "org-1");
       const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
 
-      expect(acme?.collections.map((c: CollectionView) => c.id)).toEqual([
+      expect(acme?.collections.map((c) => c.value)).toEqual([
         "col-0",
         "col-2",
         "col-4",
@@ -1235,7 +1349,7 @@ describe("VaultItemsTableComponent", () => {
         "col-8",
         "col-10",
       ]);
-      expect(contoso?.collections.map((c: CollectionView) => c.id)).toEqual([
+      expect(contoso?.collections.map((c) => c.value)).toEqual([
         "col-1",
         "col-3",
         "col-5",
@@ -1255,7 +1369,7 @@ describe("VaultItemsTableComponent", () => {
 
       expect(groups.map((g: { name: string }) => g.name)).toEqual(["Acme corporation", "Contoso"]);
       const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
-      expect(contoso?.collections.map((c: CollectionView) => c.name)).toEqual([
+      expect(contoso?.collections.map((c) => c.label)).toEqual([
         "A collection",
         "B collection",
         "Collection 01",
@@ -1277,6 +1391,204 @@ describe("VaultItemsTableComponent", () => {
       );
 
       expect(orphanGroup?.name).toBe("organization");
+    });
+
+    it("builds nested shared folders recursively regardless of input order", () => {
+      const parent = { id: "parent", name: "Engineering" } as CollectionView;
+      const child = { id: "child", name: "Engineering/Backend" } as CollectionView;
+      const grandchild = {
+        id: "grandchild",
+        name: "Engineering/Backend/Infrastructure",
+      } as CollectionView;
+
+      const result = component["buildNestedSharedFolders"]([grandchild, parent, child]);
+
+      expect(result).toEqual([
+        {
+          value: "parent",
+          label: "Engineering",
+          options: [
+            {
+              value: "child",
+              label: "Backend",
+              options: [
+                {
+                  value: "grandchild",
+                  label: "Infrastructure",
+                  options: [],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("keeps a nested collection's full path as its name when its parent is unavailable", () => {
+      const collection = { id: "child", name: "Engineering/Backend" } as CollectionView;
+
+      expect(component["buildNestedSharedFolders"]([collection])).toEqual([
+        { value: "child", label: "Engineering/Backend", options: [] },
+      ]);
+    });
+
+    it("nests a descendant under its nearest existing ancestor when an intermediate parent is unavailable", () => {
+      const parent = { id: "parent", name: "Engineering" } as CollectionView;
+      const descendant = {
+        id: "descendant",
+        name: "Engineering/Backend/Infrastructure",
+      } as CollectionView;
+
+      expect(component["buildNestedSharedFolders"]([parent, descendant])).toEqual([
+        {
+          value: "parent",
+          label: "Engineering",
+          options: [
+            {
+              value: "descendant",
+              label: "Backend/Infrastructure",
+              options: [],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("never nests collections belonging to different organizations together", () => {
+      const orgAParent = {
+        id: "org-a-parent",
+        organizationId: "org-a",
+        name: "Finance",
+      } as CollectionView;
+      const orgBChild = {
+        id: "org-b-child",
+        organizationId: "org-b",
+        name: "Finance/Reports",
+      } as CollectionView;
+
+      expect(component["buildNestedSharedFolders"]([orgAParent, orgBChild])).toEqual([
+        { value: "org-a-parent", label: "Finance", options: [] },
+        { value: "org-b-child", label: "Finance/Reports", options: [] },
+      ]);
+    });
+
+    it("returns top-level collections spanning multiple organizations in one global alphabetical order, not clustered by organization", () => {
+      const zeta = { id: "zeta", organizationId: "org-a", name: "Zeta" } as CollectionView;
+      const alpha = { id: "alpha", organizationId: "org-a", name: "Alpha" } as CollectionView;
+      const beta = { id: "beta", organizationId: "org-b", name: "Beta" } as CollectionView;
+
+      const result = component["buildNestedSharedFolders"]([zeta, alpha, beta]);
+
+      expect(result.map((o) => o.value)).toEqual(["alpha", "beta", "zeta"]);
+    });
+
+    describe("rendering the nested tree", () => {
+      /**
+       * A shared folder option by value, read from the chip's own option tree — data-driven
+       * options are plain rows, never stamped as `bit-filter-option` components.
+       */
+      function findOption(value: string): FilterOptionRow {
+        const option = (filterMenu("sharedFolder")["allOptions"]() as FilterOptionRow[]).find(
+          (o) => o.value() === value,
+        );
+        if (!option) {
+          throw new Error(`No option found for value ${value}`);
+        }
+        return option;
+      }
+
+      it("nests a rendered option under its parent, flat (ungrouped) list", () => {
+        fixture.componentRef.setInput("collections", [
+          { id: "parent", name: "Engineering", organizationId: "org-1" } as CollectionView,
+          { id: "child", name: "Engineering/Backend", organizationId: "org-1" } as CollectionView,
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupSharedFolders"]()).toBe(false);
+        expect(
+          findOption("parent")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["child"]);
+      });
+
+      it("nests a rendered option under its bit-filter-section, grouped by organization", () => {
+        fixture.componentRef.setInput("collections", [
+          ...manyCollections(9),
+          { id: "parent", name: "Engineering", organizationId: "org-1" } as CollectionView,
+          { id: "child", name: "Engineering/Backend", organizationId: "org-1" } as CollectionView,
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupSharedFolders"]()).toBe(true);
+        const section = fixture.debugElement
+          .queryAll(By.directive(FilterSectionComponent))
+          .map((el) => el.componentInstance as FilterSectionComponent)
+          .find((s) => s.label() === "Acme corporation");
+
+        expect(section?.children().map((o) => o.value())).toContain("parent");
+        expect(section?.children().map((o) => o.value())).not.toContain("child");
+        expect(
+          findOption("parent")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["child"]);
+      });
+    });
+  });
+
+  describe("nesting My folders", () => {
+    it("builds nested folders recursively regardless of input order", () => {
+      const parent = { id: "parent", name: "Travel" } as FolderView;
+      const child = { id: "child", name: "Travel/Flights" } as FolderView;
+      const grandchild = {
+        id: "grandchild",
+        name: "Travel/Flights/Domestic",
+      } as FolderView;
+
+      const result = component["buildNestedFolders"]([grandchild, parent, child]);
+
+      expect(result).toEqual([
+        {
+          value: "parent",
+          label: "Travel",
+          options: [
+            {
+              value: "child",
+              label: "Flights",
+              options: [
+                {
+                  value: "grandchild",
+                  label: "Domestic",
+                  options: [],
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("keeps a nested folder's full path as its name when its parent is unavailable", () => {
+      const folder = { id: "child", name: "Travel/Flights" } as FolderView;
+
+      expect(component["buildNestedFolders"]([folder])).toEqual([
+        { value: "child", label: "Travel/Flights", options: [] },
+      ]);
+    });
+
+    it("nests a rendered option under its parent", () => {
+      fixture.componentRef.setInput("folders", [
+        { id: "parent", name: "Travel" } as FolderView,
+        { id: "child", name: "Travel/Flights" } as FolderView,
+      ]);
+      fixture.detectChanges();
+
+      const parentOption = (filterMenu("folder")["allOptions"]() as FilterOptionRow[]).find(
+        (o) => o.value() === "parent",
+      );
+
+      expect(parentOption?.children().map((c) => c.value())).toEqual(["child"]);
     });
   });
 
@@ -1478,5 +1790,392 @@ describe("VaultItemsTableComponent", () => {
     expect(host.classList).toContain("tw-flex-col");
     expect(host.classList).toContain("tw-flex-1");
     expect(host.classList).toContain("tw-min-h-0");
+  });
+
+  describe("batch bar selection source", () => {
+    function selectionModel() {
+      const model = bitTable().selectionModel();
+      if (!model) {
+        throw new Error("No selection model — the table should always configure selection");
+      }
+      return model;
+    }
+
+    function batchBarIds(): (string | undefined)[] {
+      return batchBar.selected().map((item) => item.cipher?.id as string | undefined);
+    }
+
+    it("registers a source once the view initializes", () => {
+      fixture.detectChanges();
+
+      expect(batchBar.source()).toBeDefined();
+    });
+
+    it("wraps a selected cipher as a VaultItem on the batch bar", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      expect(batchBar.selected()).toEqual([{ cipher: amazon }]);
+    });
+
+    it("propagates every selected row, so bulk actions see the whole selection", () => {
+      const rows = [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ];
+      fixture.componentRef.setInput("ciphers", rows);
+      fixture.detectChanges();
+
+      selectionModel().select(...rows);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["a", "b"]);
+    });
+
+    it("drops a deselected row rather than accumulating", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      const apple = cipherView({ id: "b", name: "Apple ID" });
+      fixture.componentRef.setInput("ciphers", [amazon, apple]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon, apple);
+      fixture.detectChanges();
+      selectionModel().deselect(amazon);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("empties the batch bar when the table's selection is cleared", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      selectionModel().clear();
+      fixture.detectChanges();
+
+      expect(batchBar.selected()).toEqual([]);
+    });
+
+    it("clears the table's checkboxes when the batch bar clears the source", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(1);
+
+      batchBar.source()!.clear();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+      expect(batchBar.selected()).toEqual([]);
+    });
+
+    // The header checkbox is a user-mutated DOM node, and Angular writes a binding only when its
+    // value changes — so these assert the rendered `input`, not just the model aggregates.
+    describe("header checkbox DOM", () => {
+      const header = (): HTMLInputElement =>
+        fixture.nativeElement.querySelector('bit-header-row input[type="checkbox"]');
+
+      const setRows = (count: number) => {
+        fixture.componentRef.setInput(
+          "ciphers",
+          Array.from({ length: count }, (_, i) => cipherView({ id: `c${i}`, name: `Item ${i}` })),
+        );
+        fixture.detectChanges();
+      };
+
+      it("unchecks when a capped select-all is cleared from the batch bar", () => {
+        setRows(MAX_SELECTION_COUNT + 1);
+
+        header().click();
+        fixture.detectChanges();
+        expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
+
+        batchBar.source()!.clear();
+        fixture.detectChanges();
+
+        expect(header().checked).toBe(false);
+        expect(header().indeterminate).toBe(false);
+      });
+
+      it("checks when select-all runs from a partial selection", () => {
+        setRows(6);
+
+        const firstRow: HTMLInputElement = fixture.nativeElement.querySelector(
+          "bit-row input[data-selection-input]",
+        );
+        firstRow.click();
+        fixture.detectChanges();
+        expect(header().indeterminate).toBe(true);
+
+        header().click();
+        fixture.detectChanges();
+
+        expect(selectionModel().count()).toBe(6);
+        expect(header().checked).toBe(true);
+        expect(header().indeterminate).toBe(false);
+      });
+    });
+
+    it("keeps the batch bar in agreement after rows are re-emitted", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a"]);
+
+      // A fresh decrypt of the same cipher — a new reference carrying the same id.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      const selectedRows = selectionModel().selected();
+      expect(batchBar.selected()).toEqual(selectedRows.map((cipher) => ({ cipher })));
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("re-points the selection at the new row objects when rows are re-emitted", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+
+      // A background sync hands the table all-new references for the same ciphers.
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      // Without reconciliation the selection holds detached objects: the checkbox reads unchecked
+      // while the bar still reports the row.
+      const row = bitTable().filtered()[0];
+      expect(selectionModel().isSelected(row)).toBe(true);
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("drops a selected row that is gone after a re-emit", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a", "b"]);
+
+      // "Amazon" was deleted elsewhere, so the sync re-emits without it.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "b", name: "Apple ID" })]);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("does not clear a new selection on subsequent renders", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(1);
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("selects only the rows surviving the active filter when select-all is used", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon", type: CipherType.Login }),
+        cipherView({ id: "b", name: "Visa", type: CipherType.Card }),
+      ]);
+      fixture.detectChanges();
+
+      filterControl("type").setValue(CipherType.Card);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("caps the selection itself at MAX_SELECTION_COUNT", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
+      expect(batchBar.selected().length).toBe(MAX_SELECTION_COUNT);
+    });
+
+    it("reports a partial header when the cap stops select-all short", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().allSelected()).toBe(false);
+      expect(selectionModel().indeterminate()).toBe(true);
+    });
+
+    it("clears from the partial header at the cap", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+    });
+
+    it("caps in display order when the sort is reversed", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      bitTable().sort.set({ column: "name", direction: "desc" });
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      const expected = [...many]
+        .sort((a, b) => b.name.localeCompare(a.name))
+        .slice(0, MAX_SELECTION_COUNT)
+        .map((cipher) => cipher.id);
+      expect(
+        selectionModel()
+          .selected()
+          .map((cipher) => cipher.id)
+          .sort(),
+      ).toEqual(expected.sort());
+    });
+
+    it("clears a capped select-all on the next toggle", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+      expect(batchBar.selected().length).toBe(0);
+    });
+
+    it("disables unselected row checkboxes once the selection is full", () => {
+      // A cap small enough that a rejected row lands inside the virtual-scroll window.
+      (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
+        multiple: true,
+        max: 2,
+      };
+      fixture.componentRef.setInput(
+        "ciphers",
+        Array.from({ length: 4 }, (_, i) => cipherView({ id: `cipher-${i}`, name: `Item ${i}` })),
+      );
+      fixture.detectChanges();
+
+      const boxes = () =>
+        fixture.debugElement
+          .queryAll(By.css("input[data-selection-input]"))
+          .map((d) => d.nativeElement as HTMLInputElement);
+
+      boxes()[0].click();
+      fixture.detectChanges();
+      boxes()[1].click();
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(2);
+
+      expect(boxes()[2].disabled).toBe(true);
+      expect(boxes()[3].disabled).toBe(true);
+      expect(boxes()[0].disabled).toBe(false);
+      expect(boxes()[1].disabled).toBe(false);
+
+      boxes()[0].click();
+      fixture.detectChanges();
+      expect(boxes()[2].disabled).toBe(false);
+    });
+
+    it("omits the header select-all in single-select mode", () => {
+      (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
+        multiple: false,
+      };
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      const all = fixture.debugElement.queryAll(By.css("input[type=checkbox]"));
+      const rowBoxes = fixture.debugElement.queryAll(By.css("input[data-selection-input]"));
+
+      expect(rowBoxes.length).toBe(2);
+      expect(all.length).toBe(rowBoxes.length);
+    });
+
+    it("holds a bottom margin only while the bar is showing", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      const host = () => fixture.nativeElement as HTMLElement;
+
+      expect(host().style.marginBottom).toBe("0px");
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      // Assert space is held rather than the figure, which BULK_BAR_CLEARANCE is free to tune.
+      expect(parseInt(host().style.marginBottom, 10)).toBeGreaterThan(0);
+
+      selectionModel().clear();
+      fixture.detectChanges();
+
+      expect(host().style.marginBottom).toBe("0px");
+    });
+
+    it("deregisters its source when the table is destroyed", () => {
+      fixture.detectChanges();
+      expect(batchBar.source()).toBeDefined();
+
+      fixture.destroy();
+
+      expect(batchBar.source()).toBeUndefined();
+    });
   });
 });
