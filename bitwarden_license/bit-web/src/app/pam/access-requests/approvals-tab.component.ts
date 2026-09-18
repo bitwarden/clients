@@ -11,12 +11,10 @@ import {
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { EMPTY, distinctUntilChanged, filter, firstValueFrom, map, switchMap } from "rxjs";
+import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
@@ -24,7 +22,6 @@ import {
   AccordionGroupComponent,
   BadgeComponent,
   ButtonModule,
-  DialogService,
   FILTER_CONTROL,
   FilterControl,
   FilterMenuComponent,
@@ -36,7 +33,6 @@ import {
   SkeletonTextComponent,
   TableDataSource,
   TableModule,
-  ToastService,
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
@@ -47,8 +43,8 @@ import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalRow } from "../approvals/approval-row";
+import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.component";
 import { ManagedLeaseRow } from "../approvals/managed-lease-row";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 
@@ -64,8 +60,9 @@ type FilterOption = { label: string; value: string };
  *
  * Only ever rendered for an approver — a non-approver is redirected and the tab-link is hidden.
  *
- * Data, ordering, and optimistic decide/revoke live in {@link ApproverInboxService} (shared with
- * History); this component owns the toolbar, tables, dialogs, and toasts.
+ * Data, ordering, and optimistic decide/revoke live in {@link ApproverInboxService}, and the
+ * confirms and toasts in {@link ApproverActionsService}, both shared with History and the request
+ * dialog; this component owns the toolbar and tables.
  */
 @Component({
   selector: "pam-approvals-tab",
@@ -94,15 +91,13 @@ type FilterOption = { label: string; value: string };
     TypographyModule,
     I18nPipe,
   ],
+  providers: [ApproverActionsService],
 })
 export class ApprovalsTabComponent {
   protected readonly noResultsSvg = NoResults;
 
   private readonly inbox = inject(ApproverInboxService);
-  private readonly dialogService = inject(DialogService);
-  private readonly toastService = inject(ToastService);
-  private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
+  private readonly approverActions = inject(ApproverActionsService);
   private readonly ticker = inject(AccessBadgeTickerService);
 
   /** Ids currently being decided, so a second click on the same row is a no-op. */
@@ -325,90 +320,25 @@ export class ApprovalsTabComponent {
     return this.revoking().has(String(row.leaseId));
   }
 
-  /**
-   * Confirm and record a decision. Any dismissal other than an explicit confirm (Cancel, the
-   * header X, Escape, a backdrop click) closes with `undefined` and leaves the request untouched.
-   *
-   * Records the verdict the dialog closed with, not `verdict` alone: the approve variant can
-   * switch to "Deny request" in place.
-   */
   protected async decide(row: ApprovalRow, verdict: AccessDecisionVerdict): Promise<void> {
     if (!row.canDecide || this.isDeciding(row)) {
       return;
     }
-    const result = await firstValueFrom(
-      DecideDialogComponent.open(this.dialogService, {
-        data: { verdict, row, cipher: this.cipherFor(row.cipherId) },
-      }).closed,
+    await this.approverActions.decide(
+      { verdict, row, cipher: this.cipherFor(row.cipherId) },
+      (decided, comment) => this.inbox.decide(row.id, decided, comment),
+      rowBusy(this.deciding, String(row.id)),
     );
-    if (!result?.confirmed) {
-      return;
-    }
-
-    const key = String(row.id);
-    this.deciding.update((ids) => new Set([...ids, key]));
-    try {
-      await this.inbox.decide(row.id, result.verdict, result.comment);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t(
-          result.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
-        ),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamInboxDecisionFailed"),
-      });
-    } finally {
-      this.deciding.update((ids) => {
-        const next = new Set(ids);
-        next.delete(key);
-        return next;
-      });
-    }
   }
 
-  /**
-   * Confirm and end a lease that is running right now. The confirm is not optional: this cuts off
-   * access someone is already using, and every dismissal route resolves false.
-   */
   protected async revoke(row: ManagedLeaseRow): Promise<void> {
     if (this.isRevoking(row)) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxRevoke" },
-      content: { key: "pamInboxRevokeConfirm" },
-      acceptButtonText: { key: "pamInboxRevoke" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-
-    const key = String(row.leaseId);
-    this.revoking.update((ids) => new Set([...ids, key]));
-    try {
-      await this.inbox.revokeLease(row.requestId, row.leaseId);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamInboxRevokedToast"),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamInboxRevokeFailed"),
-      });
-    } finally {
-      this.revoking.update((ids) => {
-        const next = new Set(ids);
-        next.delete(key);
-        return next;
-      });
-    }
+    await this.approverActions.revoke(
+      () => this.inbox.revokeLease(row.requestId, row.leaseId),
+      rowBusy(this.revoking, String(row.leaseId)),
+    );
   }
 }
 
