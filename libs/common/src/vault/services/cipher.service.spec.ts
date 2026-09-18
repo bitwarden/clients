@@ -689,6 +689,39 @@ describe("Cipher Service", () => {
       expect(result[1]).toMatchObject({ id: "Cipher 2", key: "Re-encrypted Cipher Key" });
     });
 
+    it("excludes partial (PAM-gated) ciphers from rotation", async () => {
+      // Drive the real cipherViews$ chain (getAllDecryptedIncludingPartials ->
+      // cipherViewsWithPartials$ -> filter) rather than the mock the surrounding beforeEach installs.
+      (cipherService.cipherViews$ as jest.Mock).mockRestore();
+
+      const normal = new CipherView(encryptionContext.cipher);
+      normal.id = "normal" as CipherId;
+      normal.organizationId = null;
+      normal.partial = false;
+
+      const partial = new CipherView(encryptionContext.cipher);
+      partial.id = "partial" as CipherId;
+      partial.organizationId = null;
+      partial.partial = true;
+
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normal, partial]);
+
+      const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      // Only the non-partial cipher is re-encrypted; rotating a partial would clobber the
+      // server-suppressed fields with the blanks the client holds.
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
+        normal,
+        mockUserId,
+        newUserKey,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ id: "normal" });
+    });
+
     it("throws if the original user key is null", async () => {
       await expect(cipherService.getRotatedData(null!, newUserKey, mockUserId)).rejects.toThrow(
         "Original user key is required to rotate ciphers",
@@ -732,7 +765,9 @@ describe("Cipher Service", () => {
       (cipherService.cipherViews$ as jest.Mock)?.mockRestore();
 
       const decryptedView = new CipherView(encryptionContext.cipher);
-      jest.spyOn(cipherService, "getAllDecrypted").mockResolvedValue([decryptedView]);
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
 
@@ -803,6 +838,86 @@ describe("Cipher Service", () => {
 
       expect(emitted).not.toHaveBeenCalled();
       subscription.unsubscribe();
+    });
+  });
+
+  describe("partial (PAM-gated) cipher filtering", () => {
+    let normal: CipherView;
+    let partial: CipherView;
+
+    beforeEach(() => {
+      normal = new CipherView(encryptionContext.cipher);
+      normal.id = "normal" as CipherId;
+      normal.partial = false;
+
+      partial = new CipherView(encryptionContext.cipher);
+      partial.id = "partial" as CipherId;
+      partial.partial = true;
+
+      // Drive the shared full-view source directly. The `PM22134SdkCipherListView` flag defaults
+      // to false in this suite, so `cipherListViewsWithPartials$` falls back to this source too.
+      (cipherService as any).cipherViewsWithPartials$ = jest
+        .fn()
+        .mockReturnValue(of([normal, partial]));
+    });
+
+    it("cipherViews$ excludes partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
+      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+
+      const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
+
+      expect(result).toBeNull();
+    });
+
+    it("cipherListViews$ excludes partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherListViews$(mockUserId));
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
+      const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+
+      expect(result).toEqual([normal, partial]);
+    });
+
+    it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normal, partial]);
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(result).toEqual([normal]);
+    });
+
+    it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
+      const normalCard = new CipherView(encryptionContext.cipher);
+      normalCard.id = "card-normal" as CipherId;
+      normalCard.type = CipherType.Card;
+      normalCard.partial = false;
+
+      const partialCard = new CipherView(encryptionContext.cipher);
+      partialCard.id = "card-partial" as CipherId;
+      partialCard.type = CipherType.Card;
+      partialCard.partial = true;
+
+      jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([normalCard, partialCard]);
+
+      const result = await (cipherService as any).getAllDecryptedCiphersOfType(
+        [CipherType.Card],
+        mockUserId,
+      );
+
+      expect(result).toEqual([normalCard]);
     });
   });
 
@@ -1053,6 +1168,39 @@ describe("Cipher Service", () => {
 
       expect(successes).toEqual(expectedSuccessCipherViews);
       expect(failures).toEqual(expectedFailedCipherViews);
+    });
+  });
+
+  describe("decryptCiphers with PAM gated rows", () => {
+    const gated_id = "33333333-3333-3333-3333-333333333333";
+    const normal_id = "44444444-4444-4444-4444-444444444444";
+
+    it("passes gated ciphers through the SDK like any other cipher", async () => {
+      // The SDK now decrypts restricted ciphers itself (into a `partial` view), so the
+      // service no longer partitions them out or hand-decrypts them.
+      const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
+      gatedCipher.partialData = '{"Name":"enc-name"}';
+      const normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [
+          { id: gated_id, name: "Gated item", partial: true } as CipherView,
+          { id: normal_id, name: "Normal item" } as CipherView,
+        ],
+        [],
+      ]);
+
+      const [successes] = await (cipherService as any).decryptCiphers(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+
+      // Both ciphers — the gated one included — are handed to the SDK unchanged.
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+      expect(successes.map((c: CipherView) => c.name)).toEqual(["Gated item", "Normal item"]);
     });
   });
 
