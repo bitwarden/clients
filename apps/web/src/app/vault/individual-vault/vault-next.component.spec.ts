@@ -21,7 +21,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -104,9 +104,11 @@ describe("VaultNextComponent", () => {
   let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
 
+  const cipherId = "cccc1111-dddd-4eee-8fff-000011112222" as CipherId;
+
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
     const cipher = new CipherView();
-    cipher.id = "cipher-1";
+    cipher.id = cipherId;
     cipher.name = "Item";
     cipher.type = CipherType.Login;
     cipher.edit = true;
@@ -1313,13 +1315,13 @@ describe("VaultNextComponent", () => {
     };
 
     it("waits for the items to decrypt, which an item that exists needs to be found", () => {
-      linkTo({ itemId: "cipher-1" });
+      linkTo({ itemId: cipherId });
 
       expect(itemActions.viewById).not.toHaveBeenCalled();
 
       loadItems();
 
-      expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+      expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
     });
 
     describe("once the items load", () => {
@@ -1328,39 +1330,39 @@ describe("VaultNextComponent", () => {
       });
 
       it("opens the item read-only when the URL names one with no action", () => {
-        linkTo({ itemId: "cipher-1" });
+        linkTo({ itemId: cipherId });
 
-        expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+        expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
       });
 
       it("honors the param's original cipherId name", () => {
-        linkTo({ cipherId: "cipher-1" });
+        linkTo({ cipherId: cipherId });
 
-        expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+        expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
       });
 
       it("opens the edit form", () => {
-        linkTo({ itemId: "cipher-1", action: "edit" });
+        linkTo({ itemId: cipherId, action: "edit" });
 
-        expect(itemActions.editById).toHaveBeenCalledWith("cipher-1");
+        expect(itemActions.editById).toHaveBeenCalledWith(cipherId);
       });
 
       it("opens the clone form", () => {
-        linkTo({ itemId: "cipher-1", action: "clone" });
+        linkTo({ itemId: cipherId, action: "clone" });
 
-        expect(itemActions.cloneById).toHaveBeenCalledWith("cipher-1");
+        expect(itemActions.cloneById).toHaveBeenCalledWith(cipherId);
       });
 
       it("reports a decryption failure", () => {
-        linkTo({ itemId: "cipher-1", action: "showFailedToDecrypt" });
+        linkTo({ itemId: cipherId, action: "showFailedToDecrypt" });
 
-        expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith("cipher-1");
+        expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith(cipherId);
       });
 
       it("reads an action it does not recognize as a view", () => {
-        linkTo({ itemId: "cipher-1", action: "somethingElse" });
+        linkTo({ itemId: cipherId, action: "somethingElse" });
 
-        expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+        expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
       });
 
       it("opens nothing when the URL names no item", () => {
@@ -1370,26 +1372,32 @@ describe("VaultNextComponent", () => {
         expect(itemActions.editById).not.toHaveBeenCalled();
       });
 
+      it("opens nothing when the item id is not a guid", () => {
+        linkTo({ itemId: "not-a-guid" });
+
+        expect(itemActions.viewById).not.toHaveBeenCalled();
+      });
+
       it("dispatches a link once, so the params the dialog leaves behind do not reopen it", () => {
-        linkTo({ itemId: "cipher-1" });
+        linkTo({ itemId: cipherId });
         fixture.detectChanges();
 
         expect(itemActions.viewById).toHaveBeenCalledTimes(1);
       });
 
       it("ignores the params the dialog writes while it is open", () => {
-        linkTo({ itemId: "cipher-1" });
+        linkTo({ itemId: cipherId });
         itemDialogOpen.set(true);
 
-        linkTo({ itemId: "cipher-1", action: "edit" });
+        linkTo({ itemId: cipherId, action: "edit" });
 
         expect(itemActions.editById).not.toHaveBeenCalled();
       });
 
       it("opens the item again on a second link to it", () => {
-        linkTo({ itemId: "cipher-1" });
+        linkTo({ itemId: cipherId });
         linkTo({});
-        linkTo({ itemId: "cipher-1" });
+        linkTo({ itemId: cipherId });
 
         expect(itemActions.viewById).toHaveBeenCalledTimes(2);
       });

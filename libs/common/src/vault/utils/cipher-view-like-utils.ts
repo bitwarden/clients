@@ -11,6 +11,7 @@ import {
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
+import { CipherId } from "../../types/guid";
 import { BankAccountType, BankAccountTypeI18nKeys, CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { BankAccountView } from "../models/view/bank-account.view";
@@ -114,6 +115,18 @@ export class CipherViewLikeUtils {
     }
 
     return cipher.canAssignToCollections;
+  };
+
+  /**
+   * @returns The cipher's id, or `undefined` when it has none.
+   *
+   * `CipherListView.id` is the SDK's `CipherId` and `CipherView.id` is a plain string, so this
+   * returns `libs/common`'s {@link CipherId} for either
+   */
+  static getId = (cipher: CipherViewLike | Cipher): CipherId | undefined => {
+    const id = cipher.id as unknown as string | undefined;
+
+    return id ? (id as CipherId) : undefined;
   };
 
   /**
