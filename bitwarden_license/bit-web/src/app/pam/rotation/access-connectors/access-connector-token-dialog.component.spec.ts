@@ -19,7 +19,7 @@ describe("AccessConnectorTokenDialogComponent", () => {
   let i18nService: jest.Mocked<I18nService>;
 
   const params: AccessConnectorTokenDialogParams = {
-    accessConnectorName: "Prod AccessConnector",
+    accessConnectorName: "Prod access connector",
     token: "0.access-connector.api-id.secret:keyb64==",
   };
 
