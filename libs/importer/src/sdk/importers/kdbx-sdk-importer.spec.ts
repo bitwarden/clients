@@ -90,7 +90,7 @@ describe("KdbxSdkImporter", () => {
     expect(importKdbx).toHaveBeenCalledWith(new Uint8Array([2]), "pw", keyFile, {
       organization_id: organizationId,
       target_folder: undefined,
-      target_collection: { id: collection.id, name: "Shared" },
+      target_collection: { id: collection.id, name: "Shared", type: collection.type },
       restricted_types: [],
     });
   });
