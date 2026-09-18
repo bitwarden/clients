@@ -1,4 +1,7 @@
-<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
+<popup-page
+  [collapseAboveScrollArea]="vfo1Enabled()"
+  [hideOverflow]="showSkeletonsLoaders$ | async"
+>
   <popup-header slot="header" [pageTitle]="pageTitle()">
     @if (vfo1Enabled()) {
       <app-vault-switcher slot="title-start" [scope]="vaultScope()"></app-vault-switcher>
@@ -73,7 +76,7 @@
     </ng-container>
   }
 
-  <!-- Show search & filters outside of the scroll area of the page -->
+  <!-- Outside the page's scroll area; with vfo1 it collapses alongside the title bar. -->
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {
       <bit-callout
