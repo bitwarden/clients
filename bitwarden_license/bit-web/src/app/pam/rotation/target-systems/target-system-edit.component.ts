@@ -258,7 +258,6 @@ export class TargetSystemEditComponent {
   /** Kind options for the bit-select in Automatic mode. */
   protected readonly kindOptions = [
     { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
-    { value: TargetSystemKind.Mssql, label: "pamTargetSystemTypeMssql" },
     { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
   ] as const;
 
@@ -320,7 +319,7 @@ export class TargetSystemEditComponent {
   );
 
   /**
-   * Native integrations (Entra, Mssql — anything other than a custom script) always terminate
+   * Native integrations (anything other than a custom script) always terminate
    * active sessions after rotation; the capability is intrinsic, so the form shows a static
    * "Supported" indicator rather than an editable checkbox.
    */

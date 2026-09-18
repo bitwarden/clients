@@ -19854,9 +19854,6 @@
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
-  "pamTargetSystemTypeMssql": {
-    "message": "MSSQL"
-  },
   "pamTargetSystemTypeCustomScript": {
     "message": "Custom script"
   },
