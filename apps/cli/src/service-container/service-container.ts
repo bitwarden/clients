@@ -536,7 +536,6 @@ export class ServiceContainer {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
     );
@@ -561,7 +560,6 @@ export class ServiceContainer {
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -573,7 +571,6 @@ export class ServiceContainer {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -925,7 +922,6 @@ export class ServiceContainer {
       this.logService,
       this.keyConnectorService,
       this.environmentService,
-      this.stateService,
       this.twoFactorService,
       this.i18nService,
       this.encryptService,

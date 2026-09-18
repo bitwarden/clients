@@ -793,7 +793,6 @@ export default class MainBackground {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
     );
@@ -837,7 +836,6 @@ export default class MainBackground {
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -849,7 +847,6 @@ export default class MainBackground {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 
