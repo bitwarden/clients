@@ -63,6 +63,12 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
 
     const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
     this.peer = peer;
+
+    // Prevent a race condition where the subscription for destinations sets the allowed destinations
+    // only after the first sync, thus dropping the first announcement, and delaying the first sync
+    // by the sync interval
+    await this.setDestinationsInitially();
+
     await peer.start();
 
     this.accountService.accounts$
@@ -95,6 +101,21 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
         },
       });
     });
+  }
+
+  /**
+   * Gives the peer the current destinations of every logged-in account, once.
+   *
+   * {@link watchDestinations} keeps them updated from there; this only covers the window before
+   * its first emission, which is the window the peer announces itself in.
+   */
+  private async setDestinationsInitially(): Promise<void> {
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+
+    for (const userId of Object.keys(accounts) as UserId[]) {
+      const destinations = await firstValueFrom(this.destinations$(userId));
+      this.setDestinations(userId, destinations);
+    }
   }
 
   /**
@@ -149,7 +170,11 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
   private watchDestinations(userId: UserId): Subscription {
     return this.destinations$(userId)
       .pipe(distinctUntilChanged(sameDestinations))
-      .subscribe((destinations) => this.peer?.set_destinations(asUuid(userId), destinations));
+      .subscribe((destinations) => this.setDestinations(userId, destinations));
+  }
+
+  private setDestinations(userId: UserId, destinations: SharedUnlockClient[]): void {
+    this.peer?.set_destinations(asUuid(userId), destinations);
   }
 
   /**
