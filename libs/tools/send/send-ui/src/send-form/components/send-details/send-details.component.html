@@ -17,7 +17,10 @@
     }
     @if (sendFormService.sendFormConfig.sendType === SendType.Item) {
       <div class="tw-mb-2">
-        <app-cipher-view [cipher]="sendFormService.originalSendView().data.data"></app-cipher-view>
+        <app-cipher-view
+          [cipher]="sendFormService.originalSendView().data.data"
+          [hideChangePasswordLink]="true"
+        ></app-cipher-view>
       </div>
     }
 
