@@ -1,5 +1,4 @@
 import {
-  MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   type RequestWindowFormValue,
   composeRequestWindow,
   defaultRequestWindow,
@@ -16,10 +15,16 @@ import {
  */
 const NOW = new Date("2026-08-17T08:00");
 
+/**
+ * The longest window a single date plus two times can express. Stands in for "no narrower rule
+ * cap" below: the cases that care about a cap pass their own.
+ */
+const FORM_MAX_WINDOW_SECONDS = 24 * 60 * 60;
+
 /** {@link requestWindowProblem} against {@link NOW}, so every case reads as one line. */
 const problemAt = (
   value: RequestWindowFormValue,
-  maxWindowSeconds: number = MAX_REQUEST_ACCESS_WINDOW_SECONDS,
+  maxWindowSeconds: number = FORM_MAX_WINDOW_SECONDS,
 ) => requestWindowProblem(value, maxWindowSeconds, NOW);
 
 describe("composeRequestWindow", () => {
@@ -103,19 +108,10 @@ describe("requestWindowProblem", () => {
     );
   });
 
-  it("accepts a window exactly at the maximum", () => {
-    // The form carries a single date, so the 24h boundary is expressed as 00:00 to 24:00.
-    const start = new Date("2026-08-17T00:00");
-    const end = new Date(start.getTime() + MAX_REQUEST_ACCESS_WINDOW_SECONDS * 1000);
-
-    expect(
-      problemAt({
-        date: toDateInputValue(start),
-        start: toTimeInputValue(start),
-        end: "24:00",
-      }),
-    ).toBeNull();
-    expect(end.getTime() - start.getTime()).toBe(MAX_REQUEST_ACCESS_WINDOW_SECONDS * 1000);
+  it("accepts the longest window the form can express", () => {
+    // A single date tops out at 24h, expressed as 00:00 to 24:00 — well inside the server's own
+    // ceiling, which no window this form composes can reach.
+    expect(problemAt({ date: "2026-08-17", start: "00:00", end: "24:00" })).toBeNull();
   });
 
   // The global ceiling alone let a window past the rule's own maximum look valid.
@@ -189,9 +185,12 @@ describe("requestWindowProblem", () => {
 
   it("measures against the real clock when no instant is given", () => {
     // The validator calls through without an explicit `now`, so the default has to be live.
-    expect(requestWindowProblem({ date: "2020-01-01", start: "09:00", end: "10:00" })).toBe(
-      "endInPast",
-    );
+    expect(
+      requestWindowProblem(
+        { date: "2020-01-01", start: "09:00", end: "10:00" },
+        FORM_MAX_WINDOW_SECONDS,
+      ),
+    ).toBe("endInPast");
   });
 });
 
@@ -222,11 +221,16 @@ describe("defaultRequestWindow", () => {
     });
   });
 
-  it("stops a minute short of a full 24h duration", () => {
-    // 24h would put the same wall-clock time in both fields, which reads as zero-length.
+  it.each([
+    ["a full 24h duration", 24 * 60 * 60],
+    ["a multi-day rule default", 7 * 24 * 60 * 60],
+  ])("clamps %s to a minute short of a day", (_label, durationSeconds) => {
+    // A full 24h would put the same wall-clock time in both fields, which reads as zero-length,
+    // and one date plus two times cannot express more than that — however long a lease the
+    // server now permits.
     const now = new Date(2026, 7, 17, 9, 15, 0);
 
-    expect(defaultRequestWindow(now, MAX_REQUEST_ACCESS_WINDOW_SECONDS)).toEqual({
+    expect(defaultRequestWindow(now, durationSeconds)).toEqual({
       date: "2026-08-17",
       start: "09:15",
       end: "09:14",
@@ -251,7 +255,9 @@ describe("defaultRequestWindow", () => {
     ["a rule defaulting to seconds", new Date(2026, 7, 17, 9, 15, 0), 10],
   ])("seeds a window the validator accepts on %s", (_label, now, duration) => {
     // The seeded end is always after the seeded start.
-    expect(requestWindowProblem(defaultRequestWindow(now, duration), undefined, now)).toBeNull();
+    expect(
+      requestWindowProblem(defaultRequestWindow(now, duration), FORM_MAX_WINDOW_SECONDS, now),
+    ).toBeNull();
   });
 });
 

@@ -173,10 +173,11 @@ spelling was listed and every server-side refusal fell through to the generic to
 sentences are pinned in `request-access-error.spec.ts` rather than compared against themselves,
 so drift fails a test instead of degrading the copy silently.
 
-Both `*ExceedsMax` entries are still exact sentences carrying the GLOBAL 24h cap, while the
-server interpolates the governing rule's own `EffectiveMax` — so a rule with a narrower
-`MaxLeaseDurationSeconds` misses them. Only reachable on skew, since the form narrows its own
-picker to that cap; matching on the prefix is the fix when it is worth doing.
+The two `*ExceedsMax` refusals are NOT catalog entries — the server interpolates its
+`EffectiveMax` into them, so no fixed sentence matches more than one rule. `EXCEEDS_MAX_PATTERN`
+captures the noun and the maximum instead. The window path re-renders through
+`requestAccessModalWindowExceedsMax`; the duration path has no such string and echoes the server.
+Keep the noun: the automatic path shows no window, so the two cannot share wording.
 
 ## `export type` matters
 

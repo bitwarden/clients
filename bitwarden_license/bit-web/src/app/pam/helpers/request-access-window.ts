@@ -1,13 +1,4 @@
 /**
- * Maximum window length the PAM server accepts for a single access request (24h); caps both the
- * automatic path's duration and the human path's start/end span.
- *
- * The SDK exposes the same cap as `max_request_access_window_seconds()`; replace this constant
- * once a published `sdk-internal` carries it.
- */
-export const MAX_REQUEST_ACCESS_WINDOW_SECONDS = 86_400;
-
-/**
  * The three control values the human-path request form collects: a local calendar date plus a
  * start and end time, kept as raw strings so this module is unit-testable without a TestBed.
  *
@@ -64,12 +55,14 @@ export function midnightCrossingEnd(value: RequestWindowFormValue): Date | null 
  * already elapsed, and within `maxWindowSeconds`. `null` for a valid or incomplete window.
  *
  * The zero-length check is measured on the composed window, after an inverted end has rolled to
- * the next day; `maxWindowSeconds` comes from the pre-check's governing rule, defaulting to the
- * global ceiling, and is checked on the END since the form seeds `start` at `now`.
+ * the next day; `maxWindowSeconds` is checked on the END since the form seeds `start` at `now`.
+ *
+ * `maxWindowSeconds` has no default on purpose: it is the governing rule's cap, which only the
+ * pre-check knows.
  */
 export function requestWindowProblem(
   value: RequestWindowFormValue,
-  maxWindowSeconds: number = MAX_REQUEST_ACCESS_WINDOW_SECONDS,
+  maxWindowSeconds: number,
   now: Date = new Date(),
 ): RequestWindowProblem | null {
   const window = composeRequestWindow(value);
@@ -105,12 +98,14 @@ export function toTimeInputValue(date: Date): string {
 
 /**
  * Bounds on the window {@link defaultRequestWindow} may seed, imposed by the form's shape, not
- * any rule: below a minute the two time inputs can't hold distinct values, and at a full 24h
- * the end lands back on the start's wall-clock time, which {@link composeRequestWindow} reads
- * as ambiguous.
+ * any rule or the server's ceiling: below a minute the two time inputs can't hold distinct
+ * values, and at a full 24h the end lands back on the start's wall-clock time, which
+ * {@link composeRequestWindow} reads as ambiguous.
+ *
+ * A rule defaulting past a day seeds this instead of a window the form would misread.
  */
 const MIN_SEEDABLE_WINDOW_SECONDS = 60;
-const MAX_SEEDABLE_WINDOW_SECONDS = MAX_REQUEST_ACCESS_WINDOW_SECONDS - 60;
+const MAX_SEEDABLE_WINDOW_SECONDS = 24 * 60 * 60 - 60;
 
 /**
  * Seed values for a window starting at `now` and running `durationSeconds`. An end past midnight
