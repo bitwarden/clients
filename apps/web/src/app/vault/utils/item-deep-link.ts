@@ -27,9 +27,8 @@ export type ItemDeepLink = {
  * names no item.
  *
  * `cipherId` is the param's original name, still honored for links written before it became
- * `itemId`. An absent or unrecognized action reads as `view`: a link that names an item but no
- * action opens it read-only. A value that is not a guid names no item, so it reads as no deep
- * link rather than as a lookup that is certain to miss.
+ * `itemId`. An absent or unrecognized action reads as `view`. A non-guid value reads as no deep
+ * link.
  */
 export function itemDeepLinkFrom(params: ParamMap | undefined): ItemDeepLink | undefined {
   const cipherId = params?.get("itemId") ?? params?.get("cipherId");

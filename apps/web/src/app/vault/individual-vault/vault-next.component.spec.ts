@@ -1308,7 +1308,6 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
     };
 
-    /** Puts an item deep link on the URL, as a bookmark or an in-app link would. */
     const linkTo = (params: Record<string, string>) => {
       queryParamMap$.next(convertToParamMap(params));
       fixture.detectChanges();

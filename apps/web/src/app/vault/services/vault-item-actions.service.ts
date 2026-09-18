@@ -275,7 +275,6 @@ export class WebVaultItemActionsService {
     );
   }
 
-  /** Prompts for the master password when the item asks for it. */
   private async reprompt(reprompt: CipherRepromptType): Promise<boolean> {
     return (
       reprompt === CipherRepromptType.None ||

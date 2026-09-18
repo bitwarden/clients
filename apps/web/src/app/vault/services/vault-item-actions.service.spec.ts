@@ -43,9 +43,8 @@ describe("WebVaultItemActionsService", () => {
   let assignCollectionsDialogOpen: jest.SpyInstance;
 
   /**
-   * The stored cipher every action reads back before it opens a dialog. It drives the dialog
-   * config, the reprompt, and the passkey warning, so a test that exercises any of those sets it
-   * rather than the row.
+   * A test that exercises the dialog config, the reprompt, or the passkey warning sets this
+   * rather than the row, because every action reads the stored cipher back before it opens.
    */
   const buildStoredCipher = (overrides: Partial<Cipher> = {}) =>
     ({
@@ -318,7 +317,6 @@ describe("WebVaultItemActionsService", () => {
       itemDialogOpen.mockReturnValue({ closed } as unknown as DialogRef<never>);
 
       const opening = service.view(buildCipher());
-      // Let the reads of the stored cipher and the form config settle before the assertion.
       await flushMicrotasks();
       expect(service.itemDialogOpen()).toBe(true);
 

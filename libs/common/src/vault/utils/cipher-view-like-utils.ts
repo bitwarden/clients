@@ -118,10 +118,8 @@ export class CipherViewLikeUtils {
   };
 
   /**
-   * @returns The cipher's id, or `undefined` when it has none.
-   *
    * `CipherListView.id` is the SDK's `CipherId` and `CipherView.id` is a plain string, so this
-   * returns `libs/common`'s {@link CipherId} for either
+   * returns `libs/common`'s {@link CipherId} for either.
    */
   static getId = (cipher: CipherViewLike | Cipher): CipherId | undefined => {
     const id = cipher.id as unknown as string | undefined;

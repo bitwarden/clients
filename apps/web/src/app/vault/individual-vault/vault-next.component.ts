@@ -493,8 +493,7 @@ export class VaultNextComponent implements OnInit {
   private readonly dispatchedDeepLink = signal<string | undefined>(undefined);
 
   /**
-   * Opens the item named by the `?itemId=&action=` deep link. `?cipherId=` is honored too, for
-   * links written before the param was renamed — see {@link itemDeepLinkFrom}.
+   * Opens the item named by the deep link on the URL — see {@link itemDeepLinkFrom}.
    *
    * The dispatch waits for the items to decrypt: `WebVaultItemActionsService` reads the item from
    * storage, and an item that has not loaded yet reads the same as one that does not exist.
