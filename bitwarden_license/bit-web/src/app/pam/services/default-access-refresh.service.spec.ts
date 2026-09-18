@@ -89,6 +89,19 @@ describe("DefaultAccessRefreshService", () => {
     expect(cipherTwo()).toBe(1);
   });
 
+  it("notifies a subscriber that names no cipher of every mutation and every push", () => {
+    // The nav badge spans ciphers; it needs to hear any local mutation, whichever item it named.
+    let count = 0;
+    subscriptions.push(service.accessChanged$().subscribe(() => (count += 1)));
+
+    service.notifyAccessChanged("cipher-1");
+    service.notifyAccessChanged("cipher-2");
+    service.notifyAccessChanged();
+    push$.next();
+
+    expect(count).toBe(4);
+  });
+
   it("does not attach to the push channel until a consumer subscribes", () => {
     // A user who never opens a gated item should not hold a push-channel subscription.
     expect(push$.observed).toBe(false);
