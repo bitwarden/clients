@@ -11,14 +11,22 @@
 ////
 
 const { spawn } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const WEB_DIR = path.join(REPO_ROOT, "apps", "web");
 
+// The dev server's build output would drown the test output, so it goes to a log
+// file instead. The path is printed once, for when a run needs diagnosing.
+const LOG_PATH = path.join(REPO_ROOT, ".debug", "e2e-web.log");
+const log = fs.openSync(LOG_PATH, "w");
+
+console.log(`web log: ${LOG_PATH}`);
+
 const child = spawn("npm", ["run", "build:bit:watch"], {
   cwd: WEB_DIR,
-  stdio: "inherit",
+  stdio: ["ignore", log, log],
   env: { ...process.env, ENV: "development" },
 });
 

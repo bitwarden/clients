@@ -12,8 +12,8 @@ const BLANK_URL = "about:blank";
 // Chrome blocks a chrome-extension:// page loaded before it has finished enabling
 // the unpacked extension, and nothing retries that load on its own, so the popup
 // is reloaded until it routes.
-const POPUP_LOAD_ATTEMPTS = 15;
-const POPUP_ROUTE_TIMEOUT = 2_000;
+const POPUP_LOAD_ATTEMPTS = 3;
+const POPUP_ROUTE_TIMEOUT = 10_000;
 
 // The extension id is stable for the profile, but nothing in the browser reliably
 // reports it: pages come and go, and the MV3 service worker's target disappears

@@ -31,6 +31,8 @@ export default defineConfig({
     // Never talk to clients someone else started: their profiles are not clean and
     // they are not paired.
     reuseExistingServer: false,
+    // Only the launcher's own few lines reach here: it writes each client's build
+    // and run output to a log file under .debug/.
     stdout: "pipe",
     stderr: "pipe",
   },

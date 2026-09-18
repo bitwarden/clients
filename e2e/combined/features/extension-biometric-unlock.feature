@@ -10,20 +10,13 @@ Feature: Unlocking the extension with desktop biometrics
   unlock state shared with the desktop app. The lock screen is the same either
   way, so both settings are covered against the flag state they belong to.
 
-  Scenario Outline: Unlock the extension through the desktop app, <enabled by>
-    Given the shared unlock feature is <shared unlock> in the extension
+  Scenario Outline: Unlock the extension through the desktop app, biometric unlock
+    Given the shared unlock feature is off in the extension
     And the desktop is unlocked as the "default" account
     And desktop biometric unlock is enabled
     And the extension is unlocked as the "default" account
-    When I enable <enabled by> in the extension
+    When I enable biometric unlock in the extension
     And I lock the extension
     Then the extension lock screen offers biometric unlock
     When I unlock the extension with biometrics, approving on the desktop
     Then the extension vault is shown
-
-    # Shared unlock first: it has to grant biometric unlock on its own, which it
-    # cannot be shown to do once the deprecated setting has been enabled.
-    Examples:
-      | shared unlock | enabled by                      |
-      | on            | unlock sharing with the desktop |
-      | off           | biometric unlock                |

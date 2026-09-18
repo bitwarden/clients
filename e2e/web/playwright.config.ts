@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { headlessMode } from "../utils/headless";
+
 // Unlike desktop and the extension, the web vault runs in a browser Playwright
 // launches itself, so these tests get a clean profile for free.
 const DEV_SERVER_URL = "https://localhost:8080";
@@ -15,6 +17,7 @@ export default defineConfig({
   outputDir: "./test-results",
   use: {
     ...devices["Desktop Chrome"],
+    headless: headlessMode(true),
     baseURL: DEV_SERVER_URL,
     // The dev server uses a self-signed certificate.
     ignoreHTTPSErrors: true,
@@ -28,6 +31,8 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     // A dev server someone else started is fine: the browser profile is ours.
     reuseExistingServer: true,
+    // Only the launcher's own few lines reach here: it writes the app's build and
+    // run output to a log file under .debug/.
     stdout: "pipe",
     stderr: "pipe",
   },

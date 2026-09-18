@@ -36,6 +36,8 @@ export default defineConfig({
     timeout: BUILD_AND_LAUNCH_TIMEOUT,
     // Never talk to an app someone else started: its profile is not clean.
     reuseExistingServer: false,
+    // Only the launcher's own few lines reach here: it writes the app's build and
+    // run output to a log file under .debug/.
     stdout: "pipe",
     stderr: "pipe",
   },

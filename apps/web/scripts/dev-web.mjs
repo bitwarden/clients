@@ -9,6 +9,8 @@
 // --env   web config from apps/web/config/ (default: usdev)
 // --port  port for the static server (default: 8081)
 //
+// HEADLESS=1 runs Chrome without a window, for unattended runs.
+//
 // This serves a finished production build, not the webpack dev server, so
 // nothing is proxied: the config's URLs must be absolute and reachable.
 ////
@@ -179,7 +181,7 @@ async function resolveChrome(browsers) {
 async function launch(puppeteer, executablePath, url) {
   const browser = await puppeteer.launch({
     executablePath,
-    headless: false,
+    headless: process.env.HEADLESS === "1",
     userDataDir: PROFILE_DIR,
     defaultViewport: null,
     args: [`--remote-debugging-port=${DEBUG_PORT}`, "--no-first-run", "--no-default-browser-check"],

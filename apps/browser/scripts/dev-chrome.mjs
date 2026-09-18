@@ -11,6 +11,8 @@
 //   node scripts/dev-chrome.mjs [--popup]
 //
 // --popup  open the extension popup once loaded
+//
+// HEADLESS=1 runs Chrome without a window, for unattended runs.
 ////
 
 import { spawnSync } from "node:child_process";
@@ -125,7 +127,7 @@ async function resolveChrome(browsers) {
 async function launch(puppeteer, executablePath) {
   return puppeteer.launch({
     executablePath,
-    headless: false,
+    headless: process.env.HEADLESS === "1",
     userDataDir: PROFILE_DIR,
     env: { ...process.env, BITWARDEN_IPC_SOCKET_DIR: IPC_SOCKET_DIR },
     defaultViewport: null,

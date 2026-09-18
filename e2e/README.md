@@ -65,6 +65,20 @@ npm run test:e2e:web
 npm run test:e2e:combined
 ```
 
+## Output and windows
+
+The apps' build and run output goes to `.debug/e2e-<client>.log` rather than the
+test output; each launcher prints its log path once.
+
+`HEADLESS=1` hides the windows a run opens, `HEADLESS=0` shows them, and unset
+keeps each runner's default — a browser Playwright owns is headless, a debug
+launcher you would normally watch is not. The desktop app has no headless mode,
+so its window always shows.
+
+```bash
+HEADLESS=1 npm run test:e2e:browser
+```
+
 Within a suite the files share one client instance and run in filename order,
 hence the numeric prefixes: `01-login.spec.ts` logs in, later files assume an
 unlocked vault.

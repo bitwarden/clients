@@ -57,6 +57,13 @@ const SERVICE_WORKER = "service_worker";
 const CLIENT_START_TIMEOUT = 15 * 60 * 1000;
 const POLL_INTERVAL = 1000;
 
+// Both clients' build and run output would drown the test output, so each goes to
+// its own log file. The paths are printed once, for when a run needs diagnosing.
+const LOG_PATHS = {
+  desktop: path.join(DEBUG_DIR, "e2e-desktop.log"),
+  browser: path.join(DEBUG_DIR, "e2e-browser.log"),
+};
+
 const children = [];
 
 // Chrome ignores SIGTERM sent to the npm wrapper that launched it, so a previous
@@ -79,8 +86,11 @@ async function assertPortFree(port, what) {
   }
 }
 
-function startClient(command, args) {
-  const child = spawn(command, args, { cwd: REPO_ROOT, stdio: "inherit" });
+function startClient(command, args, logName) {
+  const log = fs.openSync(LOG_PATHS[logName], "w");
+  console.log(`${logName} log: ${LOG_PATHS[logName]}`);
+
+  const child = spawn(command, args, { cwd: REPO_ROOT, stdio: ["ignore", log, log] });
 
   children.push(child);
   child.on("exit", (code, signal) => shutdown(signal ? 1 : (code ?? 0)));
@@ -199,10 +209,10 @@ async function main() {
   await assertPortFree(BROWSER_CDP_PORT, "the debug browser");
 
   // The desktop app first: it owns the IPC socket the proxy connects to.
-  startClient("npm", ["run", "debug:desktop:automation"]);
+  startClient("npm", ["run", "debug:desktop:automation"], "desktop");
   await waitForCdp(DESKTOP_CDP_PORT, "The desktop app");
 
-  startClient("npm", ["run", "debug:browser"]);
+  startClient("npm", ["run", "debug:browser"], "browser");
   await waitForCdp(BROWSER_CDP_PORT, "The debug browser");
 
   const extensionId = await waitForExtensionId();
