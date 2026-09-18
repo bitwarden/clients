@@ -38,6 +38,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -168,6 +169,7 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
     { provide: GroupApiService, useValue: mock<GroupApiService>() },
     { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
     { provide: OrganizationUserService, useValue: mock<OrganizationUserService>() },
+    { provide: SdkService, useValue: mock<SdkService>() },
     { provide: ApiService, useValue: mock<ApiService>() },
     { provide: LegacyCompatKeyService, useValue: mock<LegacyCompatKeyService>() },
     { provide: StateProvider, useValue: mock<StateProvider>() },
