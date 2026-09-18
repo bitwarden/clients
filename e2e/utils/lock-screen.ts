@@ -17,6 +17,10 @@ const PIN_INPUT = 'input[name="pin"]';
 const MASTER_PASSWORD_INPUT = 'input[name="masterPassword"]';
 const UNLOCK_TEXT = /^unlock$/i;
 
+/** The biometric unlock button; the label names whatever the platform calls it. */
+export const BIOMETRIC_UNLOCK_TEXT =
+  /unlock with (touch id|windows hello|system authentication|biometrics)/i;
+
 export async function unlockWithPin(page: Page, pin: string): Promise<void> {
   await swapTo(page, UnlockOption.Pin);
   await page.locator(PIN_INPUT).fill(pin);

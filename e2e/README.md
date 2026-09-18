@@ -2,11 +2,12 @@
 
 Playwright suites, one folder per client:
 
-| Folder     | Client              | How it runs                                                                 |
-| ---------- | ------------------- | --------------------------------------------------------------------------- |
-| `desktop/` | Electron app        | wipes `.debug/desktop-profile`, starts `debug:desktop:automation`, attaches |
-| `browser/` | Chrome extension    | wipes `.debug/chrome-profile`, starts `debug:browser`, attaches             |
-| `web/`     | web vault, dev mode | starts the webpack dev server, Playwright launches its own browser          |
+| Folder      | Client              | How it runs                                                                 |
+| ----------- | ------------------- | --------------------------------------------------------------------------- |
+| `desktop/`  | Electron app        | wipes `.debug/desktop-profile`, starts `debug:desktop:automation`, attaches |
+| `browser/`  | Chrome extension    | wipes `.debug/chrome-profile`, starts `debug:browser`, attaches             |
+| `web/`      | web vault, dev mode | starts the webpack dev server, Playwright launches its own browser          |
+| `combined/` | desktop + extension | starts both debug clients and pairs them over native messaging              |
 
 Desktop and browser are launched outside Playwright and driven over the Chrome
 DevTools protocol, so the tests exercise the same build you would debug by hand.
@@ -57,12 +58,61 @@ restart leaves behind are driven through the in-app automation driver, wrapped b
 ## Running
 
 ```bash
-npm run test:e2e            # all three, in sequence
+npm run test:e2e            # all four, in sequence
 npm run test:e2e:desktop
 npm run test:e2e:browser
 npm run test:e2e:web
+npm run test:e2e:combined
 ```
 
 Within a suite the files share one client instance and run in filename order,
 hence the numeric prefixes: `01-login.spec.ts` logs in, later files assume an
 unlocked vault.
+
+## BDD scenarios
+
+New tests are written in Gherkin and run through
+[playwright-bdd](https://vitalets.github.io/playwright-bdd/), which compiles a
+`.feature` file into a Playwright test file:
+
+```
+desktop/features/*.feature   scenarios, the readable spec
+desktop/steps/*.ts           step definitions
+desktop/utils/bdd.ts         fixtures (`app`, `page`, `driver`) + Given/When/Then
+desktop/.features-gen/       generated tests, git-ignored
+```
+
+Generation is a separate step, so the suite is run as `bddgen test && playwright
+test` — that is what `npm run test:e2e:desktop` does. Because a Playwright
+project has a single `testDir`, the generated tests live in their own `bdd`
+project that depends on the `specs` project, keeping the log-in-first ordering.
+
+To add BDD to another suite, copy `desktop/utils/bdd.ts` (the fixtures differ
+per client) and the two projects from `desktop/playwright.config.ts`.
+
+## The cross-client suite
+
+`combined/` covers what neither client can do alone: the extension's biometric
+unlock, which is answered by the desktop app over native messaging.
+
+```
+desktop (Electron, :9222) ── .debug/s.bw ── desktop_proxy ── Chrome (:9200)
+                                                 ▲
+                       .debug/chrome-profile/NativeMessagingHosts/…json
+```
+
+`combined/start.js` starts `debug:desktop:automation` and `debug:browser` from
+wiped profiles and then writes the missing piece of local IPC: both debug runs
+already share the `.debug` IPC socket dir, but the desktop app only writes native
+messaging manifests for real browser profiles, and it cannot know the debug
+extension's id. So the launcher waits for the extension's service worker, writes
+a manifest for that id into the debug Chrome profile (Chrome resolves manifests
+relative to its user data dir, so the host system's Chrome is untouched), and
+only then answers the readiness URL Playwright waits on.
+
+Scenarios get two pages — `desktop` and `extension` — plus `driver`, the desktop
+automation driver, since the biometric prompt is mocked on the desktop side.
+
+```bash
+npm run test:e2e:combined
+```

@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { defineBddConfig } from "playwright-bdd";
 
 // The desktop app is started from a wiped debug profile and Playwright attaches to
 // its CDP port, so the tests always run against a fresh, logged-out app. A single
@@ -6,10 +7,15 @@ import { defineConfig } from "@playwright/test";
 const CDP_VERSION_URL = "http://127.0.0.1:9222/json/version";
 const BUILD_AND_LAUNCH_TIMEOUT = 15 * 60 * 1000;
 
+// Gherkin features are compiled into Playwright test files under `.features-gen`,
+// which is why they need a project of their own: a project has one testDir.
+const bddTestDir = defineBddConfig({
+  features: "./features/*.feature",
+  steps: ["./steps/*.ts", "./utils/bdd.ts"],
+  outputDir: "./.features-gen",
+});
+
 export default defineConfig({
-  // One app instance is shared by all files; the numeric filename prefixes keep
-  // them in a working order (log in first).
-  testDir: "./tests",
   workers: 1,
   fullyParallel: false,
   timeout: 120_000,
@@ -17,6 +23,12 @@ export default defineConfig({
   reporter: [["list"]],
   outputDir: "./test-results",
   use: { trace: "retain-on-failure" },
+  // One app instance is shared by all files; the numeric filename prefixes keep
+  // them in a working order (log in first). The BDD scenarios run afterwards.
+  projects: [
+    { name: "specs", testDir: "./tests" },
+    { name: "bdd", testDir: bddTestDir, dependencies: ["specs"] },
+  ],
   webServer: {
     command: "node ./e2e/desktop/start.js",
     cwd: "../..",

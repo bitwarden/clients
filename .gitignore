@@ -72,3 +72,6 @@ apps/**/config/local.json
 test-results
 playwright-report
 blob-report
+
+# playwright-bdd generated tests
+.features-gen
