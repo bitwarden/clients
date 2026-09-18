@@ -33,7 +33,7 @@ describe("AccessConnectorsTabComponent", () => {
 
   function makeAccessConnectorRow(overrides: Partial<AccessConnectorRow> = {}): AccessConnectorRow {
     const id = overrides.id ?? connectorId("access-connector-1");
-    const name = overrides.name ?? "Test AccessConnector";
+    const name = overrides.name ?? "Test access connector";
     return {
       id,
       name,
