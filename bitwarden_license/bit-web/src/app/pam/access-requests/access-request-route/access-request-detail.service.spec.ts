@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import {
   AccessEventService,
   AccessLeaseSdkService,
+  AccessRefreshService,
   AccessRequestSdkService,
   LeasingErrorService,
 } from "../..";
@@ -57,6 +58,7 @@ describe("AccessRequestDetailService", () => {
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let leasingErrors: MockProxy<LeasingErrorService>;
+  let accessRefresh: MockProxy<AccessRefreshService>;
   let push$: Subject<void>;
   let paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let activeUserId: string;
@@ -79,6 +81,7 @@ describe("AccessRequestDetailService", () => {
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: LeasingErrorService, useValue: leasingErrors },
+        { provide: AccessRefreshService, useValue: accessRefresh },
         { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap$.asObservable() } },
         {
@@ -97,6 +100,7 @@ describe("AccessRequestDetailService", () => {
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
     leasingErrors = mock<LeasingErrorService>();
+    accessRefresh = mock<AccessRefreshService>();
     push$ = new Subject<void>();
     paramMap$ = new BehaviorSubject(convertToParamMap({ id: "req-1" }));
     activeUserId = "user-1";
@@ -200,6 +204,7 @@ describe("AccessRequestDetailService", () => {
 
       expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
     });
 
     it("activates then re-fetches", async () => {
@@ -210,6 +215,7 @@ describe("AccessRequestDetailService", () => {
 
       expect(requestsApi.activateAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
     });
 
     it("ends the produced lease then re-fetches", async () => {
@@ -220,6 +226,7 @@ describe("AccessRequestDetailService", () => {
 
       expect(leasesApi.endLease).toHaveBeenCalledWith("lease-1", { reason: undefined });
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
     });
 
     it("does nothing when there is no loaded request to act on", async () => {
@@ -231,6 +238,7 @@ describe("AccessRequestDetailService", () => {
 
       expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
       expect(requestsApi.activateAccessRequest).not.toHaveBeenCalled();
+      expect(accessRefresh.notifyAccessChanged).not.toHaveBeenCalled();
     });
   });
 
