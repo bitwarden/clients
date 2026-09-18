@@ -184,7 +184,7 @@
     "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "Elementləri burada filtrləmək üçün onları \"Elementlərim\"ə əlavə edin."
   },
   "sharedFolderFilterTooltip": {
     "message": "Burada filtrləmək üçün elementləri paylaşılan qovluğa əlavə et."
@@ -806,24 +806,24 @@
     "message": "Şifrə açma xətası"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-sini təqdim edin."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementlərinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementlərin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-lərini təqdim edin."
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "Element ID-si",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "Element ID-ləri",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "ID-ni kopyala"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "Bütün ID-ləri kopyala"
   },
   "january": {
     "message": "Yanvar"
@@ -5995,7 +5995,7 @@
     "message": "Avto-yazma qısayolunu fəallaşdır (Özəllik önizləməsi)"
   },
   "enableAutotypeGaShortcut": {
-    "message": "Enable autotype shortcut"
+    "message": "Avto-yazma qısayolunu fəallaşdır"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
@@ -6865,62 +6865,62 @@
     "message": "Elementlərə, gizli parollara düzəliş et"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "Paylaş"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "Kimlər görə bilər",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "Bu keçidi paylaşdıqdan sonra, alıcılar bu elementə baxmaq üçün öz e-poçtlarını bir kodla doğrulamalıdırlar.",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "Bu tarixdən sonra keçidin istifadə müddəti bitir, ancaq alıcılar daha əvvəl paylaşılan məlumatları saxlaya bilərlər. Erişimi ləğv etmək üçün kimlik məlumatlarını yenidən yaradın.",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "Keçidin etibarlılıq müddəti",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "Təkistifadəlik paylaşma",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "Aktiv keçidlər",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "Keçid lövhəyə kopyalandı",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "Paylaşım keçidi yaradıla bilmir",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "Keçid saxlanıldı və lövhəyə kopyalandı",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "Paylaşım keçidi lövhəyə kopyalanmadı",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "Paylaşım keçidi silindi",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "Paylaşım keçidi silinmədi",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "Keçid ilə paylaş",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "Seyf elementini paylaş: $ITEM$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -6929,14 +6929,14 @@
     }
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Müddəti bitir",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "Müddəti bitir",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "Bilinməyən element, bu elementə erişmək üçün izin istəməyiniz lazım gələ bilər."
   }
 }

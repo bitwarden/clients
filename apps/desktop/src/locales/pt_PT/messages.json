@@ -4641,10 +4641,10 @@
     "message": "Selecionar uma coleção"
   },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
