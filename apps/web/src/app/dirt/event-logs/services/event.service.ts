@@ -1057,24 +1057,24 @@ export class EventService {
         break;
       case EventType.Pam_AccessLease_Activated:
         msg = this.i18nService.t(
-          "pamEventActivatedAccessLease",
+          "pamEventActivatedAccess",
           this.formatCipherId(ev, options),
           this.formatAccessLeaseId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "pamEventActivatedAccessLease",
+          "pamEventActivatedAccess",
           this.getShortId(ev.cipherId),
           this.getShortId(ev.accessLeaseId),
         );
         break;
       case EventType.Pam_AccessLease_Revoked:
         msg = this.i18nService.t(
-          "pamEventRevokedAccessLease",
+          "pamEventRevokedAccess",
           this.formatCipherId(ev, options),
           this.formatAccessLeaseId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "pamEventRevokedAccessLease",
+          "pamEventRevokedAccess",
           this.getShortId(ev.cipherId),
           this.getShortId(ev.accessLeaseId),
         );
@@ -1093,24 +1093,24 @@ export class EventService {
         break;
       case EventType.Pam_AccessLease_Extended:
         msg = this.i18nService.t(
-          "pamEventExtendedAccessLease",
+          "pamEventExtendedAccess",
           this.formatCipherId(ev, options),
           this.formatAccessLeaseId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "pamEventExtendedAccessLease",
+          "pamEventExtendedAccess",
           this.getShortId(ev.cipherId),
           this.getShortId(ev.accessLeaseId),
         );
         break;
       case EventType.Pam_AccessLease_Expired:
         msg = this.i18nService.t(
-          "pamEventExpiredAccessLease",
+          "pamEventExpiredAccess",
           this.formatCipherId(ev, options),
           this.formatAccessLeaseId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "pamEventExpiredAccessLease",
+          "pamEventExpiredAccess",
           this.getShortId(ev.cipherId),
           this.getShortId(ev.accessLeaseId),
         );

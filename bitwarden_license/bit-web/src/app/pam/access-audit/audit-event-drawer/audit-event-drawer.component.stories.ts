@@ -16,7 +16,7 @@ const OCCURRED_AT = new Date("2026-08-18T09:00:00.000Z");
 /** A lease activation with every field the trail can carry — the widest the pane ever gets. */
 const POPULATED: AuditRow = {
   occurredAt: OCCURRED_AT,
-  kindLabelKey: "pamAuditKindLeaseActivated",
+  kindLabelKey: "pamAuditKindAccessActivated",
   actor: "Ada Lovelace",
   actorId: "user-2",
   actorEmail: "ada@example.com",
@@ -49,7 +49,7 @@ const POPULATED: AuditRow = {
  */
 const BARE: AuditRow = {
   occurredAt: OCCURRED_AT,
-  kindLabelKey: "pamAuditKindLeasingFreezeEnabled",
+  kindLabelKey: "pamAuditKindAccessFreezeEnabled",
   actor: null,
   actorId: null,
   actorEmail: null,
