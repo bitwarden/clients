@@ -6,6 +6,8 @@
     (click)="applyFilter($event)"
     [forceActiveStyles]="isActive()"
     [disableToggleOnClick]="true"
+    [open]="isOpen()"
+    (openChange)="onOpenChange($event)"
   >
     @for (childCollection of collection().children; track childCollection.node.id) {
       <app-collection-filter [collection]="childCollection" [activeFilter]="activeFilter()" />
