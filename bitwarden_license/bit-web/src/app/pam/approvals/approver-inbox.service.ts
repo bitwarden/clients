@@ -21,6 +21,7 @@ import {
   AccessEventService,
   AccessLeaseId,
   AccessLeaseSdkService,
+  AccessRefreshService,
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
@@ -51,6 +52,10 @@ import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./manage
  * Provided on the shell route so Approvals and History share one instance, and reloads on every
  * server-pushed access event.
  *
+ * Each mutation that lands also announces on {@link AccessRefreshService}, standing in for the push
+ * the server is about to send, so the root-level nav badge re-reads even when that push is missed
+ * or slow.
+ *
  * View concerns — toasts, dialogs, filters, the clock — stay in the tab components.
  */
 @Injectable()
@@ -61,6 +66,7 @@ export class ApproverInboxService {
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accountService = inject(AccountService);
   private readonly accessEvents = inject(AccessEventService);
+  private readonly accessRefresh = inject(AccessRefreshService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _inbox$ = new BehaviorSubject<AccessRequestView[]>([]);
@@ -203,6 +209,7 @@ export class ApproverInboxService {
       // Already gone (a double click, or another approver got there first). Still calls
       // through, so one click is always one request.
       await this.approvalApi.decide(id, { verdict, comment });
+      this.accessRefresh.notifyAccessChanged();
       return;
     }
 
@@ -223,6 +230,7 @@ export class ApproverInboxService {
       this._inbox$.next(current);
       throw e;
     }
+    this.accessRefresh.notifyAccessChanged();
   }
 
   /**
@@ -238,6 +246,7 @@ export class ApproverInboxService {
       this._history$.next(current);
       throw e;
     }
+    this.accessRefresh.notifyAccessChanged();
   }
 
   /**
@@ -254,6 +263,7 @@ export class ApproverInboxService {
       this._history$.next(current);
       throw e;
     }
+    this.accessRefresh.notifyAccessChanged();
   }
 }
 

@@ -8,6 +8,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   AccessEventService,
   AccessLeaseSdkService,
+  AccessRefreshService,
   AccessRequestSdkService,
   ApprovalSdkService,
 } from "..";
@@ -71,6 +72,7 @@ describe("ApproverInboxService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
+  let accessRefresh: MockProxy<AccessRefreshService>;
   let push$: Subject<void>;
   let inboxPush$: Subject<void>;
 
@@ -79,6 +81,7 @@ describe("ApproverInboxService", () => {
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
+    accessRefresh = mock<AccessRefreshService>();
     push$ = new Subject<void>();
     inboxPush$ = new Subject<void>();
 
@@ -93,6 +96,7 @@ describe("ApproverInboxService", () => {
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
+        { provide: AccessRefreshService, useValue: accessRefresh },
         {
           provide: AccessEventService,
           useValue: {
@@ -246,6 +250,25 @@ describe("ApproverInboxService", () => {
       await service.decide("gone" as unknown as AccessRequestId, "approve", undefined);
 
       expect(approvalApi.decide).toHaveBeenCalledTimes(1);
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("announces a landed decision, so the nav badge re-reads without waiting on a push", async () => {
+      approvalApi.decide.mockResolvedValue(request({ id: "req-1", status: "approved" }));
+
+      await service.decide("req-1" as unknown as AccessRequestId, "approve", undefined);
+
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("announces nothing when the decision fails, since nothing changed", async () => {
+      approvalApi.decide.mockRejectedValue(new Error("boom"));
+
+      await expect(
+        service.decide("req-1" as unknown as AccessRequestId, "deny", undefined),
+      ).rejects.toThrow("boom");
+
+      expect(accessRefresh.notifyAccessChanged).not.toHaveBeenCalled();
     });
   });
 
@@ -298,6 +321,16 @@ describe("ApproverInboxService", () => {
       await service.cancelApproval("req-1" as unknown as AccessRequestId);
 
       expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
+    });
+
+    it("announces a landed revoke or withdrawal on the refresh signal", async () => {
+      await service.revokeLease(
+        "req-1" as unknown as AccessRequestId,
+        "lease-1" as unknown as AccessLeaseId,
+      );
+      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(2);
     });
 
     it("restores the row and rethrows when cancelling an approval fails", async () => {

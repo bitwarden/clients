@@ -14,9 +14,10 @@ import type { Observable } from "rxjs";
 export abstract class AccessRefreshService {
   /**
    * Emits whenever `cipherId`'s access state may have changed, from a mutation or a full
-   * invalidation (see {@link notifyAccessChanged}). Never completes; consumers own their teardown.
+   * invalidation (see {@link notifyAccessChanged}). Omit `cipherId` to hear every mutation, for a
+   * reader that spans ciphers, like the nav badge. Never completes; consumers own their teardown.
    */
-  abstract accessChanged$(cipherId: string): Observable<void>;
+  abstract accessChanged$(cipherId?: string): Observable<void>;
 
   /**
    * Announce that access changed. Pass a `cipherId` to invalidate one item, or omit it to
