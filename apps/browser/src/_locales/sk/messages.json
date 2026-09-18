@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."

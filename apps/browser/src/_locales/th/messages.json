@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "เลือกคอลเลกชัน"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "เลือกตัวเลือกนี้หากต้องการย้ายเนื้อหาไฟล์ที่นำเข้าไปยังคอลเลกชัน"
   },
   "importTargetHintFolder": {
     "message": "เลือกตัวเลือกนี้หากต้องการย้ายเนื้อหาไฟล์ที่นำเข้าไปยังโฟลเดอร์"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "ไฟล์มีรายการที่ไม่ได้มอบหมาย"

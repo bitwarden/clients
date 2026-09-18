@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
+  "selectImportSharedFolder": {
+    "message": "Selecionar uma pasta partilhada"
+  },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta partilhada"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."

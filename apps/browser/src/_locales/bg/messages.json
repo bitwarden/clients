@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
   "importTargetHintFolder": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."

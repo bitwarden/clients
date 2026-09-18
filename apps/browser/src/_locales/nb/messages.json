@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Velg en samling"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Velg denne innstillingen hvis du vil ha de importerte innholdene flyttet til en Bitwarden-mappe"
   },
   "importTargetHintFolder": {
     "message": "Select this option if you want the imported file contents moved to a folder"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen inneholder utildelte elementer."

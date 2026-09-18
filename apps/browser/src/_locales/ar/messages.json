@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "اختر مجموعة"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "حدد هذا الخيار إذا أردت نقل محتويات الملف المستورد إلى مجموعة"
   },
   "importTargetHintFolder": {
     "message": "حدد هذا الخيار إذا أردت نقل محتويات الملف المستورد إلى مجلد"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "الملف يحتوي على عناصر غير معينة."
