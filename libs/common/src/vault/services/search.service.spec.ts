@@ -211,6 +211,14 @@ describe("SearchService", () => {
         expect(service.searchCiphersBasic(ciphers, "example.com")).toHaveLength(1);
       });
 
+      it("matches against the URI with custom-scheme", () => {
+        const ciphers = [
+          createLoginCipherListView("cipher-1", "My Login", ["ansible://myapp-prod"]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "ansible://myapp-prod")).toHaveLength(1);
+      });
+
       it("does not throw and does not match when a URI has no parseable hostname", () => {
         const ciphers = [
           createLoginCipherView("cipher-1", "My Login", ["data:text/plain,hello"]),
