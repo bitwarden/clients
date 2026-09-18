@@ -43,7 +43,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   else), so an approver opening a row keeps the Approvals inbox behind the dialog rather
   than watching it swap to their own requests. With no tab to read, from outside the
   tabs or on a cold load, the fallback follows the viewer: Approvals for an approver,
-  My requests for the requester. Do not step the browser back on close instead: the
+  My requests for the requester. No tab renders until `viewer$` resolves, so neither
+  lands behind the dialog first; a load that settles without a request (not found or
+  failed) falls back to My requests. Do not step the browser back on close instead: the
   router's `previousNavigation` says only that this SPA session navigated before, never
   that the browser has an entry below this one to go back to.
   `AccessRequestDetailService` is provided on the host component, not the route config,

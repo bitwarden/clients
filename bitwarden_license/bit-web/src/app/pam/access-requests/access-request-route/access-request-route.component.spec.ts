@@ -20,6 +20,7 @@ describe("AccessRequestRouteComponent", () => {
   let router: MockProxy<Router>;
   let detail: AccessRequestDetailService;
   let viewer$: BehaviorSubject<AccessRequestViewer | null>;
+  let loading$: BehaviorSubject<boolean>;
   let closed$: Subject<void>;
   let close: jest.Mock;
 
@@ -83,7 +84,8 @@ describe("AccessRequestRouteComponent", () => {
     } as unknown as DialogRef<unknown, unknown>);
     router = mock<Router>();
     viewer$ = new BehaviorSubject<AccessRequestViewer | null>(null);
-    detail = { viewer$ } as unknown as AccessRequestDetailService;
+    loading$ = new BehaviorSubject<boolean>(true);
+    detail = { viewer$, loading$ } as unknown as AccessRequestDetailService;
 
     await TestBed.configureTestingModule({
       imports: [AccessRequestRouteComponent],
@@ -127,18 +129,62 @@ describe("AccessRequestRouteComponent", () => {
 
   // Ends on the same segment as the PAM History tab; must not be mistaken for it.
   it.each(["/vault", "/organizations/orgId/billing/history"])(
-    "renders My requests behind the dialog when the caller arrived from outside the tabs (%s)",
+    "follows the viewer, as on a cold load, when the caller arrived from outside the tabs (%s)",
     (path) => {
+      viewer$.next("requester");
       create(cameFrom(path));
 
       expect(fixture.nativeElement.querySelector("pam-my-requests-tab")).not.toBeNull();
     },
   );
 
-  it("renders My requests behind the dialog when the link was opened cold", () => {
-    create(null);
+  describe("opened cold", () => {
+    const tabs = ["pam-approvals-tab", "pam-history-tab", "pam-my-requests-tab"];
 
-    expect(fixture.nativeElement.querySelector("pam-my-requests-tab")).not.toBeNull();
+    function renderedTabs(): string[] {
+      return tabs.filter((tab) => fixture.nativeElement.querySelector(tab) != null);
+    }
+
+    it("renders no tab behind the dialog while the viewer is unknown", () => {
+      create(null);
+
+      expect(renderedTabs()).toEqual([]);
+    });
+
+    it("renders Approvals once the viewer resolves to an approver, never My requests before it", () => {
+      create(null);
+      const whileLoading = renderedTabs();
+
+      viewer$.next("approver");
+      fixture.detectChanges();
+
+      expect(whileLoading).toEqual([]);
+      expect(renderedTabs()).toEqual(["pam-approvals-tab"]);
+    });
+
+    it("renders My requests for the requester", () => {
+      viewer$.next("requester");
+      create(null);
+
+      expect(renderedTabs()).toEqual(["pam-my-requests-tab"]);
+    });
+
+    it("renders My requests when the load settles without a request to show", () => {
+      create(null);
+
+      loading$.next(false);
+      fixture.detectChanges();
+
+      expect(renderedTabs()).toEqual(["pam-my-requests-tab"]);
+    });
+
+    it("returns to My requests when closed before the viewer is known", () => {
+      create(null);
+
+      closed$.next();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/pam", "my-requests"], { replaceUrl: true });
+    });
   });
 
   it.each([
@@ -151,14 +197,6 @@ describe("AccessRequestRouteComponent", () => {
     closed$.next();
 
     expect(router.navigate).toHaveBeenCalledWith(["/pam", tab], { replaceUrl: true });
-  });
-
-  it("replaces the dialog URL with My requests when the link was opened cold", () => {
-    create(null);
-
-    closed$.next();
-
-    expect(router.navigate).toHaveBeenCalledWith(["/pam", "my-requests"], { replaceUrl: true });
   });
 
   describe("opened cold by an approver, from the decision email", () => {

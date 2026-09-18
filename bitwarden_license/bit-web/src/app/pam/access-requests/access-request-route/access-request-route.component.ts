@@ -60,15 +60,28 @@ export class AccessRequestRouteComponent implements OnInit {
   );
 
   private readonly viewer = toSignal(this.detail.viewer$, { initialValue: null });
+  private readonly loading = toSignal(this.detail.loading$, { initialValue: true });
 
   /**
    * The tab to render behind the dialog, and the one closing it returns to. With no tab to go
    * back to, it follows who is viewing: an approver arriving from the email lands on Approvals,
    * the requester on My requests.
+   *
+   * Undefined until the viewer is known, so nothing renders rather than My requests being swapped
+   * out from under an approver; closing before then returns to My requests. A load that settles
+   * without a request (missing, not visible, or failed) has no viewer to follow, and falls back
+   * to My requests.
    */
-  protected readonly originTab = computed<OriginTab>(
-    () => this.navigatedFrom ?? (this.viewer() === "approver" ? "approvals" : "my-requests"),
-  );
+  protected readonly originTab = computed<OriginTab | undefined>(() => {
+    if (this.navigatedFrom != null) {
+      return this.navigatedFrom;
+    }
+    const viewer = this.viewer();
+    if (viewer != null) {
+      return viewer === "approver" ? "approvals" : "my-requests";
+    }
+    return this.loading() ? undefined : "my-requests";
+  });
 
   ngOnInit(): void {
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
@@ -89,7 +102,7 @@ export class AccessRequestRouteComponent implements OnInit {
         return;
       }
       leaving = true;
-      void this.router.navigate(["/pam", this.originTab()], { replaceUrl: true });
+      void this.router.navigate(["/pam", this.originTab() ?? "my-requests"], { replaceUrl: true });
     });
   }
 }
