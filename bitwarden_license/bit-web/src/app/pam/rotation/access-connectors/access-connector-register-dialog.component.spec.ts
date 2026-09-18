@@ -40,7 +40,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   const fakeRegistration = {
     id: connectorId("d-1"),
     organizationId: ORGANIZATION_ID,
-    name: "Good AccessConnector",
+    name: "Good access connector",
     status: "enabled",
     creationDate: "2026-01-01T00:00:00Z",
     token: "0.access-connector.api-id.secret:keyb64",
@@ -107,7 +107,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
   });
 
   it("closes the dialog after successful registration", async () => {
-    (component as any).form.controls.name.setValue("Good AccessConnector");
+    (component as any).form.controls.name.setValue("Good access connector");
     await (component as any).submit();
 
     expect(dialogRef.close).toHaveBeenCalledWith({ registered: true });
@@ -118,7 +118,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
-    (component as any).form.controls.name.setValue("Good AccessConnector");
+    (component as any).form.controls.name.setValue("Good access connector");
     await (component as any).submit();
 
     expect(openSpy).toHaveBeenCalledWith(
@@ -126,7 +126,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       expect.objectContaining({
         data: expect.objectContaining({
           token: fakeRegistration.token,
-          accessConnectorName: "Good AccessConnector",
+          accessConnectorName: "Good access connector",
         }),
       }),
     );
@@ -141,7 +141,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
-    (component as any).form.controls.name.setValue("Good AccessConnector");
+    (component as any).form.controls.name.setValue("Good access connector");
     const submitted = (component as any).submit();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -158,7 +158,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
     rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
     const openSpy = jest.spyOn(injectedDialogService, "open");
 
-    (component as any).form.controls.name.setValue("Bad AccessConnector");
+    (component as any).form.controls.name.setValue("Bad access connector");
     await (component as any).submit();
 
     expect(openSpy).not.toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe("AccessConnectorRegisterDialogComponent", () => {
 
   it("shows an error toast when registration fails", async () => {
     rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
-    (component as any).form.controls.name.setValue("Bad AccessConnector");
+    (component as any).form.controls.name.setValue("Bad access connector");
     await (component as any).submit();
 
     expect(toastService.showToast).toHaveBeenCalledWith(
