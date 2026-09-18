@@ -1,5 +1,5 @@
 import { inject, Injectable, signal, WritableSignal } from "@angular/core";
-import { concatMap, firstValueFrom, lastValueFrom, switchMap, take } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, map, Observable, switchMap, take } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -156,10 +156,12 @@ export class MemberActionsService {
   async reinviteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.withMembersClient((client) =>
-        client.reinvite(
-          asUuid<SdkOrganizationId>(organization.id),
-          asUuid<OrganizationUserId>(userId),
+      await firstValueFrom(
+        this.withMembersClient$((client) =>
+          client.reinvite(
+            asUuid<SdkOrganizationId>(organization.id),
+            asUuid<OrganizationUserId>(userId),
+          ),
         ),
       );
       return { success: true };
@@ -187,14 +189,16 @@ export class MemberActionsService {
     this.startProcessing();
 
     try {
-      const response = await this.withMembersClient((client) =>
-        client.send_staged_invites(
-          asUuid<SdkOrganizationId>(organization.id),
-          userIds.map((id) => asUuid<OrganizationUserId>(id)),
-        ),
+      const response = await firstValueFrom(
+        this.withMembersClient$((client) =>
+          client.send_staged_invites(
+            asUuid<SdkOrganizationId>(organization.id),
+            userIds.map((id) => asUuid<OrganizationUserId>(id)),
+          ),
+        ).pipe(map((rows) => rows.map(toBulkResult))),
       );
 
-      for (const memberResult of response.map(toBulkResult)) {
+      for (const memberResult of response) {
         if (memberResult.error) {
           result.failed.push({ id: memberResult.id, error: memberResult.error });
         } else {
@@ -243,15 +247,14 @@ export class MemberActionsService {
     this.startProcessing(users.length);
 
     try {
-      result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, async (userBatch) => {
-        const response = await this.withMembersClient((client) =>
+      result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) =>
+        this.withMembersClient$((client) =>
           client.bulk_reinvite(
             asUuid<SdkOrganizationId>(organization.id),
             userBatch.map((u) => asUuid<OrganizationUserId>(u.id)),
           ),
-        );
-        return response.map(toBulkResult);
-      });
+        ).pipe(map((rows) => rows.map(toBulkResult))),
+      );
 
       if (result.failed.length > 0) {
         const resendUsers = await firstValueFrom(
@@ -314,13 +317,13 @@ export class MemberActionsService {
    * Processes user IDs in sequential batches and aggregates results.
    * @param users - Array of users to process
    * @param batchSize - Number of IDs to process per batch
-   * @param processBatch - Async function that processes a single batch from the provided param `users` and returns the result.
+   * @param processBatch - Processes a single batch from the provided param `users` and emits the result.
    * @returns Aggregated bulk action result
    */
   private async processBatchedOperation(
     users: OrganizationUserView[],
     batchSize: number,
-    processBatch: (batch: OrganizationUserView[]) => Promise<OrganizationUserBulkResult[]>,
+    processBatch: (batch: OrganizationUserView[]) => Observable<OrganizationUserBulkResult[]>,
   ): Promise<BulkActionResult> {
     const allSuccessful: OrganizationUserBulkResult[] = [];
     const allFailed: { id: string; error: string }[] = [];
@@ -329,7 +332,7 @@ export class MemberActionsService {
       const batch = users.slice(i, i + batchSize);
 
       try {
-        for (const response of await processBatch(batch)) {
+        for (const response of await firstValueFrom(processBatch(batch))) {
           if (response.error) {
             allFailed.push({ id: response.id, error: response.error });
           } else {
@@ -359,19 +362,17 @@ export class MemberActionsService {
    * pinned at call time so a mutation is never replayed against a different user, and the client is
    * only valid inside the callback.
    */
-  private withMembersClient<T>(
+  private withMembersClient$<T>(
     operation: (client: OrganizationUsersManagementClient) => Promise<T>,
-  ): Promise<T> {
-    return firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        take(1),
-        switchMap((userId) => this.sdkService.userClient$(userId)),
-        concatMap(async (sdk) => {
-          using ref = sdk.take();
-          return await operation(ref.value.organization_users_management());
-        }),
-      ),
+  ): Observable<T> {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      take(1),
+      switchMap((userId) => this.sdkService.userClient$(userId)),
+      concatMap(async (sdk) => {
+        using ref = sdk.take();
+        return await operation(ref.value.organization_users_management());
+      }),
     );
   }
 
