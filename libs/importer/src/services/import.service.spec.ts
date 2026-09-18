@@ -510,7 +510,7 @@ describe("ImportService", () => {
       expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
         organization_id: organizationId,
         target_folder: undefined,
-        target_collection: { id: target.id, name: "Shared" },
+        target_collection: { id: target.id, name: "Shared", type: target.type },
         restricted_types: [],
       });
     });
