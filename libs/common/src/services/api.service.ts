@@ -187,7 +187,8 @@ export class ApiService implements ApiServiceAbstraction {
         ? request.toIdentityToken()
         : request.toIdentityToken(this.platformUtilsService.getClientType());
 
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the selected login server for every identity-token request.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
