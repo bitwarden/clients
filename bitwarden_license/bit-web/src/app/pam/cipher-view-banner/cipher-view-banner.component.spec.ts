@@ -1539,6 +1539,9 @@ describe("CipherViewBannerComponent", () => {
       await component["submitRequest"]();
     }
 
+    // A real rule cap, since the server interpolates its effective maximum.
+    const windowExceedsMax = "The requested window exceeds the maximum of 604800 seconds.";
+
     /** The serialized `ErrorResponseModel` the SDK concatenates onto its transport string. */
     const wireBody = (serverMessage: string, exceptionMessage = serverMessage) =>
       `error in response: status code 400 Bad Request: {"object":"error",` +
@@ -1565,28 +1568,41 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("echoes a validation failure inline and keeps the fold-out open", async () => {
-      await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd);
 
-      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd);
+      expect(component["requestFormExpanded"]()).toBe(true);
+    });
+
+    // "7 days" is the 604800 the server sent, read back out of its sentence and localized.
+    it("re-renders an over-long window in the requester's own language", async () => {
+      await submitAndFail(windowExceedsMax);
+
+      expect(component["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
+      expect(component["requestFormExpanded"]()).toBe(true);
+    });
+
+    // The automatic path has no localized string for this, so it must echo the server rather than
+    // borrow the window wording on a form that shows no window.
+    it("echoes an over-long duration rather than wording it as a window", async () => {
+      const durationExceedsMax = "The requested duration exceeds the maximum of 1800 seconds.";
+      await submitAndFail(durationExceedsMax);
+
+      expect(component["requestError"]()).toBe(durationExceedsMax);
       expect(component["requestFormExpanded"]()).toBe(true);
     });
 
     it("classifies on the server's message decoded out of the serialized response", async () => {
-      await submitAndFail(wireBody(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax));
+      await submitAndFail(wireBody(windowExceedsMax));
 
-      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      expect(component["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
       expect(component["requestFormExpanded"]()).toBe(true);
     });
 
     it("ignores a catalog sentence carried elsewhere in the envelope", async () => {
-      await submitAndFail(
-        wireBody(
-          REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
-          REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive,
-        ),
-      );
+      await submitAndFail(wireBody(windowExceedsMax, REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive));
 
-      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      expect(component["requestError"]()).toBe("requestAccessModalWindowExceedsMax 7 days");
       expect(component["requestFormExpanded"]()).toBe(true);
     });
 
