@@ -194,14 +194,14 @@ describe("historyDisplayStatus", () => {
 
 describe("resolveResolver", () => {
   it("returns blank for a pending request", () => {
-    expect(resolveResolver("pending", undefined)).toEqual({
+    expect(resolveResolver("pending", [])).toEqual({
       resolverLabelKey: null,
       resolverName: null,
     });
   });
 
-  it("returns the access-rule label when there is no human decision", () => {
-    expect(resolveResolver("approved", undefined)).toEqual({
+  it("returns the access-rule label when the only decision is automatic", () => {
+    expect(resolveResolver("approved", [decision()])).toEqual({
       resolverLabelKey: "pamResolverAccessRule",
       resolverName: null,
     });
@@ -209,7 +209,7 @@ describe("resolveResolver", () => {
 
   it("returns the human decider's name", () => {
     const human = decision({ deciderKind: "human", name: "Jane Doe", email: "jane@example.com" });
-    expect(resolveResolver("denied", human)).toEqual({
+    expect(resolveResolver("denied", [human])).toEqual({
       resolverLabelKey: null,
       resolverName: "Jane Doe",
     });
@@ -218,35 +218,59 @@ describe("resolveResolver", () => {
   it("labels a canceled request as withdrawn by the requester, not an access rule", () => {
     // A withdrawal never enters the decision log; even a cancel-after-approval was ended by the
     // requester.
-    expect(resolveResolver("canceled", undefined)).toEqual({
+    expect(resolveResolver("canceled", [])).toEqual({
       resolverLabelKey: "pamResolverRequester",
       resolverName: null,
     });
     const human = decision({ deciderKind: "human", name: "Jane Doe", email: "jane@example.com" });
-    expect(resolveResolver("canceled", human)).toEqual({
+    expect(resolveResolver("canceled", [human])).toEqual({
       resolverLabelKey: "pamResolverRequester",
       resolverName: null,
     });
   });
 
-  it("shows nobody for an expired request - the clock ended it, no party did", () => {
-    expect(resolveResolver("expired", undefined)).toEqual({
+  it("shows nobody for a request that lapsed with an empty decision log", () => {
+    expect(resolveResolver("expired", [])).toEqual({
       resolverLabelKey: null,
       resolverName: null,
     });
   });
 
-  it("falls back to email, then id, when the name is unresolved", () => {
-    const byEmail = decision({ deciderKind: "human", name: undefined, email: "jane@example.com" });
-    expect(resolveResolver("denied", byEmail).resolverName).toBe("jane@example.com");
+  it("still names the approver of an approval that lapsed unactivated", () => {
+    // The server derives an unactivated approval past its window as `expired`, but its log still
+    // carries the decision that granted it.
+    const human = decision({ deciderKind: "human", name: "Jane Doe", id: "user-9" });
 
-    const byId = decision({
+    expect(resolveResolver("expired", [human])).toEqual({
+      resolverLabelKey: null,
+      resolverName: "Jane Doe",
+    });
+  });
+
+  it("credits the access rule for a rule-granted approval that lapsed unactivated", () => {
+    expect(resolveResolver("expired", [decision()])).toEqual({
+      resolverLabelKey: "pamResolverAccessRule",
+      resolverName: null,
+    });
+  });
+
+  it("falls back to the email when the name is unresolved", () => {
+    const byEmail = decision({ deciderKind: "human", name: undefined, email: "jane@example.com" });
+    expect(resolveResolver("denied", [byEmail]).resolverName).toBe("jane@example.com");
+  });
+
+  it("labels an unnamed approver rather than exposing their raw user id", () => {
+    const unnamed = decision({
       deciderKind: "human",
       name: undefined,
       email: undefined,
-      id: "user-9",
+      id: "5f3c2d19-8a7b-4e6f-9c1d-2b3a4e5f6a7b",
     });
-    expect(resolveResolver("denied", byId).resolverName).toBe("user-9");
+
+    expect(resolveResolver("denied", [unnamed])).toEqual({
+      resolverLabelKey: "pamResolverUnknown",
+      resolverName: null,
+    });
   });
 });
 
