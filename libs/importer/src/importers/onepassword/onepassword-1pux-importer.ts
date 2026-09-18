@@ -35,6 +35,7 @@ import {
   FieldsEntity,
   Item,
   LoginFieldType,
+  LoginFieldsEntity,
   Overview,
   PasswordHistoryEntity,
   SectionsEntity,
@@ -230,33 +231,61 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     }
 
     item.details.loginFields.forEach((loginField) => {
-      if (loginField.designation === "username" && loginField.value !== "") {
-        cipher.type = CipherType.Login;
-        cipher.login.username = loginField.value;
+      // 1Password usually emits a plain string here, but linked-account values
+      // (e.g. a Fastmail alias) arrive as a structured object. Only strings may
+      // reach the cipher: anything else is normalized or skipped. See #22838.
+      const fieldValue = this.normalizeLoginFieldValue(loginField.value);
+      if (fieldValue == null) {
         return;
       }
 
-      if (loginField.designation === "password" && loginField.value !== "") {
+      if (loginField.designation === "username" && fieldValue !== "") {
         cipher.type = CipherType.Login;
-        cipher.login.password = loginField.value;
+        cipher.login.username = fieldValue;
         return;
       }
 
-      let fieldValue = loginField.value;
+      if (loginField.designation === "password" && fieldValue !== "") {
+        cipher.type = CipherType.Login;
+        cipher.login.password = fieldValue;
+        return;
+      }
+
+      let customFieldValue = fieldValue;
       let fieldType: FieldType = FieldType.Text;
       switch (loginField.fieldType) {
         case LoginFieldType.Password:
           fieldType = FieldType.Hidden;
           break;
         case LoginFieldType.CheckBox:
-          fieldValue = loginField.value !== "" ? "true" : "false";
+          customFieldValue = fieldValue !== "" ? "true" : "false";
           fieldType = FieldType.Boolean;
           break;
         default:
           break;
       }
-      this.processKvp(cipher, loginField.name, fieldValue, fieldType);
+      this.processKvp(cipher, loginField.name, customFieldValue, fieldType);
     });
+  }
+
+  /**
+   * Coerce a 1Password login-field value to the string Bitwarden can store.
+   * Returns null when the value has no string representation, so the caller
+   * skips the field instead of handing a structured object to the SDK.
+   */
+  private normalizeLoginFieldValue(value: LoginFieldsEntity["value"]): string | null {
+    if (typeof value === "string") {
+      return value;
+    }
+    if (value != null && typeof value === "object") {
+      if (typeof value.email_address === "string") {
+        return value.email_address;
+      }
+      if (typeof value.string === "string") {
+        return value.string;
+      }
+    }
+    return null;
   }
 
   private processDetails(category: Category, details: Details, cipher: CipherView) {
@@ -491,6 +520,12 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
   private fillLogin(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
     const fieldName = this.getFieldName(field.title);
 
+    // Section values may also arrive as structured objects (see #22838):
+    // only strings may be assigned to the login view.
+    if (typeof fieldValue !== "string") {
+      return false;
+    }
+
     if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
       cipher.login.username = fieldValue;
       return true;
@@ -644,13 +679,17 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         return true;
       }
 
-      if (field.id === "email") {
+      if (field.id === "email" && typeof fieldValue === "string") {
         cipher.identity.email = fieldValue;
         return true;
       }
     }
 
-    if (this.isNullOrWhitespace(cipher.identity.username) && field.id === "username") {
+    if (
+      this.isNullOrWhitespace(cipher.identity.username) &&
+      field.id === "username" &&
+      typeof fieldValue === "string"
+    ) {
       cipher.identity.username = fieldValue;
       return true;
     }
