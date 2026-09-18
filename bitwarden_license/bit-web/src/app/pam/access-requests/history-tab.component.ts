@@ -24,15 +24,12 @@ import {
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   BadgeComponent,
   ButtonModule,
-  DialogService,
   FILTER_CONTROL,
   FilterMenuModule,
   StatusLockupComponent,
@@ -41,7 +38,6 @@ import {
   SkeletonTextComponent,
   TableDataSource,
   TableModule,
-  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -49,8 +45,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
+import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { isLiveManagedLease } from "../approvals/managed-lease-row";
+import { isLiveManagedLease, isUnstartedApproval } from "../approvals/managed-lease-row";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
 
@@ -101,16 +98,14 @@ const announcementHoldMs = 2000;
     DurationShortPipe,
     RelativeTimePipe,
   ],
+  providers: [ApproverActionsService],
 })
 export class HistoryTabComponent {
   protected readonly noResultsSvg = NoResults;
 
   private readonly myAccess = inject(MyAccessService);
   private readonly inbox = inject(ApproverInboxService);
-  private readonly dialogService = inject(DialogService);
-  private readonly toastService = inject(ToastService);
-  private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
+  private readonly approverActions = inject(ApproverActionsService);
   private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
   private readonly syncService = inject(SyncService);
   private readonly destroyRef = inject(DestroyRef);
@@ -342,6 +337,11 @@ export class HistoryTabComponent {
     return this.acting().has(String(row.id));
   }
 
+  /** A row on a collection the caller manages — the only rows they can act on. */
+  private isManaged(row: MyAccessRequestRow): boolean {
+    return this.managedIds().has(String(row.id));
+  }
+
   /**
    * A lease the caller granted and can still end: managed by them, produced a lease, and the
    * server still holds it open ({@link isLiveManagedLease}).
@@ -350,85 +350,34 @@ export class HistoryTabComponent {
    * end, a test these rows can't make since `toRequestRow` leaves them no `extendedUntil`.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
-    return this.managedIds().has(String(row.id)) && isLiveManagedLease(row);
+    return this.isManaged(row) && isLiveManagedLease(row);
   }
 
   /** An approval the requester has not started yet, so it can still be withdrawn. */
   protected canCancelApproval(row: MyAccessRequestRow): boolean {
-    return (
-      this.managedIds().has(String(row.id)) &&
-      row.status === "approved" &&
-      row.producedLeaseId == null
-    );
+    return this.isManaged(row) && isUnstartedApproval(row);
   }
 
-  /** End a lease the caller granted, after confirming — this cuts off access already in use. */
   protected async revoke(row: MyAccessRequestRow): Promise<void> {
     if (!this.canRevoke(row) || row.producedLeaseId == null || this.isActing(row)) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxRevoke" },
-      content: { key: "pamInboxRevokeConfirm" },
-      acceptButtonText: { key: "pamInboxRevoke" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    await this.act(row, "pamInboxRevokedToast", "pamInboxRevokeFailed", () =>
-      this.inbox.revokeLease(row.id, row.producedLeaseId as unknown as AccessLeaseId),
+    await this.approverActions.revoke(
+      () => this.inbox.revokeLease(row.id, row.producedLeaseId as unknown as AccessLeaseId),
+      rowBusy(this.acting, String(row.id)),
     );
   }
 
-  /**
-   * Withdraws an approval the requester has not started. Confirmed first, since it takes a
-   * decision away from a third party and cannot be undone from this screen.
-   */
   protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancelApproval(row) || this.isActing(row)) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxWithdrawApproval" },
-      content: {
-        key: "pamInboxWithdrawApprovalConfirm",
-        // The same expression the Item column renders, so the dialog and its row can never name the
-        // item differently.
-        placeholders: [row.cipherName ?? row.cipherId],
-      },
-      acceptButtonText: { key: "pamInboxWithdrawApproval" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    await this.act(row, "pamInboxApprovalWithdrawnToast", "pamInboxWithdrawApprovalFailed", () =>
-      this.inbox.cancelApproval(row.id as AccessRequestId),
+    await this.approverActions.withdrawApproval(
+      // The same expression the Item column renders, so the dialog and its row can never name the
+      // item differently.
+      row.cipherName ?? row.cipherId,
+      () => this.inbox.cancelApproval(row.id as AccessRequestId),
+      rowBusy(this.acting, String(row.id)),
     );
-  }
-
-  /** Run a row mutation with the shared busy-flag, success toast, and failure toast. */
-  private async act(
-    row: MyAccessRequestRow,
-    successKey: string,
-    failureKey: string,
-    action: () => Promise<void>,
-  ): Promise<void> {
-    const key = String(row.id);
-    this.acting.update((ids) => new Set([...ids, key]));
-    try {
-      await action();
-      this.toastService.showToast({ variant: "success", message: this.i18nService.t(successKey) });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({ variant: "error", message: this.i18nService.t(failureKey) });
-    } finally {
-      this.acting.update((ids) => {
-        const next = new Set(ids);
-        next.delete(key);
-        return next;
-      });
-    }
   }
 }
