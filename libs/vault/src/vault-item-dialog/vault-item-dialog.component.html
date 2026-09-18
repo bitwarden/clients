@@ -84,6 +84,17 @@
       </button>
     }
 
+    @if (footerActionsComponent) {
+      <ng-container
+        *ngComponentOutlet="
+          footerActionsComponent;
+          inputs: {
+            cipher: cipher,
+          }
+        "
+      />
+    }
+
     @if (showActionButtons) {
       <div class="tw-ml-auto">
         @if (showArchiveOptions) {

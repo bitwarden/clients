@@ -46,6 +46,7 @@ import {
   FormFieldModule,
   IconModule,
   IconTileComponent,
+  SectionComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -85,6 +86,10 @@ import { MyLeasesService } from "../services/my-leases.service";
 import { callerOrganizations$, unlicensedForPam } from "../services/pam-membership";
 
 import {
+  type RequestAccessFooterActions,
+  RequestAccessFooterBridge,
+} from "./request-access-footer.bridge";
+import {
   REQUEST_WINDOW_ERROR_KEY,
   requestWindowEndValidator,
 } from "./request-access-window.validators";
@@ -109,6 +114,7 @@ import {
     IconModule,
     IconTileComponent,
     ReactiveFormsModule,
+    SectionComponent,
     TypographyModule,
     DatePipe,
     DurationLongPipe,
@@ -124,6 +130,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly accessRequestCancelService = inject(AccessRequestCancelService);
   private readonly accessLeaseSdkService = inject(AccessLeaseSdkService);
   private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly requestAccessFooterBridge = inject(RequestAccessFooterBridge);
   private readonly leasingErrorService = inject(LeasingErrorService);
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
@@ -344,9 +351,6 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   protected readonly requestFormExpanded = signal(false);
-  private readonly requestToggleButton = viewChild("requestToggleButton", {
-    read: ElementRef<HTMLElement>,
-  });
   private readonly requestFoldOut = viewChild("requestFoldOut", {
     read: ElementRef<HTMLElement>,
   });
@@ -463,25 +467,40 @@ export class CipherViewBannerComponent implements OnInit {
       }, 1000);
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
+
+    // The footer owns the buttons driving this card's form, so publish the flow for it to read.
+    // Withdraw on destroy: the handle holds this component and its decrypted cipher.
+    const footerActions: RequestAccessFooterActions = {
+      cipherId: String(this.cipher().id),
+      visible: this.canRequestAccess,
+      expanded: this.requestFormExpanded,
+      submittable: computed(() => !this.loadingRequestForm() && this.requestMode() !== null),
+      toggle: this.toggleRequestForm.bind(this),
+      submit: this.submitRequest,
+    };
+    this.requestAccessFooterBridge.publish(footerActions);
+    this.destroyRef.onDestroy(() => this.requestAccessFooterBridge.withdraw(footerActions));
   }
 
   /**
    * Toggle the fold-out. On open, reset the form and resolve the approval path with a
    * side-effect-free pre-check so the form below is purely inputs plus submit. A pre-check that
    * reports an active lease means one raced in — collapse and let the state stream reveal it.
+   *
+   * Focus only moves on open, into the fold-out this card owns; the footer refocuses its own
+   * toggle on collapse. Do not reach across the bridge for another component's DOM.
    */
   protected async toggleRequestForm(): Promise<void> {
     const next = !this.requestFormExpanded();
     this.requestFormExpanded.set(next);
-    // Toggling unmounts the button just activated, dropping focus to <body>; bound to this
-    // toggle's own render.
-    afterNextRender(
-      () => (next ? this.requestFoldOut() : this.requestToggleButton())?.nativeElement.focus(),
-      { injector: this.injector },
-    );
     if (!next) {
       return;
     }
+    // Opening unmounts the button that was just activated, dropping focus to <body>; bound to
+    // this toggle's own render.
+    afterNextRender(() => this.requestFoldOut()?.nativeElement.focus(), {
+      injector: this.injector,
+    });
 
     this.requestError.set(null);
     this.requestMode.set(null);
