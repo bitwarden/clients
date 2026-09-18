@@ -1,11 +1,4 @@
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import type { LabelValue } from "@bitwarden/bit-pam";
@@ -48,12 +41,6 @@ export class RequestSummaryComponent {
   /** The fully-formatted "from – to" window, shown as a second line under the coarse "4 hours, tomorrow" label. */
   readonly exactWindow = input<string>("");
   readonly reason = input<string | null>(null);
-
-  /**
-   * Render the item card alone. The withdraw confirmation reuses this component only to keep the
-   * item on screen; repeating the request's fields there would bury the decision being asked for.
-   */
-  readonly hideDetails = input(false, { transform: booleanAttribute });
 
   /** The window labels joined, e.g. "4 hours, starting tomorrow". */
   protected readonly accessRequested = computed(() => {
