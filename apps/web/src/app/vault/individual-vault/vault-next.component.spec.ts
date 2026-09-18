@@ -433,10 +433,54 @@ describe("VaultNextComponent", () => {
       expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
     });
 
-    it("ignores a trashed failure", () => {
+    it("ignores a trashed failure on a page that does not show it", () => {
       failedCiphers$.next([buildFailedCipher({ id: "failed", deletedDate: new Date() })]);
 
       expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("ignores an active failure on the Trash page", () => {
+      scopeTo(TRASH_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-active" })]);
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("names a trashed failure on the Trash page, where it is a row", () => {
+      scopeTo(TRASH_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-trashed", deletedDate: new Date() })]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-trashed"],
+      });
+    });
+
+    it("ignores an active failure on the Archive page", () => {
+      scopeTo(ARCHIVE_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-active" })]);
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("names an archived failure on the Archive page, where it is a row", () => {
+      scopeTo(ARCHIVE_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-archived", archivedDate: new Date() })]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-archived"],
+      });
+    });
+
+    it("names only the failures the scoped vault shows", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      failedCiphers$.next([
+        buildFailedCipher({ id: "failed-personal" }),
+        Object.assign(buildFailedCipher({ id: "failed-in-org" }), { organizationId }),
+      ]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-personal"],
+      });
     });
 
     it("opens only once per visit", () => {

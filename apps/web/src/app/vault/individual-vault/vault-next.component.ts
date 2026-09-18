@@ -8,7 +8,7 @@ import {
   signal,
   untracked,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { combineLatest, filter, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
 
@@ -287,11 +287,16 @@ export class VaultNextComponent implements OnInit {
 
   private readonly failedCiphers = toSignal(this.failedCiphers$, { initialValue: [] });
 
-  /** Opens once per visit. Exclude trashed ciphers, to prevent showing the dialog
-   * after the user has already attempted to delete the failed cipher. */
-  private readonly showDecryptionFailureDialog = this.failedCiphers$
+  /**
+   * Opens once per visit, and names only the failures the page in view can show — the same
+   * `cipherInScope` narrowing {@link ciphers} applies.
+   */
+  private readonly showDecryptionFailureDialog = combineLatest([
+    this.failedCiphers$,
+    toObservable(this.vaultScope),
+  ])
     .pipe(
-      map((ciphers) => ciphers.filter((cipher) => !cipher.isDeleted)),
+      map(([ciphers, scope]) => ciphers.filter((cipher) => cipherInScope(cipher, scope))),
       filter((ciphers) => ciphers.length > 0),
       take(1),
       takeUntilDestroyed(),
