@@ -1292,11 +1292,11 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     kind: TargetSystemKind.Entra,
     status: TargetSystemStatus.Active,
   });
-  const mssqlDisabled = makeSystem({
+  const scriptDisabled = makeSystem({
     id: sysId("2"),
     name: "Prod SQL reporting",
     method: TargetSystemMethod.Automatic,
-    kind: TargetSystemKind.Mssql,
+    kind: TargetSystemKind.CustomScript,
     status: TargetSystemStatus.Disabled,
   });
   const manualActive = makeSystem({
@@ -1370,7 +1370,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   });
 
   it("derives the method options from the loaded rows, sorted by label", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
+    setup([entraActive, scriptDisabled, manualActive]);
     expect(component.methodOptions()).toEqual([
       { value: "pamTargetSystemMethodAutomatic", label: "pamTargetSystemMethodAutomatic" },
       { value: "pamTargetSystemMethodManual", label: "pamTargetSystemMethodManual" },
@@ -1378,7 +1378,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   });
 
   it("derives the status options from the loaded rows, sorted by label", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
+    setup([entraActive, scriptDisabled, manualActive]);
     expect(component.statusOptions()).toEqual([
       { value: "pamTargetSystemStatusActive", label: "pamTargetSystemStatusActive" },
       { value: "pamTargetSystemStatusInactive", label: "pamTargetSystemStatusInactive" },
@@ -1386,10 +1386,10 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   });
 
   it("leaves a manual target out of the kind options, since it has no kind", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
+    setup([entraActive, scriptDisabled, manualActive]);
     expect(component.kindOptions()).toEqual([
+      { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
       { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
-      { value: TargetSystemKind.Mssql, label: "pamTargetSystemTypeMssql" },
     ]);
   });
 
@@ -1429,7 +1429,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
 
   it("offers one Inactive status option for a status it cannot name and a disabled one", () => {
     setup([
-      mssqlDisabled,
+      scriptDisabled,
       makeSystem({
         id: sysId("6"),
         name: "Newer server status",
@@ -1450,28 +1450,28 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   });
 
   it("narrows rows to the selected method", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
+    setup([entraActive, scriptDisabled, manualActive]);
     chip("method").toggle("pamTargetSystemMethodManual");
     fixture.detectChanges();
     expect(visibleIds()).toEqual([sysId("3") as string]);
   });
 
   it("narrows rows to the selected kind", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
-    chip("kind").toggle(TargetSystemKind.Mssql);
+    setup([entraActive, scriptDisabled, manualActive]);
+    chip("kind").toggle(TargetSystemKind.CustomScript);
     fixture.detectChanges();
     expect(visibleIds()).toEqual([sysId("2") as string]);
   });
 
   it("narrows rows to the selected status", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
+    setup([entraActive, scriptDisabled, manualActive]);
     chip("status").toggle("pamTargetSystemStatusInactive");
     fixture.detectChanges();
     expect(visibleIds()).toEqual([sysId("2") as string]);
   });
 
   it("ANDs the chips with each other and with the search text", () => {
-    setup([entraActive, mssqlDisabled, manualActive]);
+    setup([entraActive, scriptDisabled, manualActive]);
     component.searchControl.setValue("prod");
     chip("status").toggle("pamTargetSystemStatusActive");
     fixture.detectChanges();
