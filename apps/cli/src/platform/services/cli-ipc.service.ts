@@ -15,6 +15,7 @@ import { CliDesktopIpcTransport } from "./cli-desktop-ipc.transport";
 
 const DESKTOP_DISCOVER_TIMEOUT_MS = 5_000;
 export const MINIMUM_BIOMETRIC_DESKTOP_VERSION = "2026.9.0";
+export const IPC_SOCKET_DIR_ENV = "BITWARDEN_IPC_SOCKET_DIR";
 
 /** SDK IPC service backed by the Bitwarden Desktop native-messaging proxy. */
 export class CliIpcService extends IpcService {
@@ -70,12 +71,36 @@ export class CliIpcService extends IpcService {
       }
       return response.version;
     } catch (error) {
+      const reason = this.explainDiscoverFailure(error);
       this.disconnect();
-      const details = error instanceof Error ? ` ${error.message}` : "";
-      throw new Error(
-        `Could not establish SDK IPC with Bitwarden Desktop. Biometric unlock requires Bitwarden Desktop ${MINIMUM_BIOMETRIC_DESKTOP_VERSION} or newer.${details}`,
-      );
+      throw new Error(reason);
     }
+  }
+
+  /**
+   * Names the failure a discover timeout actually represents.
+   *
+   * A proxy that reported `connected` reached *an* IPC socket, so the desktop app on the other end
+   * either predates SDK IPC or is a different instance than intended. The latter is the standard
+   * debug-run mistake: `debug:cli` points the proxy at an isolated socket directory, so a CLI run
+   * against a normally-launched desktop app talks to a proxy that connected to nothing the app is
+   * listening on. Blaming the desktop version there sends the reader looking in the wrong place.
+   */
+  private explainDiscoverFailure(error: unknown): string {
+    const details = error instanceof Error ? ` ${error.message}` : "";
+    const { connected, proxyPath } = this.transport?.proxyConnection ?? { connected: false };
+
+    if (connected) {
+      const socketDir = process.env[IPC_SOCKET_DIR_ENV];
+      const where =
+        socketDir != null && socketDir !== ""
+          ? `${IPC_SOCKET_DIR_ENV} is ${socketDir}, so the desktop app must be running against that directory too`
+          : `${IPC_SOCKET_DIR_ENV} is unset, so a desktop app started with it set is not reachable from here`;
+
+      return `The Bitwarden Desktop proxy at ${proxyPath} connected, but no desktop app answered. Either it predates SDK IPC (${MINIMUM_BIOMETRIC_DESKTOP_VERSION} or newer is required) or it is a different instance: ${where}.${details}`;
+    }
+
+    return `Could not establish SDK IPC with Bitwarden Desktop. Biometric unlock requires Bitwarden Desktop ${MINIMUM_BIOMETRIC_DESKTOP_VERSION} or newer.${details}`;
   }
 
   private async initialize(): Promise<void> {
