@@ -58,7 +58,11 @@ const TARGET_OPTIONS: SelectItemView[] = [
 
 const TARGET_ROWS: TargetRow[] = [
   { id: "ts-1", label: "Prod Entra (Entra ID)", kindKey: "pamTargetSystemTypeEntra" },
-  { id: "ts-2", label: "Prod MSSQL (SQL Server)", kindKey: "pamTargetSystemTypeMssql" },
+  {
+    id: "ts-2",
+    label: "Billing rotation script (Custom script)",
+    kindKey: "pamTargetSystemTypeCustomScript",
+  },
 ];
 
 const CONNECTOR_OPTIONS: SelectItemView[] = [
