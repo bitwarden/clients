@@ -21,6 +21,7 @@ import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.s
 
 import {
   AccessEventService,
+  AccessRefreshService,
   AccessRequestSdkService,
   AccessRequestView,
   ApprovalSdkService,
@@ -31,7 +32,8 @@ import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
 
 /**
  * PAM's {@link PamNavBadgeService}: how much unattended access work the caller has, refreshed
- * whenever the server says something changed.
+ * whenever the server says something changed, or a mutation in this tab announces one on
+ * {@link AccessRefreshService}.
  *
  * Two halves: the caller's own requests still needing something from them (`list_mine()`), and
  * the requests awaiting their decision (`list_inbox()`), read only for a caller who can
@@ -39,6 +41,10 @@ import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
  *
  * The two are unioned by request id, not added, since a manager's own request in a collection
  * they manage appears on both tabs as one piece of work.
+ *
+ * Listens for local mutations as well as pushes because the badge lives at the root while the
+ * lists that mutate live in the `/pam` shell. Without them it keeps the old count until a push
+ * arrives, and it waits forever when the push never comes.
  *
  * `shareReplay({ refCount: true })` so every badge consumer shares one read, while `refCount`
  * still releases the push-channel subscription once nothing renders a badge.
@@ -54,6 +60,7 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
     private approvalSdkService: ApprovalSdkService,
     private approvalPrivilegeService: ApprovalPrivilegeService,
     private accessEventService: AccessEventService,
+    private accessRefreshService: AccessRefreshService,
     private configService: ConfigService,
     private logService: LogService,
   ) {
@@ -71,11 +78,11 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
   }
 
   /**
-   * The caller's own actionable requests, re-read on the requester-side push. Every mutation that
-   * changes what this counts sends it, so this needs no clock of its own.
+   * The caller's own actionable requests, re-read on the requester-side push or a local mutation.
+   * Every mutation that changes what this counts sends the push, so this needs no clock of its own.
    */
   private ownRequestIds$(): Observable<string[]> {
-    return merge(of(undefined), this.accessEventService.accessChanged$()).pipe(
+    return merge(of(undefined), this.accessRefreshService.accessChanged$()).pipe(
       switchMap(() =>
         this.actionableIds$(
           this.accessRequestSdkService.listMyAccessRequests(),
@@ -88,15 +95,20 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
 
   /**
    * The requests awaiting the caller's decision, or nothing for a caller who approves nothing.
-   * Re-read on the approver-side push, not the requester one: the server sends
-   * `RefreshApproverInbox` to every collection manager on submit, decide, activate, cancel,
-   * revoke and extend, covering every way the pending set can move.
+   * Re-read on the approver-side push, which the server sends to every collection manager on
+   * submit, decide, activate, cancel, revoke and extend, covering every way the pending set can
+   * move. Also re-read on a local mutation, such as this caller's own approve or deny. That stream
+   * carries the requester-side push too, which costs one extra inbox read.
    */
   private inboxRequestIds$(): Observable<string[]> {
     return this.approvalPrivilegeService.canApprove$.pipe(
       switchMap((canApprove) =>
         canApprove
-          ? merge(of(undefined), this.accessEventService.approverInboxChanged$()).pipe(
+          ? merge(
+              of(undefined),
+              this.accessEventService.approverInboxChanged$(),
+              this.accessRefreshService.accessChanged$(),
+            ).pipe(
               switchMap(() =>
                 this.actionableIds$(this.approvalSdkService.listInbox(), isActionableInboxRequest),
               ),
