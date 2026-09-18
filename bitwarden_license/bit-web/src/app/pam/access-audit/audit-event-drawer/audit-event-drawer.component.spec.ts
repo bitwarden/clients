@@ -30,7 +30,7 @@ const GRACE = { name: "Grace", email: "grace@example.com", organizationUserId: "
 function row(overrides: Partial<AuditRow> = {}): AuditRow {
   return {
     occurredAt: new Date("2026-08-18T09:00:00.000Z"),
-    kindLabelKey: "pamAuditKindLeaseActivated",
+    kindLabelKey: "pamAuditKindAccessActivated",
     actor: "Ada",
     actorId: "user-1",
     actorEmail: "ada@example.com",
@@ -105,8 +105,8 @@ describe("AuditEventDrawerComponent", () => {
             pamAuditIncompleteTooltip: "Outcome never confirmed.",
             pamAuditDurationExtendedTo: "Extended to __$1__",
             pamInboxDuration1Hour: "1 hour",
-            pamAuditKindLeaseActivated: "Lease activated",
-            pamAuditKindLeaseExtended: "Lease extended",
+            pamAuditKindAccessActivated: "Access activated",
+            pamAuditKindAccessExtended: "Access extended",
             pamAuditKindRuleDeleted: "Access rule deleted",
             copyValue: "Copy value",
             copySuccessful: "Copy Successful",
@@ -149,7 +149,7 @@ describe("AuditEventDrawerComponent", () => {
     it("titles the pane with the event label", async () => {
       await render();
 
-      expect(fixture.nativeElement.textContent).toContain("Lease activated");
+      expect(fixture.nativeElement.textContent).toContain("Access activated");
     });
 
     it("carries the in-doubt badge when the outcome never landed", async () => {
@@ -259,7 +259,7 @@ describe("AuditEventDrawerComponent", () => {
     it("renders an extension's new end as the duration", async () => {
       await render({
         row: row({
-          kindLabelKey: "pamAuditKindLeaseExtended",
+          kindLabelKey: "pamAuditKindAccessExtended",
           duration: null,
           exactWindow: null,
           extendedUntil: "2026-08-18T12:00:00.000Z",
