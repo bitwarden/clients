@@ -28,6 +28,7 @@ import {
 } from "@bitwarden/vault";
 
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
+import { ItemDeepLink, ItemDeepLinkAction } from "../utils/item-deep-link";
 
 /**
  * The web individual vault's cipher actions that open a web-specific dialog.
@@ -81,7 +82,10 @@ export class WebVaultItemActionsService {
       stored.type,
     );
 
-    await this.openItemDialog("view", formConfig);
+    await this.openItemDialog("view", formConfig, {
+      cipherId: id,
+      action: ItemDeepLinkAction.View,
+    });
   }
 
   /** Opens the item in the combined view/edit dialog, starting in the edit form. */
@@ -203,16 +207,28 @@ export class WebVaultItemActionsService {
 
     const formConfig = await this.cipherFormConfigService.buildConfig(mode, id, stored.type);
 
-    await this.openItemDialog("form", formConfig);
+    await this.openItemDialog("form", formConfig, {
+      cipherId: id,
+      action: mode === "clone" ? ItemDeepLinkAction.Clone : ItemDeepLinkAction.Edit,
+    });
   }
 
+  /**
+   * Opens the item dialog, naming the item on the URL for the length of the dialog when the item
+   * has an id — the add form has none.
+   */
   private async openItemDialog(
     mode: VaultItemDialogMode,
     formConfig: CipherFormConfig,
+    link?: ItemDeepLink,
   ): Promise<void> {
     this._itemDialogOpen.set(true);
 
     try {
+      if (link != null) {
+        await this.setItemQueryParams(link);
+      }
+
       const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
       const result = await lastValueFrom(dialogRef.closed);
 
@@ -226,6 +242,22 @@ export class WebVaultItemActionsService {
     } finally {
       this._itemDialogOpen.set(false);
     }
+  }
+
+  /**
+   * Names the open item on the URL, so the URL is shareable and a reload reopens the item — see
+   * {@link itemDeepLinkFrom}. `VaultItemDialogComponent` writes these params itself when the user
+   * toggles between view and edit, but not when it opens.
+   *
+   * The write is made while {@link itemDialogOpen} is set, so the page does not read the params
+   * back as a new deep link.
+   */
+  private async setItemQueryParams(link: ItemDeepLink): Promise<void> {
+    await this.router.navigate([], {
+      queryParams: { cipherId: null, itemId: link.cipherId, action: link.action },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
   }
 
   /**

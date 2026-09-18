@@ -327,16 +327,71 @@ describe("WebVaultItemActionsService", () => {
       expect(service.itemDialogOpen()).toBe(false);
     });
 
-    it("stays true while the item query params are cleared, so the page ignores that write", async () => {
-      const paramsWhileClearing: boolean[] = [];
+    it("stays true for both item query param writes, so the page ignores them", async () => {
+      const openWhileWriting: boolean[] = [];
       router.navigate.mockImplementation(async () => {
-        paramsWhileClearing.push(service.itemDialogOpen());
+        openWhileWriting.push(service.itemDialogOpen());
         return true;
       });
 
       await service.view(buildCipher());
 
-      expect(paramsWhileClearing).toEqual([true]);
+      expect(openWhileWriting).toEqual([true, true]);
+    });
+  });
+
+  describe("item query params", () => {
+    /** The params written as the dialog opens, before the clearing write on close. */
+    const openingParams = () => router.navigate.mock.calls[0][1]?.queryParams;
+
+    it("names the viewed item on the URL", async () => {
+      await service.view(buildCipher());
+
+      expect(openingParams()).toEqual({ cipherId: null, itemId: cipherId, action: "view" });
+    });
+
+    it("names the edited item on the URL", async () => {
+      await service.edit(buildCipher());
+
+      expect(openingParams()).toEqual({ cipherId: null, itemId: cipherId, action: "edit" });
+    });
+
+    it("names the cloned item on the URL", async () => {
+      await service.clone(buildCipher());
+
+      expect(openingParams()).toEqual({ cipherId: null, itemId: cipherId, action: "clone" });
+    });
+
+    it("replaces the URL, so the dialog does not add a history entry", async () => {
+      await service.view(buildCipher());
+
+      expect(router.navigate).toHaveBeenNthCalledWith(
+        1,
+        [],
+        expect.objectContaining({ queryParamsHandling: "merge", replaceUrl: true }),
+      );
+    });
+
+    it("writes no params for the add form, which has no item to name", async () => {
+      await service.add(CipherType.Login);
+
+      expect(openingParams()).toEqual({ cipherId: null, itemId: null, action: null });
+    });
+
+    it("writes the params before the dialog opens, so a reload during it reopens the item", async () => {
+      const order: string[] = [];
+      router.navigate.mockImplementation(async () => {
+        order.push("navigate");
+        return true;
+      });
+      itemDialogOpen.mockImplementation(() => {
+        order.push("open");
+        return { closed: of(undefined) } as unknown as DialogRef<never>;
+      });
+
+      await service.view(buildCipher());
+
+      expect(order).toEqual(["navigate", "open", "navigate"]);
     });
   });
 
