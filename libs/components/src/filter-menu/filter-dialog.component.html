@@ -34,16 +34,16 @@
             }
             <span class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-1">
               <span class="tw-truncate">{{ rowLabel(filter) }}</span>
-              @if (filter.summaryLabels().length) {
+              @if (filter.selections().length) {
                 <span
                   bitOverflowList
                   [gap]="4"
                   class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-text-fg-body"
                   #overflow="bitOverflowList"
                 >
-                  @for (label of filter.summaryLabels(); track label; let last = $last) {
+                  @for (selection of filter.selections(); track selection.value; let last = $last) {
                     <span bitOverflowItem class="tw-whitespace-nowrap">{{
-                      last ? label : label + ","
+                      last ? selection.label : selection.label + ","
                     }}</span>
                   }
                   <span bitOverflowTrigger class="tw-whitespace-nowrap"

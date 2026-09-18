@@ -38,9 +38,7 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
-  HecConnectDialogResult,
   DatadogConnectDialogResult,
-  ConnectViaHecTokenDialogResult,
   IntegrationDialogResultStatus,
   openDatadogConnectDialog,
   openHecConnectDialog,
@@ -192,35 +190,48 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       this.integrationSettings().name !== OrganizationIntegrationServiceName.CrowdStrike
     ) {
       // for now, this will always be Hec via Token Auth
+      const name = this.integrationSettings().name as OrganizationIntegrationServiceName;
+
       const dialog = openConnectViaHecTokenDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings(),
+          saveCallback: async (url: string, token: string) => {
+            const config = OrgIntegrationBuilder.buildHecConfiguration(
+              url,
+              token,
+              name,
+              Schemas.Splunk,
+            );
+            const template = OrgIntegrationBuilder.buildHecTemplate("", name);
+            return this.executeHecSave(config, template, name);
+          },
         },
       });
 
       const result = await lastValueFrom(dialog.closed);
 
-      await this.handleIntegrationDialogResult(
-        result,
-        () => this.deleteConnectViaHecTokenIntegration(),
-        (res) => this.saveConnectViaHecTokenIntegration(res),
+      await this.handleIntegrationDialogResult(result, () =>
+        this.deleteConnectViaHecTokenIntegration(),
       );
     } else {
       // The current Crowdstrike configuration.
       // As we get specs for Crowdstrike, this could be Hec via API key auth
+      const name = this.integrationSettings().name as OrganizationIntegrationServiceName;
+
       const dialog = openHecConnectDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings(),
+          saveCallback: async (url: string, bearerToken: string, index: string) => {
+            const config = OrgIntegrationBuilder.buildHecConfiguration(url, bearerToken, name);
+            const template = OrgIntegrationBuilder.buildHecTemplate(index, name);
+            return this.executeHecSave(config, template, name);
+          },
         },
       });
 
       const result = await lastValueFrom(dialog.closed);
 
-      await this.handleIntegrationDialogResult(
-        result,
-        () => this.deleteHec(),
-        (res) => this.saveHec(res),
-      );
+      await this.handleIntegrationDialogResult(result, () => this.deleteHec());
     }
   }
 
@@ -232,40 +243,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     config: OrgIntegrationConfiguration,
     template: OrgIntegrationTemplate,
   ): Promise<void> {
-    let response: IntegrationModificationResult = {
-      mustBeOwner: false,
-      success: false,
-      organizationIntegrationResult: undefined,
-    };
-
-    if (this.isUpdateAvailable) {
-      // retrieve org integration and configuration ids
-      const orgIntegrationId = this.integrationSettings().organizationIntegration?.id;
-      const orgIntegrationConfigurationId =
-        this.integrationSettings().organizationIntegration?.integrationConfiguration[0]?.id;
-
-      if (!orgIntegrationId || !orgIntegrationConfigurationId) {
-        throw Error("Organization Integration ID or Configuration ID is missing");
-      }
-
-      // update existing integration and configuration
-      response = await this.organizationIntegrationService.update(
-        this.organizationId,
-        orgIntegrationId,
-        integrationType,
-        orgIntegrationConfigurationId,
-        config,
-        template,
-      );
-    } else {
-      // create new integration and configuration
-      response = await this.organizationIntegrationService.save(
-        this.organizationId,
-        integrationType,
-        config,
-        template,
-      );
-    }
+    const response = await this.callSaveOrUpdate(integrationType, config, template);
 
     if (response.mustBeOwner) {
       this.showMustBeOwnerToast();
@@ -347,16 +325,117 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
+   * Routes to service save or update based on whether an integration already exists.
+   */
+  private async callSaveOrUpdate(
+    integrationType: OrganizationIntegrationType,
+    config: OrgIntegrationConfiguration,
+    template: OrgIntegrationTemplate,
+  ): Promise<IntegrationModificationResult> {
+    if (this.isUpdateAvailable) {
+      const orgIntegrationId = this.integrationSettings().organizationIntegration?.id;
+      const orgIntegrationConfigurationId =
+        this.integrationSettings().organizationIntegration?.integrationConfiguration[0]?.id;
+
+      if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+        throw new Error("Organization Integration ID or Configuration ID is missing");
+      }
+
+      return this.organizationIntegrationService.update(
+        this.organizationId,
+        orgIntegrationId,
+        integrationType,
+        orgIntegrationConfigurationId,
+        config,
+        template,
+      );
+    }
+
+    return this.organizationIntegrationService.save(
+      this.organizationId,
+      integrationType,
+      config,
+      template,
+    );
+  }
+
+  /**
+   * Calls save or update, handles all HEC-specific response cases, and returns:
+   * - a string (server's 400 error message) so the dialog can stay open
+   * - null on success (dialog closes with SavedViaCallback)
+   * - throws on any other error (dialog closes without result, toast already shown)
+   */
+  private async executeHecSave(
+    config: OrgIntegrationConfiguration,
+    template: OrgIntegrationTemplate,
+    name: OrganizationIntegrationServiceName,
+  ): Promise<string | null> {
+    let response: IntegrationModificationResult;
+    try {
+      response = await this.callSaveOrUpdate(OrganizationIntegrationType.Hec, config, template);
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToSaveIntegration"),
+      });
+      throw new Error();
+    }
+
+    if (response.verificationError) {
+      return response.verificationError;
+    }
+
+    if (response.mustBeOwner) {
+      this.showMustBeOwnerToast();
+      throw new Error();
+    }
+
+    if (response.anotherIntegrationWithSameTypeExists) {
+      this.showAnotherIntegrationWithSameTypeExistsToast(
+        this.getOrganizationIntegrationTypeName(OrganizationIntegrationType.Hec),
+      );
+      throw new Error();
+    }
+
+    if (!response.success) {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToSaveIntegration"),
+      });
+      throw new Error();
+    }
+
+    if (response.organizationIntegrationResult) {
+      this.state.updateIntegrationSettings(name, response.organizationIntegrationResult);
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("integrationConnectedSuccessfully", name),
+    });
+
+    return null;
+  }
+
+  /**
    * Generic dialog result handler
    * Handles both delete and edit actions with proper error handling
    */
   private async handleIntegrationDialogResult<T extends { success: string | null }>(
     result: T | undefined,
     deleteCallback: () => Promise<void>,
-    saveCallback: (result: T) => Promise<void>,
+    saveCallback?: (result: T) => Promise<void>,
   ): Promise<void> {
     // User cancelled the dialog or closed it without saving
     if (!result || !result.success) {
+      return;
+    }
+
+    // Save was completed inside the dialog via callback — nothing more to do
+    if (result.success === IntegrationDialogResultStatus.SavedViaCallback) {
       return;
     }
 
@@ -375,7 +454,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     // Handle edit/save action
-    if (result.success === IntegrationDialogResultStatus.Edited) {
+    if (result.success === IntegrationDialogResultStatus.Edited && saveCallback) {
       try {
         await saveCallback(result);
       } catch {
@@ -388,40 +467,8 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  async saveHec(result: HecConnectDialogResult) {
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      result.url,
-      result.bearerToken,
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-    );
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      result.index,
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-    );
-
-    await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
-  }
-
   async deleteHec() {
     await this.deleteIntegration();
-  }
-
-  async saveConnectViaHecTokenIntegration(result: ConnectViaHecTokenDialogResult) {
-    // create the Hec configuration
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      result.url,
-      result.token,
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-      Schemas.Splunk,
-    );
-
-    // create a template
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      "",
-      this.integrationSettings().name as OrganizationIntegrationServiceName,
-    );
-
-    await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
   }
 
   async deleteConnectViaHecTokenIntegration() {

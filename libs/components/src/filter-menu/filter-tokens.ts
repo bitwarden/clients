@@ -63,6 +63,15 @@ export interface FilterGroup {
 /** Provided by `bit-filter-menu`; injected by `bit-filter-option`. */
 export const FILTER_GROUP = new InjectionToken<FilterGroup>("FilterGroup");
 
+/**
+ * A selected option. The value is included so a surface can track each selection and pass it
+ * back to {@link FilterPresenter.deselect}.
+ */
+export interface FilterSelection {
+  readonly value: unknown;
+  readonly label: string;
+}
+
 /** How a filter presents itself in the responsive filter dialog. */
 export interface FilterPresenter {
   /** Stable identity for the dialog's row list. */
@@ -73,10 +82,15 @@ export interface FilterPresenter {
   readonly icon: Signal<BitwardenIcon | undefined>;
   /** Whether the filter has a selection (drives the row's active dot and the applied count). */
   readonly active: Signal<boolean>;
+  /** Whether the filter can hold more than one value. `false` for a single-select or a toggle. */
+  readonly multiple: Signal<boolean>;
   /** Selected-options summary for the row, e.g. "Login"; empty when none. */
   readonly summary: Signal<string>;
-  /** The same selection as {@link summary}, unjoined, so a surface can measure each label. */
-  readonly summaryLabels: Signal<readonly string[]>;
+  /**
+   * The selections behind {@link summary}, unjoined, so a surface can draw each one separately.
+   * Empty for a toggle, which has no options.
+   */
+  readonly selections: Signal<readonly FilterSelection[]>;
   /**
    * The options to stamp on a drill-in page. `undefined` means the filter has no
    * drill-in (a toggle), so its row flips it in place via {@link flip}.
@@ -84,6 +98,12 @@ export interface FilterPresenter {
   readonly optionsTemplate: Signal<TemplateRef<unknown> | undefined>;
   /** Flip an in-place filter (a toggle) from its row. No-op for a drill-in filter. */
   flip(): void;
+  /**
+   * Removes one value from the selection, leaving the rest. Does nothing if the value isn't
+   * selected, or if the filter holds one value at a time; use {@link FilterPresenter.clear}
+   * for those.
+   */
+  deselect(value: unknown): void;
   /** Reset this filter's selection. */
   clear(): void;
 }
