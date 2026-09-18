@@ -39,6 +39,8 @@ test("rotates the account encryption key", async ({ page }) => {
   // key decrypts the account — under a key id that is not the old one.
   await expect(page).toHaveURL(LOGIN_ROUTE);
 
+  // The forced logout leaves the app mid-teardown; reload for a clean instance.
+  await page.goto("/");
   await ensureLoggedIn(page, account);
   await expect(page).toHaveURL(VAULT_ROUTE);
 
