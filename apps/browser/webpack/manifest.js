@@ -26,6 +26,7 @@ function transform(browser) {
 
     manifest = transformPrefixes(manifest, browser);
     manifest = transformChannel(manifest);
+    manifest = transformDevPermissions(manifest);
 
     return JSON.stringify(manifest, null, 2);
   };
@@ -42,6 +43,31 @@ function transformChannel(manifest) {
     return manifest;
   }
   return applyOverrides(manifest, require("./manifest-beta-overrides.json"));
+}
+
+const NATIVE_MESSAGING = "nativeMessaging";
+
+// Development builds are granted `nativeMessaging` at install instead of asking
+// for it. Shipped, it is optional: the extension requests it the first time it
+// talks to the desktop app, and Chrome answers with its own permission bubble.
+// That bubble is browser UI, so nothing driving a debug build — by hand or from
+// the e2e suites — can get past it, and the request pops the extension out and
+// reloads it. Dev profiles are disposable, so granting it up front is safe.
+function transformDevPermissions(manifest) {
+  if (process.env.NODE_ENV === "production") {
+    return manifest;
+  }
+
+  const optional = manifest.optional_permissions;
+
+  if (optional == null || !optional.includes(NATIVE_MESSAGING)) {
+    return manifest;
+  }
+
+  manifest.permissions = [...manifest.permissions, NATIVE_MESSAGING];
+  manifest.optional_permissions = optional.filter((permission) => permission !== NATIVE_MESSAGING);
+
+  return manifest;
 }
 
 function applyOverrides(target, overrides) {

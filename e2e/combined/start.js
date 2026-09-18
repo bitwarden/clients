@@ -21,7 +21,7 @@
 // only start once both clients are up and paired.
 ////
 
-const { execFileSync, spawn, spawnSync } = require("child_process");
+const { execFileSync, spawn } = require("child_process");
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
@@ -46,11 +46,6 @@ const PROXY_BINARY = path.join(
   "debug",
   "desktop_proxy",
 );
-
-const EXTENSION_BUILD_DIR = path.join(REPO_ROOT, "apps", "browser", "build");
-const EXTENSION_MANIFEST = path.join(EXTENSION_BUILD_DIR, "manifest.json");
-const DEV_CHROME_SCRIPT = path.join(REPO_ROOT, "apps", "browser", "scripts", "dev-chrome.mjs");
-const NATIVE_MESSAGING_PERMISSION = "nativeMessaging";
 
 const DESKTOP_CDP_PORT = 9222;
 const BROWSER_CDP_PORT = 9200;
@@ -148,36 +143,6 @@ async function waitForExtensionId() {
   throw new Error("The extension's service worker never registered.");
 }
 
-/**
- * Builds the extension and makes `nativeMessaging` a required permission instead
- * of an optional one.
- *
- * Shipped, it is optional: enabling biometric unlock or unlock sharing asks Chrome
- * for it, and Chrome answers with its own permission bubble. That bubble is browser
- * UI, so no test can click it, and the extension pops out and reloads itself around
- * the request. Required permissions are granted at install, so the settings behave
- * as they do for a user who has already said yes.
- */
-function buildExtensionWithGrantedNativeMessaging() {
-  const build = spawnSync("npm", ["run", "build:chrome"], {
-    cwd: path.join(REPO_ROOT, "apps", "browser"),
-    stdio: "inherit",
-  });
-
-  if (build.status !== 0) {
-    throw new Error("Building the extension failed.");
-  }
-
-  const manifest = JSON.parse(fs.readFileSync(EXTENSION_MANIFEST, "utf8"));
-
-  manifest.permissions = [...manifest.permissions, NATIVE_MESSAGING_PERMISSION];
-  manifest.optional_permissions = manifest.optional_permissions.filter(
-    (permission) => permission !== NATIVE_MESSAGING_PERMISSION,
-  );
-
-  fs.writeFileSync(EXTENSION_MANIFEST, JSON.stringify(manifest, null, 2));
-}
-
 function writeManifest(extensionId) {
   if (!fs.existsSync(PROXY_BINARY)) {
     throw new Error(
@@ -200,6 +165,15 @@ function writeManifest(extensionId) {
       2,
     ),
   );
+}
+
+/**
+ * Opens a blank tab that nothing closes. The launcher's only window is the popup,
+ * and locking the extension closes the popup — which would leave Chrome without a
+ * window, so it would quit and take the rest of the scenario with it.
+ */
+async function openKeepAliveTab() {
+  await fetch(`http://127.0.0.1:${BROWSER_CDP_PORT}/json/new?about:blank`, { method: "PUT" });
 }
 
 function serveReadiness() {
@@ -228,14 +202,14 @@ async function main() {
   startClient("npm", ["run", "debug:desktop:automation"]);
   await waitForCdp(DESKTOP_CDP_PORT, "The desktop app");
 
-  // Built here rather than by the launcher, which would overwrite the patch.
-  buildExtensionWithGrantedNativeMessaging();
-  startClient("node", [DEV_CHROME_SCRIPT, "--popup", "--skip-build"]);
+  startClient("npm", ["run", "debug:browser"]);
   await waitForCdp(BROWSER_CDP_PORT, "The debug browser");
 
   const extensionId = await waitForExtensionId();
   writeManifest(extensionId);
   console.log(`Paired native messaging with extension ${extensionId}`);
+
+  await openKeepAliveTab();
 
   serveReadiness();
 }

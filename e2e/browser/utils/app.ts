@@ -7,24 +7,74 @@ const EXTENSION_URL_PREFIX = "chrome-extension://";
 const START_COMMAND = "npm run test:e2e:browser";
 
 const POPUP_PATH = "popup/index.html";
+const BLANK_URL = "about:blank";
 
-const SERVICE_WORKER_TARGET = "service_worker";
+// Chrome blocks a chrome-extension:// page loaded before it has finished enabling
+// the unpacked extension, and nothing retries that load on its own, so the popup
+// is reloaded until it routes.
+const POPUP_LOAD_ATTEMPTS = 15;
+const POPUP_ROUTE_TIMEOUT = 2_000;
 
-/** Attaches to the extension popup in the running debug browser. */
+// The extension id is stable for the profile, but nothing in the browser reliably
+// reports it: pages come and go, and the MV3 service worker's target disappears
+// once it goes idle. So it is remembered from whichever target first showed it.
+let extensionId: string | undefined;
+
+/**
+ * Attaches to the extension popup in the running debug browser, opening a popup
+ * when none is left. The popup is closed both by the extension itself — locking
+ * does it — and by detaching, which closes the pages Playwright knows about.
+ */
 export async function attachToPopup(): Promise<AttachedApp> {
-  await ensurePopupTab();
-
   const app = await attachOverCdp({
     port: DEBUG_PORT,
     urlPrefix: EXTENSION_URL_PREFIX,
     startCommand: START_COMMAND,
+    openUrl: await currentPopupUrl(),
   });
 
-  // The popup URL carries no hash until Angular has routed, and callers branch
-  // on the route, so wait for it before handing the page over.
-  await app.page.waitForFunction(() => window.location.hash !== "");
+  await waitForRoutedPopup(app.page);
+  await ensureSpareTab();
 
   return app;
+}
+
+/**
+ * Waits for the popup to route, reloading it while it does not. The popup URL
+ * carries no hash until Angular has routed and callers branch on the route, so a
+ * blocked or half-loaded page has to be retried rather than handed over.
+ */
+async function waitForRoutedPopup(page: AttachedApp["page"]): Promise<void> {
+  for (let attempt = 1; attempt <= POPUP_LOAD_ATTEMPTS; attempt++) {
+    try {
+      await page.waitForFunction(() => window.location.hash !== "", undefined, {
+        timeout: POPUP_ROUTE_TIMEOUT,
+      });
+
+      return;
+    } catch {
+      if (attempt === POPUP_LOAD_ATTEMPTS) {
+        throw new Error(`The extension popup never routed: ${page.url()}`);
+      }
+
+      await page.reload();
+    }
+  }
+}
+
+/**
+ * Keeps one blank tab around. Reopening the popup navigates a spare tab, so the
+ * next reopen needs a fresh one — and a browser whose last tab is the popup quits
+ * when the extension closes it.
+ */
+async function ensureSpareTab(): Promise<void> {
+  const targets = await fetchTargets();
+
+  if (targets.some((target) => target.url === BLANK_URL)) {
+    return;
+  }
+
+  await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/new?${BLANK_URL}`, { method: "PUT" });
 }
 
 /** Popup URL for a hash route, e.g. `popupUrl(page.url(), "account-security")`. */
@@ -36,39 +86,27 @@ export function popupUrl(currentUrl: string, route: string): string {
   return `${EXTENSION_URL_PREFIX}${hostname}/${POPUP_PATH}#/${route}`;
 }
 
-/**
- * Opens a popup tab when none is left. Detaching closes the pages Playwright knows
- * about, so the tab the launcher opened is gone for whoever attaches next — a
- * second test worker, or a retry.
- */
-async function ensurePopupTab(): Promise<void> {
-  const targets = await fetchTargets();
+/** The popup's own URL, or undefined while the extension id is still unknown. */
+async function currentPopupUrl(): Promise<string | undefined> {
+  const target = (await fetchTargets()).find((t) => t.url.startsWith(EXTENSION_URL_PREFIX));
 
-  if (targets.some((target) => target.url.startsWith(EXTENSION_URL_PREFIX))) {
-    return;
+  if (target != null) {
+    extensionId = new URL(target.url).hostname;
   }
 
-  // The extension id is the host of its service worker, which outlives every page.
-  const worker = targets.find(
-    (target) =>
-      target.type === SERVICE_WORKER_TARGET && target.url.startsWith(EXTENSION_URL_PREFIX),
-  );
-
-  if (worker == null) {
-    throw new Error(
-      `No extension found on port ${DEBUG_PORT}. Start the client with \`${START_COMMAND}\`.`,
-    );
+  if (extensionId == null) {
+    return undefined;
   }
 
-  const { hostname } = new URL(worker.url);
-  await fetch(
-    `http://127.0.0.1:${DEBUG_PORT}/json/new?${EXTENSION_URL_PREFIX}${hostname}/${POPUP_PATH}`,
-    { method: "PUT" },
-  );
+  return `${EXTENSION_URL_PREFIX}${extensionId}/${POPUP_PATH}`;
 }
 
-async function fetchTargets(): Promise<{ type: string; url: string }[]> {
-  const response = await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/list`);
+async function fetchTargets(): Promise<{ url: string }[]> {
+  try {
+    const response = await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/list`);
 
-  return response.ok ? await response.json() : [];
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
 }

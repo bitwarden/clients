@@ -10,17 +10,13 @@ import { BIOMETRIC_UNLOCK_TEXT } from "../../utils/lock-screen";
 import { ensureUnlocked } from "../../utils/login";
 import { VAULT_ROUTE } from "../../utils/routes";
 import { Given, Then, When } from "../utils/bdd";
+import { waitForPopup } from "../utils/popup";
 
 const SHARED_UNLOCK_FLAG = "innovation-sprint-shared-unlock-part-2";
 
 const ACCOUNT_SWITCHER_ROUTE = "account-switcher";
 const LOCK_NOW_TEXT = /^lock now$/i;
 const LOCKED_HEADING_TEXT = /your vault is locked/i;
-
-// The lock screen only renders once the desktop app has answered what unlock
-// methods it can offer, and the first native messaging round trip also spawns the
-// proxy, which is well past the default expect timeout.
-const IPC_HANDSHAKE_TIMEOUT = 90_000;
 
 /** The Gherkin names of the two settings that route extension unlock to the desktop. */
 const SETTING_BY_NAME: Record<string, UnlockSetting> = {
@@ -72,20 +68,17 @@ When("I lock the extension", async ({ extension }) => {
   await popup.goto(popupUrl(popup.url(), ACCOUNT_SWITCHER_ROUTE));
   await popup.getByRole("button", { name: LOCK_NOW_TEXT }).click();
 
-  const locked = await extension();
-  await expect(locked.getByRole("heading", { name: LOCKED_HEADING_TEXT })).toBeVisible({
-    timeout: IPC_HANDSHAKE_TIMEOUT,
-  });
+  await waitForPopup(extension, (page) =>
+    page.getByRole("heading", { name: LOCKED_HEADING_TEXT }).isVisible(),
+  );
 });
 
 Then("the extension lock screen offers biometric unlock", async ({ extension }) => {
   // Offered only once the desktop app has answered that biometrics are usable,
   // which is a round trip over native messaging.
-  const popup = await extension();
-
-  await expect(popup.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT })).toBeEnabled({
-    timeout: IPC_HANDSHAKE_TIMEOUT,
-  });
+  await waitForPopup(extension, (page) =>
+    page.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT }).isEnabled(),
+  );
 });
 
 When(
@@ -105,5 +98,5 @@ When(
 );
 
 Then("the extension vault is shown", async ({ extension }) => {
-  await expect(await extension()).toHaveURL(VAULT_ROUTE);
+  await waitForPopup(extension, async (page) => VAULT_ROUTE.test(page.url()));
 });

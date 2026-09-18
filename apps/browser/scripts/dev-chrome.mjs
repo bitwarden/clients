@@ -8,10 +8,9 @@
 // works. The binary is resolved from the puppeteer cache and downloaded
 // on first run.
 //
-//   node scripts/dev-chrome.mjs [--popup] [--skip-build]
+//   node scripts/dev-chrome.mjs [--popup]
 //
-// --popup       open the extension popup once loaded
-// --skip-build  load build/ as it is, for callers that built and then patched it
+// --popup  open the extension popup once loaded
 ////
 
 import { spawnSync } from "node:child_process";
@@ -43,6 +42,18 @@ const CHANNEL = "stable";
 const SERVICE_WORKER = "service_worker";
 const EXTENSION_SCHEME = "chrome-extension://";
 
+// Chrome disables unpacked extensions unless "Developer mode" is on. That setting
+// is a protected per-profile preference, so it cannot be seeded, and the debug
+// profile is wiped between runs — which would leave the extension installed but
+// blocked. Turning the enforcement off keeps a fresh profile usable.
+const DISABLED_FEATURES = "ExtensionDisableUnsupportedDeveloper";
+
+// Chrome blocks a chrome-extension:// page loaded before it has finished enabling
+// the unpacked extension, and nothing retries that load, so the popup is reloaded
+// until the app routes.
+const POPUP_LOAD_ATTEMPTS = 15;
+const POPUP_ROUTE_TIMEOUT = 2_000;
+
 const BUILD_SCRIPT = "build:chrome";
 const NPM = process.platform === "win32" ? "npm.cmd" : "npm";
 
@@ -51,7 +62,6 @@ const require = createRequire(import.meta.url);
 function parseArgs(argv) {
   return {
     popup: argv.includes("--popup"),
-    skipBuild: argv.includes("--skip-build"),
   };
 }
 
@@ -123,6 +133,7 @@ async function launch(puppeteer, executablePath) {
       `--load-extension=${BUILD_DIR}`,
       `--disable-extensions-except=${BUILD_DIR}`,
       `--remote-debugging-port=${DEBUG_PORT}`,
+      `--disable-features=${DISABLED_FEATURES}`,
       "--no-first-run",
       "--no-default-browser-check",
     ],
@@ -150,16 +161,31 @@ async function openPopup(browser, extensionId) {
   }
 
   const page = await browser.newPage();
-  await page.goto(`${EXTENSION_SCHEME}${extensionId}/${popup}`);
+  const url = `${EXTENSION_SCHEME}${extensionId}/${popup}`;
+
+  for (let attempt = 1; attempt <= POPUP_LOAD_ATTEMPTS; attempt++) {
+    await page.goto(url);
+
+    try {
+      // No hash until Angular has routed, which a blocked page never does.
+      await page.waitForFunction(() => window.location.hash !== "", {
+        timeout: POPUP_ROUTE_TIMEOUT,
+      });
+
+      return;
+    } catch {
+      if (attempt === POPUP_LOAD_ATTEMPTS) {
+        console.log("The popup never routed; reload it from the address bar.");
+      }
+    }
+  }
 }
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const { puppeteer, browsers } = loadDeps();
 
-  if (!args.skipBuild) {
-    build();
-  }
+  build();
 
   const executablePath = await resolveChrome(browsers);
   console.log(`Chrome: ${executablePath}`);

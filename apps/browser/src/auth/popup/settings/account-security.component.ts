@@ -423,7 +423,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
       await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
 
-      if (!hadPermission) {
+      if (!hadPermission && !isDevBuild()) {
         // The nativeMessaging permission was just granted. The extension must reload to register
         // the native messaging host. State is saved above so it survives the reload. The
         // background performs the reload once all popups/popouts have closed; this popout won't
@@ -469,7 +469,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
 
-    if (enabled && !hadPermission) {
+    if (enabled && !hadPermission && !isDevBuild()) {
       // The nativeMessaging permission was just granted. The extension must reload to register
       // the native messaging host. State is saved above so it survives the reload. The background
       // performs the reload once all popups/popouts have closed; this popout won't receive its own
@@ -575,4 +575,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+}
+
+/**
+ * Development builds already hold the `nativeMessaging` permission (the manifest
+ * grants it at install), so nothing has to be re-registered and the reload is
+ * skipped: it tears down the popup mid-flow, which makes the desktop unlock
+ * settings impossible to drive by hand or from the e2e suites.
+ */
+function isDevBuild(): boolean {
+  return process.env.ENV !== "production";
 }
