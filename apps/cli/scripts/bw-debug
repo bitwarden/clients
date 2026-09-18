@@ -1,0 +1,56 @@
+#!/bin/bash
+####
+# Runs the locally built CLI against the same isolated state as `debug:desktop`, so the two can
+# talk over shared unlock without touching the host's real Bitwarden installation.
+#
+#   .debug/cli-profile/   CLI app data (session, vault cache, config)
+#   .debug/s.<name>       IPC sockets, shared with the debug desktop app
+#
+# Unlike `npm run debug:cli`, this never builds and never adds output of its own, so it can be
+# handed to any tool that expects a `bw` executable. Build first with `npm run build:oss`
+# (in apps/cli) or `npm run debug:cli`.
+#
+# Paths are absolute and hardcoded to this checkout, so the script works from any cwd, through a
+# symlink, and under a caller with a minimal PATH.
+#
+# Usage: /Users/bschoolmann/claude-workspace/clients/apps/cli/scripts/bw-debug list items
+####
+set -euo pipefail
+
+# Callers such as Raycast invoke this with PATH set but empty, which leaves even /bin/mkdir
+# unresolvable and gives the CLI no PATH for anything it spawns. Set a known-good one.
+export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+readonly NODE=/opt/homebrew/bin/node
+readonly MKDIR=/bin/mkdir
+readonly BUNDLE=/Users/bschoolmann/claude-workspace/clients/apps/cli/build/bw.js
+readonly DEBUG_DIR=/Users/bschoolmann/claude-workspace/clients/.debug
+
+# Built by `npm run build-native` in apps/desktop; the CLI spawns it to reach the desktop app.
+readonly DEBUG_PROXY=/Users/bschoolmann/claude-workspace/clients/apps/desktop/desktop_native/target/debug/desktop_proxy
+
+if [ ! -f "${BUNDLE}" ]; then
+  echo "bw-debug: ${BUNDLE} does not exist. Run 'npm run build:oss' in apps/cli first." >&2
+  exit 1
+fi
+
+# Drop the caller's credentials. They belong to the host's real installation: an inherited session
+# key only decrypts to a MAC failure against this debug profile, and inherited API key credentials
+# would silently authenticate as the wrong identity. Unlock comes from the desktop peer instead.
+unset BW_SESSION
+unset BW_CLIENTID
+unset BW_CLIENTSECRET
+
+export BITWARDENCLI_APPDATA_DIR="${DEBUG_DIR}/cli-profile"
+export BITWARDEN_IPC_SOCKET_DIR="${DEBUG_DIR}"
+
+# Prefer the checkout's proxy so the CLI matches the desktop build under test. Without it the CLI
+# falls back to the installed app, which listens on a different socket dir.
+if [ -f "${DEBUG_PROXY}" ]; then
+  export BITWARDEN_DESKTOP_PROXY_PATH="${DEBUG_PROXY}"
+fi
+
+"${MKDIR}" -p "${BITWARDENCLI_APPDATA_DIR}"
+
+# exec so signals and the exit code reach the caller directly, with no wrapper in between.
+exec "${NODE}" "${BUNDLE}" "$@"
