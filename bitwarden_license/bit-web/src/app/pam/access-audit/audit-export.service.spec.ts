@@ -10,7 +10,7 @@ import { AuditExportService } from "./audit-export.service";
 function row(overrides: Partial<AuditRow> = {}): AuditRow {
   return {
     occurredAt: new Date("2026-06-30T12:00:00Z"),
-    kindLabelKey: "pamAuditKindLeaseActivated",
+    kindLabelKey: "pamAuditKindAccessActivated",
     actor: "Ada Lovelace",
     actorId: "user-ada",
     actorEmail: "ada@example.com",
@@ -46,9 +46,9 @@ describe("AuditExportService", () => {
         {
           provide: I18nService,
           useValue: new I18nMockService({
-            pamAuditKindLeaseActivated: "Lease activated",
+            pamAuditKindAccessActivated: "Access activated",
             pamAuditKindRuleCreated: "Access rule created",
-            pamAuditKindLeaseExtended: "Lease extended",
+            pamAuditKindAccessExtended: "Access extended",
             pamAuditKindAccessConnectorAssigned: "Access connector assigned to target",
             pamInboxDurationHours: "__$1__ hours",
             pamInboxDuration1Hour: "1 hour",
@@ -63,7 +63,7 @@ describe("AuditExportService", () => {
     it("maps a fully populated row onto the column contract", () => {
       expect(service.toAuditExport(row())).toEqual({
         timestamp: "2026-06-30T12:00:00.000Z",
-        event: "Lease activated",
+        event: "Access activated",
         actorName: "Ada Lovelace",
         actorEmail: "ada@example.com",
         requesterName: "Grace Hopper",
@@ -177,7 +177,7 @@ describe("AuditExportService", () => {
     it("writes the new lease end for an extension, which carries no duration", () => {
       const exported = service.toAuditExport(
         row({
-          kindLabelKey: "pamAuditKindLeaseExtended",
+          kindLabelKey: "pamAuditKindAccessExtended",
           duration: null,
           exactWindow: null,
           extendedUntil: "2026-07-01T18:30:00.000Z",
@@ -212,7 +212,7 @@ describe("AuditExportService", () => {
 
       expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0].detail).toBe(detail);
-      expect(parsed.data[0].event).toBe("Lease activated");
+      expect(parsed.data[0].event).toBe("Access activated");
     });
 
     // Free text from someone other than the file's opener; a leading trigger character would make

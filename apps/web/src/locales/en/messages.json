@@ -17509,11 +17509,11 @@
   "pamAccessRuleSingleActiveAccessHint": {
     "message": "Others with approval can attempt to start access once the current access ends or is revoked."
   },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Allow lease extensions"
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
   },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Maximum extension length"
@@ -17947,8 +17947,8 @@
   "pamStartLeaseErrorAlreadyUsed": {
     "message": "This request's access has already been used and is no longer active."
   },
-  "pamStartLeaseErrorSingleActiveLease": {
-    "message": "Another active lease exists for this item. Try again once it ends."
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
   },
   "pamStartLeaseErrorNetworkNotPermitted": {
     "message": "Access to this item is not permitted from your current network."
@@ -18052,11 +18052,11 @@
   "pamAccessBadgeEnded": {
     "message": "Access ended"
   },
-  "pamAuditKindLeaseEndedByHolder": {
-    "message": "Lease ended by holder"
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Access ended by requester"
   },
-  "pamAuditKindLeaseRevoked": {
-    "message": "Lease revoked"
+  "pamAuditKindAccessRevoked": {
+    "message": "Access revoked"
   },
   "pamEventRequestedAccess": {
     "message": "Requested privileged access to item $ITEM$ (request $ID$).",
@@ -18097,8 +18097,8 @@
       }
     }
   },
-  "pamEventActivatedAccessLease": {
-    "message": "Activated privileged access to item $ITEM$ (lease $ID$).",
+  "pamEventActivatedAccess": {
+    "message": "Activated privileged access to item $ITEM$ (access $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -18110,8 +18110,8 @@
       }
     }
   },
-  "pamEventRevokedAccessLease": {
-    "message": "Revoked privileged access to item $ITEM$ (lease $ID$).",
+  "pamEventRevokedAccess": {
+    "message": "Revoked privileged access to item $ITEM$ (access $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -18136,8 +18136,8 @@
       }
     }
   },
-  "pamEventExtendedAccessLease": {
-    "message": "Extended privileged access to item $ITEM$ (lease $ID$).",
+  "pamEventExtendedAccess": {
+    "message": "Extended privileged access to item $ITEM$ (access $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -18149,8 +18149,8 @@
       }
     }
   },
-  "pamEventExpiredAccessLease": {
-    "message": "Privileged access to item $ITEM$ expired (lease $ID$).",
+  "pamEventExpiredAccess": {
+    "message": "Privileged access to item $ITEM$ expired (access $ID$).",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -18253,17 +18253,17 @@
   "pamAuditKindRequestExpiredUnactivated": {
     "message": "Approval expired unused"
   },
-  "pamAuditKindLeaseActivated": {
-    "message": "Lease activated"
+  "pamAuditKindAccessActivated": {
+    "message": "Access activated"
   },
   "pamAuditKindLeaseActivationRejected": {
     "message": "Activation rejected"
   },
-  "pamAuditKindLeaseExtended": {
-    "message": "Lease extended"
+  "pamAuditKindAccessExtended": {
+    "message": "Access extended"
   },
-  "pamAuditKindLeaseExpired": {
-    "message": "Lease expired"
+  "pamAuditKindAccessExpired": {
+    "message": "Access expired"
   },
   "pamAuditKindCredentialAccessed": {
     "message": "Credential accessed"
@@ -18283,11 +18283,11 @@
   "pamAuditKindLeasingKillSwitchTriggered": {
     "message": "Kill switch triggered"
   },
-  "pamAuditKindLeasingFreezeEnabled": {
-    "message": "Leasing frozen"
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Access freeze enabled"
   },
-  "pamAuditKindLeasingFreezeLifted": {
-    "message": "Leasing unfrozen"
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Access freeze lifted"
   },
   "pamAuditKindUnknown": {
     "message": "Unknown event"
@@ -19688,8 +19688,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotate when access ends"
   },
-  "pamRotationConfigRotateOnAccessEndHint": {
-    "message": "Automatically rotate this credential when a PAM access session ends."
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Automatically rotate this credential when PAM access to it ends."
   },
   "pamRotationConfigDiscardTitle": {
     "message": "Discard managed credential"
