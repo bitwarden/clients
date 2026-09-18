@@ -5,7 +5,8 @@
       "domain": "qa.bitwarden.pw",
       "urls": {
         "webVault": "https://vault.qa.bitwarden.pw",
-        "base": "https://vault.qa.bitwarden.pw"
+        "base": "https://vault.qa.bitwarden.pw",
+        "notifications": "https://notifications.qa.bitwarden.pw"
       }
     },
     {
@@ -13,7 +14,8 @@
       "domain": "qa2.bitwarden.pw",
       "urls": {
         "webVault": "https://vault.qa2.bitwarden.pw",
-        "base": "https://vault.qa2.bitwarden.pw"
+        "base": "https://vault.qa2.bitwarden.pw",
+        "notifications": "https://notifications.qa2.bitwarden.pw"
       }
     },
     {
@@ -21,7 +23,8 @@
       "domain": "euqa.bitwarden.pw",
       "urls": {
         "webVault": "https://vault.euqa.bitwarden.pw",
-        "base": "https://vault.euqa.bitwarden.pw"
+        "base": "https://vault.euqa.bitwarden.pw",
+        "notifications": "https://notifications.euqa.bitwarden.pw"
       }
     }
   ],
