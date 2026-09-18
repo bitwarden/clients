@@ -399,6 +399,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly selection: SelectionConfig<C> = {
     multiple: true,
     max: MAX_SELECTION_COUNT,
+    // No bulk action can operate on an item that failed to decrypt. `TableSelectionModel` enforces
+    // this on `select`, so select-all skips it too.
+    canSelect: (row) => !CipherViewLikeUtils.decryptionFailure(row),
   };
 
   /** The configured column set to display */

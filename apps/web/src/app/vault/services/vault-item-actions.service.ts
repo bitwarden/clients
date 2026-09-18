@@ -18,6 +18,7 @@ import {
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
+  DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   VaultItemDialogComponent,
@@ -47,6 +48,13 @@ export class WebVaultItemActionsService {
 
   /** Opens the item in the combined view/edit dialog, starting in read-only view mode. */
   async view(cipher: CipherViewLike): Promise<void> {
+    if (CipherViewLikeUtils.decryptionFailure(cipher)) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [cipher.id as CipherId],
+      });
+      return;
+    }
+
     if (!(await this.reprompt([cipher]))) {
       return;
     }

@@ -37,6 +37,7 @@ import {
   AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  DecryptionFailureDialogComponent,
   ARCHIVE_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
@@ -93,6 +94,9 @@ describe("VaultNextComponent", () => {
   let addEditFolderDialogOpen: jest.SpyInstance;
 
   let ciphers$: Subject<CipherView[] | null>;
+  let failedCiphers$: BehaviorSubject<CipherView[]>;
+  let dialogService: MockProxy<DialogService>;
+  let decryptionFailureDialogOpen: jest.SpyInstance;
   let folders$: BehaviorSubject<FolderView[]>;
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
@@ -191,6 +195,7 @@ describe("VaultNextComponent", () => {
 
   beforeEach(async () => {
     ciphers$ = new Subject<CipherView[] | null>();
+    failedCiphers$ = new BehaviorSubject<CipherView[]>([]);
     folders$ = new BehaviorSubject<FolderView[]>([]);
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
@@ -236,6 +241,7 @@ describe("VaultNextComponent", () => {
 
     const cipherService = mock<CipherService>();
     cipherService.cipherListViews$.mockReturnValue(ciphers$ as never);
+    cipherService.failedToDecryptCiphers$.mockReturnValue(failedCiphers$);
 
     const folderService = mock<FolderService>();
     folderService.folderViews$.mockReturnValue(folders$);
@@ -268,6 +274,14 @@ describe("VaultNextComponent", () => {
     coachmarkService = mock<CoachmarkService>();
     Object.defineProperty(coachmarkService, "activeStepId", { value: signal(null) });
 
+    dialogService = mock<DialogService>();
+
+    // Same reason as the dialog spies below: a static method stays spied across tests.
+    decryptionFailureDialogOpen = jest
+      .spyOn(DecryptionFailureDialogComponent, "open")
+      .mockClear()
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+
     // `jest.spyOn` returns the existing mock (rather than a fresh one) once a static method is
     // already spied, so its call history survives across tests unless cleared explicitly here.
     addItemDialogOpen = jest
@@ -297,7 +311,7 @@ describe("VaultNextComponent", () => {
         { provide: CoachmarkService, useValue: coachmarkService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
-        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: DialogService, useValue: dialogService },
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
@@ -394,6 +408,77 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
 
       expect(component().ciphers()).toEqual([]);
+    });
+  });
+
+  describe("decryption failures", () => {
+    const buildFailedCipher = (overrides: Partial<CipherView> = {}) =>
+      buildCipher({ decryptionFailure: true, ...overrides });
+
+    it("opens the dialog with every failed item id", () => {
+      failedCiphers$.next([
+        buildFailedCipher({ id: "failed-1" }),
+        buildFailedCipher({ id: "failed-2" }),
+      ]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-1", "failed-2"],
+      });
+    });
+
+    it("does not open when every item decrypted", () => {
+      ciphers$.next([buildCipher()]);
+      fixture.detectChanges();
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("ignores a trashed failure", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed", deletedDate: new Date() })]);
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("opens only once per visit", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledTimes(1);
+    });
+
+    it("lists a failed item among the rows", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+      ciphers$.next([buildCipher({ id: "decrypted" })]);
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .ciphers()
+          .map((c: CipherView) => c.id),
+      ).toEqual(["failed", "decrypted"]);
+    });
+
+    it("scopes a failed item by its organization", () => {
+      failedCiphers$.next([
+        buildFailedCipher({ id: "failed-personal" }),
+        Object.assign(buildFailedCipher({ id: "failed-in-org" }), { organizationId }),
+      ]);
+      ciphers$.next([]);
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(
+        component()
+          .ciphers()
+          .map((c: CipherView) => c.id),
+      ).toEqual(["failed-personal"]);
+    });
+
+    it("keeps a failed item out of activeCiphers", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+      ciphers$.next([]);
+      fixture.detectChanges();
+
+      expect(component().activeCiphers()).toEqual([]);
     });
   });
 
