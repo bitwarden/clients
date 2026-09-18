@@ -198,6 +198,10 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
   "forwarderUnknownError": {
     "message": "Unknown $SERVICENAME$ error occurred.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
