@@ -21,7 +21,7 @@
 // only start once both clients are up and paired.
 ////
 
-const { spawn } = require("child_process");
+const { execFileSync, spawn, spawnSync } = require("child_process");
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
@@ -47,6 +47,11 @@ const PROXY_BINARY = path.join(
   "desktop_proxy",
 );
 
+const EXTENSION_BUILD_DIR = path.join(REPO_ROOT, "apps", "browser", "build");
+const EXTENSION_MANIFEST = path.join(EXTENSION_BUILD_DIR, "manifest.json");
+const DEV_CHROME_SCRIPT = path.join(REPO_ROOT, "apps", "browser", "scripts", "dev-chrome.mjs");
+const NATIVE_MESSAGING_PERMISSION = "nativeMessaging";
+
 const DESKTOP_CDP_PORT = 9222;
 const BROWSER_CDP_PORT = 9200;
 const READY_PORT = 9250;
@@ -59,8 +64,28 @@ const POLL_INTERVAL = 1000;
 
 const children = [];
 
-function startClient(script) {
-  const child = spawn("npm", ["run", script], { cwd: REPO_ROOT, stdio: "inherit" });
+// Chrome ignores SIGTERM sent to the npm wrapper that launched it, so a previous
+// run can leave a browser holding the debug profile and the debugging port. It
+// must be reaped, or this run would silently attach to a stale, logged-in client.
+// The desktop app reaps its own strays (see debug-start.js).
+function killStrayBrowsers() {
+  try {
+    // No leading dashes in the pattern: pkill would read it as an option.
+    execFileSync("pkill", ["-9", "-f", `user-data-dir=${CHROME_PROFILE_DIR}`]);
+  } catch {
+    // pkill exits non-zero when nothing matched, and does not exist on Windows.
+  }
+}
+
+/** Refuses to run against clients this script did not start: their state is unknown. */
+async function assertPortFree(port, what) {
+  if ((await fetchTargets(port)) != null) {
+    throw new Error(`Something is already listening on ${port} (${what}). Stop it first.`);
+  }
+}
+
+function startClient(command, args) {
+  const child = spawn(command, args, { cwd: REPO_ROOT, stdio: "inherit" });
 
   children.push(child);
   child.on("exit", (code, signal) => shutdown(signal ? 1 : (code ?? 0)));
@@ -73,6 +98,7 @@ function shutdown(code) {
     child.kill("SIGTERM");
   }
 
+  killStrayBrowsers();
   process.exit(code);
 }
 
@@ -122,6 +148,36 @@ async function waitForExtensionId() {
   throw new Error("The extension's service worker never registered.");
 }
 
+/**
+ * Builds the extension and makes `nativeMessaging` a required permission instead
+ * of an optional one.
+ *
+ * Shipped, it is optional: enabling biometric unlock or unlock sharing asks Chrome
+ * for it, and Chrome answers with its own permission bubble. That bubble is browser
+ * UI, so no test can click it, and the extension pops out and reloads itself around
+ * the request. Required permissions are granted at install, so the settings behave
+ * as they do for a user who has already said yes.
+ */
+function buildExtensionWithGrantedNativeMessaging() {
+  const build = spawnSync("npm", ["run", "build:chrome"], {
+    cwd: path.join(REPO_ROOT, "apps", "browser"),
+    stdio: "inherit",
+  });
+
+  if (build.status !== 0) {
+    throw new Error("Building the extension failed.");
+  }
+
+  const manifest = JSON.parse(fs.readFileSync(EXTENSION_MANIFEST, "utf8"));
+
+  manifest.permissions = [...manifest.permissions, NATIVE_MESSAGING_PERMISSION];
+  manifest.optional_permissions = manifest.optional_permissions.filter(
+    (permission) => permission !== NATIVE_MESSAGING_PERMISSION,
+  );
+
+  fs.writeFileSync(EXTENSION_MANIFEST, JSON.stringify(manifest, null, 2));
+}
+
 function writeManifest(extensionId) {
   if (!fs.existsSync(PROXY_BINARY)) {
     throw new Error(
@@ -160,14 +216,21 @@ function sleep(ms) {
 }
 
 async function main() {
+  killStrayBrowsers();
+
   rimraf.sync(DESKTOP_PROFILE_DIR);
   rimraf.sync(CHROME_PROFILE_DIR);
 
+  await assertPortFree(DESKTOP_CDP_PORT, "the desktop app");
+  await assertPortFree(BROWSER_CDP_PORT, "the debug browser");
+
   // The desktop app first: it owns the IPC socket the proxy connects to.
-  startClient("debug:desktop:automation");
+  startClient("npm", ["run", "debug:desktop:automation"]);
   await waitForCdp(DESKTOP_CDP_PORT, "The desktop app");
 
-  startClient("debug:browser");
+  // Built here rather than by the launcher, which would overwrite the patch.
+  buildExtensionWithGrantedNativeMessaging();
+  startClient("node", [DEV_CHROME_SCRIPT, "--popup", "--skip-build"]);
   await waitForCdp(BROWSER_CDP_PORT, "The debug browser");
 
   const extensionId = await waitForExtensionId();

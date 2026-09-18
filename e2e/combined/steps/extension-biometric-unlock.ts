@@ -8,13 +8,19 @@ import { BiometricsStatus } from "../../utils/automation-driver";
 import { readAccount } from "../../utils/credentials";
 import { BIOMETRIC_UNLOCK_TEXT } from "../../utils/lock-screen";
 import { ensureUnlocked } from "../../utils/login";
-import { LOCK_ROUTE, VAULT_ROUTE } from "../../utils/routes";
+import { VAULT_ROUTE } from "../../utils/routes";
 import { Given, Then, When } from "../utils/bdd";
 
 const SHARED_UNLOCK_FLAG = "innovation-sprint-shared-unlock-part-2";
 
 const ACCOUNT_SWITCHER_ROUTE = "account-switcher";
 const LOCK_NOW_TEXT = /^lock now$/i;
+const LOCKED_HEADING_TEXT = /your vault is locked/i;
+
+// The lock screen only renders once the desktop app has answered what unlock
+// methods it can offer, and the first native messaging round trip also spawns the
+// proxy, which is well past the default expect timeout.
+const IPC_HANDSHAKE_TIMEOUT = 90_000;
 
 /** The Gherkin names of the two settings that route extension unlock to the desktop. */
 const SETTING_BY_NAME: Record<string, UnlockSetting> = {
@@ -24,12 +30,12 @@ const SETTING_BY_NAME: Record<string, UnlockSetting> = {
 
 Given(
   "the shared unlock feature is {word} in the extension",
-  async ({ extension, extensionDriver }, state: string) => {
+  async ({ extensionDriver }, state: string) => {
     // The flag decides which setting the account security page shows, and the dev
     // server's own value would decide it for us, so it is pinned per scenario.
+    // The override is global state the popup reads reactively, so no reload: a
+    // reload drops the routed hash the popup URLs are built from.
     await extensionDriver.setFeatureFlag(SHARED_UNLOCK_FLAG, state === "on");
-
-    await extension.reload();
   },
 );
 
@@ -43,8 +49,10 @@ Given("desktop biometric unlock is enabled", async ({ desktop, driver }) => {
 });
 
 Given("the extension is unlocked as the {string} account", async ({ extension }, name: string) => {
-  await ensureExtensionLoggedIn(extension, readAccount(name));
-  await expect(extension).toHaveURL(VAULT_ROUTE);
+  const popup = await extension();
+
+  await ensureExtensionLoggedIn(popup, readAccount(name));
+  await expect(popup).toHaveURL(VAULT_ROUTE);
 });
 
 When("I enable {} in the extension", async ({ extension }, name: string) => {
@@ -54,21 +62,30 @@ When("I enable {} in the extension", async ({ extension }, name: string) => {
     throw new Error(`Unknown unlock setting: ${name}`);
   }
 
-  await enableUnlockSetting(extension, setting);
+  await enableUnlockSetting(await extension(), setting);
 });
 
 When("I lock the extension", async ({ extension }) => {
-  // The extension locks from the account switcher, as a user does.
-  await extension.goto(popupUrl(extension.url(), ACCOUNT_SWITCHER_ROUTE));
-  await extension.getByRole("button", { name: LOCK_NOW_TEXT }).click();
+  // The extension locks from the account switcher, as a user does. That closes the
+  // popup, so the lock screen is asserted on whichever popup comes back.
+  const popup = await extension();
+  await popup.goto(popupUrl(popup.url(), ACCOUNT_SWITCHER_ROUTE));
+  await popup.getByRole("button", { name: LOCK_NOW_TEXT }).click();
 
-  await expect(extension).toHaveURL(LOCK_ROUTE);
+  const locked = await extension();
+  await expect(locked.getByRole("heading", { name: LOCKED_HEADING_TEXT })).toBeVisible({
+    timeout: IPC_HANDSHAKE_TIMEOUT,
+  });
 });
 
 Then("the extension lock screen offers biometric unlock", async ({ extension }) => {
   // Offered only once the desktop app has answered that biometrics are usable,
   // which is a round trip over native messaging.
-  await expect(extension.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT })).toBeEnabled();
+  const popup = await extension();
+
+  await expect(popup.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT })).toBeEnabled({
+    timeout: IPC_HANDSHAKE_TIMEOUT,
+  });
 });
 
 When(
@@ -76,7 +93,8 @@ When(
   async ({ extension, driver }) => {
     // The click blocks until the desktop app answers, so approve the prompt it
     // queues while the click is still pending.
-    await extension.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT }).click();
+    const popup = await extension();
+    await popup.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT }).click();
 
     await expect
       .poll(async () => (await driver.biometrics.listPending()).length)
@@ -87,5 +105,5 @@ When(
 );
 
 Then("the extension vault is shown", async ({ extension }) => {
-  await expect(extension).toHaveURL(VAULT_ROUTE);
+  await expect(await extension()).toHaveURL(VAULT_ROUTE);
 });

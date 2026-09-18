@@ -8,9 +8,10 @@
 // works. The binary is resolved from the puppeteer cache and downloaded
 // on first run.
 //
-//   node scripts/dev-chrome.mjs [--popup]
+//   node scripts/dev-chrome.mjs [--popup] [--skip-build]
 //
-// --popup  open the extension popup once loaded
+// --popup       open the extension popup once loaded
+// --skip-build  load build/ as it is, for callers that built and then patched it
 ////
 
 import { spawnSync } from "node:child_process";
@@ -50,6 +51,7 @@ const require = createRequire(import.meta.url);
 function parseArgs(argv) {
   return {
     popup: argv.includes("--popup"),
+    skipBuild: argv.includes("--skip-build"),
   };
 }
 
@@ -155,7 +157,9 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const { puppeteer, browsers } = loadDeps();
 
-  build();
+  if (!args.skipBuild) {
+    build();
+  }
 
   const executablePath = await resolveChrome(browsers);
   console.log(`Chrome: ${executablePath}`);
