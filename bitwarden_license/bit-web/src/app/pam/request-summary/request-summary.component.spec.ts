@@ -40,7 +40,7 @@ describe("RequestSummaryComponent", () => {
   }
 
   function fieldValue(id: string): string {
-    return (fixture.nativeElement.querySelector(`#${id}`) as HTMLInputElement).value;
+    return (fixture.nativeElement.querySelector(`#${id}`) as HTMLElement).textContent!.trim();
   }
 
   beforeEach(async () => {
@@ -102,33 +102,33 @@ describe("RequestSummaryComponent", () => {
   });
 
   it("joins the window's duration and start into one requested-access line", () => {
-    expect(fieldValue("pam-request-summary_input_access-requested")).toBe(
+    expect(fieldValue("pam-request-summary_value_access-requested")).toBe(
       "pamInboxDuration1Hour, pamInboxStartTomorrow",
     );
   });
 
   it("quotes the reason", () => {
-    expect(fieldValue("pam-request-summary_input_reason")).toBe("“prod incident”");
+    expect(fieldValue("pam-request-summary_value_reason")).toBe("“prod incident”");
   });
 
   it("wraps a long reason rather than clipping it to a single line", () => {
     fixture.componentInstance.reason.set("x".repeat(400));
     fixture.detectChanges();
 
-    const reason = fixture.nativeElement.querySelector("#pam-request-summary_input_reason");
-    expect(reason.tagName).toBe("TEXTAREA");
-    expect(reason.value).toContain("x".repeat(400));
+    const reason = fixture.nativeElement.querySelector("#pam-request-summary_value_reason");
+    expect(reason.classList).toContain("tw-whitespace-pre-wrap");
+    expect(reason.textContent).toContain("x".repeat(400));
   });
 
-  it("leaves the reason field empty, with placeholder copy, when none was given", () => {
+  it("says so in muted copy when no reason was given", () => {
     fixture.componentInstance.reason.set(null);
     fixture.detectChanges();
 
     const reason = fixture.nativeElement.querySelector(
-      "#pam-request-summary_input_reason",
-    ) as HTMLInputElement;
-    expect(reason.value).toBe("");
-    expect(reason.placeholder).toContain("pamInboxReasonMissing");
+      "#pam-request-summary_value_reason",
+    ) as HTMLElement;
+    expect(reason.textContent).toContain("pamInboxReasonMissing");
+    expect(reason.classList).toContain("tw-text-muted");
   });
 
   it("projects the host's extra rows into the request-details card", () => {

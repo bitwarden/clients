@@ -47,28 +47,23 @@
       }
     </pam-summary-field>
 
-    <bit-form-field disableMargin>
-      <bit-label>{{ "pamAccessRequestedLabel" | i18n }}</bit-label>
-      <input
-        bitInput
-        readonly
-        id="pam-request-summary_input_access-requested"
-        [title]="exactWindow()"
-        [value]="accessRequested()"
-      />
-    </bit-form-field>
+    <pam-summary-field [label]="'pamAccessRequestedLabel' | i18n">
+      <span id="pam-request-summary_value_access-requested" [title]="exactWindow()">{{
+        accessRequested()
+      }}</span>
+    </pam-summary-field>
 
-    <bit-form-field disableMargin>
-      <bit-label>{{ "pamInboxRequestReasonLabel" | i18n }}</bit-label>
-      <textarea
-        bitInput
-        readonly
-        rows="1"
-        id="pam-request-summary_input_reason"
-        [value]="quotedReason()"
-        [placeholder]="'pamInboxReasonMissing' | i18n"
-      ></textarea>
-    </bit-form-field>
+    <pam-summary-field [label]="'pamInboxRequestReasonLabel' | i18n">
+      @if (quotedReason()) {
+        <span id="pam-request-summary_value_reason" class="tw-whitespace-pre-wrap tw-break-words">{{
+          quotedReason()
+        }}</span>
+      } @else {
+        <span id="pam-request-summary_value_reason" class="tw-text-muted">{{
+          "pamInboxReasonMissing" | i18n
+        }}</span>
+      }
+    </pam-summary-field>
 
     <ng-content></ng-content>
   </div>
