@@ -10,7 +10,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { filter, firstValueFrom } from "rxjs";
+import { filter } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -44,8 +44,8 @@ import {
 } from "../..";
 import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
-import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
-import { isLiveManagedLease } from "../../approvals/managed-lease-row";
+import { ApproverActionsService } from "../../approvals/approver-actions.service";
+import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
@@ -82,7 +82,8 @@ export type AccessRequestDialogParams = {
  * viewer: Start / Cancel / End for the requester, Approve / Deny, Withdraw approval or Revoke
  * for an approver. Neither side ever sees the other's actions.
  *
- * Data, name resolution, and mutations live in {@link AccessRequestDetailService}.
+ * Data, name resolution, and mutations live in {@link AccessRequestDetailService}; an approver's
+ * confirms and toasts in {@link ApproverActionsService}, shared with the Approvals and History tabs.
  */
 @Component({
   selector: "pam-access-request-dialog",
@@ -104,12 +105,14 @@ export type AccessRequestDialogParams = {
     RequestSummaryComponent,
     SummaryFieldComponent,
   ],
+  providers: [ApproverActionsService],
 })
 export class AccessRequestDialogComponent implements OnInit {
   protected readonly noResultsSvg = NoResults;
 
   private readonly detail = inject<AccessRequestDialogParams>(DIALOG_DATA).detail;
   private readonly dialogService = inject(DialogService);
+  private readonly approverActions = inject(ApproverActionsService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
@@ -129,6 +132,8 @@ export class AccessRequestDialogComponent implements OnInit {
   private readonly managed = toSignal(this.detail.managed$, { initialValue: false });
   private readonly isRequester = computed(() => this.viewer() === "requester");
   private readonly isApprover = computed(() => this.viewer() === "approver");
+  /** An approver looking at a decided request on a collection they manage. */
+  private readonly approverManages = computed(() => this.isApprover() && this.managed());
 
   /** Cipher name resolved from local vault state; falls back to the raw id. */
   protected readonly cipherName = computed(() => {
@@ -278,13 +283,7 @@ export class AccessRequestDialogComponent implements OnInit {
   /** An approver can withdraw an approval the requester has not started — as the History tab does. */
   protected readonly canWithdrawApproval = computed(() => {
     const request = this.request();
-    return (
-      request != null &&
-      this.isApprover() &&
-      this.managed() &&
-      request.status === "approved" &&
-      request.producedLeaseId == null
-    );
+    return request != null && this.approverManages() && isUnstartedApproval(request);
   });
 
   /**
@@ -293,7 +292,7 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly canRevoke = computed(() => {
     const request = this.request();
-    return request != null && this.isApprover() && this.managed() && isLiveManagedLease(request);
+    return request != null && this.approverManages() && isLiveManagedLease(request);
   });
 
   ngOnInit(): void {
@@ -399,106 +398,39 @@ export class AccessRequestDialogComponent implements OnInit {
     }
   }
 
-  /**
-   * Confirm and record a decision through the same dialog the Approvals inbox uses. Records the
-   * verdict the dialog closed with, since its approve variant can switch to deny in place.
-   */
+  /** Decide through the same dialog, toasts and failure handling as the Approvals inbox. */
   protected async decide(verdict: AccessDecisionVerdict): Promise<void> {
     const row = this.approvalRow();
     if (row == null || !this.canDecide() || this.deciding()) {
       return;
     }
-    const result = await firstValueFrom(
-      DecideDialogComponent.open(this.dialogService, {
-        data: { verdict, row, cipher: this.cipherFor(row.request.cipherId) },
-      }).closed,
+    await this.approverActions.decide(
+      { verdict, row, cipher: this.cipherFor(row.request.cipherId) },
+      (decided, comment) => this.detail.decide(decided, comment),
+      (busy) => this.deciding.set(busy),
     );
-    if (!result?.confirmed) {
-      return;
-    }
-    this.deciding.set(true);
-    try {
-      await this.detail.decide(result.verdict, result.comment);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t(
-          result.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
-        ),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamInboxDecisionFailed"),
-      });
-    } finally {
-      this.deciding.set(false);
-    }
   }
 
-  /** Withdraw an unstarted approval, confirmed first since the requester loses it outright. */
   protected async withdrawApproval(): Promise<void> {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxWithdrawApproval" },
-      content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: [this.cipherName() ?? ""] },
-      acceptButtonText: { key: "pamInboxWithdrawApproval" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    this.withdrawing.set(true);
-    try {
-      await this.detail.withdrawApproval();
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamInboxApprovalWithdrawnToast"),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamInboxWithdrawApprovalFailed"),
-      });
-    } finally {
-      this.withdrawing.set(false);
-    }
+    await this.approverActions.withdrawApproval(
+      this.cipherName() ?? "",
+      () => this.detail.withdrawApproval(),
+      (busy) => this.withdrawing.set(busy),
+    );
   }
 
-  /** End someone else's running access, confirmed first since it cuts off access in use. */
   protected async revoke(): Promise<void> {
     const leaseId = this.request()?.producedLeaseId;
     if (leaseId == null || !this.canRevoke() || this.revoking()) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxRevoke" },
-      content: { key: "pamInboxRevokeConfirm" },
-      acceptButtonText: { key: "pamInboxRevoke" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    this.revoking.set(true);
-    try {
-      await this.detail.revokeLease(leaseId);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamInboxRevokedToast"),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamInboxRevokeFailed"),
-      });
-    } finally {
-      this.revoking.set(false);
-    }
+    await this.approverActions.revoke(
+      () => this.detail.revokeLease(leaseId),
+      (busy) => this.revoking.set(busy),
+    );
   }
 
   /**

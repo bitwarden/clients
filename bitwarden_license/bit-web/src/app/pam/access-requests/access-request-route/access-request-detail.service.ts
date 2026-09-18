@@ -28,6 +28,7 @@ import {
   AccessRequestSdkService,
   AccessRequestView,
   LeasingErrorService,
+  canApprove,
 } from "../..";
 import { ApprovalRow } from "../../approvals/approval-row";
 import { ApproverInboxService } from "../../approvals/approver-inbox.service";
@@ -102,7 +103,8 @@ export class AccessRequestDetailService {
       if (request == null || userId == null) {
         return null;
       }
-      return uuidAsString(request.requesterId) === uuidAsString(userId) ? "requester" : "approver";
+      const approval = { requesterId: uuidAsString(request.requesterId) };
+      return canApprove(approval, { id: uuidAsString(userId) }) ? "approver" : "requester";
     }),
     distinctUntilChanged(),
   );

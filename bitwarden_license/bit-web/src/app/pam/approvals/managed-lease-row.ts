@@ -4,6 +4,7 @@ import type {
   AccessLeaseId,
   AccessLeaseStatus,
   AccessRequestId,
+  AccessRequestStatus,
   AccessRequestView,
 } from "../abstractions/access-lease";
 import { ResolvedNames } from "../access-requests/access-name-resolver.service";
@@ -62,6 +63,25 @@ export function isLiveManagedLease<T extends LeaseProducing>(
   request: T,
 ): request is T & { producedLeaseId: NonNullable<T["producedLeaseId"]> } {
   return request.producedLeaseId != null && request.producedLeaseStatus === "active";
+}
+
+/** The fields {@link isUnstartedApproval} reads, so a raw request and a built row both qualify. */
+type ApprovalProducing = {
+  status: AccessRequestStatus;
+  producedLeaseId: unknown;
+};
+
+/**
+ * Whether this request was approved and its requester has not started it, so the approval can
+ * still be withdrawn.
+ *
+ * Reads no window, unlike the requester's own cancel ({@link isRedeemableGrant}).
+ *
+ * Structural for the same reason as {@link isLiveManagedLease}: every surface offering to withdraw
+ * an approval reads this one test, adding only its own managed and viewer checks.
+ */
+export function isUnstartedApproval(request: ApprovalProducing): boolean {
+  return request.status === "approved" && request.producedLeaseId == null;
 }
 
 /**

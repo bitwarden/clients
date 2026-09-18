@@ -38,7 +38,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   dialog's footer follows `viewer$`: Start / Cancel / End for the requester, Approve /
   Deny, Withdraw approval or Revoke for an approver, never the other side's. Approver
   actions go through the shell's `ApproverInboxService`, which also decides whether the
-  viewer may take them. `originTab` picks the tab off the previous navigation's URL,
+  viewer may take them, and their confirms and toasts through `ApproverActionsService`,
+  the one the Approvals and History tabs use. It is provided on each component, since a
+  route provider never reaches a dialog. `originTab` picks the tab off the previous navigation's URL,
   matched on the whole `/pam/<tab>` shape (`tabFrom` returns undefined for anything
   else), so an approver opening a row keeps the Approvals inbox behind the dialog rather
   than watching it swap to their own requests. With no tab to read, from outside the
