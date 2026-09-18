@@ -897,6 +897,22 @@ export class EventService {
           this.formatServiceAccountId(ev, options),
         );
         break;
+      case EventType.AccessToken_Created:
+        if (await this.configService.getFeatureFlag(FeatureFlag.Sm2060MachineAccountAuditLogs)) {
+          msg = humanReadableMsg = this.i18nService.t(
+            "accessTokenCreatedForServiceAccountId",
+            this.formatServiceAccountId(ev, options),
+          );
+        }
+        break;
+      case EventType.AccessToken_Revoked:
+        if (await this.configService.getFeatureFlag(FeatureFlag.Sm2060MachineAccountAuditLogs)) {
+          msg = humanReadableMsg = this.i18nService.t(
+            "accessTokenRevokedForServiceAccountId",
+            this.formatServiceAccountId(ev, options),
+          );
+        }
+        break;
       case EventType.PhishingBlocker_SiteAccessed:
         msg = this.i18nService.t("phishingBlockerSiteAccessed");
         humanReadableMsg = this.i18nService.t("phishingBlockerSiteAccessed");
