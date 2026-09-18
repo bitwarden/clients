@@ -469,19 +469,19 @@
                   unbounded.
                 </li>
                 <li>
-                  <code>Allow lease extensions</code>, if you want members to extend an active lease
-                  once, up to the maximum duration, without asking anyone again.
+                  <code>Allow access extensions</code>, if you want members to extend their active
+                  access once, up to the maximum duration, without asking anyone again.
                 </li>
               </ul>
               <figure class="shot">
                 <img
                   src="images/screenshot-03.jpg"
-                  alt="Access duration. Allow lease extensions lets a member add time once without asking again"
+                  alt="Access duration. Allow access extensions lets a member add time once without asking again"
                   loading="lazy"
                 />
                 <figcaption>
-                  Access duration. Allow lease extensions lets a member add time once without asking
-                  again
+                  Access duration. Allow access extensions lets a member add time once without
+                  asking again
                 </figcaption>
               </figure>
             </li>
@@ -797,8 +797,8 @@
                 <tr>
                   <td>
                     <code
-                      >&quot;Another active lease exists for this item. Try again once it
-                      ends.&quot;</code
+                      >&quot;Only 1 user can have active access to this item at a time. Try again
+                      once the current access ends.&quot;</code
                     >
                   </td>
                   <td>
@@ -857,7 +857,7 @@
 
           <h3 id="extend-access-you-are-already-using">Extend access you are already using</h3>
           <p>
-            If the rule has <code>Allow lease extensions</code> enabled, an
+            If the rule has <code>Allow access extensions</code> enabled, an
             <code>Extend</code> button appears beside <code>End access</code>, and you can extend
             active access once instead of submitting a new request.
           </p>
@@ -986,10 +986,10 @@
           <div class="callout callout-note">
             <span class="callout-label">Note</span>
             <p>
-              Extensions do not require a second approval. If <code>Allow lease extensions</code> is
-              enabled, a member can extend active access once, up to the maximum duration. To
-              require approval for additional time, leave extensions disabled so the member must
-              submit a new request.
+              Extensions do not require a second approval. If
+              <code>Allow access extensions</code> is enabled, a member can extend active access
+              once, up to the maximum duration. To require approval for additional time, leave
+              extensions disabled so the member must submit a new request.
             </p>
           </div>
 
@@ -1390,10 +1390,10 @@
 
           <h4 id="events-access-itself">Access itself</h4>
           <ul>
-            <li><code>Lease activated</code></li>
-            <li><code>Lease extended</code></li>
-            <li><code>Lease expired</code></li>
-            <li><code>Lease revoked</code></li>
+            <li><code>Access activated</code></li>
+            <li><code>Access extended</code></li>
+            <li><code>Access expired</code></li>
+            <li><code>Access revoked</code></li>
             <li><code>Activation rejected</code></li>
             <li><code>Credential accessed</code></li>
             <li><code>Credential access denied</code></li>
@@ -1407,8 +1407,8 @@
             <li><code>Access rule updated</code></li>
             <li><code>Access rule deleted</code></li>
             <li><code>Kill switch triggered</code></li>
-            <li><code>Leasing frozen</code></li>
-            <li><code>Leasing unfrozen</code></li>
+            <li><code>Access freeze enabled</code></li>
+            <li><code>Access freeze lifted</code></li>
           </ul>
 
           <p>
@@ -1608,7 +1608,7 @@
             <li>Let access expire on its own rather than ending it.</li>
             <li>End access early and confirm the credential disappears.</li>
             <li>
-              Turn on <code>Allow lease extensions</code>, then extend an active stretch of access,
+              Turn on <code>Allow access extensions</code>, then extend an active stretch of access,
               and try to extend a second time.
             </li>
             <li>
@@ -1777,7 +1777,7 @@
                   <td>Extensions</td>
                   <td>Off</td>
                   <td>
-                    When <code>Allow lease extensions</code> is on, a member can extend once per
+                    When <code>Allow access extensions</code> is on, a member can extend once per
                     stretch of access, without a second approval
                   </td>
                 </tr>

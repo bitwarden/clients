@@ -61,8 +61,8 @@ import { AccessRequestDetailService } from "./access-request-detail.service";
 const DECISION_LABEL_KEYS = {
   approved: "pamStatusApproved",
   denied: "pamStatusDenied",
-  endedByHolder: "pamAuditKindLeaseEndedByHolder",
-  revoked: "pamAuditKindLeaseRevoked",
+  endedByHolder: "pamAuditKindAccessEndedByRequester",
+  revoked: "pamAuditKindAccessRevoked",
 } as const;
 
 export type AccessRequestDialogParams = {

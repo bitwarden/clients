@@ -1670,7 +1670,7 @@ describe("CipherViewBannerComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "pamStartLeaseErrorSingleActiveLease",
+        message: "pamStartLeaseErrorSingleActiveAccess",
       });
       const shown = toastService.showToast.mock.calls[0][0].message as string;
       expect(shown).not.toContain("exceptionStackTrace");
