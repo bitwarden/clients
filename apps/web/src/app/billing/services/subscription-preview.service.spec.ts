@@ -86,7 +86,8 @@ describe("SubscriptionPreviewService", () => {
 
       const result = await sut.getOrganizationSubscriptionPreview("org-id-123");
 
-      expect(result.cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
+      // The preview's single seat resolves the singular unit.
+      expect(result.cart.passwordManager.seats.translationKey).toBe("memberLower");
     });
 
     it("should pass the organization id through to the client", async () => {

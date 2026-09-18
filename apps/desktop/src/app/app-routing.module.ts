@@ -15,11 +15,12 @@ import {
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
-  TwoFactorTimeoutIcon,
-  TwoFactorAuthEmailIcon,
+  ExpiredIcon,
+  EmailCodeSentIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -53,7 +54,9 @@ import {
   organizationVaultGuard,
   SHARED_FOLDERS_ROUTE,
   vaultFilterLegacyRedirectGuard,
+  vaultFilterRestoreGuard,
   vaultScopeGuard,
+  type VaultScopeRouteData,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
@@ -79,7 +82,7 @@ export interface RouteDataProperties {
   // then assert that the data object satisfies this interface in the route object.
 }
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: "",
     pathMatch: "full",
@@ -101,7 +104,7 @@ const routes: Routes = [
       },
     ],
     data: {
-      pageIcon: TwoFactorTimeoutIcon,
+      pageIcon: ExpiredIcon,
       pageTitle: {
         key: "authenticationTimeout",
       },
@@ -120,7 +123,7 @@ const routes: Routes = [
       },
     ],
     data: {
-      pageIcon: TwoFactorAuthEmailIcon,
+      pageIcon: EmailCodeSentIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },
@@ -462,17 +465,29 @@ const routes: Routes = [
         canActivate: [vaultFilterLegacyRedirectGuard],
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
         children: [
-          {
-            path: "",
-            component: VaultComponent,
-          },
+          // Filter memory hangs off the flagged route options; the same component is expected.
+          ...featureFlaggedRoute({
+            defaultComponent: VaultComponent,
+            flaggedComponent: VaultComponent,
+            featureFlag: FeatureFlag.VFO1Foundation,
+            routeOptions: {
+              path: "",
+            },
+            flaggedRouteOptions: {
+              path: "",
+              canActivate: [vaultFilterRestoreGuard],
+              data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
+            },
+          }),
           {
             path: ":vaultId",
             component: VaultComponent,
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
               vaultScopeGuard,
+              vaultFilterRestoreGuard,
             ],
+            data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
           },
           // An organization's "My items" collection. A page of the vault rather than one of its
           // shared folders, so it sits alongside the list rather than under it — see
@@ -483,8 +498,10 @@ const routes: Routes = [
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
               vaultScopeGuard,
+              vaultFilterRestoreGuard,
             ],
-            data: MY_ITEMS_ROUTE_DATA,
+            data: { ...MY_ITEMS_ROUTE_DATA, vaultFilterScope: true } satisfies RouteDataProperties &
+              VaultScopeRouteData,
           },
           // An organization vault's shared folders.
           {
@@ -505,7 +522,9 @@ const routes: Routes = [
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
               vaultScopeGuard,
+              vaultFilterRestoreGuard,
             ],
+            data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
           },
         ],
       },

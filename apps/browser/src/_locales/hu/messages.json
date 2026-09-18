@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Nincsenek megjeleníthető mappák."
   },
+  "noFoldersFilter": {
+    "message": "Nincsenek mappák"
+  },
   "helpFeedback": {
     "message": "Súgó és visszajelzés"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "Nincsenek elemek a széfben."
+  },
+  "noItemsInMyVault": {
+    "message": "Nincsenek elemek a saját széfben."
+  },
+  "emptyMyItems": {
+    "message": "Nincsenek elemek a Saját elemekben."
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Nincsenek elemek $VAULT_NAME$ széfben.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Nincsenek elemek $VAULT_NAME$ széfben.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "A széfek üresek."
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Nincs a kiválasztott szűrőkkel egyező elem."
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Nincsenek \"$SEARCH_TERM$\" kereséssel egyező elemek.",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Hossz"
@@ -1497,6 +1539,9 @@
   "importVerb": {
     "message": "Importálás",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Elemek importálása"
   },
   "fileFormat": {
     "message": "Fájlformátum"
@@ -2774,6 +2819,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 találat",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ találat",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Nincs egyező szűrő: \"$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Keresés törlése"
   },
@@ -3993,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Hiba történt az automatikus kitöltési adatok beolvasásakor."
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  "couldNotDecryptVaultItem": {
+    "message": "A Bitwarden nem tudta visszafejteni a lentebb felsorolt széf elemet. Lépjünk kapcsolatba a Bitwarden ügyfélszolgálatával és adjuk meg az alábbi elem azonosítót, hogy megtudjuk, helyreállítható-e."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Ügyfélszolgálat elérése",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "A Bitwarden nem tudta visszafejteni a lentebb felsorolt széf elemeket. Lépjünk kapcsolatba a Bitwarden ügyfélszolgálatával és adjuk meg az alábbi elemek azonosítót, hogy megtudjuk, helyreállíthatók-e."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "további adatvesztés elkerülése érdekében.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Elem azonosító",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Elem azonosítók",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Azonosító másolása"
+  },
+  "copyAllIds": {
+    "message": "Összes azonosító másolása"
   },
   "generateUsername": {
     "message": "Felhasználónév generálása"
@@ -5063,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
   },
   "importTargetHintFolder": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -5754,6 +5838,9 @@
   },
   "switchAccounts": {
     "message": "Fiókok váltása"
+  },
+  "switchVault": {
+    "message": "Széf váltás"
   },
   "switchToAccount": {
     "message": "Váltás fiókra"
@@ -6853,6 +6940,9 @@
   "noItemsInTrashDesc": {
     "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
   },
+  "noItemsInTrashDescription": {
+    "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
+  },
   "trashWarning": {
     "message": "A 30 napnál régebben lomtárba került elemek automatikusan törlésre kerülnek."
   },
@@ -7137,6 +7227,33 @@
   },
   "emptyVaultDescription": {
     "message": "A széf többre alkalmas, mint a jelszavak mentése. Menthetünk belépéseket, azonosítókat, kártyákat és feljegyzéseket teljes biztonságban."
+  },
+  "emptyVaultsDescription": {
+    "message": "A kezdéshez adjunk hozzá bejelentkezéseket, azonosítókat, kártyákat és egyéb elemeket."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Adjunk hozzá elemeket ehhez a megosztott mappához, majd adjunk hozzáférést a többi $VAULT_NAME$ tagnak.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "A Saját elemek egy személyes terület olyan elemek tárolására, amelyek $VAULT_NAME$ széfhez tartoznak, de nem láthatók a többi tag számára.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nincsenek mappák."
+  },
+  "emptyFoldersDescription": {
+    "message": "Használjunk mappákat a széf elemek rendszerezéséhez. Ezek sajátok — senki más nem látja vagy használhatja aezeket."
   },
   "introCarouselLabel": {
     "message": "Üdvözlet a Bitwardenben"
@@ -8020,5 +8137,84 @@
   },
   "editItemsHidePass": {
     "message": "Elemek szerkesztése, rejtett jelszavak"
+  },
+  "shareVerb": {
+    "message": "Megosztás"
+  },
+  "peopleWhoCanView": {
+    "message": "Akik megtekinthetik",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "A hivatkozás megosztása után a címzetteknek ellenőrizniük kell emailjüket egy kóddal az elem megtekintéséhez.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Ez a hivatkozás ezen időpont után lejár, de a címzettek megtarthatják a korábban megosztott információkat. A hozzáférés visszavonásához állítsuk vissza a hitelesítő adatokat.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "A hivatkozás lejárata",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Egyszeri megosztás",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktív hivatkozások",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "A hivatkozás vágólapra került.",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nem lehet létrehozni megosztási hivatkozást.",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "A hivatkozás mentésre és vágólapra került.",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nem sikerült a megosztási hivatkozást a vágólapra másolni.",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "A megosztott hivatkozás törlésre került.",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "A megosztási hivatkozást törlése nem sikerült.",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Megosztás hivatkozással",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Megosztás $ITEM$ széf elemre",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Megosztás",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Lejárat",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Lejárat",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Ismeretlen elem, lehet hogy egy másik fiókkal kell bejelentkezni az elem eléréséhez."
   }
 }

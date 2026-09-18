@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
@@ -67,9 +65,14 @@ export class ManageClientNameDialogComponent {
       return;
     }
 
-    const request = new UpdateProviderOrganizationRequest();
-    request.assignedSeats = this.dialogParams.organization.seats;
-    request.name = this.formGroup.value.name;
+    const name = this.formGroup.value.name;
+    if (name == null) {
+      return;
+    }
+    const request = new UpdateProviderOrganizationRequest({
+      assignedSeats: this.dialogParams.organization.seats,
+      name,
+    });
 
     await this.providerApiService.updateProviderOrganization(
       this.dialogParams.providerId,
@@ -79,7 +82,6 @@ export class ManageClientNameDialogComponent {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("updatedOrganizationName"),
     });
 

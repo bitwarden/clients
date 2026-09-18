@@ -52,19 +52,57 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
         .new_framed(inner)
 }
 
+#[cfg(debug_assertions)]
+const ENV_BITWARDEN_IPC_SOCKET_DIR: &str = "BITWARDEN_IPC_SOCKET_DIR";
+
+/// The debug-only socket directory override, used to isolate a debug instance from an installed
+/// client.
+///
+/// Release builds must never move their socket, or it would end up outside the macOS app group
+/// container, so the override is compiled out entirely.
+#[cfg(debug_assertions)]
+fn socket_dir_override() -> Option<std::path::PathBuf> {
+    std::env::var_os(ENV_BITWARDEN_IPC_SOCKET_DIR).map(std::path::PathBuf::from)
+}
+
+#[cfg(not(debug_assertions))]
+fn socket_dir_override() -> Option<std::path::PathBuf> {
+    None
+}
+
+/// Builds a `\\.\pipe\<hash>.s.<name>` pipe name, unique per `scope` (s for socket).
+/// Hashing prevents problems with reserved characters and file length limitations.
+#[cfg(target_os = "windows")]
+fn pipe_path(scope: &std::ffi::OsStr, name: &str) -> std::path::PathBuf {
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+    use sha2::Digest;
+
+    let hash = sha2::Sha256::digest(scope.as_encoded_bytes());
+    let hash_b64 = URL_SAFE_NO_PAD.encode(hash.as_slice());
+
+    format!(r"\\.\pipe\{hash_b64}.s.{name}").into()
+}
+
 /// The main path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {
+    if let Some(dir) = socket_dir_override() {
+        // Windows named pipes must live under \\.\pipe\, so the override cannot be used as a
+        // directory there. Hashing it into the pipe name isolates the instance just the same.
+        #[cfg(target_os = "windows")]
+        return pipe_path(dir.as_os_str(), name);
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            let _ = std::fs::create_dir_all(&dir);
+            return dir.join(format!("s.{name}"));
+        }
+    }
+
     #[cfg(target_os = "windows")]
     {
         // Use a unique IPC pipe //./pipe/xxxxxxxxxxxxxxxxx.s.bw per user (s for socket).
-        // Hashing prevents problems with reserved characters and file length limitations.
-        use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-        use sha2::Digest;
         let home = dirs::home_dir().expect("Could not find user home directory");
-        let hash = sha2::Sha256::digest(home.as_os_str().as_encoded_bytes());
-        let hash_b64 = URL_SAFE_NO_PAD.encode(hash.as_slice());
-
-        format!(r"\\.\pipe\{hash_b64}.s.{name}").into()
+        pipe_path(home.as_os_str(), name)
     }
 
     #[cfg(target_os = "macos")]
@@ -111,6 +149,12 @@ pub fn path(name: &str) -> std::path::PathBuf {
 /// Paths to the ipc sockets including alternative paths.
 /// For flatpak, a path per sandbox is created.
 pub fn all_paths(name: &str) -> Vec<std::path::PathBuf> {
+    // An isolated debug instance must not take over the installed client's browser-facing
+    // sockets, so the shared alternative paths are skipped.
+    if socket_dir_override().is_some() {
+        return vec![path(name)];
+    }
+
     #[cfg(target_os = "linux")]
     {
         use std::env;
