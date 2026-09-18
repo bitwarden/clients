@@ -304,6 +304,8 @@ export class Program extends BaseProgram {
             this.serviceContainer.encryptedMigrator,
             this.serviceContainer.unlockService,
             this.serviceContainer.biometricsService,
+            this.serviceContainer.sessionKeyService,
+            this.serviceContainer.authService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
