@@ -188,6 +188,7 @@ export function providePam(): SafeProvider[] {
         ApprovalSdkService,
         ApprovalPrivilegeService,
         AccessEventService,
+        AccessRefreshService,
         ConfigService,
         LogService,
       ],

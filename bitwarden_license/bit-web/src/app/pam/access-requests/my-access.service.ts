@@ -10,6 +10,7 @@ import {
   AccessLeaseId,
   AccessLeaseSdkService,
   AccessLeaseView,
+  AccessRefreshService,
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
@@ -40,6 +41,10 @@ import {
  *
  * Provided on the shell route so each visit shares one instance; view concerns stay in the tab
  * components.
+ *
+ * Each mutation that lands also announces on {@link AccessRefreshService}, standing in for the push
+ * the server is about to send, so the root-level nav badge re-reads even when that push is missed
+ * or slow.
  */
 @Injectable()
 export class MyAccessService {
@@ -47,6 +52,7 @@ export class MyAccessService {
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly accessEvents = inject(AccessEventService);
+  private readonly accessRefresh = inject(AccessRefreshService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
@@ -195,6 +201,7 @@ export class MyAccessService {
     const index = current.findIndex((r) => uuidAsString(r.id) === uuidAsString(id));
     if (index === -1) {
       await this.requestsApi.cancelAccessRequest(id);
+      this.accessRefresh.notifyAccessChanged();
       return;
     }
     const optimistic: AccessRequestView = {
@@ -209,6 +216,7 @@ export class MyAccessService {
       this._requests$.next(current);
       throw e;
     }
+    this.accessRefresh.notifyAccessChanged();
   }
 
   /**
@@ -240,6 +248,7 @@ export class MyAccessService {
       }
       throw e;
     }
+    this.accessRefresh.notifyAccessChanged();
   }
 
   /**
@@ -249,6 +258,7 @@ export class MyAccessService {
    */
   async activate(id: AccessRequestId): Promise<void> {
     await this.requestsApi.activateAccessRequest(id);
+    this.accessRefresh.notifyAccessChanged();
     await this.load();
   }
 }
