@@ -26,6 +26,14 @@
           }
         </pam-summary-field>
 
+        @if (showLeaseRemaining()) {
+          <pam-summary-field [label]="'pamColumnRemaining' | i18n">
+            <span data-testid="request-detail-remaining">{{
+              r.leaseNotAfter | remainingTime: nowMs()
+            }}</span>
+          </pam-summary-field>
+        }
+
         <pam-summary-field [label]="'pamColumnSubmitted' | i18n">
           {{ r.submittedAt | date: "medium" }}
         </pam-summary-field>
@@ -37,41 +45,15 @@
         }
       </pam-request-summary>
 
-      @if (r.producedLeaseId) {
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h4">{{ "pamAccessRequestLeaseTitle" | i18n }}</h2>
-          </bit-section-header>
-          <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-3">
-            <div class="tw-flex tw-gap-4">
-              <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnStatus" | i18n }}</dt>
-              <dd class="tw-m-0 tw-flex-1">
-                @if (leaseActive()) {
-                  <span bitBadge variant="success">{{ "pamStatusActivated" | i18n }}</span>
-                } @else if (badge()?.statusBadge; as b) {
-                  <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
-                }
-              </dd>
-            </div>
-            @if (showLeaseRemaining()) {
-              <div class="tw-flex tw-gap-4">
-                <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnRemaining" | i18n }}</dt>
-                <dd class="tw-m-0 tw-flex-1">{{ r.leaseNotAfter | remainingTime: nowMs() }}</dd>
-              </div>
-            }
-          </dl>
-        </bit-section>
-      }
-
       @if (decisions().length > 0) {
-        <bit-section>
-          <bit-section-header>
-            <h2 bitTypography="h4">{{ "pamAccessRequestDecisionLogTitle" | i18n }}</h2>
-          </bit-section-header>
+        <h2 bitTypography="h6" class="tw-mb-2">
+          {{ "pamAccessRequestDecisionLogTitle" | i18n }}
+        </h2>
+        <bit-card data-testid="request-detail-decision-log">
           <ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-4 tw-p-0">
             @for (decision of decisions(); track $index) {
               <li class="tw-flex tw-flex-col tw-gap-1">
-                <div class="tw-flex tw-items-center tw-gap-2">
+                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-sm/5">
                   <span
                     bitBadge
                     [variant]="
@@ -93,17 +75,15 @@
                       {{ "pamResolverUnknown" | i18n }}
                     }
                   </span>
-                  <span class="tw-text-xs tw-text-muted">{{
-                    decision.decidedAt | date: "medium"
-                  }}</span>
+                  <span class="tw-text-muted">{{ decision.decidedAt | date: "medium" }}</span>
                 </div>
                 @if (decision.comment) {
-                  <div class="tw-text-xs tw-text-muted">{{ decision.comment }}</div>
+                  <div class="tw-text-sm/5">{{ decision.comment }}</div>
                 }
               </li>
             }
           </ul>
-        </bit-section>
+        </bit-card>
       }
     } @else if (notFound()) {
       <bit-status-lockup>
@@ -205,15 +185,6 @@
         {{ "pamEndLeaseButton" | i18n }}
       </button>
     }
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      bitDialogClose
-      id="access-request-dialog_button_close"
-    >
-      {{ "close" | i18n }}
-    </button>
     @if (canStart()) {
       @if (request(); as r) {
         <span class="tw-ms-auto tw-text-xs tw-text-muted">
@@ -221,5 +192,15 @@
         </span>
       }
     }
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+      id="access-request-dialog_button_close"
+      [class.tw-ms-auto]="!canStart()"
+    >
+      {{ "close" | i18n }}
+    </button>
   </ng-container>
 </bit-dialog>
