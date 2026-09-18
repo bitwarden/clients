@@ -115,6 +115,55 @@
   </div>
 
   <ng-container bitDialogFooter>
+    @if (canDecide()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="access-request-dialog_button_approve"
+        [loading]="deciding()"
+        [disabled]="deciding()"
+        (click)="decide('approve')"
+      >
+        {{ "pamInboxApprove" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-request-dialog_button_deny"
+        [disabled]="deciding()"
+        (click)="decide('deny')"
+      >
+        {{ "pamInboxDeny" | i18n }}
+      </button>
+    }
+    @if (canWithdrawApproval()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-request-dialog_button_withdraw-approval"
+        [loading]="withdrawing()"
+        [disabled]="withdrawing()"
+        (click)="withdrawApproval()"
+      >
+        {{ "pamInboxWithdrawApproval" | i18n }}
+      </button>
+    }
+    @if (canRevoke()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-request-dialog_button_revoke"
+        [loading]="revoking()"
+        [disabled]="revoking()"
+        (click)="revoke()"
+      >
+        {{ "pamInboxRevoke" | i18n }}
+      </button>
+    }
     @if (canStart()) {
       <button
         type="button"

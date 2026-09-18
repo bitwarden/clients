@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { DefaultUrlSerializer, Navigation, NavigationExtras, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { DialogRef, DialogService } from "@bitwarden/components";
 
@@ -10,7 +10,7 @@ import { ApprovalsTabComponent } from "../approvals-tab.component";
 import { HistoryTabComponent } from "../history-tab.component";
 import { MyRequestsTabComponent } from "../my-requests-tab.component";
 
-import { AccessRequestDetailService } from "./access-request-detail.service";
+import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
 import { AccessRequestDialogComponent } from "./access-request-dialog.component";
 import { AccessRequestRouteComponent } from "./access-request-route.component";
 
@@ -19,6 +19,7 @@ describe("AccessRequestRouteComponent", () => {
   let dialogService: MockProxy<DialogService>;
   let router: MockProxy<Router>;
   let detail: AccessRequestDetailService;
+  let viewer$: BehaviorSubject<AccessRequestViewer | null>;
   let closed$: Subject<void>;
   let close: jest.Mock;
 
@@ -81,7 +82,8 @@ describe("AccessRequestRouteComponent", () => {
       close,
     } as unknown as DialogRef<unknown, unknown>);
     router = mock<Router>();
-    detail = mock<AccessRequestDetailService>();
+    viewer$ = new BehaviorSubject<AccessRequestViewer | null>(null);
+    detail = { viewer$ } as unknown as AccessRequestDetailService;
 
     await TestBed.configureTestingModule({
       imports: [AccessRequestRouteComponent],
@@ -157,6 +159,30 @@ describe("AccessRequestRouteComponent", () => {
     closed$.next();
 
     expect(router.navigate).toHaveBeenCalledWith(["/pam", "my-requests"], { replaceUrl: true });
+  });
+
+  describe("opened cold by an approver, from the decision email", () => {
+    beforeEach(() => viewer$.next("approver"));
+
+    it("renders the Approvals inbox behind the dialog", () => {
+      create(null);
+
+      expect(fixture.nativeElement.querySelector("pam-approvals-tab")).not.toBeNull();
+    });
+
+    it("returns to the Approvals inbox on close", () => {
+      create(null);
+
+      closed$.next();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/pam", "approvals"], { replaceUrl: true });
+    });
+
+    it("still keeps the tab they came from when there is one", () => {
+      create(cameFrom("/pam/history"));
+
+      expect(fixture.nativeElement.querySelector("pam-history-tab")).not.toBeNull();
+    });
   });
 
   it("consumes the dialog URL rather than stacking the tab on top of it", () => {
