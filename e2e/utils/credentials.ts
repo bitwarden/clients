@@ -11,6 +11,10 @@ export type Account = {
   email: string;
   password: string;
   server?: string;
+  /** `sso_identifier` — the org identifier typed on the SSO login page. */
+  ssoIdentifier?: string;
+  /** `org_id` — the organization this account owns, for admin-console routes. */
+  orgId?: string;
 };
 
 type AccountsByName = Record<string, Record<string, string>>;
@@ -40,7 +44,13 @@ export function readAccount(name: string): Account {
     throw new Error(`Account [${name}] is missing an email or password.`);
   }
 
-  return { email: account.email, password: account.password, server: account.server };
+  return {
+    email: account.email,
+    password: account.password,
+    server: account.server,
+    ssoIdentifier: account.sso_identifier,
+    orgId: account.org_id,
+  };
 }
 
 function readCredentialsFile(): string {

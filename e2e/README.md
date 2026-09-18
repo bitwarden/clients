@@ -43,7 +43,10 @@ restart leaves behind are driven through the in-app automation driver, wrapped b
    is set it is applied through the environment selector before login.
 
 2. The web suite needs the local server stack running (api on 4000, identity on
-   33656, …) — that is what the dev server proxies to.
+   33656, …) — that is what the dev server proxies to. The SSO tests also need
+   the stack's SAML IdP (`docker compose --profile idp up -d`, on :8090) and an
+   organization configured for SSO, named by `sso_identifier` in the
+   credentials file.
 
 3. The browser suite needs the launcher's own dev dependencies:
 
