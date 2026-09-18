@@ -650,6 +650,15 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
   });
 
+  it("offers Entra and a custom script as the only integrations", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const options = [...el.querySelectorAll("#target-system-edit_select_kind option")];
+    expect(options.map((o) => o.textContent?.trim())).toEqual([
+      "pamTargetSystemTypeEntra",
+      "pamTargetSystemTypeCustomScript",
+    ]);
+  });
+
   function patchKind(kind: TargetSystemKind): void {
     (
       fixture.componentInstance as unknown as {
@@ -2367,9 +2376,9 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
    */
   describe("naming the integration", () => {
     it("names a kind it can model", async () => {
-      await render({ kind: TargetSystemKind.Mssql, supportsSessionTermination: false });
+      await render({ kind: TargetSystemKind.Entra, supportsSessionTermination: false });
 
-      expect(el().textContent).toContain("pamTargetSystemTypeMssql");
+      expect(el().textContent).toContain("pamTargetSystemTypeEntra");
     });
 
     it("leaves a kind it cannot model unnamed", async () => {
