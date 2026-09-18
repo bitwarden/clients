@@ -6,6 +6,6 @@
     ".storybook/test-runner.ts",
     "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
   ],
-  "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
+  "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*", "e2e/**/*"],
   "exclude": ["**/build", "**/dist"]
 }
