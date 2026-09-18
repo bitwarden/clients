@@ -12,6 +12,8 @@ const SECURITY_KEYS_ROUTE = "/#/settings/security/security-keys";
 const ROTATE_KEY_TEXT = /^rotate key$/i;
 const ROTATE_DIALOG_TEXT = /^rotate account encryption key$/i;
 const MASTER_PASSWORD_INPUT = 'input[name="masterPassword"]';
+const RELOGIN_TIMEOUT = 120_000;
+const ROUTE_TIMEOUT = 15_000;
 
 let account: Account;
 
@@ -39,10 +41,13 @@ test("rotates the account encryption key", async ({ page }) => {
   // key decrypts the account — under a key id that is not the old one.
   await expect(page).toHaveURL(LOGIN_ROUTE);
 
-  // The forced logout leaves the app mid-teardown; reload for a clean instance.
-  await page.goto("/");
-  await ensureLoggedIn(page, account);
-  await expect(page).toHaveURL(VAULT_ROUTE);
+  // The forced logout leaves the app mid-teardown, which can abort the SDK's wasm
+  // fetch on the way back in, so the reload-and-login is retried as a unit.
+  await expect(async () => {
+    await page.goto("/");
+    await ensureLoggedIn(page, account);
+    await expect(page).toHaveURL(VAULT_ROUTE, { timeout: ROUTE_TIMEOUT });
+  }).toPass({ timeout: RELOGIN_TIMEOUT });
 
   expect(await readUserKeyId(driver)).not.toEqual(keyIdBefore);
 });
