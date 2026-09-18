@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "My folder"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Add items to My items to filter them here."
   },
   "sharedFolderFilterTooltip": {
     "message": "Add items to a shared folder to filter here."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "העתק שם משתמש",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Copy external ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copy SSO external ID",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "העתק מספר",
@@ -3461,11 +3458,17 @@
   "selectImportCollection": {
     "message": "בחר אוסף"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "בחר אפשרות זו אם ברצונך שהתוכן של הקובץ המיובא יועבר לאוסף"
   },
   "importTargetHintFolder": {
     "message": "בחר אפשרות זו אם ברצונך שהתוכן של הקובץ המיובא יועבר לתיקייה"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "קובץ מכיל פריטים לא מוקצים."
@@ -4685,6 +4688,15 @@
   "reinstateSubscription": {
     "message": "החזר מנוי"
   },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
+  },
   "reinstateConfirmation": {
     "message": "האם אתה בטוח שברצונך להסיר את בקשת הביטול הממתינה ולהפעיל מחדש את חשבונך?"
   },
@@ -5418,10 +5430,6 @@
   },
   "collectionInfo": {
     "message": "פרטי אוסף"
-  },
-  "sharedFolderInfo": {
-    "message": "Shared folder info",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק אוסף זה?"
@@ -7480,6 +7488,9 @@
   "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Invite link updated"
+  },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
   },
@@ -7554,6 +7565,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
   },
   "byContinuingYouAgreeToThe": {
     "message": "על ידי המשך, אתה מסכים ל"
@@ -8853,16 +8867,16 @@
   "sendControls": {
     "message": "Send controls"
   },
-  "manageSend": {
-    "message": "Manage Send",
+  "manageSendV2": {
+    "message": "Manage Send and share",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
+  "sendControlsPolicyDescV5": {
+    "message": "Manage how members use Send and share Vault items. This policy won't be enforced for owners and admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9547,25 @@
   "decryptionError": {
     "message": "שגיאת פענוח"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden לא יכל לפענח את פריט(י) הכספת המפורט(ים) להלן."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "צור קשר עם הצלחת לקוחות",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "כדי למנוע אובדן נתונים נוסף.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "יש להעניק גם את הרשאת ניהול משתמשים עם ההרשאה לניהול שחזור חשבון"
@@ -10919,18 +10942,6 @@
   "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "הקצה באופן אוטומטי משתמשים וקבוצות עם ספקי הזהות המועדפים עליך באמצעות הקצאת SCIM. מצא שילובים נתמכים",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "הפעל SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "הגדר את ספק הזהות המועדף עליך באמצעות הגדרת כתובת ה־URL ומפתח ה־API של SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "למפתח API זה יש גישה לנהל משתמשים בתוך הארגון שלך. יש לשמור עליו בסוד."
   },
@@ -11277,6 +11288,48 @@
   },
   "hardDeleteSecrets": {
     "message": "מחק סודות לצמיתות"
+  },
+  "currentVersion": {
+    "message": "Current version",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modified by: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Secret value copied",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Secret restored to selected version",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restore secret version",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Are you sure you want to restore this secret to the selected version? The current value will be replaced.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Previous versions",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Version history",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "No version history",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "בחר פרויקטים שאליהם הסוד ישויך. רק משתמשי ארגון עם גישה לפרויקטים האלה יוכלו לראות את הסוד.",
@@ -12457,6 +12510,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "האם אתה בטוח שברצונך לשחזר את הסודות האלה?"
+  },
+  "restoreThisVersion": {
+    "message": "Restore this version"
   },
   "secretRestoredSuccessToast": {
     "message": "הסוד שוחזר"
@@ -17686,5 +17742,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Invite your whole team with a single link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Invite members dialog preview showing the new by-link tab"
+  },
+  "showMeHow": {
+    "message": "Show me how"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "additional service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
+  "membersLower": {
+    "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Keep and reactivate"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager prorated charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage prorated charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager prorated charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service accounts prorated charge"
   }
 }

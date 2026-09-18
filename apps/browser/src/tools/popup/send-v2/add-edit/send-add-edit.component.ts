@@ -311,7 +311,7 @@ export class SendAddEditComponent {
 
   protected async onCancelClick() {
     if (this.config.mode === "add") {
-      await this.router.navigate(["tabs/send"]);
+      await this.navigateToSendList();
     } else {
       this.editing.set(false);
       this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
@@ -320,10 +320,19 @@ export class SendAddEditComponent {
 
   protected async onBackClick() {
     if (this.config.mode === "add" || !this.editing()) {
-      await this.router.navigate(["tabs/send"]);
+      await this.navigateToSendList();
     } else {
       await this.onCancelClick();
     }
+  }
+
+  /**
+   * Navigates back to the Send list. If a file send's create/upload is still in flight, aborts
+   * it first so a send doesn't survive this navigation — a no-op if nothing is in flight.
+   */
+  private async navigateToSendList() {
+    this.sendFormService.abortPendingSubmission();
+    await this.router.navigate(["tabs/send"]);
   }
 
   protected async makeCopy() {
