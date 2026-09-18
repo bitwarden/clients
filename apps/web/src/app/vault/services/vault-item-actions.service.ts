@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
@@ -10,6 +10,7 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
@@ -18,6 +19,7 @@ import {
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
+  DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   VaultItemDialogComponent,
@@ -41,18 +43,30 @@ export class WebVaultItemActionsService {
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
 
+  private readonly _itemDialogOpen = signal(false);
+  readonly itemDialogOpen = this._itemDialogOpen.asReadonly();
+
   private get userId$() {
     return this.accountService.activeAccount$.pipe(getUserId);
   }
 
   /** Opens the item in the combined view/edit dialog, starting in read-only view mode. */
   async view(cipher: CipherViewLike): Promise<void> {
-    if (!(await this.reprompt([cipher]))) {
+    await this.viewById(uuidAsString(cipher.id));
+  }
+
+  /**
+   * {@link view}, for an item named by id rather than by row — the `?itemId=&action=view` deep
+   * link, which may name an item the table has no row for.
+   */
+  async viewById(id: string): Promise<void> {
+    const stored = await this.getCipherOrToast(id);
+    if (stored == null) {
       return;
     }
 
-    const stored = await this.getCipherOrToast(cipher);
-    if (stored == null) {
+    if (!(await this.reprompt(stored.reprompt))) {
+      await this.clearItemQueryParams();
       return;
     }
 
@@ -67,7 +81,17 @@ export class WebVaultItemActionsService {
 
   /** Opens the item in the combined view/edit dialog, starting in the edit form. */
   async edit(cipher: CipherViewLike): Promise<void> {
-    await this.openForm(cipher, "edit");
+    await this.editById(uuidAsString(cipher.id));
+  }
+
+  /** {@link edit}, for an item named by id rather than by row — see {@link viewById}. */
+  async editById(id: string): Promise<void> {
+    const stored = await this.getCipherOrToast(id);
+    if (stored == null) {
+      return;
+    }
+
+    await this.openForm(stored, "edit");
   }
 
   /**
@@ -94,7 +118,17 @@ export class WebVaultItemActionsService {
    * Opens the clone form, warning first that passkeys are not carried over.
    */
   async clone(cipher: CipherViewLike): Promise<void> {
-    if (CipherViewLikeUtils.hasFido2Credentials(cipher)) {
+    await this.cloneById(uuidAsString(cipher.id));
+  }
+
+  /** {@link clone}, for an item named by id rather than by row — see {@link viewById}. */
+  async cloneById(id: string): Promise<void> {
+    const stored = await this.getCipherOrToast(id);
+    if (stored == null) {
+      return;
+    }
+
+    if (stored.login?.fido2Credentials?.length) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -106,7 +140,17 @@ export class WebVaultItemActionsService {
       }
     }
 
-    await this.openForm(cipher, "clone");
+    await this.openForm(stored, "clone");
+  }
+
+  /**
+   * Reports that an item could not be decrypted, for the `?action=showFailedToDecrypt` deep link.
+   * The item query params are cleared so a reload does not reopen the dialog.
+   */
+  async showDecryptionFailure(id: string): Promise<void> {
+    DecryptionFailureDialogComponent.open(this.dialogService, { cipherIds: [id as CipherId] });
+
+    await this.clearItemQueryParams();
   }
 
   /**
@@ -116,7 +160,7 @@ export class WebVaultItemActionsService {
    * and no available shared folders; it lets the user pick the destination itself.
    */
   async assignToCollections(cipher: CipherViewLike, collections: CollectionView[]): Promise<void> {
-    if (!(await this.reprompt([cipher]))) {
+    if (!(await this.reprompt(cipher.reprompt))) {
       return;
     }
 
@@ -136,13 +180,9 @@ export class WebVaultItemActionsService {
     await lastValueFrom(dialog.closed);
   }
 
-  private async openForm(cipher: CipherViewLike, mode: "edit" | "clone"): Promise<void> {
-    if (!(await this.reprompt([cipher]))) {
-      return;
-    }
-
-    const stored = await this.getCipherOrToast(cipher);
-    if (stored == null) {
+  private async openForm(stored: Cipher, mode: "edit" | "clone"): Promise<void> {
+    if (!(await this.reprompt(stored.reprompt))) {
+      await this.clearItemQueryParams();
       return;
     }
 
@@ -159,15 +199,22 @@ export class WebVaultItemActionsService {
     mode: VaultItemDialogMode,
     formConfig: CipherFormConfig,
   ): Promise<void> {
-    const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
-    const result = await lastValueFrom(dialogRef.closed);
+    this._itemDialogOpen.set(true);
 
-    // The user is navigated to subscription settings elsewhere; leave the URL alone.
-    if (result === VaultItemDialogResult.PremiumUpgrade) {
-      return;
+    try {
+      const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
+      const result = await lastValueFrom(dialogRef.closed);
+
+      // The user is navigated to subscription settings elsewhere; leave the URL alone.
+      if (result === VaultItemDialogResult.PremiumUpgrade) {
+        return;
+      }
+
+      // Cleared before the flag drops, so the page does not read the params back as a new deep link.
+      await this.clearItemQueryParams();
+    } finally {
+      this._itemDialogOpen.set(false);
     }
-
-    await this.clearItemQueryParams();
   }
 
   /**
@@ -184,11 +231,11 @@ export class WebVaultItemActionsService {
 
   /**
    * Reads the stored cipher so the dialog config is built from the full view, toasting and bailing
-   * if it has gone away since the row was rendered.
+   * if it has gone away since the row was rendered — or, for a deep link, was never there.
    */
-  private async getCipherOrToast(cipher: CipherViewLike) {
+  private async getCipherOrToast(id: string) {
     const userId = await firstValueFrom(this.userId$);
-    const stored = await this.cipherService.get(uuidAsString(cipher.id), userId);
+    const stored = await this.cipherService.get(id, userId);
 
     if (stored == null) {
       this.toastService.showToast({
@@ -217,9 +264,16 @@ export class WebVaultItemActionsService {
     );
   }
 
-  private async reprompt(ciphers: CipherViewLike[]): Promise<boolean> {
-    const anyProtected = ciphers.some((cipher) => cipher.reprompt !== CipherRepromptType.None);
-
-    return !anyProtected || (await this.passwordRepromptService.showPasswordPrompt());
+  /**
+   * Prompts for the master password when the item asks for it.
+   *
+   * The reprompt value is taken as a number rather than a `CipherRepromptType`: the SDK and
+   * `libs/common` each declare their own, and a row and a stored cipher do not carry the same one.
+   */
+  private async reprompt(reprompt: number): Promise<boolean> {
+    return (
+      reprompt === CipherRepromptType.None ||
+      (await this.passwordRepromptService.showPasswordPrompt())
+    );
   }
 }

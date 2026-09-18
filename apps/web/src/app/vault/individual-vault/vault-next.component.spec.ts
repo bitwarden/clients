@@ -4,7 +4,7 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
   openCollectionDialog: jest.fn(),
 }));
 
-import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -99,6 +99,8 @@ describe("VaultNextComponent", () => {
   let showQuickCopyActions$: BehaviorSubject<boolean>;
   let showSubscriptionEndedMessaging$: Subject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
+  let queryParamMap$: BehaviorSubject<ParamMap>;
+  let itemDialogOpen: WritableSignal<boolean>;
   let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
 
@@ -197,6 +199,7 @@ describe("VaultNextComponent", () => {
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
     showSubscriptionEndedMessaging$ = new Subject<boolean>();
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+    queryParamMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
     routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.
     vaultNav$ = new BehaviorSubject<VaultsNavViewModel>({
@@ -209,6 +212,9 @@ describe("VaultNextComponent", () => {
     });
 
     itemActions = mock<WebVaultItemActionsService>();
+    itemDialogOpen = signal(false);
+    // `itemDialogOpen` is a readonly signal on the service, so it can't be assigned onto the mock.
+    Object.defineProperty(itemActions, "itemDialogOpen", { value: itemDialogOpen });
     batchBarService = {
       setConfig: jest.fn(),
       clearSelection: jest.fn(),
@@ -291,7 +297,10 @@ describe("VaultNextComponent", () => {
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
-        { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: paramMap$, data: routeData$, queryParamMap: queryParamMap$ },
+        },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CoachmarkService, useValue: coachmarkService },
@@ -1288,6 +1297,102 @@ describe("VaultNextComponent", () => {
 
       const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
       expect(config.allCollections).toEqual(component().collections());
+    });
+  });
+  describe("item deep links", () => {
+    /** Clears the `loading` gate the deep-link dispatch waits on. */
+    const loadItems = () => {
+      ciphers$.next([buildCipher()]);
+      fixture.detectChanges();
+    };
+
+    /** Puts an item deep link on the URL, as a bookmark or an in-app link would. */
+    const linkTo = (params: Record<string, string>) => {
+      queryParamMap$.next(convertToParamMap(params));
+      fixture.detectChanges();
+    };
+
+    it("waits for the items to decrypt, which an item that exists needs to be found", () => {
+      linkTo({ itemId: "cipher-1" });
+
+      expect(itemActions.viewById).not.toHaveBeenCalled();
+
+      loadItems();
+
+      expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+    });
+
+    describe("once the items load", () => {
+      beforeEach(() => {
+        loadItems();
+      });
+
+      it("opens the item read-only when the URL names one with no action", () => {
+        linkTo({ itemId: "cipher-1" });
+
+        expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+      });
+
+      it("honors the param's original cipherId name", () => {
+        linkTo({ cipherId: "cipher-1" });
+
+        expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+      });
+
+      it("opens the edit form", () => {
+        linkTo({ itemId: "cipher-1", action: "edit" });
+
+        expect(itemActions.editById).toHaveBeenCalledWith("cipher-1");
+      });
+
+      it("opens the clone form", () => {
+        linkTo({ itemId: "cipher-1", action: "clone" });
+
+        expect(itemActions.cloneById).toHaveBeenCalledWith("cipher-1");
+      });
+
+      it("reports a decryption failure", () => {
+        linkTo({ itemId: "cipher-1", action: "showFailedToDecrypt" });
+
+        expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith("cipher-1");
+      });
+
+      it("reads an action it does not recognize as a view", () => {
+        linkTo({ itemId: "cipher-1", action: "somethingElse" });
+
+        expect(itemActions.viewById).toHaveBeenCalledWith("cipher-1");
+      });
+
+      it("opens nothing when the URL names no item", () => {
+        linkTo({ action: "edit" });
+
+        expect(itemActions.viewById).not.toHaveBeenCalled();
+        expect(itemActions.editById).not.toHaveBeenCalled();
+      });
+
+      it("dispatches a link once, so the params the dialog leaves behind do not reopen it", () => {
+        linkTo({ itemId: "cipher-1" });
+        fixture.detectChanges();
+
+        expect(itemActions.viewById).toHaveBeenCalledTimes(1);
+      });
+
+      it("ignores the params the dialog writes while it is open", () => {
+        linkTo({ itemId: "cipher-1" });
+        itemDialogOpen.set(true);
+
+        linkTo({ itemId: "cipher-1", action: "edit" });
+
+        expect(itemActions.editById).not.toHaveBeenCalled();
+      });
+
+      it("opens the item again on a second link to it", () => {
+        linkTo({ itemId: "cipher-1" });
+        linkTo({});
+        linkTo({ itemId: "cipher-1" });
+
+        expect(itemActions.viewById).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });
