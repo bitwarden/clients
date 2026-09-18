@@ -18,6 +18,17 @@ const DRAIN_TIMEOUT_MS = 500;
 
 type SpawnProxy = (proxyPath: string) => ChildProcessWithoutNullStreams;
 
+/**
+ * What the transport knows about its proxy, for telling apart a proxy that never started from one
+ * that started and reached nothing.
+ */
+export interface ProxyConnection {
+  /** The proxy reported reaching a desktop app over the IPC socket. */
+  connected: boolean;
+  /** The executable the proxy was spawned from, absent until one is spawned. */
+  proxyPath?: string;
+}
+
 const spawnProxy: SpawnProxy = (proxyPath) =>
   spawn(proxyPath, [], {
     stdio: "pipe",
@@ -45,6 +56,7 @@ export class CliDesktopIpcTransport {
   private proxy?: ChildProcessWithoutNullStreams;
   private connection?: Promise<void>;
   private connected = false;
+  private proxyPath?: string;
   private messageBuffer = Buffer.alloc(0);
 
   constructor(
@@ -54,6 +66,10 @@ export class CliDesktopIpcTransport {
     private proxyPathResolver = resolveDesktopProxyPath,
     private proxySpawner: SpawnProxy = spawnProxy,
   ) {}
+
+  get proxyConnection(): ProxyConnection {
+    return { connected: this.connected, proxyPath: this.proxyPath };
+  }
 
   async send(message: OutgoingMessage): Promise<void> {
     await this.connect();
@@ -140,6 +156,7 @@ export class CliDesktopIpcTransport {
     const proxyPath = this.proxyPathResolver();
     const proxy = this.proxySpawner(proxyPath);
     this.proxy = proxy;
+    this.proxyPath = proxyPath;
 
     return new Promise<void>((resolve, reject) => {
       let settled = false;
