@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -9,10 +9,12 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import type { AccessRequestView } from "../../abstractions/access-lease";
+import { ApprovalRow } from "../../approvals/approval-row";
+import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
 
-import { AccessRequestDetailService } from "./access-request-detail.service";
+import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
 import {
   AccessRequestDialogComponent,
   AccessRequestDialogParams,
@@ -48,9 +50,15 @@ describe("AccessRequestDialogComponent", () => {
     loadError$: BehaviorSubject<unknown | null>;
     names$: BehaviorSubject<ResolvedNames>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
+    viewer$: BehaviorSubject<AccessRequestViewer | null>;
+    approvalRow$: BehaviorSubject<ApprovalRow | null>;
+    managed$: BehaviorSubject<boolean>;
     cancel: jest.Mock;
     activate: jest.Mock;
     endLease: jest.Mock;
+    decide: jest.Mock;
+    withdrawApproval: jest.Mock;
+    revokeLease: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
@@ -78,9 +86,15 @@ describe("AccessRequestDialogComponent", () => {
         organizationNameById: new Map([["org-1", "Meridian Group"]]),
       }),
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+      viewer$: new BehaviorSubject<AccessRequestViewer | null>("requester"),
+      approvalRow$: new BehaviorSubject<ApprovalRow | null>(null),
+      managed$: new BehaviorSubject<boolean>(false),
       cancel: jest.fn().mockResolvedValue(undefined),
       activate: jest.fn().mockResolvedValue(undefined),
       endLease: jest.fn().mockResolvedValue(undefined),
+      decide: jest.fn().mockResolvedValue(undefined),
+      withdrawApproval: jest.fn().mockResolvedValue(undefined),
+      revokeLease: jest.fn().mockResolvedValue(undefined),
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -456,6 +470,148 @@ describe("AccessRequestDialogComponent", () => {
       expect(detail.cancel).not.toHaveBeenCalled();
       expect(detail.activate).not.toHaveBeenCalled();
       expect(detail.endLease).not.toHaveBeenCalled();
+    });
+  });
+  describe("viewed by an approver", () => {
+    /** Someone else's request, as it sits in the viewer's approvals inbox. */
+    function inboxRow(): ApprovalRow {
+      return { id: "req-1", request: request(), cipherId: "cipher-1" } as unknown as ApprovalRow;
+    }
+
+    function footerButton(id: string): HTMLElement | null {
+      return (fixture.nativeElement.querySelector("footer") as HTMLElement).querySelector(
+        `#access-request-dialog_button_${id}`,
+      );
+    }
+
+    beforeEach(() => {
+      detail.viewer$.next("approver");
+    });
+
+    it("offers Approve and Deny on a pending request in their inbox, never the requester's Cancel", () => {
+      detail.approvalRow$.next(inboxRow());
+
+      create();
+
+      expect(footerButton("approve")).not.toBeNull();
+      expect(footerButton("deny")).not.toBeNull();
+      expect(footerButton("cancel-request")).toBeNull();
+    });
+
+    it("offers no decision when the request is not in their inbox", () => {
+      create();
+
+      expect(footerButton("approve")).toBeNull();
+      expect(footerButton("cancel-request")).toBeNull();
+    });
+
+    it("offers none of the requester's actions on an approved or active request", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+      create();
+      expect(component["canStart"]()).toBe(false);
+      expect(component["canEndLease"]()).toBe(false);
+
+      detail.request$.next(request({ status: "approved" }));
+      expect(component["canStart"]()).toBe(false);
+      expect(component["canCancel"]()).toBe(false);
+    });
+
+    it("hides the requester's actions until it is known who is viewing", () => {
+      detail.viewer$.next(null);
+
+      create();
+
+      expect(footerButton("cancel-request")).toBeNull();
+      expect(footerButton("approve")).toBeNull();
+    });
+
+    it("records the verdict the decide dialog closed with, and toasts", async () => {
+      detail.approvalRow$.next(inboxRow());
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, verdict: "deny", comment: "Not tonight" }),
+      } as any);
+      create();
+
+      await component["decide"]("approve");
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        DecideDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ verdict: "approve" }) }),
+      );
+      expect(detail.decide).toHaveBeenCalledWith("deny", "Not tonight");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamInboxDeniedToast",
+      });
+    });
+
+    it("records nothing when the decide dialog is dismissed", async () => {
+      detail.approvalRow$.next(inboxRow());
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+      create();
+
+      await component["decide"]("approve");
+
+      expect(detail.decide).not.toHaveBeenCalled();
+    });
+
+    it("toasts an error when the decision fails", async () => {
+      detail.approvalRow$.next(inboxRow());
+      detail.decide.mockRejectedValue(new Error("boom"));
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, verdict: "approve", comment: undefined }),
+      } as any);
+      create();
+
+      await component["decide"]("approve");
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamInboxDecisionFailed",
+      });
+    });
+
+    it("offers Withdraw approval on an unstarted approval they manage, after confirming", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.managed$.next(true);
+      create();
+
+      expect(footerButton("withdraw-approval")).not.toBeNull();
+      await component["withdrawApproval"]();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+      expect(detail.withdrawApproval).toHaveBeenCalled();
+    });
+
+    it("offers Revoke on a live lease they manage, even past the requested window", async () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+          leaseNotAfter: PAST,
+        }),
+      );
+      detail.managed$.next(true);
+      create();
+
+      expect(footerButton("revoke")).not.toBeNull();
+      await component["revoke"]();
+
+      expect(detail.revokeLease).toHaveBeenCalledWith("lease-1");
+    });
+
+    it("offers neither Withdraw nor Revoke on a collection they don't manage", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+      create();
+
+      expect(component["canRevoke"]()).toBe(false);
+      detail.request$.next(request({ status: "approved" }));
+      expect(component["canWithdrawApproval"]()).toBe(false);
     });
   });
 });
