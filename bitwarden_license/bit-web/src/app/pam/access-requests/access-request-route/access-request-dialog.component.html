@@ -87,8 +87,10 @@
                   <span>
                     @if (decision.automatic) {
                       {{ "pamResolverAccessRule" | i18n }}
-                    } @else {
+                    } @else if (decision.who) {
                       {{ decision.who }}
+                    } @else {
+                      {{ "pamResolverUnknown" | i18n }}
                     }
                   </span>
                   <span class="tw-text-xs tw-text-muted">{{
