@@ -207,10 +207,8 @@ export class AccessRequestDialogComponent implements OnInit {
             : "revoked";
       return {
         automatic: decision.decider === "automatic",
-        who:
-          approver?.name ||
-          approver?.email ||
-          (approver?.id == null ? "" : uuidAsString(approver.id)),
+        // Null when neither field resolved; the template names that an unknown approver.
+        who: approver?.name || approver?.email || null,
         outcome,
         labelKey: DECISION_LABEL_KEYS[outcome],
         comment: decision.comment,
