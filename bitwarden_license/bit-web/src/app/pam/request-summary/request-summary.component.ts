@@ -3,12 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import {
-  CardComponent,
-  FormFieldModule,
-  IconModule,
-  TypographyModule,
-} from "@bitwarden/components";
+import { CardComponent, IconModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { LabelValue } from "../helpers/approval-window";
@@ -31,7 +26,6 @@ import { SummaryFieldComponent } from "./summary-field.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CardComponent,
-    FormFieldModule,
     IconModule,
     TypographyModule,
     SummaryFieldComponent,
