@@ -18016,6 +18016,9 @@
   "pamResolverRequester": {
     "message": "Requester"
   },
+  "pamResolverUnknown": {
+    "message": "Unknown user"
+  },
   "pamInboxInCollection": {
     "message": "in $COLLECTION$",
     "placeholders": {
