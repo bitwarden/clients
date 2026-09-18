@@ -8,7 +8,9 @@ import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 
 import {
   AUTOMATION_BIOMETRIC_CHANNEL,
+  AUTOMATION_BIOMETRIC_EVENT_CHANNEL,
   AutomationBiometricAction,
+  AutomationBiometricEvent,
   AutomationBiometricMessage,
   AutomationBiometricRequest,
 } from "./biometrics/automation-biometric-message";
@@ -92,6 +94,11 @@ const automation = {
         action: AutomationBiometricAction.Deny,
         id: id,
       } satisfies AutomationBiometricMessage),
+    onEvent: (listener: (event: AutomationBiometricEvent) => void): void => {
+      ipcRenderer.on(AUTOMATION_BIOMETRIC_EVENT_CHANNEL, (_event, message) =>
+        listener(message as AutomationBiometricEvent),
+      );
+    },
   },
 };
 

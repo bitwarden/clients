@@ -24,6 +24,11 @@
     "test:watch": "jest --clearCache && jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:types": "node ./scripts/test-types.js",
+    "test:e2e": "npm run test:e2e:desktop && npm run test:e2e:web && npm run test:e2e:browser && npm run test:e2e:combined",
+    "test:e2e:desktop": "bddgen test --config ./e2e/desktop/playwright.config.ts && playwright test --config ./e2e/desktop/playwright.config.ts",
+    "test:e2e:web": "playwright test --config ./e2e/web/playwright.config.ts",
+    "test:e2e:browser": "playwright test --config ./e2e/browser/playwright.config.ts",
+    "test:e2e:combined": "bddgen test --config ./e2e/combined/playwright.config.ts && playwright test --config ./e2e/combined/playwright.config.ts",
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
     "lint:sdk-internal-versions": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/sdk-internal-versions.js",
@@ -42,7 +47,8 @@
     "icons:reverse-migrate": "ts-node scripts/material-icons/reverse-migrate-icon-names.ts",
     "dev:reverse-proxy": "node --experimental-strip-types scripts/reverse-proxy-emulator/index.ts",
     "debug:desktop": "npm run debug:electron --workspace @bitwarden/desktop",
-    "debug:desktop:automation": "cross-env USE_AUTOMATION_BIOMETRICS=true npm run debug:desktop"
+    "debug:desktop:automation": "cross-env USE_AUTOMATION_BIOMETRICS=true npm run debug:desktop",
+    "debug:browser": "node apps/browser/scripts/dev-chrome.mjs --popup"
   },
   "workspaces": [
     "apps/*",
@@ -67,6 +73,7 @@
     "@nx/jest": "22.6.5",
     "@nx/js": "22.6.5",
     "@nx/webpack": "22.6.5",
+    "@playwright/test": "1.59.1",
     "@storybook/addon-a11y": "10.3.6",
     "@storybook/addon-designs": "11.1.3",
     "@storybook/addon-docs": "10.3.6",
@@ -140,6 +147,7 @@
     "mini-css-extract-plugin": "2.10.2",
     "nx": "22.7.7",
     "path-browserify": "1.0.1",
+    "playwright-bdd": "9.2.1",
     "postcss": "8.5.23",
     "postcss-loader": "8.2.1",
     "prettier": "3.9.5",

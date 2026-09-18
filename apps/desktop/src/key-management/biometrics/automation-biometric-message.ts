@@ -25,3 +25,19 @@ export type AutomationBiometricMessage = {
 };
 
 export const AUTOMATION_BIOMETRIC_CHANNEL = "automation.biometric";
+
+/** What happened to a request, pushed from the main process for visibility in the UI. */
+export const AutomationBiometricEventType = Object.freeze({
+  Requested: "requested",
+  Approved: "approved",
+  Denied: "denied",
+} as const);
+export type AutomationBiometricEventType =
+  (typeof AutomationBiometricEventType)[keyof typeof AutomationBiometricEventType];
+
+export type AutomationBiometricEvent = {
+  type: AutomationBiometricEventType;
+  request: AutomationBiometricRequest;
+};
+
+export const AUTOMATION_BIOMETRIC_EVENT_CHANNEL = "automation.biometric.event";

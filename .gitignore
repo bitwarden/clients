@@ -67,3 +67,11 @@ apps/**/config/local.json
 .debug/**
 !.debug/**/
 !.debug/**/.gitkeep
+
+# Playwright
+test-results
+playwright-report
+blob-report
+
+# playwright-bdd generated tests
+.features-gen

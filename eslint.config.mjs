@@ -417,6 +417,14 @@ export default tseslint.config(
       "no-console": "off",
     },
   },
+  {
+    // e2e launcher scripts report what they started on stdout, like the other
+    // debug launchers do.
+    files: ["e2e/**/start.js"],
+    rules: {
+      "no-console": "off",
+    },
+  },
   // Tailwind migrated clients & libs
   {
     files: [
@@ -755,6 +763,7 @@ export default tseslint.config(
       ".angular/",
       ".debug/",
       "storybook-static/",
+      "e2e/*/.features-gen/", // playwright-bdd output, generated from the .feature files
 
       "**/node_modules/",
 
