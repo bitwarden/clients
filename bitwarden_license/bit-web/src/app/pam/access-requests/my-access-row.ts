@@ -43,9 +43,9 @@ export type MyAccessRequestRow = {
   resolvedAt: string | null;
   leaseNotBefore: string;
   leaseNotAfter: string;
-  /** i18n key for a system / access-rule resolver; null for a human resolver, or still pending. */
+  /** i18n key for a system, access-rule, or unnamed resolver; null for a named human, or pending. */
   resolverLabelKey: string | null;
-  /** The human resolver's display name (name, falling back to email, then id); null for a non-human resolver. */
+  /** The human resolver's display name (name, falling back to email); null when neither is known. */
   resolverName: string | null;
   approverComment: string | null;
   /**
@@ -183,30 +183,37 @@ function terminal(
 
 /**
  * Resolve who actioned a request: an i18n key for system decisions, a display name for human
- * ones (name, falling back to email then raw id).
+ * ones (name, falling back to email).
  *
- * A canceled request was withdrawn by its requester, never logged as a decision; an expired one
- * lapsed with nobody acting, rendering an em dash.
+ * A canceled request was withdrawn by its requester, never logged as a decision. An empty log is
+ * the only thing that means nobody acted — `expired` alone does not, since an approval nobody
+ * activated lapses to `expired` still carrying the decision that granted it.
+ *
+ * An approver with neither name nor email — their user no longer resolves — reads as unknown,
+ * never as their raw id.
  */
 export function resolveResolver(
   status: AccessRequestStatus,
-  human: AccessRequestDecisionView | undefined,
+  decisions: AccessRequestDecisionView[],
 ): Pick<MyAccessRequestRow, "resolverLabelKey" | "resolverName"> {
   // The terminal transition's actor, not just any human in the log.
-  if (status === "pending" || status === "expired") {
+  if (status === "pending") {
     return { resolverLabelKey: null, resolverName: null };
   }
   if (status === "canceled") {
     return { resolverLabelKey: "pamResolverRequester", resolverName: null };
   }
+  const human = findHumanDecision(decisions);
   const approver = human == null ? undefined : humanApprover(human);
   if (approver == null) {
-    return { resolverLabelKey: "pamResolverAccessRule", resolverName: null };
+    return decisions.length === 0
+      ? { resolverLabelKey: null, resolverName: null }
+      : { resolverLabelKey: "pamResolverAccessRule", resolverName: null };
   }
+  const name = approver.name || approver.email || null;
   return {
-    resolverLabelKey: null,
-    resolverName:
-      approver.name || approver.email || (approver.id == null ? "" : uuidAsString(approver.id)),
+    resolverLabelKey: name == null ? "pamResolverUnknown" : null,
+    resolverName: name,
   };
 }
 
@@ -226,7 +233,7 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     resolvedAt: request.resolvedAt ?? null,
     leaseNotBefore: request.leaseNotBefore,
     leaseNotAfter: request.leaseNotAfter,
-    ...resolveResolver(request.status, human),
+    ...resolveResolver(request.status, request.decisions),
     // Falls back to the decision log when no human decided, e.g. an automatic denial.
     approverComment:
       human?.comment ?? request.decisions.find((d) => d.comment != null)?.comment ?? null,

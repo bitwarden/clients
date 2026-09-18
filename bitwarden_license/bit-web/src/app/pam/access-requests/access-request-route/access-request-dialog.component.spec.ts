@@ -224,7 +224,7 @@ describe("AccessRequestDialogComponent", () => {
       expect(decisions[0].who).toBe("Ada");
     });
 
-    it("falls back to the approver's email, then their id", () => {
+    it("falls back to the approver's email, and never to their raw id", () => {
       detail.request$.next(
         request({
           status: "approved",
@@ -238,7 +238,7 @@ describe("AccessRequestDialogComponent", () => {
       create();
 
       expect(component["decisions"]()[0].who).toBe("ada@example.com");
-      expect(component["decisions"]()[1].who).toBe("approver-2");
+      expect(component["decisions"]()[1].who).toBeNull();
     });
 
     it("reads a deny on a denied request as a denial", () => {
