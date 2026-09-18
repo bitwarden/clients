@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { of, throwError } from "rxjs";
+import { firstValueFrom, of, throwError } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -274,7 +274,7 @@ describe("MemberActionsService", () => {
     it("should successfully reinvite a user", async () => {
       membersClient.reinvite.mockResolvedValue(undefined);
 
-      const result = await service.reinviteUser(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: true });
       expect(membersClient.reinvite).toHaveBeenCalledWith(organizationId, userIdToManage);
@@ -284,7 +284,7 @@ describe("MemberActionsService", () => {
       const errorMessage = "Reinvite failed";
       membersClient.reinvite.mockRejectedValue(new Error(errorMessage));
 
-      const result = await service.reinviteUser(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: false, error: errorMessage });
     });
@@ -292,7 +292,7 @@ describe("MemberActionsService", () => {
     it("should surface the server message when the SDK rejects the request", async () => {
       membersClient.reinvite.mockRejectedValue(sdkRequestFailure("User invalid."));
 
-      const result = await service.reinviteUser(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: false, error: "User invalid." });
     });
@@ -302,7 +302,7 @@ describe("MemberActionsService", () => {
     it("should send invites to the given staged members", async () => {
       membersClient.send_staged_invites.mockResolvedValue([memberOutcome(userIdToManage)]);
 
-      const result = await service.sendInvite(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: true });
       expect(membersClient.send_staged_invites).toHaveBeenCalledWith(organizationId, [
@@ -313,7 +313,7 @@ describe("MemberActionsService", () => {
     it("should use the active user's SDK client and release it afterwards", async () => {
       membersClient.send_staged_invites.mockResolvedValue([memberOutcome(userIdToManage)]);
 
-      await service.sendInvite(mockOrganization, userIdToManage);
+      await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(activeUserId);
       expect(disposeClient).toHaveBeenCalled();
@@ -322,7 +322,7 @@ describe("MemberActionsService", () => {
     it("should refresh the metadata cache because promotion occupies a seat", async () => {
       membersClient.send_staged_invites.mockResolvedValue([memberOutcome(userIdToManage)]);
 
-      await service.sendInvite(mockOrganization, userIdToManage);
+      await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
 
       expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
     });
@@ -332,7 +332,7 @@ describe("MemberActionsService", () => {
         memberOutcome(userIdToManage, "Only staged members can be sent an invitation."),
       ]);
 
-      const result = await service.sendInvite(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
 
       expect(result).toEqual({
         success: false,
@@ -345,7 +345,7 @@ describe("MemberActionsService", () => {
       const errorMessage = "Send invite failed";
       membersClient.send_staged_invites.mockRejectedValue(new Error(errorMessage));
 
-      const result = await service.sendInvite(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: false, error: errorMessage });
       expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
@@ -362,7 +362,9 @@ describe("MemberActionsService", () => {
         memberOutcome(skippedUserId, "Only staged members can be sent an invitation."),
       ]);
 
-      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]),
+      );
 
       expect(result.successful.map((r) => r.id)).toEqual([stagedUserId]);
       expect(result.failed).toEqual([
@@ -376,7 +378,9 @@ describe("MemberActionsService", () => {
         memberOutcome(skippedUserId, "Only staged members can be sent an invitation."),
       ]);
 
-      const result = await service.bulkSendInvite(mockOrganization, [skippedUserId]);
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [skippedUserId]),
+      );
 
       expect(result.successful).toHaveLength(0);
       expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
@@ -385,7 +389,9 @@ describe("MemberActionsService", () => {
     it("should fail every member when the request throws", async () => {
       membersClient.send_staged_invites.mockRejectedValue(new Error("Seat limit reached"));
 
-      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]),
+      );
 
       expect(result.successful).toHaveLength(0);
       expect(result.failed).toEqual([
@@ -399,7 +405,9 @@ describe("MemberActionsService", () => {
         sdkRequestFailure("Seat limit has been reached."),
       );
 
-      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]),
+      );
 
       expect(result.failed.map((f) => f.error)).toEqual([
         "Seat limit has been reached.",
@@ -452,7 +460,7 @@ describe("MemberActionsService", () => {
       const ids = memberIds(REQUESTS_PER_BATCH);
       membersClient.bulk_reinvite.mockResolvedValue(allSent(ids));
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.successful).toHaveLength(REQUESTS_PER_BATCH);
       expect(result.failed).toHaveLength(0);
@@ -468,7 +476,7 @@ describe("MemberActionsService", () => {
         .mockResolvedValueOnce(allSent(firstBatch))
         .mockResolvedValueOnce(allSent(secondBatch));
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.successful).toHaveLength(ids.length);
       expect(result.failed).toHaveLength(0);
@@ -485,7 +493,7 @@ describe("MemberActionsService", () => {
         .mockResolvedValueOnce(firstBatch)
         .mockResolvedValueOnce(secondBatch);
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.successful).toEqual([...firstBatch, ...secondBatch]);
       expect(result.failed).toHaveLength(0);
@@ -508,7 +516,7 @@ describe("MemberActionsService", () => {
         .mockResolvedValueOnce(firstBatch)
         .mockResolvedValueOnce(secondBatch);
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       // Every 10th index of the first batch fails, plus the two explicit failures in the second.
       const expectedFailures = Math.floor((REQUESTS_PER_BATCH - 1) / 10) + 1 + 2;
@@ -524,7 +532,7 @@ describe("MemberActionsService", () => {
       const errorMessage = "All batches failed";
       membersClient.bulk_reinvite.mockRejectedValue(new Error(errorMessage));
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.successful).toHaveLength(0);
       expect(result.failed).toHaveLength(ids.length);
@@ -536,7 +544,7 @@ describe("MemberActionsService", () => {
       const ids = memberIds(2);
       membersClient.bulk_reinvite.mockRejectedValue(sdkRequestFailure("User invalid."));
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.failed.map((f) => f.error)).toEqual(["User invalid.", "User invalid."]);
     });
@@ -547,7 +555,7 @@ describe("MemberActionsService", () => {
         .mockResolvedValueOnce(allSent(ids.slice(0, REQUESTS_PER_BATCH)))
         .mockResolvedValueOnce([]);
 
-      const result = await service.bulkReinvite(mockOrganization, asUsers(ids));
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.successful).toHaveLength(REQUESTS_PER_BATCH);
       expect(result.failed).toHaveLength(0);
@@ -561,7 +569,7 @@ describe("MemberActionsService", () => {
         return allSent(batchIds);
       });
 
-      await service.bulkReinvite(mockOrganization, asUsers(ids));
+      await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(callOrder).toEqual([1, 2]);
       expect(membersClient.bulk_reinvite).toHaveBeenCalledTimes(2);
@@ -573,7 +581,7 @@ describe("MemberActionsService", () => {
         .mockResolvedValueOnce(allSent(ids.slice(0, REQUESTS_PER_BATCH)))
         .mockResolvedValueOnce(allSent(ids.slice(REQUESTS_PER_BATCH)));
 
-      await service.bulkReinvite(mockOrganization, asUsers(ids));
+      await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
       expect(memberDialogManager.openBulkProgressDialog).toHaveBeenCalledWith(
@@ -586,7 +594,7 @@ describe("MemberActionsService", () => {
       const ids = memberIds(REQUESTS_PER_BATCH);
       membersClient.bulk_reinvite.mockResolvedValue(allSent(ids));
 
-      await service.bulkReinvite(mockOrganization, asUsers(ids));
+      await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
       expect(memberDialogManager.openBulkProgressDialog).not.toHaveBeenCalled();
@@ -597,7 +605,7 @@ describe("MemberActionsService", () => {
       const users = asUsers(ids);
       membersClient.bulk_reinvite.mockResolvedValue(ids.map((id) => memberOutcome(id, "error")));
 
-      const result = await service.bulkReinvite(mockOrganization, users);
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, users));
 
       expect(memberDialogManager.openBulkReinviteFailureDialog).toHaveBeenCalledWith(
         mockOrganization,

@@ -288,7 +288,9 @@ export class MembersComponent {
   }
 
   async reinvite(user: OrganizationUserView, organization: Organization) {
-    const result = await this.memberActionsService.reinviteUser(organization, user.id);
+    const result = await firstValueFrom(
+      this.memberActionsService.reinviteUser(organization, user.id),
+    );
     await this.handleMemberActionResult(result, "hasBeenReinvited", user);
   }
 
@@ -298,7 +300,9 @@ export class MembersComponent {
     }
 
     const sideEffect = async () => await this.load(organization);
-    const result = await this.memberActionsService.sendInvite(organization, user.id);
+    const result = await firstValueFrom(
+      this.memberActionsService.sendInvite(organization, user.id),
+    );
     await this.handleMemberActionResult(result, "hasBeenInvited", user, sideEffect);
   }
 
@@ -512,9 +516,11 @@ export class MembersComponent {
       return [];
     }
 
-    const result = await this.memberActionsService.bulkSendInvite(
-      organization,
-      stagedUsers.map((u) => u.id),
+    const result = await firstValueFrom(
+      this.memberActionsService.bulkSendInvite(
+        organization,
+        stagedUsers.map((u) => u.id),
+      ),
     );
 
     if (result.failed.length > 0) {
@@ -536,7 +542,9 @@ export class MembersComponent {
       return [];
     }
 
-    const result = await this.memberActionsService.bulkReinvite(organization, invitedUsers);
+    const result = await firstValueFrom(
+      this.memberActionsService.bulkReinvite(organization, invitedUsers),
+    );
 
     if (result.successful.length === 0) {
       this.validationService.showError(result.failed);

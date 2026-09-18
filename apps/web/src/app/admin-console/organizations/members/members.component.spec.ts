@@ -296,7 +296,7 @@ describe("MembersComponent", () => {
 
   describe("reinvite", () => {
     it("should reinvite user successfully", async () => {
-      mockMemberActionsService.reinviteUser.mockResolvedValue({ success: true });
+      mockMemberActionsService.reinviteUser.mockReturnValue(of({ success: true }));
 
       await component.reinvite(mockUser, mockOrg);
 
@@ -305,10 +305,12 @@ describe("MembersComponent", () => {
     });
 
     it("should handle errors via handleMemberActionResult", async () => {
-      mockMemberActionsService.reinviteUser.mockResolvedValue({
-        success: false,
-        error: "Reinvite failed",
-      });
+      mockMemberActionsService.reinviteUser.mockReturnValue(
+        of({
+          success: false,
+          error: "Reinvite failed",
+        }),
+      );
 
       await component.reinvite(mockUser, mockOrg);
 
@@ -595,10 +597,12 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -612,10 +616,12 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({
-        successful: [sent(invitedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkReinvite.mockReturnValue(
+        of({
+          successful: [sent(invitedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -627,14 +633,18 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [],
-      });
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({
-        successful: [sent(invitedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [],
+        }),
+      );
+      mockMemberActionsService.bulkReinvite.mockReturnValue(
+        of({
+          successful: [sent(invitedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -653,10 +663,12 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, skippedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -672,13 +684,15 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, otherUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [],
-        failed: [
-          { id: stagedUser.id, error: "Member not found." },
-          { id: otherUser.id, error: "Member not found." },
-        ],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [],
+          failed: [
+            { id: stagedUser.id, error: "Member not found." },
+            { id: otherUser.id, error: "Member not found." },
+          ],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -694,10 +708,12 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, skippedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -733,14 +749,18 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [],
-        failed: [{ id: stagedUser.id, error: "No seats available" }],
-      });
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({
-        successful: [sent(invitedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [],
+          failed: [{ id: stagedUser.id, error: "No seats available" }],
+        }),
+      );
+      mockMemberActionsService.bulkReinvite.mockReturnValue(
+        of({
+          successful: [sent(invitedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -755,10 +775,12 @@ describe("MembersComponent", () => {
     it("opens the status dialog for the resend portion when self-hosted", async () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({
-        successful: [sent(invitedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkReinvite.mockReturnValue(
+        of({
+          successful: [sent(invitedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -770,14 +792,18 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsers")
         .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [],
-      });
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({
-        successful: [sent(invitedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [],
+        }),
+      );
+      mockMemberActionsService.bulkReinvite.mockReturnValue(
+        of({
+          successful: [sent(invitedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -794,10 +820,12 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser]);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -823,10 +851,12 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({
-        successful: [sent(invitedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkReinvite.mockReturnValue(
+        of({
+          successful: [sent(invitedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -842,10 +872,12 @@ describe("MembersComponent", () => {
       const limitAndUncheckExcess = jest
         .spyOn(component["dataSource"](), "limitAndUncheckExcess")
         .mockReturnValue(cappedUsers);
-      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
-        successful: [sent(stagedUser.id)],
-        failed: [],
-      });
+      mockMemberActionsService.bulkSendInvite.mockReturnValue(
+        of({
+          successful: [sent(stagedUser.id)],
+          failed: [],
+        }),
+      );
 
       await component.bulkSendInvite(mockOrg);
 
@@ -865,7 +897,7 @@ describe("MembersComponent", () => {
     };
 
     it("sends an invite for a single staged member", async () => {
-      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+      mockMemberActionsService.sendInvite.mockReturnValue(of({ success: true }));
 
       await component.sendInvite(stagedUser, mockOrg);
 
@@ -884,10 +916,12 @@ describe("MembersComponent", () => {
     });
 
     it("surfaces the error when the member is no longer staged", async () => {
-      mockMemberActionsService.sendInvite.mockResolvedValue({
-        success: false,
-        error: "Only staged members can be sent an invitation.",
-      });
+      mockMemberActionsService.sendInvite.mockReturnValue(
+        of({
+          success: false,
+          error: "Only staged members can be sent an invitation.",
+        }),
+      );
 
       await component.sendInvite(stagedUser, mockOrg);
 
