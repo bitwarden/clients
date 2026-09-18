@@ -661,6 +661,17 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
   }
 
+  /**
+   * Keeps the checkbox in sync with the selection, which the bindings alone don't guarantee.
+   * Without it the box can end up checked when nothing is selected, or empty when everything is.
+   */
+  protected onToggleAll(event: Event, sel: TableSelectionModel<T>): void {
+    sel.toggleAll();
+    const input = event.target as HTMLInputElement;
+    input.checked = sel.allSelected();
+    input.indeterminate = sel.indeterminate();
+  }
+
   /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {
     this._columns.update((cols) => [...cols, col]);
