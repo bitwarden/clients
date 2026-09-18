@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Sélectionner une collection"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
   },
   "importTargetHintFolder": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Le fichier contient des éléments non assignés."

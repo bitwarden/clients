@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "ஒரு சேகரிப்பைத் தேர்ந்தெடு"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "இறக்குமதி செய்யப்பட்ட கோப்பு உள்ளடக்கங்கள் ஒரு சேகரிப்புக்கு நகர்த்தப்பட விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "importTargetHintFolder": {
     "message": "இறக்குமதி செய்யப்பட்ட கோப்பு உள்ளடக்கங்கள் ஒரு கோப்புறைக்கு நகர்த்தப்பட விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "கோப்பில் ஒதுக்கப்படாத உருப்படிகள் உள்ளன."

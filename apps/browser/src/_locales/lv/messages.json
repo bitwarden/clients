@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Atlasīt krājumu"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot krājumā"
   },
   "importTargetHintFolder": {
     "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu ievietot mapē"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Datne satur nepiešķirtus vienumus."

@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "選擇一個分類"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
   },
   "importTargetHintFolder": {
     "message": "若你希望將匯入檔案的內容移至資料夾，請選擇此選項"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"

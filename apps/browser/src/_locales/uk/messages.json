@@ -4063,24 +4063,24 @@
     "message": "Помилка отримання даних автозаповнення"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden не вдалося розшифрувати запис у сховищі, перерахований нижче. Зверніться до служби підтримки Bitwarden і надайте ID запису нижче, щоб дізнатися, чи можна його відновити."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden не вдалося розшифрувати записи у сховищі, перерахованих нижче. Зверніться до служби підтримки Bitwarden і надайте ID записів нижче, щоб дізнатися, чи можна їх відновити."
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "ID запису",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "ID записів",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "Копіювати ID"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "Копіювати всі ID"
   },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -8197,11 +8203,11 @@
     }
   },
   "share": {
-    "message": "Share",
+    "message": "Поділитися",
     "description": "Page title for the share vault item panel"
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Закінчується",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
