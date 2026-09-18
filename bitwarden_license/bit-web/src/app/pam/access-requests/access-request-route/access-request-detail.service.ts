@@ -24,6 +24,7 @@ import {
   AccessEventService,
   AccessLeaseId,
   AccessLeaseSdkService,
+  AccessRefreshService,
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
@@ -60,6 +61,8 @@ export type AccessRequestViewer = "requester" | "approver";
  *
  * Re-fetches on the route id and on every server-pushed access event, so an approver's decision
  * lands without a reload; mutations here re-fetch explicitly rather than waiting on their own push.
+ * The requester's mutations also announce on {@link AccessRefreshService} for the nav badge, as
+ * {@link ApproverInboxService} does for the approver's.
  */
 @Injectable()
 export class AccessRequestDetailService {
@@ -68,6 +71,7 @@ export class AccessRequestDetailService {
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly leasingErrors = inject(LeasingErrorService);
   private readonly accessEvents = inject(AccessEventService);
+  private readonly accessRefresh = inject(AccessRefreshService);
   private readonly accountService = inject(AccountService);
   private readonly inbox = inject(ApproverInboxService);
   private readonly route = inject(ActivatedRoute);
@@ -170,6 +174,7 @@ export class AccessRequestDetailService {
       return;
     }
     await this.requestsApi.cancelAccessRequest(id);
+    this.accessRefresh.notifyAccessChanged();
     await this.fetch(id);
   }
 
@@ -180,12 +185,14 @@ export class AccessRequestDetailService {
       return;
     }
     await this.requestsApi.activateAccessRequest(id);
+    this.accessRefresh.notifyAccessChanged();
     await this.fetch(id);
   }
 
   /** End the active lease this request produced, then reload to surface the ended status. */
   async endLease(leaseId: AccessLeaseId): Promise<void> {
     await this.leasesApi.endLease(leaseId, { reason: undefined });
+    this.accessRefresh.notifyAccessChanged();
     const id = this._request$.value?.id;
     if (id != null) {
       await this.fetch(id);
