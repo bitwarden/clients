@@ -563,36 +563,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
-   * Returns the name of the generated container tags for usage internally to avoid
-   * unintentional targeting of the owned experience.
-   */
-  getOwnedTagNames = (): string[] => {
-    return [
-      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
-      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
-    ];
-  };
-
-  /**
    * Queries and return elements (excluding those of the inline menu) that exist in the
    * top-layer via popover or dialog
    * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
    * may or may not be active) should be included in the query
    */
-  getUnownedTopLayerItems = (includeCandidates = false) => {
-    const inlineMenuTagExclusions = [
-      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
-      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
-      ":popover-open",
-    ].join("");
+  getUnownedTopLayerItems = (includeCandidates = false): Element[] => {
     const selector = [
       ":modal",
-      inlineMenuTagExclusions,
-      ...(includeCandidates ? ["[popover], dialog"] : []),
+      ":popover-open",
+      ...(includeCandidates ? ["[popover]", "dialog"] : []),
     ].join(",");
-    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
 
-    return otherTopLayeritems;
+    // Exclude by identity: `:not(TAG)` constrains only the selector-list branch it sits in, so
+    // `:modal` and `[popover]` still matched the menu's own elements.
+    return Array.from(globalThis.document.querySelectorAll(selector)).filter(
+      (element) => !this.isElementInlineMenu(element as HTMLElement),
+    );
   };
 
   /**
@@ -645,12 +632,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    const buttonInDocument =
-      this.buttonElement &&
-      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
-    const listInDocument =
-      this.listElement &&
-      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    // The cached nodes, not `getElementsByTagName(...)[0]`: the generated tag name is visible in
+    // the DOM, so a page could plant a copy earlier in document order and capture the refresh.
+    const buttonInDocument = this.buttonElement?.isConnected ? this.buttonElement : undefined;
+    const listInDocument = this.listElement?.isConnected ? this.listElement : undefined;
 
     if (buttonInDocument) {
       buttonInDocument.hidePopover();

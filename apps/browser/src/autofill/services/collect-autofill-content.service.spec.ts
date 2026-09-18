@@ -2799,6 +2799,71 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("shadowMutationsCouldAffectFields", () => {
+    const gate = (added: Node[]) =>
+      collectAutofillContentService["shadowMutationsCouldAffectFields"]([
+        {
+          type: "childList",
+          addedNodes: added as unknown as NodeList,
+          removedNodes: [] as unknown as NodeList,
+        } as MutationRecord,
+      ]);
+
+    it("rejects a field-less wrapper — the cosmetic churn this gate exists to filter", () => {
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(document.createElement("span"));
+
+      expect(gate([wrapper])).toBe(false);
+    });
+
+    it("accepts a wrapper containing a light-DOM field", () => {
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(document.createElement("input"));
+
+      expect(gate([wrapper])).toBe(true);
+    });
+
+    it("accepts a custom element, whose shadow fields querySelector cannot reach", () => {
+      expect(gate([document.createElement("my-widget")])).toBe(true);
+    });
+
+    it("accepts a plain element that already has a shadow root", () => {
+      const host = document.createElement("div");
+      host.attachShadow({ mode: "open" });
+
+      expect(gate([host])).toBe(true);
+    });
+
+    it("rejects a hyphenated SVG element, which cannot host a shadow root", () => {
+      const svgFontFace = document.createElementNS("http://www.w3.org/2000/svg", "font-face");
+
+      expect(gate([svgFontFace])).toBe(false);
+    });
+
+    it("accepts any attribute mutation, already narrowed by the observer's attributeFilter", () => {
+      expect(
+        collectAutofillContentService["shadowMutationsCouldAffectFields"]([
+          { type: "attributes" } as MutationRecord,
+        ]),
+      ).toBe(true);
+    });
+
+    it("accepts a removed shadow host, whose fields querySelector can no longer reach", () => {
+      const host = document.createElement("div");
+      host.attachShadow({ mode: "open" });
+
+      expect(
+        collectAutofillContentService["shadowMutationsCouldAffectFields"]([
+          {
+            type: "childList",
+            addedNodes: [] as unknown as NodeList,
+            removedNodes: [host] as unknown as NodeList,
+          } as MutationRecord,
+        ]),
+      ).toBe(true);
+    });
+  });
+
   describe("handleMutationObserverMutation", () => {
     const waitForAllMutationsToComplete = async () => {
       await waitForIdleCallback();
@@ -2962,7 +3027,7 @@ describe("CollectAutofillContentService", () => {
     it("skips new-shadow-root detection on attribute-only batches", () => {
       jest.useFakeTimers();
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(domQueryService, "shadowRootMutations").mockReturnValue([]);
       const noteAddedNodesSpy = jest.spyOn(
         collectAutofillContentService["shadowTracker"],
         "noteAddedNodes",
@@ -3000,14 +3065,56 @@ describe("CollectAutofillContentService", () => {
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
 
-      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+      jest.spyOn(domQueryService, "shadowRootMutations").mockReturnValue([mutationRecord]);
       jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
-      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(domQueryService.shadowRootMutations).toHaveBeenCalledWith([mutationRecord]);
       expect(collectAutofillContentService["debouncedRequirePageDetailsUpdate"]).toHaveBeenCalled();
 
+      jest.useRealTimers();
+    });
+
+    // Regression: the gate used to receive the whole batch, so one watched light-DOM attribute
+    // change vouched for unrelated cosmetic shadow churn sharing its batch — which on a chatty
+    // page is every batch, making the gate a no-op exactly where it was supposed to pay off.
+    it("does not trigger a rebuild when only a light-DOM attribute record shares the batch", () => {
+      jest.useFakeTimers();
+      const host = document.createElement("div");
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const cosmetic = document.createElement("div");
+      shadowRoot.appendChild(cosmetic);
+      domQueryService["pageContainsShadowDom"] = true;
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      const lightAttributeMutation = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nothing"),
+        removedNodes: document.querySelectorAll("nothing"),
+        attributeName: "aria-hidden",
+        target: document.body,
+      } as unknown as MutationRecord;
+      const cosmeticShadowMutation = {
+        type: "childList",
+        addedNodes: shadowRoot.querySelectorAll("div"),
+        removedNodes: document.querySelectorAll("nothing"),
+        attributeName: null,
+        target: cosmetic,
+      } as unknown as MutationRecord;
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([
+        lightAttributeMutation,
+        cosmeticShadowMutation,
+      ]);
+
+      expect(
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"],
+      ).not.toHaveBeenCalled();
+
+      host.remove();
       jest.useRealTimers();
     });
 
@@ -3026,12 +3133,12 @@ describe("CollectAutofillContentService", () => {
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
 
-      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(domQueryService, "shadowRootMutations").mockReturnValue([]);
       jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
-      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(domQueryService.shadowRootMutations).toHaveBeenCalledWith([mutationRecord]);
       expect(
         collectAutofillContentService["debouncedRequirePageDetailsUpdate"],
       ).not.toHaveBeenCalled();
@@ -3057,7 +3164,7 @@ describe("CollectAutofillContentService", () => {
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
 
-      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(domQueryService, "shadowRootMutations").mockReturnValue([]);
       const noteAddedNodesSpy = jest.spyOn(
         collectAutofillContentService["shadowTracker"],
         "noteAddedNodes",
@@ -3095,7 +3202,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["currentLocationHref"] = window.location.href;
 
-      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+      jest.spyOn(domQueryService, "shadowRootMutations").mockReturnValue([mutationRecord]);
 
       // Track actual calls to requirePageDetailsUpdate
       let callCount = 0;
