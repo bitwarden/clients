@@ -26,7 +26,6 @@ import { TargetSystemsService } from "./target-systems.service";
  */
 const SYSTEMS: TargetSystem[] = [
   targetSystem({ id: sysId("1"), name: "Prod Entra", kind: "entra" }),
-  targetSystem({ id: sysId("2"), name: "Reporting SQL", kind: "mssql" }),
   targetSystem({ id: sysId("3"), name: "Billing rotation script", kind: "custom_script" }),
   targetSystem({
     id: sysId("4"),
