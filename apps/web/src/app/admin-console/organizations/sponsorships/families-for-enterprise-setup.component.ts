@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
@@ -18,9 +18,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { OrganizationPlansComponent } from "../../../billing";
+import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 import {
   DeleteOrganizationDialogResult,
@@ -31,7 +33,13 @@ import {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "families-for-enterprise-setup.component.html",
-  imports: [SharedModule, OrganizationPlansComponent],
+  imports: [
+    SharedModule,
+    OrganizationPlansComponent,
+    BreadcrumbsModule,
+    HeaderModule,
+    Vfo1I18nPipe,
+  ],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   loading = true;
@@ -43,6 +51,9 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   showNewOrganization = false;
   preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
+
+  protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+  protected sponsoringOrganizationName?: string;
 
   private _destroy = new Subject<void>();
   protected familyPlan!: PlanType;
@@ -117,6 +128,9 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
 
       this.familyPlan = PlanType.FamiliesAnnually;
 
+      this.sponsoringOrganizationName =
+        this.preValidateSponsorshipResponse.sponsoringOrganizationName;
+
       this.loading = false;
     });
 
@@ -133,13 +147,17 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         ),
       );
 
-    this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
-      if (orgs.length === 0) {
-        this.selectedFamilyOrganizationId = "createNew";
-      }
-    });
     this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
       this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId!;
+    });
+    this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
+      if (this.vfo1Enabled()) {
+        if (!this.formGroup.value.selectedFamilyOrganizationId) {
+          this.formGroup.patchValue({ selectedFamilyOrganizationId: "createNew" });
+        }
+      } else if (orgs.length === 0) {
+        this.selectedFamilyOrganizationId = "createNew";
+      }
     });
   }
 
