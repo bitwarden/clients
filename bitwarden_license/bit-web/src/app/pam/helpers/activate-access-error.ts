@@ -34,7 +34,7 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
   },
   SingleActiveLease: {
     serverMessage: "Another active lease exists for this item. Try again once it ends.",
-    messageKey: "pamStartLeaseErrorSingleActiveLease",
+    messageKey: "pamStartLeaseErrorSingleActiveAccess",
   },
   NetworkNotPermitted: {
     serverMessage: "Access to this item is not permitted from your current network.",
