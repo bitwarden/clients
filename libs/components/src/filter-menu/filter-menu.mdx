@@ -107,19 +107,29 @@ Usage guidelines:
 
 <Canvas of={stories.IconTiles} />
 
+## Chip icon
+
+`icon` puts a leading glyph on the chip itself, and the same glyph beside the filter's row in the
+responsive dialog. Set it on a `multiple` chip: when the toolbar collapses, a multi-select's
+selections each get their own dismissible chip named for the option alone — `Login`, not
+`Type: Login` — and the icon is what ties them back to the filter they came from. Without one those
+chips read as bare labels. (Screen readers get the filter's name from each chip's dismiss button, so
+the icon stays decorative.)
+
 ## Long labels
 
 Option and section labels truncate to the row's width rather than wrapping, so every row carries a
 tooltip with its full text — on hover, and on focus for the rows that take focus. This is built-in
-behavior that does not need to be opted into. The chip trigger and the responsive dialog's rows do
-the same with their labels.
+behavior that does not need to be opted into. The responsive dialog's rows do the same with their
+labels. The chip itself does not: its label is its accessible name, so keep it short enough to read
+in place.
 
 ## Disabled Filter Menus
 
-A disabled chip still surfaces its label on keyboard focus. A disabled chip's label can't explain
-why the chip is disabled, so you should pass the reason via the `disabledTooltip` input. It replaces
-the label tooltip while the chip is disabled and becomes the trigger's accessible description, so a
-keyboard or screen reader user hears why the chip is unavailable rather than just that it is:
+A disabled chip's label can't explain why the chip is disabled, so you should pass the reason via
+the `disabledTooltip` input. It is the chip's only tooltip, shown while the chip is disabled, and it
+becomes the trigger's accessible description, so a keyboard or screen reader user hears why the chip
+is unavailable rather than just that it is:
 
 ```html
 <bit-filter-toggle
@@ -131,8 +141,8 @@ keyboard or screen reader user hears why the chip is unavailable rather than jus
 ```
 
 Pass an already-localized string, and bind one that empties when the message no longer applies
-(`computed(() => noFavorites() ? t("favoritesFilterTooltip") : "")`). The label tooltip returns on
-its own once it does.
+(`computed(() => noFavorites() ? t("favoritesFilterTooltip") : "")`). The chip goes back to carrying
+no tooltip once it does.
 
 ## In-menu search
 
