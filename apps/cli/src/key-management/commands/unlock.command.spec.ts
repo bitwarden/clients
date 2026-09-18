@@ -3,6 +3,8 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -19,6 +21,7 @@ import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { MessageResponse } from "../../models/response/message.response";
+import { CliSessionKeyService } from "../../platform/services/cli-session-key.service";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { CliBiometricsService } from "../cli-biometrics-service";
@@ -39,6 +42,8 @@ describe("UnlockCommand", () => {
   const encryptedMigrator = mock<EncryptedMigrator>();
   const unlockService = mock<UnlockService>();
   const biometricsService = mock<CliBiometricsService>();
+  const authService = mock<AuthService>();
+  let sessionKeyService: CliSessionKeyService;
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -76,6 +81,8 @@ describe("UnlockCommand", () => {
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
     keyConnectorService.convertAccountRequired$ = of(false);
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
+    sessionKeyService = new CliSessionKeyService();
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -97,10 +104,26 @@ describe("UnlockCommand", () => {
       encryptedMigrator,
       unlockService,
       biometricsService,
+      sessionKeyService,
+      authService,
     );
   });
 
   describe("run", () => {
+    it("returns success without prompting when the vault is already unlocked", async () => {
+      // The container borrows the desktop app's unlock state on the way in, so `unlock` has
+      // nothing left to ask for.
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+      const getPassword = jest.spyOn(CliUtils, "getPassword");
+
+      const response = await command.run(null as unknown as string, {});
+
+      expect(response.success).toBe(true);
+      expect(getPassword).not.toHaveBeenCalled();
+      expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+    });
+
     test.each([null as unknown as Account, undefined as unknown as Account])(
       "returns error response when the active account is %s",
       async (account) => {
