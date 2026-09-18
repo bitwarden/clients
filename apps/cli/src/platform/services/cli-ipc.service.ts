@@ -121,9 +121,6 @@ export class CliIpcService extends IpcService {
       },
     });
 
-    // The desktop native IPC server currently assigns direct socket clients a
-    // BrowserBackground client ID. A first-class CLI endpoint will require a
-    // corresponding Desktop change.
     await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
   }
 }

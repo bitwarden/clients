@@ -8,6 +8,7 @@ import { ipcMain } from "electron";
 import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { IpcPeerClientType, isIpcClientTypeMessage } from "@bitwarden/common/platform/ipc";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../utils";
@@ -17,6 +18,8 @@ import { WindowMain } from "./window.main";
 export class NativeMessagingMain {
   private ipcServer: ipc.NativeIpcServer | null;
   private connected: number[] = [];
+  /** Client types announced by connected clients, for those that announce one. */
+  private clientTypes = new Map<number, IpcPeerClientType>();
 
   private _messages$ = new Subject<ipc.IpcMessage>();
   readonly messages$ = this._messages$.asObservable();
@@ -94,6 +97,7 @@ export class NativeMessagingMain {
           if (index > -1) {
             this.connected.splice(index, 1);
           }
+          this.clientTypes.delete(msg.clientId);
 
           this.logService.info("Native messaging client " + msg.clientId + " has disconnected");
           break;
@@ -102,6 +106,16 @@ export class NativeMessagingMain {
           try {
             const msgJson = JSON.parse(msg.message);
             this.logService.debug("Native messaging message:", msgJson);
+
+            // An identity announcement is about the connection itself, not traffic for the app.
+            if (isIpcClientTypeMessage(msgJson)) {
+              this.clientTypes.set(msg.clientId, msgJson.clientType);
+              this.logService.info(
+                `Native messaging client ${msg.clientId} announced itself as ${msgJson.clientType}`,
+              );
+              break;
+            }
+
             this._messages$.next(msg);
             this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
           } catch (e) {
@@ -128,6 +142,17 @@ export class NativeMessagingMain {
 
   stop() {
     this.ipcServer?.stop();
+  }
+
+  /**
+   * The client type a connected client announced, or `undefined` for one that announced none.
+   *
+   * Only the browser extension goes unannounced, so `undefined` means browser in practice; it is
+   * not reported as such, because a future client that forgets to announce would then be
+   * misidentified rather than merely unknown.
+   */
+  clientTypeFor(clientId: number): IpcPeerClientType | undefined {
+    return this.clientTypes.get(clientId);
   }
 
   send(message: object) {

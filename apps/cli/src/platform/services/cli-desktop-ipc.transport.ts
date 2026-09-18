@@ -3,7 +3,9 @@ import * as os from "os";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
+  IpcClientTypeMessage,
   IpcMessage,
+  IpcPeerClientType,
   isForwardedIpcMessage,
   isIpcMessage,
   isProxyConnectedMessage,
@@ -172,6 +174,12 @@ export class CliDesktopIpcTransport {
         settled = true;
         clearTimeout(timeout);
         this.connected = true;
+
+        // First frame on the connection, so the desktop app has the CLI's identity before it has
+        // to answer anything. Announcing is best-effort: a desktop app that predates the frame
+        // ignores it and addresses this process as a browser endpoint, as it did before.
+        this.announceClientType(proxy);
+
         this.logService.info(`[IPC] Connected to Bitwarden Desktop via ${proxyPath}`);
         resolve();
       };
@@ -199,6 +207,19 @@ export class CliDesktopIpcTransport {
           ),
         ),
       );
+    });
+  }
+
+  private announceClientType(proxy: ChildProcessWithoutNullStreams): void {
+    const announcement: IpcClientTypeMessage = {
+      type: "bitwarden-ipc-client-type",
+      clientType: IpcPeerClientType.Cli,
+    };
+
+    proxy.stdin.write(encodeNativeMessagingFrame(announcement), (error) => {
+      if (error != null) {
+        this.logService.info("[IPC] Could not announce the CLI client type", error);
+      }
     });
   }
 

@@ -30,6 +30,11 @@ describe("encodeNativeMessagingFrame", () => {
   });
 });
 
+/** Reads back a length-prefixed native-messaging frame. */
+function decodeFrame(frame: Buffer): unknown {
+  return JSON.parse(frame.subarray(4).toString("utf8"));
+}
+
 describe("CliDesktopIpcTransport", () => {
   const logService = mock<LogService>();
   const receive = jest.fn<void, [IncomingMessage]>();
@@ -63,15 +68,18 @@ describe("CliDesktopIpcTransport", () => {
     proxy.stdout.write(encodeNativeMessagingFrame({ command: "connected" }));
     await send;
 
-    expect(written).toHaveLength(1);
-    expect(JSON.parse(written[0].subarray(4).toString("utf8"))).toEqual({
-      type: "bitwarden-ipc-message",
-      message: {
-        destination: "DesktopRenderer",
-        payload: [1, 2, 3],
-        topic: "test-topic",
+    // The client-type announcement goes out on connect, ahead of any application traffic.
+    expect(written.map(decodeFrame)).toEqual([
+      { type: "bitwarden-ipc-client-type", clientType: "cli" },
+      {
+        type: "bitwarden-ipc-message",
+        message: {
+          destination: "DesktopRenderer",
+          payload: [1, 2, 3],
+          topic: "test-topic",
+        },
       },
-    });
+    ]);
     transport.disconnect();
   });
 
