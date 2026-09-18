@@ -26,7 +26,7 @@ safeProvider({
 
 ```js
 bitwardenAutomationDriver.list();
-// ["featureFlags", "state", "lock", "logging", "processReload"]
+// ["afuMode", "featureFlags", "state", "lock", "logging", "processReload"]
 
 await bitwardenAutomationDriver.get("lock").listUsers();
 ```

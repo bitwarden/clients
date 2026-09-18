@@ -3,8 +3,11 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
+import { WindowMain } from "../../main/window.main";
+
 import {
   AUTOMATION_BIOMETRIC_CHANNEL,
+  AUTOMATION_BIOMETRIC_EVENT_CHANNEL,
   AutomationBiometricAction,
   AutomationBiometricMessage,
 } from "./automation-biometric-message";
@@ -18,10 +21,16 @@ import { AutomationBiometricsService } from "./automation-biometrics.service";
 export class AutomationBiometricsIPCListener {
   constructor(
     private biometricsService: AutomationBiometricsService,
+    private windowMain: WindowMain,
     private logService: LogService,
   ) {}
 
   init() {
+    // Push request activity to the renderer, which surfaces it as a toast.
+    this.biometricsService.setEventListener((event) => {
+      this.windowMain.win?.webContents.send(AUTOMATION_BIOMETRIC_EVENT_CHANNEL, event);
+    });
+
     ipcMain.handle(
       AUTOMATION_BIOMETRIC_CHANNEL,
       async (event: any, message: AutomationBiometricMessage) => {

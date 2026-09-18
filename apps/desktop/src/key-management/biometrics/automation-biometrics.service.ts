@@ -5,6 +5,8 @@ import { BiometricsStatus } from "@bitwarden/key-management";
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import {
+  AutomationBiometricEvent,
+  AutomationBiometricEventType,
   AutomationBiometricRequest,
   AutomationBiometricRequestType,
 } from "./automation-biometric-message";
@@ -29,10 +31,16 @@ export class AutomationBiometricsService implements OsBiometricService {
   private keys = new Map<UserId, SymmetricCryptoKey>();
   private pendingRequests: PendingRequest[] = [];
   private nextRequestId = 1;
+  private eventListener?: (event: AutomationBiometricEvent) => void;
 
   constructor(private readonly logService: LogService) {}
 
   // --- Automation control surface (driven over IPC) ---
+
+  /** Receives every queued and resolved request, so the renderer can surface them. */
+  setEventListener(listener: (event: AutomationBiometricEvent) => void): void {
+    this.eventListener = listener;
+  }
 
   setMockStatus(status: BiometricsStatus): void {
     this.mockStatus = status;
@@ -58,8 +66,13 @@ export class AutomationBiometricsService implements OsBiometricService {
       const index = this.pendingRequests.findIndex((r) => r.id === id);
       matches = index === -1 ? [] : this.pendingRequests.splice(index, 1);
     }
+    const type = approved
+      ? AutomationBiometricEventType.Approved
+      : AutomationBiometricEventType.Denied;
+
     for (const request of matches) {
       request.resolve(approved);
+      this.emit(type, request);
     }
   }
 
@@ -72,7 +85,15 @@ export class AutomationBiometricsService implements OsBiometricService {
     );
     return new Promise<boolean>((resolve) => {
       this.pendingRequests.push({ id, type, userId, resolve });
+      this.emit(AutomationBiometricEventType.Requested, { id, type, userId });
     });
+  }
+
+  private emit(
+    type: AutomationBiometricEventType,
+    { id, type: requestType, userId }: AutomationBiometricRequest,
+  ): void {
+    this.eventListener?.({ type, request: { id, type: requestType, userId } });
   }
 
   // --- OsBiometricService implementation ---

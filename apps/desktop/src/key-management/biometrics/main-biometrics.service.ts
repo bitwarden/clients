@@ -35,7 +35,11 @@ export class MainBiometricsService extends DesktopBiometricsService {
       );
       const automationBiometricsService = new AutomationBiometricsService(this.logService);
       this.osBiometricsService = automationBiometricsService;
-      new AutomationBiometricsIPCListener(automationBiometricsService, this.logService).init();
+      new AutomationBiometricsIPCListener(
+        automationBiometricsService,
+        this.windowMain,
+        this.logService,
+      ).init();
     } else if (platform === "win32") {
       this.osBiometricsService = new WindowsBiometricsSystem(
         this.i18nService,

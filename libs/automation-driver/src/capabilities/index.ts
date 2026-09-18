@@ -1,3 +1,4 @@
+export * from "./afu-mode";
 export * from "./biometrics";
 export * from "./desktop-navigation";
 export * from "./feature-flags";

@@ -12,4 +12,12 @@ describe("DesktopNavigationCapability", () => {
 
     expect(messagingService.send).toHaveBeenCalledWith("openSettings");
   });
+
+  it("locks the vault through the messaging service", () => {
+    const messagingService = mock<MessagingService>();
+
+    new DesktopNavigationCapability(messagingService).lockVault();
+
+    expect(messagingService.send).toHaveBeenCalledWith("lockVault");
+  });
 });

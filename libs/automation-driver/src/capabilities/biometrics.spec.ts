@@ -1,14 +1,24 @@
 import { mock } from "jest-mock-extended";
 
-import { AutomationBiometricsController, BiometricsCapability } from "./biometrics";
+import {
+  AutomationBiometricActivity,
+  AutomationBiometricsController,
+  BiometricsCapability,
+} from "./biometrics";
 
 describe("BiometricsCapability", () => {
   let controller: ReturnType<typeof mock<AutomationBiometricsController>>;
+  let notify: jest.Mock<void, [string]>;
+  let emit: (activity: AutomationBiometricActivity) => void;
   let sut: BiometricsCapability;
 
   beforeEach(() => {
     controller = mock<AutomationBiometricsController>();
-    sut = new BiometricsCapability(controller);
+    controller.onEvent.mockImplementation((listener) => {
+      emit = listener;
+    });
+    notify = jest.fn();
+    sut = new BiometricsCapability(controller, notify);
   });
 
   it("sets the mocked status", async () => {
@@ -34,4 +44,17 @@ describe("BiometricsCapability", () => {
 
     expect(controller.deny).toHaveBeenCalledWith("request-id");
   });
+
+  it.each([
+    ["requested", "Biometrics requested to automation (unlock #1)"],
+    ["approved", "Automation approved biometrics (unlock #1)"],
+    ["denied", "Automation denied biometrics (unlock #1)"],
+  ] as [AutomationBiometricActivity["type"], string][])(
+    "notifies when a request is %s",
+    (type, message) => {
+      emit({ type, request: { id: "1", type: "unlock" } });
+
+      expect(notify).toHaveBeenCalledWith(message);
+    },
+  );
 });
