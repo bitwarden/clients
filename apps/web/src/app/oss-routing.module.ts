@@ -840,7 +840,11 @@ const routes: Routes = [
         path: "reports",
         loadChildren: () => ReportsModule,
       },
-      { path: "setup/families-for-enterprise", component: FamiliesForEnterpriseSetupComponent },
+      {
+        path: "setup/families-for-enterprise",
+        component: FamiliesForEnterpriseSetupComponent,
+        data: { titleId: "acceptSponsoredFamiliesPlan" } satisfies RouteDataProperties,
+      },
     ],
   },
   {

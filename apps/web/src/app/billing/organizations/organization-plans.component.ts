@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -62,7 +63,7 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -163,6 +164,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // Computed signals
   readonly createOrganization = computed(() => this.organizationId() == null);
   readonly hasProvider = computed(() => this.providerId() != null);
+
+  private readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+
+  /** 24px section rhythm, only when hosted in the sponsorship flow with VFO1 on. */
+  protected readonly sponsoredPlanLayout = computed(
+    () => this.acceptingSponsorship() && this.vfo1Enabled(),
+  );
 
   /**
    * Determines whether the user can upgrade from Premium to an organization plan.

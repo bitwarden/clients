@@ -10104,6 +10104,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Select the organization you would like sponsored"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Which Free Families offer would you like to redeem?"
   },
@@ -10115,6 +10118,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accept offer for an existing organization or create a new Families organization."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "You've been offered a free Bitwarden Families plan organization. To continue, you need to log in to the account that received the offer."
@@ -10133,6 +10150,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Accept Free Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Free Bitwarden Families offer successfully redeemed"
@@ -10308,8 +10331,14 @@
   "newFamiliesOrganization": {
     "message": "New Families organization"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Accept offer"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Sponsoring organization"
