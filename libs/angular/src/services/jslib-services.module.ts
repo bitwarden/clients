@@ -61,6 +61,7 @@ import {
   DefaultAutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm";
 import {
+  AfuModeCapability,
   AutomationCapability,
   AutomationDriver,
   FeatureFlagsCapability,
@@ -1650,6 +1651,22 @@ const safeProviders: SafeProvider[] = [
   }),
   // Automation capabilities every Angular client supports. Client-specific ones are registered
   // in that client's own provider module.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (
+      accountService: AccountServiceAbstraction,
+      stateProvider: StateProvider,
+      biometricsService: BiometricsService,
+      messagingService: MessagingServiceAbstraction,
+    ) => new AfuModeCapability(accountService, stateProvider, biometricsService, messagingService),
+    deps: [
+      AccountServiceAbstraction,
+      StateProvider,
+      BiometricsService,
+      MessagingServiceAbstraction,
+    ],
+    multi: true,
+  }),
   safeProvider({
     provide: AutomationCapability,
     useFactory: (configService: ConfigService, stateProvider: StateProvider) =>

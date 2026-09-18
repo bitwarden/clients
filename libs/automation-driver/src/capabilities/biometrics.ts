@@ -14,14 +14,38 @@ export interface AutomationBiometricsController {
   approve(id?: string): Promise<void>;
   /** Deny a pending request by id, or the oldest pending request when no id is given. */
   deny(id?: string): Promise<void>;
+  /** Subscribe to request activity: queued requests and the automation's answers. */
+  onEvent(listener: (event: AutomationBiometricActivity) => void): void;
 }
+
+/** A biometric request being queued, or answered by automation. */
+export interface AutomationBiometricActivity {
+  type: "requested" | "approved" | "denied";
+  request: { id: string; type: string };
+}
+
+/** Surfaces automation biometric activity to whoever is watching the client. */
+export type AutomationNotifier = (message: string) => void;
+
+const ACTIVITY_MESSAGES: Record<AutomationBiometricActivity["type"], string> = {
+  requested: "Biometrics requested to automation",
+  approved: "Automation approved biometrics",
+  denied: "Automation denied biometrics",
+};
 
 /** Drives mocked biometrics through a client-supplied controller. Desktop only. */
 export class BiometricsCapability extends AutomationCapability {
   readonly automationName = "biometrics";
 
-  constructor(private controller: AutomationBiometricsController) {
+  constructor(
+    private controller: AutomationBiometricsController,
+    notify: AutomationNotifier,
+  ) {
     super();
+
+    this.controller.onEvent(({ type, request }) =>
+      notify(`${ACTIVITY_MESSAGES[type]} (${request.type} #${request.id})`),
+    );
   }
 
   async setStatus(status: number): Promise<void> {

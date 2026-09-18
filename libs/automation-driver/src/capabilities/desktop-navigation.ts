@@ -14,4 +14,9 @@ export class DesktopNavigationCapability extends AutomationCapability {
   openSettings(): void {
     this.messagingService.send("openSettings");
   }
+
+  /** Locks the active account, as the "Lock now" menubar item does. */
+  lockVault(): void {
+    this.messagingService.send("lockVault");
+  }
 }
