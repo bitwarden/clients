@@ -1,10 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { of, throwError } from "rxjs";
+import { firstValueFrom, of, throwError } from "rxjs";
 
 import {
   OrganizationUserApiService,
-  OrganizationUserBulkResponse,
   OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
@@ -16,16 +15,18 @@ import {
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { OrganizationUserBulkResponse, OrganizationUserId } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
@@ -39,7 +40,15 @@ describe("MemberActionsService", () => {
   let organizationUserService: MockProxy<OrganizationUserService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
+  let sdkService: MockProxy<SdkService>;
+  let membersClient: {
+    send_staged_invites: jest.Mock;
+    bulk_reinvite: jest.Mock;
+    reinvite: jest.Mock;
+  };
+  let disposeClient: jest.Mock;
 
+  const activeUserId = newGuid();
   const organizationId = newGuid() as OrganizationId;
   const userIdToManage = newGuid();
 
@@ -51,6 +60,19 @@ describe("MemberActionsService", () => {
     organizationUserService = mock<OrganizationUserService>();
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     memberDialogManager = mock<MemberDialogManagerService>();
+
+    membersClient = {
+      send_staged_invites: jest.fn(),
+      bulk_reinvite: jest.fn(),
+      reinvite: jest.fn(),
+    };
+    disposeClient = jest.fn();
+    const clientRef = {
+      value: { organization_users_management: () => membersClient },
+      [Symbol.dispose]: disposeClient,
+    };
+    sdkService = mock<SdkService>();
+    sdkService.userClient$.mockReturnValue(of({ take: () => clientRef } as any));
 
     mockOrganization = {
       id: organizationId,
@@ -89,6 +111,11 @@ describe("MemberActionsService", () => {
         { provide: UserNamePipe, useValue: mock<UserNamePipe>() },
         { provide: MemberDialogManagerService, useValue: memberDialogManager },
         { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: SdkService, useValue: sdkService },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: activeUserId }) } as unknown as AccountService,
+        },
       ],
     });
 
@@ -232,28 +259,160 @@ describe("MemberActionsService", () => {
     });
   });
 
+  /** A row of the SDK's bulk response; `error` is absent when the member succeeded. */
+  const memberOutcome = (id: string, error?: string): OrganizationUserBulkResponse => ({
+    id: id as OrganizationUserId,
+    error,
+  });
+
+  const sdkRequestFailure = (serverMessage: string) =>
+    new Error(
+      `error in response: status code 400 Bad Request: {"message":"${serverMessage}","validationErrors":null}`,
+    );
+
   describe("reinviteUser", () => {
     it("should successfully reinvite a user", async () => {
-      organizationUserApiService.postOrganizationUserReinvite.mockResolvedValue(undefined);
+      membersClient.reinvite.mockResolvedValue(undefined);
 
-      const result = await service.reinviteUser(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: true });
-      expect(organizationUserApiService.postOrganizationUserReinvite).toHaveBeenCalledWith(
-        organizationId,
-        userIdToManage,
-      );
+      expect(membersClient.reinvite).toHaveBeenCalledWith(organizationId, userIdToManage);
     });
 
     it("should handle reinvite errors", async () => {
       const errorMessage = "Reinvite failed";
-      organizationUserApiService.postOrganizationUserReinvite.mockRejectedValue(
-        new Error(errorMessage),
-      );
+      membersClient.reinvite.mockRejectedValue(new Error(errorMessage));
 
-      const result = await service.reinviteUser(mockOrganization, userIdToManage);
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: false, error: errorMessage });
+    });
+
+    it("should surface the server message when the SDK rejects the request", async () => {
+      membersClient.reinvite.mockRejectedValue(sdkRequestFailure("User invalid."));
+
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
+
+      expect(result).toEqual({ success: false, error: "User invalid." });
+    });
+  });
+
+  describe("sendInvite", () => {
+    it("should send invites to the given staged members", async () => {
+      membersClient.send_staged_invites.mockResolvedValue([memberOutcome(userIdToManage)]);
+
+      const result = await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
+
+      expect(result).toEqual({ success: true });
+      expect(membersClient.send_staged_invites).toHaveBeenCalledWith(organizationId, [
+        userIdToManage,
+      ]);
+    });
+
+    it("should use the active user's SDK client and release it afterwards", async () => {
+      membersClient.send_staged_invites.mockResolvedValue([memberOutcome(userIdToManage)]);
+
+      await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(activeUserId);
+      expect(disposeClient).toHaveBeenCalled();
+    });
+
+    it("should refresh the metadata cache because promotion occupies a seat", async () => {
+      membersClient.send_staged_invites.mockResolvedValue([memberOutcome(userIdToManage)]);
+
+      await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
+
+      expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
+    });
+
+    it("should surface a per-member error reported by the server", async () => {
+      membersClient.send_staged_invites.mockResolvedValue([
+        memberOutcome(userIdToManage, "Only staged members can be sent an invitation."),
+      ]);
+
+      const result = await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
+
+      expect(result).toEqual({
+        success: false,
+        error: "Only staged members can be sent an invitation.",
+      });
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+
+    it("should handle send invite errors", async () => {
+      const errorMessage = "Send invite failed";
+      membersClient.send_staged_invites.mockRejectedValue(new Error(errorMessage));
+
+      const result = await firstValueFrom(service.sendInvite(mockOrganization, userIdToManage));
+
+      expect(result).toEqual({ success: false, error: errorMessage });
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("bulkSendInvite", () => {
+    const stagedUserId = userIdToManage;
+    const skippedUserId = newGuid();
+
+    it("should split the response into successful and failed members", async () => {
+      membersClient.send_staged_invites.mockResolvedValue([
+        memberOutcome(stagedUserId),
+        memberOutcome(skippedUserId, "Only staged members can be sent an invitation."),
+      ]);
+
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]),
+      );
+
+      expect(result.successful.map((r) => r.id)).toEqual([stagedUserId]);
+      expect(result.failed).toEqual([
+        { id: skippedUserId, error: "Only staged members can be sent an invitation." },
+      ]);
+      expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
+    });
+
+    it("should not refresh the metadata cache when no member was invited", async () => {
+      membersClient.send_staged_invites.mockResolvedValue([
+        memberOutcome(skippedUserId, "Only staged members can be sent an invitation."),
+      ]);
+
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [skippedUserId]),
+      );
+
+      expect(result.successful).toHaveLength(0);
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+
+    it("should fail every member when the request throws", async () => {
+      membersClient.send_staged_invites.mockRejectedValue(new Error("Seat limit reached"));
+
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]),
+      );
+
+      expect(result.successful).toHaveLength(0);
+      expect(result.failed).toEqual([
+        { id: stagedUserId, error: "Seat limit reached" },
+        { id: skippedUserId, error: "Seat limit reached" },
+      ]);
+    });
+
+    it("should surface the server message when the SDK rejects the whole request", async () => {
+      membersClient.send_staged_invites.mockRejectedValue(
+        sdkRequestFailure("Seat limit has been reached."),
+      );
+
+      const result = await firstValueFrom(
+        service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]),
+      );
+
+      expect(result.failed.map((f) => f.error)).toEqual([
+        "Seat limit has been reached.",
+        "Seat limit has been reached.",
+      ]);
     });
   });
 
@@ -288,347 +447,165 @@ describe("MemberActionsService", () => {
   });
 
   describe("bulkReinvite", () => {
+    const memberIds = (count: number) => Array.from({ length: count }, () => newGuid());
+    const asUsers = (ids: string[]) => ids.map((id) => ({ id }) as OrganizationUserView);
+    const allSent = (ids: string[]) => ids.map((id) => memberOutcome(id));
+
     beforeEach(() => {
       memberDialogManager.openBulkProgressDialog.mockReturnValue({ closed: of(undefined) } as any);
       memberDialogManager.openBulkReinviteFailureDialog.mockReturnValue(of([]));
     });
 
     it("should process users in a single batch when count equals REQUESTS_PER_BATCH", async () => {
-      const userIdsBatch = Array.from({ length: REQUESTS_PER_BATCH }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
-      const mockResponse = new ListResponse(
-        {
-          data: userIdsBatch.map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+      const ids = memberIds(REQUESTS_PER_BATCH);
+      membersClient.bulk_reinvite.mockResolvedValue(allSent(ids));
 
-      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
-      const result = await service.bulkReinvite(mockOrganization, users);
-
-      expect(result.successful).toBeDefined();
       expect(result.successful).toHaveLength(REQUESTS_PER_BATCH);
       expect(result.failed).toHaveLength(0);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(1);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledWith(
-        organizationId,
-        userIdsBatch,
-      );
+      expect(membersClient.bulk_reinvite).toHaveBeenCalledTimes(1);
+      expect(membersClient.bulk_reinvite).toHaveBeenCalledWith(organizationId, ids);
     });
 
     it("should process users in multiple batches when count exceeds REQUESTS_PER_BATCH", async () => {
-      const totalUsers = REQUESTS_PER_BATCH + 100;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH + 100);
+      const firstBatch = ids.slice(0, REQUESTS_PER_BATCH);
+      const secondBatch = ids.slice(REQUESTS_PER_BATCH);
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce(allSent(firstBatch))
+        .mockResolvedValueOnce(allSent(secondBatch));
 
-      const mockResponse1 = new ListResponse(
-        {
-          data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
-      const mockResponse2 = new ListResponse(
-        {
-          data: userIdsBatch.slice(REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      organizationUserApiService.postManyOrganizationUserReinvite
-        .mockResolvedValueOnce(mockResponse1)
-        .mockResolvedValueOnce(mockResponse2);
-
-      const result = await service.bulkReinvite(mockOrganization, users);
-
-      expect(result.successful).toBeDefined();
-      expect(result.successful).toHaveLength(totalUsers);
+      expect(result.successful).toHaveLength(ids.length);
       expect(result.failed).toHaveLength(0);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
-        1,
-        organizationId,
-        userIdsBatch.slice(0, REQUESTS_PER_BATCH),
-      );
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
-        2,
-        organizationId,
-        userIdsBatch.slice(REQUESTS_PER_BATCH),
-      );
+      expect(membersClient.bulk_reinvite).toHaveBeenCalledTimes(2);
+      expect(membersClient.bulk_reinvite).toHaveBeenNthCalledWith(1, organizationId, firstBatch);
+      expect(membersClient.bulk_reinvite).toHaveBeenNthCalledWith(2, organizationId, secondBatch);
     });
 
     it("should aggregate results across multiple successful batches", async () => {
-      const totalUsers = REQUESTS_PER_BATCH + 50;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH + 50);
+      const firstBatch = allSent(ids.slice(0, REQUESTS_PER_BATCH));
+      const secondBatch = allSent(ids.slice(REQUESTS_PER_BATCH));
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce(firstBatch)
+        .mockResolvedValueOnce(secondBatch);
 
-      const mockResponse1 = new ListResponse(
-        {
-          data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
-      const mockResponse2 = new ListResponse(
-        {
-          data: userIdsBatch.slice(REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      organizationUserApiService.postManyOrganizationUserReinvite
-        .mockResolvedValueOnce(mockResponse1)
-        .mockResolvedValueOnce(mockResponse2);
-
-      const result = await service.bulkReinvite(mockOrganization, users);
-
-      expect(result.successful).toBeDefined();
-      expect(result.successful).toHaveLength(totalUsers);
-      expect(result.successful!.slice(0, REQUESTS_PER_BATCH)).toEqual(mockResponse1.data);
-      expect(result.successful!.slice(REQUESTS_PER_BATCH)).toEqual(mockResponse2.data);
+      expect(result.successful).toEqual([...firstBatch, ...secondBatch]);
       expect(result.failed).toHaveLength(0);
     });
 
     it("should handle mixed individual errors across multiple batches", async () => {
-      const totalUsers = REQUESTS_PER_BATCH + 4;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH + 4);
+      const firstBatch = ids
+        .slice(0, REQUESTS_PER_BATCH)
+        .map((id, index) =>
+          memberOutcome(id, index % 10 === 0 ? "Rate limit exceeded" : undefined),
+        );
+      const secondBatch = [
+        memberOutcome(ids[REQUESTS_PER_BATCH]),
+        memberOutcome(ids[REQUESTS_PER_BATCH + 1], "Invalid email"),
+        memberOutcome(ids[REQUESTS_PER_BATCH + 2]),
+        memberOutcome(ids[REQUESTS_PER_BATCH + 3], "User suspended"),
+      ];
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce(firstBatch)
+        .mockResolvedValueOnce(secondBatch);
 
-      const mockResponse1 = new ListResponse(
-        {
-          data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id, index) => ({
-            id,
-            error: index % 10 === 0 ? "Rate limit exceeded" : null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
-      const mockResponse2 = new ListResponse(
-        {
-          data: [
-            { id: userIdsBatch[REQUESTS_PER_BATCH], error: null },
-            { id: userIdsBatch[REQUESTS_PER_BATCH + 1], error: "Invalid email" },
-            { id: userIdsBatch[REQUESTS_PER_BATCH + 2], error: null },
-            { id: userIdsBatch[REQUESTS_PER_BATCH + 3], error: "User suspended" },
-          ],
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      organizationUserApiService.postManyOrganizationUserReinvite
-        .mockResolvedValueOnce(mockResponse1)
-        .mockResolvedValueOnce(mockResponse2);
-
-      const result = await service.bulkReinvite(mockOrganization, users);
-
-      // Count expected failures: every 10th index (0, 10, 20, ..., 490) in first batch + 2 explicit in second batch
-      // Indices 0 to REQUESTS_PER_BATCH-1 where index % 10 === 0: that's floor((BATCH_SIZE-1)/10) + 1 values
-      const expectedFailuresInBatch1 = Math.floor((REQUESTS_PER_BATCH - 1) / 10) + 1;
-      const expectedFailuresInBatch2 = 2;
-      const expectedTotalFailures = expectedFailuresInBatch1 + expectedFailuresInBatch2;
-      const expectedSuccesses = totalUsers - expectedTotalFailures;
-
-      expect(result.successful).toBeDefined();
-      expect(result.successful).toHaveLength(expectedSuccesses);
-      expect(result.failed).toHaveLength(expectedTotalFailures);
+      // Every 10th index of the first batch fails, plus the two explicit failures in the second.
+      const expectedFailures = Math.floor((REQUESTS_PER_BATCH - 1) / 10) + 1 + 2;
+      expect(result.successful).toHaveLength(ids.length - expectedFailures);
+      expect(result.failed).toHaveLength(expectedFailures);
       expect(result.failed.some((f) => f.error === "Rate limit exceeded")).toBe(true);
       expect(result.failed.some((f) => f.error === "Invalid email")).toBe(true);
       expect(result.failed.some((f) => f.error === "User suspended")).toBe(true);
     });
 
     it("should aggregate all failures when all batches fail", async () => {
-      const totalUsers = REQUESTS_PER_BATCH + 100;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH + 100);
       const errorMessage = "All batches failed";
+      membersClient.bulk_reinvite.mockRejectedValue(new Error(errorMessage));
 
-      organizationUserApiService.postManyOrganizationUserReinvite.mockRejectedValue(
-        new Error(errorMessage),
-      );
-
-      const result = await service.bulkReinvite(mockOrganization, users);
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(result.successful).toHaveLength(0);
-      expect(result.failed).toHaveLength(totalUsers);
+      expect(result.failed).toHaveLength(ids.length);
       expect(result.failed.every((f) => f.error === errorMessage)).toBe(true);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
+      expect(membersClient.bulk_reinvite).toHaveBeenCalledTimes(2);
     });
 
-    it("should handle empty data in batch response", async () => {
-      const totalUsers = REQUESTS_PER_BATCH + 50;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+    it("should surface the server message when the SDK rejects a batch", async () => {
+      const ids = memberIds(2);
+      membersClient.bulk_reinvite.mockRejectedValue(sdkRequestFailure("User invalid."));
 
-      const mockResponse1 = new ListResponse(
-        {
-          data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
-      const mockResponse2 = new ListResponse(
-        {
-          data: [],
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
+      expect(result.failed.map((f) => f.error)).toEqual(["User invalid.", "User invalid."]);
+    });
 
-      organizationUserApiService.postManyOrganizationUserReinvite
-        .mockResolvedValueOnce(mockResponse1)
-        .mockResolvedValueOnce(mockResponse2);
+    it("should handle an empty batch response", async () => {
+      const ids = memberIds(REQUESTS_PER_BATCH + 50);
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce(allSent(ids.slice(0, REQUESTS_PER_BATCH)))
+        .mockResolvedValueOnce([]);
 
-      const result = await service.bulkReinvite(mockOrganization, users);
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
-      expect(result.successful).toBeDefined();
       expect(result.successful).toHaveLength(REQUESTS_PER_BATCH);
       expect(result.failed).toHaveLength(0);
     });
 
     it("should process batches sequentially in order", async () => {
-      const totalUsers = REQUESTS_PER_BATCH * 2;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH * 2);
       const callOrder: number[] = [];
+      membersClient.bulk_reinvite.mockImplementation(async (_orgId, batchIds: string[]) => {
+        callOrder.push(batchIds.includes(ids[0]) ? 1 : 2);
+        return allSent(batchIds);
+      });
 
-      organizationUserApiService.postManyOrganizationUserReinvite.mockImplementation(
-        async (orgId, ids) => {
-          const batchIndex = ids.includes(userIdsBatch[0]) ? 1 : 2;
-          callOrder.push(batchIndex);
-
-          return new ListResponse(
-            {
-              data: ids.map((id) => ({
-                id,
-                error: null,
-              })),
-              continuationToken: null,
-            },
-            OrganizationUserBulkResponse,
-          );
-        },
-      );
-
-      await service.bulkReinvite(mockOrganization, users);
+      await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(callOrder).toEqual([1, 2]);
-      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
+      expect(membersClient.bulk_reinvite).toHaveBeenCalledTimes(2);
     });
 
     it("should open progress dialog when user count exceeds REQUESTS_PER_BATCH", async () => {
-      const totalUsers = REQUESTS_PER_BATCH + 100;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH + 100);
+      membersClient.bulk_reinvite
+        .mockResolvedValueOnce(allSent(ids.slice(0, REQUESTS_PER_BATCH)))
+        .mockResolvedValueOnce(allSent(ids.slice(REQUESTS_PER_BATCH)));
 
-      const mockDialogRef = { closed: of(undefined) };
-      memberDialogManager.openBulkProgressDialog.mockReturnValue(mockDialogRef as any);
-
-      const mockResponse1 = new ListResponse(
-        {
-          data: userIdsBatch.slice(0, REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      const mockResponse2 = new ListResponse(
-        {
-          data: userIdsBatch.slice(REQUESTS_PER_BATCH).map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      organizationUserApiService.postManyOrganizationUserReinvite
-        .mockResolvedValueOnce(mockResponse1)
-        .mockResolvedValueOnce(mockResponse2);
-
-      await service.bulkReinvite(mockOrganization, users);
+      await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
       expect(memberDialogManager.openBulkProgressDialog).toHaveBeenCalledWith(
         expect.anything(),
-        totalUsers,
+        ids.length,
       );
     });
 
     it("should not open progress dialog when user count is or below REQUESTS_PER_BATCH", async () => {
-      const totalUsers = REQUESTS_PER_BATCH;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(REQUESTS_PER_BATCH);
+      membersClient.bulk_reinvite.mockResolvedValue(allSent(ids));
 
-      const mockResponse = new ListResponse(
-        {
-          data: userIdsBatch.map((id) => ({
-            id,
-            error: null,
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
-
-      await service.bulkReinvite(mockOrganization, users);
+      await firstValueFrom(service.bulkReinvite(mockOrganization, asUsers(ids)));
 
       expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
       expect(memberDialogManager.openBulkProgressDialog).not.toHaveBeenCalled();
     });
 
     it("should open failure dialog when there are failures", async () => {
-      const totalUsers = 10;
-      const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-      const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
+      const ids = memberIds(10);
+      const users = asUsers(ids);
+      membersClient.bulk_reinvite.mockResolvedValue(ids.map((id) => memberOutcome(id, "error")));
 
-      const mockResponse = new ListResponse(
-        {
-          data: userIdsBatch.map((id) => ({
-            id,
-            error: "error",
-          })),
-          continuationToken: null,
-        },
-        OrganizationUserBulkResponse,
-      );
-
-      organizationUserApiService.postManyOrganizationUserReinvite.mockResolvedValue(mockResponse);
-
-      const result = await service.bulkReinvite(mockOrganization, users);
+      const result = await firstValueFrom(service.bulkReinvite(mockOrganization, users));
 
       expect(memberDialogManager.openBulkReinviteFailureDialog).toHaveBeenCalledWith(
         mockOrganization,

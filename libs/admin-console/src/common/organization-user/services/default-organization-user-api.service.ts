@@ -131,30 +131,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  postOrganizationUserReinvite(organizationId: string, id: string): Promise<any> {
-    return this.apiService.send(
-      "POST",
-      "/organizations/" + organizationId + "/users/" + id + "/reinvite",
-      null,
-      true,
-      false,
-    );
-  }
-
-  async postManyOrganizationUserReinvite(
-    organizationId: string,
-    ids: string[],
-  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
-    const r = await this.apiService.send(
-      "POST",
-      "/organizations/" + organizationId + "/users/reinvite",
-      new OrganizationUserBulkRequest(ids),
-      true,
-      true,
-    );
-    return new ListResponse(r, OrganizationUserBulkResponse);
-  }
-
   postOrganizationUserAcceptInit(
     organizationId: string,
     id: string,
