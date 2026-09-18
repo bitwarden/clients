@@ -157,6 +157,28 @@ export const ActiveLease: Story = {
   ],
 };
 
+/**
+ * An extended lease: the countdown runs to the lease's own end, which the extension pushed an hour
+ * past the request's activation window, and the badge names the time it added.
+ */
+export const ExtendedLease: Story = {
+  decorators: [
+    detail({
+      request: () =>
+        accessRequest({
+          status: "approved",
+          resolvedAt: fromNow(-40 * MINUTE),
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+          leaseNotBefore: liveFromNow(-30 * MINUTE),
+          leaseNotAfter: liveFromNow(30 * MINUTE),
+          producedLeaseNotAfter: liveFromNow(90 * MINUTE),
+          decisions: [decision()],
+        }),
+    }),
+  ],
+};
+
 /** Denied, with the approver's reasoning carried in the decision log. */
 export const Denied: Story = {
   decorators: [
