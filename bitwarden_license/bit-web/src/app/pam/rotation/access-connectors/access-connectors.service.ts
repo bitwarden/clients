@@ -243,7 +243,7 @@ export class AccessConnectorsService {
 
   private requireOrganizationId(): OrganizationId {
     if (this.organizationId == null) {
-      throw new Error("AccessConnectorsService.load must run before mutating accessConnectors.");
+      throw new Error("AccessConnectorsService.load must run before mutating access connectors.");
     }
     return this.organizationId;
   }
