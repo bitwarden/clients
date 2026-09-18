@@ -91,7 +91,11 @@ function makeSystem(): TargetSystem {
 }
 
 function makeOtherSystem(): TargetSystem {
-  return targetSystem({ id: sysId("ts-2"), name: "Prod MSSQL", kind: TargetSystemKind.Mssql });
+  return targetSystem({
+    id: sysId("ts-2"),
+    name: "Prod scripted host",
+    kind: TargetSystemKind.CustomScript,
+  });
 }
 
 /** A second target sharing the first's name, differing only in its integration. */
@@ -278,8 +282,8 @@ describe("AccessConnectorDetailComponent", () => {
     expect(comp.assignOptions()).toEqual([
       {
         id: String(sysId("ts-2")),
-        listName: "Prod MSSQL (pamTargetSystemTypeMssql)",
-        labelName: "Prod MSSQL (pamTargetSystemTypeMssql)",
+        listName: "Prod scripted host (pamTargetSystemTypeCustomScript)",
+        labelName: "Prod scripted host (pamTargetSystemTypeCustomScript)",
       },
     ]);
   });
