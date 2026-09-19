@@ -23,11 +23,11 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   ): Observable<OrganizationInviteLinkView | undefined> {
     return this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).state$.pipe(
       map((record) => record?.[orgId]),
-      switchMap((cached) => (cached == null ? this.getInviteLink(userId, orgId) : of(cached))),
+      switchMap((cached) => (cached == null ? this.get(userId, orgId) : of(cached))),
     );
   }
 
-  async createInviteLink(
+  async create(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
@@ -43,6 +43,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
           using ref = sdk.take();
           return await ref.value
             .invite_link()
+            .admin()
             .create(asUuid<SdkOrganizationId>(orgId), allowedDomains, supportsConfirmation);
         }),
         concatMap(async (view) => {
@@ -68,6 +69,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
           using ref = sdk.take();
           return await ref.value
             .invite_link()
+            .admin()
             .update_allowed_domains(asUuid<SdkOrganizationId>(orgId), allowedDomains);
         }),
         concatMap(async (view) => {
@@ -78,7 +80,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  async refreshInviteLink(
+  async refresh(
     userId: UserId,
     orgId: OrganizationId,
     supportsConfirmation: boolean,
@@ -89,6 +91,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
           using ref = sdk.take();
           return await ref.value
             .invite_link()
+            .admin()
             .refresh(asUuid<SdkOrganizationId>(orgId), supportsConfirmation);
         }),
         concatMap(async (view) => {
@@ -111,7 +114,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
-          await ref.value.invite_link().delete(asUuid<SdkOrganizationId>(orgId));
+          await ref.value.invite_link().admin().delete(asUuid<SdkOrganizationId>(orgId));
         }),
       ),
     );
@@ -125,7 +128,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     return `${env.getWebVaultUrl()}${urlFragment}`;
   }
 
-  private async getInviteLink(
+  private async get(
     userId: UserId,
     orgId: OrganizationId,
   ): Promise<OrganizationInviteLinkView | undefined> {
@@ -133,7 +136,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value.invite_link().get(asUuid<SdkOrganizationId>(orgId));
+          return await ref.value.invite_link().admin().get(asUuid<SdkOrganizationId>(orgId));
         }),
       ),
     );

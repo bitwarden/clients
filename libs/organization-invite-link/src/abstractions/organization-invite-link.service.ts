@@ -15,7 +15,7 @@ export abstract class OrganizationInviteLinkService {
    * Create a new invite link for the organization. Resolves once the SDK key generation,
    * API call, and local state update have all succeeded.
    */
-  abstract createInviteLink(
+  abstract create(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
@@ -35,7 +35,7 @@ export abstract class OrganizationInviteLinkService {
    * Refresh the invite link via the server endpoint. Resolves once the SDK key generation,
    * API call, and local state update have all succeeded.
    */
-  abstract refreshInviteLink(
+  abstract refresh(
     userId: UserId,
     orgId: OrganizationId,
     supportsConfirmation: boolean,
