@@ -93,6 +93,18 @@ async function pack(config: BuildConfig): Promise<void> {
   });
 }
 
+/// TODO: stop needing the electron-builder hooks at all. before-pack.js, after-pack.js and
+/// after-sign.js each re-derive what this build already decided -- gating the autofill
+/// extension on whether a directory exists, picking a signing identity from GITHUB_ACTIONS,
+/// notarizing any darwin build -- and they are the reason a configuration this script has in
+/// hand cannot be honoured end to end. What they do belongs here, where the build
+/// configuration is readable.
+///
+/// When that happens, embed the autofill and safari extensions at the point after-pack runs
+/// rather than where after-sign does. Both are copied into Contents/PlugIns today *after* the
+/// app has been signed, so after-sign has to re-sign the bundle to cover them. Putting them in
+/// before signing makes the signature right the first time and drops the second pass.
+///
 /// after-pack.js signs the proxy binary with the hardened runtime whatever the configuration
 /// says, picking an identity out of the keychain. Turning electron-builder's signing off makes
 /// it strip the signatures the hook then tries to replace, and the pack fails partway through.
