@@ -94,6 +94,16 @@
       </bit-form-field>
     </ng-container>
 
+    <bit-form-control class="tw-mt-3">
+      <input
+        id="self_hosted_env_settings_form_input_sso_only"
+        type="checkbox"
+        formControlName="ssoOnly"
+        bitCheckbox
+      />
+      <bit-label>{{ "onlyAllowSingleSignOn" | i18n }}</bit-label>
+    </bit-form-control>
+
     <span
       *ngIf="showErrorSummary"
       class="tw-block tw-text-danger tw-mt-2"
