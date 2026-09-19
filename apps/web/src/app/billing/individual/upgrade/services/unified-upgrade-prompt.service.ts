@@ -6,6 +6,7 @@ import { PremiumUpsellService } from "@bitwarden/angular/vault";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
@@ -44,6 +45,7 @@ export class UnifiedUpgradePromptService {
     private logService: LogService,
     private premiumUpsellService: PremiumUpsellService,
     private configService: ConfigService,
+    private govModeService: GovModeService,
   ) {}
 
   private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -78,6 +80,14 @@ export class UnifiedUpgradePromptService {
   async displayUpgradePromptConditionally(): Promise<UnifiedUpgradeDialogResult | null> {
     const serverSettings = await firstValueFrom(this.configService.serverSettings$);
     if (serverSettings?.suppressOnboardingInterstitials) {
+      return null;
+    }
+
+    const govModeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      govModeAccount != null &&
+      (await firstValueFrom(this.govModeService.isGovMode$(govModeAccount.id)))
+    ) {
       return null;
     }
 
