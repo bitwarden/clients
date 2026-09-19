@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -570,6 +570,26 @@ describe("AccountSecurityComponent", () => {
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
       expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
+    });
+  });
+
+  describe("logOut", () => {
+    it("calls LogoutService.logout with the active user and userInitiated reason when confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      const logoutService = TestBed.inject(LogoutService) as MockProxy<LogoutService>;
+
+      await component.logOut();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "userInitiated");
+    });
+
+    it("does not call LogoutService.logout when the dialog is cancelled", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      const logoutService = TestBed.inject(LogoutService) as MockProxy<LogoutService>;
+
+      await component.logOut();
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 });
