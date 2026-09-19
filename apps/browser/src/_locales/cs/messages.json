@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Nejsou k dispozici žádné složky."
   },
+  "noFoldersFilter": {
+    "message": "Žádné složky"
+  },
   "helpFeedback": {
     "message": "Nápověda a zpětná vazba"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "Žádné položky v trezoru"
+  },
+  "noItemsInMyVault": {
+    "message": "Žádné položky v mém trezoru"
+  },
+  "emptyMyItems": {
+    "message": "Žádné položky v mých položkách"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Žádné položky ve $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Žádné položky ve $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Vaše trezory jsou prázdné"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Vybraným filtrům neodpovídají žádné položky"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Žádné položky neodpovídají \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Délka"
@@ -1497,6 +1539,9 @@
   "importVerb": {
     "message": "Importovat",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Importovat položky"
   },
   "fileFormat": {
     "message": "Formát souboru"
@@ -2774,6 +2819,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 výsledek",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ výsledků",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Žádné filtry neodpovídají \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Vymazat hledání"
   },
@@ -3993,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Chyba při načítání dat automatického vyplňování"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nemohl dešifrovat položku z trezoru zobrazenou níže. Kontaktujte zákaznickou podporu Bitwarden a zadejte ID položky níže a zjistěte, zda je možné ji obnovit."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznickou podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nemohl dešifrovat položky z trezoru zobrazené níže. Kontaktujte zákaznickou podporu Bitwarden a zadejte ID položek níže a zjistěte, zda je možné je obnovit."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "abyste zabránili ztrátě dat.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovat ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovat všechna ID"
   },
   "generateUsername": {
     "message": "Vygenerovat uživatelské jméno"
@@ -5755,6 +5833,9 @@
   "switchAccounts": {
     "message": "Přepnout účty"
   },
+  "switchVault": {
+    "message": "Přepnout trezor"
+  },
   "switchToAccount": {
     "message": "Přepnout na účet"
   },
@@ -6853,6 +6934,9 @@
   "noItemsInTrashDesc": {
     "message": "Zde budou zobrazeny položky, které smažete. Po 30 dnech budou smazány trvale."
   },
+  "noItemsInTrashDescription": {
+    "message": "Položky, které smažete, se zobrazí zde a budou trvale smazány po 30 dnech."
+  },
   "trashWarning": {
     "message": "Položky, které byly v koši déle než 30 dnů, budou automaticky smazány."
   },
@@ -7137,6 +7221,33 @@
   },
   "emptyVaultDescription": {
     "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyVaultsDescription": {
+    "message": "Chcete-li začít, přidejte přihlašovací údaje, průkazy, karty a další položky."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Přidejte položky do této sdílené složky a poté povolte přístup ostatním členům k $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Moje položky jsou Vaše soukromé prostory pro ukládání položek, které zůstávají ve vlastnictví $VAULT_NAME$, ale nejsou viditelné pro ostatní členy.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nemáte žádné složky."
+  },
+  "emptyFoldersDescription": {
+    "message": "Používejte složky k organizaci předmětů v trezoru. Jsou jen pro Vás - nikdo jiný je nebude vidět ani používat."
   },
   "introCarouselLabel": {
     "message": "Vítejte v Bitwardenu"
@@ -8020,5 +8131,84 @@
   },
   "editItemsHidePass": {
     "message": "Upravit položky, skrytá hesla"
+  },
+  "shareVerb": {
+    "message": "Sdílet"
+  },
+  "peopleWhoCanView": {
+    "message": "Lidé, kteří mohou zobrazit",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po sdílení tohoto odkazu budou muset příjemci ověřit svůj e-mail pomocí kódu pro zobrazení této položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz vyprší po tomto datu, ale příjemci si mohou ponechat dříve sdílené informace. Obnovte pověření pro zrušení přístupu.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkazu vyprší platnost za",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorázové sdílení",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktivní odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz byl zkopírován do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nelze vytvořit odkaz pro sdílení",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz byl uložen a zkopírován do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodařilo se zkopírovat odkaz do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz pro sdílení byl smazán",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodařilo se smazat odkaz pro sdílení",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Sdílet přes odkaz",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Sdílet pro položku v trezoru $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Sdílet",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Vyprší",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Vyprší",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
   }
 }

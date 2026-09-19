@@ -76,6 +76,7 @@ describe("DesktopLayoutComponent", () => {
         color: "brand",
         icon: "bwi-user",
         type: VaultNavItemType.Personal,
+        enabled: true,
       },
       {
         id: "org-id",
@@ -83,6 +84,7 @@ describe("DesktopLayoutComponent", () => {
         color: "purple",
         icon: "bwi-business",
         type: VaultNavItemType.Organization,
+        enabled: true,
       },
     ],
     organizationDataOwnership: false,

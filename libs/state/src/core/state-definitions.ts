@@ -41,6 +41,9 @@ export const ORGANIZATION_INVITE_LINK_MEMORY = new StateDefinition(
   "organizationInviteLink",
   "memory",
 );
+export const INVITE_LINK_CALLOUT_DISK = new StateDefinition("inviteLinkCallout", "disk", {
+  web: "disk-local",
+});
 export const SCIM_BANNER = new StateDefinition("scimBanner", "disk", {
   web: "disk-local",
 });

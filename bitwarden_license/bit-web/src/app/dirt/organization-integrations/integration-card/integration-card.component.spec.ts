@@ -17,15 +17,20 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { IntegrationDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
+import {
+  IntegrationDialogResultStatus,
+  openConnectViaHecTokenDialog,
+  openHecConnectDialog,
+} from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
 jest.mock("../integration-dialog", () => ({
   openHecConnectDialog: jest.fn(),
+  openConnectViaHecTokenDialog: jest.fn(),
   openDatadogConnectDialog: jest.fn(),
   openHuntressConnectDialog: jest.fn(),
-  IntegrationDialogResultStatus: { Edited: "edit", Delete: "delete" },
+  IntegrationDialogResultStatus: { Edited: "edit", Delete: "delete", SavedViaCallback: "saved" },
 }));
 
 describe("IntegrationCardComponent", () => {
@@ -275,13 +280,11 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should call updateHec if isUpdateAvailable is true", async () => {
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       const config = OrgIntegrationBuilder.buildHecConfiguration(
@@ -295,8 +298,14 @@ describe("IntegrationCardComponent", () => {
       );
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
+      mockIntegrationService.update.mockResolvedValue({
+        mustBeOwner: false,
+        success: true,
+        organizationIntegrationResult: {} as any,
+      });
 
       await component.setupConnection();
+      await capturedCallback!("test-url", "token", "index");
 
       expect(mockIntegrationService.update).toHaveBeenCalledWith(
         "org-id",
@@ -316,13 +325,11 @@ describe("IntegrationCardComponent", () => {
       } as any);
       component.organizationId = "org-id" as any;
 
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       const config = OrgIntegrationBuilder.buildHecConfiguration(
@@ -336,10 +343,14 @@ describe("IntegrationCardComponent", () => {
       );
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
-
-      mockIntegrationService.save.mockResolvedValue({ mustBeOwner: false, success: true });
+      mockIntegrationService.save.mockResolvedValue({
+        mustBeOwner: false,
+        success: true,
+        organizationIntegrationResult: {} as any,
+      });
 
       await component.setupConnection();
+      await capturedCallback!("test-url", "token", "index");
 
       expect(mockIntegrationService.save).toHaveBeenCalledWith(
         "org-id",
@@ -403,19 +414,18 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should show toast on error while saving", async () => {
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
       mockIntegrationService.update.mockRejectedValue(new Error("fail"));
 
       await component.setupConnection();
+      await expect(capturedCallback!("test-url", "token", "index")).rejects.toThrow();
 
       expect(mockIntegrationService.update).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
@@ -426,19 +436,18 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should show mustBeOwner toast on error while inserting data", async () => {
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.update.mockRejectedValue(new ErrorResponse("Not Found", 404));
+      mockIntegrationService.update.mockResolvedValue({ mustBeOwner: true, success: false });
 
       await component.setupConnection();
+      await expect(capturedCallback!("test-url", "token", "index")).rejects.toThrow();
 
       expect(mockIntegrationService.update).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
@@ -449,18 +458,18 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should show mustBeOwner toast on error while updating data", async () => {
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.update.mockRejectedValue(new ErrorResponse("Not Found", 404));
+      mockIntegrationService.update.mockResolvedValue({ mustBeOwner: true, success: false });
+
       await component.setupConnection();
+      await expect(capturedCallback!("test-url", "token", "index")).rejects.toThrow();
 
       expect(mockIntegrationService.update).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
@@ -516,13 +525,11 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should show error toast when save returns success: false", async () => {
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
@@ -533,6 +540,7 @@ describe("IntegrationCardComponent", () => {
       });
 
       await component.setupConnection();
+      await expect(capturedCallback!("test-url", "token", "index")).rejects.toThrow();
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
@@ -543,13 +551,11 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should show success toast when save returns success: true", async () => {
-      (openHecConnectDialog as jest.Mock).mockReturnValue({
-        closed: of({
-          success: IntegrationDialogResultStatus.Edited,
-          url: "test-url",
-          bearerToken: "token",
-          index: "index",
-        }),
+      let capturedCallback:
+        ((url: string, bearerToken: string, index: string) => Promise<string | null>) | undefined;
+      (openHecConnectDialog as jest.Mock).mockImplementation((_: any, options: any) => {
+        capturedCallback = options.data.saveCallback;
+        return { closed: of({ success: IntegrationDialogResultStatus.SavedViaCallback }) };
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
@@ -560,6 +566,7 @@ describe("IntegrationCardComponent", () => {
       });
 
       await component.setupConnection();
+      await capturedCallback!("test-url", "token", "index");
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -613,6 +620,46 @@ describe("IntegrationCardComponent", () => {
         message: mockI18nService.t("success"),
       });
       expect(stateService.deleteIntegrationSettings).toHaveBeenCalled();
+    });
+
+    it("should skip save when dialog closes with SavedViaCallback", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: IntegrationDialogResultStatus.SavedViaCallback,
+        }),
+      });
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.save).not.toHaveBeenCalled();
+      expect(mockIntegrationService.update).not.toHaveBeenCalled();
+      expect(mockIntegrationService.delete).not.toHaveBeenCalled();
+    });
+
+    it("should pass saveCallback to openConnectViaHecTokenDialog for Splunk path", async () => {
+      fixture.componentRef.setInput("integrationSettings", {
+        organizationIntegration: null,
+        name: OrganizationIntegrationServiceName.Splunk,
+        integrationType: OrganizationIntegrationType.Hec,
+      } as any);
+      component.organizationId = "org-id" as any;
+      stateService.integrations.mockReturnValue([]);
+      stateService.organization.mockReturnValue({ id: "org-id" } as any);
+
+      (openConnectViaHecTokenDialog as jest.Mock).mockReturnValue({
+        closed: of(undefined),
+      });
+
+      await component.setupConnection();
+
+      expect(openConnectViaHecTokenDialog).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            saveCallback: expect.any(Function),
+          }),
+        }),
+      );
     });
   });
 });

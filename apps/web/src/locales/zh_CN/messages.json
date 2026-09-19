@@ -1275,6 +1275,9 @@
   "foldersFilterTooltip": {
     "message": "将文件夹添加到项目以在此处筛选它们。"
   },
+  "myItemsFilterTooltip": {
+    "message": "将项目添加到「我的项目」以在此处筛选它们。"
+  },
   "sharedFolderFilterTooltip": {
     "message": "将项目添加到共享文件夹以在此处筛选它们。"
   },
@@ -1700,6 +1703,14 @@
     "message": "复制用户名",
     "description": "Copy username to clipboard"
   },
+  "copyExternalId": {
+    "message": "复制外部 ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "复制 SSO 外部 ID",
+    "description": "Copy SSO external ID to clipboard"
+  },
   "copyNumber": {
     "message": "复制号码",
     "description": "Copy credit card number"
@@ -1915,6 +1926,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 个结果",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ 个结果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "没有匹配「$SEARCH$」的筛选",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "清除搜索"
@@ -2537,13 +2572,82 @@
     "message": "回收站中没有项目"
   },
   "noItemsInTrashDesc": {
-    "message": "您删除的项目将显示在这里，并在 30 天后永久删除"
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除"
+  },
+  "noItemsInTrashDescription": {
+    "message": "您删除的项目将显示在这里，并将在 30 天后被永久删除。"
   },
   "noItemsInVault": {
     "message": "密码库中没有项目"
   },
+  "noItemsInMyVault": {
+    "message": "「我的密码库」中没有项目"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ 中没有项目",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "「我的项目」中没有项目"
+  },
+  "noItemsInVaults": {
+    "message": "您的密码库是空的"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "没有匹配所选筛选规则的项目"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "没有匹配「$SEARCH_TERM$」的项目",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
+  "emptySharedFolderDescription": {
+    "message": "将项目添加到此共享文件夹，然后授予其他 $VAULT_NAME$ 成员访问权限。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "「我的项目」是您的私人空间，用于存储由 $VAULT_NAME$ 拥有、但其他成员不可见的项目。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "您没有文件夹。"
+  },
+  "emptyFoldersDescription": {
+    "message": "使用文件夹来整理密码库项目。这些文件夹仅供您使用 - 其他人无法看到或使用它们。"
+  },
+  "emptyVaultsDescription": {
+    "message": "添加登录、ID、支付卡和其他项目以开始使用。"
   },
   "emptyFavorites": {
     "message": "您没有收藏任何项目"
@@ -3157,7 +3261,7 @@
     "message": "继续下面的操作以启用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "停用新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
+    "message": "停用新设备登录保护后，拥有您的主密码的任何人都可以从任意设备访问您的账户。要在无需验证电子邮件的情况下保护您的账户，请设置两步登录。"
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "新设备登录保护更改已保存"
@@ -3807,6 +3911,9 @@
     "message": "不允许成员创建和存储信用卡项目。启用此策略后，现有的支付卡将被自动隐藏。",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "不允许成员创建和存储支付卡项目。现有的支付卡将被隐藏。"
+  },
   "restrictCardTypeImport": {
     "message": "无法导入支付卡项目类型"
   },
@@ -4172,8 +4279,11 @@
   "passkeyLoginFound": {
     "message": "支持通行密钥的登录"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "我们在您的密码库中发现了 $COUNT$ 个支持通行密钥的登录。为进一步保障这些账户的安全，请考虑在支持的情况下设置通行密钥。数据来源：passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "好消息！我们在您的密码库中找到了"
+  },
+  "loginsCount": {
+    "message": "$COUNT$ 个",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4291,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "我们在您的密码库中发现了 $COUNT$ 个支持通行密钥的登录。为进一步保障这些账户的安全，请考虑在支持的情况下设置通行密钥。数据来源：passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": "支持通行密钥的登录。为进一步保护这些账户，请考虑在可用的地方设置通行密钥。来源：passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": "支持通行密钥的登录。为进一步保护这些账户，请考虑在可用的地方设置通行密钥。来源：passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "在您的密码库中未发现支持通行密钥但尚未配置的账户。"
@@ -4588,6 +4695,15 @@
   },
   "reinstateSubscription": {
     "message": "恢复订阅"
+  },
+  "keepSubscription": {
+    "message": "保持订阅"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "您的订阅已过期，即将暂停。"
+  },
+  "subscriptionPastDuePaused": {
+    "message": "您的订阅已过期，且已暂停。"
   },
   "reinstateConfirmation": {
     "message": "确定要移除待取消的请求并恢复订阅吗？"
@@ -5322,10 +5438,6 @@
   },
   "collectionInfo": {
     "message": "集合信息"
-  },
-  "sharedFolderInfo": {
-    "message": "共享文件夹信息",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "确定要删除此集合吗？"
@@ -6227,7 +6339,7 @@
     }
   },
   "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
-    "message": "因不符合单一组织成员资格策略，撤销了 $ID$ 对 $ORGNAME$ 密码库的访问权限。",
+    "message": "因不符合「单一组织成员资格」策略，撤销了 $ID$ 对 $ORGNAME$ 密码库的访问权限。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7154,7 +7266,7 @@
     "message": "无捆绑优惠的席位，请联系"
   },
   "subscriptionUserSeatsLimitedAutoscale": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用，直到达到您的 $MAX$ 个席位限制。",
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用，直到达到您的席位限制 $MAX$。",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -7384,6 +7496,9 @@
   "inviteLinkRegenerated": {
     "message": "邀请链接已重新生成"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "邀请链接已更新"
+  },
   "regenerateInviteLink": {
     "message": "重新生成邀请链接"
   },
@@ -7405,8 +7520,62 @@
   "deactivateLink": {
     "message": "停用链接"
   },
+  "requireAdminConfirmation": {
+    "message": "需要管理员确认"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "管理员必须手动批准新成员才能将其添加到组织密码库。"
+  },
+  "setYourAllowedDomains": {
+    "message": "设置您允许的域名"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "添加允许的电子邮箱域名（例如 acme.com），这样只有电子邮箱地址匹配的用户才能使用此邀请链接。您可以随时更新此设置。"
+  },
+  "adjustTheLink": {
+    "message": "调整链接"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "您的需求发生变化，链接也可随之更改。<strong>重新生成</strong>链接以让旧链接失效，并创建新链接。"
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "您的需求发生变化，链接也可随之更改。"
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>重新生成</strong>链接以让旧链接失效，并创建新链接。"
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>需要管理员确认</strong>才能批准新成员加入组织。"
+  },
+  "shareTheLinkAnywhere": {
+    "message": "随时随地分享链接"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "复制并粘贴此链接到您的团队可找到的地方：您的入职清单、Slack #new-joiners 频道、Notion 文档或电子邮件模板。"
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "查看 Bitwarden 入职指南"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "完成"
+  },
   "inviteByLinkDesc": {
     "message": "通过链接邀请成员加入您的组织。如果尚未指定任何角色，他们将被添加为默认用户。"
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
   },
   "byContinuingYouAgreeToThe": {
     "message": "若继续，表示您同意"
@@ -7719,9 +7888,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "为所有成员生成的密码选择一组最低要求。"
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "设置密码生成器要求。",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "为所有成员生成的密码设置最低要求。"
   },
   "generatedPassword": {
     "message": "生成的密码"
@@ -7774,7 +7942,7 @@
   "minimumNumberOfWords": {
     "message": "单词最少个数"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "密码类型",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7978,9 +8146,8 @@
   "singleOrgDesc": {
     "message": "限制成员加入其他组织。"
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "限制成员加入其他共享密码库或组织密码库。",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "成员不能加入其他组织密码库。"
   },
   "singleOrgPolicyDescV2": {
     "message": "本组织成员不能加入其他组织。启用此策略后，属于其他组织的现有成员将被撤销其访问权限。所有者和管理员不受此策略的约束。"
@@ -8002,13 +8169,9 @@
     "message": "要求 SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "要求成员使用企业单点登录 (SSO) 方式登录。",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "要求成员使用企业单点登录 (SSO) 方式登录。所有者和管理员不受此策略的约束。",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "要求成员使用 SSO 登录。",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "要求单点登录 (SSO)"
@@ -8426,9 +8589,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此策略的约束。"
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "通过禁用他们个人拥有的「我的密码库」，要求成员将项目保存到组织。",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "所有成员项目都将由组织拥有和管理。"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "进一步了解集中化所有权",
@@ -8666,6 +8828,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "为成员启用桌面端自动输入。成员将可以在桌面客户端中手动停用自动输入。"
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "为成员启用桌面端自动输入。"
+  },
   "disableSend": {
     "message": "禁用 Send"
   },
@@ -8710,25 +8875,21 @@
   "sendControls": {
     "message": "Send 控制"
   },
-  "manageSend": {
-    "message": "管理 Send",
+  "manageSendV2": {
+    "message": "Manage Send and share",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
-  },
-  "manageSendAndShareVfo1": {
-    "message": "管理 Send 和共享",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "管理成员使用 Send 的方式。启用此策略后，此策略将应用于 Send 的创建。管理员和所有者不受此策略的约束。",
+  "sendControlsPolicyDescV5": {
+    "message": "Manage how members use Send and share Vault items. This policy won't be enforced for owners and admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "设置 Send 配置选项。",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "管理成员使用 Send 的方式。",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send 选项",
@@ -9185,9 +9346,8 @@
   "accountRecoveryPolicy": {
     "message": "账户恢复管理"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "允许管理员重置成员的主密码。",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "允许管理员帮助成员重新获得其账户的访问权限。"
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
@@ -9395,16 +9555,25 @@
   "decryptionError": {
     "message": "解密错误"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden 无法解密下列密码库项目。"
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden 无法解密下面列出的密码库项目。请联系 Bitwarden 客户支持并提供下面的项目 ID，以查看它是否可以恢复。"
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "联系客户成功团队",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden 无法解密下面列出的密码库项目。请联系 Bitwarden 客户支持并提供下面的项目 ID，以查看它们是否可以恢复。"
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "以避免进一步的数据丢失。",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "项目 ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "项目 ID",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "复制 ID"
+  },
+  "copyAllIds": {
+    "message": "复制所有 ID"
   },
   "accountRecoveryManageUsers": {
     "message": "授予「管理账户恢复」权限时，必须同时授予「管理用户」权限"
@@ -9586,9 +9755,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "为除所有者以外的所有成员设置最大会话超时。"
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "为成员设置最大密码库超时。",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "为成员设置最大会话超时。"
   },
   "maximumAllowedTimeout": {
     "message": "最大允许的超时"
@@ -9716,18 +9884,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "一个或多个组织策略阻止您导出个人密码库。"
   },
-  "activateAutofillPolicy": {
-    "message": "激活自动填充"
-  },
   "enableAutofillOnPageLoad": {
     "message": "启用页面加载时自动填充"
   },
   "activateAutofillPolicyDescription": {
     "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时自动填充设置。"
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "在网站和 App 上自动填写登录。",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "为所有成员启用浏览器扩展中的页面加载时自动填充设置。"
   },
   "activateAutofillPolicyDescV2": {
     "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。被攻破或不受信任的网站可能会"
@@ -10396,9 +10560,6 @@
   "billingHistory": {
     "message": "计费历史记录"
   },
-  "backToReports": {
-    "message": "返回到报告"
-  },
   "organizationPicker": {
     "message": "组织选择器"
   },
@@ -10499,6 +10660,10 @@
   "random": {
     "message": "随机",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "网站名称",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "随机单词"
@@ -10785,18 +10950,6 @@
   "scimLearnMore": {
     "message": "进一步了解 SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "通过 SCIM 配置，使用您首选的身份提供程序自动配置用户和群组。查找支持的集成",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "启用 SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "通过配置 URL 和 SCIM API 密钥来设置您的首选身份提供程序",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "此 API 密钥具有管理您组织内用户的权限。请严格保密。"
   },
@@ -10957,6 +11110,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "仅剩余 $COUNT$ 个席位。请移除某些电子邮箱地址，或升级您的方案。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11134,6 +11296,48 @@
   },
   "hardDeleteSecrets": {
     "message": "永久删除机密"
+  },
+  "currentVersion": {
+    "message": "当前版本",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "修改者：$NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "机密值已复制",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "机密已恢复到所选版本",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "恢复机密版本",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "确定要将此机密恢复到所选版本吗？当前值将被替换。",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "先前版本",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "历史版本",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "没有历史版本",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "选择要将此机密与其相关联的工程。只有拥有这些工程访问权限的组织用户能看到此机密。",
@@ -11790,35 +11994,8 @@
   "switchProducts": {
     "message": "切换产品"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "免费版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以邀请更多成员。",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "免费版组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。请升级您的方案以邀请更多成员。",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级您的方案以邀请更多成员。",
+  "seatLimitReachedContactOwner": {
+    "message": "已达到席位限制 $SEATCOUNT$。请联系您的组织所有者升级方案。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12341,6 +12518,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "确定要恢复这些密机密吗？"
+  },
+  "restoreThisVersion": {
+    "message": "恢复此版本"
   },
   "secretRestoredSuccessToast": {
     "message": "机密已恢复"
@@ -13154,14 +13334,14 @@
   "unexpectedErrorSend": {
     "message": "加载此 Send 时发生意外错误。请稍后再试。"
   },
-  "seatLimitReached": {
-    "message": "已达到席位限制"
-  },
-  "contactYourProvider": {
-    "message": "请联系您的提供商购买附加席位。"
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "已达到席位限制。请联系您的提供商购买附加席位。"
+  "seatLimitReachedContactProvider": {
+    "message": "已达到席位限制 $SEATCOUNT$。请联系您的提供商购买附加席位。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "集合访问权限受限"
@@ -13318,7 +13498,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "配置、 管理或日常使用过于复杂。",
+    "message": "入职、 管理或日常使用过于复杂。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
@@ -14550,24 +14730,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "SSO 身份验证"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以邀请更多成员。",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以恢复此成员的访问权限。",
     "placeholders": {
@@ -14925,6 +15087,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "为成员禁用此选项以兑换免费的家庭版方案。",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "不允许成员兑换由您的组织赞助的家庭版方案。"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
@@ -15374,6 +15539,9 @@
     "message": "缺少网站"
   },
   "removeUnlockWithPinPolicyTitle": {
+    "message": "禁用 PIN 码解锁"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
     "message": "禁用 PIN 码解锁"
   },
   "removeUnlockWithPinPolicyDescV2": {
@@ -17047,6 +17215,9 @@
   "singleOrgPrerequisite": {
     "message": "必须先启用「单一组织」策略，然后才能激活此策略。"
   },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "必须先启用「单一组织成员资格」策略，然后才能激活此策略。"
+  },
   "enableBanner": {
     "message": "启用通知横幅"
   },
@@ -17579,5 +17750,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "使用单个链接邀请您的整个团队"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "拥有公司电子邮箱的任何人都可以使用邀请链接加入您的组织。将其拖放到入职资源中，以便新雇员准备好后可以加入。"
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Invite members dialog preview showing the new by-link tab"
+  },
+  "showMeHow": {
+    "message": "告诉我怎么做"
+  },
+  "shareVerb": {
+    "message": "共享"
+  },
+  "peopleWhoCanView": {
+    "message": "可以查看的人",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "分享此链接后，接收者需要使用验证码验证他们的电子邮箱才能查看此项目。",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "此链接将在该日期后过期，但接收者可能会保留此前已共享的信息。重新生成凭据以撤销访问权限。",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "链接过期时间",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "一次性分享",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "活动链接",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "链接已复制到剪贴板",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "无法创建共享链接",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "链接已保存并复制到剪贴板",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "复制共享链接到剪贴板失败",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "共享链接已删除",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "删除共享链接失败",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "通过链接分享",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "共享密码库项目 $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "附加服务账户"
+  },
+  "additionalStorageGbLower": {
+    "message": "附加存储 GB"
+  },
+  "membersLower": {
+    "message": "成员"
+  },
+  "memberLower": {
+    "message": "成员"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Keep and reactivate"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "按比例的 Password Manager 费用"
+  },
+  "storageProratedCharge": {
+    "message": "按比例的存储费用"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "按比例的 Secrets Manager 费用"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "按比例的服务账户费用"
   }
 }

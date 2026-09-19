@@ -21,7 +21,10 @@ import { BitTableV2Component, defineTable, TableDef } from "@bitwarden/component
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
-import { VaultItemsTableCopyPresentation } from "./vault-items-table-copy-presentation";
+import {
+  DEFAULT_COPY_PRESENTATION,
+  VaultItemsTableCopyPresentation,
+} from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableColumn } from "./vault-items-table.component";
 
@@ -49,7 +52,7 @@ class HostComponent {
     VaultItemsTableColumn
   >(this.ciphers);
   readonly rowActions = signal<VaultItemsTableRowAction<CipherView>[]>([]);
-  readonly copyPresentation = signal<VaultItemsTableCopyPresentation>("collapsed");
+  readonly copyPresentation = signal<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
 
   /**
    * The column's host element matches none of `bit-table-v2`'s `ng-content` selectors, so it is
@@ -362,6 +365,72 @@ describe("VaultItemsTableActionsColumnComponent", () => {
 
       expect(platformUtilsService.launchUri).not.toHaveBeenCalled();
       expect(cipherService.updateLastLaunchedDate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("right-click context menu", () => {
+    /** The rendered data rows, which are what the context menu listener binds to. */
+    function rows(): HTMLElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('bit-row[role="row"]'));
+    }
+
+    /**
+     * Right-clicks a row at a point well away from the actions cell, so a menu that opens proves
+     * the listener covers the whole row rather than just the trigger button.
+     */
+    function rightClickRow(rowIndex: number, init: MouseEventInit = {}): MouseEvent {
+      const event = new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+        ...init,
+      });
+      rows()[rowIndex].dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    }
+
+    function openMenuItems(): HTMLButtonElement[] {
+      return Array.from(document.querySelectorAll("[bitMenuItem]"));
+    }
+
+    beforeEach(() => {
+      host.ciphers.set([loginCipher({ id: "a" }), loginCipher({ id: "b", name: "Apple" })]);
+      host.rowActions.set([
+        { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: jest.fn() },
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("opens the row's overflow menu when the row is right-clicked", () => {
+      rightClickRow(0);
+
+      expect(openMenuItems().length).toBeGreaterThan(0);
+    });
+
+    it("suppresses the native menu so the row menu replaces it", () => {
+      const event = rightClickRow(0);
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("gives each row's menu that row's own item", () => {
+      const run = jest.fn();
+      host.rowActions.set([{ id: "edit", label: "Edit", icon: "bwi-pencil-square", run }]);
+      fixture.detectChanges();
+
+      rightClickRow(1);
+      openMenuItems()[0].click();
+
+      expect(run).toHaveBeenCalledWith(expect.objectContaining({ id: "b" }));
+    });
+
+    it("lets shift+ctrl through to the native browser menu", () => {
+      const event = rightClickRow(0, { shiftKey: true, ctrlKey: true });
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(openMenuItems()).toHaveLength(0);
     });
   });
 });

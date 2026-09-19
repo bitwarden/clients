@@ -10,7 +10,12 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -57,11 +62,20 @@ const mockToastService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockLogService = {
+  error: () => {},
+};
+
+const mockServerSettingsService = {
+  isEmailVerificationDisabled$: of(false),
 };
 
 const mockDialogRef = {
@@ -123,23 +137,34 @@ function makeMockInviteLinkService(
 ) {
   const inviteLink$ = new BehaviorSubject<OrganizationInviteLinkView | undefined>(initialLink);
 
-  const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) => {
+  const patchLink = (patch: Partial<OrganizationInviteLinkView>) => {
     const current = inviteLink$.getValue();
     inviteLink$.next(
       Object.assign(new OrganizationInviteLinkView({} as any), {
         ...mockInviteLink,
-        allowedDomains: domains,
         creationDate: current?.creationDate ?? new Date().toISOString(),
+        supportsConfirmation: current?.supportsConfirmation ?? mockInviteLink.supportsConfirmation,
+        ...patch,
       }),
     );
     return Promise.resolve();
   };
 
+  const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) =>
+    patchLink({ allowedDomains: domains });
+
+  const setSupportsConfirmation = (
+    _userId: unknown,
+    _orgId: unknown,
+    supportsConfirmation: boolean,
+  ) => patchLink({ supportsConfirmation });
+
   return {
     inviteLink$: () => inviteLink$.asObservable(),
-    createInviteLink: upsertLink,
+    create: upsertLink,
     updateAllowedDomains: upsertLink,
-    refreshInviteLink: () => Promise.resolve(),
+    refresh: () => Promise.resolve(),
+    setInviteConfirmation: setSupportsConfirmation,
     delete: () => {
       inviteLink$.next(undefined);
       return Promise.resolve();
@@ -221,9 +246,11 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
           provide: OrgDomainApiServiceAbstraction,
-          useValue: { getAllByOrgId: () => Promise.resolve([]) },
+          useValue: { getAllMiniByOrgId: () => Promise.resolve([]) },
         },
       ],
     }),
@@ -267,6 +294,16 @@ const makeRender =
         {
           provide: OrganizationInviteLinkService,
           useValue: makeMockInviteLinkService(initialLink),
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.InviteLinkAutoConfirm),
+          },
+        },
+        {
+          provide: ValidationService,
+          useValue: { showError: () => {} },
         },
         {
           provide: Vfo1TerminologyService,

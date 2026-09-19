@@ -32,6 +32,19 @@ export abstract class OrganizationInviteLinkService {
   ): Promise<void>;
 
   /**
+   * Change whether the existing invite link supports confirmation, i.e. whether invitees
+   * self-confirm (`true`) or an admin must confirm them out of band (`false`).
+   *
+   * Only the confirmation setting changes — the link's code and secret are preserved, so
+   * already-distributed links keep working. Rejects when the organization has no invite link.
+   */
+  abstract setInviteConfirmation(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void>;
+
+  /**
    * Refresh the invite link via the server endpoint. Resolves once the SDK key generation,
    * API call, and local state update have all succeeded.
    */
@@ -40,9 +53,6 @@ export abstract class OrganizationInviteLinkService {
     orgId: OrganizationId,
     supportsConfirmation: boolean,
   ): Promise<void>;
-
-  /** Persist an invite link to local state */
-  abstract upsert(userId: UserId, data: OrganizationInviteLinkView): Promise<void>;
 
   /** Delete (revoke) the invite link via the SDK and clear local cached state */
   abstract delete(userId: UserId, orgId: OrganizationId): Promise<void>;

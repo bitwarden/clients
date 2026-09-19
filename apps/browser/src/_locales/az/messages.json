@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Sadalanacaq heç bir qovluq yoxdur."
   },
+  "noFoldersFilter": {
+    "message": "No folders"
+  },
   "helpFeedback": {
     "message": "Kömək və əks-əlaqə"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "Seyfdə element yoxdur"
+  },
+  "noItemsInMyVault": {
+    "message": "Seyfimdə element yoxdur"
+  },
+  "emptyMyItems": {
+    "message": "Elementlərimdə element yoxdur"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ seyfində element yoxdur",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ seyfində element yoxdur",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Seyfləriniz boşdur"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Seçilmiş filtrlərlə uyuşan heç bir element yoxdur"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" ilə uyuşan heç bir element yoxdur",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Uzunluq"
@@ -1497,6 +1539,9 @@
   "importVerb": {
     "message": "Daxilə köçür",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Elementləri daxilə köçür"
   },
   "fileFormat": {
     "message": "Fayl formatı"
@@ -2774,6 +2819,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 nəticə",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ nəticə",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "“$SEARCH$” ilə uyuşan heç bir filtr yoxdur",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Axtarışı təmizlə"
   },
@@ -3993,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Avto-doldurma verilərini alma xətası"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Əlavə veri itkisini önləmək üçün",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "generateUsername": {
     "message": "İstifadəçi adı yarat"
@@ -5755,6 +5833,9 @@
   "switchAccounts": {
     "message": "Hesabları dəyişdir"
   },
+  "switchVault": {
+    "message": "Seyfi dəyişdir"
+  },
   "switchToAccount": {
     "message": "Hesaba keç"
   },
@@ -6853,6 +6934,9 @@
   "noItemsInTrashDesc": {
     "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra birdəfəlik silinəcək"
   },
+  "noItemsInTrashDescription": {
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək."
+  },
   "trashWarning": {
     "message": "Tullantıda 30 gündən çox qalan elementlər avtomatik silinəcək"
   },
@@ -7137,6 +7221,33 @@
   },
   "emptyVaultDescription": {
     "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
+  },
+  "emptyVaultsDescription": {
+    "message": "Başlamaq üçün giriş məlumatlarını, kimliklərinizi, kartlarınızı və digər elementlərinizi əlavə edin."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Elementləri bu paylaşılan qovluğa əlavə et, sonra digər $VAULT_NAME$ üzvlərinə erişim hüququ verin.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "“Elementlərim” sahibi $VAULT_NAME$ olan, lakin digər üzvlərə görünməyən elementləri saxlamaq üçün şəxsi məkanınızdır.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Heç bir qovluğunuz yoxdur."
+  },
+  "emptyFoldersDescription": {
+    "message": "Seyf elementlərini düzənləmək üçün qovluqları istifadə edin. Bunlar sadəcə sizin üçündür, başqa heç kəs onları görə və ya istifadə edə bilməz."
   },
   "introCarouselLabel": {
     "message": "Bitwarden-ə xoş gəlmisiniz"
@@ -7975,7 +8086,7 @@
     "message": "Bu girişlərdəki parollar təkrar istifadə olunub. Kiminsə sadəcə bir parol istifadə edərək birdən çox hesaba erişməsini önləmək üçün hər hesaba unikal bir parol təyin edin."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Əvvəlcə parolunuzu dəyişdirdiyinizə əmin olun. Silmək, elementi yalnız seyfinizdən kənarlaşdırır, riski aradan qaldırmır."
   },
   "passwordHasAdditionalRisks": {
     "message": "Bu parol üçün əlavə risklər var:"
@@ -8020,5 +8131,84 @@
   },
   "editItemsHidePass": {
     "message": "Elementlərə, gizli parollara düzəliş et"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Share",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
   }
 }

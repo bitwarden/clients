@@ -3,7 +3,10 @@ import { concatMap, firstValueFrom, map, Observable, of, switchMap } from "rxjs"
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
+import {
+  OrganizationId as SdkOrganizationId,
+  OrganizationInviteLinkView as SdkOrganizationInviteLinkView,
+} from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { OrganizationInviteLinkService } from "../abstractions/organization-invite-link.service";
@@ -46,10 +49,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
             .admin()
             .create(asUuid<SdkOrganizationId>(orgId), allowedDomains, supportsConfirmation);
         }),
-        concatMap(async (view) => {
-          const url = await this.buildUrl(view.urlFragment);
-          await this.upsert(userId, OrganizationInviteLinkView.fromSdk(view, url));
-        }),
+        concatMap((sdkView) => this.upsert(userId, sdkView)),
       ),
     );
   }
@@ -72,10 +72,27 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
             .admin()
             .update_allowed_domains(asUuid<SdkOrganizationId>(orgId), allowedDomains);
         }),
-        concatMap(async (view) => {
-          const url = await this.buildUrl(view.urlFragment);
-          await this.upsert(userId, OrganizationInviteLinkView.fromSdk(view, url));
+        concatMap((sdkView) => this.upsert(userId, sdkView)),
+      ),
+    );
+  }
+
+  async setInviteConfirmation(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          const inviteLink = ref.value
+            .invite_link()
+            .admin()
+            .update_confirmation(asUuid<SdkOrganizationId>(orgId), supportsConfirmation);
+          return await inviteLink;
         }),
+        concatMap((sdkView) => this.upsert(userId, sdkView)),
       ),
     );
   }
@@ -94,18 +111,18 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
             .admin()
             .refresh(asUuid<SdkOrganizationId>(orgId), supportsConfirmation);
         }),
-        concatMap(async (view) => {
-          const url = await this.buildUrl(view.urlFragment);
-          await this.upsert(userId, OrganizationInviteLinkView.fromSdk(view, url));
-        }),
+        concatMap((sdkView) => this.upsert(userId, sdkView)),
       ),
     );
   }
 
-  async upsert(userId: UserId, data: OrganizationInviteLinkView): Promise<void> {
+  private async upsert(userId: UserId, sdkView: SdkOrganizationInviteLinkView): Promise<void> {
+    const url = await this.buildUrl(sdkView.urlFragment);
+    const view = OrganizationInviteLinkView.fromSdk(sdkView, url);
+
     await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update((state) => {
       const record = state ?? ({} as Record<OrganizationId, OrganizationInviteLinkView>);
-      return { ...record, [data.organizationId]: data };
+      return { ...record, [view.organizationId]: view };
     });
   }
 
@@ -132,7 +149,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
   ): Promise<OrganizationInviteLinkView | undefined> {
-    const view = await firstValueFrom(
+    const sdkView = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
@@ -141,13 +158,14 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       ),
     );
 
-    if (view == null) {
+    if (sdkView == null) {
       return undefined;
     }
 
-    const url = await this.buildUrl(view.urlFragment);
-    const inviteLink = OrganizationInviteLinkView.fromSdk(view, url);
-    await this.upsert(userId, inviteLink);
+    await this.upsert(userId, sdkView);
+
+    const url = await this.buildUrl(sdkView.urlFragment);
+    const inviteLink = OrganizationInviteLinkView.fromSdk(sdkView, url);
     return inviteLink;
   }
 }
