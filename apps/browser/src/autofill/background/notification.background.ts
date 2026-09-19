@@ -125,7 +125,7 @@ export default class NotificationBackground {
     bgOpenChangePasswordUrl: ({ message, sender }) =>
       this.handleOpenChangePasswordUrlMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
-    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
+    bgGetDecryptedCiphers: ({ sender }) => this.getNotificationCipherData(sender.tab),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
     bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
     bgGetExcludedDomains: () => this.getExcludedDomains(),
@@ -223,28 +223,32 @@ export default class NotificationBackground {
 
   /**
    *
-   * Gets the current active tab and retrieves the relevant decrypted cipher
-   * for the tab's URL. It constructs and returns an array of `NotificationCipherData` objects or a singular object.
-   * If no active tab or URL is found, it returns an empty array.
+   * Retrieves the relevant decrypted ciphers for the tab hosting the notification.
+   * It constructs and returns an array of `NotificationCipherData` objects.
+   * If the tab or its URL is missing, it returns an empty array.
    * If new login, returns a preview of the cipher.
    *
+   * @param tab - The tab that requested the notification data
    * @returns {Promise<NotificationCipherData[]>}
    */
 
-  async getNotificationCipherData(): Promise<NotificationCipherData[]> {
-    const [currentTab, showFavicons, env, activeUserId] = await Promise.all([
-      BrowserApi.getTabFromCurrentWindow(),
+  async getNotificationCipherData(tab?: chrome.tabs.Tab): Promise<NotificationCipherData[]> {
+    if (tab?.id == null || !tab.url) {
+      return [];
+    }
+
+    const [showFavicons, env, activeUserId] = await Promise.all([
       firstValueFrom(this.domainSettingsService.showFavicons$),
       firstValueFrom(this.environmentService.environment$),
       firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId)),
     ]);
 
-    if (!currentTab?.url || !activeUserId) {
+    if (!activeUserId) {
       return [];
     }
 
     const [decryptedCiphers, organizations] = await Promise.all([
-      this.cipherService.getAllDecryptedForUrl(currentTab.url, activeUserId),
+      this.cipherService.getAllDecryptedForUrl(tab.url, activeUserId),
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
@@ -257,9 +261,8 @@ export default class NotificationBackground {
       (message): message is AddChangePasswordNotificationQueueMessage | AddLoginQueueMessage =>
         (message.type === NotificationType.ChangePassword ||
           message.type === NotificationType.AddLogin) &&
-        currentTab.id != null &&
-        message.tab.id === currentTab.id &&
-        this.queueMessageIsFromTabOrigin(message, currentTab),
+        message.tab.id === tab.id &&
+        this.queueMessageIsFromTabOrigin(message, tab),
     );
 
     if (cipherQueueMessage) {
@@ -1432,8 +1435,12 @@ export default class NotificationBackground {
 
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
-          data: { newPassword },
+          data: { cipherIds, newPassword },
         } = queueMessage;
+        if (!cipherIds.includes(cipherId)) {
+          continue;
+        }
+
         const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
         if (cipherView == null) {
           continue;
