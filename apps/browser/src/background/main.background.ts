@@ -613,8 +613,10 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
-    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
+    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
+      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
+    };
 
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
