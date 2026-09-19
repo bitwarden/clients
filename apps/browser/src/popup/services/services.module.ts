@@ -184,6 +184,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
@@ -312,7 +313,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BrowserEnvironmentService,
     useClass: BrowserEnvironmentService,
-    deps: [LogService, StateProvider, AccountServiceAbstraction, ENV_ADDITIONAL_REGIONS],
+    deps: [
+      LogService,
+      StateProvider,
+      AccountServiceAbstraction,
+      ManagedSettingsService,
+      ENV_ADDITIONAL_REGIONS,
+    ],
   }),
   safeProvider({
     provide: I18nServiceAbstraction,
