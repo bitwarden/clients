@@ -14,6 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { StateEventRunnerService } from "@bitwarden/state";
 
 import { LockSource } from "./lock-source.enum";
@@ -21,6 +22,9 @@ import { LockSource } from "./lock-source.enum";
 /** Callers batching multiple locks reload the process once, after the last lock. */
 const SuppressProcessReload = true;
 const PerformProcessReload = false;
+
+const UNLOCK_NAMESPACE = "Unlock";
+const LOCK_EVENTS_CATEGORY = "Lock events";
 
 export abstract class LockService {
   /**
@@ -63,6 +67,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
+    private readonly performanceTracking: PerformanceTrackingService,
   ) {}
 
   registerOnLockAction(action: (userId: UserId, source: LockSource) => Promise<void>): void {
@@ -90,18 +95,29 @@ export class DefaultLockService implements LockService {
     // Process reload is suppressed for the individual locks and done once at the
     // end, so a reload cannot cut the remaining locks short.
     for (const otherAccount of accounts.otherAccounts) {
+      if (!(await this.needsLock(otherAccount))) {
+        continue;
+      }
+
       await this.lockUser(otherAccount, source, SuppressProcessReload);
     }
 
     // Do the active account last in case we ever try to route the user on lock
     // that way this whole operation will be complete before that routing
     // could take place.
-    if (accounts.activeAccount != null) {
+    if (accounts.activeAccount != null && (await this.needsLock(accounts.activeAccount))) {
       await this.lockUser(accounts.activeAccount, source, SuppressProcessReload);
     }
 
     // Wipe the current process to clear active secrets in memory.
     await this.processReloadService.reloadProcess();
+  }
+
+  /** An already locked user has nothing to lock. */
+  private async needsLock(userId: UserId): Promise<boolean> {
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+
+    return authStatus !== AuthenticationStatus.Locked;
   }
 
   async lock(userId: UserId, source: LockSource): Promise<void> {
@@ -116,6 +132,13 @@ export class DefaultLockService implements LockService {
     assertNonNullish(userId, "userId", "LockService");
 
     this.logService.info(`[LockService] Locking user ${userId}`);
+
+    // Entry named after what caused the lock, e.g. "vaultTimeout".
+    this.performanceTracking.logEvent({
+      namespace: UNLOCK_NAMESPACE,
+      category: LOCK_EVENTS_CATEGORY,
+      name: source,
+    });
 
     // If user already logged out, then skip locking
     if (
@@ -139,6 +162,7 @@ export class DefaultLockService implements LockService {
     await this.runPlatformOnLockActions(userId, source);
 
     this.logService.info(`[LockService] Locked user ${userId}`);
+    this.performanceTracking.mark("Vault locked");
 
     // Subscribers navigate the client to the lock screen based on this lock message.
     // We need to disable auto-prompting as we are just entering a locked state now.

@@ -22,12 +22,20 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { EncString, PureCrypto, V2UpgradeToken } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { AutoUnlockService } from "./auto-unlock.service";
 import { DefaultUnlockService } from "./default-unlock.service";
 import { UnlockMethod } from "./unlock-method.enum";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 const mockUserId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
 const mockEmail = "test@example.com";
@@ -121,6 +129,7 @@ describe("DefaultUnlockService", () => {
       biometricStateService,
       v2UpgradeTokenStateService,
       autoUnlockService,
+      mockPerformanceTracking(),
     );
 
     setLegacyMasterKeyFromUnlockDataSpy = jest

@@ -4,8 +4,14 @@ import { throwError } from "rxjs";
 
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
+
+const PLATFORM_NAMESPACE = "Platform";
+const SECURE_STORAGE_CATEGORY = "Secure storage";
 
 export class ElectronRendererSecureStorageService implements AbstractStorageService {
+  constructor(private readonly performanceTracking: PerformanceTrackingService) {}
+
   get valuesRequireDeserialization(): boolean {
     return true;
   }
@@ -16,7 +22,11 @@ export class ElectronRendererSecureStorageService implements AbstractStorageServ
   }
 
   async get<T>(key: string, options?: StorageOptions): Promise<T> {
+    // Only the operation is recorded; keys identify users and must stay out of logs.
+    const event = this.startStorageEvent("get");
     const val = await ipc.platform.passwords.get(key, options?.keySuffix ?? "");
+    event.finish();
+
     return val != null ? (JSON.parse(val) as T) : null;
   }
 
@@ -26,10 +36,20 @@ export class ElectronRendererSecureStorageService implements AbstractStorageServ
   }
 
   async save<T>(key: string, obj: T, options?: StorageOptions): Promise<void> {
+    const event = this.startStorageEvent("set");
     await ipc.platform.passwords.set(key, options?.keySuffix ?? "", JSON.stringify(obj));
+    event.finish();
   }
 
   async remove(key: string, options?: StorageOptions): Promise<void> {
     await ipc.platform.passwords.delete(key, options?.keySuffix ?? "");
+  }
+
+  private startStorageEvent(name: string) {
+    return this.performanceTracking.startEvent({
+      namespace: PLATFORM_NAMESPACE,
+      category: SECURE_STORAGE_CATEGORY,
+      name,
+    });
   }
 }

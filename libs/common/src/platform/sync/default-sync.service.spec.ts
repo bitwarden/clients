@@ -16,6 +16,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
@@ -53,6 +54,13 @@ import { StateProvider } from "../state";
 
 import { DefaultSyncService } from "./default-sync.service";
 import { SyncResponse } from "./sync.response";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 describe("DefaultSyncService", () => {
   let masterPasswordAbstraction: MockProxy<InternalMasterPasswordServiceAbstraction>;
@@ -161,6 +169,7 @@ describe("DefaultSyncService", () => {
       stateProvider,
       configService,
       sdkService,
+      mockPerformanceTracking(),
     );
   });
 

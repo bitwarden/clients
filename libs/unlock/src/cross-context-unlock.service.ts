@@ -18,6 +18,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
@@ -60,6 +61,7 @@ export abstract class CrossContextUnlockService extends DefaultUnlockService {
     biometricStateService: BiometricStateService,
     v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     autoUnlockService: AutoUnlockService,
+    performanceTracking: PerformanceTrackingService,
     private readonly messageSender: MessageSender,
     private readonly messageListener: MessageListener,
   ) {
@@ -75,6 +77,7 @@ export abstract class CrossContextUnlockService extends DefaultUnlockService {
       biometricStateService,
       v2UpgradeTokenStateService,
       autoUnlockService,
+      performanceTracking,
     );
   }
 

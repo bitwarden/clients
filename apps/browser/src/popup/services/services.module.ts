@@ -184,6 +184,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
@@ -739,6 +740,7 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       V2UpgradeTokenStateService,
       AutoUnlockService,
+      PerformanceTrackingService,
       MessageSender,
       MessageListener,
     ],

@@ -303,6 +303,10 @@ import {
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
+import {
+  DefaultPerformanceTrackingService,
+  PerformanceTrackingService,
+} from "@bitwarden/performance-tracking";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   ActiveUserStateProvider,
@@ -433,6 +437,7 @@ export default class MainBackground {
   i18nService: I18nServiceAbstraction;
   platformUtilsService: PlatformUtilsServiceAbstraction;
   logService: LogServiceAbstraction;
+  performanceTrackingService: PerformanceTrackingService;
   keyGenerationService: KeyGenerationService;
   keyService: KeyServiceAbstraction;
   legacyCompatKeyService: LegacyCompatKeyServiceAbstraction;
@@ -629,6 +634,9 @@ export default class MainBackground {
 
     const isDev = process.env.ENV === "development";
     this.logService = new ConsoleLogService(isDev);
+    this.performanceTrackingService = new DefaultPerformanceTrackingService(
+      (message, ...optionalParams) => this.logService.debug(message, ...optionalParams),
+    );
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
@@ -1039,6 +1047,7 @@ export default class MainBackground {
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
       this.autoUnlockService,
+      this.performanceTrackingService,
       this.messagingService,
       messageListener,
     );
@@ -1302,6 +1311,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.sdkService,
+      this.performanceTrackingService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1496,6 +1506,7 @@ export default class MainBackground {
       this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
+      this.performanceTrackingService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1567,6 +1578,7 @@ export default class MainBackground {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.performanceTrackingService,
       this,
     );
 

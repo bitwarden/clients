@@ -7,9 +7,17 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { RendererBiometricsService } from "./renderer-biometrics.service";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 jest.mock("@bitwarden/sdk-internal", () => ({
   CryptoClient: {
@@ -57,7 +65,12 @@ describe("renderer biometrics service tests", function () {
       [BiometricsStatus.NotEnabledLocally, false],
     ];
     test.each(table)("canEnableBiometricUnlock(%s) === %s", async (status, expected) => {
-      const service = new RendererBiometricsService();
+      const service = new RendererBiometricsService(
+        undefined,
+        undefined,
+        undefined,
+        mockPerformanceTracking(),
+      );
       (global as any).ipc.keyManagement.biometric.getBiometricsStatus.mockResolvedValue(status);
 
       const result = await service.canEnableBiometricUnlock();
@@ -68,7 +81,16 @@ describe("renderer biometrics service tests", function () {
 
   describe("unlockWithBiometricsForUser", () => {
     const testUserId = "userId1" as UserId;
-    const service = new RendererBiometricsService(tokenService, biometricStateService);
+    let service: RendererBiometricsService;
+
+    beforeEach(() => {
+      service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        undefined,
+        mockPerformanceTracking(),
+      );
+    });
 
     it("should return null if no user key is returned", async () => {
       (global as any).ipc.keyManagement.biometric.unlockWithBiometricsForUser.mockResolvedValue(
@@ -104,7 +126,12 @@ describe("renderer biometrics service tests", function () {
     const getKeyIdMock = () => (CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock;
 
     it("stores the derived key id when the SDK returns a key id", async () => {
-      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        undefined,
+        mockPerformanceTracking(),
+      );
       getKeyIdMock().mockReturnValue(mockKeyId);
 
       await service.enrollPersistent(testUserId, mockUserKey);
@@ -120,7 +147,12 @@ describe("renderer biometrics service tests", function () {
     });
 
     it("clears the enrolled key id when the SDK returns no key id", async () => {
-      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        undefined,
+        mockPerformanceTracking(),
+      );
       getKeyIdMock().mockReturnValue(null);
 
       await service.enrollPersistent(testUserId, mockUserKey);

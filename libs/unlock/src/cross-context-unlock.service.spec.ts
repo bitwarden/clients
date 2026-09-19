@@ -20,12 +20,20 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { AutoUnlockService } from "./auto-unlock.service";
 import { CrossContextUnlockService, UnlockCompletedMessage } from "./cross-context-unlock.service";
 import { UnlockMethod } from "./unlock-method.enum";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 const userId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
 
@@ -59,6 +67,7 @@ describe("CrossContextUnlockService", () => {
       mock<BiometricStateService>(),
       mock<V2UpgradeTokenStateService>(),
       mock<AutoUnlockService>(),
+      mockPerformanceTracking(),
       messageSender,
       messageListener,
     );

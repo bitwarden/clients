@@ -20,10 +20,18 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PerformanceEvent, PerformanceTrackingService } from "@bitwarden/performance-tracking";
 import { StateProvider } from "@bitwarden/state";
 import { AutoUnlockService, UnlockCompletedMessage, UnlockMethod } from "@bitwarden/unlock";
 
 import { ForegroundUnlockService } from "./foreground-unlock.service";
+
+function mockPerformanceTracking(): PerformanceTrackingService {
+  const performanceTracking = mock<PerformanceTrackingService>();
+  performanceTracking.startEvent.mockReturnValue(mock<PerformanceEvent>());
+
+  return performanceTracking;
+}
 
 const userId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
 
@@ -85,6 +93,7 @@ describe("ForegroundUnlockService", () => {
       biometricStateService,
       v2UpgradeTokenStateService,
       autoUnlockService,
+      mockPerformanceTracking(),
       messageSender,
       messageListener,
     );

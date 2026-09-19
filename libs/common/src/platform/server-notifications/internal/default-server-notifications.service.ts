@@ -17,6 +17,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { PerformanceTrackingService } from "@bitwarden/performance-tracking";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -49,6 +50,9 @@ import { WebPushConnectionService } from "./webpush-connection.service";
 
 export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
+const NOTIFICATIONS_NAMESPACE = "Notifications";
+const INCOMING_NOTIFICATIONS_CATEGORY = "Incoming notifications";
+
 export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
   NotificationType.AuthRequest,
   NotificationType.AutoConfirmMember,
@@ -74,6 +78,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly configService: ConfigService,
     private autoConfirmService: AutomaticUserConfirmationService,
     private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
+    private readonly performanceTracking: PerformanceTrackingService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
@@ -362,6 +367,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     return this.notifications$
       .pipe(
         mergeMap(async ([notification, userId]) => {
+          // One entry per incoming notification, e.g. "SyncCipherUpdate".
+          this.performanceTracking.logEvent({
+            namespace: NOTIFICATIONS_NAMESPACE,
+            category: INCOMING_NOTIFICATIONS_CATEGORY,
+            name: NotificationType[notification.type] ?? `Unknown (${notification.type})`,
+          });
+
           try {
             await this.processNotification(notification, userId);
           } catch (err: unknown) {
