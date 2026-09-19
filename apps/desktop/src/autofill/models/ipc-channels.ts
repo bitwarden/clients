@@ -10,6 +10,7 @@ export const AUTOTYPE_MVP_IPC_CHANNELS = {
 export const SSH_AGENT_IPC_CHANNELS = {
   INIT: "sshagent.init",
   IS_LOADED: "sshagent.isloaded",
+  GET_SOCKET_ADDRESS: "sshagent.getsocketaddress",
   STOP: "sshagent.stop",
   REPLACE: "sshagent.replace",
   SIGN_REQUEST: "sshagent.signrequest",
