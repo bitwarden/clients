@@ -194,7 +194,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
       await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "masterPasswordPolicyEnforcement");
       return false;
     }
 
@@ -224,7 +224,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
       await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "masterPasswordPolicyEnforcement");
       return { kind: "stashed-for-mp-policy-detour" };
     }
 

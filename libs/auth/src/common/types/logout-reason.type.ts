@@ -5,6 +5,13 @@ export type LogoutReason =
   | "invalidSecurityStamp"
   | "keyConnectorError"
   | "logoutNotification"
+  | "masterPasswordPolicyEnforcement"
+  | "missingEmailError"
+  | "noUnlockOptionsAvailable"
+  | "passwordChanged"
   | "refreshTokenSecureStorageRetrievalFailure"
   | "sessionExpired"
+  | "setInitialPassword"
+  | "userInitiated"
+  | "userKeyRotation"
   | "vaultTimeout";

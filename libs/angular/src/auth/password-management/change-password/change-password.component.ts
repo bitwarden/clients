@@ -185,7 +185,7 @@ export class ChangePasswordComponent implements OnInit {
         this.passwordChanged.emit();
 
         // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-        await this.logoutService.logout(this.userId);
+        await this.logoutService.logout(this.userId, "passwordChanged");
 
         const shouldNavigateToRoot = this.changePasswordService.shouldNavigateToRoot();
         if (shouldNavigateToRoot) {
