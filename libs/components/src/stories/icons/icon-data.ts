@@ -220,6 +220,11 @@ const actions = [
     usage: "Refresh action. Reloads selected screen or element.",
   },
   {
+    id: "bwi-resume",
+    usage:
+      "Resume action. Restarts an activity that was previously paused or suspended, such as a paused rotation or session.",
+  },
+  {
     id: "bwi-search",
     usage: "Search action",
   },
