@@ -41,8 +41,8 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -109,22 +109,15 @@ export class ByLinkTabComponent {
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
-    this.userId$,
-    toObservable(this.organizationId),
-  ]).pipe(
-    switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  protected readonly inviteLink$: Observable<OrganizationInviteLinkView | undefined> =
+    combineLatest([this.userId$, toObservable(this.organizationId)]).pipe(
+      switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected readonly inviteLinkUrl$: Observable<string> = combineLatest([
-    this.userId$,
-    toObservable(this.organizationId),
-    this.inviteLink$.pipe(filter((link) => link != null)),
-  ]).pipe(
-    switchMap(([userId, orgId, inviteLink]) =>
-      this.inviteLinkService.reconstructUrl(userId, orgId, inviteLink),
-    ),
+  protected readonly inviteLinkUrl$: Observable<string> = this.inviteLink$.pipe(
+    filter((link) => link != null),
+    map((link) => link.url),
   );
 
   readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLink$.pipe(
@@ -266,7 +259,7 @@ export class ByLinkTabComponent {
     } else {
       // The switch is hidden until a link exists, so a new link always starts on the link-confirm
       // flow — that is the behaviour we want admins defaulted into.
-      await this.inviteLinkService.createInviteLink(
+      await this.inviteLinkService.create(
         userId,
         this.organizationId(),
         domains,
@@ -316,7 +309,7 @@ export class ByLinkTabComponent {
   readonly refreshLink = async () => {
     const userId = await firstValueFrom(this.userId$);
     // Regenerating replaces the code and secret but carries the confirmation setting over.
-    await this.inviteLinkService.refreshInviteLink(
+    await this.inviteLinkService.refresh(
       userId,
       this.organizationId(),
       this.autoConfirmEnabled() && !this.requireAdminConfirmation.value,
