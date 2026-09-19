@@ -22,7 +22,15 @@ function configFor(args: string[]): BuildConfig {
   return toBuildConfig(raw);
 }
 
-const MAC = ["--build-dir", "build-mac", "--architecture", "universal"];
+const MAC = [
+  "--build-dir",
+  "build-mac",
+  "--architecture",
+  "universal",
+  // Required for any macOS build; a case naming its own certificate later overrides it.
+  "--macos-signing-certificate",
+  "Developer ID Application: Bitwarden Inc",
+];
 const WINDOWS = ["--build-dir", "build-win", "--architecture", "x64"];
 const LINUX = ["--build-dir", "build-lin", "--architecture", "x64"];
 
@@ -193,5 +201,155 @@ describe("applyBuildConfig", () => {
     expect((result.mas as Record<string, unknown>).identity).toBe(
       "3rd Party Mac Developer Application: Bitwarden Inc",
     );
+  });
+});
+
+/// The fork the overlay replaces. Kept as the reference for what a beta build is supposed to
+/// look like, so the two cannot quietly disagree while both are on disk.
+const betaFork = JSON.parse(
+  readFileSync(resolve(__dirname, "../electron-builder.beta.json"), "utf8"),
+) as Record<string, unknown>;
+
+describe("the beta channel", () => {
+  const betaOf = (args: string[]) =>
+    applyBuildConfig(base, configFor([...args, "--channel", "beta"]));
+  const stableOf = (args: string[]) => applyBuildConfig(base, configFor(args));
+
+  const WINDOWS_STORE = [...WINDOWS, "--distribution-channel", "microsoft-store"];
+  const MAC_DMG = [...MAC, "--distribution-channel", "dmg"];
+
+  it("renames the application, matching the fork except for the identifier it never registered", () => {
+    const beta = betaOf(MAC_DMG);
+
+    expect(beta.productName).toBe(betaFork.productName);
+    expect((beta.extraMetadata as Record<string, unknown>).name).toBe(
+      (betaFork.extraMetadata as Record<string, unknown>).name,
+    );
+    expect(betaFork.appId).toBe("com.bitwarden.desktop.beta");
+    expect(beta.appId).toBe("com.bitwarden.beta.desktop");
+  });
+
+  it("carries over the fork's icons and artifact names", () => {
+    const mac = betaOf(MAC_DMG);
+    const windows = betaOf(WINDOWS_STORE);
+
+    expect((mac.mac as Record<string, unknown>).icon).toBe(
+      (betaFork.mac as Record<string, unknown>).icon,
+    );
+    expect((mac.dmg as Record<string, unknown>).icon).toBe(
+      (betaFork.dmg as Record<string, unknown>).icon,
+    );
+    expect((mac.mac as Record<string, unknown>).artifactName).toBe(
+      (betaFork.mac as Record<string, unknown>).artifactName,
+    );
+    expect((windows.win as Record<string, unknown>).icon).toBe(
+      (betaFork.win as Record<string, unknown>).icon,
+    );
+    expect((windows.nsisWeb as Record<string, unknown>).artifactName).toBe(
+      (betaFork.nsisWeb as Record<string, unknown>).artifactName,
+    );
+    expect((windows.portable as Record<string, unknown>).artifactName).toBe(
+      (betaFork.portable as Record<string, unknown>).artifactName,
+    );
+  });
+
+  it("gives the Microsoft Store build the fork's separate identity", () => {
+    const appx = betaOf(WINDOWS_STORE).appx as Record<string, unknown>;
+    const forked = betaFork.appx as Record<string, unknown>;
+
+    for (const key of [
+      "applicationId",
+      "identityName",
+      "backgroundColor",
+      "artifactName",
+      "customExtensionsPath",
+      "minVersion",
+    ]) {
+      expect([key, appx[key]]).toEqual([key, forked[key]]);
+    }
+  });
+
+  it("points Windows at the beta plugin authenticator resources", () => {
+    expect((betaOf(WINDOWS_STORE).win as Record<string, unknown>).extraResources).toEqual(
+      (betaFork.win as Record<string, unknown>).extraResources,
+    );
+  });
+
+  /// The drift the fork accumulated. A beta build now inherits these from the base instead of
+  /// from a copy that stopped being updated.
+  it("no longer trails the base build's Electron, or loses whole platforms", () => {
+    expect(betaFork.electronVersion).toBe("41.7.2");
+    expect(base.electronVersion).toBe("43.2.0");
+    expect(betaOf(MAC_DMG).electronVersion).toBe(base.electronVersion);
+
+    for (const section of ["mas", "linux", "deb", "rpm", "snap", "appImage"]) {
+      expect([section, betaFork[section]]).toEqual([section, undefined]);
+      expect([section, betaOf(MAC_DMG)[section]]).not.toEqual([section, undefined]);
+    }
+  });
+
+  it("leaves a stable build alone", () => {
+    const stable = stableOf(MAC_DMG);
+
+    expect(stable.productName).toBe("Bitwarden");
+    expect(stable.appId).toBe("com.bitwarden.desktop");
+    expect((stable.mac as Record<string, unknown>).icon).toBeUndefined();
+  });
+});
+
+describe("the native addon", () => {
+  const MAC_DMG = [...MAC, "--distribution-channel", "dmg"];
+
+  it("drops what was collected from the crate directory and adds what this build staged", () => {
+    const files = applyBuildConfig(base, configFor(MAC_DMG)).files as unknown[];
+
+    expect(files).toContain("!node_modules/@bitwarden/desktop-napi/*.node");
+    expect(files).toContainEqual({
+      from: "../desktop_native/napi",
+      to: "node_modules/@bitwarden/desktop-napi",
+      filter: ["*.node"],
+    });
+  });
+
+  it("takes it from the staged path the build configuration names", () => {
+    const config = configFor(MAC_DMG);
+    const files = applyBuildConfig(base, config).files as ExtraFile[];
+    const added = files.find(
+      (file) => typeof file === "object" && file.to?.includes("desktop-napi"),
+    );
+
+    // The `from` is relative to the app directory, and has to arrive at the staged intermediate.
+    expect(resolve(config.directories.appSource, added!.from)).toBe(
+      resolve(config.intermediates.napi),
+    );
+  });
+
+  it("leaves the destination alone, so the universal merge still recognises it", () => {
+    const result = applyBuildConfig(base, configFor(MAC_DMG));
+
+    expect((result.mac as Record<string, unknown>).singleArchFiles).toBe(
+      (base.mac as Record<string, unknown>).singleArchFiles,
+    );
+    expect((result.mac as Record<string, unknown>).x64ArchFiles).toBe(
+      (base.mac as Record<string, unknown>).x64ArchFiles,
+    );
+  });
+
+  /// The addon is built for every platform -- it has no flag and no way to turn it off -- so
+  /// every platform's package takes it from the same place.
+  it("does the same on the other platforms", () => {
+    for (const platform of [
+      [...LINUX, "--distribution-channel", "deb"],
+      [...WINDOWS, "--distribution-channel", "windows-installer"],
+    ]) {
+      const files = applyBuildConfig(base, configFor(platform)).files as unknown[];
+
+      expect(files).toContain("!node_modules/@bitwarden/desktop-napi/*.node");
+      expect(files).toContainEqual({
+        from: "../desktop_native/napi",
+        to: "node_modules/@bitwarden/desktop-napi",
+        filter: ["*.node"],
+      });
+    }
   });
 });
