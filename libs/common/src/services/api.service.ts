@@ -44,7 +44,7 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { LogoutReason } from "../auth/logout";
+import { LogoutService } from "../auth/logout";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -151,7 +151,7 @@ export class ApiService implements ApiServiceAbstraction {
     private appIdService: AppIdService,
     private refreshAccessTokenErrorCallback: () => void,
     private logService: LogService,
-    private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
+    private logoutService: LogoutService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly accountService: AccountService,
     private readonly httpOperations: HttpOperations,
@@ -1269,7 +1269,7 @@ export class ApiService implements ApiServiceAbstraction {
     );
 
     if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
+      const error = await this.handleApiRequestError(response, activeUser);
       return Promise.reject(error);
     }
 
@@ -1300,7 +1300,7 @@ export class ApiService implements ApiServiceAbstraction {
     );
 
     if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
+      const error = await this.handleApiRequestError(response, activeUser);
       return Promise.reject(error);
     }
   }
@@ -1318,7 +1318,8 @@ export class ApiService implements ApiServiceAbstraction {
     );
 
     if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
+      // Anonymous alive check — no session to invalidate on failure.
+      const error = await this.handleApiRequestError(response, null);
       return Promise.reject(error);
     }
   }
@@ -1433,7 +1434,8 @@ export class ApiService implements ApiServiceAbstraction {
       const body = await response.json();
       return new SsoPreValidateResponse(body);
     } else {
-      const error = await this.handleApiRequestError(response, false);
+      // Anonymous pre-validate — no user session to invalidate on failure.
+      const error = await this.handleApiRequestError(response, null);
       return Promise.reject(error);
     }
   }
@@ -1588,7 +1590,7 @@ export class ApiService implements ApiServiceAbstraction {
       );
       return refreshedTokens.accessToken;
     } else {
-      const error = await this.handleTokenRefreshRequestError(response);
+      const error = await this.handleTokenRefreshRequestError(response, userId);
       return Promise.reject(error);
     }
   }
@@ -1710,7 +1712,7 @@ export class ApiService implements ApiServiceAbstraction {
       const blob = await response.blob();
       return { blob, fileName };
     } else if (!responseIsSuccess && response.status !== HttpStatusCode.NoContent) {
-      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
+      const error = await this.handleApiRequestError(response, userIdMakingRequest);
       return Promise.reject(error);
     }
   }
@@ -1833,14 +1835,16 @@ export class ApiService implements ApiServiceAbstraction {
    */
   private async handleApiRequestError(
     response: Response,
-    userIsAuthenticated: boolean,
+    // The user the failing request was made on behalf of. Null for anonymous requests
+    // (SSO pre-validate, key-connector alive check) where there is no session to invalidate.
+    userId: UserId | null,
   ): Promise<ErrorResponse> {
     if (
-      userIsAuthenticated &&
+      userId != null &&
       (response.status === HttpStatusCode.Unauthorized ||
         response.status === HttpStatusCode.Forbidden)
     ) {
-      await this.logoutCallback("invalidAccessToken");
+      await this.logoutService.logout(userId, "invalidAccessToken");
     }
 
     const responseJson = await this.getJsonResponse(response);
@@ -1857,14 +1861,18 @@ export class ApiService implements ApiServiceAbstraction {
    * @param response The response from the token refresh request.
    * @returns An ErrorResponse with a message based on the response status.
    */
-  private async handleTokenRefreshRequestError(response: Response): Promise<ErrorResponse> {
+  private async handleTokenRefreshRequestError(
+    response: Response,
+    // The user whose refresh token is being exchanged. This is the correct account to log out
+    // if the exchange fails, even when the failing user is not the currently-active account.
+    userId: UserId,
+  ): Promise<ErrorResponse> {
     const responseJson = await this.getJsonResponse(response);
 
     // IdentityServer will return an invalid_grant response if the refresh token has expired.
     // This means that the user's session has expired, and they need to log out.
-    // We issue the logoutCallback() to log the user out through messaging.
     if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
-      await this.logoutCallback("sessionExpired");
+      await this.logoutService.logout(userId, "sessionExpired");
     }
 
     return new ErrorResponse(responseJson, response.status, true);

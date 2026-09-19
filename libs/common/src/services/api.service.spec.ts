@@ -9,7 +9,7 @@ import { UserId } from "@bitwarden/user-core";
 import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { LogoutReason } from "../auth/logout";
+import { LogoutService } from "../auth/logout";
 import { EventRequest } from "../dirt/event-logs";
 import { EventType } from "../dirt/event-logs/enums/event-type.enum";
 import { DeviceType } from "../enums";
@@ -34,7 +34,7 @@ describe("ApiService", () => {
   let appIdService: MockProxy<AppIdService>;
   let refreshAccessTokenErrorCallback: jest.Mock<void, []>;
   let logService: MockProxy<LogService>;
-  let logoutCallback: jest.Mock<Promise<void>, [reason: LogoutReason]>;
+  let logoutService: MockProxy<LogoutService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let accountService: MockProxy<AccountService>;
   let httpOperations: MockProxy<HttpOperations>;
@@ -54,7 +54,7 @@ describe("ApiService", () => {
     appIdService = mock();
     refreshAccessTokenErrorCallback = jest.fn();
     logService = mock();
-    logoutCallback = jest.fn();
+    logoutService = mock<LogoutService>();
     vaultTimeoutSettingsService = mock();
     accountService = mock();
 
@@ -86,7 +86,7 @@ describe("ApiService", () => {
       appIdService,
       refreshAccessTokenErrorCallback,
       logService,
-      logoutCallback,
+      logoutService,
       vaultTimeoutSettingsService,
       accountService,
       httpOperations,
@@ -600,7 +600,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, false, true, null, null),
       ).rejects.toMatchObject({ message: "Unauthorized" });
 
-      expect(logoutCallback).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
 
     it("does not retry when hasResponse is false", async () => {
@@ -889,7 +889,7 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Still Unauthorized" });
 
       expect(nativeFetch).toHaveBeenCalledTimes(3);
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      expect(logoutService.logout).toHaveBeenCalledWith(testActiveUser, "invalidAccessToken");
     });
 
     it("handles concurrent requests that both receive 401 and share token refresh", async () => {
@@ -1057,7 +1057,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, true, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      expect(logoutService.logout).toHaveBeenCalledWith(testActiveUser, "invalidAccessToken");
     });
 
     it("does not attempt to log out unauthenticated user", async () => {
@@ -1084,7 +1084,122 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, false, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("logging out the correct user on 401/403", () => {
+    it("logs out the non-active user whose request failed with 401, not the active user", async () => {
+      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://inactive.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+      tokenService.getAccessToken
+        .calledWith(testInactiveUser)
+        .mockResolvedValue("inactive_access_token");
+      tokenService.tokenNeedsRefresh.calledWith(testInactiveUser).mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: false,
+        status: 401,
+        json: () => Promise.resolve({ message: "Unauthorized" }),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      // A 401 with no access token bypasses the retry-with-refresh path and lands in
+      // handleApiRequestError, which is what we want to exercise here.
+      tokenService.getAccessToken.calledWith(testInactiveUser).mockResolvedValue(null);
+
+      await expect(
+        async () => await sut.send("GET", "/something", null, testInactiveUser, true, null, null),
+      ).rejects.toMatchObject({ message: "Unauthorized" });
+
+      expect(logoutService.logout).toHaveBeenCalledWith(testInactiveUser, "invalidAccessToken");
+      expect(logoutService.logout).not.toHaveBeenCalledWith(testActiveUser, expect.anything());
+    });
+  });
+
+  describe("handleTokenRefreshRequestError", () => {
+    beforeEach(() => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getIdentityUrl: () => "https://identity.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+      tokenService.getRefreshToken.calledWith(testActiveUser).mockResolvedValue("refresh_token");
+      tokenService.decodeAccessToken
+        .calledWith(testActiveUser)
+        .mockResolvedValue({ client_id: "web" } as any);
+    });
+
+    it("logs out the refreshing user with sessionExpired when the server returns invalid_grant", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        json: () => Promise.resolve({ error: "invalid_grant" }),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(testActiveUser)).rejects.toBeInstanceOf(
+        ErrorResponse,
+      );
+
+      expect(logoutService.logout).toHaveBeenCalledWith(testActiveUser, "sessionExpired");
+    });
+
+    it("logs out the specific refreshing user on invalid_grant, not the active user", async () => {
+      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
+        of({
+          getIdentityUrl: () => "https://identity.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+      tokenService.getRefreshToken.calledWith(testInactiveUser).mockResolvedValue("refresh_token");
+      tokenService.decodeAccessToken
+        .calledWith(testInactiveUser)
+        .mockResolvedValue({ client_id: "web" } as any);
+
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        json: () => Promise.resolve({ error: "invalid_grant" }),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(testInactiveUser)).rejects.toBeInstanceOf(
+        ErrorResponse,
+      );
+
+      expect(logoutService.logout).toHaveBeenCalledWith(testInactiveUser, "sessionExpired");
+      expect(logoutService.logout).not.toHaveBeenCalledWith(testActiveUser, expect.anything());
+    });
+
+    it("does not log out on other 400 errors", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        json: () => Promise.resolve({ error: "invalid_request" }),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(testActiveUser)).rejects.toBeInstanceOf(
+        ErrorResponse,
+      );
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
+    });
+
+    it("does not log out on non-400 responses", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 500,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(testActiveUser)).rejects.toBeInstanceOf(
+        ErrorResponse,
+      );
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 

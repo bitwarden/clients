@@ -612,11 +612,6 @@ export default class MainBackground {
   private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
-    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
-      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
-      await this.logout(logoutReason, userId);
-    };
-
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
     const refreshAccessTokenErrorCallback = () => {
@@ -640,6 +635,8 @@ export default class MainBackground {
       this.#intraprocessMessageSender,
       new ChromeMessageSender(this.logService),
     );
+
+    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
 
     const messageListener = new MessageListener(
       this.#intraprocessMessageSender.messages$({ external$: fromChromeRuntimeMessaging() }),
@@ -766,7 +763,7 @@ export default class MainBackground {
       this.secureStorageService,
       this.encryptService,
       this.logService,
-      logoutCallback,
+      logoutService,
     );
 
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
@@ -895,7 +892,7 @@ export default class MainBackground {
       this.appIdService,
       refreshAccessTokenErrorCallback,
       this.logService,
-      (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
+      logoutService,
       this.vaultTimeoutSettingsService,
       this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
@@ -1057,7 +1054,7 @@ export default class MainBackground {
       this.tokenService,
       this.logService,
       this.organizationService,
-      logoutCallback,
+      logoutService,
       this.stateProvider,
       this.configService,
       this.registerSdkService,
@@ -1296,7 +1293,7 @@ export default class MainBackground {
       this.sendApiService,
       this.userDecryptionOptionsService,
       this.avatarService,
-      logoutCallback,
+      logoutService,
       this.billingAccountProfileStateService,
       this.tokenService,
       this.authService,
@@ -1487,7 +1484,7 @@ export default class MainBackground {
       this.syncService,
       this.appIdService,
       this.environmentService,
-      logoutCallback,
+      logoutService,
       this.messagingService,
       this.accountService,
       new SignalRConnectionService(this.apiService, this.logService, this.platformUtilsService),
@@ -1553,7 +1550,6 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,

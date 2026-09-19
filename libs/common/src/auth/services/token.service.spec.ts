@@ -21,7 +21,7 @@ import { AbstractStorageService } from "../../platform/abstractions/storage.serv
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { UserId } from "../../types/guid";
-import { LogoutReason } from "../logout";
+import { LogoutService } from "../logout";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
@@ -52,7 +52,7 @@ describe("TokenService", () => {
   let secureStorageService: MockProxy<AbstractStorageService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
-  let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: string]>;
+  let logoutService: MockProxy<LogoutService>;
 
   const memoryVaultTimeoutAction = VaultTimeoutAction.LogOut;
   const memoryVaultTimeout: VaultTimeout = 30;
@@ -112,7 +112,7 @@ describe("TokenService", () => {
     secureStorageService = mock<AbstractStorageService>();
     encryptService = mock<EncryptService>();
     logService = mock<LogService>();
-    logoutCallback = jest.fn();
+    logoutService = mock<LogoutService>();
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -665,9 +665,9 @@ describe("TokenService", () => {
           );
 
           // assert that we logged the user out
-          expect(logoutCallback).toHaveBeenCalledWith(
-            "accessTokenUnableToBeDecrypted",
+          expect(logoutService.logout).toHaveBeenCalledWith(
             userIdFromAccessToken,
+            "accessTokenUnableToBeDecrypted",
           );
         });
 
@@ -700,9 +700,9 @@ describe("TokenService", () => {
           );
 
           // assert that we logged the user out
-          expect(logoutCallback).toHaveBeenCalledWith(
-            "accessTokenUnableToBeDecrypted",
+          expect(logoutService.logout).toHaveBeenCalledWith(
             userIdFromAccessToken,
+            "accessTokenUnableToBeDecrypted",
           );
         });
       });
@@ -1560,7 +1560,7 @@ describe("TokenService", () => {
           // assert that we did not log an error or log the user out
           expect(logService.error).not.toHaveBeenCalled();
 
-          expect(logoutCallback).not.toHaveBeenCalled();
+          expect(logoutService.logout).not.toHaveBeenCalled();
         });
 
         it("does not error and does not fallback to disk storage when passed a null value for the refresh token", async () => {
@@ -1625,9 +1625,9 @@ describe("TokenService", () => {
           );
 
           // assert that we logged the user out
-          expect(logoutCallback).toHaveBeenCalledWith(
-            "accessTokenUnableToBeDecrypted",
+          expect(logoutService.logout).toHaveBeenCalledWith(
             userIdFromAccessToken,
+            "accessTokenUnableToBeDecrypted",
           );
         });
       });
@@ -1919,9 +1919,9 @@ describe("TokenService", () => {
             new Error(secureStorageSvcMockErrorMsg),
           );
 
-          expect(logoutCallback).toHaveBeenCalledWith(
-            "refreshTokenSecureStorageRetrievalFailure",
+          expect(logoutService.logout).toHaveBeenCalledWith(
             userIdFromAccessToken,
+            "refreshTokenSecureStorageRetrievalFailure",
           );
         });
       });
@@ -3224,7 +3224,7 @@ describe("TokenService", () => {
       secureStorageService,
       encryptService,
       logService,
-      logoutCallback,
+      logoutService,
     );
   }
 });

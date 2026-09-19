@@ -21,7 +21,7 @@ import { AccountInfo, AccountService } from "../../../auth/abstractions/account.
 import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { LogoutReason } from "../../../auth/logout";
+import { LogoutService } from "../../../auth/logout";
 import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
@@ -64,7 +64,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private syncService: SyncService,
     private appIdService: AppIdService,
     private environmentService: EnvironmentService,
-    private logoutCallback: (logoutReason: LogoutReason, userId: UserId) => Promise<void>,
+    private logoutService: LogoutService,
     private messagingService: MessagingService,
     private readonly accountService: AccountService,
     private readonly signalRConnectionService: SignalRConnectionService,
@@ -273,7 +273,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           );
           await this.syncService.fullSync(true);
         } else {
-          await this.logoutCallback("logoutNotification", userId);
+          await this.logoutService.logout(userId, "logoutNotification");
         }
         break;
       }

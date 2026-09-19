@@ -8,7 +8,7 @@ import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { LogoutReason } from "../../../auth/logout";
+import { LogoutService } from "../../../auth/logout";
 import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
@@ -27,7 +27,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let syncService: any;
   let appIdService: MockProxy<AppIdService>;
   let environmentConfigurationService: MockProxy<EnvironmentService>;
-  let userLogoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId: UserId]>;
+  let logoutService: MockProxy<LogoutService>;
   let messagingService: MockProxy<MessagingService>;
   let accountService: MockProxy<AccountService>;
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
@@ -81,7 +81,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       (_userId: UserId) => environmentConfiguration$.asObservable() as any,
     );
 
-    userLogoutCallback = jest.fn<Promise<void>, [LogoutReason, UserId]>();
+    logoutService = mock<LogoutService>();
 
     messagingService = mock<MessagingService>();
 
@@ -138,7 +138,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       syncService,
       appIdService,
       environmentConfigurationService,
-      userLogoutCallback,
+      logoutService,
       messagingService,
       accountService,
       signalRNotificationConnectionService,
