@@ -6,11 +6,11 @@ import { EMPTY, Subject, firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";

@@ -7,7 +7,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  LogoutReason,
   UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -30,6 +29,7 @@ import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutReason } from "../../auth/logout";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";

@@ -1,13 +1,13 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import { LogoutService } from "../../abstractions";
-import { LogoutReason } from "../../types";
+import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { UserId } from "../../types/guid";
 
 import { DefaultLogoutService } from "./default-logout.service";
+import { LogoutReason } from "./logout-reason.type";
+import { LogoutService } from "./logout.service";
 
 describe("DefaultLogoutService", () => {
   let logoutService: LogoutService;
