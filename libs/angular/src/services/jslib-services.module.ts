@@ -40,7 +40,6 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
-  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
   LoginEmailServiceAbstraction,
@@ -51,8 +50,6 @@ import {
   LoginStrategySessionTimeoutService,
   DefaultLoginStrategySessionTimeoutService,
   LoginSuccessHandlerService,
-  LogoutReason,
-  LogoutService,
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -124,6 +121,7 @@ import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import { DefaultLogoutService, LogoutReason, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,
   OrganizationInviteService,
