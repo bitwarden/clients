@@ -24,7 +24,7 @@ import { OrganizationUserType } from "../../../admin-console/enums";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
-import { LogoutReason } from "../../../auth/logout";
+import { LogoutService } from "../../../auth/logout";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
@@ -78,14 +78,14 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   readonly convertAccountRequired$: Observable<boolean>;
 
   constructor(
-    accountService: AccountService,
+    private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
     private organizationService: OrganizationService,
-    private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
+    private logoutService: LogoutService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private registerSdkService: RegisterSdkService,
@@ -94,7 +94,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private unlockService: UnlockService,
   ) {
-    this.convertAccountRequired$ = accountService.activeAccount$.pipe(
+    this.convertAccountRequired$ = this.accountService.activeAccount$.pipe(
       filter((account) => account != null),
       switchMap((account) =>
         combineLatest([
@@ -134,7 +134,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         await sdk.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
       });
     } catch (e) {
-      this.handleKeyConnectorError(e);
+      await this.handleKeyConnectorError(e);
     }
 
     await this.setUsesKeyConnector(true, userId);
@@ -263,7 +263,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     try {
       await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
     } catch (e) {
-      this.handleKeyConnectorError(e);
+      await this.handleKeyConnectorError(e);
     }
 
     const keys = new KeysRequest(pubKey, privKey.encryptedString);
@@ -310,12 +310,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
   }
 
-  private handleKeyConnectorError(e: any) {
+  private async handleKeyConnectorError(e: any) {
     this.logService.error(e);
-    if (this.logoutCallback != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.logoutCallback("keyConnectorError");
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    if (userId != null) {
+      await this.logoutService.logout(userId, "keyConnectorError");
     }
     throw new Error("Key Connector error");
   }

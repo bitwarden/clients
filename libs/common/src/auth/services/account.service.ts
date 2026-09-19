@@ -262,7 +262,8 @@ export class AccountServiceImplementation implements InternalAccountService {
     );
   }
 
-  // TODO: update to use our own account status settings. Requires inverting direction of state service accounts flow
+  // Transitional: this method is removed in the next stacked PR, which introduces
+  // DeleteAccountService and shifts the delete-then-logout orchestration off AccountService.
   async delete(): Promise<void> {
     try {
       this.messagingService?.send("logout");
