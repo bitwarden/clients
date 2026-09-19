@@ -3,6 +3,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
@@ -52,12 +53,15 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
     private toastService: ToastService,
     private i18nService: I18nService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private logoutService: LogoutService,
   ) {}
 
   async ngOnInit() {
     try {
       this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     } catch {
+      // No active account means we cannot call logoutService.logout(userId, reason). Send the
+      // raw logout message so downstream consumers can clear session state.
       this.logService.info("[confirm-key-connector-domain] no active account");
       this.messagingService.send("logout");
       return;
@@ -68,7 +72,7 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
     );
     if (confirmation == null) {
       this.logService.info("[confirm-key-connector-domain] missing required parameters");
-      this.messagingService.send("logout");
+      await this.logoutService.logout(this.userId, "keyConnectorError");
       return;
     }
 
@@ -117,7 +121,7 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
   };
 
   cancel = async () => {
-    this.messagingService.send("logout");
+    await this.logoutService.logout(this.userId, "userInitiated");
   };
 
   private async getOrganizationName(

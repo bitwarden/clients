@@ -191,8 +191,8 @@ export class SetInitialPasswordComponent implements OnInit {
       type: "warning",
     });
 
-    if (confirmed) {
-      this.messagingService.send("logout");
+    if (confirmed && this.userId != null) {
+      await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
 

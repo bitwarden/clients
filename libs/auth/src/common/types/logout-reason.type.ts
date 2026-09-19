@@ -1,8 +1,11 @@
 export type LogoutReason =
   | "accessTokenUnableToBeDecrypted"
   | "accountDeleted"
+  | "deauthorizedSessions"
+  | "emailChanged"
   | "invalidAccessToken"
   | "invalidSecurityStamp"
+  | "kdfChanged"
   | "keyConnectorError"
   | "logoutNotification"
   | "masterPasswordPolicyEnforcement"
@@ -12,6 +15,7 @@ export type LogoutReason =
   | "refreshTokenSecureStorageRetrievalFailure"
   | "sessionExpired"
   | "setInitialPassword"
+  | "tooManyInvalidPinAttempts"
   | "userInitiated"
   | "userKeyRotation"
   | "vaultTimeout";

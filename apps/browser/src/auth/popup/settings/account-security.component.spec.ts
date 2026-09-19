@@ -7,6 +7,7 @@ import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { NudgesService } from "@bitwarden/angular/vault";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -120,6 +121,7 @@ describe("AccountSecurityComponent", () => {
         { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
         { provide: LockService, useValue: lockService },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: LogoutService, useValue: mock<LogoutService>() },
         { provide: MessageSender, useValue: mock<MessageSender>() },
         { provide: NudgesService, useValue: vaultNudgesService },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
