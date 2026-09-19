@@ -53,6 +53,10 @@
       "@bitwarden/legacy-crypto/*": ["./libs/legacy-crypto/src/*"],
       "@bitwarden/logging": ["./libs/logging/src"],
       "@bitwarden/logging-angular": ["./libs/logging-angular/src/index.ts"],
+      "@bitwarden/performance-tracking": ["./libs/performance-tracking/src/index.ts"],
+      "@bitwarden/performance-tracking-angular": [
+        "./libs/performance-tracking-angular/src/index.ts"
+      ],
       "@bitwarden/messaging": ["./libs/messaging/src/index.ts"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/nx-plugin": ["./libs/nx-plugin/src/index.ts"],

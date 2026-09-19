@@ -1,0 +1,15 @@
+{
+  "name": "@bitwarden/performance-tracking-angular",
+  "version": "0.0.1",
+  "description": "Angular wrapper for @bitwarden/performance-tracking",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc --noEmit -p tsconfig.lib.json"
+  }
+}
