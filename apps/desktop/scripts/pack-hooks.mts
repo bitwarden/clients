@@ -66,6 +66,10 @@ async function afterPack(config: BuildConfig, context: AfterPackContext): Promis
     installLinuxWrapper(context);
   }
 
+  if (context.electronPlatformName === "win32") {
+    installChannelResources(config, context);
+  }
+
   if (isMacOS(context)) {
     embedExtensions(config, context);
     signProxy(config, context);
@@ -137,6 +141,37 @@ function installLinuxWrapper(context: AfterPackContext): void {
   copyFileSync(path.join(projectDir, LINUX_WRAPPER), executable);
   chmodSync(executable, 0o755);
   console.log(`Wrapped ${executableName} (real binary is ${LINUX_REAL_BINARY})`);
+}
+
+/// Puts the channel's copies of the plugin authenticator resources in place.
+///
+/// The app reads the COM class ID out of plugin_authenticator_config.json at runtime, and the
+/// Appx manifest declares the same one, so a build shipping the wrong channel's file registers
+/// a class ID it does not serve -- taking the registration from the channel that does.
+///
+/// Copied here rather than declared as `extraResources`, because that is an array and
+/// electron-builder concatenates it with the base configuration's rather than replacing it. By
+/// this point electron-builder has already copied the stable pair; these overwrite them.
+function installChannelResources(config: BuildConfig, context: AfterPackContext): void {
+  if (config.channel !== "beta") {
+    return;
+  }
+
+  const resources = path.join(context.appOutDir, "resources");
+  const channelFiles = [
+    ["resources/windows_plugin_authenticator_config.beta.json", "plugin_authenticator_config.json"],
+    ["resources/windows_plugin_authenticator_logo.beta.svg", "plugin_authenticator_logo.svg"],
+  ];
+
+  for (const [from, to] of channelFiles) {
+    const source = path.join(projectDir, from);
+    if (!existsSync(source)) {
+      throw new BuildError(`The beta build needs ${source}, which is not there.`);
+    }
+    // copyFileSync truncates, which the overwrite this replaces did not.
+    copyFileSync(source, path.join(resources, to));
+    console.log(`Installed the beta ${to}`);
+  }
 }
 
 /// Copies the app extensions into the bundle before it is signed, so electron-builder's signing
