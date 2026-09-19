@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, mergeMap } from "rxjs";
+import { filter, mergeMap, share } from "rxjs";
 
 import {
   AbstractStorageService,
@@ -68,6 +68,10 @@ export default abstract class AbstractChromeStorageService
           };
         });
       }),
+      // Multicast so all subscribers share a single chrome.storage.onChanged listener.
+      // Without share(), every subscriber re-runs fromChromeEvent and registers another
+      // native listener — which accumulates over the service worker's lifetime.
+      share(),
     );
   }
 
