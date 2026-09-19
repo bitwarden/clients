@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
@@ -64,6 +65,40 @@ module.exports.buildConfig = function buildConfig(params) {
     },
   };
 
+  // Support linking @bitwarden packages (notably the SDK) to a local build during
+  // development, so a rebuild is picked up by `--watch`. Two independent problems:
+  //
+  //  1. Webpack treats node_modules as "managed" and validates those packages by
+  //     their package.json version rather than by file content. A local SDK build
+  //     keeps a static version, so a rebuild looks unchanged and the stale module is
+  //     served from cache. unmanagedPaths marks the @bitwarden packages as
+  //     content-hashed instead; it is checked before managedPaths, so webpack's
+  //     default managed-path handling stays in place for everything else. This
+  //     mirrors apps/web and apps/browser.
+  //  2. resolve.symlinks is false, so webpack watches a linked package via its
+  //     node_modules symlink path, but macOS FSEvents delivers change events against
+  //     the package's real path, so the native watcher never sees the rebuild.
+  //     Polling observes the files directly and catches it. Polling has a real CPU
+  //     cost, so it is enabled only when the SDK is actually a local symlink; a
+  //     normal registry install is a plain directory the native watcher handles.
+  const sdkLinkPaths = [
+    path.resolve(__dirname, "../../node_modules/@bitwarden/sdk-internal"),
+    path.resolve(process.cwd(), "node_modules/@bitwarden/sdk-internal"),
+  ];
+  const isLocalLinkedSdk = sdkLinkPaths.some((p) => {
+    try {
+      return fs.lstatSync(p).isSymbolicLink();
+    } catch {
+      return false;
+    }
+  });
+  const localSdkWatch = {
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
+    ...(isLocalLinkedSdk ? { watchOptions: { poll: 1000 } } : {}),
+  };
+
   const getOutputConfig = (isDev) => ({
     filename: "[name].js",
     path: params.outputPath,
@@ -73,6 +108,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const mainConfig = {
     name: "main",
     mode: NODE_ENV,
+    ...localSdkWatch,
     target: "electron-main",
     node: {
       __dirname: false,
@@ -168,6 +204,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const preloadConfig = {
     name: "preload",
     mode: NODE_ENV,
+    ...localSdkWatch,
     target: "electron-preload",
     node: {
       __dirname: false,
@@ -207,6 +244,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const rendererConfig = {
     name: "renderer",
     mode: NODE_ENV,
+    ...localSdkWatch,
     devtool: "source-map",
     target: "web",
     node: {
