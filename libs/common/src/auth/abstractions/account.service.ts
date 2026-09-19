@@ -104,6 +104,6 @@ export abstract class AccountService {
   abstract setShowHeader(visible: boolean): Promise<void>;
 }
 
-export abstract class InternalAccountService extends AccountService {
-  abstract delete(): void;
-}
+// Retained as a nominal type for DI providers that inject the internal-only surface.
+// Left empty after the delete method moved to DeleteAccountService.
+export abstract class InternalAccountService extends AccountService {}

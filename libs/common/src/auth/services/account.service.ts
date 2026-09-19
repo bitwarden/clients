@@ -19,8 +19,6 @@ import {
   AccountInfo,
   InternalAccountService,
 } from "../../auth/abstractions/account.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   ACCOUNT_DISK,
@@ -99,8 +97,6 @@ export class AccountServiceImplementation implements InternalAccountService {
   showHeader$ = this._showHeader$.asObservable();
 
   constructor(
-    private messagingService: MessagingService,
-    private logService: LogService,
     private globalStateProvider: GlobalStateProvider,
     private singleUserStateProvider: SingleUserStateProvider,
   ) {
@@ -260,18 +256,6 @@ export class AccountServiceImplementation implements InternalAccountService {
       },
       { shouldUpdate: (oldActivity) => oldActivity?.[userId] != null },
     );
-  }
-
-  // TODO: update to use our own account status settings. Requires inverting direction of state service accounts flow
-  async delete(): Promise<void> {
-    try {
-      // LogoutService lives in libs/auth, which libs/common cannot depend on. Send the reason
-      // on the message directly so downstream consumers can surface it.
-      this.messagingService?.send("logout", { logoutReason: "accountDeleted" });
-    } catch (e) {
-      this.logService.error(e);
-      throw e;
-    }
   }
 
   async setShowHeader(visible: boolean): Promise<void> {
