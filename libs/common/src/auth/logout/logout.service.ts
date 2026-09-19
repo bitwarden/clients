@@ -1,7 +1,7 @@
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "../../types/guid";
+import { AuthenticationStatus } from "../enums/authentication-status";
 
-import { LogoutReason } from "../types";
+import { LogoutReason } from "./logout-reason.type";
 
 export interface NewActiveUser {
   userId: UserId;
