@@ -1232,6 +1232,7 @@ export default class MainBackground {
       this.keyService,
       this.encryptService,
       this.legacyCompatKeyService,
+      this.cipherService,
     );
 
     this.sendDecryptionService = new SendDecryptionService(
