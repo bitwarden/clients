@@ -12,10 +12,14 @@ use tokio::{
 use tracing::debug;
 use windows::{
     core::PCWSTR,
-    Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_HIDE},
+    Win32::UI::{
+        Shell::ShellExecuteW,
+        WindowsAndMessaging::{SW_HIDE, SW_SHOWNORMAL},
+    },
 };
 
 use super::abe_config;
+use crate::config::ENABLE_DEVELOPER_LOGGING;
 
 const WAIT_FOR_ADMIN_MESSAGE_TIMEOUT_SECS: u64 = 30;
 
@@ -194,6 +198,14 @@ fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) -> Result<(
         .chain(std::iter::once(0))
         .collect::<Vec<u16>>();
 
+    // When developer logging is enabled, show the elevated helper's console window so its
+    // stdout/stderr (including log-file setup failures) can be read. It stays hidden otherwise.
+    let show_command = if ENABLE_DEVELOPER_LOGGING {
+        SW_SHOWNORMAL
+    } else {
+        SW_HIDE
+    };
+
     let hinstance = unsafe {
         ShellExecuteW(
             None,
@@ -201,7 +213,7 @@ fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) -> Result<(
             PCWSTR(exe_wide.as_ptr()),
             PCWSTR(parameters.as_ptr()),
             None,
-            SW_HIDE,
+            show_command,
         )
     };
     if hinstance.0 as usize <= 32 {
