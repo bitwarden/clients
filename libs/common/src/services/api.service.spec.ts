@@ -9,7 +9,7 @@ import { UserId } from "@bitwarden/user-core";
 import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { LogoutReason } from "../auth/logout";
+import { LogoutService } from "../auth/logout";
 import { EventRequest } from "../dirt/event-logs";
 import { EventType } from "../dirt/event-logs/enums/event-type.enum";
 import { DeviceType } from "../enums";
@@ -34,7 +34,7 @@ describe("ApiService", () => {
   let appIdService: MockProxy<AppIdService>;
   let refreshAccessTokenErrorCallback: jest.Mock<void, []>;
   let logService: MockProxy<LogService>;
-  let logoutCallback: jest.Mock<Promise<void>, [reason: LogoutReason]>;
+  let logoutService: MockProxy<LogoutService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let accountService: MockProxy<AccountService>;
   let httpOperations: MockProxy<HttpOperations>;
@@ -54,7 +54,7 @@ describe("ApiService", () => {
     appIdService = mock();
     refreshAccessTokenErrorCallback = jest.fn();
     logService = mock();
-    logoutCallback = jest.fn();
+    logoutService = mock<LogoutService>();
     vaultTimeoutSettingsService = mock();
     accountService = mock();
 
@@ -86,7 +86,7 @@ describe("ApiService", () => {
       appIdService,
       refreshAccessTokenErrorCallback,
       logService,
-      logoutCallback,
+      logoutService,
       vaultTimeoutSettingsService,
       accountService,
       httpOperations,
@@ -600,7 +600,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, false, true, null, null),
       ).rejects.toMatchObject({ message: "Unauthorized" });
 
-      expect(logoutCallback).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
 
     it("does not retry when hasResponse is false", async () => {
@@ -889,7 +889,7 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Still Unauthorized" });
 
       expect(nativeFetch).toHaveBeenCalledTimes(3);
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      expect(logoutService.logout).toHaveBeenCalledWith(testActiveUser, "invalidAccessToken");
     });
 
     it("handles concurrent requests that both receive 401 and share token refresh", async () => {
@@ -1057,7 +1057,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, true, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      expect(logoutService.logout).toHaveBeenCalledWith(testActiveUser, "invalidAccessToken");
     });
 
     it("does not attempt to log out unauthenticated user", async () => {
@@ -1084,7 +1084,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, false, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 

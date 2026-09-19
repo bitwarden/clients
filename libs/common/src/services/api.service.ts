@@ -44,7 +44,7 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { LogoutReason } from "../auth/logout";
+import { LogoutService } from "../auth/logout";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -151,7 +151,7 @@ export class ApiService implements ApiServiceAbstraction {
     private appIdService: AppIdService,
     private refreshAccessTokenErrorCallback: () => void,
     private logService: LogService,
-    private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
+    private logoutService: LogoutService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly accountService: AccountService,
     private readonly httpOperations: HttpOperations,
@@ -1840,7 +1840,10 @@ export class ApiService implements ApiServiceAbstraction {
       (response.status === HttpStatusCode.Unauthorized ||
         response.status === HttpStatusCode.Forbidden)
     ) {
-      await this.logoutCallback("invalidAccessToken");
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId != null) {
+        await this.logoutService.logout(userId, "invalidAccessToken");
+      }
     }
 
     const responseJson = await this.getJsonResponse(response);
@@ -1862,9 +1865,11 @@ export class ApiService implements ApiServiceAbstraction {
 
     // IdentityServer will return an invalid_grant response if the refresh token has expired.
     // This means that the user's session has expired, and they need to log out.
-    // We issue the logoutCallback() to log the user out through messaging.
     if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
-      await this.logoutCallback("sessionExpired");
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId != null) {
+        await this.logoutService.logout(userId, "sessionExpired");
+      }
     }
 
     return new ErrorResponse(responseJson, response.status, true);

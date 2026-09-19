@@ -11,7 +11,7 @@ import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { LogoutReason } from "../../../auth/logout";
+import { LogoutService } from "../../../auth/logout";
 import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
@@ -36,7 +36,7 @@ describe("NotificationsService", () => {
   let syncService: MockProxy<SyncService>;
   let appIdService: MockProxy<AppIdService>;
   let environmentService: MockProxy<EnvironmentService>;
-  let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason]>;
+  let logoutService: MockProxy<LogoutService>;
   let messagingService: MockProxy<MessageSender>;
   let accountService: MockProxy<AccountService>;
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
@@ -67,7 +67,7 @@ describe("NotificationsService", () => {
     syncService = mock<SyncService>();
     appIdService = mock<AppIdService>();
     environmentService = mock<EnvironmentService>();
-    logoutCallback = jest.fn<Promise<void>, [logoutReason: LogoutReason]>();
+    logoutService = mock<LogoutService>();
     messagingService = mock<MessageSender>();
     accountService = mock<AccountService>();
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
@@ -121,7 +121,7 @@ describe("NotificationsService", () => {
       syncService,
       appIdService,
       environmentService,
-      logoutCallback,
+      logoutService,
       messagingService,
       accountService,
       signalRNotificationConnectionService,
@@ -460,7 +460,7 @@ describe("NotificationsService", () => {
 
           await sut["processNotification"](notification, mockUser1);
 
-          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+          expect(logoutService.logout).toHaveBeenCalledWith(mockUser1, "logoutNotification");
         },
       );
 
@@ -475,7 +475,7 @@ describe("NotificationsService", () => {
 
         await sut["processNotification"](notification, mockUser1);
 
-        expect(logoutCallback).not.toHaveBeenCalled();
+        expect(logoutService.logout).not.toHaveBeenCalled();
       });
 
       it.each([
@@ -503,7 +503,7 @@ describe("NotificationsService", () => {
 
           await sut["processNotification"](notification, mockUser1);
 
-          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+          expect(logoutService.logout).toHaveBeenCalledWith(mockUser1, "logoutNotification");
         },
       );
 
@@ -518,7 +518,7 @@ describe("NotificationsService", () => {
 
         await sut["processNotification"](notification, mockUser1);
 
-        expect(logoutCallback).not.toHaveBeenCalled();
+        expect(logoutService.logout).not.toHaveBeenCalled();
       });
     });
 

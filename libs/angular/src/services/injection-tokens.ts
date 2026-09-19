@@ -4,7 +4,6 @@ import { Observable, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 
-import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeout } from "@bitwarden/common/key-management/vault-timeout";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -32,9 +31,6 @@ export const OBSERVABLE_DISK_LOCAL_STORAGE = new SafeInjectionToken<
 >("OBSERVABLE_DISK_LOCAL_STORAGE");
 export const MEMORY_STORAGE = new SafeInjectionToken<AbstractStorageService>("MEMORY_STORAGE");
 export const SECURE_STORAGE = new SafeInjectionToken<AbstractStorageService>("SECURE_STORAGE");
-export const LOGOUT_CALLBACK = new SafeInjectionToken<
-  (logoutReason: LogoutReason, userId?: string) => Promise<void>
->("LOGOUT_CALLBACK");
 export const SUPPORTS_SECURE_STORAGE = new SafeInjectionToken<boolean>("SUPPORTS_SECURE_STORAGE");
 export const LOCALES_DIRECTORY = new SafeInjectionToken<string>("LOCALES_DIRECTORY");
 export const SYSTEM_LANGUAGE = new SafeInjectionToken<string>("SYSTEM_LANGUAGE");
