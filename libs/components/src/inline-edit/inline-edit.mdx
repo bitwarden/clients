@@ -1,0 +1,50 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./inline-edit.stories";
+
+<Meta of={stories} />
+
+```ts
+import { InlineEditModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Usage
+
+Inline edit provides an edit-in-place affordance for a single text value. In its display state it
+renders the value followed by a pencil button; activating it swaps to a text input with save and
+cancel controls. The value text inherits typography from the host context, so the component can be
+placed inside a heading (for example, an `app-header` title) and match its surroundings.
+
+The `save` input is a function returning `Promise<boolean>`. Resolve `true` to close the editor on a
+successful save, or `false` to keep it open (for example, when a server-side validation fails). The
+consuming code is responsible for any toasts or side effects.
+
+## Validation
+
+The control always enforces `required` and a trim validator. Set `maxLength` to add a maximum-length
+validator, and pass additional `ValidatorFn`s through `validators`. Validation runs on submit so the
+trim validator can normalize the value first.
+
+<Canvas of={stories.WithMaxLength} />
+
+## Read-only
+
+The value is always displayed. When `canEdit` is `false`, only the edit affordance is hidden — the
+value remains visible. This suits a value that everyone can see but only some users may change (for
+example, a header title gated on a `write` permission: `[canEdit]="entity.write"`). If editing is
+open when permission is revoked, the editor closes and the value is shown again.
+
+<Canvas of={stories.ReadOnly} />
+
+## Accessibility
+
+The `label`, `editLabel`, `saveLabel`, and `cancelLabel` inputs are required and provide the
+`aria-label`s for the input and the edit, save, and cancel buttons respectively. Provide localized
+strings — the component does not localize text itself. The editor autofocuses the input on open and
+closes on <kbd>Escape</kbd>.
