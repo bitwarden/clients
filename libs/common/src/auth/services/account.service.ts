@@ -19,8 +19,6 @@ import {
   AccountInfo,
   InternalAccountService,
 } from "../../auth/abstractions/account.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   ACCOUNT_DISK,
@@ -99,8 +97,6 @@ export class AccountServiceImplementation implements InternalAccountService {
   showHeader$ = this._showHeader$.asObservable();
 
   constructor(
-    private messagingService: MessagingService,
-    private logService: LogService,
     private globalStateProvider: GlobalStateProvider,
     private singleUserStateProvider: SingleUserStateProvider,
   ) {
@@ -260,17 +256,6 @@ export class AccountServiceImplementation implements InternalAccountService {
       },
       { shouldUpdate: (oldActivity) => oldActivity?.[userId] != null },
     );
-  }
-
-  // Transitional: this method is removed in the next stacked PR, which introduces
-  // DeleteAccountService and shifts the delete-then-logout orchestration off AccountService.
-  async delete(): Promise<void> {
-    try {
-      this.messagingService?.send("logout", { logoutReason: "accountDeleted" });
-    } catch (e) {
-      this.logService.error(e);
-      throw e;
-    }
   }
 
   async setShowHeader(visible: boolean): Promise<void> {
