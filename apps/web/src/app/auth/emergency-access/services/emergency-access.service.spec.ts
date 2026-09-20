@@ -104,14 +104,17 @@ describe("EmergencyAccessService", () => {
         emergencyAccessApiService.postEmergencyAccessInvite.mockResolvedValueOnce();
 
         // Act
-        await emergencyAccessService.invite(email, type, waitTimeDays);
+        await emergencyAccessService.invite(email, type, waitTimeDays, mockUserId);
 
         // Assert
-        expect(emergencyAccessApiService.postEmergencyAccessInvite).toHaveBeenCalledWith({
-          email: email.trim(),
-          type: type,
-          waitTimeDays: waitTimeDays,
-        });
+        expect(emergencyAccessApiService.postEmergencyAccessInvite).toHaveBeenCalledWith(
+          expect.objectContaining({
+            email: email.trim(),
+            type: type,
+            waitTimeDays: waitTimeDays,
+          }),
+          mockUserId,
+        );
       });
     });
 
@@ -124,12 +127,14 @@ describe("EmergencyAccessService", () => {
         emergencyAccessApiService.postEmergencyAccessAccept.mockResolvedValueOnce();
 
         // Act
-        await emergencyAccessService.accept(id, token);
+        await emergencyAccessService.accept(id, token, mockUserId);
 
         // Assert
-        expect(emergencyAccessApiService.postEmergencyAccessAccept).toHaveBeenCalledWith(id, {
-          token: token,
-        });
+        expect(emergencyAccessApiService.postEmergencyAccessAccept).toHaveBeenCalledWith(
+          id,
+          { token: token },
+          mockUserId,
+        );
       });
     });
 
@@ -159,9 +164,11 @@ describe("EmergencyAccessService", () => {
         await emergencyAccessService.confirm(id, granteeId, publicKey, mockUserId);
 
         // Assert
-        expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(id, {
-          key: mockUserPublicKeyEncryptedUserKey.encryptedString,
-        });
+        expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(
+          id,
+          { key: mockUserPublicKeyEncryptedUserKey.encryptedString },
+          mockUserId,
+        );
       });
     });
   });
@@ -225,7 +232,10 @@ describe("EmergencyAccessService", () => {
       ]);
       expect(mockEncryptedCipher1.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
       expect(mockEncryptedCipher2.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
-      expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(params.id);
+      expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(
+        params.id,
+        params.activeUserId,
+      );
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
         new EncString(emergencyAccessViewResponse.keyEncrypted),
@@ -384,6 +394,7 @@ describe("EmergencyAccessService", () => {
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(
         id,
         request,
+        activeUserId,
       );
     });
 
@@ -398,6 +409,7 @@ describe("EmergencyAccessService", () => {
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(
         id,
         request,
+        activeUserId,
       );
     });
 

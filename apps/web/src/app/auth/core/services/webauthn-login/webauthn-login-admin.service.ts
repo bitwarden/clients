@@ -10,10 +10,13 @@ import {
   Observable,
   shareReplay,
   switchMap,
+  take,
   tap,
 } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
@@ -64,6 +67,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     private rotateableKeySetService: RotateableKeySetService,
     private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
     private keyService: KeyService,
+    private accountService: AccountService,
     @Optional() navigatorCredentials?: CredentialsContainer,
     @Optional() private logService?: LogService,
   ) {
@@ -81,9 +85,10 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
    */
   async getCredentialAssertOptions(
     verification: Verification,
+    userId: UserId,
   ): Promise<WebAuthnLoginCredentialAssertionOptionsView> {
     const request = await this.userVerificationService.buildRequest(verification);
-    const response = await this.apiService.getCredentialAssertionOptions(request);
+    const response = await this.apiService.getCredentialAssertionOptions(request, userId);
     return new WebAuthnLoginCredentialAssertionOptionsView(response.options, response.token);
   }
 
@@ -98,9 +103,10 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
 
   async getCredentialAttestationOptions(
     verification: Verification,
+    userId: UserId,
   ): Promise<CredentialCreateOptionsView> {
     const request = await this.userVerificationService.buildRequest(verification);
-    const response = await this.apiService.getCredentialCreateOptions(request);
+    const response = await this.apiService.getCredentialCreateOptions(request, userId);
     return new CredentialCreateOptionsView(response.options, response.token);
   }
 
@@ -217,6 +223,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
   async saveCredential(
     name: string,
     credential: PendingWebauthnLoginCredentialView,
+    userId: UserId,
     prfKeySet?: PrfKeySet,
   ) {
     const request = new SaveCredentialRequest();
@@ -227,7 +234,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey.encryptedString;
     request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
-    await this.apiService.saveCredential(request);
+    await this.apiService.saveCredential(request, userId);
     this.refresh();
   }
 
@@ -265,7 +272,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
     request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
-    await this.apiService.updateCredential(request);
+    await this.apiService.updateCredential(request, userId);
     this.refresh();
   }
 
@@ -303,14 +310,21 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
    * @param verification User verification data to be used for the request.
    * @returns A promise that resolves when the credential has been deleted.
    */
-  async deleteCredential(credentialId: string, verification: Verification): Promise<void> {
+  async deleteCredential(
+    credentialId: string,
+    verification: Verification,
+    userId: UserId,
+  ): Promise<void> {
     const request = await this.userVerificationService.buildRequest(verification);
-    await this.apiService.deleteCredential(credentialId, request);
+    await this.apiService.deleteCredential(credentialId, request, userId);
     this.refresh();
   }
 
   private fetchCredentials$(): Observable<WebauthnLoginCredentialView[]> {
-    return from(this.apiService.getCredentials()).pipe(
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      take(1),
+      switchMap((userId) => from(this.apiService.getCredentials(userId))),
       map((response) =>
         response.data.map(
           (credential) =>
@@ -347,7 +361,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     }
 
     return Promise.all(
-      (await this.apiService.getCredentials()).data
+      (await this.apiService.getCredentials(userId)).data
         .filter((credential) => credential.hasPrfKeyset())
         .map(async (response) => {
           const keyset = response.getRotateableKeyset();

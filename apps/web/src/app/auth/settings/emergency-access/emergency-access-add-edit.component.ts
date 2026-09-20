@@ -2,8 +2,11 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -63,6 +66,7 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessAddEditDialogResult>,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
   async ngOnInit() {
     this.editMode = this.loading = this.params.emergencyAccessId != null;
@@ -78,8 +82,10 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     if (this.editMode) {
       this.title = this.i18nService.t("editEmergencyContact");
       try {
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         const emergencyAccess = await this.emergencyAccessService.getEmergencyAccess(
           this.params.emergencyAccessId,
+          userId,
         );
         this.addEditForm.patchValue({
           email: emergencyAccess.email,
@@ -103,17 +109,20 @@ export class EmergencyAccessAddEditComponent implements OnInit {
       return;
     }
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (this.editMode) {
       await this.emergencyAccessService.update(
         this.params.emergencyAccessId,
         this.addEditForm.value.emergencyAccessType,
         this.addEditForm.value.waitTime,
+        userId,
       );
     } else {
       await this.emergencyAccessService.invite(
         this.addEditForm.value.email,
         this.addEditForm.value.emergencyAccessType,
         this.addEditForm.value.waitTime,
+        userId,
       );
     }
     this.toastService.showToast({

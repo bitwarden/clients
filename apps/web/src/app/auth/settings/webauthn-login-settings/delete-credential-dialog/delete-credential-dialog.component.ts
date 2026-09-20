@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -49,6 +51,7 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private logService: LogService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -65,7 +68,12 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
 
     this.dialogRef.disableClose = true;
     try {
-      await this.webauthnService.deleteCredential(this.credential.id, this.formGroup.value.secret);
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      await this.webauthnService.deleteCredential(
+        this.credential.id,
+        this.formGroup.value.secret,
+        userId,
+      );
       this.toastService.showToast({
         variant: "success",
         title: null,

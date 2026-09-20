@@ -5,6 +5,7 @@ import { randomBytes } from "crypto";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
@@ -55,12 +56,15 @@ describe("WebauthnAdminService", () => {
     webAuthnLoginPrfKeyService = mock<WebAuthnLoginPrfKeyServiceAbstraction>();
     keyService = mock<KeyService>();
     credentials = mock<CredentialsContainer>();
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: mockUserId } as any);
     service = new WebauthnLoginAdminService(
       apiService,
       userVerificationService,
       rotateableKeySetService,
       webAuthnLoginPrfKeyService,
       keyService,
+      accountService,
       credentials,
     );
 
@@ -231,7 +235,7 @@ describe("WebauthnAdminService", () => {
 
       // Assert
       expect(createKeySetMock).toHaveBeenCalledWith(assertionOptions.prfKey, mockUserKey);
-      expect(updateCredentialMock).toHaveBeenCalledWith(request);
+      expect(updateCredentialMock).toHaveBeenCalledWith(request, mockUserId);
     });
 
     it("should throw error when PRF Key is undefined", async () => {

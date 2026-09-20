@@ -100,8 +100,10 @@ export class CreateCredentialDialogComponent implements OnInit {
     }
 
     try {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       this.credentialOptions = await this.webauthnService.getCredentialAttestationOptions(
         this.formGroup.value.userVerification.secret,
+        userId,
       );
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 400) {
@@ -165,6 +167,7 @@ export class CreateCredentialDialogComponent implements OnInit {
     await this.webauthnService.saveCredential(
       this.formGroup.value.credentialNaming.name,
       this.pendingCredential,
+      userId,
       keySet,
     );
 

@@ -69,6 +69,7 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
     try {
       this.credentialOptions = await this.webauthnService.getCredentialAssertOptions(
         this.formGroup.value.userVerification.secret,
+        userId,
       );
       await this.webauthnService.enableCredentialEncryption(
         await this.webauthnLoginService.assertCredential(this.credentialOptions),
