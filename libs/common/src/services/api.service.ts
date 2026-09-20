@@ -680,7 +680,7 @@ export class ApiService implements ApiServiceAbstraction {
         this.environmentService.getEnvironment$(effectiveUserId),
       );
       const apiUrl = environment.getApiUrl();
-      const headers = await this.buildRequestHeaders();
+      const headers = await this.buildRequestHeaders(effectiveUserId);
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
         method: "POST",
         body: data,
@@ -1554,9 +1554,9 @@ export class ApiService implements ApiServiceAbstraction {
     }
   }
 
-  protected async buildRequestHeaders(): Promise<Headers> {
-    const userId = await this.getActiveUser();
-    const accessToken = await this.getActiveBearerToken(userId);
+  protected async buildRequestHeaders(userId?: UserId): Promise<Headers> {
+    const effectiveUserId = userId ?? (await this.getActiveUser());
+    const accessToken = await this.getActiveBearerToken(effectiveUserId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
       Authorization: "Bearer " + accessToken,
