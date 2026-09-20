@@ -40,8 +40,9 @@ export abstract class UserVerificationService {
   abstract verifyUser(verification: Verification): Promise<boolean>;
   /**
    * Request a one-time password (OTP) to be sent to the user's email
+   * @param userId The id of the user to request an OTP for
    */
-  abstract requestOTP(): Promise<void>;
+  abstract requestOTP(userId: UserId): Promise<void>;
   /**
    * Check if user has master password or can only use passwordless technologies to log in
    * Note: This only checks the server, not the local state

@@ -1,3 +1,4 @@
+import { UserId } from "../../types/guid";
 import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
@@ -9,10 +10,11 @@ export abstract class AccountApiService {
    * Deletes an account that has confirmed the operation is authorized
    *
    * @param verification - authorizes the account deletion operation.
+   * @param userId - the id of the user to delete.
    * @returns A promise that resolves when the account is
    * successfully deleted.
    */
-  abstract deleteAccount(verification: Verification): Promise<void>;
+  abstract deleteAccount(verification: Verification, userId: UserId): Promise<void>;
 
   /**
    * Sends a verification email as part of the registration process.

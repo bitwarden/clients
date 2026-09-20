@@ -2,10 +2,12 @@
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { ControlValueAccessor, FormControl, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -75,6 +77,7 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
   constructor(
     private userVerificationService: UserVerificationService,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -90,7 +93,8 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
     if (!this.hasMasterPassword) {
       this.disableRequestOTP = true;
       try {
-        await this.userVerificationService.requestOTP();
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        await this.userVerificationService.requestOTP(userId);
         this.sentCode = true;
       } finally {
         this.disableRequestOTP = false;
