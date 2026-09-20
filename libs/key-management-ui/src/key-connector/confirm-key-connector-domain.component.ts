@@ -61,9 +61,9 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
       this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     } catch {
       // No active account means we cannot call logoutService.logout(userId, reason). Send the
-      // raw logout message so downstream consumers can clear session state.
+      // reason on the message payload so downstream consumers can surface it.
       this.logService.info("[confirm-key-connector-domain] no active account");
-      this.messagingService.send("logout");
+      this.messagingService.send("logout", { logoutReason: "keyConnectorError" });
       return;
     }
 

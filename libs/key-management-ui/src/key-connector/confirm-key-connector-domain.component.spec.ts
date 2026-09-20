@@ -73,7 +73,9 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockMessagingService.send).toHaveBeenCalledWith("logout");
+      expect(mockMessagingService.send).toHaveBeenCalledWith("logout", {
+        logoutReason: "keyConnectorError",
+      });
       expect(component.loading).toEqual(true);
     });
 
