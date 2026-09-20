@@ -1,7 +1,7 @@
-import { LogoutService } from "@bitwarden/auth/common";
 import MainBackground from "@bitwarden/browser/background/main.background";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";

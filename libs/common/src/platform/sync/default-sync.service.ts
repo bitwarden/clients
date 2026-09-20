@@ -12,9 +12,6 @@ import { KeyService } from "@bitwarden/key-management";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
@@ -31,6 +28,7 @@ import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutService } from "../../auth/logout";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
@@ -96,7 +94,7 @@ export class DefaultSyncService extends CoreSyncService {
     sendApiService: SendApiService,
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private avatarService: AvatarService,
-    private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
+    private logoutService: LogoutService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     tokenService: TokenService,
     authService: AuthService,
@@ -224,9 +222,12 @@ export class DefaultSyncService extends CoreSyncService {
     }
 
     const response = await this.apiService.getAccountRevisionDate();
-    if (response < 0 && this.logoutCallback) {
+    if (response < 0) {
       // Account was deleted, log out now
-      await this.logoutCallback("accountDeleted");
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId != null) {
+        await this.logoutService.logout(userId, "accountDeleted");
+      }
     }
 
     if (new Date(response) <= lastSync) {
@@ -238,8 +239,9 @@ export class DefaultSyncService extends CoreSyncService {
   private async syncProfile(response: ProfileResponse) {
     const stamp = await this.tokenService.getSecurityStamp(response.id);
     if (stamp != null && stamp !== response.securityStamp) {
-      if (this.logoutCallback != null) {
-        await this.logoutCallback("invalidSecurityStamp");
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId != null) {
+        await this.logoutService.logout(userId, "invalidSecurityStamp");
       }
 
       throw new Error("Stamp has changed");

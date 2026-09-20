@@ -1,9 +1,10 @@
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import { LogoutService, NewActiveUser } from "../../abstractions/logout.service";
-import { LogoutReason } from "../../types";
+import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { UserId } from "../../types/guid";
+
+import { LogoutReason } from "./logout-reason.type";
+import { LogoutService, NewActiveUser } from "./logout.service";
 
 export class DefaultLogoutService implements LogoutService {
   constructor(

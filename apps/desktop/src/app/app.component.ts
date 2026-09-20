@@ -14,7 +14,6 @@ import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,
-  LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,6 +23,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";

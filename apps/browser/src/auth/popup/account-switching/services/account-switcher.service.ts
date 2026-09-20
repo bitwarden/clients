@@ -13,11 +13,11 @@ import {
   timeout,
 } from "rxjs";
 
-import { NewActiveUser } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NewActiveUser } from "@bitwarden/common/auth/logout";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";

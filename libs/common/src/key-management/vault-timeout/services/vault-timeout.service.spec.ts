@@ -4,14 +4,14 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutService } from "@bitwarden/auth/common";
+
 import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { FakeAccountService, mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogoutService } from "../../../auth/logout";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { Utils } from "../../../platform/misc/utils";
