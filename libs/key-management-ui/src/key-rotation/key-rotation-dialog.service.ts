@@ -57,7 +57,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userKeyRotation");
       return true;
     }
     return false;
@@ -96,7 +96,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userKeyRotation");
       return true;
     }
     return false;
@@ -121,7 +121,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userKeyRotation");
       return true;
     }
 

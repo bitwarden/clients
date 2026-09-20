@@ -649,6 +649,7 @@ describe("KeyRotationService", () => {
 
       it("uses the SDK when the user uses SDK key rotation", async () => {
         jest.spyOn(keyRotationService, "shouldUseSdkKeyRotation$").mockReturnValue(of(true));
+        mockSdkUserKeyRotationService.changePasswordAndRotateUserKey.mockResolvedValue(true);
 
         await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
           "mockMasterPassword",
@@ -664,6 +665,7 @@ describe("KeyRotationService", () => {
           mockUser.id,
         );
         expect(mockApiService.postUserKeyUpdate).not.toHaveBeenCalled();
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id, "userKeyRotation");
       });
 
       it("uses TypeScript when the user does not use SDK key rotation", async () => {
@@ -678,6 +680,7 @@ describe("KeyRotationService", () => {
 
         expect(mockSdkUserKeyRotationService.changePasswordAndRotateUserKey).not.toHaveBeenCalled();
         expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id, "userKeyRotation");
       });
     });
 

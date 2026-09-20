@@ -2,6 +2,7 @@ import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "@bitwarden/common/key-management/key-connector/models/key-connector-domain-confirmation";
@@ -35,6 +36,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
   const mockToastService = mock<ToastService>();
   const mockI18nService = mock<I18nService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
+  const mockLogoutService = mock<LogoutService>();
   let mockAccountService = mockAccountServiceWith(userId);
   const onBeforeNavigation = jest.fn();
 
@@ -56,6 +58,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
       mockToastService,
       mockI18nService,
       mockAnonLayoutWrapperDataService,
+      mockLogoutService,
     );
 
     jest.spyOn(component, "onBeforeNavigation").mockImplementation(onBeforeNavigation);
@@ -79,7 +82,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockMessagingService.send).toHaveBeenCalledWith("logout");
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorError");
       expect(component.loading).toEqual(true);
     });
 
@@ -186,7 +189,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
 
       await component.cancel();
 
-      expect(mockMessagingService.send).toHaveBeenCalledWith("logout");
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId, "userInitiated");
       expect(mockKeyConnectorService.convertNewSsoUserToKeyConnector).not.toHaveBeenCalled();
     });
   });
