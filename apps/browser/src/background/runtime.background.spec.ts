@@ -1,8 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { LogoutReason } from "@bitwarden/auth/common";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
@@ -243,5 +245,54 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(result).toBe(rules);
+  });
+});
+
+// The logout dispatch reads `msg.logoutReason` off the incoming message and
+// forwards it to `MainBackground.logout`. It previously read `msg.expired`, a
+// stale field no producer sets, so the reason was silently dropped and the
+// popup lost its post-logout toast. This guards against that field-name drift.
+describe("RuntimeBackground logout dispatch", () => {
+  let runtimeBackground: RuntimeBackground;
+  let mainBackground: MockProxy<MainBackground>;
+
+  const userId = "user-1" as UserId;
+  const logoutReason: LogoutReason = "userInitiated";
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    mainBackground = mock<MainBackground>();
+
+    runtimeBackground = new RuntimeBackground(
+      mainBackground,
+      mock<AutofillService>(),
+      mock<BrowserPlatformUtilsService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<LogService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<AutofillOrchestrator>(),
+    );
+  });
+
+  it("forwards logoutReason and userId from the message to MainBackground.logout", async () => {
+    await runtimeBackground.processMessage({ command: "logout", logoutReason, userId });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, userId);
+  });
+
+  it("forwards undefined userId when the message does not include one", async () => {
+    await runtimeBackground.processMessage({ command: "logout", logoutReason });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, undefined);
   });
 });
