@@ -18,10 +18,12 @@ function presenter(label: string, summaryLabels: string[]): FilterPresenter {
     label: signal(label),
     icon: signal(undefined),
     active: signal(summaryLabels.length > 0),
+    multiple: signal(summaryLabels.length > 1),
     summary: signal(summaryLabels.join(", ")),
-    summaryLabels: signal(summaryLabels),
+    selections: signal(summaryLabels.map((label) => ({ value: label, label }))),
     optionsTemplate: signal(undefined),
     flip: () => undefined,
+    deselect: () => undefined,
     clear: () => undefined,
   };
 }
