@@ -51,7 +51,7 @@ export class AccountMenuComponent {
   protected async logout() {
     const userId = this.account()?.id;
     if (userId) {
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userInitiated");
     }
   }
 }

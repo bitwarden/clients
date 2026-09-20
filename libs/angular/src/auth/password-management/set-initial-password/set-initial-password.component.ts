@@ -191,8 +191,8 @@ export class SetInitialPasswordComponent implements OnInit {
       type: "warning",
     });
 
-    if (confirmed) {
-      this.messagingService.send("logout");
+    if (confirmed && this.userId != null) {
+      await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
 
@@ -431,7 +431,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.showSuccessToastByUserType();
 
       // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-      await this.logoutService.logout(this.userId);
+      await this.logoutService.logout(this.userId, "setInitialPassword");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     } catch (e) {

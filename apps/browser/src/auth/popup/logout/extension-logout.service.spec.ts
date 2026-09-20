@@ -4,6 +4,7 @@ import { LogoutReason, LogoutService } from "@bitwarden/auth/common";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/logging";
 
 import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
 
@@ -12,6 +13,7 @@ import { ExtensionLogoutService } from "./extension-logout.service";
 describe("ExtensionLogoutService", () => {
   let logoutService: LogoutService;
   let messagingService: MockProxy<MessagingService>;
+  let logService: MockProxy<LogService>;
   let accountSwitcherService: MockProxy<AccountSwitcherService>;
 
   let primaryUserId: UserId;
@@ -24,8 +26,13 @@ describe("ExtensionLogoutService", () => {
     logoutReason = "vaultTimeout";
 
     messagingService = mock<MessagingService>();
+    logService = mock<LogService>();
     accountSwitcherService = mock<AccountSwitcherService>();
-    logoutService = new ExtensionLogoutService(messagingService, accountSwitcherService);
+    logoutService = new ExtensionLogoutService(
+      messagingService,
+      logService,
+      accountSwitcherService,
+    );
   });
 
   it("instantiates", () => {
@@ -38,16 +45,7 @@ describe("ExtensionLogoutService", () => {
         accountSwitcherService.listenForSwitchAccountFinish.mockResolvedValue(null);
       });
 
-      it("sends logout message without a logout reason when not provided", async () => {
-        const result = await logoutService.logout(primaryUserId);
-
-        expect(accountSwitcherService.listenForSwitchAccountFinish).toHaveBeenCalledTimes(1);
-        expect(messagingService.send).toHaveBeenCalledWith("logout", { userId: primaryUserId });
-
-        expect(result).toBeUndefined();
-      });
-
-      it("sends logout message with a logout reason when provided", async () => {
+      it("sends logout message with the provided reason", async () => {
         const result = await logoutService.logout(primaryUserId, logoutReason);
 
         expect(accountSwitcherService.listenForSwitchAccountFinish).toHaveBeenCalledTimes(1);
@@ -56,6 +54,16 @@ describe("ExtensionLogoutService", () => {
           logoutReason,
         });
         expect(result).toBeUndefined();
+      });
+
+      it("logs an info message with the user id and reason", async () => {
+        await logoutService.logout(primaryUserId, logoutReason);
+
+        expect(logService.info).toHaveBeenCalledWith(
+          "Logging out user %s for reason: %s",
+          primaryUserId,
+          logoutReason,
+        );
       });
     });
 
@@ -69,24 +77,10 @@ describe("ExtensionLogoutService", () => {
         });
       });
 
-      it("sends logout message without a logout reason when not provided and returns the new active  user", async () => {
-        const result = await logoutService.logout(primaryUserId);
-
-        expect(accountSwitcherService.listenForSwitchAccountFinish).toHaveBeenCalledTimes(1);
-
-        expect(messagingService.send).toHaveBeenCalledWith("logout", { userId: primaryUserId });
-
-        expect(result).toEqual({
-          userId: secondaryUserId,
-          authenticationStatus: newActiveUserAuthenticationStatus,
-        });
-      });
-
-      it("sends logout message with a logout reason when provided and returns the new active  user", async () => {
+      it("sends logout message with the provided reason and returns the new active user", async () => {
         const result = await logoutService.logout(primaryUserId, logoutReason);
 
         expect(accountSwitcherService.listenForSwitchAccountFinish).toHaveBeenCalledTimes(1);
-
         expect(messagingService.send).toHaveBeenCalledWith("logout", {
           userId: primaryUserId,
           logoutReason,
