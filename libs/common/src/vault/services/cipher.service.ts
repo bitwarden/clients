@@ -1257,7 +1257,7 @@ export class CipherService implements CipherServiceAbstraction {
       removeCollections,
     );
 
-    await this.apiService.send("POST", "/ciphers/bulk-collections", request, true, false);
+    await this.apiService.send("POST", "/ciphers/bulk-collections", request, userId, false);
 
     // Update the local state
     const ciphers = await firstValueFrom(this.ciphers$(userId));

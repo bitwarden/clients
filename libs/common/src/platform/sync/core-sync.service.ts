@@ -113,7 +113,7 @@ export abstract class CoreSyncService implements SyncService {
           (!isEdit && localFolder == null) ||
           (isEdit && localFolder != null && localFolder.revisionDate < notification.revisionDate)
         ) {
-          const remoteFolder = await this.folderApiService.get(notification.id);
+          const remoteFolder = await this.folderApiService.get(notification.id, userId);
           if (remoteFolder != null) {
             await this.folderService.upsert(new FolderData(remoteFolder), userId);
             this.messageSender.send("syncedUpsertedFolder", { folderId: notification.id });

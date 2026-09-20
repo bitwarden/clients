@@ -1638,7 +1638,7 @@ describe("Cipher Service", () => {
         "POST",
         "/ciphers/bulk-collections",
         expect.anything(),
-        true,
+        mockUserId,
         false,
       );
     });

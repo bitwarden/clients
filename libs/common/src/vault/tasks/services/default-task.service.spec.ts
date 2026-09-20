@@ -128,7 +128,7 @@ describe("Default task service", () => {
       const result = await firstValueFrom(tasks$("user-id" as UserId));
 
       expect(result.length).toBe(1);
-      expect(mockApiSend).toHaveBeenCalledWith("GET", "/tasks", null, true, true);
+      expect(mockApiSend).toHaveBeenCalledWith("GET", "/tasks", null, userId, true);
     });
 
     it("should use the tasks from state when not null", async () => {
@@ -216,7 +216,7 @@ describe("Default task service", () => {
 
       await service.refreshTasks("user-id" as UserId);
 
-      expect(mockApiSend).toHaveBeenCalledWith("GET", "/tasks", null, true, true);
+      expect(mockApiSend).toHaveBeenCalledWith("GET", "/tasks", null, userId, true);
     });
 
     it("should update the local state with refreshed tasks", async () => {
@@ -266,7 +266,7 @@ describe("Default task service", () => {
         "PATCH",
         "/tasks/task-id/complete",
         null,
-        true,
+        userId,
         false,
       );
     });
@@ -291,7 +291,7 @@ describe("Default task service", () => {
 
       await service.markAsComplete("task-id" as SecurityTaskId, "user-id" as UserId);
 
-      expect(mockApiSend).toHaveBeenCalledWith("GET", "/tasks", null, true, true);
+      expect(mockApiSend).toHaveBeenCalledWith("GET", "/tasks", null, userId, true);
       expect(mockState.nextMock).toHaveBeenCalledWith([
         {
           id: "new-task-id",
