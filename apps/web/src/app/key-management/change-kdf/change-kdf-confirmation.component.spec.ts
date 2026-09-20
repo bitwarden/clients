@@ -1,3 +1,6 @@
+// Polyfill for Symbol.dispose required by the service's use of `using` keyword
+import "core-js/proposals/explicit-resource-management";
+
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
