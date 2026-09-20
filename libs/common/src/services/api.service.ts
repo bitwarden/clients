@@ -239,21 +239,25 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // TODO: PM-3519: Create and move to AuthRequest Api service
-  async getAuthRequest(id: string): Promise<AuthRequestResponse> {
+  async getAuthRequest(id: string, userId?: UserId): Promise<AuthRequestResponse> {
     const path = `/auth-requests/${id}`;
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new AuthRequestResponse(r);
   }
 
-  async putAuthRequest(id: string, request: PasswordlessAuthRequest): Promise<AuthRequestResponse> {
+  async putAuthRequest(
+    id: string,
+    request: PasswordlessAuthRequest,
+    userId?: UserId,
+  ): Promise<AuthRequestResponse> {
     const path = `/auth-requests/${id}`;
-    const r = await this.send("PUT", path, request, true, true);
+    const r = await this.send("PUT", path, request, userId ?? true, true);
     return new AuthRequestResponse(r);
   }
 
-  async getAuthRequests(): Promise<ListResponse<AuthRequestResponse>> {
+  async getAuthRequests(userId?: UserId): Promise<ListResponse<AuthRequestResponse>> {
     const path = `/auth-requests/`;
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new ListResponse(r, AuthRequestResponse);
   }
 
@@ -268,36 +272,36 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Account APIs
 
-  async getProfile(): Promise<ProfileResponse> {
-    const r = await this.send("GET", "/accounts/profile", null, true, true);
+  async getProfile(userId?: UserId): Promise<ProfileResponse> {
+    const r = await this.send("GET", "/accounts/profile", null, userId ?? true, true);
     return new ProfileResponse(r);
   }
 
-  async getUserSubscription(): Promise<SubscriptionResponse> {
-    const r = await this.send("GET", "/accounts/subscription", null, true, true);
+  async getUserSubscription(userId?: UserId): Promise<SubscriptionResponse> {
+    const r = await this.send("GET", "/accounts/subscription", null, userId ?? true, true);
     return new SubscriptionResponse(r);
   }
 
-  async putProfile(request: UpdateProfileRequest): Promise<ProfileResponse> {
-    const r = await this.send("PUT", "/accounts/profile", request, true, true);
+  async putProfile(request: UpdateProfileRequest, userId?: UserId): Promise<ProfileResponse> {
+    const r = await this.send("PUT", "/accounts/profile", request, userId ?? true, true);
     return new ProfileResponse(r);
   }
 
-  async putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse> {
-    const r = await this.send("PUT", "/accounts/avatar", request, true, true);
+  async putAvatar(request: UpdateAvatarRequest, userId?: UserId): Promise<ProfileResponse> {
+    const r = await this.send("PUT", "/accounts/avatar", request, userId ?? true, true);
     return new ProfileResponse(r);
   }
 
-  postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
-    return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
+  postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest, userId?: UserId): Promise<any> {
+    return this.send("POST", "/accounts/set-key-connector-key", request, userId ?? true, false);
   }
 
-  postSecurityStamp(request: SecretVerificationRequest): Promise<any> {
-    return this.send("POST", "/accounts/security-stamp", request, true, false);
+  postSecurityStamp(request: SecretVerificationRequest, userId?: UserId): Promise<any> {
+    return this.send("POST", "/accounts/security-stamp", request, userId ?? true, false);
   }
 
-  async getAccountRevisionDate(): Promise<number> {
-    const r = await this.send("GET", "/accounts/revision-date", null, true, true);
+  async getAccountRevisionDate(userId?: UserId): Promise<number> {
+    const r = await this.send("GET", "/accounts/revision-date", null, userId ?? true, true);
     return r as number;
   }
 
@@ -305,21 +309,21 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/password-hint", request, false, false);
   }
 
-  async postPremium(data: FormData): Promise<PaymentResponse> {
-    const r = await this.send("POST", "/accounts/premium", data, true, true);
+  async postPremium(data: FormData, userId?: UserId): Promise<PaymentResponse> {
+    const r = await this.send("POST", "/accounts/premium", data, userId ?? true, true);
     return new PaymentResponse(r);
   }
 
-  postAccountLicense(data: FormData): Promise<any> {
-    return this.send("POST", "/accounts/license", data, true, false);
+  postAccountLicense(data: FormData, userId?: UserId): Promise<any> {
+    return this.send("POST", "/accounts/license", data, userId ?? true, false);
   }
 
-  postAccountKeys(request: KeysRequest): Promise<any> {
-    return this.send("POST", "/accounts/keys", request, true, false);
+  postAccountKeys(request: KeysRequest, userId?: UserId): Promise<any> {
+    return this.send("POST", "/accounts/keys", request, userId ?? true, false);
   }
 
-  postAccountVerifyEmail(): Promise<any> {
-    return this.send("POST", "/accounts/verify-email", null, true, false);
+  postAccountVerifyEmail(userId?: UserId): Promise<any> {
+    return this.send("POST", "/accounts/verify-email", null, userId ?? true, false);
   }
 
   postAccountVerifyEmailToken(request: VerifyEmailRequest): Promise<any> {
@@ -334,189 +338,224 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/delete-recover-token", request, false, false);
   }
 
-  async deleteSsoUser(organizationId: string): Promise<void> {
-    return this.send("DELETE", "/accounts/sso/" + organizationId, null, true, false);
+  async deleteSsoUser(organizationId: string, userId?: UserId): Promise<void> {
+    return this.send("DELETE", "/accounts/sso/" + organizationId, null, userId ?? true, false);
   }
 
-  async getSsoUserIdentifier(): Promise<string> {
-    return this.send("GET", "/accounts/sso/user-identifier", null, true, true);
+  async getSsoUserIdentifier(userId?: UserId): Promise<string> {
+    return this.send("GET", "/accounts/sso/user-identifier", null, userId ?? true, true);
   }
 
-  async postUserApiKey(id: string, request: SecretVerificationRequest): Promise<ApiKeyResponse> {
-    const r = await this.send("POST", "/accounts/api-key", request, true, true);
+  async postUserApiKey(
+    id: string,
+    request: SecretVerificationRequest,
+    userId?: UserId,
+  ): Promise<ApiKeyResponse> {
+    const r = await this.send("POST", "/accounts/api-key", request, userId ?? true, true);
     return new ApiKeyResponse(r);
   }
 
   async postUserRotateApiKey(
     id: string,
     request: SecretVerificationRequest,
+    userId?: UserId,
   ): Promise<ApiKeyResponse> {
-    const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
+    const r = await this.send("POST", "/accounts/rotate-api-key", request, userId ?? true, true);
     return new ApiKeyResponse(r);
   }
 
   // Account Billing APIs
 
-  async getUserBillingHistory(): Promise<BillingHistoryResponse> {
-    const r = await this.send("GET", "/accounts/billing/history", null, true, true);
+  async getUserBillingHistory(userId?: UserId): Promise<BillingHistoryResponse> {
+    const r = await this.send("GET", "/accounts/billing/history", null, userId ?? true, true);
     return new BillingHistoryResponse(r);
   }
 
   // Cipher APIs
 
-  async getCipher(id: string): Promise<CipherResponse> {
-    const r = await this.send("GET", "/ciphers/" + id, null, true, true);
+  async getCipher(id: string, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("GET", "/ciphers/" + id, null, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async getFullCipherDetails(id: string): Promise<CipherResponse> {
-    const r = await this.send("GET", "/ciphers/" + id + "/details", null, true, true);
+  async getFullCipherDetails(id: string, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("GET", "/ciphers/" + id + "/details", null, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async getCipherAdmin(id: string): Promise<CipherResponse> {
-    const r = await this.send("GET", "/ciphers/" + id + "/admin", null, true, true);
+  async getCipherAdmin(id: string, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("GET", "/ciphers/" + id + "/admin", null, userId ?? true, true);
     return new CipherResponse(r);
   }
 
   async getCiphersOrganization(
     organizationId: string,
     includeMemberItems?: boolean,
+    userId?: UserId,
   ): Promise<ListResponse<CipherResponse>> {
     let url = "/ciphers/organization-details?organizationId=" + organizationId;
     if (includeMemberItems) {
       url += `&includeMemberItems=${includeMemberItems}`;
     }
-    const r = await this.send("GET", url, null, true, true);
+    const r = await this.send("GET", url, null, userId ?? true, true);
     return new ListResponse(r, CipherResponse);
   }
 
-  async postCipher(request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers", request, true, true);
+  async postCipher(request: CipherRequest, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("POST", "/ciphers", request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/create", request, true, true);
+  async postCipherCreate(request: CipherCreateRequest, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("POST", "/ciphers/create", request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/admin", request, true, true);
+  async postCipherAdmin(request: CipherCreateRequest, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("POST", "/ciphers/admin", request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async putCipher(id: string, request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id, request, true, true);
+  async putCipher(id: string, request: CipherRequest, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("PUT", "/ciphers/" + id, request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async putPartialCipher(id: string, request: CipherPartialRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/partial", request, true, true);
+  async putPartialCipher(
+    id: string,
+    request: CipherPartialRequest,
+    userId?: UserId,
+  ): Promise<CipherResponse> {
+    const r = await this.send("PUT", "/ciphers/" + id + "/partial", request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/admin", request, true, true);
+  async putCipherAdmin(
+    id: string,
+    request: CipherRequest,
+    userId?: UserId,
+  ): Promise<CipherResponse> {
+    const r = await this.send("PUT", "/ciphers/" + id + "/admin", request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  deleteCipher(id: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id, null, true, false);
+  deleteCipher(id: string, userId?: UserId): Promise<any> {
+    return this.send("DELETE", "/ciphers/" + id, null, userId ?? true, false);
   }
 
-  deleteCipherAdmin(id: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/admin", null, true, false);
+  deleteCipherAdmin(id: string, userId?: UserId): Promise<any> {
+    return this.send("DELETE", "/ciphers/" + id + "/admin", null, userId ?? true, false);
   }
 
-  deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("DELETE", "/ciphers", request, true, false);
+  deleteManyCiphers(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any> {
+    return this.send("DELETE", "/ciphers", request, userId ?? true, false);
   }
 
-  deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("DELETE", "/ciphers/admin", request, true, false);
+  deleteManyCiphersAdmin(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any> {
+    return this.send("DELETE", "/ciphers/admin", request, userId ?? true, false);
   }
 
-  putMoveCiphers(request: CipherBulkMoveRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/move", request, true, false);
+  putMoveCiphers(request: CipherBulkMoveRequest, userId?: UserId): Promise<any> {
+    return this.send("PUT", "/ciphers/move", request, userId ?? true, false);
   }
 
-  async putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/share", request, true, true);
+  async putShareCipher(
+    id: string,
+    request: CipherShareRequest,
+    userId?: UserId,
+  ): Promise<CipherResponse> {
+    const r = await this.send("PUT", "/ciphers/" + id + "/share", request, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/share", request, true, true);
+  async putShareCiphers(
+    request: CipherBulkShareRequest,
+    userId?: UserId,
+  ): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/share", request, userId ?? true, true);
     return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putCipherCollections(
     id: string,
     request: CipherCollectionsRequest,
+    userId?: UserId,
   ): Promise<OptionalCipherResponse> {
     const response = await this.send(
       "PUT",
       "/ciphers/" + id + "/collections_v2",
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new OptionalCipherResponse(response);
   }
 
-  putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, true);
+  putCipherCollectionsAdmin(
+    id: string,
+    request: CipherCollectionsRequest,
+    userId?: UserId,
+  ): Promise<any> {
+    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, userId ?? true, true);
   }
 
   postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId: string = null,
+    userId?: UserId,
   ): Promise<any> {
     let path = "/ciphers/purge";
     if (organizationId != null) {
       path += "?organizationId=" + organizationId;
     }
-    return this.send("POST", path, request, true, false);
+    return this.send("POST", path, request, userId ?? true, false);
   }
 
-  putDeleteCipher(id: string): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/delete", null, true, false);
+  putDeleteCipher(id: string, userId?: UserId): Promise<any> {
+    return this.send("PUT", "/ciphers/" + id + "/delete", null, userId ?? true, false);
   }
 
-  putDeleteCipherAdmin(id: string): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/delete-admin", null, true, false);
+  putDeleteCipherAdmin(id: string, userId?: UserId): Promise<any> {
+    return this.send("PUT", "/ciphers/" + id + "/delete-admin", null, userId ?? true, false);
   }
 
-  putDeleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/delete", request, true, false);
+  putDeleteManyCiphers(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any> {
+    return this.send("PUT", "/ciphers/delete", request, userId ?? true, false);
   }
 
-  putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/delete-admin", request, true, false);
+  putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any> {
+    return this.send("PUT", "/ciphers/delete-admin", request, userId ?? true, false);
   }
 
-  async putRestoreCipher(id: string): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/restore", null, true, true);
+  async putRestoreCipher(id: string, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send("PUT", "/ciphers/" + id + "/restore", null, userId ?? true, true);
     return new CipherResponse(r);
   }
 
-  async putRestoreCipherAdmin(id: string): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/restore-admin", null, true, true);
+  async putRestoreCipherAdmin(id: string, userId?: UserId): Promise<CipherResponse> {
+    const r = await this.send(
+      "PUT",
+      "/ciphers/" + id + "/restore-admin",
+      null,
+      userId ?? true,
+      true,
+    );
     return new CipherResponse(r);
   }
 
   async putRestoreManyCiphers(
     request: CipherBulkRestoreRequest,
+    userId?: UserId,
   ): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/restore", request, true, true);
+    const r = await this.send("PUT", "/ciphers/restore", request, userId ?? true, true);
     return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putRestoreManyCiphersAdmin(
     request: CipherBulkRestoreRequest,
+    userId?: UserId,
   ): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/restore-admin", request, true, true);
+    const r = await this.send("PUT", "/ciphers/restore-admin", request, userId ?? true, true);
     return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
@@ -526,42 +565,52 @@ export class ApiService implements ApiServiceAbstraction {
     cipherId: string,
     attachmentId: string,
     emergencyAccessId?: string,
+    userId?: UserId,
   ): Promise<AttachmentResponse> {
     const path =
       (emergencyAccessId != null ? "/emergency-access/" + emergencyAccessId + "/" : "/ciphers/") +
       cipherId +
       "/attachment/" +
       attachmentId;
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new AttachmentResponse(r);
   }
 
   async getAttachmentDataAdmin(
     cipherId: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<AttachmentResponse> {
     const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new AttachmentResponse(r);
   }
 
   async postCipherAttachment(
     id: string,
     request: AttachmentRequest,
+    userId?: UserId,
   ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
+    const r = await this.send(
+      "POST",
+      "/ciphers/" + id + "/attachment/v2",
+      request,
+      userId ?? true,
+      true,
+    );
     return new AttachmentUploadDataResponse(r);
   }
 
   async deleteCipherAttachment(
     id: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<DeleteAttachmentResponse> {
     const r = await this.send(
       "DELETE",
       "/ciphers/" + id + "/attachment/" + attachmentId,
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new DeleteAttachmentResponse(r);
@@ -570,12 +619,13 @@ export class ApiService implements ApiServiceAbstraction {
   async deleteCipherAttachmentAdmin(
     id: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<DeleteAttachmentResponse> {
     const r = await this.send(
       "DELETE",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new DeleteAttachmentResponse(r);
@@ -586,12 +636,13 @@ export class ApiService implements ApiServiceAbstraction {
     attachmentId: string,
     data: FormData,
     organizationId: string,
+    userId?: UserId,
   ): Promise<any> {
     return this.send(
       "POST",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/share?organizationId=" + organizationId,
       data,
-      true,
+      userId ?? true,
       false,
     );
   }
@@ -599,12 +650,13 @@ export class ApiService implements ApiServiceAbstraction {
   async renewAttachmentUploadUrl(
     id: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send(
       "GET",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/renew",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new AttachmentUploadDataResponse(r);
@@ -615,10 +667,13 @@ export class ApiService implements ApiServiceAbstraction {
     attachmentId: string,
     data: FormData,
     options?: UploadOptions,
+    userId?: UserId,
   ): Promise<any> {
     if (typeof XMLHttpRequest !== "undefined" && options?.onProgress) {
-      const userId = await this.getActiveUser();
-      const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+      const effectiveUserId = userId ?? (await this.getActiveUser());
+      const environment = await firstValueFrom(
+        this.environmentService.getEnvironment$(effectiveUserId),
+      );
       const apiUrl = environment.getApiUrl();
       const headers = await this.buildRequestHeaders();
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
@@ -629,7 +684,13 @@ export class ApiService implements ApiServiceAbstraction {
       return this.nativeXMLHttpRequest(request, options.onProgress);
     }
 
-    return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
+    return this.send(
+      "POST",
+      "/ciphers/" + id + "/attachment/" + attachmentId,
+      data,
+      userId ?? true,
+      false,
+    );
   }
 
   // Collections APIs
@@ -637,28 +698,32 @@ export class ApiService implements ApiServiceAbstraction {
   async getCollectionAccessDetails(
     organizationId: string,
     id: string,
+    userId?: UserId,
   ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/" + id + "/details",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new CollectionAccessDetailsResponse(r);
   }
 
-  async getUserCollections(): Promise<ListResponse<CollectionResponse>> {
-    const r = await this.send("GET", "/collections", null, true, true);
+  async getUserCollections(userId?: UserId): Promise<ListResponse<CollectionResponse>> {
+    const r = await this.send("GET", "/collections", null, userId ?? true, true);
     return new ListResponse(r, CollectionResponse);
   }
 
-  async getCollections(organizationId: string): Promise<ListResponse<CollectionResponse>> {
+  async getCollections(
+    organizationId: string,
+    userId?: UserId,
+  ): Promise<ListResponse<CollectionResponse>> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, CollectionResponse);
@@ -666,12 +731,13 @@ export class ApiService implements ApiServiceAbstraction {
 
   async getManyCollectionsWithAccessDetails(
     organizationId: string,
+    userId?: UserId,
   ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/details",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, CollectionAccessDetailsResponse);
@@ -680,12 +746,13 @@ export class ApiService implements ApiServiceAbstraction {
   async getCollectionUsers(
     organizationId: string,
     id: string,
+    userId?: UserId,
   ): Promise<SelectionReadOnlyResponse[]> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/collections/" + id + "/users",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return r.map((dr: any) => new SelectionReadOnlyResponse(dr));
@@ -694,12 +761,13 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
+    userId?: UserId,
   ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new CollectionAccessDetailsResponse(r);
@@ -709,56 +777,66 @@ export class ApiService implements ApiServiceAbstraction {
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
+    userId?: UserId,
   ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new CollectionAccessDetailsResponse(r);
   }
 
-  deleteCollection(organizationId: string, id: string): Promise<any> {
+  deleteCollection(organizationId: string, id: string, userId?: UserId): Promise<any> {
     return this.send(
       "DELETE",
       "/organizations/" + organizationId + "/collections/" + id,
       null,
-      true,
+      userId ?? true,
       false,
     );
   }
 
-  deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any> {
+  deleteManyCollections(
+    organizationId: string,
+    collectionIds: string[],
+    userId?: UserId,
+  ): Promise<any> {
     return this.send(
       "DELETE",
       "/organizations/" + organizationId + "/collections",
       new CollectionBulkDeleteRequest(collectionIds),
-      true,
+      userId ?? true,
       false,
     );
   }
 
   // Groups APIs
 
-  async getGroupUsers(organizationId: string, id: string): Promise<string[]> {
+  async getGroupUsers(organizationId: string, id: string, userId?: UserId): Promise<string[]> {
     const r = await this.send(
       "GET",
       "/organizations/" + organizationId + "/groups/" + id + "/users",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return r;
   }
 
-  deleteGroupUser(organizationId: string, id: string, organizationUserId: string): Promise<any> {
+  deleteGroupUser(
+    organizationId: string,
+    id: string,
+    organizationUserId: string,
+    userId?: UserId,
+  ): Promise<any> {
     return this.send(
       "DELETE",
       "/organizations/" + organizationId + "/groups/" + id + "/user/" + organizationUserId,
       null,
-      true,
+      userId ?? true,
       false,
     );
   }
@@ -772,30 +850,39 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Settings APIs
 
-  async getSettingsDomains(): Promise<DomainsResponse> {
-    const r = await this.send("GET", "/settings/domains", null, true, true);
+  async getSettingsDomains(userId?: UserId): Promise<DomainsResponse> {
+    const r = await this.send("GET", "/settings/domains", null, userId ?? true, true);
     return new DomainsResponse(r);
   }
 
-  async putSettingsDomains(request: UpdateDomainsRequest): Promise<DomainsResponse> {
-    const r = await this.send("PUT", "/settings/domains", request, true, true);
+  async putSettingsDomains(
+    request: UpdateDomainsRequest,
+    userId?: UserId,
+  ): Promise<DomainsResponse> {
+    const r = await this.send("PUT", "/settings/domains", request, userId ?? true, true);
     return new DomainsResponse(r);
   }
 
   // Sync APIs
 
-  async getSync(): Promise<SyncResponse> {
+  async getSync(userId?: UserId): Promise<SyncResponse> {
     const path = !this.platformUtilsService.supportsAutofill()
       ? "/sync?excludeDomains=true"
       : "/sync";
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new SyncResponse(r);
   }
 
   // Organization APIs
 
-  async getCloudCommunicationsEnabled(): Promise<boolean> {
-    const r = await this.send("GET", "/organizations/connections/enabled", null, true, true);
+  async getCloudCommunicationsEnabled(userId?: UserId): Promise<boolean> {
+    const r = await this.send(
+      "GET",
+      "/organizations/connections/enabled",
+      null,
+      userId ?? true,
+      true,
+    );
     return r as boolean;
   }
 
@@ -803,16 +890,24 @@ export class ApiService implements ApiServiceAbstraction {
     id: string,
     type: OrganizationConnectionType,
     configType: { new (response: any): TConfig },
+    userId?: UserId,
   ): Promise<OrganizationConnectionResponse<TConfig>> {
-    const r = await this.send("GET", `/organizations/connections/${id}/${type}`, null, true, true);
+    const r = await this.send(
+      "GET",
+      `/organizations/connections/${id}/${type}`,
+      null,
+      userId ?? true,
+      true,
+    );
     return new OrganizationConnectionResponse(r, configType);
   }
 
   async createOrganizationConnection<TConfig extends OrganizationConnectionConfigApis>(
     request: OrganizationConnectionRequest,
     configType: { new (response: any): TConfig },
+    userId?: UserId,
   ): Promise<OrganizationConnectionResponse<TConfig>> {
-    const r = await this.send("POST", "/organizations/connections/", request, true, true);
+    const r = await this.send("POST", "/organizations/connections/", request, userId ?? true, true);
     return new OrganizationConnectionResponse(r, configType);
   }
 
@@ -820,45 +915,73 @@ export class ApiService implements ApiServiceAbstraction {
     request: OrganizationConnectionRequest,
     configType: { new (response: any): TConfig },
     organizationConnectionId?: string,
+    userId?: UserId,
   ): Promise<OrganizationConnectionResponse<TConfig>> {
     const r = await this.send(
       "PUT",
       "/organizations/connections/" + organizationConnectionId,
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new OrganizationConnectionResponse(r, configType);
   }
 
-  async deleteOrganizationConnection(id: string): Promise<void> {
-    return this.send("DELETE", "/organizations/connections/" + id, null, true, false);
+  async deleteOrganizationConnection(id: string, userId?: UserId): Promise<void> {
+    return this.send("DELETE", "/organizations/connections/" + id, null, userId ?? true, false);
   }
 
   // Provider User APIs
 
   async getProviderUsers(
     providerId: string,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserUserDetailsResponse>> {
-    const r = await this.send("GET", "/providers/" + providerId + "/users", null, true, true);
+    const r = await this.send(
+      "GET",
+      "/providers/" + providerId + "/users",
+      null,
+      userId ?? true,
+      true,
+    );
     return new ListResponse(r, ProviderUserUserDetailsResponse);
   }
 
-  async getProviderUser(providerId: string, id: string): Promise<ProviderUserResponse> {
-    const r = await this.send("GET", "/providers/" + providerId + "/users/" + id, null, true, true);
+  async getProviderUser(
+    providerId: string,
+    id: string,
+    userId?: UserId,
+  ): Promise<ProviderUserResponse> {
+    const r = await this.send(
+      "GET",
+      "/providers/" + providerId + "/users/" + id,
+      null,
+      userId ?? true,
+      true,
+    );
     return new ProviderUserResponse(r);
   }
 
-  postProviderUserInvite(providerId: string, request: ProviderUserInviteRequest): Promise<any> {
-    return this.send("POST", "/providers/" + providerId + "/users/invite", request, true, false);
+  postProviderUserInvite(
+    providerId: string,
+    request: ProviderUserInviteRequest,
+    userId?: UserId,
+  ): Promise<any> {
+    return this.send(
+      "POST",
+      "/providers/" + providerId + "/users/invite",
+      request,
+      userId ?? true,
+      false,
+    );
   }
 
-  postProviderUserReinvite(providerId: string, id: string): Promise<any> {
+  postProviderUserReinvite(providerId: string, id: string, userId?: UserId): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/users/" + id + "/reinvite",
       null,
-      true,
+      userId ?? true,
       false,
     );
   }
@@ -866,12 +989,13 @@ export class ApiService implements ApiServiceAbstraction {
   async postManyProviderUserReinvite(
     providerId: string,
     request: ProviderUserBulkRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkResponse>> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/users/reinvite",
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, ProviderUserBulkResponse);
@@ -880,12 +1004,13 @@ export class ApiService implements ApiServiceAbstraction {
   async postProviderUserBulkConfirm(
     providerId: string,
     request: ProviderUserBulkConfirmRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkResponse>> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/users/confirm",
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, ProviderUserBulkResponse);
@@ -894,8 +1019,15 @@ export class ApiService implements ApiServiceAbstraction {
   async deleteManyProviderUsers(
     providerId: string,
     request: ProviderUserBulkRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkResponse>> {
-    const r = await this.send("DELETE", "/providers/" + providerId + "/users", request, true, true);
+    const r = await this.send(
+      "DELETE",
+      "/providers/" + providerId + "/users",
+      request,
+      userId ?? true,
+      true,
+    );
     return new ListResponse(r, ProviderUserBulkResponse);
   }
 
@@ -903,12 +1035,13 @@ export class ApiService implements ApiServiceAbstraction {
     providerId: string,
     id: string,
     request: ProviderUserAcceptRequest,
+    userId?: UserId,
   ): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/users/" + id + "/accept",
       request,
-      true,
+      userId ?? true,
       false,
     );
   }
@@ -917,12 +1050,13 @@ export class ApiService implements ApiServiceAbstraction {
     providerId: string,
     id: string,
     request: ProviderUserConfirmRequest,
+    userId?: UserId,
   ): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/users/" + id + "/confirm",
       request,
-      true,
+      userId ?? true,
       false,
     );
   }
@@ -930,12 +1064,13 @@ export class ApiService implements ApiServiceAbstraction {
   async postProviderUsersPublicKey(
     providerId: string,
     request: ProviderUserBulkRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkPublicKeyResponse>> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/users/public-keys",
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, ProviderUserBulkPublicKeyResponse);
@@ -945,24 +1080,38 @@ export class ApiService implements ApiServiceAbstraction {
     providerId: string,
     id: string,
     request: ProviderUserUpdateRequest,
+    userId?: UserId,
   ): Promise<any> {
-    return this.send("PUT", "/providers/" + providerId + "/users/" + id, request, true, false);
+    return this.send(
+      "PUT",
+      "/providers/" + providerId + "/users/" + id,
+      request,
+      userId ?? true,
+      false,
+    );
   }
 
-  deleteProviderUser(providerId: string, id: string): Promise<any> {
-    return this.send("DELETE", "/providers/" + providerId + "/users/" + id, null, true, false);
+  deleteProviderUser(providerId: string, id: string, userId?: UserId): Promise<any> {
+    return this.send(
+      "DELETE",
+      "/providers/" + providerId + "/users/" + id,
+      null,
+      userId ?? true,
+      false,
+    );
   }
 
   // Provider Organization APIs
 
   async getProviderClients(
     providerId: string,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>> {
     const r = await this.send(
       "GET",
       "/providers/" + providerId + "/organizations",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, ProviderOrganizationOrganizationDetailsResponse);
@@ -971,12 +1120,13 @@ export class ApiService implements ApiServiceAbstraction {
   postProviderAddOrganization(
     providerId: string,
     request: ProviderAddOrganizationRequest,
+    userId?: UserId,
   ): Promise<any> {
     return this.send(
       "POST",
       "/providers/" + providerId + "/organizations/add",
       request,
-      true,
+      userId ?? true,
       false,
     );
   }
@@ -984,35 +1134,41 @@ export class ApiService implements ApiServiceAbstraction {
   async postProviderCreateOrganization(
     providerId: string,
     request: ProviderOrganizationCreateRequest,
+    userId?: UserId,
   ): Promise<ProviderOrganizationResponse> {
     const r = await this.send(
       "POST",
       "/providers/" + providerId + "/organizations",
       request,
-      true,
+      userId ?? true,
       true,
     );
     return new ProviderOrganizationResponse(r);
   }
 
-  deleteProviderOrganization(providerId: string, id: string): Promise<any> {
+  deleteProviderOrganization(providerId: string, id: string, userId?: UserId): Promise<any> {
     return this.send(
       "DELETE",
       "/providers/" + providerId + "/organizations/" + id,
       null,
-      true,
+      userId ?? true,
       false,
     );
   }
 
   // Event APIs
 
-  async getEvents(start: string, end: string, token: string): Promise<ListResponse<EventResponse>> {
+  async getEvents(
+    start: string,
+    end: string,
+    token: string,
+    userId?: UserId,
+  ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       addEventParameters("/events", start, end, token),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1023,12 +1179,13 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       addEventParameters("/ciphers/" + id + "/events", start, end, token),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1040,6 +1197,7 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -1050,7 +1208,7 @@ export class ApiService implements ApiServiceAbstraction {
         token,
       ),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1062,6 +1220,7 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -1072,7 +1231,7 @@ export class ApiService implements ApiServiceAbstraction {
         token,
       ),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1084,6 +1243,7 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -1094,7 +1254,7 @@ export class ApiService implements ApiServiceAbstraction {
         token,
       ),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1105,12 +1265,13 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       addEventParameters("/organizations/" + id + "/events", start, end, token),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1122,6 +1283,7 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -1132,7 +1294,7 @@ export class ApiService implements ApiServiceAbstraction {
         token,
       ),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1143,12 +1305,13 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
       addEventParameters("/providers/" + id + "/events", start, end, token),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1160,6 +1323,7 @@ export class ApiService implements ApiServiceAbstraction {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
@@ -1170,7 +1334,7 @@ export class ApiService implements ApiServiceAbstraction {
         token,
       ),
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new ListResponse(r, EventResponse);
@@ -1225,20 +1389,20 @@ export class ApiService implements ApiServiceAbstraction {
 
   // User APIs
 
-  async getUserPublicKey(id: string): Promise<UserKeyResponse> {
-    const r = await this.send("GET", "/users/" + id + "/public-key", null, true, true);
+  async getUserPublicKey(id: string, userId?: UserId): Promise<UserKeyResponse> {
+    const r = await this.send("GET", "/users/" + id + "/public-key", null, userId ?? true, true);
     return new UserKeyResponse(r);
   }
 
   // Misc
 
-  async postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string> {
-    const r = await this.send("POST", "/bitpay-invoice", request, true, true);
+  async postBitPayInvoice(request: BitPayInvoiceRequest, userId?: UserId): Promise<string> {
+    const r = await this.send("POST", "/bitpay-invoice", request, userId ?? true, true);
     return r as string;
   }
 
-  async postSetupPayment(): Promise<string> {
-    const r = await this.send("POST", "/setup-payment", null, true, true);
+  async postSetupPayment(userId?: UserId): Promise<string> {
+    const r = await this.send("POST", "/setup-payment", null, userId ?? true, true);
     return r as string;
   }
 
@@ -1409,6 +1573,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCreateSponsorship(
     sponsoredOrgId: string,
     request: OrganizationSponsorshipCreateRequest,
+    userId?: UserId,
   ): Promise<void> {
     return await this.send(
       "POST",
@@ -1417,43 +1582,45 @@ export class ApiService implements ApiServiceAbstraction {
         sponsoredOrgId +
         "/families-for-enterprise",
       request,
-      true,
+      userId ?? true,
       false,
     );
   }
 
   async getSponsorshipSyncStatus(
     sponsoredOrgId: string,
+    userId?: UserId,
   ): Promise<OrganizationSponsorshipSyncStatusResponse> {
     const response = await this.send(
       "GET",
       "/organization/sponsorship/" + sponsoredOrgId + "/sync-status",
       null,
-      true,
+      userId ?? true,
       true,
     );
     return new OrganizationSponsorshipSyncStatusResponse(response);
   }
 
-  async deleteRemoveSponsorship(sponsoringOrgId: string): Promise<void> {
+  async deleteRemoveSponsorship(sponsoringOrgId: string, userId?: UserId): Promise<void> {
     return await this.send(
       "DELETE",
       "/organization/sponsorship/sponsored/" + sponsoringOrgId,
       null,
-      true,
+      userId ?? true,
       false,
     );
   }
 
   async postPreValidateSponsorshipToken(
     sponsorshipToken: string,
+    userId?: UserId,
   ): Promise<PreValidateSponsorshipResponse> {
     const response = await this.send(
       "POST",
       "/organization/sponsorship/validate-token?sponsorshipToken=" +
         encodeURIComponent(sponsorshipToken),
       null,
-      true,
+      userId ?? true,
       true,
     );
 
@@ -1463,12 +1630,13 @@ export class ApiService implements ApiServiceAbstraction {
   async postRedeemSponsorship(
     sponsorshipToken: string,
     request: OrganizationSponsorshipRedeemRequest,
+    userId?: UserId,
   ): Promise<void> {
     return await this.send(
       "POST",
       "/organization/sponsorship/redeem?sponsorshipToken=" + encodeURIComponent(sponsorshipToken),
       request,
-      true,
+      userId ?? true,
       false,
     );
   }

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { ObservedValueOf, of } from "rxjs";
+import { Observable, ObservedValueOf, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -1305,6 +1305,165 @@ describe("ApiService", () => {
       await expect(sut.postEventsCollect(events)).resolves.toEqual(
         events.slice(EventUploadBatchSize),
       );
+    });
+  });
+
+  describe("attaches the access token stored for the intended user", () => {
+    /**
+     * Asserts that the outbound `Authorization` header on `request` is byte-identical to
+     * `"Bearer " + <token that TokenService has stored for expectedUserId>`.
+     *
+     * No JWT decoding. The access token is opaque to the client. This helper enforces
+     * only the mechanical invariant: the header carries the token that storage said
+     * belongs to `expectedUserId`.
+     */
+    async function expectRequestAuthedAs(
+      request: Request,
+      tokenService: MockProxy<TokenService>,
+      expectedUserId: UserId,
+    ): Promise<void> {
+      const storedToken = await tokenService.getAccessToken(expectedUserId);
+      expect(request.headers.get("Authorization")).toBe(`Bearer ${storedToken}`);
+    }
+
+    it("uses the token stored for the passed-in userId, not the active user's token", async () => {
+      // Both users have tokens in storage. If the code ever mixed up which slot to read,
+      // this test would fail. Active is testActiveUser; request is for testInactiveUser.
+      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://inactive.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken
+        .calledWith(testActiveUser)
+        .mockResolvedValue("ACTIVE_USER_TOKEN_MUST_NOT_APPEAR");
+      tokenService.getAccessToken
+        .calledWith(testInactiveUser)
+        .mockResolvedValue("inactive_user_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await sut.send("GET", "/anything", null, testInactiveUser, true, null, null);
+
+      const request = nativeFetch.mock.calls[0][0];
+      await expectRequestAuthedAs(request, tokenService, testInactiveUser);
+      // Belt-and-suspenders: verify the active user's token literally does not appear on the wire.
+      expect(request.headers.get("Authorization")).not.toContain(
+        "ACTIVE_USER_TOKEN_MUST_NOT_APPEAR",
+      );
+    });
+
+    it("does not read the active user's token when an explicit userId is passed", async () => {
+      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://inactive.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken
+        .calledWith(testInactiveUser)
+        .mockResolvedValue("inactive_user_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await sut.send("GET", "/anything", null, testInactiveUser, true, null, null);
+
+      // The active user's token storage slot should never be consulted when an
+      // explicit userId is threaded through.
+      expect(tokenService.getAccessToken).not.toHaveBeenCalledWith(testActiveUser);
+    });
+
+    it("uses the captured userId even if the active account switches between build and fetch", async () => {
+      // Regression guard for concurrent account-switch scenarios. This exercises the
+      // pre-fetch window (buildRequest → fetch), which is distinct from the existing
+      // post-401-retry coverage.
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://active.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken
+        .calledWith(testActiveUser)
+        .mockResolvedValue("captured_user_token");
+      tokenService.getAccessToken
+        .calledWith(testInactiveUser)
+        .mockResolvedValue("swapped_in_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockImplementation(() => {
+        // Simulate an account switch happening between when send() built the request
+        // and when the network call actually resolves.
+        accountService.activeAccount$ = of({
+          id: testInactiveUser,
+          ...mockAccountInfoWith({
+            email: "swapped@example.com",
+            name: "Swapped In",
+          }),
+        } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({}),
+          headers: new Headers({ "content-type": "application/json" }),
+        } satisfies Partial<Response> as Response);
+      });
+      sut.nativeFetch = nativeFetch;
+
+      await sut.send("GET", "/anything", null, testActiveUser, true, null, null);
+
+      const request = nativeFetch.mock.calls[0][0];
+      await expectRequestAuthedAs(request, tokenService, testActiveUser);
+    });
+
+    it("sends no Authorization header and does not consult AccountService when authed is false", async () => {
+      environmentService.environment$ = of({
+        getApiUrl: () => "https://unauth.example.com",
+      } satisfies Partial<Environment> as Environment);
+
+      appIdService.getAppId.mockResolvedValue("app-id");
+
+      // Reset the active account observable to a fresh mock we can spy on.
+      const activeAccountSpy = jest.fn();
+      accountService.activeAccount$ = new Observable((subscriber) => {
+        activeAccountSpy();
+        subscriber.next(null);
+      }) as AccountService["activeAccount$"];
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await sut.send("GET", "/plans", null, false, true, null, null);
+
+      const request = nativeFetch.mock.calls[0][0];
+      expect(request.headers.get("Authorization")).toBeNull();
+      expect(request.headers.get("Device-Identifier")).toBe("app-id");
+      expect(activeAccountSpy).not.toHaveBeenCalled();
+      expect(tokenService.getAccessToken).not.toHaveBeenCalled();
     });
   });
 });
