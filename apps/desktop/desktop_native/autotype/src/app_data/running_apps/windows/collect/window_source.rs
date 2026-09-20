@@ -67,44 +67,56 @@ pub(super) fn app_windows() -> Vec<RawWindow> {
 
     let mut out = Vec::with_capacity(hits.len());
     for hit in &hits {
-        let mut pid = 0u32;
-        unsafe { GetWindowThreadProcessId(hit.hwnd, Some(&mut pid)) };
-        if pid == 0 {
-            continue;
+        if let Some(raw) = resolve_window(hit.hwnd, hit.visible) {
+            out.push(raw);
         }
-
-        let mut exe_path = process_image_path(pid);
-        let mut name = exe_path
-            .as_deref()
-            .and_then(file_name_of)
-            .unwrap_or_default();
-
-        // Packaged/UWP apps: the frame window belongs to ApplicationFrameHost; the real
-        // app is a child window in a different process (e.g. ms-teams.exe, Netflix).
-        if name.eq_ignore_ascii_case(APPLICATION_FRAME_HOST_EXE) {
-            if let Some(child) = child_pid(hit.hwnd, pid) {
-                pid = child;
-                exe_path = process_image_path(pid);
-                name = exe_path
-                    .as_deref()
-                    .and_then(file_name_of)
-                    .unwrap_or_default();
-            }
-        }
-
-        let aumid = window_aumid(hit.hwnd);
-        let product_name = exe_path.as_deref().and_then(read_product_name);
-
-        out.push(RawWindow {
-            pid,
-            exe_path,
-            name,
-            aumid,
-            product_name,
-            visible: hit.visible,
-        });
     }
     out
+}
+
+/// Resolve a single top-level window to a [`RawWindow`], following
+/// `ApplicationFrameHost` frames to the hosted child process.
+///
+/// # Returns
+///
+/// - `None` when the window's process id can't be read.
+pub(crate) fn resolve_window(hwnd: HWND, visible: bool) -> Option<RawWindow> {
+    let mut pid = 0u32;
+    unsafe { GetWindowThreadProcessId(hwnd, Some(&mut pid)) };
+    if pid == 0 {
+        return None;
+    }
+
+    let mut exe_path = process_image_path(pid);
+    let mut name = exe_path
+        .as_deref()
+        .and_then(file_name_of)
+        .unwrap_or_default();
+
+    // Packaged/UWP apps: the frame window belongs to ApplicationFrameHost; the real
+    // app is a child window in a different process (e.g. ms-teams.exe, Netflix).
+    if name.eq_ignore_ascii_case(APPLICATION_FRAME_HOST_EXE) {
+        if let Some(child) = child_pid(hwnd, pid) {
+            pid = child;
+            exe_path = process_image_path(pid);
+            name = exe_path
+                .as_deref()
+                .and_then(file_name_of)
+                .unwrap_or_default();
+        }
+    }
+
+    let aumid = window_aumid(hwnd);
+    let product_name = exe_path.as_deref().and_then(read_product_name);
+
+    Some(RawWindow {
+        pid,
+        exe_path,
+        name,
+        aumid,
+        product_name,
+        visible,
+    })
 }
 
 /// `EnumWindows`/`EnumChildWindows` callback: return TRUE (nonzero) to continue enumeration,
