@@ -3,6 +3,7 @@
 import { ApiService } from "../../abstractions/api.service";
 import { ListResponse } from "../../models/response/list.response";
 import { Utils } from "../../platform/misc/utils";
+import { UserId } from "../../types/guid";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
 import { UntrustDevicesRequestModel } from "../models/request/untrust-devices.request";
@@ -33,20 +34,21 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
   /**
    * Get device by identifier
    * @param deviceIdentifier - client generated id (not device id in DB)
+   * @param userId - the id of the user to authenticate the request as
    */
-  async getDeviceByIdentifier(deviceIdentifier: string): Promise<DeviceResponse> {
+  async getDeviceByIdentifier(deviceIdentifier: string, userId: UserId): Promise<DeviceResponse> {
     const r = await this.apiService.send(
       "GET",
       `/devices/identifier/${deviceIdentifier}`,
       null,
-      true,
+      userId,
       true,
     );
     return new DeviceResponse(r);
   }
 
-  async getDevices(): Promise<ListResponse<DeviceResponse>> {
-    const r = await this.apiService.send("GET", "/devices", null, true, true, null);
+  async getDevices(userId: UserId): Promise<ListResponse<DeviceResponse>> {
+    const r = await this.apiService.send("GET", "/devices", null, userId, true, null);
     return new ListResponse(r, DeviceResponse);
   }
 
@@ -55,6 +57,7 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     devicePublicKeyEncryptedUserKey: string,
     userKeyEncryptedDevicePublicKey: string,
     deviceKeyEncryptedDevicePrivateKey: string,
+    userId: UserId,
   ): Promise<DeviceResponse> {
     const request = new TrustedDeviceKeysRequest(
       devicePublicKeyEncryptedUserKey,
@@ -66,7 +69,7 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
       "PUT",
       `/devices/${deviceIdentifier}/keys`,
       request,
-      true,
+      userId,
       true,
     );
 
@@ -76,12 +79,13 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
   async updateTrust(
     updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
     deviceIdentifier: string,
+    userId: UserId,
   ): Promise<void> {
     await this.apiService.send(
       "POST",
       "/devices/update-trust",
       updateDevicesTrustRequestModel,
-      true,
+      userId,
       false,
       null,
       (headers) => {
@@ -90,23 +94,23 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     );
   }
 
-  async getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse> {
+  async getDeviceKeys(deviceIdentifier: string, userId: UserId): Promise<ProtectedDeviceResponse> {
     const result = await this.apiService.send(
       "POST",
       `/devices/${deviceIdentifier}/retrieve-keys`,
       null,
-      true,
+      userId,
       true,
     );
     return new ProtectedDeviceResponse(result);
   }
 
-  async postDeviceTrustLoss(deviceIdentifier: string): Promise<void> {
+  async postDeviceTrustLoss(deviceIdentifier: string, userId: UserId): Promise<void> {
     await this.apiService.send(
       "POST",
       "/devices/lost-trust",
       null,
-      true,
+      userId,
       false,
       null,
       (headers) => {
@@ -115,16 +119,16 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     );
   }
 
-  async deactivateDevice(deviceId: string): Promise<void> {
-    await this.apiService.send("POST", `/devices/${deviceId}/deactivate`, null, true, false);
+  async deactivateDevice(deviceId: string, userId: UserId): Promise<void> {
+    await this.apiService.send("POST", `/devices/${deviceId}/deactivate`, null, userId, false);
   }
 
-  async untrustDevices(deviceIds: string[]): Promise<void> {
+  async untrustDevices(deviceIds: string[], userId: UserId): Promise<void> {
     await this.apiService.send(
       "POST",
       "/devices/untrust",
       new UntrustDevicesRequestModel(deviceIds),
-      true,
+      userId,
       false,
     );
   }

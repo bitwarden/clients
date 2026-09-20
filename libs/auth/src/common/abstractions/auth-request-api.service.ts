@@ -1,23 +1,26 @@
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class AuthRequestApiServiceAbstraction {
   /**
    * Gets a list of pending auth requests based on the user. There will only be one AuthRequest per device and the
    * AuthRequest will be the most recent pending request.
    *
+   * @param userId The id of the user to authenticate the request as.
    * @returns A promise that resolves to a list response containing auth request responses.
    */
-  abstract getPendingAuthRequests(): Promise<ListResponse<AuthRequestResponse>>;
+  abstract getPendingAuthRequests(userId: UserId): Promise<ListResponse<AuthRequestResponse>>;
 
   /**
    * Gets an auth request by its ID.
    *
    * @param requestId The ID of the auth request.
+   * @param userId The id of the user to authenticate the request as.
    * @returns A promise that resolves to the auth request response.
    */
-  abstract getAuthRequest: (requestId: string) => Promise<AuthRequestResponse>;
+  abstract getAuthRequest: (requestId: string, userId: UserId) => Promise<AuthRequestResponse>;
 
   /**
    * Gets an auth request response by its ID and access code.
@@ -32,9 +35,13 @@ export abstract class AuthRequestApiServiceAbstraction {
    * Sends an admin auth request.
    *
    * @param request The auth request object.
+   * @param userId The id of the user to authenticate the request as.
    * @returns A promise that resolves to the auth request response.
    */
-  abstract postAdminAuthRequest: (request: AuthRequest) => Promise<AuthRequestResponse>;
+  abstract postAdminAuthRequest: (
+    request: AuthRequest,
+    userId: UserId,
+  ) => Promise<AuthRequestResponse>;
 
   /**
    * Sends an auth request.

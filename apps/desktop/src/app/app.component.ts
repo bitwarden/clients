@@ -913,8 +913,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.processingPendingAuthRequests = true;
 
     try {
+      if (this.activeUserId == null) {
+        return;
+      }
       // Always query server for all pending requests and open a dialog for each
-      const pendingList = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+      const pendingList = await firstValueFrom(
+        this.authRequestService.getPendingAuthRequests$(this.activeUserId),
+      );
 
       if (Array.isArray(pendingList) && pendingList.length > 0) {
         const respondedIds = new Set<string>();

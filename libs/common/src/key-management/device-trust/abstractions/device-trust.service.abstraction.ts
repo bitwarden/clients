@@ -55,8 +55,9 @@ export abstract class DeviceTrustServiceAbstraction {
   /**
    * Notifies the server that the device has a device key, but didn't receive any associated decryption keys.
    * Note: For debugging purposes only.
+   * @param userId - the id of the user whose device trust was lost
    */
-  abstract recordDeviceTrustLoss(): Promise<void>;
+  abstract recordDeviceTrustLoss(userId: UserId): Promise<void>;
   abstract getRotatedData(
     oldUserKey: UserKey,
     newUserKey: UserKey,

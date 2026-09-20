@@ -122,8 +122,9 @@ export class DeviceManagementComponent implements OnInit {
 
   async loadDevices() {
     try {
-      const devices = await firstValueFrom(this.devicesService.getDevices$());
-      const currentDevice = await firstValueFrom(this.devicesService.getCurrentDevice$());
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const devices = await firstValueFrom(this.devicesService.getDevices$(userId));
+      const currentDevice = await firstValueFrom(this.devicesService.getCurrentDevice$(userId));
 
       if (!devices || !currentDevice) {
         return;
@@ -188,7 +189,11 @@ export class DeviceManagementComponent implements OnInit {
 
   // TODO: Clean up this flow: https://bitwarden.atlassian.net/browse/PM-34129
   private async upsertDeviceWithPendingAuthRequest(authRequestId: string) {
-    const authRequestResponse = await this.authRequestApiService.getAuthRequest(authRequestId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const authRequestResponse = await this.authRequestApiService.getAuthRequest(
+      authRequestId,
+      userId,
+    );
     if (!authRequestResponse) {
       return;
     }
@@ -216,7 +221,10 @@ export class DeviceManagementComponent implements OnInit {
     // If the device already exists in the DB, update the device id and first login date
     if (authRequestResponse.requestDeviceIdentifier) {
       const existingDevice = await firstValueFrom(
-        this.devicesService.getDeviceByIdentifier$(authRequestResponse.requestDeviceIdentifier),
+        this.devicesService.getDeviceByIdentifier$(
+          authRequestResponse.requestDeviceIdentifier,
+          userId,
+        ),
       );
 
       if (existingDevice?.id && existingDevice.creationDate) {
