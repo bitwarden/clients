@@ -1,16 +1,4 @@
-<!--
-  In view mode every field is read-only, so its container has no hover background and no
-  interactive border to animate. Suppressing the colour transition keeps a field that renders
-  before it knows it is read-only from fading its outline away, which reads as a flicker when the
-  drawer swaps between Sends. Scoped here rather than in the component library so interactive
-  fields elsewhere keep their transition.
--->
-<form
-  [id]="formId()"
-  [formGroup]="sendFormService.sendForm()"
-  [bitSubmit]="submit"
-  [class]="editing() ? '' : '[&_[bitfieldcontainer]]:!tw-transition-none'"
->
+<form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
   @if (!loading) {
     @if (!sendDisabled() && !editing()) {
       <bit-card>
