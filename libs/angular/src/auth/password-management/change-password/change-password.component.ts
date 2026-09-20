@@ -21,7 +21,6 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/organization-i
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
@@ -77,7 +76,6 @@ export class ChangePasswordComponent implements OnInit {
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private organizationInviteService: OrganizationInviteService,
-    private messagingService: MessagingService,
     private toastService: ToastService,
     private dialogService: DialogService,
     private logService: LogService,
