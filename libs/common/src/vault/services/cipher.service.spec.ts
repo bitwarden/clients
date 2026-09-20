@@ -1554,13 +1554,13 @@ describe("Cipher Service", () => {
 
       const apiSpy = jest.spyOn(apiService, "send").mockResolvedValue({ data: [] });
 
-      await cipherService.getManyFromApiForOrganization(testOrgId);
+      await cipherService.getManyFromApiForOrganization(testOrgId, mockUserId);
 
       expect(apiSpy).toHaveBeenCalledWith(
         "GET",
         `/ciphers/organization-details/assigned?organizationId=${testOrgId}`,
         null,
-        true,
+        mockUserId,
         true,
       );
     });
@@ -1587,7 +1587,7 @@ describe("Cipher Service", () => {
 
       const apiSpy = jest.spyOn(apiService, "send");
 
-      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId, mockUserId);
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
       expect(apiSpy).not.toHaveBeenCalled();
@@ -1607,7 +1607,7 @@ describe("Cipher Service", () => {
         .spyOn(cipherSdkService, "getManyFromApiForOrganization")
         .mockRejectedValue(new Error("SDK error"));
 
-      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId, mockUserId);
 
       expect(result).toEqual([]);
     });

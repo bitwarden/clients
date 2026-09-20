@@ -105,7 +105,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
    * Ciphers that are not assigned to any collections are only included for users with admin access.
    */
-  abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  abstract getManyFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<CipherView[]>;
   abstract getLastUsedForUrl(
     url: string,
     userId: UserId,
