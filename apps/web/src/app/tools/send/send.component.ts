@@ -345,7 +345,8 @@ export class SendComponent implements OnDestroy {
     }
 
     try {
-      await this.sendApiService.delete(s.id);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.sendApiService.delete(s.id, userId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -375,7 +376,8 @@ export class SendComponent implements OnDestroy {
     }
 
     try {
-      await this.sendApiService.removePassword(send.id);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.sendApiService.removePassword(send.id, userId);
       this.toastService.showToast({
         variant: "success",
         title: null,

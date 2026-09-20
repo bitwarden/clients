@@ -951,7 +951,7 @@ describe("DefaultSyncService", () => {
       const result = await sut.syncUpsertSend(notification, false);
 
       expect(result).toBe(true);
-      expect(sendApiService.getSend).toHaveBeenCalledWith(sendGuid);
+      expect(sendApiService.getSend).toHaveBeenCalledWith(sendGuid, user1);
       expect(sendsClient.fetch).not.toHaveBeenCalled();
       expect(sendService.upsert).toHaveBeenCalledWith(new SendData(remoteSend));
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });

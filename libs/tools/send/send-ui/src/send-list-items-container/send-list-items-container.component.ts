@@ -6,6 +6,8 @@ import { RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -65,6 +67,7 @@ export class SendListItemsContainerComponent {
   headerText: string;
 
   constructor(
+    protected accountService: AccountService,
     protected dialogService: DialogService,
     protected environmentService: EnvironmentService,
     protected i18nService: I18nService,
@@ -85,7 +88,8 @@ export class SendListItemsContainerComponent {
       return false;
     }
 
-    await this.sendApiService.delete(s.id);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sendApiService.delete(s.id, userId);
 
     try {
       this.toastService.showToast({

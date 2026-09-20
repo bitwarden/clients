@@ -45,7 +45,7 @@ describe("SendApiService", () => {
       const result = await service.saveView(view, file, "hunter2");
 
       expect(sendService.encrypt).toHaveBeenCalledWith(view, file, "hunter2");
-      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], "hunter2", undefined);
+      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], "hunter2", undefined, undefined);
       expect(result).toBe(send);
     });
 
@@ -59,7 +59,7 @@ describe("SendApiService", () => {
       await service.saveView(view, null, undefined);
 
       expect(sendService.encrypt).toHaveBeenCalledWith(view, null, undefined);
-      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], undefined, undefined);
+      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], undefined, undefined, undefined);
     });
 
     it("forwards the abort signal to save", async () => {
@@ -72,7 +72,12 @@ describe("SendApiService", () => {
 
       await service.saveView(view, null, undefined, controller.signal);
 
-      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], undefined, controller.signal);
+      expect(saveSpy).toHaveBeenCalledWith(
+        [send, encBuffer],
+        undefined,
+        controller.signal,
+        undefined,
+      );
     });
   });
 

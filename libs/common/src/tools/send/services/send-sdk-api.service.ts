@@ -85,8 +85,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * or resend the existing password hash. The plaintext password is Protected Data and is
    * never logged.
    */
-  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async save(
+    sendData: [Send, EncArrayBuffer],
+    plaintextPassword?: string,
+    userId?: UserId,
+  ): Promise<Send> {
+    userId ??= await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
@@ -104,7 +108,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     }
 
     try {
-      return await this.refreshSendFromServer(sendId);
+      return await this.refreshSendFromServer(sendId, userId);
     } catch (error) {
       // The SDK mutation already landed on the server; only the encrypted-form refetch
       // failed. Surfacing this as a save error would prompt the user to retry, which on
@@ -141,19 +145,20 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
     signal?: AbortSignal,
+    userId?: UserId,
   ): Promise<Send> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    userId ??= await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const sdkView =
       view.id == null && view.type === SendType.File
         ? await this.createFileSend(view, file, userId, plaintextPassword, signal)
         : await this.mutateSend(view, userId, plaintextPassword);
 
-    return await this.refreshAfterMutation(sdkView.id as unknown as string);
+    return await this.refreshAfterMutation(sdkView.id as unknown as string, userId);
   }
 
-  async delete(id: string): Promise<any> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async delete(id: string, userId?: UserId): Promise<any> {
+    userId ??= await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
@@ -174,8 +179,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
   // Removes all auth (password or email OTP) from the send. Matches the legacy SendApiService
   // path exactly.
-  async removePassword(id: string): Promise<any> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async removePassword(id: string, userId?: UserId): Promise<any> {
+    userId ??= await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
@@ -191,7 +196,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
         }),
       ),
     );
-    await this.refreshSendFromServer(id);
+    await this.refreshSendFromServer(id, userId);
   }
 
   /**
@@ -199,7 +204,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
    * direct callers that bypass the selector.
    */
-  getSend(_id: string): Promise<SendResponse> {
+  getSend(_id: string, _userId?: UserId): Promise<SendResponse> {
     return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
   }
 
@@ -223,7 +228,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * the SDK cannot produce. `SendApiServiceSelector` routes calls to `SendApiService`;
    * this stub catches direct callers that bypass the selector.
    */
-  getSends(): Promise<ListResponse<SendResponse>> {
+  getSends(_userId?: UserId): Promise<ListResponse<SendResponse>> {
     return Promise.reject(new Error("SendSdkApiService.getSends: use SendApiService."));
   }
 
@@ -232,14 +237,14 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
    * direct callers that bypass the selector.
    */
-  putSendRemovePassword(_id: string): Promise<SendResponse> {
+  putSendRemovePassword(_id: string, _userId?: UserId): Promise<SendResponse> {
     return Promise.reject(
       new Error("SendSdkApiService.putSendRemovePassword: use SendApiService."),
     );
   }
 
-  async deleteSend(id: string): Promise<any> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async deleteSend(id: string, userId?: UserId): Promise<any> {
+    userId ??= await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
@@ -423,9 +428,9 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * to local state (the send repository registered in `initializeClientManagedState`), and only
    * rethrow if neither source can produce it.
    */
-  async refreshAfterMutation(sendId: string): Promise<Send> {
+  async refreshAfterMutation(sendId: string, userId?: UserId): Promise<Send> {
     try {
-      return await this.refreshSendFromServer(sendId);
+      return await this.refreshSendFromServer(sendId, userId);
     } catch (error) {
       this.logService.error(`Send refresh failed after successful mutation: ${error}`);
       const local = await this.sendService.getFromState(sendId);
@@ -439,8 +444,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // After the SDK executes a mutation server-side, refetch the wire-encrypted form via
   // the legacy API so InternalSendService stores EncString-shaped data and consumers
   // that decrypt the returned Send work correctly.
-  private async refreshSendFromServer(id: string): Promise<Send> {
-    const response = await this.legacySendApiService.getSend(id);
+  private async refreshSendFromServer(id: string, userId?: UserId): Promise<Send> {
+    const response = await this.legacySendApiService.getSend(id, userId);
     const data = new SendData(response);
     await this.sendService.upsert(data);
     return new Send(data);

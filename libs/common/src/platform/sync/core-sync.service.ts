@@ -258,7 +258,7 @@ export abstract class CoreSyncService implements SyncService {
               return this.syncCompleted(true, activeUserId);
             }
           } else {
-            const remoteSend = await this.sendApiService.getSend(notification.id);
+            const remoteSend = await this.sendApiService.getSend(notification.id, activeUserId);
             if (remoteSend != null) {
               await this.sendService.upsert(new SendData(remoteSend));
               this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });

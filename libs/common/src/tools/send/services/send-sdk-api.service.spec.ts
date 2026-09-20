@@ -362,7 +362,7 @@ describe("SendSdkApiService", () => {
       it("refreshes the wire-encrypted form of the created send once the upload lands", async () => {
         await service.saveView(fileView(), plaintextBytes.buffer);
 
-        expect(legacySendApiService.getSend).toHaveBeenCalledWith("server-id");
+        expect(legacySendApiService.getSend).toHaveBeenCalledWith("server-id", mockUserId);
       });
 
       it("does not abandon an in-flight upload when userClient$ emits again mid-upload", async () => {

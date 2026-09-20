@@ -47,7 +47,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined, undefined);
       expect(sdk.save).not.toHaveBeenCalled();
     });
 
@@ -61,7 +61,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -75,7 +75,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -89,7 +89,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -103,7 +103,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -116,7 +116,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined, undefined);
       expect(sdk.save).not.toHaveBeenCalled();
     });
 
@@ -130,7 +130,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer], "hunter2");
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], "hunter2");
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], "hunter2", undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -144,7 +144,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer], "hunter2");
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer], "hunter2");
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], "hunter2", undefined);
       expect(sdk.save).not.toHaveBeenCalled();
     });
   });
@@ -172,7 +172,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.saveView(sendView, file, "hunter2");
 
-      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", undefined);
+      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", undefined, undefined);
       expect(legacy.saveView).not.toHaveBeenCalled();
     });
 
@@ -184,7 +184,13 @@ describe("SendApiServiceSelector", () => {
 
       await selector.saveView(sendView, file, "hunter2", controller.signal);
 
-      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", controller.signal);
+      expect(sdk.saveView).toHaveBeenCalledWith(
+        sendView,
+        file,
+        "hunter2",
+        controller.signal,
+        undefined,
+      );
     });
 
     it.each([
@@ -198,7 +204,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.saveView(sendView, null);
 
-      expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined, undefined);
+      expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined, undefined, undefined);
       expect(sdk.saveView).not.toHaveBeenCalled();
     });
   });
@@ -213,7 +219,7 @@ describe("SendApiServiceSelector", () => {
 
       await invoke(selector);
 
-      expect((sdk as any)[methodName]).toHaveBeenCalledWith("id");
+      expect((sdk as any)[methodName]).toHaveBeenCalledWith("id", undefined);
       expect((legacy as any)[methodName]).not.toHaveBeenCalled();
     });
 
@@ -222,15 +228,19 @@ describe("SendApiServiceSelector", () => {
 
       await invoke(selector);
 
-      expect((legacy as any)[methodName]).toHaveBeenCalledWith("id");
+      expect((legacy as any)[methodName]).toHaveBeenCalledWith("id", undefined);
       expect((sdk as any)[methodName]).not.toHaveBeenCalled();
     });
   });
 
   describe.each([
-    ["getSend", (s: SendApiServiceSelector) => s.getSend("id"), ["id"]],
-    ["getSends", (s: SendApiServiceSelector) => s.getSends(), []],
-    ["putSendRemovePassword", (s: SendApiServiceSelector) => s.putSendRemovePassword("id"), ["id"]],
+    ["getSend", (s: SendApiServiceSelector) => s.getSend("id"), ["id", undefined]],
+    ["getSends", (s: SendApiServiceSelector) => s.getSends(), [undefined]],
+    [
+      "putSendRemovePassword",
+      (s: SendApiServiceSelector) => s.putSendRemovePassword("id"),
+      ["id", undefined],
+    ],
   ])("%s — always legacy", (methodName, invoke, expectedArgs) => {
     it.each([true, false])("routes to legacy regardless of flag (flag=%s)", async (flagOn) => {
       const selector = buildSelector(flagOn);
@@ -353,8 +363,8 @@ describe("SendApiServiceSelector", () => {
       flag$.next(false);
       await selector.delete("second");
 
-      expect(sdk.delete).toHaveBeenCalledWith("first");
-      expect(legacy.delete).toHaveBeenCalledWith("second");
+      expect(sdk.delete).toHaveBeenCalledWith("first", undefined);
+      expect(legacy.delete).toHaveBeenCalledWith("second", undefined);
     });
   });
 });

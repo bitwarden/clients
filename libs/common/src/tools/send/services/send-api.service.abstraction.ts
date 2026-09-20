@@ -3,6 +3,7 @@ import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 
 import { SendAccessToken } from "../../../auth/send-access";
 import { ListResponse } from "../../../models/response/list.response";
+import { UserId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
@@ -11,21 +12,21 @@ import { SendAccessView } from "../models/view/send-access.view";
 import { SendView } from "../models/view/send.view";
 
 export abstract class SendApiService {
-  abstract getSend(id: string): Promise<SendResponse>;
+  abstract getSend(id: string, userId?: UserId): Promise<SendResponse>;
   abstract postSendAccess(
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendAccessResponse>;
-  abstract getSends(): Promise<ListResponse<SendResponse>>;
-  abstract putSendRemovePassword(id: string): Promise<SendResponse>;
-  abstract deleteSend(id: string): Promise<any>;
+  abstract getSends(userId?: UserId): Promise<ListResponse<SendResponse>>;
+  abstract putSendRemovePassword(id: string, userId?: UserId): Promise<SendResponse>;
+  abstract deleteSend(id: string, userId?: UserId): Promise<any>;
   abstract getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse>;
-  abstract removePassword(id: string): Promise<any>;
-  abstract delete(id: string): Promise<any>;
+  abstract removePassword(id: string, userId?: UserId): Promise<any>;
+  abstract delete(id: string, userId?: UserId): Promise<any>;
   /**
    * Persists a send.
    *
@@ -44,7 +45,11 @@ export abstract class SendApiService {
    *   password. Protected Data: implementations must never log it or place it in error messages.
    *   The legacy implementation ignores it (its behavior is unchanged).
    */
-  abstract save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send>;
+  abstract save(
+    sendData: [Send, EncArrayBuffer],
+    plaintextPassword?: string,
+    userId?: UserId,
+  ): Promise<Send>;
   /**
    * Persists a send from its plaintext view, letting the implementation own encryption.
    *
@@ -76,5 +81,6 @@ export abstract class SendApiService {
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
     signal?: AbortSignal,
+    userId?: UserId,
   ): Promise<Send>;
 }

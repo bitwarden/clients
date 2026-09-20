@@ -362,8 +362,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
     // generates; the legacy path ignores it.
     const plaintextPassword = this.send.password;
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.formPromise = this.encryptSend(file).then(async (encSend) => {
-      const uploadPromise = this.sendApiService.save(encSend, plaintextPassword);
+      const uploadPromise = this.sendApiService.save(encSend, plaintextPassword, userId);
       await uploadPromise;
       if (this.send.id == null) {
         this.send.id = encSend[0].id;
@@ -411,7 +412,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.deletePromise = this.sendApiService.delete(this.send.id);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.deletePromise = this.sendApiService.delete(this.send.id, userId);
       await this.deletePromise;
       this.toastService.showToast({
         variant: "success",

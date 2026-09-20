@@ -135,11 +135,13 @@ export class DefaultSendFormService implements SendFormService {
       // where this code never sees the key or the ciphertext-generation step.
       // Forward the plaintext password (null when preserving an existing password) so the SDK
       // path can derive the send password over that same key; the legacy path ignores it.
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const newSend = await this.sendApiService.saveView(
         this._updatedSendView(),
         this.file,
         plaintextPassword,
         abortController.signal,
+        userId,
       );
       const sendView = await this.decryptSend(newSend);
       this._originalSendView.set(null);
@@ -227,7 +229,8 @@ export class DefaultSendFormService implements SendFormService {
       return false;
     }
 
-    await this.sendApiService.removePassword(originalSendViewId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sendApiService.removePassword(originalSendViewId, userId);
 
     this.toastService.showToast({
       variant: "success",

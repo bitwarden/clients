@@ -12,6 +12,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -182,7 +183,8 @@ export class SendComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.actionPromise = this.sendApiService.removePassword(s.id);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.actionPromise = this.sendApiService.removePassword(s.id, userId);
       await this.actionPromise;
       if (this.onSuccessfulRemovePassword != null) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -219,7 +221,8 @@ export class SendComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.actionPromise = this.sendApiService.delete(s.id);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.actionPromise = this.sendApiService.delete(s.id, userId);
       await this.actionPromise;
 
       if (this.onSuccessfulDelete != null) {

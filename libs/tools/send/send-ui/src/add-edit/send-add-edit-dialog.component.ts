@@ -5,6 +5,8 @@ import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
@@ -173,6 +175,7 @@ export class SendAddEditDialogComponent {
     private dialogService: DialogService,
     private sendFormService: SendFormService,
     private sendPolicyService: SendPolicyService,
+    private accountService: AccountService,
   ) {
     // We only want to load from the input params the first time the component initializes,
     // since the makeCopy function works by replacing the config object and re-initializing
@@ -330,7 +333,8 @@ export class SendAddEditDialogComponent {
     }
 
     try {
-      await this.sendApiService.delete(this.config.originalSend?.id);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.sendApiService.delete(this.config.originalSend?.id, userId);
     } catch (e) {
       this.toastService.showToast({
         variant: "error",
