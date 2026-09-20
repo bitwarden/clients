@@ -1824,13 +1824,21 @@ export class ApiService implements ApiServiceAbstraction {
 
   /**
    * Handle an error response from a request to the Bitwarden API.
-   * If the request is made with an access token (aka the user is authenticated),
-   * and we receive a 401 or 403 response, we will log the user out, as this indicates
-   * that the access token used on the request is either expired or does not have the appropriate permissions.
-   * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
-   * @param response The response from the API request
-   * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
-   * @returns An ErrorResponse with a message based on the response status.
+   *
+   * A 401 or 403 on a Bitwarden API request is not authoritative evidence that the
+   * user's session is dead. The server returns 401 for per-request authorization
+   * failures (see e.g. `UntrustDevicesCommand`, `CreateSponsorshipCommand`,
+   * `SecretsTrashController`), and returns 403 for token-shape validation failures
+   * (`SecurityTokenValidationException`). Logging the user out on those responses
+   * is a category error: the session is fine, one request was denied.
+   *
+   * The authoritative "session dead" signal is `invalid_grant` on the refresh
+   * endpoint, which is handled in {@link handleTokenRefreshRequestError}. That
+   * remains the only path that triggers an automatic logout.
+   *
+   * This method used to invoke `logoutCallback("invalidAccessToken")` on any 401/403
+   * for an authenticated request. That behavior was removed. Callers now see the
+   * error and can decide how to surface it.
    */
   private async handleApiRequestError(
     response: Response,
@@ -1841,7 +1849,9 @@ export class ApiService implements ApiServiceAbstraction {
       (response.status === HttpStatusCode.Unauthorized ||
         response.status === HttpStatusCode.Forbidden)
     ) {
-      await this.logoutCallback("invalidAccessToken");
+      this.logService.warning(
+        `Authenticated API request received a ${response.status}. Not logging out; the session is only invalidated when the refresh endpoint returns invalid_grant.`,
+      );
     }
 
     const responseJson = await this.getJsonResponse(response);

@@ -889,7 +889,10 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Still Unauthorized" });
 
       expect(nativeFetch).toHaveBeenCalledTimes(3);
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      // A 401 on an API request is not an authoritative "session dead" signal.
+      // The server returns 401 for per-request authorization failures; auto-logout is
+      // reserved for `invalid_grant` on the refresh endpoint.
+      expect(logoutCallback).not.toHaveBeenCalled();
     });
 
     it("handles concurrent requests that both receive 401 and share token refresh", async () => {
@@ -1028,7 +1031,9 @@ describe("ApiService", () => {
   });
 
   describe("When 403 Forbidden response is received from API request", () => {
-    it("logs out the authenticated user", async () => {
+    it("does not log out the authenticated user", async () => {
+      // The server returns 403 for `SecurityTokenValidationException` and other
+      // per-request authorization concerns. Neither means the session is dead.
       environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
@@ -1057,7 +1062,7 @@ describe("ApiService", () => {
         async () => await sut.send("GET", "/something", null, true, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      expect(logoutCallback).not.toHaveBeenCalled();
     });
 
     it("does not attempt to log out unauthenticated user", async () => {
@@ -1268,6 +1273,32 @@ describe("ApiService", () => {
       } satisfies Partial<Response> as Response);
 
       await expect((sut as any).refreshAccessToken(userId)).rejects.toBeInstanceOf(ErrorResponse);
+    });
+
+    it("logs the user out with sessionExpired when the refresh grant is rejected", async () => {
+      // This is the only path in ApiService that should trigger auto-logout. It signals
+      // that the refresh token is no longer honored — i.e. the session is truly dead.
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () => Promise.resolve({ error: "invalid_grant" }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(userId)).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(logoutCallback).toHaveBeenCalledWith("sessionExpired");
+    });
+
+    it("does not log the user out when the refresh endpoint returns a non-invalid_grant error", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () => Promise.resolve({ error: "invalid_request" }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(userId)).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(logoutCallback).not.toHaveBeenCalled();
     });
   });
 
