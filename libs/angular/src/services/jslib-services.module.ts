@@ -40,7 +40,6 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
-  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
   LoginEmailServiceAbstraction,
@@ -51,8 +50,6 @@ import {
   LoginStrategySessionTimeoutService,
   DefaultLoginStrategySessionTimeoutService,
   LoginSuccessHandlerService,
-  LogoutReason,
-  LogoutService,
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -124,6 +121,7 @@ import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import { DefaultLogoutService, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,
   OrganizationInviteService,
@@ -493,7 +491,6 @@ import {
   INTRAPROCESS_MESSAGING_SUBJECT,
   LOCALES_DIRECTORY,
   LOG_MAC_FAILURES,
-  LOGOUT_CALLBACK,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
   REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
@@ -534,19 +531,6 @@ const safeProviders: SafeProvider[] = [
     provide: SYSTEM_LANGUAGE,
     useFactory: (window: Window) => window.navigator.language,
     deps: [WINDOW],
-  }),
-  // TODO: PM-21212 - Deprecate LogoutCallback in favor of LogoutService
-  safeProvider({
-    provide: LOGOUT_CALLBACK,
-    useFactory:
-      (messagingService: MessagingServiceAbstraction, logService: LogService) =>
-      async (logoutReason: LogoutReason, userId?: string) => {
-        logService.info("Logging out user %s for reason: %s", userId, logoutReason);
-        return Promise.resolve(
-          messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
-        );
-      },
-    deps: [MessagingServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: LOG_MAC_FAILURES,
@@ -876,7 +860,7 @@ const safeProviders: SafeProvider[] = [
       SECURE_STORAGE,
       EncryptService,
       LogService,
-      LOGOUT_CALLBACK,
+      LogoutService,
     ],
   }),
   safeProvider({
@@ -975,7 +959,7 @@ const safeProviders: SafeProvider[] = [
       AppIdServiceAbstraction,
       REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
       LogService,
-      LOGOUT_CALLBACK,
+      LogoutService,
       VaultTimeoutSettingsService,
       AccountService,
       HTTP_OPERATIONS,
@@ -1061,7 +1045,7 @@ const safeProviders: SafeProvider[] = [
       SendApiServiceAbstraction,
       InternalUserDecryptionOptionsServiceAbstraction,
       AvatarServiceAbstraction,
-      LOGOUT_CALLBACK,
+      LogoutService,
       BillingAccountProfileStateService,
       TokenServiceAbstraction,
       AuthServiceAbstraction,
@@ -1270,7 +1254,7 @@ const safeProviders: SafeProvider[] = [
       SyncService,
       AppIdServiceAbstraction,
       EnvironmentService,
-      LOGOUT_CALLBACK,
+      LogoutService,
       MessagingServiceAbstraction,
       AccountServiceAbstraction,
       SignalRConnectionService,
@@ -1389,7 +1373,7 @@ const safeProviders: SafeProvider[] = [
       TokenServiceAbstraction,
       LogService,
       OrganizationServiceAbstraction,
-      LOGOUT_CALLBACK,
+      LogoutService,
       StateProvider,
       ConfigService,
       RegisterSdkService,

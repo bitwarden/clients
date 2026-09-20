@@ -7,7 +7,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  LogoutReason,
   UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -30,6 +29,7 @@ import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutService } from "../../auth/logout";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
@@ -75,7 +75,7 @@ describe("DefaultSyncService", () => {
   let sendApiService: MockProxy<SendApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let avatarService: MockProxy<AvatarService>;
-  let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: UserId]>;
+  let logoutService: MockProxy<LogoutService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
@@ -109,7 +109,7 @@ describe("DefaultSyncService", () => {
     sendApiService = mock();
     userDecryptionOptionsService = mock();
     avatarService = mock();
-    logoutCallback = jest.fn();
+    logoutService = mock<LogoutService>();
     billingAccountProfileStateService = mock();
     tokenService = mock();
     authService = mock();
@@ -154,7 +154,7 @@ describe("DefaultSyncService", () => {
       sendApiService,
       userDecryptionOptionsService,
       avatarService,
-      logoutCallback,
+      logoutService,
       billingAccountProfileStateService,
       tokenService,
       authService,

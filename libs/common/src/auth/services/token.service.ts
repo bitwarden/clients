@@ -5,7 +5,7 @@ import { Opaque } from "type-fest";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptedString,
@@ -34,6 +34,7 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { TokenService as TokenServiceAbstraction } from "../abstractions/token.service";
+import { LogoutService } from "../logout";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
@@ -147,7 +148,7 @@ export class TokenService implements TokenServiceAbstraction {
     private secureStorageService: AbstractStorageService,
     private encryptService: EncryptService,
     private logService: LogService,
-    private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
+    private logoutService: LogoutService,
   ) {
     this.initializeState();
   }
@@ -516,7 +517,7 @@ export class TokenService implements TokenServiceAbstraction {
             "Access token key retrieval failed. Unable to decrypt encrypted access token. Logging user out.",
             error,
           );
-          await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+          await this.logoutService.logout(userId, "accessTokenUnableToBeDecrypted");
           return null;
         }
 
@@ -536,7 +537,7 @@ export class TokenService implements TokenServiceAbstraction {
             "Access token key not found to decrypt encrypted access token. Logging user out.",
           );
 
-          await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+          await this.logoutService.logout(userId, "accessTokenUnableToBeDecrypted");
 
           return null;
         }
@@ -559,7 +560,7 @@ export class TokenService implements TokenServiceAbstraction {
         // if access token and key are getting out of sync.
         this.logService.error(`Failed to decrypt access token`, error);
 
-        await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+        await this.logoutService.logout(userId, "accessTokenUnableToBeDecrypted");
 
         return null;
       }
@@ -708,7 +709,7 @@ export class TokenService implements TokenServiceAbstraction {
 
         this.logService.error(`Failed to retrieve refresh token from secure storage`, error);
 
-        await this.logoutCallback("refreshTokenSecureStorageRetrievalFailure", userId);
+        await this.logoutService.logout(userId, "refreshTokenSecureStorageRetrievalFailure");
       }
     }
 
