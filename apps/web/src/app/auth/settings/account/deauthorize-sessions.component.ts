@@ -40,6 +40,7 @@ export class DeauthorizeSessionsComponent {
 
   submit = async () => {
     try {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       const verification: Verification = this.deauthForm.value.verification!;
       const request = await this.userVerificationService.buildRequest(verification);
       await this.apiService.postSecurityStamp(request);
@@ -48,7 +49,6 @@ export class DeauthorizeSessionsComponent {
         title: this.i18nService.t("sessionsDeauthorized"),
         message: this.i18nService.t("logBackIn"),
       });
-      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       await this.logoutService.logout(userId, "deauthorizedSessions");
     } catch (e) {
       this.logService.error(e);
