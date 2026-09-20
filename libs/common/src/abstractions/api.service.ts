@@ -139,244 +139,326 @@ export abstract class ApiService {
   >;
   abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
-  abstract getProfile(): Promise<ProfileResponse>;
-  abstract getUserSubscription(): Promise<SubscriptionResponse>;
-  abstract putProfile(request: UpdateProfileRequest): Promise<ProfileResponse>;
-  abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
-  abstract postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any>;
-  abstract postSecurityStamp(request: SecretVerificationRequest): Promise<any>;
-  abstract getAccountRevisionDate(): Promise<number>;
+  abstract getProfile(userId?: UserId): Promise<ProfileResponse>;
+  abstract getUserSubscription(userId?: UserId): Promise<SubscriptionResponse>;
+  abstract putProfile(request: UpdateProfileRequest, userId?: UserId): Promise<ProfileResponse>;
+  abstract putAvatar(request: UpdateAvatarRequest, userId?: UserId): Promise<ProfileResponse>;
+  abstract postSetKeyConnectorKey(
+    request: SetKeyConnectorKeyRequest,
+    userId?: UserId,
+  ): Promise<any>;
+  abstract postSecurityStamp(request: SecretVerificationRequest, userId?: UserId): Promise<any>;
+  abstract getAccountRevisionDate(userId?: UserId): Promise<number>;
   abstract postPasswordHint(request: PasswordHintRequest): Promise<any>;
-  abstract postPremium(data: FormData): Promise<PaymentResponse>;
-  abstract postAccountLicense(data: FormData): Promise<any>;
-  abstract postAccountKeys(request: KeysRequest): Promise<any>;
-  abstract postAccountVerifyEmail(): Promise<any>;
+  abstract postPremium(data: FormData, userId?: UserId): Promise<PaymentResponse>;
+  abstract postAccountLicense(data: FormData, userId?: UserId): Promise<any>;
+  abstract postAccountKeys(request: KeysRequest, userId?: UserId): Promise<any>;
+  abstract postAccountVerifyEmail(userId?: UserId): Promise<any>;
   abstract postAccountVerifyEmailToken(request: VerifyEmailRequest): Promise<any>;
   abstract postAccountRecoverDelete(request: DeleteRecoverRequest): Promise<any>;
   abstract postAccountRecoverDeleteToken(request: VerifyDeleteRecoverRequest): Promise<any>;
-  abstract postUserApiKey(id: string, request: SecretVerificationRequest): Promise<ApiKeyResponse>;
+  abstract postUserApiKey(
+    id: string,
+    request: SecretVerificationRequest,
+    userId?: UserId,
+  ): Promise<ApiKeyResponse>;
   abstract postUserRotateApiKey(
     id: string,
     request: SecretVerificationRequest,
+    userId?: UserId,
   ): Promise<ApiKeyResponse>;
-  abstract postConvertToKeyConnector(): Promise<void>;
+  abstract postConvertToKeyConnector(userId?: UserId): Promise<void>;
   //passwordless
-  abstract getAuthRequest(id: string): Promise<AuthRequestResponse>;
+  abstract getAuthRequest(id: string, userId?: UserId): Promise<AuthRequestResponse>;
   abstract putAuthRequest(
     id: string,
     request: PasswordlessAuthRequest,
+    userId?: UserId,
   ): Promise<AuthRequestResponse>;
-  abstract getAuthRequests(): Promise<ListResponse<AuthRequestResponse>>;
+  abstract getAuthRequests(userId?: UserId): Promise<ListResponse<AuthRequestResponse>>;
   abstract getLastAuthRequest(): Promise<AuthRequestResponse>;
 
-  abstract getUserBillingHistory(): Promise<BillingHistoryResponse>;
+  abstract getUserBillingHistory(userId?: UserId): Promise<BillingHistoryResponse>;
 
-  abstract getCipher(id: string): Promise<CipherResponse>;
-  abstract getFullCipherDetails(id: string): Promise<CipherResponse>;
-  abstract getCipherAdmin(id: string): Promise<CipherResponse>;
+  abstract getCipher(id: string, userId?: UserId): Promise<CipherResponse>;
+  abstract getFullCipherDetails(id: string, userId?: UserId): Promise<CipherResponse>;
+  abstract getCipherAdmin(id: string, userId?: UserId): Promise<CipherResponse>;
   abstract getAttachmentData(
     cipherId: string,
     attachmentId: string,
     emergencyAccessId?: string,
+    userId?: UserId,
   ): Promise<AttachmentResponse>;
   abstract getAttachmentDataAdmin(
     cipherId: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<AttachmentResponse>;
   abstract getCiphersOrganization(
     organizationId: string,
     includeMemberItems?: boolean,
+    userId?: UserId,
   ): Promise<ListResponse<CipherResponse>>;
-  abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
-  abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;
-  abstract postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse>;
-  abstract putCipher(id: string, request: CipherRequest): Promise<CipherResponse>;
-  abstract putPartialCipher(id: string, request: CipherPartialRequest): Promise<CipherResponse>;
-  abstract putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse>;
-  abstract deleteCipher(id: string): Promise<any>;
-  abstract deleteCipherAdmin(id: string): Promise<any>;
-  abstract deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putMoveCiphers(request: CipherBulkMoveRequest): Promise<any>;
-  abstract putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse>;
-  abstract putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>>;
+  abstract postCipher(request: CipherRequest, userId?: UserId): Promise<CipherResponse>;
+  abstract postCipherCreate(request: CipherCreateRequest, userId?: UserId): Promise<CipherResponse>;
+  abstract postCipherAdmin(request: CipherCreateRequest, userId?: UserId): Promise<CipherResponse>;
+  abstract putCipher(id: string, request: CipherRequest, userId?: UserId): Promise<CipherResponse>;
+  abstract putPartialCipher(
+    id: string,
+    request: CipherPartialRequest,
+    userId?: UserId,
+  ): Promise<CipherResponse>;
+  abstract putCipherAdmin(
+    id: string,
+    request: CipherRequest,
+    userId?: UserId,
+  ): Promise<CipherResponse>;
+  abstract deleteCipher(id: string, userId?: UserId): Promise<any>;
+  abstract deleteCipherAdmin(id: string, userId?: UserId): Promise<any>;
+  abstract deleteManyCiphers(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any>;
+  abstract deleteManyCiphersAdmin(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any>;
+  abstract putMoveCiphers(request: CipherBulkMoveRequest, userId?: UserId): Promise<any>;
+  abstract putShareCipher(
+    id: string,
+    request: CipherShareRequest,
+    userId?: UserId,
+  ): Promise<CipherResponse>;
+  abstract putShareCiphers(
+    request: CipherBulkShareRequest,
+    userId?: UserId,
+  ): Promise<ListResponse<CipherResponse>>;
   abstract putCipherCollections(
     id: string,
     request: CipherCollectionsRequest,
+    userId?: UserId,
   ): Promise<OptionalCipherResponse>;
   abstract putCipherCollectionsAdmin(
     id: string,
     request: CipherCollectionsRequest,
+    userId?: UserId,
   ): Promise<CipherMiniResponse>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,
+    userId?: UserId,
   ): Promise<any>;
-  abstract putDeleteCipher(id: string): Promise<any>;
-  abstract putDeleteCipherAdmin(id: string): Promise<any>;
-  abstract putDeleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putRestoreCipher(id: string): Promise<CipherResponse>;
-  abstract putRestoreCipherAdmin(id: string): Promise<CipherResponse>;
+  abstract putDeleteCipher(id: string, userId?: UserId): Promise<any>;
+  abstract putDeleteCipherAdmin(id: string, userId?: UserId): Promise<any>;
+  abstract putDeleteManyCiphers(request: CipherBulkDeleteRequest, userId?: UserId): Promise<any>;
+  abstract putDeleteManyCiphersAdmin(
+    request: CipherBulkDeleteRequest,
+    userId?: UserId,
+  ): Promise<any>;
+  abstract putRestoreCipher(id: string, userId?: UserId): Promise<CipherResponse>;
+  abstract putRestoreCipherAdmin(id: string, userId?: UserId): Promise<CipherResponse>;
   abstract putRestoreManyCiphers(
     request: CipherBulkRestoreRequest,
+    userId?: UserId,
   ): Promise<ListResponse<CipherResponse>>;
   abstract putRestoreManyCiphersAdmin(
     request: CipherBulkRestoreRequest,
+    userId?: UserId,
   ): Promise<ListResponse<CipherResponse>>;
 
   abstract postCipherAttachment(
     id: string,
     request: AttachmentRequest,
+    userId?: UserId,
   ): Promise<AttachmentUploadDataResponse>;
   abstract deleteCipherAttachment(
     id: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<DeleteAttachmentResponse>;
   abstract deleteCipherAttachmentAdmin(
     id: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<DeleteAttachmentResponse>;
   abstract postShareCipherAttachment(
     id: string,
     attachmentId: string,
     data: FormData,
     organizationId: string,
+    userId?: UserId,
   ): Promise<any>;
   abstract renewAttachmentUploadUrl(
     id: string,
     attachmentId: string,
+    userId?: UserId,
   ): Promise<AttachmentUploadDataResponse>;
   abstract postAttachmentFile(
     id: string,
     attachmentId: string,
     data: FormData,
     options?: UploadOptions,
+    userId?: UserId,
   ): Promise<any>;
 
-  abstract getUserCollections(): Promise<ListResponse<CollectionResponse>>;
-  abstract getCollections(organizationId: string): Promise<ListResponse<CollectionResponse>>;
+  abstract getUserCollections(userId?: UserId): Promise<ListResponse<CollectionResponse>>;
+  abstract getCollections(
+    organizationId: string,
+    userId?: UserId,
+  ): Promise<ListResponse<CollectionResponse>>;
   abstract getCollectionUsers(
     organizationId: string,
     id: string,
+    userId?: UserId,
   ): Promise<SelectionReadOnlyResponse[]>;
   abstract getCollectionAccessDetails(
     organizationId: string,
     id: string,
+    userId?: UserId,
   ): Promise<CollectionAccessDetailsResponse>;
   abstract getManyCollectionsWithAccessDetails(
     orgId: string,
+    userId?: UserId,
   ): Promise<ListResponse<CollectionAccessDetailsResponse>>;
   abstract postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
+    userId?: UserId,
   ): Promise<CollectionAccessDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
+    userId?: UserId,
   ): Promise<CollectionAccessDetailsResponse>;
-  abstract deleteCollection(organizationId: string, id: string): Promise<any>;
-  abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;
+  abstract deleteCollection(organizationId: string, id: string, userId?: UserId): Promise<any>;
+  abstract deleteManyCollections(
+    organizationId: string,
+    collectionIds: string[],
+    userId?: UserId,
+  ): Promise<any>;
 
-  abstract getGroupUsers(organizationId: string, id: string): Promise<string[]>;
+  abstract getGroupUsers(organizationId: string, id: string, userId?: UserId): Promise<string[]>;
   abstract deleteGroupUser(
     organizationId: string,
     id: string,
     organizationUserId: string,
+    userId?: UserId,
   ): Promise<any>;
 
-  abstract getSync(): Promise<SyncResponse>;
+  abstract getSync(userId?: UserId): Promise<SyncResponse>;
 
-  abstract getSettingsDomains(): Promise<DomainsResponse>;
-  abstract putSettingsDomains(request: UpdateDomainsRequest): Promise<DomainsResponse>;
+  abstract getSettingsDomains(userId?: UserId): Promise<DomainsResponse>;
+  abstract putSettingsDomains(
+    request: UpdateDomainsRequest,
+    userId?: UserId,
+  ): Promise<DomainsResponse>;
 
-  abstract getCloudCommunicationsEnabled(): Promise<boolean>;
+  abstract getCloudCommunicationsEnabled(userId?: UserId): Promise<boolean>;
   abstract getOrganizationConnection<TConfig extends OrganizationConnectionConfigApis>(
     id: string,
     type: OrganizationConnectionType,
     configType: { new (response: any): TConfig },
+    userId?: UserId,
   ): Promise<OrganizationConnectionResponse<TConfig>>;
   abstract createOrganizationConnection<TConfig extends OrganizationConnectionConfigApis>(
     request: OrganizationConnectionRequest,
     configType: { new (response: any): TConfig },
+    userId?: UserId,
   ): Promise<OrganizationConnectionResponse<TConfig>>;
   abstract updateOrganizationConnection<TConfig extends OrganizationConnectionConfigApis>(
     request: OrganizationConnectionRequest,
     configType: { new (response: any): TConfig },
     organizationConnectionId: string,
+    userId?: UserId,
   ): Promise<OrganizationConnectionResponse<TConfig>>;
-  abstract deleteOrganizationConnection(id: string): Promise<void>;
+  abstract deleteOrganizationConnection(id: string, userId?: UserId): Promise<void>;
   abstract getPlans(): Promise<ListResponse<PlanResponse>>;
 
   abstract getProviderUsers(
     providerId: string,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserUserDetailsResponse>>;
-  abstract getProviderUser(providerId: string, id: string): Promise<ProviderUserResponse>;
+  abstract getProviderUser(
+    providerId: string,
+    id: string,
+    userId?: UserId,
+  ): Promise<ProviderUserResponse>;
   abstract postProviderUserInvite(
     providerId: string,
     request: ProviderUserInviteRequest,
+    userId?: UserId,
   ): Promise<any>;
-  abstract postProviderUserReinvite(providerId: string, id: string): Promise<any>;
+  abstract postProviderUserReinvite(providerId: string, id: string, userId?: UserId): Promise<any>;
   abstract postManyProviderUserReinvite(
     providerId: string,
     request: ProviderUserBulkRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkResponse>>;
   abstract postProviderUserAccept(
     providerId: string,
     id: string,
     request: ProviderUserAcceptRequest,
+    userId?: UserId,
   ): Promise<any>;
 
   abstract postProviderUserConfirm(
     providerId: string,
     id: string,
     request: ProviderUserConfirmRequest,
+    userId?: UserId,
   ): Promise<any>;
 
   abstract postProviderUsersPublicKey(
     providerId: string,
     request: ProviderUserBulkRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkPublicKeyResponse>>;
 
   abstract postProviderUserBulkConfirm(
     providerId: string,
     request: ProviderUserBulkConfirmRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkResponse>>;
 
   abstract putProviderUser(
     providerId: string,
     id: string,
     request: ProviderUserUpdateRequest,
+    userId?: UserId,
   ): Promise<any>;
-  abstract deleteProviderUser(organizationId: string, id: string): Promise<any>;
+  abstract deleteProviderUser(organizationId: string, id: string, userId?: UserId): Promise<any>;
   abstract deleteManyProviderUsers(
     providerId: string,
     request: ProviderUserBulkRequest,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderUserBulkResponse>>;
   abstract getProviderClients(
     providerId: string,
+    userId?: UserId,
   ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>>;
   abstract postProviderAddOrganization(
     providerId: string,
     request: ProviderAddOrganizationRequest,
+    userId?: UserId,
   ): Promise<any>;
   abstract postProviderCreateOrganization(
     providerId: string,
     request: ProviderOrganizationCreateRequest,
+    userId?: UserId,
   ): Promise<ProviderOrganizationResponse>;
-  abstract deleteProviderOrganization(providerId: string, organizationId: string): Promise<any>;
+  abstract deleteProviderOrganization(
+    providerId: string,
+    organizationId: string,
+    userId?: UserId,
+  ): Promise<any>;
 
   abstract getEvents(
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsCipher(
     id: string,
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
 
   abstract getEventsSecret(
@@ -385,6 +467,7 @@ export abstract class ApiService {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsServiceAccount(
     orgId: string,
@@ -392,6 +475,7 @@ export abstract class ApiService {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsProject(
     orgId: string,
@@ -399,12 +483,14 @@ export abstract class ApiService {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsOrganization(
     id: string,
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsOrganizationUser(
     organizationId: string,
@@ -412,12 +498,14 @@ export abstract class ApiService {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsProvider(
     id: string,
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsProviderUser(
     providerId: string,
@@ -425,6 +513,7 @@ export abstract class ApiService {
     start: string,
     end: string,
     token: string,
+    userId?: UserId,
   ): Promise<ListResponse<EventResponse>>;
 
   /**
@@ -435,13 +524,13 @@ export abstract class ApiService {
    */
   abstract postEventsCollect(request: EventRequest[], userId?: UserId): Promise<EventRequest[]>;
 
-  abstract deleteSsoUser(organizationId: string): Promise<void>;
-  abstract getSsoUserIdentifier(): Promise<string>;
+  abstract deleteSsoUser(organizationId: string, userId?: UserId): Promise<void>;
+  abstract getSsoUserIdentifier(userId?: UserId): Promise<string>;
 
-  abstract getUserPublicKey(id: string): Promise<UserKeyResponse>;
+  abstract getUserPublicKey(id: string, userId?: UserId): Promise<UserKeyResponse>;
 
-  abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
-  abstract postSetupPayment(): Promise<string>;
+  abstract postBitPayInvoice(request: BitPayInvoiceRequest, userId?: UserId): Promise<string>;
+  abstract postSetupPayment(userId?: UserId): Promise<string>;
 
   /**
    * Retrieves the bearer access token for the user.
@@ -471,17 +560,21 @@ export abstract class ApiService {
   abstract postCreateSponsorship(
     sponsorshipOrgId: string,
     request: OrganizationSponsorshipCreateRequest,
+    userId?: UserId,
   ): Promise<void>;
   abstract getSponsorshipSyncStatus(
     sponsoredOrgId: string,
+    userId?: UserId,
   ): Promise<OrganizationSponsorshipSyncStatusResponse>;
-  abstract deleteRemoveSponsorship(sponsoringOrgId: string): Promise<void>;
+  abstract deleteRemoveSponsorship(sponsoringOrgId: string, userId?: UserId): Promise<void>;
   abstract postPreValidateSponsorshipToken(
     sponsorshipToken: string,
+    userId?: UserId,
   ): Promise<PreValidateSponsorshipResponse>;
   abstract postRedeemSponsorship(
     sponsorshipToken: string,
     request: OrganizationSponsorshipRedeemRequest,
+    userId?: UserId,
   ): Promise<void>;
 
   abstract getMasterKeyFromKeyConnector(
