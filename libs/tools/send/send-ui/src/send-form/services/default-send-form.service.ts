@@ -53,8 +53,7 @@ export class DefaultSendFormService implements SendFormService {
   private file: File | null = null;
   private abortController: AbortController | null = null;
 
-  async decryptSend(send: Send): Promise<SendView> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async decryptSend(send: Send, userId: UserId): Promise<SendView> {
     return this.sendDecryptionService.decryptSend(send, userId);
   }
 
@@ -95,7 +94,8 @@ export class DefaultSendFormService implements SendFormService {
       if (!this.sendFormConfig.originalSend) {
         throw new Error("Original send is required for edit or clone mode");
       }
-      originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      originalSendView = await this.decryptSend(this.sendFormConfig.originalSend, userId);
       updatedSendView = Object.assign(updatedSendView, originalSendView);
     }
     this._originalSendView.set(originalSendView);
@@ -143,7 +143,7 @@ export class DefaultSendFormService implements SendFormService {
         abortController.signal,
         userId,
       );
-      const sendView = await this.decryptSend(newSend);
+      const sendView = await this.decryptSend(newSend, userId);
       this._originalSendView.set(null);
       this._updatedSendView.set(null);
       this._submitting.set(false);
@@ -239,7 +239,7 @@ export class DefaultSendFormService implements SendFormService {
     });
 
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
-    const updatedSendView = await this.decryptSend(updatedSend);
+    const updatedSendView = await this.decryptSend(updatedSend, userId);
     this._originalSendView.set(updatedSendView);
     return true;
   }

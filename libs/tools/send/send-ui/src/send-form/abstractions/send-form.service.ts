@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { SendForm } from "../send-form-container";
 
@@ -20,7 +21,7 @@ export abstract class SendFormService {
    * Helper to decrypt a send and avoid the need to call the send service directly.
    * (useful for mocking tests/storybook).
    */
-  abstract decryptSend(send: Send): Promise<SendView>;
+  abstract decryptSend(send: Send, userId: UserId): Promise<SendView>;
 
   /**
    * The form group for the Send. Starts empty and is populated by child components via the `registerChildForm` method.
