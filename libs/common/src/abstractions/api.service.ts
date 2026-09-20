@@ -128,6 +128,22 @@ export abstract class ApiService {
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any>;
 
+  /**
+   * Migration overload: authenticated with an explicit UserId when supplied, otherwise the
+   * active user. Enables downstream services to accept `userId?: UserId` and forward
+   * `userId ?? true` without narrowing at every call site. Prefer the UserId-only overload
+   * once the caller can guarantee a UserId.
+   */
+  abstract send(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    path: string,
+    body: any,
+    authedOrUserId: UserId | true,
+    hasResponse: boolean,
+    apiUrl?: string | null,
+    alterHeaders?: (headers: Headers) => void,
+  ): Promise<any>;
+
   abstract postIdentityToken(
     request:
       PasswordTokenRequest | SsoTokenRequest | UserApiTokenRequest | WebAuthnLoginTokenRequest,
