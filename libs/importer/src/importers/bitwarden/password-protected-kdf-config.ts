@@ -13,6 +13,18 @@ import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/vault-export-co
 const PBKDF2_IMPORT_ITERATIONS_MIN = 5000;
 
 /**
+ * Floors for Argon2id parameters accepted on password-protected import files.
+ *
+ * Separate from the {@link Argon2KdfConfig} minimums for the same reason as
+ * {@link PBKDF2_IMPORT_ITERATIONS_MIN}: raising the minimum a client will accept should not make
+ * previously valid exports unimportable. There is no plan to raise the Argon2 minimums, so these
+ * currently match the values clients enforce elsewhere.
+ */
+const ARGON2_IMPORT_ITERATIONS_MIN = 2;
+const ARGON2_IMPORT_MEMORY_MIN = 16;
+const ARGON2_IMPORT_PARALLELISM_MIN = 1;
+
+/**
  * Iteration bounds accepted for a PBKDF2 import file.
  *
  * Wider than {@link PBKDF2KdfConfig.ITERATIONS} on the low end, because an export carries the
@@ -23,6 +35,30 @@ const PBKDF2_IMPORT_ITERATIONS = new RangeWithDefault(
   PBKDF2_IMPORT_ITERATIONS_MIN,
   PBKDF2KdfConfig.ITERATIONS.max,
   PBKDF2KdfConfig.ITERATIONS.defaultValue,
+);
+
+/**
+ * Parameter bounds accepted for an Argon2id import file.
+ *
+ * The upper bounds are the ones the settings UI enforces; the lower bounds are the import floors
+ * above rather than {@link Argon2KdfConfig}'s minimums, so the two can move independently.
+ */
+const ARGON2_IMPORT_ITERATIONS = new RangeWithDefault(
+  ARGON2_IMPORT_ITERATIONS_MIN,
+  Argon2KdfConfig.ITERATIONS.max,
+  Argon2KdfConfig.ITERATIONS.defaultValue,
+);
+
+const ARGON2_IMPORT_MEMORY = new RangeWithDefault(
+  ARGON2_IMPORT_MEMORY_MIN,
+  Argon2KdfConfig.MEMORY.max,
+  Argon2KdfConfig.MEMORY.defaultValue,
+);
+
+const ARGON2_IMPORT_PARALLELISM = new RangeWithDefault(
+  ARGON2_IMPORT_PARALLELISM_MIN,
+  Argon2KdfConfig.PARALLELISM.max,
+  Argon2KdfConfig.PARALLELISM.defaultValue,
 );
 
 /**
@@ -47,9 +83,9 @@ export function kdfConfigFromPasswordProtectedExport(
 
     case KdfType.Argon2id:
       if (
-        inBounds(jdoc.kdfIterations, Argon2KdfConfig.ITERATIONS) &&
-        inBounds(jdoc.kdfMemory, Argon2KdfConfig.MEMORY) &&
-        inBounds(jdoc.kdfParallelism, Argon2KdfConfig.PARALLELISM)
+        inBounds(jdoc.kdfIterations, ARGON2_IMPORT_ITERATIONS) &&
+        inBounds(jdoc.kdfMemory, ARGON2_IMPORT_MEMORY) &&
+        inBounds(jdoc.kdfParallelism, ARGON2_IMPORT_PARALLELISM)
       ) {
         return new Argon2KdfConfig(jdoc.kdfIterations, jdoc.kdfMemory, jdoc.kdfParallelism);
       }
