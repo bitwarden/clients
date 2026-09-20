@@ -117,6 +117,7 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { DeleteAccountService } from "@bitwarden/common/auth/account-deletion";
 import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
@@ -774,22 +775,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AccountApiServiceAbstraction,
     useClass: AccountApiServiceImplementation,
-    deps: [
-      ApiServiceAbstraction,
-      UserVerificationServiceAbstraction,
-      LogService,
-      InternalAccountService,
-      EnvironmentService,
-    ],
+    deps: [ApiServiceAbstraction, LogService, EnvironmentService],
   }),
   safeProvider({
     provide: InternalAccountService,
     useClass: AccountServiceImplementation,
-    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider, SingleUserStateProvider],
+    deps: [GlobalStateProvider, SingleUserStateProvider],
   }),
   safeProvider({
     provide: AccountServiceAbstraction,
     useExisting: InternalAccountService,
+  }),
+  safeProvider({
+    provide: DeleteAccountService,
+    useClass: DeleteAccountService,
+    deps: [ApiServiceAbstraction, LogoutService],
   }),
   safeProvider({
     provide: AvatarServiceAbstraction,
