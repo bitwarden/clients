@@ -12,21 +12,21 @@ import { SendAccessView } from "../models/view/send-access.view";
 import { SendView } from "../models/view/send.view";
 
 export abstract class SendApiService {
-  abstract getSend(id: string, userId?: UserId): Promise<SendResponse>;
+  abstract getSend(id: string, userId: UserId): Promise<SendResponse>;
   abstract postSendAccess(
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendAccessResponse>;
-  abstract getSends(userId?: UserId): Promise<ListResponse<SendResponse>>;
-  abstract putSendRemovePassword(id: string, userId?: UserId): Promise<SendResponse>;
-  abstract deleteSend(id: string, userId?: UserId): Promise<any>;
+  abstract getSends(userId: UserId): Promise<ListResponse<SendResponse>>;
+  abstract putSendRemovePassword(id: string, userId: UserId): Promise<SendResponse>;
+  abstract deleteSend(id: string, userId: UserId): Promise<any>;
   abstract getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse>;
-  abstract removePassword(id: string, userId?: UserId): Promise<any>;
-  abstract delete(id: string, userId?: UserId): Promise<any>;
+  abstract removePassword(id: string, userId: UserId): Promise<any>;
+  abstract delete(id: string, userId: UserId): Promise<any>;
   /**
    * Persists a send.
    *
@@ -47,8 +47,8 @@ export abstract class SendApiService {
    */
   abstract save(
     sendData: [Send, EncArrayBuffer],
-    plaintextPassword?: string,
-    userId?: UserId,
+    plaintextPassword: string | undefined,
+    userId: UserId,
   ): Promise<Send>;
   /**
    * Persists a send from its plaintext view, letting the implementation own encryption.
@@ -79,8 +79,8 @@ export abstract class SendApiService {
   abstract saveView(
     view: SendView,
     file: File | ArrayBuffer | null,
-    plaintextPassword?: string,
-    signal?: AbortSignal,
-    userId?: UserId,
+    plaintextPassword: string | undefined,
+    signal: AbortSignal | undefined,
+    userId: UserId,
   ): Promise<Send>;
 }

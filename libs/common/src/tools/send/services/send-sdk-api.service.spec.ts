@@ -125,7 +125,7 @@ describe("SendSdkApiService", () => {
       const view = textView({ authType: AuthType.Password });
       const send = sendResolvingTo(view, null);
 
-      await service.save([send, mock<EncArrayBuffer>()], "hunter2");
+      await service.save([send, mock<EncArrayBuffer>()], "hunter2", mockUserId);
 
       const request = sendsClient.create.mock.calls[0][0] as SendAddRequest;
       const auth: SendAuthType = request.auth;
@@ -139,7 +139,7 @@ describe("SendSdkApiService", () => {
       const view = textView({ id: existingId, authType: AuthType.Password });
       const send = sendResolvingTo(view, existingId);
 
-      await service.save([send, mock<EncArrayBuffer>()], "new-password");
+      await service.save([send, mock<EncArrayBuffer>()], "new-password", mockUserId);
 
       const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
       const auth: AuthEdit = request.auth;
@@ -153,7 +153,7 @@ describe("SendSdkApiService", () => {
 
       // On preserve the caller passes no plaintext; the SDK resolves the existing auth
       // against its own stored Send, so the client never needs to know the existing hash.
-      await service.save([send, mock<EncArrayBuffer>()]);
+      await service.save([send, mock<EncArrayBuffer>()], undefined, mockUserId);
 
       expect(sendService.getFromState).not.toHaveBeenCalled();
       const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
@@ -165,9 +165,9 @@ describe("SendSdkApiService", () => {
       const view = textView({ authType: AuthType.Password });
       const send = sendResolvingTo(view, null);
 
-      await expect(service.save([send, mock<EncArrayBuffer>()])).rejects.toThrow(
-        "Password-protected send is missing its password.",
-      );
+      await expect(
+        service.save([send, mock<EncArrayBuffer>()], undefined, mockUserId),
+      ).rejects.toThrow("Password-protected send is missing its password.");
       expect(sendsClient.create).not.toHaveBeenCalled();
     });
 
@@ -175,7 +175,7 @@ describe("SendSdkApiService", () => {
       const view = textView({ authType: AuthType.None });
       const send = sendResolvingTo(view, null);
 
-      await service.save([send, mock<EncArrayBuffer>()]);
+      await service.save([send, mock<EncArrayBuffer>()], undefined, mockUserId);
 
       const request = sendsClient.create.mock.calls[0][0] as SendAddRequest;
       expect(request.auth).toEqual({ type: "none" });
@@ -190,7 +190,7 @@ describe("SendSdkApiService", () => {
       });
       const send = sendResolvingTo(view, existingId);
 
-      await service.save([send, mock<EncArrayBuffer>()]);
+      await service.save([send, mock<EncArrayBuffer>()], undefined, mockUserId);
 
       const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
       const auth: AuthEdit = request.auth;
@@ -204,9 +204,9 @@ describe("SendSdkApiService", () => {
       send.id = null;
       send.type = SendType.File;
 
-      await expect(service.save([send, mock<EncArrayBuffer>()])).rejects.toThrow(
-        "SendSdkApiService.save: file send creation requires SendApiService.",
-      );
+      await expect(
+        service.save([send, mock<EncArrayBuffer>()], undefined, mockUserId),
+      ).rejects.toThrow("SendSdkApiService.save: file send creation requires SendApiService.");
     });
   });
 
@@ -258,7 +258,7 @@ describe("SendSdkApiService", () => {
     it("hands the plaintext view to the SDK without encrypting client-side", async () => {
       const view = textView({ name: "plaintext-name", authType: AuthType.None });
 
-      await service.saveView(view, null);
+      await service.saveView(view, null, undefined, undefined, mockUserId);
 
       const request = sendsClient.create.mock.calls[0][0] as SendAddRequest;
       expect(request.name).toBe("plaintext-name");
@@ -269,7 +269,7 @@ describe("SendSdkApiService", () => {
       const existingId = Utils.newGuid();
       const view = textView({ id: existingId, authType: AuthType.None });
 
-      await service.saveView(view, null);
+      await service.saveView(view, null, undefined, undefined, mockUserId);
 
       expect(sendsClient.edit).toHaveBeenCalledWith(existingId, expect.anything());
       expect(sendsClient.create).not.toHaveBeenCalled();
@@ -281,7 +281,7 @@ describe("SendSdkApiService", () => {
       it("hands the plaintext bytes and the request built from the view to `create_file_send`", async () => {
         const view = fileView({ name: "plaintext-name" });
 
-        await service.saveView(view, plaintextBytes.buffer);
+        await service.saveView(view, plaintextBytes.buffer, undefined, undefined, mockUserId);
 
         expect(sendsClient.create_file_send).toHaveBeenCalledTimes(1);
         const [request, buffer] = sendsClient.create_file_send.mock.calls[0];
@@ -299,7 +299,7 @@ describe("SendSdkApiService", () => {
           arrayBuffer: jest.fn().mockResolvedValue(plaintextBytes.buffer),
         } as unknown as File;
 
-        await service.saveView(fileView(), file);
+        await service.saveView(fileView(), file, undefined, undefined, mockUserId);
 
         expect(sendsClient.create_file_send.mock.calls[0][1]).toEqual(plaintextBytes);
       });
@@ -315,7 +315,7 @@ describe("SendSdkApiService", () => {
           arrayBuffer: jest.fn().mockResolvedValue(plaintextBytes.buffer),
         } as unknown as File;
 
-        await service.saveView(view, file);
+        await service.saveView(view, file, undefined, undefined, mockUserId);
 
         const [request] = sendsClient.create_file_send.mock.calls[0];
         expect((request as SendAddRequest).viewType).toEqual({
@@ -329,7 +329,7 @@ describe("SendSdkApiService", () => {
         const view = fileView({ name: "plaintext-name" });
         view.file = Object.assign(new SendFileView(), { fileName: "from-the-view.txt" });
 
-        await service.saveView(view, plaintextBytes.buffer);
+        await service.saveView(view, plaintextBytes.buffer, undefined, undefined, mockUserId);
 
         const [request] = sendsClient.create_file_send.mock.calls[0];
         expect((request as SendAddRequest).viewType).toEqual({
@@ -341,13 +341,13 @@ describe("SendSdkApiService", () => {
         const view = fileView();
         view.file = undefined;
 
-        await expect(service.saveView(view, plaintextBytes.buffer)).rejects.toThrow(
-          "File send is missing a file name.",
-        );
+        await expect(
+          service.saveView(view, plaintextBytes.buffer, undefined, undefined, mockUserId),
+        ).rejects.toThrow("File send is missing a file name.");
       });
 
       it("uploads the ciphertext and metadata the create step returned", async () => {
-        await service.saveView(fileView(), plaintextBytes.buffer);
+        await service.saveView(fileView(), plaintextBytes.buffer, undefined, undefined, mockUserId);
 
         expect(sendsClient.upload_send_file).toHaveBeenCalledWith(
           "server-id",
@@ -360,7 +360,7 @@ describe("SendSdkApiService", () => {
       });
 
       it("refreshes the wire-encrypted form of the created send once the upload lands", async () => {
-        await service.saveView(fileView(), plaintextBytes.buffer);
+        await service.saveView(fileView(), plaintextBytes.buffer, undefined, undefined, mockUserId);
 
         expect(legacySendApiService.getSend).toHaveBeenCalledWith("server-id", mockUserId);
       });
@@ -387,7 +387,13 @@ describe("SendSdkApiService", () => {
         // execution below is synchronized with the async callback without counting ticks.
         const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-        const result = service.saveView(fileView(), plaintextBytes.buffer);
+        const result = service.saveView(
+          fileView(),
+          plaintextBytes.buffer,
+          undefined,
+          undefined,
+          mockUserId,
+        );
 
         // Let execution reach the point of subscribing to userClient$ before emitting.
         await flushMicrotasks();
@@ -412,9 +418,9 @@ describe("SendSdkApiService", () => {
       }, 2000);
 
       it("rejects a file create with no file data, which the create step cannot size", async () => {
-        await expect(service.saveView(fileView(), null)).rejects.toThrow(
-          "File send creation requires file data.",
-        );
+        await expect(
+          service.saveView(fileView(), null, undefined, undefined, mockUserId),
+        ).rejects.toThrow("File send creation requires file data.");
         expect(sendsClient.create_file_send).not.toHaveBeenCalled();
       });
 
@@ -427,9 +433,9 @@ describe("SendSdkApiService", () => {
         it("rejects an ArrayBuffer over the size limit without calling the SDK", async () => {
           const oversized = new ArrayBuffer(MAX_SDK_FILE_SEND_SIZE_BYTES + 1);
 
-          await expect(service.saveView(fileView(), oversized)).rejects.toThrow(
-            "File is too large to send",
-          );
+          await expect(
+            service.saveView(fileView(), oversized, undefined, undefined, mockUserId),
+          ).rejects.toThrow("File is too large to send");
           expect(sendsClient.create_file_send).not.toHaveBeenCalled();
         });
 
@@ -441,9 +447,9 @@ describe("SendSdkApiService", () => {
             arrayBuffer,
           } as unknown as File;
 
-          await expect(service.saveView(fileView(), oversizedFile)).rejects.toThrow(
-            "File is too large to send",
-          );
+          await expect(
+            service.saveView(fileView(), oversizedFile, undefined, undefined, mockUserId),
+          ).rejects.toThrow("File is too large to send");
           expect(arrayBuffer).not.toHaveBeenCalled();
           expect(sendsClient.create_file_send).not.toHaveBeenCalled();
         });
@@ -451,7 +457,7 @@ describe("SendSdkApiService", () => {
         it("allows a file exactly at the size limit", async () => {
           const atLimit = new ArrayBuffer(MAX_SDK_FILE_SEND_SIZE_BYTES);
 
-          await service.saveView(fileView(), atLimit);
+          await service.saveView(fileView(), atLimit, undefined, undefined, mockUserId);
 
           expect(sendsClient.create_file_send).toHaveBeenCalledTimes(1);
         });
@@ -463,9 +469,9 @@ describe("SendSdkApiService", () => {
         });
 
         it("rolls back the created send and surfaces the upload error", async () => {
-          await expect(service.saveView(fileView(), plaintextBytes.buffer)).rejects.toThrow(
-            "upload failed",
-          );
+          await expect(
+            service.saveView(fileView(), plaintextBytes.buffer, undefined, undefined, mockUserId),
+          ).rejects.toThrow("upload failed");
 
           // Without the rollback the server keeps a permanent, content-less send.
           expect(sendsClient.delete).toHaveBeenCalledWith("server-id");
@@ -474,9 +480,9 @@ describe("SendSdkApiService", () => {
         it("still surfaces the upload error when the rollback itself fails", async () => {
           sendsClient.delete.mockRejectedValue(new Error("rollback failed"));
 
-          await expect(service.saveView(fileView(), plaintextBytes.buffer)).rejects.toThrow(
-            "upload failed",
-          );
+          await expect(
+            service.saveView(fileView(), plaintextBytes.buffer, undefined, undefined, mockUserId),
+          ).rejects.toThrow("upload failed");
         });
       });
 
@@ -496,7 +502,13 @@ describe("SendSdkApiService", () => {
           });
 
           await expect(
-            service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal),
+            service.saveView(
+              fileView(),
+              plaintextBytes.buffer,
+              undefined,
+              controller.signal,
+              mockUserId,
+            ),
           ).rejects.toMatchObject({ name: "AbortError" });
 
           expect(sendsClient.delete).toHaveBeenCalledWith("server-id");
@@ -505,7 +517,13 @@ describe("SendSdkApiService", () => {
         it("does not roll back or throw when the signal was never aborted", async () => {
           const controller = new AbortController();
 
-          await service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal);
+          await service.saveView(
+            fileView(),
+            plaintextBytes.buffer,
+            undefined,
+            controller.signal,
+            mockUserId,
+          );
 
           expect(sendsClient.delete).not.toHaveBeenCalled();
         });
@@ -516,7 +534,13 @@ describe("SendSdkApiService", () => {
         controller.abort();
 
         await expect(
-          service.saveView(fileView(), plaintextBytes.buffer, undefined, controller.signal),
+          service.saveView(
+            fileView(),
+            plaintextBytes.buffer,
+            undefined,
+            controller.signal,
+            mockUserId,
+          ),
         ).rejects.toMatchObject({ name: "AbortError" });
 
         expect(sendsClient.create_file_send).not.toHaveBeenCalled();
@@ -526,7 +550,13 @@ describe("SendSdkApiService", () => {
       it("edits an existing file send through the SDK", async () => {
         const existingId = Utils.newGuid();
 
-        await service.saveView(fileView({ id: existingId }), null);
+        await service.saveView(
+          fileView({ id: existingId }),
+          null,
+          undefined,
+          undefined,
+          mockUserId,
+        );
 
         expect(sendsClient.edit).toHaveBeenCalledWith(existingId, expect.anything());
       });
@@ -542,7 +572,13 @@ describe("SendSdkApiService", () => {
         local.id = "server-id";
         sendService.getFromState.mockResolvedValue(local);
 
-        const result = await service.saveView(textView({ authType: AuthType.None }), null);
+        const result = await service.saveView(
+          textView({ authType: AuthType.None }),
+          null,
+          undefined,
+          undefined,
+          mockUserId,
+        );
 
         expect(result).toBe(local);
       });
@@ -550,9 +586,15 @@ describe("SendSdkApiService", () => {
       it("rethrows when local state cannot produce the send either", async () => {
         sendService.getFromState.mockResolvedValue(null as unknown as Send);
 
-        await expect(service.saveView(textView({ authType: AuthType.None }), null)).rejects.toThrow(
-          "network down",
-        );
+        await expect(
+          service.saveView(
+            textView({ authType: AuthType.None }),
+            null,
+            undefined,
+            undefined,
+            mockUserId,
+          ),
+        ).rejects.toThrow("network down");
       });
     });
   });

@@ -65,8 +65,8 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    */
   async save(
     sendData: [Send, EncArrayBuffer],
-    plaintextPassword?: string,
-    userId?: UserId,
+    plaintextPassword: string | undefined,
+    userId: UserId,
   ): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
@@ -86,18 +86,18 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   async saveView(
     view: SendView,
     file: File | ArrayBuffer | null,
-    plaintextPassword?: string,
-    signal?: AbortSignal,
-    userId?: UserId,
+    plaintextPassword: string | undefined,
+    signal: AbortSignal | undefined,
+    userId: UserId,
   ): Promise<Send> {
     return (await this.getService()).saveView(view, file, plaintextPassword, signal, userId);
   }
 
-  async delete(id: string, userId?: UserId): Promise<any> {
+  async delete(id: string, userId: UserId): Promise<any> {
     return (await this.getService()).delete(id, userId);
   }
 
-  async removePassword(id: string, userId?: UserId): Promise<any> {
+  async removePassword(id: string, userId: UserId): Promise<any> {
     return (await this.getService()).removePassword(id, userId);
   }
 
@@ -105,7 +105,7 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Always routed to legacy. Returns a wire-encrypted `SendResponse`, which the SDK
    * cannot produce (the SDK only exposes plaintext views).
    */
-  async getSend(id: string, userId?: UserId): Promise<SendResponse> {
+  async getSend(id: string, userId: UserId): Promise<SendResponse> {
     return this.sendApiService.getSend(id, userId);
   }
 
@@ -125,7 +125,7 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Always routed to legacy. Returns a wire-encrypted list of `SendResponse`, which the
    * SDK cannot produce; see {@link getSend}.
    */
-  async getSends(userId?: UserId): Promise<ListResponse<SendResponse>> {
+  async getSends(userId: UserId): Promise<ListResponse<SendResponse>> {
     return this.sendApiService.getSends(userId);
   }
 
@@ -134,11 +134,11 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * also refreshes local state; this lower-level method returns a wire-encrypted
    * `SendResponse` the SDK cannot produce.
    */
-  async putSendRemovePassword(id: string, userId?: UserId): Promise<SendResponse> {
+  async putSendRemovePassword(id: string, userId: UserId): Promise<SendResponse> {
     return this.sendApiService.putSendRemovePassword(id, userId);
   }
 
-  async deleteSend(id: string, userId?: UserId): Promise<any> {
+  async deleteSend(id: string, userId: UserId): Promise<any> {
     return (await this.getService()).deleteSend(id, userId);
   }
 

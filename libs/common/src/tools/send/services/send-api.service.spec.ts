@@ -7,6 +7,8 @@ import { ApiService } from "../../../abstractions/api.service";
 import { FileUploadService } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { FileUploadType } from "../../../platform/enums";
+import { Utils } from "../../../platform/misc/utils";
+import { UserId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 import { SendType } from "../types/send-type";
@@ -15,6 +17,8 @@ import { SendApiService } from "./send-api.service";
 import { InternalSendService } from "./send.service.abstraction";
 
 describe("SendApiService", () => {
+  const mockUserId = Utils.newGuid() as UserId;
+
   let apiService: MockProxy<ApiService>;
   let fileUploadService: MockProxy<FileUploadService>;
   let sendService: MockProxy<InternalSendService>;
@@ -42,10 +46,10 @@ describe("SendApiService", () => {
       sendService.encrypt.mockResolvedValue([send, encBuffer]);
       const saveSpy = jest.spyOn(service, "save").mockResolvedValue(send);
 
-      const result = await service.saveView(view, file, "hunter2");
+      const result = await service.saveView(view, file, "hunter2", undefined, mockUserId);
 
       expect(sendService.encrypt).toHaveBeenCalledWith(view, file, "hunter2");
-      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], "hunter2", undefined, undefined);
+      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], "hunter2", mockUserId, undefined);
       expect(result).toBe(send);
     });
 
@@ -56,10 +60,10 @@ describe("SendApiService", () => {
       sendService.encrypt.mockResolvedValue([send, encBuffer]);
       const saveSpy = jest.spyOn(service, "save").mockResolvedValue(send);
 
-      await service.saveView(view, null, undefined);
+      await service.saveView(view, null, undefined, undefined, mockUserId);
 
       expect(sendService.encrypt).toHaveBeenCalledWith(view, null, undefined);
-      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], undefined, undefined, undefined);
+      expect(saveSpy).toHaveBeenCalledWith([send, encBuffer], undefined, mockUserId, undefined);
     });
 
     it("forwards the abort signal to save", async () => {
@@ -70,13 +74,13 @@ describe("SendApiService", () => {
       const saveSpy = jest.spyOn(service, "save").mockResolvedValue(send);
       const controller = new AbortController();
 
-      await service.saveView(view, null, undefined, controller.signal);
+      await service.saveView(view, null, undefined, controller.signal, mockUserId);
 
       expect(saveSpy).toHaveBeenCalledWith(
         [send, encBuffer],
         undefined,
+        mockUserId,
         controller.signal,
-        undefined,
       );
     });
   });
@@ -97,7 +101,7 @@ describe("SendApiService", () => {
       controller.abort();
 
       await expect(
-        service.save(fileSendData(), undefined, controller.signal),
+        service.save(fileSendData(), undefined, mockUserId, controller.signal),
       ).rejects.toMatchObject({ name: "AbortError" });
 
       expect(apiService.send).not.toHaveBeenCalled();
@@ -125,14 +129,14 @@ describe("SendApiService", () => {
 
       it("rolls back the created send and throws an AbortError instead of returning it", async () => {
         await expect(
-          service.save(fileSendData(), undefined, controller.signal),
+          service.save(fileSendData(), undefined, mockUserId, controller.signal),
         ).rejects.toMatchObject({ name: "AbortError" });
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           "/sends/server-id",
           null,
-          true,
+          mockUserId,
           false,
         );
       });
@@ -143,7 +147,7 @@ describe("SendApiService", () => {
         });
 
         await expect(
-          service.save(fileSendData(), undefined, controller.signal),
+          service.save(fileSendData(), undefined, mockUserId, controller.signal),
         ).resolves.toBeInstanceOf(Send);
 
         // Only the initial POST to create the send — no follow-up DELETE rollback call.
@@ -154,7 +158,7 @@ describe("SendApiService", () => {
         apiService.send.mockRejectedValueOnce(new Error("rollback failed"));
 
         await expect(
-          service.save(fileSendData(), undefined, controller.signal),
+          service.save(fileSendData(), undefined, mockUserId, controller.signal),
         ).rejects.toMatchObject({ name: "AbortError" });
 
         expect(logService.error).toHaveBeenCalledWith(

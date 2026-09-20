@@ -5,10 +5,10 @@ import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/reque
 import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class ImportApiServiceAbstraction {
-  postImportCiphers: (request: ImportCiphersRequest, userId?: UserId) => Promise<any>;
+  postImportCiphers: (request: ImportCiphersRequest, userId: UserId) => Promise<any>;
   postImportOrganizationCiphers: (
     organizationId: string,
     request: ImportOrganizationCiphersRequest,
-    userId?: UserId,
+    userId: UserId,
   ) => Promise<any>;
 }

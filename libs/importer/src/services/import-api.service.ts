@@ -8,20 +8,20 @@ import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 export class ImportApiService implements ImportApiServiceAbstraction {
   constructor(private apiService: ApiService) {}
 
-  async postImportCiphers(request: ImportCiphersRequest, userId?: UserId): Promise<any> {
-    return await this.apiService.send("POST", "/ciphers/import", request, userId ?? true, false);
+  async postImportCiphers(request: ImportCiphersRequest, userId: UserId): Promise<any> {
+    return await this.apiService.send("POST", "/ciphers/import", request, userId, false);
   }
 
   async postImportOrganizationCiphers(
     organizationId: string,
     request: ImportOrganizationCiphersRequest,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<any> {
     return await this.apiService.send(
       "POST",
       "/ciphers/import-organization?organizationId=" + organizationId,
       request,
-      userId ?? true,
+      userId,
       false,
     );
   }
