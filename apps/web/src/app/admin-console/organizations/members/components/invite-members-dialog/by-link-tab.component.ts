@@ -176,7 +176,8 @@ export class ByLinkTabComponent {
 
       if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
         this.tourStarted.set(true);
-        this.tourStep.set(1);
+        // HACK: wait until the dialog has settled, otherwise the popover can anchor to a stale rect and render out of place.
+        setTimeout(() => this.tourStep.set(1), 250);
       }
     });
 

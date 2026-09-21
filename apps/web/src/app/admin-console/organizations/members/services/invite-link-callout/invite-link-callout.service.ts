@@ -1,4 +1,5 @@
 import { inject, Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -12,7 +13,12 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { DialogService } from "@bitwarden/components";
 
+import {
+  InviteLinkCalloutDialogComponent,
+  InviteLinkCalloutDialogResult,
+} from "../../components/invite-link-callout-dialog/invite-link-callout-dialog.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 import { OrganizationMembersService } from "../organization-members-service/organization-members.service";
 
@@ -33,6 +39,8 @@ export class InviteLinkCalloutService {
   private memberDialogManager = inject(MemberDialogManagerService);
   private organizationMembersService = inject(OrganizationMembersService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
+  private dialogService = inject(DialogService);
+  private router = inject(Router);
 
   isDismissed$(orgId: OrganizationId): Observable<boolean> {
     return this.accountService.activeAccount$.pipe(
@@ -87,6 +95,17 @@ export class InviteLinkCalloutService {
     if (dismissed) {
       return;
     }
+
+    const dialogRef = InviteLinkCalloutDialogComponent.open(this.dialogService);
+    const closedWith = await firstValueFrom(dialogRef.closed);
+
+    await this.dismiss(organization.id);
+
+    if (closedWith !== InviteLinkCalloutDialogResult.ShowMeHow) {
+      return;
+    }
+
+    await this.router.navigate(["organizations", organization.id, "members"]);
 
     const billingMetadata = await firstValueFrom(
       this.organizationMetadataService.getOrganizationMetadata$(organization.id),

@@ -13,7 +13,10 @@
           ></ng-container>
         </bit-tab>
         <bit-tab [label]="'byLink' | i18n">
-          <app-by-link-tab [organizationId]="params.organizationId" />
+          <app-by-link-tab
+            [organizationId]="params.organizationId"
+            [showCoachMarks]="params.showCoachMarks ?? false"
+          />
         </bit-tab>
       </bit-tab-group>
     } @else {

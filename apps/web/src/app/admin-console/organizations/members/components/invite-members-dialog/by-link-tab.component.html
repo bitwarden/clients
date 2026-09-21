@@ -11,13 +11,7 @@
   </a>
 </p>
 
-<bit-form-field
-  class="tw-flex-1"
-  [bitPopoverAnchorFor]="tourStep1"
-  [popoverOpen]="tourStep() === 1"
-  [spotlight]="false"
-  [position]="'right-start'"
->
+<bit-form-field class="tw-flex-1">
   <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
   <input bitInput type="text" [formControl]="form.controls.domains" data-testid="allowedDomains" />
   <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
@@ -32,6 +26,10 @@
     tooltipPosition="left-center"
     slot="inline-end"
     data-testid="saveDomains"
+    [bitPopoverAnchorFor]="tourStep1"
+    [popoverOpen]="tourStep() === 1"
+    [spotlight]="false"
+    [position]="'right-center'"
   >
     {{ "save" | i18n }}
   </button>
