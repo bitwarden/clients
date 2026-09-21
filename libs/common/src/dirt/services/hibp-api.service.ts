@@ -15,4 +15,9 @@ export class HibpApiService {
     );
     return r.map((a: any) => new BreachAccountResponse(a));
   }
+
+  async getHibpRange(hashPrefix: string): Promise<string> {
+    const r = await this.apiService.send("GET", `/hibp/range/${hashPrefix}`, null, true, true);
+    return r;
+  }
 }

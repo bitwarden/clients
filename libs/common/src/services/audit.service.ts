@@ -4,13 +4,10 @@ import { mergeMap } from "rxjs/operators";
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
-import { ApiService } from "../abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "../abstractions/audit.service";
 import { BreachAccountResponse } from "../dirt/models/response/breach-account.response";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
 import { Utils } from "../platform/misc/utils";
-
-const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
 
 export class AuditService implements AuditServiceAbstraction {
   private passwordLeakedSubject = new Subject<{
@@ -21,7 +18,6 @@ export class AuditService implements AuditServiceAbstraction {
 
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
-    private apiService: ApiService,
     private hibpApiService: HibpApiService,
     private readonly maxConcurrent: number = 100, // default to 100, can be overridden
   ) {
@@ -61,12 +57,9 @@ export class AuditService implements AuditServiceAbstraction {
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 
-    const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers: { "Add-Padding": "true" },
-    });
-    const response = await this.apiService.nativeFetch(request);
-    const leakedHashes = await response.text();
-    const match = leakedHashes.split(/\r?\n/).find((v) => {
+    const response = await this.hibpApiService.getHibpRange(hashStart);
+
+    const match = response.split(/\r?\n/).find((v) => {
       return v.split(":")[0] === hashEnding;
     });
 
