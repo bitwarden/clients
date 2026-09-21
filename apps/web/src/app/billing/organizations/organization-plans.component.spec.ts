@@ -1393,7 +1393,7 @@ describe("OrganizationPlansComponent", () => {
       };
     }
 
-    it("uses the sponsored heading and 24px rhythm when accepting sponsorship with VFO1 on", async () => {
+    it("uses the sponsored heading and 24px section spacing when accepting sponsorship with VFO1 on", async () => {
       const r = await render(true);
 
       expect(r.heading).toBe("sponsoredPlanDetails");

@@ -29,10 +29,9 @@
     [class.tw-pt-2]="sponsoredPlanLayout()"
   >
     <bit-section
-      [ngClass]="{
-        'tw-hidden': !createOrganization(),
-        'tw-block tw-mb-6': sponsoredPlanLayout(),
-      }"
+      [class.tw-hidden]="!createOrganization()"
+      [class.tw-block]="sponsoredPlanLayout()"
+      [class.tw-mb-6]="sponsoredPlanLayout()"
       [disableMargin]="sponsoredPlanLayout()"
     >
       <app-org-info
@@ -46,7 +45,8 @@
     </bit-section>
     <bit-section
       [disableMargin]="sponsoredPlanLayout()"
-      [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+      [class.tw-block]="sponsoredPlanLayout()"
+      [class.tw-mb-6]="sponsoredPlanLayout()"
     >
       @if (acceptingSponsorship()) {
         <h2 bitTypography="h2">{{ "chooseYourPlan" | vfo1I18n: "sponsoredPlanDetails" }}</h2>
@@ -215,7 +215,8 @@
         ) {
           <bit-section
             [disableMargin]="sponsoredPlanLayout()"
-            [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+            [class.tw-block]="sponsoredPlanLayout()"
+            [class.tw-mb-6]="sponsoredPlanLayout()"
           >
             <h2 bitTypography="h2">{{ "users" | i18n }}</h2>
             <div class="tw-grid tw-grid-cols-12 tw-gap-4">
@@ -236,7 +237,8 @@
         @if (!upgradingFromPremium) {
           <bit-section
             [disableMargin]="sponsoredPlanLayout()"
-            [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+            [class.tw-block]="sponsoredPlanLayout()"
+            [class.tw-mb-6]="sponsoredPlanLayout()"
           >
             <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
             @if (plan.PasswordManager.hasAdditionalSeatsOption && plan.PasswordManager.baseSeats) {
@@ -297,7 +299,8 @@
         @if (!upgradingFromPremium) {
           <bit-section
             [disableMargin]="sponsoredPlanLayout()"
-            [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+            [class.tw-block]="sponsoredPlanLayout()"
+            [class.tw-mb-6]="sponsoredPlanLayout()"
           >
             <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
             <bit-radio-group formControlName="plan">
@@ -430,7 +433,8 @@
     @if (formGroup.value.productTier !== productTypes.Free) {
       <bit-section
         [disableMargin]="sponsoredPlanLayout()"
-        [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+        [class.tw-block]="sponsoredPlanLayout()"
+        [class.tw-mb-6]="sponsoredPlanLayout()"
       >
         <h2 bitTypography="h2">
           {{ (createOrganization() ? "paymentInformation" : "billingInformation") | i18n }}
@@ -459,7 +463,8 @@
     @if (singleOrgPolicyBlock) {
       <bit-section
         [disableMargin]="sponsoredPlanLayout()"
-        [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+        [class.tw-block]="sponsoredPlanLayout()"
+        [class.tw-mb-6]="sponsoredPlanLayout()"
       >
         <bit-callout type="danger" [title]="'error' | i18n">
           {{ "singleOrgBlockCreateMessage" | i18n }}
@@ -468,7 +473,8 @@
     }
     <bit-section
       [disableMargin]="sponsoredPlanLayout()"
-      [ngClass]="{ 'tw-block tw-mb-6': sponsoredPlanLayout() }"
+      [class.tw-block]="sponsoredPlanLayout()"
+      [class.tw-mb-6]="sponsoredPlanLayout()"
     >
       <button
         type="submit"
