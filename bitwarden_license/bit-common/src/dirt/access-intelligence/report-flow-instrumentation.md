@@ -45,15 +45,14 @@ probably was one, and the presence of save entries under it is how to tell.
 
 ### Generate
 
-| Measurement                                              | What it covers                                                                                               | Properties                                                                          |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `Generate: reused password check complete`               | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                         |
-| `Generate: ciphers mapped to members`                    | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
-| `Generate: password strength and breach checks complete` | Per cipher weak password scoring and the breach lookup fan out together, bounded by the concurrency limit    | `itemCount`, `concurrencyLimit`                                                     |
-| `Generate: health and reuse combined`                    | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                         |
-| `Generate: applications grouped`                         | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                      |
-| `Generate: previous metadata carried over`               | Building the report view, then merging the previous report's per application settings into it                | `applicationCount`, `previousApplicationCount`                                      |
-| `Generate: summary recomputed`                           | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
+| Measurement                                              | What it covers                                                                                                                                                                                                                                                                                                                    | Properties                                                                          |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `Generate: reused password check complete`               | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries. **Not currently emitted**: `checkCipherHealth` now derives reuse counts inline while building its health map, so `detectPasswordReuse` (and this measurement) has no production caller. Still exercised by its unit tests. | `itemCount`                                                                         |
+| `Generate: ciphers mapped to members`                    | Resolving which members can see each cipher through collections and groups, and building the member registry                                                                                                                                                                                                                      | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
+| `Generate: password strength and breach checks complete` | Per cipher weak password scoring and the breach lookup fan out together, one lookup per distinct password. Bounded by `AuditService`'s own shared limiter (100 in flight), not a limiter at this layer.                                                                                                                           | `itemCount` (distinct passwords), `cipherCount`                                     |
+| `Generate: applications grouped`                         | Grouping ciphers by URI into per application records, with their member and cipher references                                                                                                                                                                                                                                     | `itemCount`, `memberCount`, `applicationCount`                                      |
+| `Generate: previous metadata carried over`               | Building the report view, then merging the previous report's per application settings into it                                                                                                                                                                                                                                     | `applicationCount`, `previousApplicationCount`                                      |
+| `Generate: summary recomputed`                           | Recomputing every summary aggregate from the finished report                                                                                                                                                                                                                                                                      | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
 
 Reuse detection is measured despite producing no network traffic because it is a full pass over
 every cipher that allocates a map keyed by password, and because the combine step downstream
@@ -98,18 +97,18 @@ tells you which one you are reading.
 
 #### Counts
 
-| Property                   | Counts                                                                    |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `itemCount`                | Ciphers the step worked on                                                |
-| `passwordCount`            | Cipher references, summed across applications                             |
-| `orgMemberCount`           | Members the organization returned                                         |
-| `mappedMemberCount`        | Members resolving to at least one cipher                                  |
-| `memberCount`              | Members in the report's member registry                                   |
-| `applicationCount`         | Application records in the report, one per URI grouping                   |
-| `previousApplicationCount` | Application settings the previous report supplied                         |
-| `collectionCount`          | Collections returned for the organization, with access details            |
-| `groupCount`               | Groups with at least one member, derived from the member response         |
-| `concurrencyLimit`         | Breach lookups allowed in flight at once. A source constant, not measured |
+| Property                   | Counts                                                                                                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `itemCount`                | Ciphers the step worked on. **Exception:** on `Generate: password strength and breach checks complete` this is the distinct-password group count, since that step's unit of work is one lookup per distinct password. Use that step's `cipherCount` for the cipher total. |
+| `cipherCount`              | Ciphers behind the distinct-password groups a step worked on (only emitted by the breach-check step)                                                                                                                                                                      |
+| `passwordCount`            | Cipher references, summed across applications                                                                                                                                                                                                                             |
+| `orgMemberCount`           | Members the organization returned                                                                                                                                                                                                                                         |
+| `mappedMemberCount`        | Members resolving to at least one cipher                                                                                                                                                                                                                                  |
+| `memberCount`              | Members in the report's member registry                                                                                                                                                                                                                                   |
+| `applicationCount`         | Application records in the report, one per URI grouping                                                                                                                                                                                                                   |
+| `previousApplicationCount` | Application settings the previous report supplied                                                                                                                                                                                                                         |
+| `collectionCount`          | Collections returned for the organization, with access details                                                                                                                                                                                                            |
+| `groupCount`               | Groups with at least one member, derived from the member response                                                                                                                                                                                                         |
 
 Three of these count members, and they narrow in that order:
 `memberCount` ≤ `mappedMemberCount` ≤ `orgMemberCount`. Resolution drops members with no collection
@@ -278,12 +277,11 @@ recorder attached, and this repository has no analytics or telemetry sink.
 Collection, aggregation and reporting are explicitly out of scope. This instrumentation provides
 the raw measurement capability; consuming it is a developer workflow concern.
 
-Properties are limited to three kinds of value:
+Properties are limited to two kinds of value:
 
 - **Cardinality.** How many ciphers, members, applications, collections or groups took part in a
   step.
 - **Artifact size.** Byte and character lengths of the serialized and encrypted report artifacts.
-- **Code constants.** `concurrencyLimit` is a literal read from the source.
 
 Nothing derived from vault content is recorded. Specifically absent, and deliberately so:
 application names and hostnames, cipher identifiers, member identifiers, email addresses,
@@ -321,6 +319,6 @@ measurements. This gap closes when the inline path is removed.
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-09-11
+**Document Version:** 1.1
+**Last Updated:** 2026-09-21
 **Maintainer:** DIRT Team

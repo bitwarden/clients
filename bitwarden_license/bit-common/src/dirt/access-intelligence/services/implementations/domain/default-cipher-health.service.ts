@@ -1,4 +1,4 @@
-import { catchError, from, map, mergeMap, Observable, of, tap, toArray } from "rxjs";
+import { catchError, from, map, mergeMap, Observable, of, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -49,21 +49,10 @@ export class DefaultCipherHealthService extends CipherHealthService {
     // password each cipher maps back to. Reuse is the premise of the report, so grouping first
     // means the number of lookups tracks distinct passwords rather than cipher count.
     const ciphersByPassword = this.groupByPassword(validCiphers);
-    const passwords = Array.from(ciphersByPassword.keys());
 
-    const startedAt = performance.now();
-    this.logService.debug(
-      `[Cipher Health Perf] exposure lookups start: ciphers=${validCiphers.length} distinctPasswords=${passwords.length} (saved ${validCiphers.length - passwords.length} lookups)`,
-    );
-
-    return from(ciphersByPassword.entries()).pipe(
+    return from(Array.from(ciphersByPassword.entries())).pipe(
       mergeMap(([password, cipherGroup]) => this.analyzeGroup(password, cipherGroup)),
       toArray(),
-      tap(() =>
-        this.logService.debug(
-          `[Cipher Health Perf] exposure lookups done: ${Math.round(performance.now() - startedAt)}ms`,
-        ),
-      ),
       measureFlowStep(
         this.logService,
         "Generate: password strength and breach checks complete",

@@ -50,10 +50,6 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       groupCount: groupMemberships.length,
     });
 
-    const startedAt = performance.now();
-    const elapsedMs = () => Math.round(performance.now() - startedAt);
-    let pipelineAtMs = 0;
-
     return this.runHealthAndMappingPipeline(
       ciphers,
       members,
@@ -62,10 +58,6 @@ export class DefaultReportGenerationService extends ReportGenerationService {
     ).pipe(
       map(({ ciphers: processedCiphers, healthMap, memberMapping, registry }) => {
         const measureStep = flowTimer(this.logService);
-        pipelineAtMs = elapsedMs();
-        this.logService.debug(
-          `[Cipher Health Perf] health + member mapping done: ${pipelineAtMs}ms (includes all HIBP lookups)`,
-        );
 
         const reports = this.aggregateIntoReports(processedCiphers, healthMap, memberMapping);
         measureStep("Generate: applications grouped", [
@@ -98,11 +90,6 @@ export class DefaultReportGenerationService extends ReportGenerationService {
           ["memberCount", view.summary.totalMemberCount],
           ["applicationCount", view.summary.totalApplicationCount],
         ]);
-
-        // Everything since the pipeline is synchronous, so this is main-thread blocking time.
-        this.logService.debug(
-          `[Cipher Health Perf] aggregate + summarize done: ${elapsedMs() - pipelineAtMs}ms (blocking, apps=${reports.length})`,
-        );
 
         return view;
       }),

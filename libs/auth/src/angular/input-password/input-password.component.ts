@@ -474,8 +474,10 @@ export class InputPasswordComponent implements OnInit {
     checkForBreaches: boolean,
   ): Promise<boolean> {
     // Check if the password is breached, weak, or both
+    // A lookup failure (e.g. HIBP is down) is treated as unknown, not breached: this check is
+    // advisory, and blocking password changes on an outage is worse than skipping the warning.
     const passwordIsBreached =
-      checkForBreaches && (await this.auditService.passwordLeaked(newPassword)) > 0;
+      checkForBreaches && (await this.auditService.passwordLeaked(newPassword).catch(() => 0)) > 0;
 
     const passwordIsWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
 
