@@ -5,7 +5,12 @@
   drawer swaps between Sends. Scoped here rather than in the component library so interactive
   fields elsewhere keep their transition.
 -->
-<form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
+<form
+  [id]="formId()"
+  [formGroup]="sendFormService.sendForm()"
+  [bitSubmit]="submit"
+  [class]="editing() ? '' : '[&_[bitfieldcontainer]]:!tw-transition-none'"
+>
   @if (!loading) {
     @if (!sendDisabled() && !editing()) {
       <bit-card>
