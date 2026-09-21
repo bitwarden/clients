@@ -18,8 +18,8 @@ import { DefaultOrganizationInviteLinkService } from "./default-organization-inv
 const mockUserId = "user-1" as UserId;
 const mockOrgId = "12345678-1234-1234-1234-123456789012" as OrganizationId;
 const webVaultUrl = "https://vault.bitwarden.com";
-const urlFragment = "/#/join/org/code?key=secret";
-const expectedUrl = `${webVaultUrl}${urlFragment}`;
+const urlFragment = "#/join/org/code?key=secret";
+const expectedUrl = `${webVaultUrl}/${urlFragment}`;
 
 function makeSdkView(
   overrides: Partial<SdkOrganizationInviteLinkView> = {},
