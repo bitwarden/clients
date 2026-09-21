@@ -167,7 +167,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
 
-  /** 24px section rhythm, only when hosted in the sponsorship flow with VFO1 on. */
+  /**
+   * Tightens the spacing between sections to 24px, replacing the default `bit-section` margin.
+   * Only applies when the component is hosted in the sponsorship flow with VFO1 on.
+   */
   protected readonly sponsoredPlanLayout = computed(
     () => this.acceptingSponsorship() && this.vfo1Enabled(),
   );
