@@ -1,22 +1,27 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   computed,
   contentChildren,
   effect,
   inject,
+  model,
+  signal,
+  untracked,
   viewChild,
   viewChildren,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
 import { ChipComponent } from "../../chips";
-import { DialogService } from "../../dialog";
+import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
   FilterDialogParams,
@@ -66,6 +71,17 @@ import { BitTableV2Component } from "./table-v2.component";
 })
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Whether the collapsed filter dialog is open. A model so a consumer can persist the state —
+   * the browser popup is torn down on close and reopens the dialog from its view cache.
+   */
+  readonly filterDialogOpen = model(false);
+
+  private readonly dialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
+    undefined,
+  );
 
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
@@ -116,6 +132,9 @@ export class BitTableToolbarComponent {
     const list = this.overflowList();
     return (list?.ready() && list.overflow().length > 0) ?? false;
   });
+
+  /** Whether the collapsed trigger renders: the single button that stands in for the chip row. */
+  protected readonly showFilterTrigger = computed(() => this.collapsed() && this.hasFilters());
 
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
@@ -220,6 +239,19 @@ export class BitTableToolbarComponent {
       this.countDigits();
       this.overflowList()?.remeasure();
     });
+
+    // Reconcile the model against the dialog, in both directions.
+    effect(() => {
+      const open = this.filterDialogOpen() && this.showFilterTrigger();
+      untracked(() => {
+        const ref = this.dialogRef();
+        if (open && !ref) {
+          this.showFilterDialog();
+        } else if (!open && ref) {
+          void ref.close();
+        }
+      });
+    });
   }
 
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
@@ -242,10 +274,27 @@ export class BitTableToolbarComponent {
   /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
-  /** Opens the projected filters in a dialog (a bottom sheet on small screens). */
+  /** The trigger's click: the effect above turns this into an open dialog. */
   protected openFilterDialog(): void {
-    this.dialogService.open<unknown, FilterDialogParams>(FilterDialogComponent, {
-      data: { filters: this.filters() },
+    this.filterDialogOpen.set(true);
+  }
+
+  /**
+   * Opens the dialog, handing it the live `filters` signal rather than a snapshot — a consumer
+   * restoring `filterDialogOpen` on load opens ahead of chips whose options arrive async.
+   */
+  private showFilterDialog(): void {
+    const ref = this.dialogService.open<unknown, FilterDialogParams, FilterDialogComponent>(
+      FilterDialogComponent,
+      { data: { filters: this.filters } },
+    );
+    this.dialogRef.set(ref);
+
+    // `takeUntilDestroyed` matters for the persisting consumer: views are destroyed before root
+    // providers, so `CdkDialog`'s own teardown can't write a spurious `false` back out.
+    ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.dialogRef.set(undefined);
+      this.filterDialogOpen.set(false);
     });
   }
 

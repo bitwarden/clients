@@ -46,7 +46,10 @@ describe("FilterDialogComponent", () => {
               filtersSelected: (count?: string) => `${count} selected`,
             }),
         },
-        { provide: DIALOG_DATA, useValue: { filters } satisfies FilterDialogParams },
+        {
+          provide: DIALOG_DATA,
+          useValue: { filters: signal(filters) } satisfies FilterDialogParams,
+        },
       ],
     }).compileComponents();
 

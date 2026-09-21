@@ -19,6 +19,7 @@ import { RouterLink } from "@angular/router";
 import { distinctUntilChanged, filter, map, skip, Subject, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { DeactivatedOrg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -302,6 +303,16 @@ export class VaultPopupListTableComponent {
    * Cached filter state to seed the table's chips on load.
    */
   protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
+
+  /**
+   * Whether the toolbar's filter dialog is open. Cached because closing the popup tears the dialog
+   * down with the rest of the app, and reopening should leave the user where they were.
+   */
+  protected readonly filterDialogOpen = inject(ViewCacheService).signal<boolean>({
+    key: "vault-filter-dialog-open",
+    initialValue: false,
+    persistNavigation: true,
+  });
 
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],
