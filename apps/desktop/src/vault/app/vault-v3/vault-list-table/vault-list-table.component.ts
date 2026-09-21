@@ -1,21 +1,30 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { switchMap, take } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CalloutComponent, LinkModule } from "@bitwarden/components";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { ButtonModule, CalloutComponent, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  copyPresentation$,
+  DEFAULT_COPY_PRESENTATION,
   NewCipherMenuComponent,
-  VaultBatchBarService,
   VaultItemsTableComponent,
-  VaultItemsTableFilters,
   VaultItemsTableRowAction,
+  VaultScope,
+  VaultScopeType,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "../vault-items/vault-item-event";
@@ -25,6 +34,7 @@ import { VaultItemEvent } from "../vault-items/vault-item-event";
   templateUrl: "./vault-list-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ButtonModule,
     CalloutComponent,
     I18nPipe,
     LinkModule,
@@ -36,31 +46,57 @@ import { VaultItemEvent } from "../vault-items/vault-item-event";
   },
 })
 export class VaultListTableComponent<C extends CipherViewLike> {
+  private readonly accountService = inject(AccountService);
+  private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
-  private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
-    optional: true,
-  });
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getOptionalUserId);
+
+  private readonly subscriptionEndedMessaging = toSignal(
+    this.userId$.pipe(
+      filterOutNullish(),
+      switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+      take(1),
+    ),
+    { initialValue: false },
+  );
 
   readonly ciphers = input.required<C[]>();
   readonly folders = input<FolderView[]>([]);
   readonly collections = input<CollectionView[]>([]);
+  readonly allCollections = input<CollectionView[]>([]);
+  readonly scopedOrganizationId = input<OrganizationId | undefined>();
+  readonly defaultCollectionId = input<string | undefined>();
   readonly organizations = input<Organization[]>([]);
+  readonly orgRequiresDataOwnership = input<boolean>(false);
   readonly loading = input<boolean>(false);
-  readonly showPremiumCallout = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
   readonly showAddCipherBtn = input<boolean>(true);
-  readonly initialSearchText = input<string | undefined>(undefined);
+
+  /** The vault scope — relayed to `vault-items-table` untouched. */
+  readonly scope = input<VaultScope>();
+
+  /** The organization the current vault scope names — relayed to `vault-items-table` untouched. */
+  readonly organizationName = input<string>();
+
+  /**
+   * The shared folder the current vault scope has drilled into — relayed to `vault-items-table`
+   * untouched.
+   */
+  readonly sharedFolderName = input<string>();
+
+  /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
+  readonly hasMultipleVaults = input(false);
 
   readonly onEvent = output<VaultItemEvent<C>>();
   readonly onAddCipher = output<CipherType>();
   readonly onAddFolder = output<void>();
   readonly onAddItemDialog = output<void>();
+  readonly onImport = output<void>();
 
-  protected readonly initialFilterValues = computed<Partial<VaultItemsTableFilters>>(() => {
-    const search = this.initialSearchText();
-    return search ? { search } : {};
-  });
+  protected readonly showPremiumCallout = computed(
+    () => this.scope()?.type === VaultScopeType.Archive && this.subscriptionEndedMessaging(),
+  );
 
   private readonly cipherRowMenuHandlers = computed<CipherRowMenuHandlers<C>>(() => ({
     edit: (item) => this.onEvent.emit({ type: "editCipher", item }),
@@ -69,20 +105,16 @@ export class VaultListTableComponent<C extends CipherViewLike> {
       this.onEvent.emit({ type: "assignToCollections", items: [item] }),
   }));
 
+  protected readonly copyPresentation = toSignal(copyPresentation$(), {
+    initialValue: DEFAULT_COPY_PRESENTATION,
+  });
+
   protected readonly rowActions = computed<VaultItemsTableRowAction<C>[]>(() =>
-    this.cipherRowMenuService.getRowActions<C>(this.collections(), this.cipherRowMenuHandlers()),
+    this.cipherRowMenuService.getRowActions<C>(this.allCollections(), this.cipherRowMenuHandlers()),
   );
 
   protected readonly itemAction = (item: C): void =>
     this.onEvent.emit({ type: "viewCipher", item });
-
-  protected handleSelectionChange(items: readonly C[]): void {
-    if (!this.batchBarService) {
-      return;
-    }
-    this.batchBarService.selection.clear();
-    this.batchBarService.selection.select(...items.map((cipher) => ({ cipher })));
-  }
 
   async navigateToGetPremium(): Promise<void> {
     await this.premiumUpgradePromptService.promptForPremium();

@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, Observable } from "rxjs";
 
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { DynamicAvatarComponent } from "../../components/dynamic-avatar.component";
 import { SharedModule } from "../../shared";
@@ -20,6 +21,12 @@ import { SharedModule } from "../../shared";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountMenuComponent {
+  /**
+   * Shows the name and email next to the avatar. Used by the side-nav footer trigger when the
+   * nav is expanded; the header trigger leaves this off and stays icon-only.
+   */
+  readonly expanded = input(false);
+
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly accountService = inject(AccountService);
@@ -37,7 +44,7 @@ export class AccountMenuComponent {
   protected async lock() {
     const userId = this.account()?.id;
     if (userId) {
-      await this.lockService.lock(userId);
+      await this.lockService.lock(userId, LockSource.Manual);
     }
   }
 

@@ -1,10 +1,8 @@
-import { CredentialKind } from "./credential-kind";
 import { SdkImporterRegistry } from "./sdk-importer-registry";
 import { SdkVaultImporter } from "./sdk-vault-importer";
 
 describe("SdkImporterRegistry", () => {
   const stubImporter = (): SdkVaultImporter => ({
-    credentialKind: CredentialKind.none,
     import: jest.fn(),
   });
 

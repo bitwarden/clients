@@ -8,6 +8,8 @@ import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-cons
 export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefinition {
   name = "blockClaimedDomainAccountCreation";
   description = "blockClaimedDomainAccountCreationDescV2";
+  descriptionVfo1 = "blockClaimedDomainAccountCreationDescVfo1";
+  drawerDescriptionVfo1 = "blockClaimedDomainAccountCreationDescV2Vfo1";
   type = PolicyType.BlockClaimedDomainAccountCreation;
   category = PolicyCategory.Authentication;
   priority = 60;

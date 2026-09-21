@@ -58,6 +58,7 @@ export function InlineMenuPasswordGenerator({
           <button
             type="button"
             data-fill-generated-password
+            tabindex="-1"
             class=${fillButtonStyles}
             aria-label=${headingText}
             @click=${onFill}
@@ -74,6 +75,7 @@ export function InlineMenuPasswordGenerator({
           <button
             type="button"
             data-refresh-generated-password
+            tabindex="-1"
             class=${refreshButtonStyles(theme)}
             aria-label=${i18n.regeneratePassword}
             @click=${onRefresh}
@@ -175,7 +177,6 @@ const keyIconStyles = css`
 `;
 
 const contentStyles = css`
-  min-width: 0;
   text-align: left;
 `;
 
@@ -184,6 +185,7 @@ const headingStyles = (theme: Theme) => css`
 
   margin-bottom: 1px;
   color: ${themes[theme].text.main};
+  white-space: nowrap;
 `;
 
 const refreshButtonStyles = (theme: Theme) => css`

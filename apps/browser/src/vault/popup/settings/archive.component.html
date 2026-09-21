@@ -106,15 +106,22 @@
           }
         </bit-item-group>
       </bit-section>
+    } @else if (vfo1Enabled()) {
+      <vault-empty-vault
+        class="tw-flex tw-h-full tw-items-center tw-justify-center"
+        [hasItems]="false"
+        [scope]="archiveScope"
+      ></vault-empty-vault>
     } @else {
-      <bit-no-items class="tw-flex tw-h-full tw-items-center tw-justify-center">
+      <bit-status-lockup class="tw-flex tw-h-full tw-items-center tw-justify-center">
+        <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
         <ng-container slot="title">
           {{ "noItemsInArchive" | i18n }}
         </ng-container>
         <ng-container slot="description">
           {{ "noItemsInArchiveDesc" | i18n }}
         </ng-container>
-      </bit-no-items>
+      </bit-status-lockup>
     }
   }
 </popup-page>

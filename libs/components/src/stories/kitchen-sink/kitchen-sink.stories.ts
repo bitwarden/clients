@@ -4,11 +4,11 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import {
   userEvent,
-  getAllByRole,
   getByRole,
   queryByRole,
   fireEvent,
   getAllByLabelText,
+  findByTestId,
 } from "storybook/test";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -92,6 +92,8 @@ export default {
               sideNavigation: "Side navigation",
               skipLink: "Skip link",
               more: "More",
+              showMore: "Show more",
+              showMoreCount: "Show 5 more",
             });
           },
         },
@@ -142,12 +144,41 @@ export const DefaultVfo1: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
+export const DefaultNoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
+export const DefaultVfo1NoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
 export const MenuOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
     const table = getByRole(canvas, "table");
-    const menuButton = getAllByRole(table, "button")[0];
+    const menuButton = getAllByLabelText(table, "Options")[0];
     await userEvent.click(menuButton);
   },
   parameters: {

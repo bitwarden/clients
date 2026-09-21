@@ -113,7 +113,41 @@ module.exports.buildConfig = function buildConfig(params) {
       new CopyWebpackPlugin({
         patterns: [
           path.resolve(__dirname, "src/package.json"),
-          { from: path.resolve(__dirname, "src/images"), to: "images" },
+          // For beta builds (CHANNEL=beta), *_beta.{png,ico} variants overwrite their
+          // default siblings so the runtime tray/window icons resolve to beta assets
+          // without any code changes. Non-beta builds filter *_beta.* out entirely.
+          {
+            from: path.resolve(__dirname, "src/images"),
+            to: "images",
+            filter: (resourcePath) =>
+              !/_beta\.(png|ico)$/.test(resourcePath) && !/_dev\.png$/.test(resourcePath),
+          },
+          // Development builds ship the DEV-badged icon so a client running from
+          // source is distinguishable in the dock and taskbar.
+          ...(NODE_ENV === "development"
+            ? [
+                {
+                  context: path.resolve(__dirname, "src/images"),
+                  from: "*_dev.png",
+                  to: "images",
+                },
+              ]
+            : []),
+          ...(process.env.CHANNEL === "beta"
+            ? [
+                {
+                  context: path.resolve(__dirname, "src/images"),
+                  from: "*_beta.{png,ico}",
+                  to({ absoluteFilename }) {
+                    return path.join(
+                      "images",
+                      path.basename(absoluteFilename).replace("_beta", ""),
+                    );
+                  },
+                  force: true,
+                },
+              ]
+            : []),
           { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         ],
       }),

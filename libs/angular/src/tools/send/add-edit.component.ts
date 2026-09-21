@@ -9,9 +9,9 @@ import {
   takeUntil,
   map,
   BehaviorSubject,
-  concatMap,
   switchMap,
   tap,
+  combineLatest,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,6 +29,7 @@ import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -147,6 +148,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected accountService: AccountService,
     protected toastService: ToastService,
     protected premiumUpgradePromptService: PremiumUpgradePromptService,
+    protected sendDecryptionService: SendDecryptionService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -267,20 +269,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.accountService.activeAccount$
+        combineLatest([
+          this.accountService.activeAccount$.pipe(getUserId),
+          this.sendService.get$(this.sendId),
+        ])
           .pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.sendService
-                .get$(this.sendId)
-                .pipe(
-                  concatMap((s) =>
-                    s instanceof Send
-                      ? s.decrypt(userId)
-                      : Promise.reject(new Error("Failed to load send.")),
-                  ),
-                ),
-            ),
+            switchMap(([userId, send]) => {
+              if (send instanceof Send) {
+                return this.sendDecryptionService.decryptSend(send, userId);
+              }
+              return Promise.reject(new Error("Failed to load send."));
+            }),
             takeUntil(this.destroy$),
           )
           .subscribe(send);

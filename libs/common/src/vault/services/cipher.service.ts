@@ -827,20 +827,21 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async createWithServerLegacy(
-    { cipher, encryptedFor }: EncryptionContext,
+    context: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
+    const { cipher } = context;
     let response: CipherResponse;
     if (orgAdmin && cipher.organizationId != null) {
-      const request = new CipherCreateRequest({ cipher, encryptedFor });
+      const request = new CipherCreateRequest(context);
       response = await this.apiService.postCipherAdmin(request);
       const data = new CipherData(response, cipher.collectionIds);
       return new Cipher(data);
     } else if (cipher.collectionIds != null && cipher.collectionIds.length > 0) {
-      const request = new CipherCreateRequest({ cipher, encryptedFor });
+      const request = new CipherCreateRequest(context);
       response = await this.apiService.postCipherCreate(request);
     } else {
-      const request = new CipherRequest({ cipher, encryptedFor });
+      const request = new CipherRequest(context);
       response = await this.apiService.postCipher(request);
     }
 
@@ -891,18 +892,16 @@ export class CipherService implements CipherServiceAbstraction {
     return resultCipherView;
   }
 
-  async updateWithServerLegacy(
-    { cipher, encryptedFor }: EncryptionContext,
-    orgAdmin?: boolean,
-  ): Promise<Cipher> {
+  async updateWithServerLegacy(context: EncryptionContext, orgAdmin?: boolean): Promise<Cipher> {
+    const { cipher } = context;
     let response: CipherResponse;
     if (orgAdmin) {
-      const request = new CipherRequest({ cipher, encryptedFor });
+      const request = new CipherRequest(context);
       response = await this.apiService.putCipherAdmin(cipher.id, request);
       const data = new CipherData(response, cipher.collectionIds);
       return new Cipher(data, cipher.localData);
     } else if (cipher.edit) {
-      const request = new CipherRequest({ cipher, encryptedFor });
+      const request = new CipherRequest(context);
       response = await this.apiService.putCipher(cipher.id, request);
     } else {
       const request = new CipherPartialRequest(cipher);

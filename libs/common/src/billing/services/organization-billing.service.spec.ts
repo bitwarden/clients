@@ -2,7 +2,12 @@ import { mock } from "jest-mock-extended";
 
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -10,11 +15,8 @@ import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
 import {

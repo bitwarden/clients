@@ -27,6 +27,7 @@
       "@bitwarden/auth/common": ["./libs/auth/src/common"],
       "@bitwarden/auto-confirm": ["./libs/auto-confirm/src/index.ts"],
       "@bitwarden/auto-confirm/angular": ["./libs/auto-confirm/src/angular"],
+      "@bitwarden/automation-driver": ["./libs/automation-driver/src/index.ts"],
       "@bitwarden/billing": ["./libs/billing/src"],
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
       "@bitwarden/browser/*": ["./apps/browser/src/*"],
@@ -78,7 +79,9 @@
       "@bitwarden/vault-export-ui": ["./libs/tools/export-vault-ui/src"],
       "@bitwarden/web-vault/*": ["./apps/web/src/*"],
       "@bitwarden/pam": ["./libs/pam/src/index.ts"],
-      "@bitwarden/storybook": ["./libs/storybook/src/index.ts"]
+      "@bitwarden/storybook": ["./libs/storybook/src/index.ts"],
+      "@bitwarden/managed-settings": ["./libs/managed-settings/src/index.ts"],
+      "@bitwarden/tools-share": ["./libs/tools/share/src/index.ts"]
     },
     "plugins": [
       {

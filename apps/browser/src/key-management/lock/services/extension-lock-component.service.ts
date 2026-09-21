@@ -1,11 +1,10 @@
-import { combineLatest, defer, filter, switchMap, map, Observable } from "rxjs";
+import { combineLatest, defer, switchMap, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
@@ -23,7 +22,6 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
-import { SHARED_UNLOCK_EXTERNAL } from "../../shared-unlock-messages";
 
 export class ExtensionLockComponentService implements LockComponentService {
   constructor(
@@ -35,7 +33,6 @@ export class ExtensionLockComponentService implements LockComponentService {
     private readonly webAuthnPrfUnlockService: WebAuthnPrfUnlockService,
     private readonly sharedUnlockSettingsService: SharedUnlockSettingsService,
     private readonly configService: ConfigService,
-    private readonly messageListener: MessageListener,
   ) {}
 
   getPreviousUrl(): string | null {
@@ -62,13 +59,6 @@ export class ExtensionLockComponentService implements LockComponentService {
     return "unlockWithBiometrics";
   }
 
-  getExternalUnlock$(userId: UserId): Observable<void> {
-    return this.messageListener.messages$(SHARED_UNLOCK_EXTERNAL).pipe(
-      filter((msg) => msg.userId === userId),
-      map((): void => undefined),
-    );
-  }
-
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
       combineLatest([
@@ -80,13 +70,13 @@ export class ExtensionLockComponentService implements LockComponentService {
       ]).pipe(
         switchMap(
           async ([
-            sharedUnlockFeatureFlag,
+            sharedUnlockFeatureEnabled,
             allowSharingWithDesktop,
             unlockSharingDisabled,
             biometricUnlockEnabled,
           ]) =>
             biometricUnlockEnabled ||
-            (sharedUnlockFeatureFlag && allowSharingWithDesktop && !unlockSharingDisabled)
+            (sharedUnlockFeatureEnabled && allowSharingWithDesktop && !unlockSharingDisabled)
               ? await this.biometricsService.getBiometricsStatusForUser(userId)
               : BiometricsStatus.NotEnabledLocally,
         ),

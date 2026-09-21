@@ -157,6 +157,39 @@
           </bit-form-control>
         }
 
+        @if (showEnableAutotypeGa()) {
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="enableAutotypeGa"
+              (change)="saveEnableAutotypeGa()"
+            />
+            <bit-label>
+              <span class="tw-flex tw-items-center tw-gap-2">
+                {{ "enableAutotypeGaShortcut" | i18n }}
+                <code>{{ form.value.autotypeGaShortcut }}</code>
+                <app-premium-badge />
+              </span>
+            </bit-label>
+            @if (form.value.enableAutotypeGa) {
+              <bit-hint>
+                <b>{{ "important" | i18n }}</b>
+                {{ "enableAutotypeShortcutDescription" | i18n }}
+                <a
+                  class="tw-cursor-pointer"
+                  bitLink
+                  tabindex="0"
+                  (click)="saveAutotypeGaShortcut(); $event.preventDefault()"
+                  (keydown.enter)="saveAutotypeGaShortcut(); $event.preventDefault()"
+                >
+                  {{ "editShortcut" | i18n }}
+                </a>
+              </bit-hint>
+            }
+          </bit-form-control>
+        }
+
         <bit-form-control>
           <input
             type="checkbox"
@@ -213,6 +246,21 @@
             />
             <bit-label>{{ "enableDuckDuckGoBrowserIntegration" | i18n }}</bit-label>
             <bit-hint>{{ "enableDuckDuckGoBrowserIntegrationDesc" | i18n }}</bit-hint>
+          </bit-form-control>
+        }
+
+        @if (showQuickCopyActionsSetting()) {
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="showQuickCopyActions"
+              (change)="saveQuickCopyActions()"
+            />
+            <bit-label>
+              {{ "showQuickCopyActionsInVault" | i18n }}
+              <show-quick-copy-actions-details-popover slot="end" />
+            </bit-label>
           </bit-form-control>
         }
 

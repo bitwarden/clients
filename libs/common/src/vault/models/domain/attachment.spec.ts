@@ -118,7 +118,7 @@ describe("Attachment", () => {
 
         await attachment.decrypt(providedKey, "");
 
-        expect(keyService.getUserKey).not.toHaveBeenCalled();
+        expect(keyService.userKey$).not.toHaveBeenCalled();
         expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
       });
     });

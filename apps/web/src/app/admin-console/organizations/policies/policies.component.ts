@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -20,28 +20,43 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
+  BreadcrumbsModule,
   DialogRef,
   DialogService,
   ItemModule,
   SectionHeaderComponent,
 } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import {
+  BasePolicyEditDefinition,
+  PolicyDialogComponent,
+  policyTitleKeys,
+  policyDescriptionKeys,
+} from "./base-policy-edit.component";
 import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    SectionHeaderComponent,
+    ItemModule,
+    BreadcrumbsModule,
+    Vfo1I18nPipe,
+  ],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -58,6 +73,15 @@ export class PoliciesComponent {
   protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
     map((params) => params.organizationId),
   );
+
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected readonly orgId = toSignal(this.organizationId$, {
+    initialValue: "" as OrganizationId,
+  });
 
   protected readonly organization$: Observable<Organization> = combineLatest([
     this.userId$,
@@ -105,6 +129,9 @@ export class PoliciesComponent {
         return policiesEnabledMap;
       }),
     );
+
+  protected readonly nameKeys = policyTitleKeys;
+  protected readonly descriptionKeys = policyDescriptionKeys;
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>
