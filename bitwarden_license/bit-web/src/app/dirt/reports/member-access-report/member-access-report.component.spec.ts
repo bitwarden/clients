@@ -3,7 +3,7 @@ import { EnvironmentProviders, NO_ERRORS_SCHEMA, Provider, signal } from "@angul
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter, Route, ROUTES, Routes } from "@angular/router";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -58,8 +58,6 @@ import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-consol
 import { MemberDialogResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog/member-dialog.types";
 import { DeleteManagedMemberWarningService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services";
 
-import { OrganizationsRoutingModule } from "../../../admin-console/organizations/organizations-routing.module";
-
 import { MemberAccessReportComponent } from "./member-access-report.component";
 import { MemberAccessReportService } from "./services/member-access-report.service";
 import { MemberAccessReportView } from "./view/member-access-report.view";
@@ -67,38 +65,6 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 const ORGANIZATION_ID = "org-id" as OrganizationId;
 const ORGANIZATION_USER_ID = "org-user-id" as Guid;
 const USER_ID = "user-id" as UserId;
-
-/**
- * Reads the `providers` off the real `member-access-report` route instead of restating them, by
- * asking the routing module for the `ROUTES` it contributes. If the providers are removed, or moved
- * somewhere that is not an environment injector (e.g. onto the component decorator, where the
- * dialog's injector chain cannot see them), this test loses them and fails — which is the
- * regression it exists to catch.
- */
-function memberAccessReportRouteProviders(): Provider[] {
-  TestBed.configureTestingModule({ imports: [OrganizationsRoutingModule] });
-  const routes = TestBed.inject(ROUTES).flat();
-  TestBed.resetTestingModule();
-
-  const find = (candidates: Routes): Route | undefined => {
-    for (const route of candidates) {
-      if (route.path === "member-access-report") {
-        return route;
-      }
-      const match = route.children && find(route.children);
-      if (match) {
-        return match;
-      }
-    }
-    return undefined;
-  };
-
-  const route = find(routes);
-  if (route == undefined) {
-    throw new Error('No route found for path "member-access-report"');
-  }
-  return (route.providers ?? []) as Provider[];
-}
 
 function buildRow(): MemberAccessReportView {
   return {
@@ -120,7 +86,9 @@ function buildRow(): MemberAccessReportView {
  * imported at bootstrap.
  *
  * MemberActionsService, MemberDialogManagerService and BillingConstraintService are deliberately
- * absent: they are the subject of this test, so the route's `providers` must be their only source.
+ * absent: they are the subject of this test. All three are `providedIn: "root"`, so TestBed
+ * resolves them for real. Scoping any of them to an NgModule or to a component's `providers`
+ * again puts it outside the injector chain the dialog resolves against, and this test fails.
  */
 function environmentProviders(): (Provider | EnvironmentProviders)[] {
   const accountService = mock<AccountService>();
@@ -189,10 +157,9 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
     { provide: AccountService, useValue: accountService },
     { provide: OrganizationService, useValue: organizationService },
     { provide: CollectionAdminService, useValue: collectionAdminService },
-    // UserAdminService is deliberately NOT mocked here. It is
-    // `@Injectable({ providedIn: CoreOrganizationModule })`, and the report component lists
-    // CoreOrganizationModule in its own `imports`. Letting it resolve for real means this test also
-    // fails if that import is ever tidied away as unused — mocking it would hide that.
+    // UserAdminService is deliberately NOT mocked here. Like the services above it is
+    // `providedIn: "root"`, and the dialog injects it — letting it resolve for real is part of
+    // what this test checks.
     { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
     { provide: ConfigService, useValue: configService },
     { provide: I18nService, useValue: i18nService },
@@ -227,13 +194,13 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
 describe("MemberAccessReportComponent", () => {
   describe("edit", () => {
     it("opens EditMemberDialogComponent with every dialog dependency resolvable", async () => {
-      const routeProviders = memberAccessReportRouteProviders();
-
       await TestBed.configureTestingModule({
         imports: [MemberAccessReportComponent],
         // TestBed `providers` land in the environment injector — the same kind of injector the
-        // router builds for a route's `providers`.
-        providers: [...environmentProviders(), ...routeProviders],
+        // dialog resolves against in the running app, since DialogService parents the dialog's
+        // injector to the environment injector DialogService itself was created in. Nothing here
+        // provides the dialog's own services; they have to come from root.
+        providers: environmentProviders(),
       })
         // The dialog's own template drags in tab groups, access selectors and select boxes that are
         // irrelevant here. Its `inject()` calls — the DI surface under test — still all run.
@@ -278,7 +245,6 @@ describe("MemberAccessReportComponent", () => {
         imports: [MemberAccessReportComponent],
         providers: [
           ...environmentProviders(),
-          ...memberAccessReportRouteProviders(),
           { provide: DialogService, useValue: mock<DialogService>() },
           // Mirrors the real route the report is mounted on, so `../` on the crumb resolves the
           // way it does in the app rather than against the root route.
@@ -323,7 +289,6 @@ describe("MemberAccessReportComponent", () => {
         imports: [MemberAccessReportComponent],
         providers: [
           ...environmentProviders(),
-          ...memberAccessReportRouteProviders(),
           { provide: DialogService, useValue: mock<DialogService>() },
           provideRouter([
             {

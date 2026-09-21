@@ -83,6 +83,7 @@ import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
 import { DataLoader, Loader } from "../metadata";
 import {
   CredentialKind,
+  HIDDEN_IMPORT_TYPE_IDS,
   ImportOption,
   ImportResult,
   ImportType,
@@ -143,7 +144,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // `@bitwarden/vault` depends on `@bitwarden/importer`, creating a circular
   // module dependency at the webpack level. ConfigService is used directly instead.
   private readonly configService = inject(ConfigService);
-  private readonly vfo1Enabled = toSignal(
+  protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
@@ -793,11 +794,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected setImportOptions() {
     this.featuredImportOptions = this.importService.importOptions.filter((o) => o.featuredImporter);
 
-    // The unified `keeper` entry covers csv/json via the Method dropdown,
-    // so hide the standalone variants from the UI. They remain in the option
-    // list for non-UI consumers (CLI) and for backward compatibility.
     const visibleRegularOptions = this.importService.importOptions.filter(
-      (o) => !o.featuredImporter && o.id !== "keepercsv" && o.id !== "keeperjson",
+      (o) => !o.featuredImporter && !HIDDEN_IMPORT_TYPE_IDS.has(o.id),
     );
 
     this.importOptions = [...visibleRegularOptions].sort((a, b) => {
