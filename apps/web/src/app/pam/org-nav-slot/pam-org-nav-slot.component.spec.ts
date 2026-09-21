@@ -11,8 +11,14 @@ import { I18nMockService, NavigationModule } from "@bitwarden/components";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 
-function org(canManageAccessRules: boolean, canAccessEventLogs = false): Organization {
-  return { canManageAccessRules, canAccessEventLogs } as Organization;
+// Rule authorship and the rotation fleet are separate authorities, so they are separate
+// arguments; connectors default to tracking rules, which is the Owner/Admin case.
+function org(
+  canManageAccessRules: boolean,
+  canAccessEventLogs = false,
+  canManageAccessConnectors = canManageAccessRules,
+): Organization {
+  return { canManageAccessRules, canAccessEventLogs, canManageAccessConnectors } as Organization;
 }
 
 describe("PamOrgNavSlotComponent", () => {
@@ -113,15 +119,15 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit"]);
   });
 
-  // Rotation nests under the PAM flag, its own flag, and the access-rule permission its route
-  // guards on.
+  // Rotation nests under the PAM flag, its own flag, and the access-connector permission its
+  // route guards on — which is Owner/Admin only, not the access-rule permission.
   describe("rotation", () => {
     it("gates on the rotation feature flag", () => {
       fixture.detectChanges();
       expect(getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamRotation);
     });
 
-    it("shows Rotation when its flag is on and the org can manage access rules", () => {
+    it("shows Rotation when its flag is on and the org can manage access connectors", () => {
       rotationEnabled$.next(true);
       fixture.componentRef.setInput("organization", org(true, true));
       fixture.detectChanges();
@@ -135,11 +141,20 @@ describe("PamOrgNavSlotComponent", () => {
       expect(navItemRoutes()).not.toContain("pam/rotation");
     });
 
-    it("hides Rotation when the org cannot manage access rules", () => {
+    it("hides Rotation when the org cannot manage access connectors", () => {
       rotationEnabled$.next(true);
       fixture.componentRef.setInput("organization", org(false, true));
       fixture.detectChanges();
       expect(navItemRoutes()).toEqual(["pam/audit"]);
+    });
+
+    // A Custom user holding ManageAccessRules authors rules but has no authority over the
+    // connectors that rotate their credentials, so Rotation would 403.
+    it("hides Rotation from an org that can author rules but not manage connectors", () => {
+      rotationEnabled$.next(true);
+      fixture.componentRef.setInput("organization", org(true, false, false));
+      fixture.detectChanges();
+      expect(navItemRoutes()).toEqual(["pam/access-rules"]);
     });
 
     it("hides Rotation when the PAM flag is off, even with its own flag on", () => {
