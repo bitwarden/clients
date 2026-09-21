@@ -7,6 +7,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { DECIDE_ACCESS_SERVER_ERRORS } from "../helpers/decide-access-error";
+
 import { ApproverActionsService, rowBusy } from "./approver-actions.service";
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
 
@@ -97,6 +99,23 @@ describe("ApproverActionsService", () => {
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         message: "pamInboxDecisionFailed",
+      });
+    });
+
+    it("toasts a request that is no longer pending in its own words", async () => {
+      run.mockRejectedValue(
+        Object.assign(new Error(DECIDE_ACCESS_SERVER_ERRORS.AlreadyResolved.serverMessage), {
+          name: "ApprovalError",
+          variant: "Api",
+        }),
+      );
+      decideDialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
+
+      await service.decide(params, run, busy);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamInboxDecisionNoLongerPending",
       });
     });
   });
