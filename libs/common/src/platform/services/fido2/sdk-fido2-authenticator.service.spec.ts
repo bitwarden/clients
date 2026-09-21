@@ -257,6 +257,16 @@ describe("SdkFido2AuthenticatorService", () => {
       expect(result[0]).toBe(cipher.login.fido2Credentials[0]);
     });
 
+    it("drops a discovered credential the vault can no longer resolve", async () => {
+      // The SDK read the vault through its own store, so a cipher can be deleted, or lose its
+      // passkey, between discovery and the re-read here. Dropping it beats returning a half-built
+      // view.
+      cipherService.getAllDecrypted.mockResolvedValue([]);
+      silentlyDiscover.mockResolvedValue([discovered(CIPHER_ID, CREDENTIAL_ID)]);
+
+      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
+    });
+
     it("returns the credential the SDK found, not fido2Credentials[0]", async () => {
       const cipher = passkeyCipher(CIPHER_ID, CREDENTIAL_ID, SECOND_CREDENTIAL_ID);
       cipherService.getAllDecrypted.mockResolvedValue([cipher]);

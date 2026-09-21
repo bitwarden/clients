@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { NEVER, of } from "rxjs";
 
 import {
   CipherRepromptType as SdkCipherRepromptType,
@@ -259,6 +259,24 @@ describe("SdkFido2UserInterface", () => {
 
       expect(result.cipher.id).toBe(CIPHER_ID);
       expect(result.checkUserResult).toEqual({ userPresent: true, userVerified: true });
+    });
+
+    it("gives up when the new cipher never appears in state", async () => {
+      // confirmNewCredential may have just created the cipher, so the wait is real. It has to end:
+      // an unresolved promise here would hang the ceremony with no error for the caller.
+      jest.useFakeTimers();
+      session.confirmNewCredential.mockResolvedValue({ cipherId: CIPHER_ID, userVerified: true });
+      cipherService.ciphers$.mockReturnValue(NEVER as never);
+
+      const result = ui.check_user_and_pick_credential_for_creation(REQUIRED, newCredential);
+      const assertion = expect(result).rejects.toThrow(/could not be found/);
+      await jest.advanceTimersByTimeAsync(5000);
+
+      await assertion;
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("did not appear within the timeout"),
+      );
+      jest.useRealTimers();
     });
 
     it("passes the SDK's user handle through unchanged", async () => {

@@ -218,6 +218,16 @@ describe("SdkFido2CredentialStore", () => {
     });
   });
 
+  describe("when the SDK client is unavailable", () => {
+    it("fails find_credentials rather than reporting no credentials", async () => {
+      // Reporting none would let a ceremony conclude the user has no passkey for the site.
+      vaultHolds([makePasskeyCipher({ id: ID.match })]);
+      sdkService.userClient$.mockReturnValue(of(undefined) as never);
+
+      await expect(findIds(undefined)).rejects.toThrow(/SDK client is unavailable/);
+    });
+  });
+
   describe("save_credential", () => {
     it("rejects a cipher the SDK could not hand over", async () => {
       await expect(store.save_credential({ cipher: undefined } as never)).rejects.toThrow(
