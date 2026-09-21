@@ -9,6 +9,7 @@ import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { CipherType } from "../../../vault/enums";
 import { CipherData } from "../../../vault/models/data/cipher.data";
+import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import { LoginView } from "../../../vault/models/view/login.view";
@@ -222,6 +223,26 @@ describe("SdkFido2CredentialStore", () => {
       await expect(store.save_credential({ cipher: undefined } as never)).rejects.toThrow(
         /unreadable cipher/,
       );
+    });
+
+    it("stamps lastUsedDate on the saved cipher", async () => {
+      // The SDK saves for two reasons, registration and a counter update after an assertion, and
+      // tells them apart in neither the cipher nor the call. Stamping unconditionally is what
+      // keeps a counter-bearing passkey's lastUsedDate current.
+      const decrypted = makePasskeyCipher({ id: ID.match });
+      decrypted.localData = { lastLaunched: 1 };
+      cipherService.decrypt.mockResolvedValue(decrypted);
+      const before = new Date().getTime();
+
+      await store.save_credential({
+        cipher: new Cipher(cipherData(ID.match)).toSdkCipher(),
+      } as never);
+
+      expect(cipherService.updateWithServer).toHaveBeenCalledWith(decrypted, USER_ID);
+      const saved = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      expect(saved.localData?.lastUsedDate).toBeGreaterThanOrEqual(before);
+      // Whatever else localData carried has to survive the stamp.
+      expect(saved.localData?.lastLaunched).toBe(1);
     });
   });
 

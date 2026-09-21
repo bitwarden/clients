@@ -138,6 +138,12 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
   /**
    * The SDK hands over an already-encrypted cipher, but it is decrypted and re-saved through the
    * clients write path until the key-rotation corruption investigation (PM-40277) closes.
+   *
+   * `lastUsedDate` is stamped here because the SDK owns neither `localData` nor the distinction
+   * between the two reasons it saves: registration and a counter update after an assertion. The
+   * TypeScript path stamps only on assertion (`fido2-authenticator.service.ts`), so a newly
+   * registered passkey gets a `lastUsedDate` it would not have had — it was just used to register,
+   * and the alternative is counter-bearing passkeys never refreshing theirs.
    */
   async save_credential(cred: SdkEncryptionContext): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -148,6 +154,8 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     }
 
     const decrypted = await this.cipherService.decrypt(encrypted, userId);
+    decrypted.localData = { ...decrypted.localData, lastUsedDate: new Date().getTime() };
+
     await this.cipherService.updateWithServer(decrypted, userId);
   }
 
