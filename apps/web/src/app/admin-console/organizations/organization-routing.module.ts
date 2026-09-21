@@ -9,6 +9,7 @@ import {
   canAccessMembersTab,
   canAccessVaultTab,
   canAccessReportingTab,
+  canAccessRotationTab,
   canAccessSettingsTab,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -98,7 +99,10 @@ export function getOrganizationRoute(organization: Organization): string | undef
   // Unprovided in OSS-only builds, which mount no PAM pages. Annotated because
   // SafeInjectionToken is `@ts-strict-ignore`, so `inject` infers `unknown`.
   const pamRoute: string | null = inject(PAM_ORG_ADMIN_ROUTE, { optional: true });
-  if (pamRoute != null && canAccessAccessRulesTab(organization)) {
+  if (
+    pamRoute != null &&
+    (canAccessAccessRulesTab(organization) || canAccessRotationTab(organization))
+  ) {
     return pamRoute;
   }
   return undefined;
