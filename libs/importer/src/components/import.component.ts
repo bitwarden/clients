@@ -210,6 +210,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   readonly defaultOrganizationId = input<string | undefined>(undefined);
 
+  /**
+   * Pre-selects a collection in the target selector when {@link defaultOrganizationId} is also
+   * provided. The collection is only applied if it belongs to the default organization and the
+   * active user has `manage` permission on it. The user may change the selection freely afterward.
+   */
+  readonly defaultCollectionId = input<string | undefined>(undefined);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
@@ -461,6 +468,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
+    const defaultCollectionId = this.defaultCollectionId();
+    const defaultOrgId = this.defaultOrganizationId();
+    let defaultCollectionApplied = false;
+
     // React to vault destination changes (personal vault vs organization selection)
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
@@ -487,11 +498,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
             );
+
+          // Pre-fill the default collection once when the default org is first selected.
+          // Reads from this.collections$ directly to avoid a second decryptedCollections$ call.
+          // firstValueFrom is used instead of a nested subscribe to satisfy rxjs/no-nested-subscribe.
+          // It resolves asynchronously even for synchronous observables, so setValue(null) above is
+          // guaranteed to have already run before the collection value is applied.
+          if (!defaultCollectionApplied && defaultCollectionId && value === defaultOrgId) {
+            defaultCollectionApplied = true;
+            firstValueFrom(
+              this.collections$.pipe(
+                map((collections) => collections.find((c) => c.id === defaultCollectionId)),
+              ),
+            )
+              .then((collection) => {
+                if (collection) {
+                  this.formGroup.controls.targetSelector.setValue(collection);
+                }
+              })
+              .catch(() => {
+                // Collection not found or not manageable; leave targetSelector at its default.
+              });
+          }
         }
       });
 
     // Pre-select defaultOrganizationId when provided; otherwise default to personal vault
-    this.formGroup.controls.vaultSelector.setValue(this.defaultOrganizationId() ?? "myVault");
+    this.formGroup.controls.vaultSelector.setValue(defaultOrgId ?? "myVault");
   }
 
   /**

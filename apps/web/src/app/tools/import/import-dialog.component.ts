@@ -23,6 +23,8 @@ import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 interface ImportDialogData {
   /** Pre-selects an organization in the import form */
   defaultOrganizationId?: string;
+  /** Pre-selects a collection in the import form; only applied when defaultOrganizationId is also set */
+  defaultCollectionId?: string;
 }
 
 @Component({
@@ -56,7 +58,13 @@ export class ImportDialogComponent {
     await this.dialogRef.close();
   }
 
-  static open(dialogService: DialogService, defaultOrganizationId?: string): DialogRef {
-    return dialogService.open(ImportDialogComponent, { data: { defaultOrganizationId } });
+  static open(
+    dialogService: DialogService,
+    defaultOrganizationId?: string,
+    defaultCollectionId?: string,
+  ): DialogRef {
+    return dialogService.open(ImportDialogComponent, {
+      data: { defaultOrganizationId, defaultCollectionId },
+    });
   }
 }

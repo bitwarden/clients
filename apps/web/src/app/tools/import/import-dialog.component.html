@@ -3,6 +3,7 @@
   <ng-container bitDialogContent>
     <tools-import
       [defaultOrganizationId]="data?.defaultOrganizationId"
+      [defaultCollectionId]="data?.defaultCollectionId"
       (formLoading)="this.loading.set($event)"
       (formDisabled)="this.disabled.set($event)"
       (onSuccessfulImport)="this.onSuccessfulImport($event)"
