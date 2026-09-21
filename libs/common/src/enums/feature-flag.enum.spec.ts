@@ -35,13 +35,4 @@ describe("getFeatureFlagValue", () => {
     const result = getFeatureFlagValue(serverConfig, testFlag);
     expect(result).toBe(expectedValue);
   });
-
-  // pam/uat only - drop with the pin itself.
-  it("keeps a pinned flag off even when serverConfig.featureStates reports it on", () => {
-    const serverConfig = mock<ServerConfig>();
-    serverConfig.featureStates = { [FeatureFlag.VFO1Foundation]: true };
-
-    const result = getFeatureFlagValue(serverConfig, FeatureFlag.VFO1Foundation);
-    expect(result).toBe(false);
-  });
 });
