@@ -22,6 +22,7 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
+import { DECIDE_ACCESS_SERVER_ERRORS } from "../helpers/decide-access-error";
 import { humanDecision } from "../testing/decision-builders";
 
 import { ApproverInboxService } from "./approver-inbox.service";
@@ -65,6 +66,14 @@ function extendedLease(requestEnd: string, extendedEnd: string): AccessRequestVi
       leaseNotAfter: extendedEnd,
     }),
   ];
+}
+
+/** The 409 the server answers a decision on a request that has left the pending set with. */
+function alreadyResolved(): Error {
+  return Object.assign(new Error(DECIDE_ACCESS_SERVER_ERRORS.AlreadyResolved.serverMessage), {
+    name: "ApprovalError",
+    variant: "Api",
+  });
 }
 
 describe("ApproverInboxService", () => {
@@ -275,6 +284,47 @@ describe("ApproverInboxService", () => {
       ).rejects.toThrow("boom");
 
       expect(accessRefresh.notifyAccessChanged).not.toHaveBeenCalled();
+    });
+
+    it("drops a request the server says is already resolved, rather than putting it back", async () => {
+      // The requester withdrew it after the inbox loaded; the row the click came from is stale.
+      approvalApi.decide.mockRejectedValue(alreadyResolved());
+      approvalApi.listInbox.mockResolvedValue([]);
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "req-1", status: "canceled", resolvedAt: "2026-08-17T12:00:00.000Z" }),
+      ]);
+
+      await expect(
+        service.decide("req-1" as unknown as AccessRequestId, "approve", undefined),
+      ).rejects.toThrow();
+
+      expect(await firstValueFrom(service.inboxRows$)).toHaveLength(0);
+      expect(await firstValueFrom(service.historyRows$)).toHaveLength(1);
+    });
+
+    it("announces a request that is already resolved, so the nav badge drops it too", async () => {
+      approvalApi.decide.mockRejectedValue(alreadyResolved());
+      approvalApi.listInbox.mockResolvedValue([]);
+
+      await expect(
+        service.decide("req-1" as unknown as AccessRequestId, "approve", undefined),
+      ).rejects.toThrow();
+
+      expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not resurrect a row a push already dropped while the decision was in flight", async () => {
+      approvalApi.decide.mockImplementation(async () => {
+        approvalApi.listInbox.mockResolvedValue([]);
+        inboxPush$.next();
+        throw alreadyResolved();
+      });
+
+      await expect(
+        service.decide("req-1" as unknown as AccessRequestId, "approve", undefined),
+      ).rejects.toThrow();
+
+      expect(await firstValueFrom(service.inboxRows$)).toHaveLength(0);
     });
   });
 
