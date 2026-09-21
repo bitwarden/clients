@@ -1,4 +1,4 @@
-import { Component, input , ChangeDetectionStrategy } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -18,7 +18,6 @@ import { LockService } from "@bitwarden/unlock";
 import { DynamicAvatarComponent } from "@bitwarden/web-vault/app/components/dynamic-avatar.component";
 import { AccountMenuComponent } from "@bitwarden/web-vault/app/layouts/header/account-menu.component";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-
 
 @Component({
   selector: "dynamic-avatar",
