@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "இந்த பொத்தானுக்கு மேலே மேலும் $COUNT$ பகிரப்பட்ட கோப்புறைகள் காட்டப்பட்டுள்ளன",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "இந்த பொத்தானுக்கு மேலே மேலும் 1 பகிரப்பட்ட கோப்புறை காட்டப்பட்டுள்ளது",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "எனது கோப்புறை"
   },
@@ -3472,11 +3458,17 @@
   "selectImportCollection": {
     "message": "ஒரு கலெக்ஷனைத் தேர்ந்தெடுக்கவும்"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "இம்போர்ட் செய்யப்பட்ட கோப்பு உள்ளடக்கங்களை ஒரு கலெக்ஷனுக்கு மாற்ற விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "importTargetHintFolder": {
     "message": "இம்போர்ட் செய்யப்பட்ட கோப்பு உள்ளடக்கங்களை ஒரு கோப்புறையில் மாற்ற விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "கோப்பில் ஒதுக்கப்படாத உருப்படிகள் உள்ளன."

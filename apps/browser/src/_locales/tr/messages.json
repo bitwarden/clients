@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Bir koleksiyon seçin"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "İçe aktarılan dosya içeriklerinin bir koleksiyona taşınmasını istiyorsanız bu seçeneği seçin"
   },
   "importTargetHintFolder": {
     "message": "İçe aktarılan dosya içeriklerinin bir klasöre taşınmasını istiyorsanız bu seçeneği seçin"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Dosya atanmamış öğeler içeriyor."

@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
   },
   "importTargetHintFolder": {
     "message": "Wähle diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
