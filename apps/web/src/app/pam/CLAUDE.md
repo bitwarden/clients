@@ -2,10 +2,10 @@
 
 This directory holds the OSS-side integration seams for the commercial Privileged Access
 Management (PAM) feature: the organization admin-console nav slot (`org-nav-slot/`, gated on
-`FeatureFlag.Pam` + `organization.canManageAccessRules`) and the individual user nav slot
-(`user-nav-slot/`, gated on `FeatureFlag.Pam` plus membership in a PAM-enabled organization
-(`usePam`), linking to the user-scoped Access requests page). The feature itself, including its
-domain contracts, lives in
+`FeatureFlag.Pam` + `organization.canManageAccessRules`, and `canManageAccessConnectors` for the
+Rotation item) and the individual user nav slot (`user-nav-slot/`, gated on `FeatureFlag.Pam` plus
+membership in a PAM-enabled organization (`usePam`), linking to the user-scoped Access requests
+page). The feature itself, including its domain contracts, lives in
 `bitwarden_license/bit-web/src/app/pam/`.
 
 `pam-nav-badge.service.ts` is the abstract count behind the user nav slot's badge, bound in
