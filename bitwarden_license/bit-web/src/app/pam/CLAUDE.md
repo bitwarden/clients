@@ -250,8 +250,11 @@ restriction while a governed collection is the active filter, off the shared per
 `GovernedCollectionsService` lookup, because it is handed ids alone and so has no flag
 to read), `VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's "Controlled access" group plus
 the narrowing its children apply to the item list),
-`COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
-`VaultRowAccessActionsService` (the vault-row menu's cancel-request entry; all `apps/web`).
+`COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
+`VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), and
+`PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's
+redirect guard can land a member who holds only `ManageAccessRules` — see "Routing and DI";
+all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
 
 ## Routing and DI
@@ -276,6 +279,14 @@ gate on Manage over a collection
 what actually authorizes the inbox read and the decision. Reusing the rules permission as a
 proxy for "is an approver" locks every non-admin collection manager out of an inbox the
 server would have served them.
+
+**Holding `ManageAccessRules` alone has to be enough to enter the Admin Console.** No other
+`canAccessXTab` predicate implies the access-rules surface, so `canAccessOrgAdmin` gained a
+`canAccessAccessRulesTab` arm and `getOrganizationRoute` a matching landing arm; without both,
+the org route's guard bounces such a member to `/` and they never see the nav item. The landing
+arm reads `PAM_ORG_ADMIN_ROUTE` rather than hardcoding `pam`, because OSS builds do not mount
+these pages — which is why `organizationRedirectGuard` runs its callback inside an injection
+context.
 
 `access-requests/access-requests-routing.module.ts` (user-scoped) additionally guards the
 `approvals` tab with `canViewApprovalsGuard`, which redirects a non-approver to
