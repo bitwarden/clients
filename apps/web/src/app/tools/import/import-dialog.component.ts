@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
 import {
   AsyncActionsModule,
   ButtonModule,
+  DIALOG_DATA,
   DialogModule,
   DialogRef,
   DialogService,
@@ -18,6 +19,11 @@ import {
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
+
+interface ImportDialogData {
+  /** Pre-selects an organization in the import form */
+  defaultOrganizationId?: string;
+}
 
 @Component({
   templateUrl: "import-dialog.component.html",
@@ -42,6 +48,7 @@ import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 export class ImportDialogComponent {
   protected readonly loading = signal(false);
   protected readonly disabled = signal(false);
+  protected readonly data = inject<ImportDialogData>(DIALOG_DATA, { optional: true });
 
   constructor(readonly dialogRef: DialogRef) {}
 
@@ -49,7 +56,7 @@ export class ImportDialogComponent {
     await this.dialogRef.close();
   }
 
-  static open(dialogService: DialogService): DialogRef {
-    return dialogService.open(ImportDialogComponent);
+  static open(dialogService: DialogService, defaultOrganizationId?: string): DialogRef {
+    return dialogService.open(ImportDialogComponent, { data: { defaultOrganizationId } });
   }
 }

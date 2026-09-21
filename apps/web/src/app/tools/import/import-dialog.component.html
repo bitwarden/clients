@@ -2,6 +2,7 @@
   <span bitDialogTitle>{{ "importNoun" | i18n }}</span>
   <ng-container bitDialogContent>
     <tools-import
+      [defaultOrganizationId]="data?.defaultOrganizationId"
       (formLoading)="this.loading.set($event)"
       (formDisabled)="this.disabled.set($event)"
       (onSuccessfulImport)="this.onSuccessfulImport($event)"

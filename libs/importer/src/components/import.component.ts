@@ -202,6 +202,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  /**
+   * Pre-selects an organization in the vault selector without locking it, allowing the user to
+   * change the destination.
+   *
+   * Contrast with {@link organizationId}, which locks the selector to a single org.
+   */
+  readonly defaultOrganizationId = input<string | undefined>(undefined);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
@@ -482,8 +490,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
-    // Set initial vault selector to personal vault
-    this.formGroup.controls.vaultSelector.setValue("myVault");
+    // Pre-select defaultOrganizationId when provided; otherwise default to personal vault
+    this.formGroup.controls.vaultSelector.setValue(this.defaultOrganizationId() ?? "myVault");
   }
 
   /**
