@@ -271,6 +271,90 @@ describe("AutoSubmitLoginBackground", () => {
       });
     });
 
+    describe("promoting hosts from redirect chains", () => {
+      const attackerHost = "attacker.com";
+      const attackerUrl = `https://${attackerHost}/redirect`;
+      const targetUrl = `https://${validAutoSubmitHost}/login#autosubmit=1`;
+
+      beforeEach(async () => {
+        await autoSubmitLoginBackground.init();
+      });
+
+      it("promotes the target host when the redirecting URL is a policy-configured IdP", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: validIpdUrl1,
+            redirectUrl: targetUrl,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          true,
+        );
+      });
+
+      it("does not promote any host when the redirecting URL is untrusted", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: attackerUrl,
+            redirectUrl: targetUrl,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(attackerHost)).toBe(false);
+      });
+
+      it("allows a chained redirect from an already-promoted auto-submit host to continue", () => {
+        const intermediateHost = "intermediate.example.com";
+        autoSubmitLoginBackground["validAutoSubmitHosts"].add(intermediateHost);
+
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: `https://${intermediateHost}/next`,
+            redirectUrl: targetUrl,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          true,
+        );
+      });
+
+      it("does not promote when the redirectUrl does not carry the autosubmit fragment", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: validIpdUrl1,
+            redirectUrl: `https://${validAutoSubmitHost}/login`,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+      });
+
+      it("does not promote when the redirect occurs in a sub-frame", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: validIpdUrl1,
+            redirectUrl: targetUrl,
+            type: "sub_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+      });
+    });
+
     describe("when the extension is running on a Safari browser", () => {
       const tabId = 1;
       const tab = mock<chrome.tabs.Tab>({ id: tabId, url: validIpdUrl1 });
