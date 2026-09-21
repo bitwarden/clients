@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
+import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
@@ -79,6 +80,11 @@ export function providePam(): SafeProvider[] {
         import("./access-requests/access-requests-routing.module").then(
           (m) => m.AccessRequestsRoutingModule,
         ),
+    }),
+    // The path this build's `OrganizationsRoutingModule` mounts the admin-console pages at.
+    safeProvider({
+      provide: PAM_ORG_ADMIN_ROUTE,
+      useValue: "pam",
     }),
     safeProvider({
       provide: AccessRuleSdkService,
