@@ -8,7 +8,10 @@ import { enabledFlags } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
-import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
+import {
+  collapsedSideNavDecorator,
+  positionFixedWrapperDecorator,
+} from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
@@ -154,4 +157,17 @@ export const ForceActiveStyles: Story = {
 export const ForceActiveStylesVfo1: Story = {
   ...ForceActiveStyles,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+/** Collapsed items hide their label, so `bitTooltip` names them on hover and keyboard focus. */
+export const CollapsedVfo1: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <bit-nav-item text="Vault" icon="bwi-lock" [route]="['']"></bit-nav-item>
+      <bit-nav-item text="Send" icon="bwi-send"></bit-nav-item>
+      <bit-nav-item text="Reports With A Very Long Name" icon="bwi-bar-chart"></bit-nav-item>
+    `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  decorators: [collapsedSideNavDecorator],
 };
