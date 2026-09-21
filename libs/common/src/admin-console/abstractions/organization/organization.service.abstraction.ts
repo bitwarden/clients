@@ -30,6 +30,14 @@ export function canAccessGroupsTab(org: Organization): boolean {
   return org.canManageGroups;
 }
 
+/**
+ * The PAM access-rules surface. The one Admin Console section no other tab predicate implies: a
+ * Custom member reaches it on `ManageAccessRules` alone.
+ */
+export function canAccessAccessRulesTab(org: Organization): boolean {
+  return org.canManageAccessRules;
+}
+
 export function canAccessReportingTab(org: Organization): boolean {
   return org.canAccessReports || org.canAccessEventLogs;
 }
@@ -61,7 +69,8 @@ export function canAccessOrgAdmin(org: Organization): boolean {
     canAccessReportingTab(org) ||
     canAccessBillingTab(org) ||
     canAccessSettingsTab(org) ||
-    canAccessVaultTab(org)
+    canAccessVaultTab(org) ||
+    canAccessAccessRulesTab(org)
   );
 }
 

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, inject, InjectionToken } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
@@ -41,6 +41,9 @@ export class AdminConsoleComponent {}
 })
 export class AdminConsoleSubrouteComponent {}
 
+/** Stands in for the optional seam tokens a real redirect callback reads. */
+const REDIRECT_SEAM = new InjectionToken<string>("RedirectSeam");
+
 const orgFactory = (props: Partial<Organization> = {}) =>
   Object.assign(
     new Organization(),
@@ -66,6 +69,7 @@ describe("Organization Redirect Guard", () => {
       providers: [
         { provide: OrganizationService, useValue: organizationService },
         { provide: AccountService, useValue: accountService },
+        { provide: REDIRECT_SEAM, useValue: "success" },
         provideRouter([
           {
             path: "",
@@ -102,6 +106,19 @@ describe("Organization Redirect Guard", () => {
             path: "organizations/:organizationId/undefinedCallback",
             component: AdminConsoleComponent,
             canActivate: [organizationRedirectGuard(() => undefined)],
+          },
+          {
+            path: "organizations/:organizationId/injectingCallback/success",
+            component: AdminConsoleSubrouteComponent,
+          },
+          {
+            path: "organizations/:organizationId/injectingCallback",
+            component: AdminConsoleComponent,
+            canActivate: [
+              organizationRedirectGuard(
+                () => inject(REDIRECT_SEAM, { optional: true }) ?? undefined,
+              ),
+            ],
           },
         ]),
       ],
@@ -141,6 +158,15 @@ describe("Organization Redirect Guard", () => {
     const org = orgFactory();
     organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
     await routerHarness.navigateByUrl(`organizations/${org.id}/arrayCallback`);
+    expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
+      "This is a subroute of the admin console!",
+    );
+  });
+
+  it("runs the redirect callback in an injection context", async () => {
+    const org = orgFactory();
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+    await routerHarness.navigateByUrl(`organizations/${org.id}/injectingCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is a subroute of the admin console!",
     );

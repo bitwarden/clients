@@ -10,6 +10,7 @@ import { PolicyService } from "../policy/policy.service.abstraction";
 
 import {
   canAccessAccessIntelligence,
+  canAccessOrgAdmin,
   singleOrganizationPolicyApplies$,
 } from "./organization.service.abstraction";
 
@@ -87,5 +88,42 @@ describe("canAccessAccessIntelligence", () => {
     const org = { canUseAccessIntelligence: false, canAccessReports: false } as Organization;
 
     expect(canAccessAccessIntelligence(org)).toBe(false);
+  });
+});
+
+describe("canAccessOrgAdmin", () => {
+  /** A member with no authority over anything the Admin Console shows. */
+  const none = {
+    enabled: true,
+    canManageUsers: false,
+    canManageUsersPassword: false,
+    canManageGroups: false,
+    canAccessReports: false,
+    canAccessEventLogs: false,
+    isOwner: false,
+    canManagePolicies: false,
+    canManageSso: false,
+    canManageScim: false,
+    canAccessImport: false,
+    canAccessExport: false,
+    canManageDeviceApprovals: false,
+    canViewAllCollections: false,
+    canManageAccessRules: false,
+  } as Organization;
+
+  it("returns false when the member holds nothing the Admin Console exposes", () => {
+    expect(canAccessOrgAdmin(none)).toBe(false);
+  });
+
+  it("returns true when the member can only author access rules", () => {
+    const org = { ...none, canManageAccessRules: true } as Organization;
+
+    expect(canAccessOrgAdmin(org)).toBe(true);
+  });
+
+  it("returns false for a disabled organization, even holding the access-rule permission", () => {
+    const org = { ...none, enabled: false, canManageAccessRules: true } as Organization;
+
+    expect(canAccessOrgAdmin(org)).toBe(false);
   });
 });
