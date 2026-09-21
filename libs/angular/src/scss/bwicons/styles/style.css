@@ -94,106 +94,110 @@
 }
 
 .bwi-accessibility:before {
-  content: "\f179";
+  content: "\f17a";
 }
 
 .bwi-add:before {
-  content: "\f177";
-}
-
-.bwi-add-circle:before {
   content: "\f178";
 }
 
+.bwi-add-circle:before {
+  content: "\f179";
+}
+
 .bwi-admin-console:before {
-  content: "\f176";
+  content: "\f177";
 }
 
 .bwi-angle-down:before {
-  content: "\f175";
+  content: "\f176";
 }
 
 .bwi-angle-left:before {
-  content: "\f174";
+  content: "\f175";
 }
 
 .bwi-angle-right:before {
-  content: "\f173";
+  content: "\f174";
 }
 
 .bwi-angle-up:before {
-  content: "\f171";
-}
-
-.bwi-angle-up-down:before {
   content: "\f172";
 }
 
+.bwi-angle-up-down:before {
+  content: "\f173";
+}
+
 .bwi-archive:before {
-  content: "\f170";
+  content: "\f171";
 }
 
 .bwi-arrow-down:before {
-  content: "\f16f";
+  content: "\f170";
 }
 
 .bwi-arrow-filled-down:before {
-  content: "\f16e";
+  content: "\f16f";
 }
 
 .bwi-arrow-filled-left:before {
-  content: "\f16d";
+  content: "\f16e";
 }
 
 .bwi-arrow-filled-right:before {
-  content: "\f16c";
+  content: "\f16d";
 }
 
 .bwi-arrow-filled-up:before {
-  content: "\f16b";
+  content: "\f16c";
 }
 
 .bwi-arrow-left:before {
-  content: "\f16a";
+  content: "\f16b";
 }
 
 .bwi-arrow-right:before {
-  content: "\f169";
+  content: "\f16a";
 }
 
 .bwi-arrow-up:before {
-  content: "\f168";
+  content: "\f169";
 }
 
 .bwi-attach:before {
-  content: "\f167";
+  content: "\f168";
 }
 
 .bwi-autofill:before {
-  content: "\f166";
+  content: "\f167";
 }
 
 .bwi-bank:before {
-  content: "\f165";
+  content: "\f166";
 }
 
 .bwi-bitcoin:before {
-  content: "\f164";
+  content: "\f165";
 }
 
 .bwi-bitwarden-shield:before {
-  content: "\f163";
+  content: "\f164";
 }
 
 .bwi-browser:before {
-  content: "\f162";
+  content: "\f163";
 }
 
 .bwi-bug:before {
-  content: "\f161";
+  content: "\f162";
 }
 
 .bwi-business:before {
+  content: "\f161";
+}
+
+.bwi-calendar:before {
   content: "\f160";
 }
 
@@ -606,7 +610,7 @@
 }
 
 .bwi-down-solid:before {
-  content: "\f16e";
+  content: "\f16f";
 }
 
 .bwi-drag-and-drop:before {
@@ -670,7 +674,7 @@
 }
 
 .bwi-paperclip:before {
-  content: "\f167";
+  content: "\f168";
 }
 
 .bwi-pencil:before {
@@ -682,11 +686,11 @@
 }
 
 .bwi-plus:before {
-  content: "\f177";
+  content: "\f178";
 }
 
 .bwi-plus-circle:before {
-  content: "\f178";
+  content: "\f179";
 }
 
 .bwi-popout:before {
@@ -710,7 +714,7 @@
 }
 
 .bwi-shield:before {
-  content: "\f163";
+  content: "\f164";
 }
 
 .bwi-spinner:before {
@@ -730,15 +734,15 @@
 }
 
 .bwi-universal-access:before {
-  content: "\f179";
+  content: "\f17a";
 }
 
 .bwi-up-down-btn:before {
-  content: "\f172";
+  content: "\f173";
 }
 
 .bwi-up-solid:before {
-  content: "\f16b";
+  content: "\f16c";
 }
 
 .bwi-user-monitor:before {

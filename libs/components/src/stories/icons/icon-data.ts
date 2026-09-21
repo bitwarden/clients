@@ -360,6 +360,10 @@ const miscObjects = [
     usage: "Indicates a test or debug action.",
   },
   {
+    id: "bwi-calendar",
+    usage: "Used for date-based actions or views, like scheduling or picking a date.",
+  },
+  {
     id: "bwi-camera",
     usage: "Used for actions related to camera use, like scanning a QR code.",
   },

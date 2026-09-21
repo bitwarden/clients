@@ -34,6 +34,7 @@ export const BITWARDEN_ICONS = [
   "bwi-brush",
   "bwi-bug",
   "bwi-business",
+  "bwi-calendar",
   "bwi-camera",
   "bwi-check",
   "bwi-check-circle",
