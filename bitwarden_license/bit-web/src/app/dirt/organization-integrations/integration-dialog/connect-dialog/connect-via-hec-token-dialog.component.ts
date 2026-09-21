@@ -5,14 +5,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 
 import { HecConfiguration } from "@bitwarden/bit-common/dirt/organization-integrations/models/configuration/hec-configuration";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  DIALOG_DATA,
-  DialogConfig,
-  DialogRef,
-  DialogService,
-  ToastService,
-} from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -22,7 +15,6 @@ import {
 
 export type ConnectViaHecTokenDialogParams = {
   settings: Integration;
-  saveCallback: (url: string, token: string) => Promise<string | null>;
 };
 
 export interface ConnectViaHecTokenDialogResult {
@@ -52,8 +44,6 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
     protected formBuilder: FormBuilder,
     private dialogRef: DialogRef<ConnectViaHecTokenDialogResult, ConnectViaHecTokenDialogComponent>,
     private dialogService: DialogService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
   ) {}
 
   ngOnInit(): void {
@@ -85,27 +75,11 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
       this.formGroup.markAllAsTouched();
       return;
     }
+    const result = this.getDialogResult(IntegrationDialogResultStatus.Edited);
 
-    const { url, token } = this.formGroup.getRawValue();
-    try {
-      const errorMessage = await this.connectInfo.saveCallback(url ?? "", token ?? "");
-      if (errorMessage !== null) {
-        // 400: server rejected the config — show error, keep dialog open
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: errorMessage || this.i18nService.t("failedToSaveIntegration"),
-        });
-        return;
-      }
-      // null = success; callback already showed toast and updated state
-      await this.dialogRef.close(
-        this.getDialogResult(IntegrationDialogResultStatus.SavedViaCallback),
-      );
-    } catch {
-      // Other errors: callback already showed toast; close without result
-      await this.dialogRef.close();
-    }
+    await this.dialogRef.close(result);
+
+    return;
   };
 
   delete = async (): Promise<void> => {

@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
   },
   "importTargetHintFolder": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
