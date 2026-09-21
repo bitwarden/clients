@@ -161,9 +161,10 @@ function makeMockInviteLinkService(
 
   return {
     inviteLink$: () => inviteLink$.asObservable(),
-    create: upsertLink,
+    create: (_userId: unknown, _orgId: unknown, domains: string[], supportsConfirmation: boolean) =>
+      patchLink({ allowedDomains: domains, supportsConfirmation }),
     updateAllowedDomains: upsertLink,
-    refresh: () => Promise.resolve(),
+    refresh: setSupportsConfirmation,
     setInviteConfirmation: setSupportsConfirmation,
     delete: () => {
       inviteLink$.next(undefined);

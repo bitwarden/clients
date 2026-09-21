@@ -40,7 +40,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       throw new Error("At least one allowed domain is required.");
     }
 
-    return firstValueFrom(
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
@@ -63,7 +63,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       throw new Error("At least one allowed domain is required.");
     }
 
-    return firstValueFrom(
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
@@ -82,7 +82,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
     supportsConfirmation: boolean,
   ): Promise<void> {
-    return firstValueFrom(
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
@@ -102,7 +102,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
     supportsConfirmation: boolean,
   ): Promise<void> {
-    return firstValueFrom(
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
@@ -116,7 +116,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  private async upsert(userId: UserId, sdkView: SdkOrganizationInviteLinkView): Promise<void> {
+  private async upsert(
+    userId: UserId,
+    sdkView: SdkOrganizationInviteLinkView,
+  ): Promise<OrganizationInviteLinkView> {
     const url = await this.buildUrl(sdkView.urlFragment);
     const view = OrganizationInviteLinkView.fromSdk(sdkView, url);
 
@@ -124,6 +127,8 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       const record = state ?? ({} as Record<OrganizationId, OrganizationInviteLinkView>);
       return { ...record, [view.organizationId]: view };
     });
+
+    return view;
   }
 
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
@@ -162,10 +167,6 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       return undefined;
     }
 
-    await this.upsert(userId, sdkView);
-
-    const url = await this.buildUrl(sdkView.urlFragment);
-    const inviteLink = OrganizationInviteLinkView.fromSdk(sdkView, url);
-    return inviteLink;
+    return await this.upsert(userId, sdkView);
   }
 }
