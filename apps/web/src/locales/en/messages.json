@@ -9029,6 +9029,9 @@
   "manageAccessRules": {
     "message": "Manage access rules"
   },
+  "manageRotation": {
+    "message": "Manage rotation"
+  },
   "disableRequiredError": {
     "message": "You must manually turn the $POLICYNAME$ policy before this policy can be turned off.",
     "placeholders": {

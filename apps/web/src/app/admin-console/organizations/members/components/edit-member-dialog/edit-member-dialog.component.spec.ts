@@ -26,6 +26,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -117,6 +118,7 @@ async function createComponent(
     orgOverrides?: Partial<Organization>;
     vfo1FoundationEnabled?: boolean;
     pamEnabled?: boolean;
+    rotationEnabled?: boolean;
   } = {},
 ): Promise<{
   fixture: ComponentFixture<EditMemberDialogComponent>;
@@ -169,8 +171,12 @@ async function createComponent(
     .fn()
     .mockReturnValue(of({ organizationOccupiedSeats: 0 } as OrganizationBillingMetadataResponse));
   billingConstraint.seatLimitReached.mockResolvedValue(false);
-  // Read once at construction, so the value has to be in place before createComponent returns.
-  configService.getFeatureFlag.mockResolvedValue(overrides.pamEnabled ?? false);
+  // Read once at construction, so the values have to be in place before createComponent returns.
+  configService.getFeatureFlag.mockImplementation(async (flag) =>
+    flag === FeatureFlag.PamRotation
+      ? (overrides.rotationEnabled ?? false)
+      : (overrides.pamEnabled ?? false),
+  );
 
   await TestBed.configureTestingModule({
     imports: [EditMemberDialogComponent],
@@ -404,6 +410,67 @@ describe("EditMemberDialogComponent", () => {
 
       const [request] = mocks.userAdminService.saveV2.mock.calls[0];
       expect(request.permissions.manageAccessRules).toBeFalsy();
+    });
+  });
+
+  describe("manage rotation permission", () => {
+    const customMember = (manageRotation: boolean) =>
+      buildUserDetails({
+        type: OrganizationUserType.Custom,
+        permissions: Object.assign(new PermissionsApi(), { manageRotation }),
+      });
+
+    const checkbox = (fixture: ComponentFixture<EditMemberDialogComponent>) =>
+      fixture.nativeElement.querySelector("#edit-member_checkbox_manage-rotation");
+
+    it("offers the checkbox when rotation is turned on", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: true } as any,
+        pamEnabled: true,
+        rotationEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).not.toBeNull();
+    });
+
+    // The rotation pages sit behind their own flag, so there is nothing to administer without it.
+    it("hides the checkbox while rotation is turned off", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: true } as any,
+        pamEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).toBeNull();
+    });
+
+    it("round-trips an existing grant the checkbox never rendered", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        userDetails: customMember(true),
+        orgOverrides: { usePam: true } as any,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          permissions: expect.objectContaining({ manageRotation: true }),
+        }),
+        expect.anything(),
+        expect.anything(),
+      );
     });
   });
 

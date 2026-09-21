@@ -4,6 +4,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
+import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-redirect.guard";
 
 import { AccessAuditComponent } from "./access-audit/access-audit.component";
 import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
@@ -12,6 +13,7 @@ import {
   accessRuleEditDiscardGuard,
 } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
+import { pamLandingRoute } from "./pam-landing-route";
 
 const routes: Routes = [
   {
@@ -21,7 +23,9 @@ const routes: Routes = [
       {
         path: "",
         pathMatch: "full",
-        redirectTo: "access-rules",
+        canActivate: [organizationRedirectGuard(pamLandingRoute)],
+        // Required to make the auto redirect work, as on the organization route itself.
+        children: [],
       },
       {
         path: "audit",
@@ -36,7 +40,7 @@ const routes: Routes = [
         path: "rotation",
         canActivate: [
           canAccessFeature(FeatureFlag.PamRotation),
-          organizationPermissionsGuard((org) => org.canManageAccessConnectors),
+          organizationPermissionsGuard((org) => org.canManageRotation),
         ],
         data: { titleId: "pamRotationTitle" },
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),

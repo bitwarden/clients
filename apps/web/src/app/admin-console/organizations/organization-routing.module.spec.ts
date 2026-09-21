@@ -28,6 +28,15 @@ function ruleAuthor(): Organization {
   });
 }
 
+/** A Custom member whose only authority is administering the rotation fleet. */
+function rotationAdmin(): Organization {
+  return org({
+    type: OrganizationUserType.Custom,
+    usePam: true,
+    permissions: Object.assign(new PermissionsApi(), { manageRotation: true }),
+  });
+}
+
 describe("getOrganizationRoute", () => {
   function route(organization: Organization, pamRoute?: string): string | undefined {
     TestBed.configureTestingModule({
@@ -45,6 +54,10 @@ describe("getOrganizationRoute", () => {
 
   it("lands a member who can only author access rules on the PAM pages", () => {
     expect(route(ruleAuthor(), "pam")).toBe("pam");
+  });
+
+  it("lands a member who can only administer rotation on the PAM pages", () => {
+    expect(route(rotationAdmin(), "pam")).toBe("pam");
   });
 
   it("lands nobody on the PAM pages in a build that does not mount them", () => {

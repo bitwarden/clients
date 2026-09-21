@@ -182,6 +182,17 @@
                 />
                 <bit-label>{{ "manageAccessRules" | i18n }}</bit-label>
               </bit-form-control>
+              @if (rotationEnabled()) {
+                <bit-form-control>
+                  <input
+                    id="invite-members_checkbox_manage-rotation"
+                    type="checkbox"
+                    bitCheckbox
+                    formControlName="manageRotation"
+                  />
+                  <bit-label>{{ "manageRotation" | i18n }}</bit-label>
+                </bit-form-control>
+              }
             }
           </div>
         </div>

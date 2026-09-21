@@ -323,8 +323,8 @@ export class Organization {
    * permission. Mirrors the server's `ManageAccessRulesRequirement`, which admits no provider
    * managing the organization — unlike {@link isAdmin}, which counts one as an Owner.
    *
-   * Distinct from {@link canManageAccessConnectors}, which governs the machinery a rule's
-   * credentials are rotated by and admits no custom permission.
+   * Distinct from {@link canManageRotation}, which governs the machinery a rule's
+   * credentials are rotated by and carries a permission of its own.
    */
   get canManageAccessRules() {
     return (
@@ -334,13 +334,15 @@ export class Organization {
 
   /**
    * Whether the member may administer the organization's rotation fleet — the access connectors,
-   * their target systems, and the per-credential rotation configs. Mirrors the server's
-   * `ManageAccessConnectorRequirement`, which deliberately has no custom-permission arm:
-   * `ManageAccessRules` is authority over who may lease a credential, not over the connectors that
-   * rewrite it at the target system. No provider arm either, as with {@link canManageAccessRules}.
+   * their target systems, and the per-credential rotation configs: an Owner, an Admin, or a Custom
+   * user holding `ManageRotation`. Mirrors the server's `ManageAccessConnectorRequirement`.
+   *
+   * `ManageAccessRules` is not a substitute, which is why this is a permission of its own: that one
+   * is authority over who may lease a credential, not over the connectors that rewrite it at the
+   * target system. No provider arm either, as with {@link canManageAccessRules}.
    */
-  get canManageAccessConnectors() {
-    return this.isAdmin && this.usePam && !this.isProviderUser;
+  get canManageRotation() {
+    return (this.isAdmin || this.permissions.manageRotation) && this.usePam && !this.isProviderUser;
   }
 
   get canManageUsers() {
