@@ -59,6 +59,7 @@ describe("Organization", () => {
         manageResetPassword: false,
         manageScim: false,
         manageAccessRules: false,
+        manageRotation: false,
       }),
       resetPasswordEnrolled: false,
       userId: "user-id",
@@ -350,7 +351,7 @@ describe("Organization", () => {
     });
   });
 
-  describe("canManageAccessConnectors", () => {
+  describe("canManageRotation", () => {
     beforeEach(() => {
       data.usePam = true;
     });
@@ -358,28 +359,43 @@ describe("Organization", () => {
     it("returns true for an admin", () => {
       data.type = OrganizationUserType.Admin;
 
-      expect(new Organization(data).canManageAccessConnectors).toBe(true);
+      expect(new Organization(data).canManageRotation).toBe(true);
+    });
+
+    it("returns true for a custom user holding the rotation permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageRotation = true;
+
+      expect(new Organization(data).canManageRotation).toBe(true);
     });
 
     it("returns false for a custom user holding the access-rule permission", () => {
       data.type = OrganizationUserType.Custom;
       data.permissions.manageAccessRules = true;
 
-      expect(new Organization(data).canManageAccessConnectors).toBe(false);
+      expect(new Organization(data).canManageRotation).toBe(false);
     });
 
     it("returns false when the organization is not subscribed to PAM", () => {
       data.type = OrganizationUserType.Owner;
       data.usePam = false;
 
-      expect(new Organization(data).canManageAccessConnectors).toBe(false);
+      expect(new Organization(data).canManageRotation).toBe(false);
     });
 
     it("returns false for a provider user managing the organization", () => {
       data.type = OrganizationUserType.Owner;
       data.isProviderUser = true;
 
-      expect(new Organization(data).canManageAccessConnectors).toBe(false);
+      expect(new Organization(data).canManageRotation).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM, permission or not", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageRotation = true;
+      data.usePam = false;
+
+      expect(new Organization(data).canManageRotation).toBe(false);
     });
   });
 

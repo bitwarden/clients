@@ -149,6 +149,11 @@ export class InviteMembersDialogComponent {
     { initialValue: false },
   );
 
+  protected readonly rotationEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PamRotation),
+    { initialValue: false },
+  );
+
   protected byLinkTabDirty(): boolean {
     return this.byLinkTab()?.form.dirty ?? false;
   }
@@ -195,6 +200,7 @@ export class InviteMembersDialogComponent {
     manageUsers: false,
     manageResetPassword: false,
     manageAccessRules: false,
+    manageRotation: false,
   });
 
   protected readonly organization$: Observable<Organization> =
