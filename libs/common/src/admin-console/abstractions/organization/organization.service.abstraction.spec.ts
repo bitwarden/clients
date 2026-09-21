@@ -109,6 +109,7 @@ describe("canAccessOrgAdmin", () => {
     canManageDeviceApprovals: false,
     canViewAllCollections: false,
     canManageAccessRules: false,
+    canManageRotation: false,
   } as Organization;
 
   it("returns false when the member holds nothing the Admin Console exposes", () => {
@@ -117,6 +118,12 @@ describe("canAccessOrgAdmin", () => {
 
   it("returns true when the member can only author access rules", () => {
     const org = { ...none, canManageAccessRules: true } as Organization;
+
+    expect(canAccessOrgAdmin(org)).toBe(true);
+  });
+
+  it("returns true when the member can only administer the rotation fleet", () => {
+    const org = { ...none, canManageRotation: true } as Organization;
 
     expect(canAccessOrgAdmin(org)).toBe(true);
   });
