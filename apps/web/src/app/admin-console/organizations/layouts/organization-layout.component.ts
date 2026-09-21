@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
+import { combineLatest, filter, map, Observable, switchMap, take, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
@@ -37,6 +38,7 @@ import { FreeFamiliesPolicyService } from "../../../billing/services/free-famili
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
+import { InviteLinkCalloutService } from "../members/services/invite-link-callout/invite-link-callout.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -66,6 +68,7 @@ export class OrganizationLayoutComponent {
   private readonly accountService = inject(AccountService);
   private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
+  private readonly inviteLinkCalloutService = inject(InviteLinkCalloutService);
 
   protected readonly logo = AdminConsoleLogo;
 
@@ -138,6 +141,14 @@ export class OrganizationLayoutComponent {
 
   constructor() {
     document.body.classList.remove("layout_frontend");
+
+    this.organization$
+      .pipe(
+        take(1),
+        switchMap((organization) => this.inviteLinkCalloutService.showIfEligible(organization)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   canShowVaultTab(organization: Organization): boolean {
