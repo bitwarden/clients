@@ -142,7 +142,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
 
   private async buildUrl(urlFragment: string): Promise<string> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    return `${env.getWebVaultUrl()}${urlFragment}`;
+    return `${env.getWebVaultUrl()}/${urlFragment}`;
   }
 
   private async get(
