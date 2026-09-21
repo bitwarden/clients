@@ -36,11 +36,12 @@ import {
   CompactModeService,
   DialogService,
   FilterMenuComponent,
-  FilterOptionComponent,
+  FilterOptionRow,
   FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   NO_FOLDER,
   PasswordRepromptService,
@@ -98,6 +99,8 @@ describe("VaultPopupListTableComponent", () => {
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
   const emptyVault$ = new BehaviorSubject<boolean>(false);
+  const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
+  const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const liveAnnouncer = mock<LiveAnnouncer>();
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
@@ -112,6 +115,7 @@ describe("VaultPopupListTableComponent", () => {
 
   const vaultPopupAutofillService = {
     currentTabIsOnBlocklist$: currentTabIsOnBlocklist$.asObservable(),
+    autofillAllowed$: autofillAllowed$.asObservable(),
     doAutofill: jest.fn(),
   };
 
@@ -128,6 +132,7 @@ describe("VaultPopupListTableComponent", () => {
     hasSearchText$: hasSearchText$.asObservable(),
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     emptyVault$: emptyVault$.asObservable(),
+    hasFilterApplied$: hasFilterApplied$.asObservable(),
     applyFilter: jest.fn(),
   };
 
@@ -220,6 +225,8 @@ describe("VaultPopupListTableComponent", () => {
     searchText$.next("");
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
+    hasFilterApplied$.next(false);
+    autofillAllowed$.next(true);
     compactModeEnabled$.next(false);
     cipherTypes$.next([]);
     organizations$.next([]);
@@ -292,6 +299,9 @@ describe("VaultPopupListTableComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: { hasPremiumFromAnySource$: () => of(true) },
         },
+        // The rows' more-options menu hosts the share entry point, which asks whether the
+        // item can be shared. Stubbed so the real service is not constructed.
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
       ],
     }).compileComponents();
 
@@ -355,6 +365,55 @@ describe("VaultPopupListTableComponent", () => {
         "favorites",
         true,
       );
+    });
+  });
+
+  describe("empty autofill tip", () => {
+    /** See the note on the collapsible sections' `render` — the virtualized viewport needs a height. */
+    const render = async () => {
+      filteredCiphers$.next([makeCipher({ id: "all-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    /** Group headers render as `columnheader`; a group description renders as a `cell`. */
+    const sectionHeaders = (): string[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("[role=row] [role=columnheader]")).map(
+        (header) => (header as HTMLElement).textContent ?? "",
+      );
+
+    const descriptions = (): string[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("[role=row] [role=cell]")).map(
+        (cell) => (cell as HTMLElement).textContent ?? "",
+      );
+
+    it("keeps the empty autofill section and shows the tip", async () => {
+      await render();
+
+      expect(component["showEmptyAutofillTip"]()).toBe(true);
+      expect(component["autofillDescription"]()).toBe("autofillSuggestionsTip");
+      expect(sectionHeaders().some((text) => text.includes("autofillSuggestions"))).toBe(true);
+      expect(descriptions().some((text) => text.includes("autofillSuggestionsTip"))).toBe(true);
+    });
+
+    it("hides the empty autofill section when a filter is applied", async () => {
+      hasFilterApplied$.next(true);
+      await render();
+
+      expect(component["showEmptyAutofillTip"]()).toBe(false);
+      expect(component["autofillDescription"]()).toBeUndefined();
+      expect(sectionHeaders().some((text) => text.includes("autofillSuggestions"))).toBe(false);
+    });
+
+    it("drops the tip once a login is suggested", async () => {
+      autoFillCiphers$.next([makeCipher({ id: "autofill-1" })]);
+      await render();
+
+      expect(component["showEmptyAutofillTip"]()).toBe(false);
+      expect(sectionHeaders().some((text) => text.includes("autofillSuggestions"))).toBe(true);
+      expect(descriptions().some((text) => text.includes("autofillSuggestionsTip"))).toBe(false);
     });
   });
 
@@ -567,14 +626,13 @@ describe("VaultPopupListTableComponent", () => {
       fixture.nativeElement.style.height = "600px";
       fixture.detectChanges();
 
-      const folderMenu = fixture.debugElement
-        .queryAll(By.directive(FilterMenuComponent))
-        .find((de) => de.componentInstance.key() === "folder");
-      const noFolderOption = folderMenu!.query(By.directive(FilterOptionComponent))
-        .componentInstance as FilterOptionComponent;
+      const folderMenu = chipFor("folder") as FilterMenuComponent;
+      const noFolderOption = (folderMenu["allOptions"]() as FilterOptionRow[]).find(
+        (o) => o.value() === NO_FOLDER,
+      );
 
-      expect(noFolderOption.value()).toBe(NO_FOLDER);
-      expect(noFolderOption.count()).toBe(1);
+      expect(noFolderOption?.value()).toBe(NO_FOLDER);
+      expect(noFolderOption?.count()).toBe(1);
     });
 
     it("flattens nested folder options into one option per node", () => {
@@ -883,6 +941,138 @@ describe("VaultPopupListTableComponent", () => {
         fixture.detectChanges();
 
         expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(2);
+      });
+    });
+
+    describe("nesting collections and folders", () => {
+      /** An option by value, read from any chip's own option tree — plain rows, never stamped
+       * as `bit-filter-option` components. */
+      function findOption(value: unknown): FilterOptionRow {
+        const menus = fixture.debugElement
+          .queryAll(By.directive(FilterMenuComponent))
+          .map((el) => el.componentInstance as FilterMenuComponent);
+        for (const menu of menus) {
+          const option = (menu["allOptions"]() as FilterOptionRow[]).find(
+            (o) => o.value() === value,
+          );
+          if (option) {
+            return option;
+          }
+        }
+        throw new Error(`No option found for value ${JSON.stringify(value)}`);
+      }
+
+      // The service builds `children` itself (`getAllNested`/`getAllFoldersNested`), truncating
+      // each nested node's own name/label down to its own path segment along the way — these
+      // fixtures mirror that shape rather than a flat, still-fully-pathed list.
+
+      it("nests a rendered collection option under its parent, ungrouped", () => {
+        collections$.next([
+          {
+            value: { id: "col-1", name: "Engineering" } as CollectionView,
+            label: "Engineering",
+            children: [
+              {
+                value: { id: "col-2", name: "Backend" } as CollectionView,
+                label: "Backend",
+              },
+            ],
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(false);
+        expect(
+          findOption("col-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["col-2"]);
+      });
+
+      it("nests a rendered collection option under its bit-filter-section, grouped by organization", () => {
+        collections$.next([
+          {
+            value: { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+            label: "Engineering",
+            children: [
+              {
+                value: {
+                  id: "col-2",
+                  name: "Backend",
+                  organizationId: "org-1",
+                } as CollectionView,
+                label: "Backend",
+              },
+            ],
+          },
+          {
+            value: { id: "col-3", name: "Gamma", organizationId: "org-2" } as CollectionView,
+            label: "Gamma",
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(true);
+        expect(
+          findOption("col-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["col-2"]);
+      });
+
+      it("nests a rendered folder option under its parent, leaving 'no folder' unnested", () => {
+        folders$.next([
+          {
+            value: { id: "", name: "itemsWithNoFolder" } as FolderView,
+            label: "itemsWithNoFolder",
+          },
+          {
+            value: { id: "f-1", name: "Travel" } as FolderView,
+            label: "Travel",
+            children: [
+              {
+                value: { id: "f-2", name: "Flights" } as FolderView,
+                label: "Flights",
+              },
+            ],
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(findOption(NO_FOLDER).expandable()).toBe(false);
+        expect(
+          findOption("f-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["f-2"]);
+      });
+
+      it("keeps a folder nested even when it has no directly-scoped items of its own", () => {
+        // "Travel" itself has no in-scope cipher, only its child "Flights" does — it must still
+        // render (as a pass-through) so "Flights" has somewhere to nest under.
+        activeCiphers$.next([
+          makeCipher({ id: "flight-1", organizationId: null, folderId: "f-2" }),
+        ]);
+        folders$.next([
+          {
+            value: { id: "f-1", name: "Travel" } as FolderView,
+            label: "Travel",
+            children: [
+              {
+                value: { id: "f-2", name: "Flights" } as FolderView,
+                label: "Flights",
+              },
+            ],
+          },
+        ]);
+        listTableSvc.setScope({ type: VaultScopeType.MyVault });
+        fixture.detectChanges();
+
+        expect(
+          findOption("f-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["f-2"]);
       });
     });
   });

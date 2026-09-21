@@ -69,6 +69,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
   let inviteLinkClient: {
     create_invite_link: jest.Mock;
     refresh_invite_link: jest.Mock;
+    set_invite_confirmation: jest.Mock;
     get_invite_secret: jest.Mock;
   };
 
@@ -91,6 +92,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
     inviteLinkClient = {
       create_invite_link: jest.fn().mockResolvedValue(makeSdkInviteLink()),
       refresh_invite_link: jest.fn().mockResolvedValue(makeSdkInviteLink()),
+      set_invite_confirmation: jest.fn().mockResolvedValue(makeSdkInviteLink()),
       get_invite_secret: jest.fn().mockReturnValue("unwrapped=="),
     };
     (sdkClient as any).invite_link = jest.fn().mockReturnValue(inviteLinkClient);
@@ -243,6 +245,66 @@ describe("DefaultOrganizationInviteLinkService", () => {
       await expect(sut.updateAllowedDomains(mockUserId, mockOrgId, [])).rejects.toThrow(
         "At least one allowed domain is required.",
       );
+    });
+  });
+
+  describe("setInviteConfirmation", () => {
+    it("passes the cached invite to the SDK and caches the returned link", async () => {
+      await sut.upsert(mockUserId, makeInviteLink({ invite: "cached-invite" as Invite }));
+      inviteLinkClient.set_invite_confirmation.mockResolvedValue(
+        makeSdkInviteLink({ supportsConfirmation: false }),
+      );
+
+      await sut.setInviteConfirmation(mockUserId, mockOrgId, false);
+
+      expect(inviteLinkClient.set_invite_confirmation).toHaveBeenCalledWith(
+        mockOrgId,
+        "cached-invite",
+        false,
+      );
+
+      const stored = await firstValueFrom(
+        stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
+      );
+      expect(stored).toEqual({
+        [mockOrgId]: expect.objectContaining({ supportsConfirmation: false }),
+      });
+    });
+
+    it("reads the invite from the API when nothing is cached", async () => {
+      apiService.get.mockResolvedValue(makeResponseModel({ invite: "from-api" as Invite }));
+
+      await sut.setInviteConfirmation(mockUserId, mockOrgId, true);
+
+      expect(inviteLinkClient.set_invite_confirmation).toHaveBeenCalledWith(
+        mockOrgId,
+        "from-api",
+        true,
+      );
+    });
+
+    it("throws without calling the SDK when the organization has no invite link", async () => {
+      apiService.get.mockRejectedValue(new ErrorResponse(null, 404));
+
+      await expect(sut.setInviteConfirmation(mockUserId, mockOrgId, false)).rejects.toThrow(
+        "No invite link exists for this organization.",
+      );
+      expect(inviteLinkClient.set_invite_confirmation).not.toHaveBeenCalled();
+    });
+
+    it("surfaces SDK errors and leaves the cached link untouched", async () => {
+      const cached = makeInviteLink();
+      await sut.upsert(mockUserId, cached);
+      inviteLinkClient.set_invite_confirmation.mockRejectedValue(new Error("sdk crypto failure"));
+
+      await expect(sut.setInviteConfirmation(mockUserId, mockOrgId, false)).rejects.toThrow(
+        "sdk crypto failure",
+      );
+
+      const stored = await firstValueFrom(
+        stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
+      );
+      expect(stored).toEqual({ [mockOrgId]: cached });
     });
   });
 

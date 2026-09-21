@@ -1,4 +1,5 @@
 <bit-table-v2
+  bitScrollCollapseSource
   [tableDef]="table"
   [filter]="filterPredicate"
   [filters]="filtersToRestore()"
@@ -9,7 +10,12 @@
   scrollLayoutHost
   [virtualRowHeight]="itemHeight()"
 >
-  <bit-table-toolbar>
+  <!--
+    Collapses while the user scrolls down, so the search and filters give their height back to the
+    list. Has to stay outside the virtual scroll viewport: `bit-table-v2` renders the toolbar above
+    it, so the height it gives up goes to that viewport rather than to the scrolled content.
+  -->
+  <bit-table-toolbar bitCollapseOnScroll>
     <bit-search
       class="tw-flex-1"
       autocomplete="off"
@@ -57,27 +63,15 @@
         [unsetLabel]="'all' | i18n"
         multiple
         icon="bwi-shared-folder"
+        [options]="groupCollectionsByOrg() ? [] : nestedCollectionOptions()"
       >
         @if (groupCollectionsByOrg()) {
-          @for (org of collectionsByOrg(); track org.id) {
-            <bit-filter-section [label]="org.name" collapsible>
-              @for (option of org.collections; track option.value.id) {
-                <bit-filter-option
-                  [value]="option.value.id"
-                  [count]="optionCount('collection', [option.value.id])"
-                >
-                  {{ option.label }}
-                </bit-filter-option>
-              }
-            </bit-filter-section>
-          }
-        } @else {
-          @for (option of collectionOptions(); track option.value.id) {
-            <bit-filter-option
-              [value]="option.value.id"
-              [count]="optionCount('collection', [option.value.id])"
-              >{{ option.label }}</bit-filter-option
-            >
+          @for (org of nestedCollectionsByOrg(); track org.id) {
+            <bit-filter-section
+              [label]="org.name"
+              collapsible
+              [options]="org.collections"
+            ></bit-filter-section>
           }
         }
       </bit-filter-menu>
@@ -89,19 +83,8 @@
         [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
         multiple
         icon="bwi-folder"
-      >
-        @for (option of folderOptions(); track option.value.id) {
-          <bit-filter-option
-            [value]="option.value.id || NO_FOLDER"
-            [count]="optionCount('folder', [option.value.id || NO_FOLDER])"
-            >{{ option.label }}</bit-filter-option
-          >
-          <!-- "No folders" leads the list and stands apart from the real folders. -->
-          @if (!option.value.id) {
-            <bit-filter-option-divider></bit-filter-option-divider>
-          }
-        }
-      </bit-filter-menu>
+        [options]="nestedFolderOptions()"
+      ></bit-filter-menu>
     }
   </bit-table-toolbar>
   <!--
@@ -224,7 +207,12 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group collapsible [match]="isAutofill">
+  <bit-row-group
+    collapsible
+    [match]="isAutofill"
+    [description]="autofillDescription()"
+    [hideOnEmpty]="!showEmptyAutofillTip()"
+  >
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {

@@ -19,7 +19,7 @@
     [attr.aria-label]="'switchProducts' | i18n"
     [bitMenuTriggerFor]="navSwitcherMenu"
   >
-    <div class="tw-flex tw-items-center tw-gap-3">
+    <div class="tw-flex tw-items-center tw-gap-3 tw-min-w-0">
       @if (activeProduct) {
         <bit-icon-tile
           [size]="sideNavOpen() ? 'base' : 'sm'"
@@ -27,7 +27,7 @@
           [variant]="tileVariant()"
         ></bit-icon-tile>
         @if (sideNavOpen()) {
-          {{ activeProduct.name }}
+          <span class="tw-truncate">{{ activeProduct.name }}</span>
         }
       }
     </div>
