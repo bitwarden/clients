@@ -223,18 +223,6 @@ export class ShareLinkService {
         ) {
           return false;
         }
-        // If the cipher belongs to an organization that allows admins/owners to access all collection items
-        // and the user is an admin/owner then they'll be able to see the item via the Admin Console but they
-        // won't have the permissions we look for below. Since owners and admins are exempt from Send Controls
-        // policy enforcement we can bail early here.
-        if (c.organizationId) {
-          const canEditAllOrgCiphers = organizations.some(
-            (org) => org.id === c.organizationId && org.canEditAllCiphers,
-          );
-          if (canEditAllOrgCiphers) {
-            return true;
-          }
-        }
         // Look for any policy that doesn't allow Item-type Sends, doesn't allow the email auth
         // they require, or disables the Send feature entirely; any of these preclude sharing
         const policyDisablingItemSends = sendControlsPolicies.find(
@@ -245,6 +233,18 @@ export class ShareLinkService {
         );
         if (policyDisablingItemSends) {
           return false;
+        }
+        // If the cipher belongs to an organization that allows admins/owners to access all collection items
+        // and the user is an admin/owner then they'll be able to see the item via the Admin Console but they
+        // won't have the permissions we look for below. Owners and admins are exempt from the Send Controls
+        // policy but custom users aren't, so we do this check after the policy check.
+        if (c.organizationId) {
+          const canEditAllOrgCiphers = organizations.some(
+            (org) => org.id === c.organizationId && org.canEditAllCiphers,
+          );
+          if (canEditAllOrgCiphers) {
+            return true;
+          }
         }
         // Lastly check that, if a cipher belongs to any collections,
         // the user has edit-level access to at least one of them.
