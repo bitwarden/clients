@@ -253,8 +253,8 @@ the narrowing its children apply to the item list),
 `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), and
 `PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's
-redirect guard can land a member who holds only `ManageAccessRules` — see "Routing and DI";
-all `apps/web`).
+redirect guard can land a member who holds only one of the PAM permissions — see "Routing and
+DI"; all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
 
 ## Routing and DI
@@ -262,13 +262,13 @@ Add a seam rather than importing PAM from OSS code.
 `pam-routing.module.ts` (admin console) guards every route with
 `canAccessFeature(FeatureFlag.Pam)`; `access-rules` additionally requires
 `organizationPermissionsGuard((org) => org.canManageAccessRules)` and `rotation`
-`organizationPermissionsGuard((org) => org.canManageAccessConnectors)`.
+`organizationPermissionsGuard((org) => org.canManageRotation)`.
 
-**The rotation fleet is a third authority, narrower than rule authorship — do not reuse
-`canManageAccessRules` for it.** `canManageAccessConnectors` is Admin/Owner only, mirroring
-the server's `ManageAccessConnectorRequirement`, which has no custom-permission arm:
+**The rotation fleet is a third authority, separate from rule authorship — do not reuse
+`canManageAccessRules` for it.** `canManageRotation` is Admin/Owner, or a Custom member
+holding `ManageRotation`, mirroring the server's `ManageAccessConnectorRequirement`.
 `ManageAccessRules` is authority over who may lease a credential, not over the connectors that
-rewrite it at the target system. A Custom member holding the rule permission who reaches
+rewrite it at the target system, so a Custom member holding only the rule permission who reaches
 `rotation/` gets a 403 from every request the page makes.
 
 **Authoring a rule and deciding a request against it are separate authorities — do not
@@ -280,13 +280,18 @@ what actually authorizes the inbox read and the decision. Reusing the rules perm
 proxy for "is an approver" locks every non-admin collection manager out of an inbox the
 server would have served them.
 
-**Holding `ManageAccessRules` alone has to be enough to enter the Admin Console.** No other
-`canAccessXTab` predicate implies the access-rules surface, so `canAccessOrgAdmin` gained a
-`canAccessAccessRulesTab` arm and `getOrganizationRoute` a matching landing arm; without both,
-the org route's guard bounces such a member to `/` and they never see the nav item. The landing
-arm reads `PAM_ORG_ADMIN_ROUTE` rather than hardcoding `pam`, because OSS builds do not mount
-these pages — which is why `organizationRedirectGuard` runs its callback inside an injection
-context.
+**Holding `ManageAccessRules` or `ManageRotation` alone has to be enough to enter the Admin
+Console.** No other `canAccessXTab` predicate implies either PAM surface, so `canAccessOrgAdmin`
+gained `canAccessAccessRulesTab` and `canAccessRotationTab` arms and `getOrganizationRoute` a
+matching landing arm; without them, the org route's guard bounces such a member to `/` and they
+never see the nav item. The landing arm reads `PAM_ORG_ADMIN_ROUTE` rather than hardcoding `pam`,
+because OSS builds do not mount these pages — which is why `organizationRedirectGuard` runs its
+callback inside an injection context.
+
+That lands them on `pam` itself, which is not a page: `pam-landing-route.ts` picks the section
+from there, in the side nav's order, and the index route runs it through the same
+`organizationRedirectGuard`. It replaced a static redirect to `access-rules`, which sent every
+member to the one section only the rule permission opens.
 
 `access-requests/access-requests-routing.module.ts` (user-scoped) additionally guards the
 `approvals` tab with `canViewApprovalsGuard`, which redirects a non-approver to
