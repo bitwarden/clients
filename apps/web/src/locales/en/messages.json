@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "My folder"
   },
@@ -3472,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
   },
   "importTargetHintFolder": {
     "message": "Select this option if you want the imported file contents moved to a folder"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
