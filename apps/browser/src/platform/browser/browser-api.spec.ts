@@ -1145,6 +1145,25 @@ describe("BrowserApi", () => {
 
       expect(BrowserApi.getBrowserClientVendor(window)).toBe(expected);
     });
+
+    // A DuckDuckGo extension implies the Windows (WebView2) build, which is Chromium.
+    it("returns Chrome for DuckDuckGoExtension device", () => {
+      jest
+        .spyOn(BrowserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoExtension);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(BrowserClientVendors.Chrome);
+    });
+
+    // DuckDuckGoBrowser spans both the Windows Chromium build and the WebKit macOS build, so
+    // it must not be assumed Chromium.
+    it("returns Unknown for DuckDuckGoBrowser device", () => {
+      jest
+        .spyOn(BrowserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.DuckDuckGoBrowser);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(BrowserClientVendors.Unknown);
+    });
   });
 
   describe("registerContentScriptsMv2", () => {

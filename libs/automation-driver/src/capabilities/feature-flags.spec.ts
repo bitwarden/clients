@@ -10,7 +10,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { FeatureFlagsCapability } from "./feature-flags";
 
 describe("FeatureFlagsCapability", () => {
-  const flag = FeatureFlag.GenerateInviteLink;
+  const flag = FeatureFlag.StagedStatus;
   const userId = "11111111-1111-4111-8111-111111111111" as UserId;
 
   let configService: ReturnType<typeof mock<ConfigService>>;

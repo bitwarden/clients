@@ -7,6 +7,7 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   name = "removeUnlockWithPinPolicyTitle";
+  nameVfo1 = "removeUnlockWithPinPolicyTitleVfo1";
   description = "removeUnlockWithPinPolicyDescV2";
   type = PolicyType.RemoveUnlockWithPin;
   category = PolicyCategory.Authentication;

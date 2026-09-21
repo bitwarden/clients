@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
@@ -73,11 +71,12 @@ export class AddEditMemberDialogComponent {
   }
 
   delete = async (): Promise<void> => {
-    if (!this.editing) {
+    if (!this.editing || this.dialogParams.user == null) {
       return;
     }
 
-    const userName = this.userNamePipe.transform(this.dialogParams.user);
+    const user = this.dialogParams.user;
+    const userName = this.userNamePipe.transform(user);
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: userName,
@@ -89,14 +88,11 @@ export class AddEditMemberDialogComponent {
       return;
     }
 
-    await this.apiService.deleteProviderUser(
-      this.dialogParams.providerId,
-      this.dialogParams.user.id,
-    );
+    await this.apiService.deleteProviderUser(this.dialogParams.providerId, user.id);
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("removedUserId", userName),
     });
 
@@ -104,17 +100,29 @@ export class AddEditMemberDialogComponent {
   };
 
   submit = async (): Promise<void> => {
+    const type = this.formGroup.value.type;
+    if (type == null) {
+      return;
+    }
+
     if (this.editing) {
-      const request = new ProviderUserUpdateRequest({ type: this.formGroup.value.type });
+      if (this.dialogParams.user == null) {
+        return;
+      }
+      const request = new ProviderUserUpdateRequest({ type });
       await this.apiService.putProviderUser(
         this.dialogParams.providerId,
         this.dialogParams.user.id,
         request,
       );
     } else {
+      const emails = this.formGroup.value.emails;
+      if (emails == null) {
+        return;
+      }
       const request = new ProviderUserInviteRequest({
-        emails: this.formGroup.value.emails.trim().split(/\s*,\s*/),
-        type: this.formGroup.value.type,
+        emails: emails.trim().split(/\s*,\s*/),
+        type,
       });
       await this.apiService.postProviderUserInvite(this.dialogParams.providerId, request);
     }
@@ -123,7 +131,7 @@ export class AddEditMemberDialogComponent {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t(this.editing ? "editedUserId" : "invitedUsers", userName),
     });
 

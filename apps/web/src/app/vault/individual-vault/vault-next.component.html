@@ -1,14 +1,30 @@
+<vault-organization-user-notifications></vault-organization-user-notifications>
+<app-vault-banners [organizations]="organizations()"></app-vault-banners>
+
 <app-header [title]="title()">
-  @if (collectionSelected()) {
-    <vault-collection-breadcrumbs
-      slot="breadcrumbs"
-      [scope]="parsedVaultScope()"
-    ></vault-collection-breadcrumbs>
+  @if (showBreadcrumbs()) {
+    <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
+  } @else if (headerTile(); as tile) {
+    <bit-icon-tile
+      slot="title-prefix"
+      [icon]="tile.icon"
+      [variant]="tile.variant ?? 'primary'"
+      [color]="tile.color"
+      [emphasis]="tile.emphasis ?? 'subtle'"
+      size="sm"
+      aria-hidden="true"
+    />
   }
 </app-header>
 
-<vault-organization-user-notifications></vault-organization-user-notifications>
-<app-vault-banners [organizations]="organizations()"></app-vault-banners>
+@if (showSubscriptionEndedMessaging()) {
+  <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
+    <div>{{ "premiumSubscriptionEndedDesc" | i18n }}</div>
+    <a bitLink [routerLink]="['/settings/subscription/premium']">
+      {{ "restartPremium" | i18n }}
+    </a>
+  </bit-callout>
+}
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
@@ -17,7 +33,9 @@
   [scope]="vaultScope()"
 ></vault-shared-folder-card-grid>
 
+<!-- Remounted per scope: the table reads its filters from the URL once, at mount. -->
 <vault-items-table
+  *vaultRemountOn="filterScopeKey()"
   [ciphers]="ciphers()"
   [loading]="loading()"
   [rowActions]="rowActions()"
@@ -42,7 +60,7 @@
       [canCreateFolder]="false"
       [canCreateCollection]="false"
       (cipherAdded)="addCipher($event)"
-      (onAddItemDialog)="openAddItemDialog()"
+      (onAddItemDialog)="openAddItemDialog('empty')"
       id="vault-next_empty-new-cipher-menu"
     />
   }
@@ -55,16 +73,32 @@
         bitButton
         startIcon="bwi-download"
         buttonType="secondary"
+        [bitPopoverAnchorFor]="importCoachmark.popover()"
+        [popoverOpen]="importCoachmarkOpen()"
+        [position]="coachmarkService.getStepPosition('importData')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="true"
         (click)="openImportDialog()"
       >
         {{ "importNoun" | i18n }}
       </button>
+      <app-coachmark #importCoachmark stepId="importData" />
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
+        [canCreateFolder]="true"
+        [canCreateCollection]="canCreateCollections()"
+        [coachmarkPopover]="addItemCoachmark.popover()"
+        [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
+        [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
         (cipherAdded)="addCipher($event)"
-        (onAddItemDialog)="openAddItemDialog()"
+        (onAddItemDialog)="openAddItemDialog('toolbar')"
+        (folderAdded)="addFolder()"
+        (collectionAdded)="addCollection()"
       />
+      <app-coachmark #addItemCoachmark stepId="addItem" />
     }
   </div>
 </vault-items-table>
+
+<bit-vault-batch-action />

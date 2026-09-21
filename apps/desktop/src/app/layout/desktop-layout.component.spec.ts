@@ -76,6 +76,7 @@ describe("DesktopLayoutComponent", () => {
         color: "brand",
         icon: "bwi-user",
         type: VaultNavItemType.Personal,
+        enabled: true,
       },
       {
         id: "org-id",
@@ -83,6 +84,7 @@ describe("DesktopLayoutComponent", () => {
         color: "purple",
         icon: "bwi-business",
         type: VaultNavItemType.Organization,
+        enabled: true,
       },
     ],
     organizationDataOwnership: false,
@@ -155,8 +157,12 @@ describe("DesktopLayoutComponent", () => {
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    // Nav items only render their text when the side nav is expanded.
-    TestBed.inject(SideNavService).open.set(true);
+    // Nav items only render their text when the side nav is expanded. The layout's
+    // ResizeObserver is stubbed out, so it measures a zero-width container and would
+    // collapse the nav on the next change detection without an explicit preference.
+    const sideNavService = TestBed.inject(SideNavService);
+    sideNavService.userCollapsePreference.set("open");
+    sideNavService.open.set(true);
 
     fixture = TestBed.createComponent(DesktopLayoutComponent);
     component = fixture.componentInstance;
