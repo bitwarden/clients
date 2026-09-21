@@ -2,6 +2,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -97,6 +98,30 @@ export const WithContent: Story = {
 export const WithContentVfo1: Story = {
   ...WithContent,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+/**
+ * Overflowing nav in a tall viewport, where both sticky bands engage. The logo header pins to the
+ * top and the account footer to the bottom; below the 600px container-query threshold both release
+ * and scroll with the content.
+ */
+export const StickyChromeVfo1: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo, items: Array.from({ length: 30 }, (_, i) => i) },
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav>
+          <bit-nav-logo [openIcon]="logo" [route]="['']" label="Password Manager"></bit-nav-logo>
+          @for (item of items; track item) {
+          <bit-nav-item text="Collection {{ item }}" icon="bwi-collection"></bit-nav-item>
+          }
+          <bit-nav-item slot="account" text="My account" icon="bwi-user"></bit-nav-item>
+        </bit-side-nav>
+        <bit-callout title="Foobar"> Hello world! </bit-callout>
+      </bit-layout>
+    `,
+  }),
 };
 
 export const SkipLinks: Story = {

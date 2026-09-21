@@ -41,8 +41,9 @@
         <div class="tw-flex tw-flex-col tw-min-h-full tw-group/side-nav">
           <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
             <div
+              #headerWrapper
               data-testid="side-nav-header"
-              class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
+              class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-top-0 [@container_(min-height:600px)]:tw-z-10"
               [class.tw-pt-3]="!isOverlay"
               [class.tw-flex-col]="!open"
               [class.tw-gap-1]="!open"
