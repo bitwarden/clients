@@ -155,6 +155,10 @@ export class EditMemberDialogComponent {
     from(this.configService.getFeatureFlag(FeatureFlag.Pam)),
   );
 
+  protected readonly rotationEnabled = toSignal(
+    from(this.configService.getFeatureFlag(FeatureFlag.PamRotation)),
+  );
+
   protected readonly emailEditable = computed(
     () => (this.params.claimedByOrganization ?? false) && !(this.params.hasMasterPassword ?? true),
   );
@@ -210,6 +214,7 @@ export class EditMemberDialogComponent {
     manageUsers: false,
     manageResetPassword: false,
     manageAccessRules: false,
+    manageRotation: false,
   });
 
   private readonly formTypeValue = toSignal(this.formGroup.controls.type.valueChanges, {
@@ -389,6 +394,7 @@ export class EditMemberDialogComponent {
         manageUsers: userDetails.permissions.manageUsers,
         manageResetPassword: userDetails.permissions.manageResetPassword,
         manageAccessRules: userDetails.permissions.manageAccessRules,
+        manageRotation: userDetails.permissions.manageRotation,
         manageAllCollectionsGroup: allCollectionsPermissions,
       });
     }
@@ -455,6 +461,7 @@ export class EditMemberDialogComponent {
       manageUsers: this.permissionsGroup.value.manageUsers ?? undefined,
       manageResetPassword: this.permissionsGroup.value.manageResetPassword ?? undefined,
       manageAccessRules: this.permissionsGroup.value.manageAccessRules ?? undefined,
+      manageRotation: this.permissionsGroup.value.manageRotation ?? undefined,
       createNewCollections:
         this.permissionsGroup.value.manageAllCollectionsGroup?.createNewCollections ?? undefined,
       editAnyCollection:
