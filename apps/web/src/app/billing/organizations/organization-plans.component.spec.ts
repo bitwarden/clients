@@ -1384,6 +1384,9 @@ describe("OrganizationPlansComponent", () => {
         orgInfoSection: sections[0].componentInstance as SectionComponent,
         orgInfoSectionEl: sections[0].nativeElement as HTMLElement,
         planSectionEl: sections[1].nativeElement as HTMLElement,
+        planWrapperEl: el.querySelector("bit-radio-group bit-radio-button")
+          ?.parentElement as HTMLElement,
+        priceSpanCount: el.querySelectorAll("bit-radio-group span.tw-pl-4").length,
         everySectionMarginDisabled: sections.every((s) =>
           (s.componentInstance as SectionComponent).disableMargin(),
         ),
@@ -1400,6 +1403,9 @@ describe("OrganizationPlansComponent", () => {
       expect(r.orgInfoSectionEl.classList.contains("tw-mb-6")).toBe(true);
       expect(r.orgInfoSectionEl.classList.contains("tw-block")).toBe(true);
       expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(true);
+      // Nothing but the section margin may sit between the plan card and the next heading.
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(false);
+      expect(r.priceSpanCount).toBe(0);
     });
 
     it("uses the choose-plan heading and default spacing when not accepting sponsorship", async () => {
@@ -1410,6 +1416,8 @@ describe("OrganizationPlansComponent", () => {
       expect(r.form.classList.contains("tw-pt-2")).toBe(false);
       expect(r.orgInfoSection.disableMargin()).toBe(false);
       expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(false);
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(true);
+      expect(r.priceSpanCount).toBeGreaterThan(0);
     });
 
     it("keeps the legacy heading and default spacing when accepting sponsorship with VFO1 off", async () => {
@@ -1421,6 +1429,8 @@ describe("OrganizationPlansComponent", () => {
       expect(r.form.classList.contains("tw-pt-6")).toBe(true);
       expect(r.orgInfoSection.disableMargin()).toBe(false);
       expect(r.planSectionEl.classList.contains("tw-mb-6")).toBe(false);
+      expect(r.planWrapperEl.classList.contains("tw-mb-3")).toBe(true);
+      expect(r.priceSpanCount).toBeGreaterThan(0);
     });
   });
 
@@ -2258,6 +2268,20 @@ describe("OrganizationPlansComponent", () => {
 
       expect(typeof paymentDesc).toBe("string");
       expect(paymentDesc.length).toBeGreaterThan(0);
+    });
+
+    it("uses the family-vault payment copy when accepting sponsorship with VFO1 on", () => {
+      fixture.componentRef.setInput("acceptingSponsorship", true);
+
+      expect(component.paymentDesc).toBe("paymentSponsoredFamilyVault");
+      expect(mockI18nService.t).not.toHaveBeenCalledWith("paymentSponsored");
+    });
+
+    it("keeps the legacy sponsored payment copy when VFO1 is off", () => {
+      vfo1Enabled.set(false);
+      fixture.componentRef.setInput("acceptingSponsorship", true);
+
+      expect(component.paymentDesc).toBe("paymentSponsored");
     });
 
     it("should use paymentChargedWithTrialSpecificLength with plan's trialPeriodDays when on a trial plan and no custom trialLength", () => {

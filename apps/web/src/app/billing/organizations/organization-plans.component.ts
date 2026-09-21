@@ -688,7 +688,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
   get paymentDesc() {
     if (this.acceptingSponsorship()) {
-      return this.i18nService.t("paymentSponsored");
+      return this.i18nService.t(
+        this.vfo1Enabled() ? "paymentSponsoredFamilyVault" : "paymentSponsored",
+      );
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
       return this.i18nService.t(
         "paymentChargedWithTrialSpecificLength",
