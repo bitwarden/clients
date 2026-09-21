@@ -65,6 +65,7 @@ import {
   FilterRow,
   FilterGroup,
   FilterPresenter,
+  FilterSelection,
   FilterTreeHost,
   FilterTreeNode,
   buildDataEntries,
@@ -210,8 +211,9 @@ export class FilterMenuComponent
   readonly options = input<FilterOptionNode<unknown>[]>([]);
 
   /**
-   * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
-   * {@link disabled} is true. Pass an already-localized string.
+   * Tooltip text to explain why the chip is disabled. The chip carries no tooltip otherwise, so
+   * this is the only one it shows, and only while {@link disabled} is true. Pass an
+   * already-localized string.
    */
   readonly disabledTooltip = input("");
 
@@ -264,8 +266,12 @@ export class FilterMenuComponent
     return flattenFilterOptions(topLevelOptions);
   });
 
-  /** The selected options' labels, e.g. ["Login"]. Eager (options always exist), so it's never stale. */
-  private readonly labels = signal<string[]>([]);
+  /**
+   * The selected options, e.g. `[{ value: "login", label: "Login" }]`. Eager (options always
+   * exist), so it's never stale. Each label is paired with its value so {@link deselect} can
+   * remove one selection.
+   */
+  private readonly selected = signal<FilterSelection[]>([]);
 
   /**
    * `bitMenuItem`'s look plus the flex layout, shared by every row. Section headers use
@@ -313,8 +319,8 @@ export class FilterMenuComponent
   protected readonly displayLabel = computed(() => {
     const prefix = this.placeholderText();
     // Single-select reflects the selected value in the label; multi-select doesn't.
-    if (!this.multiple() && this.labels().length > 0) {
-      return `${prefix}: ${this.labels().join(", ")}`;
+    if (!this.multiple() && this.selected().length > 0) {
+      return `${prefix}: ${this.summary()}`;
     }
     if (this.active()) {
       return prefix;
@@ -328,9 +334,12 @@ export class FilterMenuComponent
     () => this.disabled() && this.disabledTooltip().length > 0,
   );
 
-  /** The trigger's tooltip: the disabled reason when there is one, else the label. */
+  /**
+   * The trigger's tooltip: the disabled reason, and nothing otherwise. The label is already the
+   * trigger's accessible name, so it gets no tooltip of its own.
+   */
   protected readonly triggerTooltip = computed(() =>
-    this.showDisabledReason() ? this.disabledTooltip() : this.displayLabel(),
+    this.showDisabledReason() ? this.disabledTooltip() : "",
   );
 
   /** Live count of selected options (`multiple` only). Source for the committed berry value. */
@@ -356,10 +365,14 @@ export class FilterMenuComponent
   readonly label = this.placeholderText;
 
   /** @see FilterPresenter.summary — the selected option labels, e.g. "Login". */
-  readonly summary = computed(() => this.labels().join(", "));
+  readonly summary = computed(() =>
+    this.selected()
+      .map((selection) => selection.label)
+      .join(", "),
+  );
 
-  /** @see FilterPresenter.summaryLabels */
-  readonly summaryLabels = this.labels.asReadonly();
+  /** @see FilterPresenter.selections */
+  readonly selections = this.selected.asReadonly();
 
   /**
    * The menu body as a template, so the popover and the dialog's drill-in stamp the
@@ -459,14 +472,14 @@ export class FilterMenuComponent
       if (options.length === 0) {
         return;
       }
-      const labels: string[] = [];
+      const selected: FilterSelection[] = [];
       for (const option of options) {
         const resolved = this.optionValue(option);
         if (resolved && this.isSelected(resolved.value)) {
-          labels.push(option.label());
+          selected.push({ value: resolved.value, label: option.label() });
         }
       }
-      this.labels.set(labels);
+      this.selected.set(selected);
     });
     effect(() => this.baseChip.selectedState.set(this.active()));
     // Otherwise only committed on menu close, leaving a stale berry on the chip.
@@ -799,10 +812,26 @@ export class FilterMenuComponent
     focusAfterRender(this.injector, () => this.chipTriggerEl()?.nativeElement);
   }
 
+  /**
+   * @see FilterPresenter.deselect
+   *
+   * Removes the value rather than calling {@link toggle}, which would re-add it if the chip
+   * no longer holds it.
+   */
+  deselect(value: unknown): void {
+    if (!this.multiple()) {
+      return;
+    }
+    const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
+    this._value.set(current.filter((v) => v !== value));
+    // The menu never closed, so commit the berry count here instead of in `onMenuClosed`.
+    this.committedCount.set(this.selectedCount());
+  }
+
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */
   clear(): void {
     this._value.set(this.clearedValue());
-    this.labels.set([]);
+    this.selected.set([]);
     this.committedCount.set(0);
   }
 
