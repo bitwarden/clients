@@ -1160,11 +1160,7 @@ export class ServiceContainer {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.auditService = new AuditService(
-      this.cryptoFunctionService,
-      this.apiService,
-      this.hibpApiService,
-    );
+    this.auditService = new AuditService(this.cryptoFunctionService, this.hibpApiService);
 
     this.eventUploadService = new EventUploadService(
       this.apiService,

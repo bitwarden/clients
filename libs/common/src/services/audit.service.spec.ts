@@ -1,24 +1,15 @@
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
-import { ApiService } from "../abstractions/api.service";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
 
 import { AuditService } from "./audit.service";
 
 jest.useFakeTimers();
 
-// Polyfill global Request for Jest environment if not present
-if (typeof global.Request === "undefined") {
-  global.Request = jest.fn((input: string | URL, init?: RequestInit) => {
-    return { url: typeof input === "string" ? input : input.toString(), ...init };
-  }) as any;
-}
-
 describe("AuditService", () => {
   let auditService: AuditService;
   let mockCrypto: jest.Mocked<CryptoFunctionService>;
-  let mockApi: jest.Mocked<ApiService>;
   let mockHibpApi: jest.Mocked<HibpApiService>;
 
   beforeEach(() => {
@@ -26,17 +17,12 @@ describe("AuditService", () => {
       hash: jest.fn().mockResolvedValue(new Uint8Array([0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff])),
     } as unknown as jest.Mocked<CryptoFunctionService>;
 
-    mockApi = {
-      nativeFetch: jest.fn().mockResolvedValue({
-        text: jest.fn().mockResolvedValue(`CDDEEFF:4\nDDEEFF:2\n123456:1`),
-      }),
-    } as unknown as jest.Mocked<ApiService>;
-
     mockHibpApi = {
       getHibpBreach: jest.fn(),
+      getHibpRange: jest.fn().mockResolvedValue(`CDDEEFF:4\nDDEEFF:2\n123456:1`),
     } as unknown as jest.Mocked<HibpApiService>;
 
-    auditService = new AuditService(mockCrypto, mockApi, mockHibpApi, 2);
+    auditService = new AuditService(mockCrypto, mockHibpApi, 2);
   });
 
   it("should not exceed max concurrent passwordLeaked requests", async () => {
@@ -71,17 +57,24 @@ describe("AuditService", () => {
     expect(Math.max(...maxInFlight)).toBeLessThanOrEqual(2);
     expect((auditService as any).fetchLeakedPasswordCount).toHaveBeenCalledTimes(4);
     expect(mockCrypto.hash).toHaveBeenCalledTimes(4);
-    expect(mockApi.nativeFetch).toHaveBeenCalledTimes(4);
+    expect(mockHibpApi.getHibpRange).toHaveBeenCalledTimes(4);
   });
 
-  it("should include Add-Padding header when checking leaked passwords", async () => {
+  it("should request the range for the first five hash characters when checking leaked passwords", async () => {
     const result = await auditService.passwordLeaked("password");
 
     expect(result).toBe(4);
-    expect(mockApi.nativeFetch).toHaveBeenCalledTimes(1);
-    const request = mockApi.nativeFetch.mock.calls[0][0] as any;
-    expect(request.url).toBe("https://api.pwnedpasswords.com/range/AABBC");
-    expect(request.headers).toEqual(expect.objectContaining({ "Add-Padding": "true" }));
+    expect(mockCrypto.hash).toHaveBeenCalledWith("password", "sha1");
+    expect(mockHibpApi.getHibpRange).toHaveBeenCalledTimes(1);
+    expect(mockHibpApi.getHibpRange).toHaveBeenCalledWith("AABBC");
+  });
+
+  it("should return 0 when the hash suffix is not present in the range", async () => {
+    mockHibpApi.getHibpRange.mockResolvedValue(`DDEEFF:2\n123456:1`);
+
+    const result = await auditService.passwordLeaked("password");
+
+    expect(result).toBe(0);
   });
 
   it("should return empty array for breachedAccounts when no breaches found", async () => {
