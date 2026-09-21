@@ -5,7 +5,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 @Pipe({
   name: "userStatus",
-  standalone: false,
 })
 export class UserStatusPipe implements PipeTransform {
   constructor(private i18nService: I18nService) {}
