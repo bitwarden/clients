@@ -47,9 +47,9 @@ const atUrl =
 function organization(
   canManageAccessRules: boolean,
   canAccessEventLogs: boolean,
-  canManageAccessConnectors = canManageAccessRules,
+  canManageRotation = canManageAccessRules,
 ): Organization {
-  return { canManageAccessRules, canAccessEventLogs, canManageAccessConnectors } as Organization;
+  return { canManageAccessRules, canAccessEventLogs, canManageRotation } as Organization;
 }
 
 function featureFlags(options: { rotationEnabled?: boolean } = {}) {
