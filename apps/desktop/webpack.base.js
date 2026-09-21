@@ -65,22 +65,12 @@ module.exports.buildConfig = function buildConfig(params) {
     },
   };
 
-  // Support linking @bitwarden packages (notably the SDK) to a local build during
-  // development, so a rebuild is picked up by `--watch`. Two independent problems:
-  //
-  //  1. Webpack treats node_modules as "managed" and validates those packages by
-  //     their package.json version rather than by file content. A local SDK build
-  //     keeps a static version, so a rebuild looks unchanged and the stale module is
-  //     served from cache. unmanagedPaths marks the @bitwarden packages as
-  //     content-hashed instead; it is checked before managedPaths, so webpack's
-  //     default managed-path handling stays in place for everything else. This
-  //     mirrors apps/web and apps/browser.
-  //  2. resolve.symlinks is false, so webpack watches a linked package via its
-  //     node_modules symlink path, but macOS FSEvents delivers change events against
-  //     the package's real path, so the native watcher never sees the rebuild.
-  //     Polling observes the files directly and catches it. Polling has a real CPU
-  //     cost, so it is enabled only when the SDK is actually a local symlink; a
-  //     normal registry install is a plain directory the native watcher handles.
+  // Pick up locally linked @bitwarden packages (notably the SDK) on `--watch`:
+  //  - unmanagedPaths: content-hash them instead of trusting package.json version,
+  //    which a local build never bumps. Mirrors apps/web and apps/browser.
+  //  - poll: resolve.symlinks is false, so the native macOS watcher misses changes
+  //    made at the symlink's real path. Gated on a local symlink since polling has a
+  //    real CPU cost on registry installs.
   const sdkLinkPaths = [
     path.resolve(__dirname, "../../node_modules/@bitwarden/sdk-internal"),
     path.resolve(process.cwd(), "node_modules/@bitwarden/sdk-internal"),
