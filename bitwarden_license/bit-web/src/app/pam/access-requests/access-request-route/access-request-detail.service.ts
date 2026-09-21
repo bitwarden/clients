@@ -30,6 +30,7 @@ import {
   AccessRequestView,
   LeasingErrorService,
   canApprove,
+  isRequestNoLongerPendingError,
 } from "../..";
 import { ApprovalRow } from "../../approvals/approval-row";
 import { ApproverInboxService } from "../../approvals/approver-inbox.service";
@@ -199,13 +200,24 @@ export class AccessRequestDetailService {
     }
   }
 
-  /** Record an approver's decision on the loaded request, then reload to surface it. */
+  /**
+   * Record an approver's decision on the loaded request, then reload to surface it. A refusal
+   * meaning the request already left the pending set reloads too, so the body stops calling it
+   * pending; any other failure would only fail the same way and bury the toast under a banner.
+   */
   async decide(verdict: AccessDecisionVerdict, comment: string | undefined): Promise<void> {
     const id = this._request$.value?.id;
     if (id == null) {
       return;
     }
-    await this.inbox.decide(id, verdict, comment);
+    try {
+      await this.inbox.decide(id, verdict, comment);
+    } catch (e) {
+      if (isRequestNoLongerPendingError(e)) {
+        await this.fetch(id);
+      }
+      throw e;
+    }
     await this.fetch(id);
   }
 
