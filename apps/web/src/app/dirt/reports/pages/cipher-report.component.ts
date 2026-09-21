@@ -19,7 +19,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogRef, TableDataSource, DialogService } from "@bitwarden/components";
+import { DialogRef, TableDataSource, DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfig,
@@ -67,6 +67,7 @@ export abstract class CipherReportComponent implements OnDestroy {
     private cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
     @Optional() protected logService?: LogService,
+    @Optional() private toastService?: ToastService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -137,29 +138,39 @@ export abstract class CipherReportComponent implements OnDestroy {
       `[CipherReport] load() — filterStatus="${this.currentFilterStatus}", cipherCount=${this.ciphers.length}`,
     );
     this.loading = true;
-    this.logService?.info(`[CipherReport] Starting full sync`);
-    await this.syncService.fullSync(false);
-    this.logService?.info(`[CipherReport] Full sync complete`);
-    // when a user fixes an item in a report we want to persist the filter they had
-    // if they fix the last item of that filter we will go back to the "All" filter
-    if (this.currentFilterStatus) {
-      if (this.ciphers.length > 2) {
-        this.logService?.info(`[CipherReport] Restoring filter "${this.currentFilterStatus}"`);
-        this.filterOrgStatus$.next(this.currentFilterStatus);
-        await this.filterOrgToggle(this.currentFilterStatus);
+    try {
+      this.logService?.info(`[CipherReport] Starting full sync`);
+      await this.syncService.fullSync(false);
+      this.logService?.info(`[CipherReport] Full sync complete`);
+      // when a user fixes an item in a report we want to persist the filter they had
+      // if they fix the last item of that filter we will go back to the "All" filter
+      if (this.currentFilterStatus) {
+        if (this.ciphers.length > 2) {
+          this.logService?.info(`[CipherReport] Restoring filter "${this.currentFilterStatus}"`);
+          this.filterOrgStatus$.next(this.currentFilterStatus);
+          await this.filterOrgToggle(this.currentFilterStatus);
+        } else {
+          this.logService?.info(
+            `[CipherReport] Too few items (${this.ciphers.length}), resetting filter to All`,
+          );
+          this.filterOrgStatus$.next(0);
+          await this.filterOrgToggle(0);
+        }
       } else {
-        this.logService?.info(
-          `[CipherReport] Too few items (${this.ciphers.length}), resetting filter to All`,
-        );
-        this.filterOrgStatus$.next(0);
-        await this.filterOrgToggle(0);
+        this.logService?.info(`[CipherReport] No active filter, calling setCiphers()`);
+        await this.setCiphers();
       }
-    } else {
-      this.logService?.info(`[CipherReport] No active filter, calling setCiphers()`);
-      await this.setCiphers();
+      this.hasLoaded = true;
+    } catch (e) {
+      this.logService?.error(`[CipherReport] load() failed`, e);
+      this.toastService?.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("reportLoadFailed"),
+      });
+    } finally {
+      this.loading = false;
     }
-    this.loading = false;
-    this.hasLoaded = true;
   }
   async selectCipher(cipher: CipherView) {
     if (!(await this.repromptCipher(cipher))) {
