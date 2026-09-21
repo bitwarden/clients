@@ -4,7 +4,6 @@ mod type_input;
 pub mod mvp; // MVP, delete with PM-41067
 
 use anyhow::Result;
-
 pub use app_data::{
     path::{build_normalizer, PathNormalizer, PlatformPolicy},
     running_apps::{get_active_app, get_running_apps},
