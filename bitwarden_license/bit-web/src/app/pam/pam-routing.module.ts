@@ -36,7 +36,7 @@ const routes: Routes = [
         path: "rotation",
         canActivate: [
           canAccessFeature(FeatureFlag.PamRotation),
-          organizationPermissionsGuard((org) => org.canManageAccessRules),
+          organizationPermissionsGuard((org) => org.canManageAccessConnectors),
         ],
         data: { titleId: "pamRotationTitle" },
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),

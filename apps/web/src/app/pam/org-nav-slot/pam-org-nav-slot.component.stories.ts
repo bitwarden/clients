@@ -44,8 +44,12 @@ const atUrl =
     return storyFn(context);
   };
 
-function organization(canManageAccessRules: boolean, canAccessEventLogs: boolean): Organization {
-  return { canManageAccessRules, canAccessEventLogs } as Organization;
+function organization(
+  canManageAccessRules: boolean,
+  canAccessEventLogs: boolean,
+  canManageAccessConnectors = canManageAccessRules,
+): Organization {
+  return { canManageAccessRules, canAccessEventLogs, canManageAccessConnectors } as Organization;
 }
 
 function featureFlags(options: { rotationEnabled?: boolean } = {}) {
@@ -133,4 +137,13 @@ export const WithRotation: Story = {
 export const AccessRulesOnly: Story = {
   decorators: [featureFlags()],
   args: { organization: organization(true, false) },
+};
+
+/**
+ * A Custom member holding only ManageAccessRules: rule authorship without authority over the
+ * rotation fleet, so Rotation stays hidden even with its flag on.
+ */
+export const RuleAuthorWithoutRotation: Story = {
+  decorators: [featureFlags({ rotationEnabled: true })],
+  args: { organization: organization(true, true, false) },
 };

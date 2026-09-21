@@ -205,6 +205,7 @@ export class EditMemberDialogComponent {
     managePolicies: false,
     manageUsers: false,
     manageResetPassword: false,
+    manageAccessRules: false,
   });
 
   private readonly formTypeValue = toSignal(this.formGroup.controls.type.valueChanges, {
@@ -383,6 +384,7 @@ export class EditMemberDialogComponent {
         managePolicies: userDetails.permissions.managePolicies,
         manageUsers: userDetails.permissions.manageUsers,
         manageResetPassword: userDetails.permissions.manageResetPassword,
+        manageAccessRules: userDetails.permissions.manageAccessRules,
         manageAllCollectionsGroup: allCollectionsPermissions,
       });
     }
@@ -448,6 +450,7 @@ export class EditMemberDialogComponent {
       managePolicies: this.permissionsGroup.value.managePolicies ?? undefined,
       manageUsers: this.permissionsGroup.value.manageUsers ?? undefined,
       manageResetPassword: this.permissionsGroup.value.manageResetPassword ?? undefined,
+      manageAccessRules: this.permissionsGroup.value.manageAccessRules ?? undefined,
       createNewCollections:
         this.permissionsGroup.value.manageAllCollectionsGroup?.createNewCollections ?? undefined,
       editAnyCollection:

@@ -22,6 +22,8 @@ import { CollectionAdminView } from "@bitwarden/common/admin-console/models/coll
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -120,6 +122,7 @@ export class InviteMembersDialogComponent {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly memberActionsService = inject(MemberActionsService);
+  private readonly configService = inject(ConfigService);
 
   private readonly byLinkTab = viewChild(ByLinkTabComponent);
 
@@ -128,6 +131,11 @@ export class InviteMembersDialogComponent {
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
   protected readonly selectedTabIndex = signal(this.params.showCoachMarks ? 1 : 0);
   protected readonly moreSettingsOpen = signal(false);
+
+  protected readonly privilegedControlsEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    { initialValue: false },
+  );
 
   protected byLinkTabDirty(): boolean {
     return this.byLinkTab()?.form.dirty ?? false;
@@ -168,6 +176,7 @@ export class InviteMembersDialogComponent {
     managePolicies: false,
     manageUsers: false,
     manageResetPassword: false,
+    manageAccessRules: false,
   });
 
   protected readonly organization$: Observable<Organization> =

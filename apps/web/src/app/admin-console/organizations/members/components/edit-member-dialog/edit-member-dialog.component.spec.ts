@@ -73,6 +73,8 @@ function buildOrg(overrides: Partial<Organization> = {}): Organization {
 function buildUserDetails(
   overrides: Partial<{
     userId: any;
+    type: OrganizationUserType;
+    permissions: PermissionsApi;
   }> = {},
 ): OrganizationUserAdminView {
   return new OrganizationUserAdminView({
@@ -81,11 +83,11 @@ function buildUserDetails(
     organizationId: ORG_ID,
     collections: [],
     groups: [],
-    type: OrganizationUserType.User,
+    type: overrides.type ?? OrganizationUserType.User,
     status: OrganizationUserStatusType.Confirmed,
     externalId: "",
     ssoExternalId: "",
-    permissions: new PermissionsApi(),
+    permissions: overrides.permissions ?? new PermissionsApi(),
     accessSecretsManager: false,
     accessPam: false,
     resetPasswordEnrolled: false,
@@ -114,6 +116,7 @@ async function createComponent(
     userDetails?: OrganizationUserAdminView;
     orgOverrides?: Partial<Organization>;
     vfo1FoundationEnabled?: boolean;
+    pamEnabled?: boolean;
   } = {},
 ): Promise<{
   fixture: ComponentFixture<EditMemberDialogComponent>;
@@ -166,7 +169,8 @@ async function createComponent(
     .fn()
     .mockReturnValue(of({ organizationOccupiedSeats: 0 } as OrganizationBillingMetadataResponse));
   billingConstraint.seatLimitReached.mockResolvedValue(false);
-  configService.getFeatureFlag.mockResolvedValue(false);
+  // Read once at construction, so the value has to be in place before createComponent returns.
+  configService.getFeatureFlag.mockResolvedValue(overrides.pamEnabled ?? false);
 
   await TestBed.configureTestingModule({
     imports: [EditMemberDialogComponent],
@@ -323,6 +327,83 @@ describe("EditMemberDialogComponent", () => {
         expect.anything(),
         expect.anything(),
       );
+    });
+  });
+
+  describe("manage access rules permission", () => {
+    const customMember = (manageAccessRules: boolean) =>
+      buildUserDetails({
+        type: OrganizationUserType.Custom,
+        permissions: Object.assign(new PermissionsApi(), { manageAccessRules }),
+      });
+
+    const checkbox = (fixture: ComponentFixture<EditMemberDialogComponent>) =>
+      fixture.nativeElement.querySelector("#edit-member_checkbox_manage-access-rules");
+
+    it("offers the checkbox when the organization is subscribed to PAM", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: true } as any,
+        pamEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).not.toBeNull();
+    });
+
+    it("hides the checkbox when the organization is not subscribed to PAM", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: false } as any,
+        pamEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).toBeNull();
+    });
+
+    // The permission can also be granted through the public API, so an organization that never
+    // renders the checkbox must submit what the member already holds rather than clear it.
+    it("round-trips an existing grant the checkbox never rendered", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        userDetails: customMember(true),
+        orgOverrides: { usePam: false } as any,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          permissions: expect.objectContaining({ manageAccessRules: true }),
+        }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("drops the permission when the member is no longer custom", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        userDetails: customMember(true),
+        orgOverrides: { usePam: true } as any,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as any).formGroup.controls.type.setValue(OrganizationUserType.Admin);
+      await component.submit();
+
+      const [request] = mocks.userAdminService.saveV2.mock.calls[0];
+      expect(request.permissions.manageAccessRules).toBeFalsy();
     });
   });
 

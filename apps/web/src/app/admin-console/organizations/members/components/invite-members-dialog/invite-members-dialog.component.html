@@ -172,6 +172,17 @@
               <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
               <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
             </bit-form-control>
+            @if (organization.usePam && privilegedControlsEnabled()) {
+              <bit-form-control>
+                <input
+                  id="invite-members_checkbox_manage-access-rules"
+                  type="checkbox"
+                  bitCheckbox
+                  formControlName="manageAccessRules"
+                />
+                <bit-label>{{ "manageAccessRules" | i18n }}</bit-label>
+              </bit-form-control>
+            }
           </div>
         </div>
       </div>

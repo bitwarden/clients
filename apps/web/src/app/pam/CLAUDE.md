@@ -2,7 +2,8 @@
 
 This directory holds the OSS-side integration seams for the commercial Privileged Access
 Management (PAM) feature: the organization admin-console nav slot (`org-nav-slot/`, gates on
-`FeatureFlag.Pam` + `organization.canManageAccessRules`) and the individual user nav slot
+`FeatureFlag.Pam` + `organization.canManageAccessRules`, and `canManageAccessConnectors` for
+the Rotation item) and the individual user nav slot
 (`user-nav-slot/`, gates on `FeatureFlag.Pam` + membership in a PAM-enabled org (`usePam`) —
 links to the user-scoped "Access requests" page).
 The feature itself, including its domain contracts, lives in

@@ -58,6 +58,7 @@ describe("Organization", () => {
         manageUsers: false,
         manageResetPassword: false,
         manageScim: false,
+        manageAccessRules: false,
       }),
       resetPasswordEnrolled: false,
       userId: "user-id",
@@ -294,6 +295,68 @@ describe("Organization", () => {
       const organization = new Organization(data);
 
       expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+  });
+
+  // Both mirror server-side requirements: ManageAccessRulesRequirement admits a Custom user
+  // holding the permission, ManageAccessConnectorRequirement does not.
+  describe("canManageAccessRules", () => {
+    beforeEach(() => {
+      data.usePam = true;
+    });
+
+    it("returns true for an admin", () => {
+      data.type = OrganizationUserType.Admin;
+
+      expect(new Organization(data).canManageAccessRules).toBe(true);
+    });
+
+    it("returns true for a custom user holding the permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+
+      expect(new Organization(data).canManageAccessRules).toBe(true);
+    });
+
+    it("returns false for a custom user without the permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = false;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+      data.usePam = false;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+  });
+
+  describe("canManageAccessConnectors", () => {
+    beforeEach(() => {
+      data.usePam = true;
+    });
+
+    it("returns true for an admin", () => {
+      data.type = OrganizationUserType.Admin;
+
+      expect(new Organization(data).canManageAccessConnectors).toBe(true);
+    });
+
+    it("returns false for a custom user holding the access-rule permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+
+      expect(new Organization(data).canManageAccessConnectors).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM", () => {
+      data.type = OrganizationUserType.Owner;
+      data.usePam = false;
+
+      expect(new Organization(data).canManageAccessConnectors).toBe(false);
     });
   });
 
