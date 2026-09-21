@@ -363,6 +363,26 @@ describe("AccessRequestDetailService", () => {
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
     });
 
+    it("re-fetches a decision the server refused as no longer pending", async () => {
+      await setup();
+      requestsApi.getAccessRequest.mockClear();
+      inbox.decide.mockRejectedValue(leasingError("This request has already been resolved."));
+
+      await expect(service.decide("approve", undefined)).rejects.toThrow();
+
+      expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
+    });
+
+    it("spares the wire when a decision fails for any other reason", async () => {
+      await setup();
+      requestsApi.getAccessRequest.mockClear();
+      inbox.decide.mockRejectedValue(new Error("offline"));
+
+      await expect(service.decide("approve", undefined)).rejects.toThrow("offline");
+
+      expect(requestsApi.getAccessRequest).not.toHaveBeenCalled();
+    });
+
     it("withdraws an approval", async () => {
       await setup();
       requestsApi.getAccessRequest.mockClear();
