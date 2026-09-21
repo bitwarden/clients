@@ -228,7 +228,9 @@ export class ShareLinkService {
         // won't have the permissions we look for below. Since owners and admins are exempt from Send Controls
         // policy enforcement we can bail early here.
         if (c.organizationId) {
-          const canEditAllOrgCiphers = organizations.some((org) => org.canEditAllCiphers);
+          const canEditAllOrgCiphers = organizations.some(
+            (org) => org.id === c.organizationId && org.canEditAllCiphers,
+          );
           if (canEditAllOrgCiphers) {
             return true;
           }
