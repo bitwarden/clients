@@ -11,8 +11,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -21,6 +20,7 @@ import { IconButtonModule, LinkModule, MenuModule } from "@bitwarden/components"
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { ProductSwitcherContentComponent } from "./product-switcher-content.component";
 import { ProductSwitcherComponent } from "./product-switcher.component";
@@ -98,12 +98,6 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
   }
 }
 
-class MockConfigService implements Partial<ConfigService> {
-  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
-    return of(false as FeatureFlagValueType<Flag>);
-  }
-}
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -148,7 +142,6 @@ export default {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
         },
-        { provide: ConfigService, useClass: MockConfigService },
         MockPlatformUtilsService,
         ProductSwitcherService,
         {
@@ -271,6 +264,12 @@ export const WithSMAndAC: Story = {
     ] as Organization[],
     mockProviders: [],
   },
+};
+
+/** Under VFO1, the Organizations entry point is removed from the switcher. */
+export const Vfo1Foundation: Story = {
+  ...OnlyPM,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const WithAllOptions: Story = {

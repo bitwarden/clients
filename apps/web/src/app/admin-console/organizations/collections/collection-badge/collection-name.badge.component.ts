@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -19,10 +17,10 @@ import { GetCollectionNameFromIdPipe } from "../pipes";
 export class CollectionNameBadgeComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() collectionIds: CollectionId[] | string[];
+  @Input() collectionIds: CollectionId[] | string[] = [];
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() collections: CollectionView[];
+  @Input() collections: CollectionView[] = [];
 
   get shownCollections(): string[] {
     return (this.showXMore ? this.collectionIds.slice(0, 2) : this.collectionIds).map(uuidAsString);

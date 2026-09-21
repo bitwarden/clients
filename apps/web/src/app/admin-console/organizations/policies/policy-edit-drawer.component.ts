@@ -35,7 +35,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
 
@@ -177,6 +177,7 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PolicyEditDrawerComponent extends PolicyEditDialogComponent implements AfterViewInit {
+  private readonly terminology = inject(Vfo1TerminologyService);
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
 
   protected readonly policyType = PolicyType;
@@ -247,6 +248,9 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
   get warningKeys(): [string, string] | undefined {
     const legacy = this.policy.warningKey;
     if (!legacy) {
+      return undefined;
+    }
+    if (this.policy.hideWarningVfo1 && this.terminology.enabled()) {
       return undefined;
     }
     return [legacy, this.policy.warningKeyVfo1 ?? legacy];

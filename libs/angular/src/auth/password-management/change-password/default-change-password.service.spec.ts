@@ -270,7 +270,7 @@ describe("DefaultChangePasswordService", () => {
       let request: UpdateTempPasswordRequest;
 
       beforeEach(() => {
-        request = UpdateTempPasswordRequest.newConstructorWithHint(
+        request = new UpdateTempPasswordRequest(
           newAuthenticationData,
           newUnlockData,
           passwordInputResult.newPasswordHint!,

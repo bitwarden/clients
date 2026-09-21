@@ -106,7 +106,6 @@ export class VaultHeaderComponent {
 
   protected readonly title = computed(() => {
     const collectionsKey = this.vfo1TerminologyService.enabled() ? "sharedFolders" : "collections";
-    const headerType = this.i18nService.t(collectionsKey).toLowerCase();
 
     const collection = this.collection();
     if (collection != null) {
@@ -117,15 +116,18 @@ export class VaultHeaderComponent {
       return this.i18nService.t("unassigned");
     }
 
-    return this.organization().name
-      ? `${this.organization().name} ${headerType}`
-      : this.i18nService.t(collectionsKey);
+    const orgName = this.organization().name;
+    if (this.vfo1TerminologyService.enabled() || !orgName) {
+      return this.i18nService.t(collectionsKey);
+    }
+
+    return `${orgName} ${this.i18nService.t(collectionsKey).toLowerCase()}`;
   });
 
   protected readonly icon = computed(() =>
     this.filter().collectionId !== undefined
       ? this.vfo1TerminologyService.iconClass("bwi-collection-shared")
-      : "",
+      : undefined,
   );
 
   protected readonly showBreadcrumbs = computed(

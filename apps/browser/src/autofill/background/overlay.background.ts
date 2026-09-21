@@ -42,6 +42,11 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  IntraprocessMessageSender,
+  isExternalMessage,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -94,6 +99,12 @@ import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
 import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -220,7 +231,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.triggerDestroyInlineMenuListeners(tab, message.subFrameData?.frameId),
       ),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
-    unlockCompleted: ({ message }) => this.unlockCompleted(message),
     doFullSync: () => this.updateOverlayCiphers(),
     addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
@@ -277,6 +287,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private generatorService: CredentialGeneratorService,
     private autofillOrchestrator: AutofillOrchestrator,
     private configService: ConfigService,
+    /** Publishes the retry queued for after the unlock. */
+    private intraprocessMessageSender: IntraprocessMessageSender,
+    private messageListener: MessageListener,
   ) {
     this.initOverlayEventObservables();
   }
@@ -1502,13 +1515,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
+    // A no-fill leaves nothing to copy and no use to record. `didAutofill: false` also carries the
+    // orchestrator's foreground and navigation refusals, and a fill refused because the target could
+    // not be confirmed must not put a credential on the clipboard.
+    //
+    // FIXME: this costs the hidden-TOTP-only page, where the service legitimately fills nothing and
+    // still holds a code worth copying. Recovering it requires TOTP to become a commit effect the
+    // orchestrator owns, so that a refusal and a genuine no-fill stop sharing one result.
     if (!result.didAutofill) {
       return;
     }
 
-    if (result.totp) {
-      this.platformUtilsService.copyToClipboard(result.totp);
+    // A fill with no TOTP target doesn't imply no TOTP: some sites hide the TOTP input so the fill
+    // script can't target it. Still resolve + copy when the user explicitly chose a TOTP-bearing
+    // cipher.
+    const totpCode = result.totp ?? (await this.autofillService.getTotpCopyCode(cipher));
+    if (totpCode) {
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -2581,10 +2604,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-    await this.openUnlockPopout(sender.tab, {
-      commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
-      target: "overlay.background",
-    });
+    await this.openUnlockPopout(sender.tab, () =>
+      this.intraprocessMessageSender.send(ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS, {
+        data: {
+          commandToRetry: {
+            message: { command: "openAutofillInlineMenu" },
+            [RETRY_SENDER]: sender,
+          },
+          target: "overlay.background",
+        },
+      }),
+    );
   }
 
   /**
@@ -2626,15 +2656,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Updates the authentication status for the user and opens the inline menu if
-   * a followup command is present in the message.
+   * a followup command is present in the retained command.
    *
-   * @param message - Extension message received from the `unlockCompleted` command
+   * Unlike the other consumers this one still refreshes on a retry it cannot act on, because the
+   * auth status and cipher list are stale either way. Only the inline menu is gated: it resolves
+   * its tab from {@link BrowserApi.getTabFromCurrentWindowId}, so without a retained
+   * {@link RETRY_SENDER} to focus first it would refocus a field on whichever tab happens to be
+   * active rather than the one the retry named.
+   *
+   * @param data - The command the background retained when it opened the unlock popout
+   * @see {@link RETRY_WHEN_UNLOCK_COMPLETED} for why this must not be read off `chrome.runtime`.
    */
-  private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
+  private async unlockCompleted(data: LockedVaultPendingNotificationsData) {
     await this.updateInlineMenuButtonAuthStatus();
 
+    const retryNamesATab = data?.commandToRetry?.[RETRY_SENDER]?.tab != null;
     const openInlineMenu =
-      message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu";
+      retryNamesATab && data.commandToRetry.message?.command === "openAutofillInlineMenu";
     await this.updateOverlayCiphers(true, openInlineMenu);
   }
 
@@ -3402,6 +3440,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     BrowserApi.messageListener("overlay.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.webNavigation.onCommitted, this.handleWebNavigationOnCommitted);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handlePortOnConnect);
+
+    this.messageListener
+      .messages$(RETRY_WHEN_UNLOCK_COMPLETED)
+      .pipe(filter((message) => !isExternalMessage(message)))
+      .subscribe(({ data }) => {
+        this.unlockCompleted(data).catch((error) => this.logService.error(error));
+      });
   }
 
   /**

@@ -11,11 +11,11 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
   BulkDeleteService,
+  openDeleteSharedFolderDialog,
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import { openBulkDeleteDialog } from "./bulk-delete-dialog/bulk-delete-dialog.component";
-import { openDeleteSharedFolderDialog } from "./delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 
 @Injectable()
 export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {

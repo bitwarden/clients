@@ -10,6 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { BreadcrumbsModule } from "@bitwarden/components";
 import {
   PermitCipherDetailsPopoverComponent,
   VaultCopyButtonsService,
@@ -35,6 +36,7 @@ type ThemeOption = {
   imports: [
     SharedModule,
     HeaderModule,
+    BreadcrumbsModule,
     PermitCipherDetailsPopoverComponent,
     ShowQuickCopyActionsDetailsPopoverComponent,
   ],
@@ -43,6 +45,11 @@ type ThemeOption = {
 export class AppearanceComponent implements OnInit {
   readonly localeOptions: LocaleOption[];
   readonly themeOptions: ThemeOption[];
+
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   /** Controls whether the quick copy actions setting is shown, matching the vault list feature. */
   protected readonly showQuickCopyActionsSetting = toSignal(

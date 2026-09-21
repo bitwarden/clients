@@ -60,15 +60,33 @@ export type ProtonPassItemMetadata = {
   itemUuid: string;
 };
 
-export type ProtonPassItemExtraField = {
+export type ProtonPassItemExtraField =
+  | ProtonPassItemExtraFieldContent
+  | ProtonPassItemExtraFieldTimestamp
+  | ProtonPassItemExtraFieldTotp;
+
+type ProtonPassItemExtraFieldContent = {
   fieldName: string;
-  type: string;
-  data: ProtonPassItemExtraFieldData;
+  type: "text" | "hidden";
+  data: {
+    content: string;
+  };
 };
 
-export type ProtonPassItemExtraFieldData = {
-  content?: string;
-  totpUri?: string;
+type ProtonPassItemExtraFieldTimestamp = {
+  fieldName: string;
+  type: "timestamp";
+  data: {
+    timestamp: string;
+  };
+};
+
+type ProtonPassItemExtraFieldTotp = {
+  fieldName: string;
+  type: "totp";
+  data: {
+    totpUri: string;
+  };
 };
 
 export type ProtonPassLoginItemContent = {

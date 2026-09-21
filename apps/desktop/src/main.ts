@@ -43,6 +43,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
+import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -58,6 +59,7 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
@@ -106,6 +108,7 @@ export class Main {
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
+  mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
 
@@ -355,8 +358,14 @@ export class Main {
       this.windowMain,
     );
 
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+      this.logService,
+      this.windowMain,
+    );
+
     app.on("will-quit", () => {
       this.mainDesktopAutotypeMvpService.dispose();
+      this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
     });
   }
@@ -384,7 +393,10 @@ export class Main {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
-        await this.trayMain.init("Bitwarden", [
+        const trayName = this.i18nService.t(
+          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
+        );
+        await this.trayMain.init(trayName, [
           {
             label: this.i18nService.t("lockVault"),
             enabled: false,

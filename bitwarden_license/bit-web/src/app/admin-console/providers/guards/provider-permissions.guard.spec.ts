@@ -7,6 +7,7 @@ import { of } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
+import { ProviderData } from "@bitwarden/common/admin-console/models/data/provider.data";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,12 +20,11 @@ import { providerPermissionsGuard } from "./provider-permissions.guard";
 
 const providerFactory = (props: Partial<Provider> = {}) =>
   Object.assign(
-    new Provider(),
-    {
+    new Provider({
       id: "myProviderId",
       enabled: true,
       type: ProviderUserType.ServiceUser,
-    },
+    } as ProviderData),
     props,
   );
 

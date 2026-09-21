@@ -1,29 +1,72 @@
-<bit-simple-dialog>
-  <i
-    bitDialogIcon
-    class="bwi tw-text-3xl bwi-exclamation-triangle tw-text-warning"
-    aria-hidden="true"
-  ></i>
-  <span bitDialogTitle>{{ "decryptionError" | i18n }}</span>
-  <div bitDialogContent>
-    <p>
-      {{ "couldNotDecryptVaultItemsBelow" | i18n }}
-      <a bitLink href="#" (click)="openContactSupport($event)">{{
-        "contactCSToAvoidDataLossPart1" | i18n
-      }}</a>
-      {{ "contactCSToAvoidDataLossPart2" | i18n }}
-    </p>
-    <ul class="tw-list-none tw-pl-0">
-      @for (id of params.cipherIds; track id) {
-        <li class="tw-text-code tw-font-mono tw-py-0.5" (click)="selectText(listItem)" #listItem>
-          {{ id }}
-        </li>
-      }
-    </ul>
+<ng-template #body>
+  <p>{{ descriptionKey | i18n }}</p>
+  <span [id]="labelId" class="tw-block tw-mb-4 tw-font-bold">
+    {{ labelKey | i18n }}
+  </span>
+  <div
+    role="group"
+    tabindex="0"
+    [attr.aria-labelledby]="labelId"
+    class="tw-max-h-[10.25rem] tw-overflow-auto tw-rounded-xl tw-border tw-border-solid tw-border-border-strong tw-bg-bg-secondary tw-px-3 tw-py-2 tw-text-start"
+  >
+    @for (id of params.cipherIds; track id) {
+      <div class="tw-whitespace-nowrap tw-font-mono tw-text-sm tw-leading-6">{{ id }}</div>
+    }
   </div>
-  <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary" (click)="dialogRef.close(false)">
-      {{ "close" | i18n }}
-    </button>
-  </ng-container>
-</bit-simple-dialog>
+</ng-template>
+
+<!--
+  The two shells differ in ways `bit-dialog` cannot express on its own: the simple dialog centers
+  the icon above the title, stacks its footer buttons, and omits the header close button.
+-->
+@if (isWideViewport()) {
+  <bit-dialog dialogSize="default">
+    <span bitDialogTitle class="tw-flex tw-items-center tw-gap-2">
+      <bit-icon name="bwi-error" class="tw-text-danger"></bit-icon>
+      {{ "decryptionError" | i18n }}
+    </span>
+    <div bitDialogContent>
+      <ng-container *ngTemplateOutlet="body"></ng-container>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-clone"
+        [appCopyClick]="valueToCopy"
+        [valueLabel]="labelKey | i18n"
+        showToast
+      >
+        {{ copyButtonKey | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="dialogRef.close(false)">
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+} @else {
+  <bit-simple-dialog>
+    <bit-icon bitDialogIcon name="bwi-error" class="tw-text-3xl tw-text-danger"></bit-icon>
+    <span bitDialogTitle>{{ "decryptionError" | i18n }}</span>
+    <div bitDialogContent>
+      <ng-container *ngTemplateOutlet="body"></ng-container>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-clone"
+        [appCopyClick]="valueToCopy"
+        [valueLabel]="labelKey | i18n"
+        showToast
+      >
+        {{ copyButtonKey | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="dialogRef.close(false)">
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-simple-dialog>
+}

@@ -60,12 +60,14 @@ import {
   ButtonModule,
   DialogModule,
   FormFieldModule,
+  IconTileOptions,
   MultiSelectModule,
   SelectItemView,
   SelectModule,
   ToastService,
 } from "@bitwarden/components";
 
+import { orgIconTile } from "../models/vault-icon-tile";
 import { Vfo1I18nPipe } from "../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
@@ -191,6 +193,14 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   protected orgName: string;
   protected showOrgSelector: boolean = false;
 
+  /**
+   * Icon tiles per organization id, colored to match the vault's tile in the side nav, item table,
+   * and item form. Rebuilt whenever the org list emits so each template binding gets a stable
+   * object — `bit-select` maps its options in an `afterRenderEffect` that re-runs on a changed
+   * reference, so a fresh tile per change detection would loop.
+   */
+  protected orgIconTiles = new Map<string, IconTileOptions>();
+
   protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.organizationService.organizations$(account?.id).pipe(
@@ -200,6 +210,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
             .sort((a, b) => a.name.localeCompare(b.name)),
         ),
         tap((orgs) => {
+          this.orgIconTiles = new Map(
+            orgs.map((org) => [org.id, orgIconTile(org.productTierType)]),
+          );
+
           if (orgs.length > 0 && this.showOrgSelector) {
             // Using setTimeout to defer the patchValue call until the next event loop cycle
             setTimeout(() => {

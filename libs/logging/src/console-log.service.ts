@@ -84,7 +84,7 @@ export class ConsoleLogService implements LogService {
       },
     });
 
-    this.info(`${measureName} took ${measure.duration}`, properties);
+    this.debug(`${measureName} took ${measure.duration}`, properties);
     return measure;
   }
 
@@ -97,7 +97,7 @@ export class ConsoleLogService implements LogService {
       },
     });
 
-    this.info(mark.name, new Date().toISOString());
+    this.debug(mark.name, new Date().toISOString());
 
     return mark;
   }

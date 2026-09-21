@@ -155,6 +155,7 @@ import {
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -208,6 +209,11 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
+import {
   ActiveUserStateProvider,
   DerivedStateProvider,
   GlobalStateProvider,
@@ -250,7 +256,8 @@ import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
+import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -339,6 +346,7 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiServiceSelector;
+  sendDecryptionService: SendDecryptionService;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -382,6 +390,8 @@ export class ServiceContainer {
   lockService: LockService;
   unlockService: UnlockService;
   autoUnlockService: AutoUnlockService;
+  biometricsService: CliBiometricsService;
+  ipcService: CliIpcService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -534,6 +544,14 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.ipcService = new CliIpcService(this.logService);
+    this.biometricsService = new CliBiometricsService(
+      this.accountService,
+      () => this.keyService,
+      this.logService,
+      this.ipcService,
+    );
+
     this.keyService = new KeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -542,7 +560,7 @@ export class ServiceContainer {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
-      new CliBiometricsService(),
+      this.biometricsService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -679,25 +697,23 @@ export class ServiceContainer {
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
-    this.sendService = new SendService(
-      this.accountService,
-      this.keyService,
-      this.i18nService,
-      this.keyGenerationService,
-      this.sendStateProvider,
-      this.encryptService,
-      this.configService,
-    );
-
-    const legacySendApiService = new SendApiService(
-      this.apiService,
-      this.fileUploadService,
-      this.sendService,
-    );
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
+
+    let managedSettingsService: ManagedSettingsService;
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      managedSettingsService = devManagedSettingsService;
+    } else {
+      // The CLI has no host acquisition code, so nothing pushes a profile here.
+      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    }
+
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -710,7 +726,33 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      managedSettingsService,
       customUserAgent,
+    );
+
+    this.sendDecryptionService = new SendDecryptionService(
+      this.sdkService,
+      this.configService,
+      this.legacyCompatKeyService,
+    );
+
+    this.sendService = new SendService(
+      this.accountService,
+      this.keyService,
+      this.i18nService,
+      this.keyGenerationService,
+      this.sendStateProvider,
+      this.encryptService,
+      this.configService,
+      this.sdkService,
+      this.sendDecryptionService,
+    );
+
+    const legacySendApiService = new SendApiService(
+      this.apiService,
+      this.fileUploadService,
+      this.sendService,
+      this.logService,
     );
 
     this.sendApiService = new SendApiServiceSelector(
@@ -722,6 +764,7 @@ export class ServiceContainer {
         this.sendService,
         this.accountService,
         this.logService,
+        this.sendDecryptionService,
       ),
     );
 
@@ -746,6 +789,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      managedSettingsService,
       customUserAgent,
     );
 
@@ -772,7 +816,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.stateProvider,
       this.logService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
       this.autoUnlockService,
@@ -866,7 +910,6 @@ export class ServiceContainer {
     this.passwordPreloginService = new DefaultPasswordPreloginService(
       passwordPreloginApiService,
       this.sdkService,
-      this.environmentService,
       this.configService,
     );
 
@@ -994,17 +1037,16 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.pinService,
       this.kdfConfigService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.masterPasswordUnlockService,
     );
 
-    const biometricService = new CliBiometricsService();
     const logoutService = new DefaultLogoutService(this.messagingService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
       this.accountService,
-      biometricService,
+      this.biometricsService,
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
@@ -1092,6 +1134,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
       this.sdkService,
     );
 
@@ -1170,7 +1213,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.syncService,
       this.keyService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.platformUtilsService,
       new CliUserKeyRotationService(),
@@ -1208,6 +1251,16 @@ export class ServiceContainer {
     }
 
     await this.sdkLoadService.loadAndInit();
+
+    // Desktop IPC is optional. Commands that do not use Desktop integration must
+    // continue to work when Desktop is unavailable or incompatible.
+    try {
+      const desktopVersion = await this.ipcService.verifyDesktopConnection();
+      this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
+    } catch (error) {
+      this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
+    }
+
     await this.storageService.init();
 
     await this.migrationRunner.run();
@@ -1233,5 +1286,9 @@ export class ServiceContainer {
     }
 
     this.inited = true;
+  }
+
+  dispose(): void {
+    this.ipcService.disconnect();
   }
 }

@@ -1,6 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BreadcrumbsModule } from "@bitwarden/components";
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -10,9 +14,14 @@ import { SharedModule } from "../../shared";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "export-web.component.html",
-  imports: [SharedModule, ExportComponent, HeaderModule],
+  imports: [BreadcrumbsModule, SharedModule, ExportComponent, HeaderModule],
 })
 export class ExportWebComponent {
+  protected readonly showBreadcrumbs = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
   protected loading = false;
   protected disabled = false;
 

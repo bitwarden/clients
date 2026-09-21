@@ -143,7 +143,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // `@bitwarden/vault` depends on `@bitwarden/importer`, creating a circular
   // module dependency at the webpack level. ConfigService is used directly instead.
   private readonly configService = inject(ConfigService);
-  private readonly vfo1Enabled = toSignal(
+  protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
@@ -350,10 +350,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     let importer: Importer;
     switch (this.keeperMethod) {
       case "csv":
-        importer = new KeeperCsvImporter();
+        importer = new KeeperCsvImporter(this.configService);
         break;
       case "json":
-        importer = new KeeperJsonImporter();
+        importer = new KeeperJsonImporter(this.configService);
         break;
       default:
         throw new Error(`Unsupported Keeper method for file import: ${this.keeperMethod}`);

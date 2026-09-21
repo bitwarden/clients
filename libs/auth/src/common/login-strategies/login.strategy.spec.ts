@@ -183,7 +183,7 @@ describe("LoginStrategy", () => {
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 

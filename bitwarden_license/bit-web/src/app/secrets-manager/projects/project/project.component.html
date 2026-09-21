@@ -24,16 +24,24 @@
       </bit-tab-link>
     </ng-container>
   </bit-tab-nav-bar>
+  <!-- These branches must stay flat: `slot` is matched at compile time and only one level of
+       control flow is looked into, so nesting these inside another block sends the button to the
+       default slot. Remove the `@else` branch along with the VFO1 flag. -->
+  @if (project.write && vfo1Enabled()) {
+    <button type="button" bitButton buttonType="secondary" (click)="openEditDialog()">
+      {{ "editProject" | i18n }}
+    </button>
+  } @else if (project.write) {
+    <button
+      slot="secondary"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="openEditDialog()"
+    >
+      {{ "editProject" | i18n }}
+    </button>
+  }
   <sm-new-menu></sm-new-menu>
-  <button
-    type="button"
-    slot="secondary"
-    bitButton
-    buttonType="secondary"
-    (click)="openEditDialog()"
-    *ngIf="project.write"
-  >
-    {{ "editProject" | i18n }}
-  </button>
 </app-header>
 <router-outlet></router-outlet>

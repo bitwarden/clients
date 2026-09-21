@@ -212,7 +212,7 @@ jobs:
         uses: bitwarden/gh-actions/free-disk-space@main
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -369,7 +369,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -518,7 +518,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -533,9 +533,6 @@ jobs:
 
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
-
-      - name: Set up environment
-        run: choco install checksum --no-progress
 
       - name: Print environment
         run: |
@@ -649,7 +646,7 @@ jobs:
           Copy-Item -Path ./dist/nsis-web/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe `
           -Destination ./dist/chocolatey
 
-          $checksum = checksum -t sha256 ./dist/chocolatey/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe
+          $checksum = (Get-FileHash -Algorithm SHA256 ./dist/chocolatey/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe).Hash.ToLower()
           $chocoInstall = "./dist/chocolatey/tools/chocolateyinstall.ps1"
           (Get-Content $chocoInstall).replace('__version__', "$env:_PACKAGE_VERSION").replace('__checksum__', $checksum) | Set-Content $chocoInstall
           choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey
@@ -831,7 +828,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1129,7 +1126,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1356,7 +1353,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1624,7 +1621,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1846,7 +1843,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'

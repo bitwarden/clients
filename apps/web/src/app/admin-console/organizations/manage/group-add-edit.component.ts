@@ -157,9 +157,11 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     return this.params.organizationId;
   }
 
-  protected get isExternalIdVisible(): boolean {
-    return !!this.groupForm.get("externalId")?.value;
-  }
+  /** The external ID, shown read-only when the group was provisioned externally. */
+  protected readonly externalId = toSignal(
+    this.groupForm.controls.externalId.valueChanges.pipe(map((value) => value || undefined)),
+    { initialValue: this.groupForm.controls.externalId.value || undefined },
+  );
 
   protected get editMode(): boolean {
     return this.groupId != null;

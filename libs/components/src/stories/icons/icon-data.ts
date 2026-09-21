@@ -228,6 +228,10 @@ const actions = [
     usage: "Share action. Typically opens a share sheet or menu with share options.",
   },
   {
+    id: "bwi-share-link",
+    usage: "Creates or copies a shareable link.",
+  },
+  {
     id: "bwi-sign-in",
     usage: "Login or sign-in action.",
   },
