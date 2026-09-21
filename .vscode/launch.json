@@ -56,10 +56,22 @@
       "presentation": { "hidden": true }
     },
     {
+      // Attaches to the Chrome instance launched by `npm run debug:browser`. The target tree
+      // covers every extension context: popup, tab pages, and the background service worker.
+      "type": "chrome",
+      "request": "attach",
+      "name": "Browser: Extension (attach)",
+      "port": 9200,
+      "webRoot": "${workspaceFolder}/apps/browser",
+      "sourceMaps": true,
+      "timeout": 60000,
+      "presentation": { "hidden": true }
+    },
+    {
       "type": "chrome",
       "request": "attach",
       "name": "Web: Renderer (attach)",
-      "port": 9223,
+      "port": 9200,
       "webRoot": "${workspaceFolder}/apps/web",
       "sourceMaps": true,
       "timeout": 60000
@@ -82,6 +94,16 @@
         "Desktop: Renderer (attach)",
         "Desktop: Main desktop-native rust debugger (attach)"
       ],
+      "stopAll": true
+    },
+    {
+      "name": "Browser: Attach Debugger (extension)",
+      "configurations": ["Browser: Extension (attach)"]
+    },
+    {
+      "name": "Browser: Start and debug",
+      "preLaunchTask": "browser: debug start",
+      "configurations": ["Browser: Extension (attach)"],
       "stopAll": true
     }
   ]
