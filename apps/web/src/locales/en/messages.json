@@ -9086,6 +9086,9 @@
   "manageAccountRecovery": {
     "message": "Manage account recovery"
   },
+  "manageAccessRules": {
+    "message": "Manage access rules"
+  },
   "disableRequiredError": {
     "message": "You must manually turn the $POLICYNAME$ policy before this policy can be turned off.",
     "placeholders": {
