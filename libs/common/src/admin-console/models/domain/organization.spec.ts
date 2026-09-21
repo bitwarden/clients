@@ -299,7 +299,8 @@ describe("Organization", () => {
   });
 
   // Both mirror server-side requirements: ManageAccessRulesRequirement admits a Custom user
-  // holding the permission, ManageAccessConnectorRequirement does not.
+  // holding the permission, ManageAccessConnectorRequirement does not, and neither admits a
+  // provider managing the organization.
   describe("canManageAccessRules", () => {
     beforeEach(() => {
       data.usePam = true;
@@ -332,6 +333,21 @@ describe("Organization", () => {
 
       expect(new Organization(data).canManageAccessRules).toBe(false);
     });
+
+    it("returns false for a provider user managing the organization", () => {
+      data.type = OrganizationUserType.Owner;
+      data.isProviderUser = true;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+
+    it("returns false for a provider user holding the permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+      data.isProviderUser = true;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
   });
 
   describe("canManageAccessConnectors", () => {
@@ -355,6 +371,13 @@ describe("Organization", () => {
     it("returns false when the organization is not subscribed to PAM", () => {
       data.type = OrganizationUserType.Owner;
       data.usePam = false;
+
+      expect(new Organization(data).canManageAccessConnectors).toBe(false);
+    });
+
+    it("returns false for a provider user managing the organization", () => {
+      data.type = OrganizationUserType.Owner;
+      data.isProviderUser = true;
 
       expect(new Organization(data).canManageAccessConnectors).toBe(false);
     });

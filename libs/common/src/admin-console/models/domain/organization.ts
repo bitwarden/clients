@@ -320,13 +320,16 @@ export class Organization {
 
   /**
    * Whether the member may author access rules: an Owner, an Admin, or a Custom user holding the
-   * permission. Mirrors the server's `ManageAccessRulesRequirement`.
+   * permission. Mirrors the server's `ManageAccessRulesRequirement`, which admits no provider
+   * managing the organization — unlike {@link isAdmin}, which counts one as an Owner.
    *
    * Distinct from {@link canManageAccessConnectors}, which governs the machinery a rule's
    * credentials are rotated by and admits no custom permission.
    */
   get canManageAccessRules() {
-    return (this.isAdmin || this.permissions.manageAccessRules) && this.usePam;
+    return (
+      (this.isAdmin || this.permissions.manageAccessRules) && this.usePam && !this.isProviderUser
+    );
   }
 
   /**
@@ -334,10 +337,10 @@ export class Organization {
    * their target systems, and the per-credential rotation configs. Mirrors the server's
    * `ManageAccessConnectorRequirement`, which deliberately has no custom-permission arm:
    * `ManageAccessRules` is authority over who may lease a credential, not over the connectors that
-   * rewrite it at the target system.
+   * rewrite it at the target system. No provider arm either, as with {@link canManageAccessRules}.
    */
   get canManageAccessConnectors() {
-    return this.isAdmin && this.usePam;
+    return this.isAdmin && this.usePam && !this.isProviderUser;
   }
 
   get canManageUsers() {
