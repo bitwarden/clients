@@ -45,7 +45,8 @@ export class PamOrgNavSlotComponent {
     () => this.pamEnabled() && this.organization().canAccessEventLogs,
   );
   protected readonly showRotation = computed(
-    () => this.pamEnabled() && this.rotationEnabled() && this.organization().canManageAccessRules,
+    () =>
+      this.pamEnabled() && this.rotationEnabled() && this.organization().canManageAccessConnectors,
   );
   protected readonly showPam = computed(
     () => this.showAccessRules() || this.showAuditLog() || this.showRotation(),

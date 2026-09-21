@@ -258,11 +258,20 @@ Add a seam rather than importing PAM from OSS code.
 
 `pam-routing.module.ts` (admin console) guards every route with
 `canAccessFeature(FeatureFlag.Pam)`; `access-rules` additionally requires
-`organizationPermissionsGuard((org) => org.canManageAccessRules)`.
+`organizationPermissionsGuard((org) => org.canManageAccessRules)` and `rotation`
+`organizationPermissionsGuard((org) => org.canManageAccessConnectors)`.
+
+**The rotation fleet is a third authority, narrower than rule authorship — do not reuse
+`canManageAccessRules` for it.** `canManageAccessConnectors` is Admin/Owner only, mirroring
+the server's `ManageAccessConnectorRequirement`, which has no custom-permission arm:
+`ManageAccessRules` is authority over who may lease a credential, not over the connectors that
+rewrite it at the target system. A Custom member holding the rule permission who reaches
+`rotation/` gets a 403 from every request the page makes.
 
 **Authoring a rule and deciding a request against it are separate authorities — do not
-collapse them into one check.** `canManageAccessRules` (Admin/Owner) gates the rules admin
-UI and nothing else; the approver surfaces gate on Manage over a collection
+collapse them into one check.** `canManageAccessRules` (Admin/Owner, or a Custom member
+holding `ManageAccessRules`) gates the rules admin UI and nothing else; the approver surfaces
+gate on Manage over a collection
 (`hasApprovalPrivileges` / `ApprovalPrivilegeService`), mirroring the server's `ApproverCollectionAccessQuery`, which is
 what actually authorizes the inbox read and the decision. Reusing the rules permission as a
 proxy for "is an approver" locks every non-admin collection manager out of an inbox the
