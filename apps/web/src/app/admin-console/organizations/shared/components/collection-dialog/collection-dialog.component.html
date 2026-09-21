@@ -24,7 +24,7 @@
     }
     @if (!loading()) {
       <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
-        <bit-tab label="{{ 'collectionInfo' | vfo1I18n: 'sharedFolderInfo' }}">
+        <bit-tab label="{{ 'collectionInfo' | vfo1I18n: 'details' }}">
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput appAutofocus formControlName="name" />
@@ -37,13 +37,6 @@
                   <bit-option icon="bwi-business" [value]="org.id" [label]="org.name"> </bit-option>
                 }
               </bit-select>
-            </bit-form-field>
-          }
-          @if (isExternalIdVisible) {
-            <bit-form-field>
-              <bit-label>{{ "externalId" | i18n }}</bit-label>
-              <input bitInput formControlName="externalId" readonly />
-              <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
             </bit-form-field>
           }
           <bit-form-field>
@@ -70,6 +63,29 @@
               }
             </bit-select>
           </bit-form-field>
+          @if (externalId(); as externalIdValue) {
+            <bit-form-field>
+              <bit-label>{{ "externalId" | i18n }}</bit-label>
+              <input
+                id="collection-dialog_input_external-id"
+                bitInput
+                type="text"
+                readonly
+                formControlName="externalId"
+              />
+              <button
+                id="collection-dialog_button_copy-external-id"
+                type="button"
+                bitSuffix
+                bitIconButton="bwi-clone"
+                showToast
+                [appCopyClick]="externalIdValue"
+                [valueLabel]="'externalId' | i18n"
+                [label]="'copyExternalId' | i18n"
+              ></button>
+              <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          }
         </bit-tab>
         <bit-tab [label]="accessTabLabel">
           <div class="tw-mb-3">

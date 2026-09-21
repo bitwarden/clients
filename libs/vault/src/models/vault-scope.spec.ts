@@ -26,6 +26,7 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedSharedFolderId,
+  scopeKey,
   SHARED_FOLDERS_ROUTE,
   sharedFolderNameForScope,
   TRASH_ROUTE,
@@ -86,6 +87,7 @@ const buildNavItem = (
   icon: "bwi-user",
   type,
   defaultUserCollectionId: navDefaultUserCollectionId,
+  enabled: true,
 });
 
 const buildNav = (
@@ -330,6 +332,21 @@ describe("vaultScopeCommands", () => {
     expect(vaultScopeCommands(scope)).toEqual(expected);
   });
 
+  it.each([
+    [ALL_ITEMS_SCOPE, ["/tabs/vault"]],
+    [myVaultScope, ["/tabs/vault", MY_VAULT_ROUTE]],
+    [organizationScope, ["/tabs/vault", organizationId]],
+    [trashScope, ["/tabs/vault", TRASH_ROUTE]],
+    [archiveScope, ["/tabs/vault", ARCHIVE_ROUTE]],
+    [sharedFolderScope, ["/tabs/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId]],
+    [myItemsScope, ["/tabs/vault", organizationId, MY_ITEMS_ROUTE]],
+  ])(
+    "rebases the route onto a client's own base path for %p",
+    (scope: VaultScope, expected: string[]) => {
+      expect(vaultScopeCommands(scope, "/tabs/vault")).toEqual(expected);
+    },
+  );
+
   it("round-trips through parseVaultScope", () => {
     for (const scope of [
       ALL_ITEMS_SCOPE,
@@ -345,6 +362,28 @@ describe("vaultScopeCommands", () => {
       const [, segment, ...rest] = vaultScopeCommands(scope);
       expect(parseVaultScope(segment, rest.at(-1))).toEqual(scope);
     }
+  });
+});
+
+describe("scopeKey", () => {
+  it("keys the aggregate scopes by their type", () => {
+    expect(scopeKey(ALL_ITEMS_SCOPE)).toBe(VaultScopeType.AllItems);
+    expect(scopeKey(myVaultScope)).toBe(VaultScopeType.MyVault);
+    expect(scopeKey(trashScope)).toBe(VaultScopeType.Trash);
+    expect(scopeKey(archiveScope)).toBe(VaultScopeType.Archive);
+  });
+
+  it("keys an organization vault by its id", () => {
+    expect(scopeKey(organizationScope)).toBe(organizationId);
+  });
+
+  it("keys a shared folder drill-in apart from the vault it was reached from", () => {
+    expect(scopeKey(sharedFolderScope)).toBe(`${organizationId}/${collectionId}`);
+    expect(scopeKey(sharedFolderScope)).not.toBe(scopeKey(organizationScope));
+  });
+
+  it("keys the My items collection by its sentinel", () => {
+    expect(scopeKey(myItemsScope)).toBe(`${organizationId}/${MY_ITEMS_ROUTE}`);
   });
 });
 

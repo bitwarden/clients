@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Er zijn geen mappen om weer te geven."
   },
+  "noFoldersFilter": {
+    "message": "Geen mappen"
+  },
   "helpFeedback": {
     "message": "Help & reacties"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "No items in the vault"
+  },
+  "noItemsInMyVault": {
+    "message": "Geen items in Mijn kluis"
+  },
+  "emptyMyItems": {
+    "message": "Geen items in Mijn items"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Geen items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Geen items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Je kluizen zijn leeg"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Geen items gevonden met de geselecteerde filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Geen items komen overeen met \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Lengte"
@@ -1497,6 +1539,9 @@
   "importVerb": {
     "message": "Importeren",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Items importeren"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -2774,6 +2819,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 resultaat",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ resultaten",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Geen filters komen overeen met \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Zoekopdracht wissen"
   },
@@ -3993,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Fout bij ophalen van gegevens voor automatisch vullen"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden kon het onderstaande kluisitem niet ontsleutelen. Neem contact op met Bitwarden Customer Support en geef het item ID hieronder om te zien of het kan worden hersteld."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Neem contact op met de klantenservice",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden kon de onderstaande kluisitems niet ontsleutelen. Neem contact op met Bitwarden Customer Support en geef het item ID hieronder om te zien of het kan worden hersteld."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "om extra dataverlies te voorkomen.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "ID kopiëren"
+  },
+  "copyAllIds": {
+    "message": "Alle ID's kopiëren"
   },
   "generateUsername": {
     "message": "Gebruikersnamen genereren"
@@ -5063,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
   "importTargetHintFolder": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -5754,6 +5838,9 @@
   },
   "switchAccounts": {
     "message": "Accounts wisselen"
+  },
+  "switchVault": {
+    "message": "Kluis wisselen"
   },
   "switchToAccount": {
     "message": "Wisselen naar account"
@@ -6853,6 +6940,9 @@
   "noItemsInTrashDesc": {
     "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd."
+  },
   "trashWarning": {
     "message": "Items die meer dan 30 dagen in de prullenbak zitten worden automatisch verwijderd"
   },
@@ -7137,6 +7227,33 @@
   },
   "emptyVaultDescription": {
     "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
+  },
+  "emptyVaultsDescription": {
+    "message": "Voeg logins, IDs, kaarten en andere items toe om aan de slag te gaan."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Voeg items toe aan deze gedeelde map en geef vervolgens toegang tot andere $VAULT_NAME$-leden.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Mijn items is jouw persoonlijke ruimte voor het opslaan van items die eigendom blijven van $VAULT_NAME$ maar niet zichtbaar zijn voor andere leden.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Je hebt geen mappen."
+  },
+  "emptyFoldersDescription": {
+    "message": "Gebruik mappen om kluis-items te organiseren. Ze zijn alleen voor jou - niemand anders zal ze zien of gebruiken."
   },
   "introCarouselLabel": {
     "message": "Welkom bij Bitwarden"
@@ -8020,5 +8137,84 @@
   },
   "editItemsHidePass": {
     "message": "Items bewerken, verborgen wachtwoorden"
+  },
+  "shareVerb": {
+    "message": "Delen"
+  },
+  "peopleWhoCanView": {
+    "message": "Mensen die kunnen bekijken",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Na het delen van deze link moeten individuen hun e-mailadres met een code verifiëren om het item te kunnen bekijken.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Deze link verloopt na deze datum, maar ontvangers kunnen eerder gedeelde informatie bewaren. Hergenereer het inloggegevens voor het intrekken van toegang.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link verloopt na",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Eenmalig delen",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Actieve links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link gekopieerd naar klembord",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Kan deel-link niet aanmaken",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link opgeslagen en gekopieerd naar klembord",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Kan deel-link niet naar klembord kopiëren",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Deel-link verwijderd",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Kan deel-link niet verwijderen",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Deel via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Delen voor kluisitem $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Share",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Verloopt",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
   }
 }

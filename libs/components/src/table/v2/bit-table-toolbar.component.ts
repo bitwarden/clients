@@ -21,13 +21,19 @@ import {
   FilterDialogComponent,
   FilterDialogParams,
 } from "../../filter-menu/filter-dialog.component";
-import { FILTER_PRESENTER, FilterPresenter } from "../../filter-menu/filter-tokens";
+import {
+  FILTER_PRESENTER,
+  FilterPresenter,
+  FilterSelection,
+} from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
+import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../../overflow-list";
+import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
@@ -50,10 +56,12 @@ import { BitTableV2Component } from "./table-v2.component";
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
+    class: "tw-block",
+    "[class]": "hostClasses()",
   },
 })
 export class BitTableToolbarComponent {
@@ -115,6 +123,34 @@ export class BitTableToolbarComponent {
   );
 
   /**
+   * An enabled `bitCollapseOnScroll` on this element draws the page's seam, so the toolbar leaves
+   * the border to it — two `border-color` utilities on one host resolve by stylesheet order. Opted
+   * out, the directive draws nothing and the toolbar keeps its own divider.
+   */
+  private readonly collapse = inject(CollapseOnScrollDirective, { optional: true, self: true });
+
+  protected readonly hostClasses = computed(() => {
+    if (this.collapse?.bitCollapseOnScroll()) {
+      return "";
+    }
+
+    return [
+      "tw-border-0",
+      "tw-border-b",
+      "tw-border-solid",
+      "tw-transition-colors",
+      "tw-duration-200",
+      this.isList() && !this.table?.isScrolled()
+        ? "tw-border-transparent"
+        : "tw-border-border-base",
+    ].join(" ");
+  });
+
+  private readonly isList = computed(() => this.table?.presentation() === "list");
+
+  protected readonly insetX = computed(() => (this.isList() ? "tw-px-3" : "tw-px-5"));
+
+  /**
    * The chip row. Collapsed, it stays laid out but invisible so `bitOverflowList` can
    * keep measuring it — `display: none` would zero every width and bounce it back open.
    */
@@ -123,23 +159,33 @@ export class BitTableToolbarComponent {
     "tw-flex-wrap",
     "tw-items-center",
     "tw-gap-2",
-    "tw-px-5",
-    "tw-py-3.5",
+    this.insetX(),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5", "tw-min-h-[60px]"]),
     "empty:tw-hidden",
     ...(this.collapsed()
       ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]
       : []),
   ]);
 
+  protected readonly activeFilterRowClasses = computed(() => [
+    "tw-flex",
+    "tw-flex-wrap",
+    "tw-items-center",
+    "tw-gap-2",
+    this.insetX(),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
+  ]);
+
   protected readonly searchRowClasses = computed(() => [
     "tw-flex",
     "tw-flex-wrap",
     "tw-items-center",
-    "tw-gap-3",
+    "tw-gap-x-3",
     // Row gap for when the `slot=end` controls wrap to their own line below `md`.
     "tw-gap-y-4",
-    "tw-p-5",
-    ...(this.hasFilterRow()
+    ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),
+    this.insetX(),
+    ...(this.hasFilterRow() && !this.isList()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
   ]);
@@ -180,6 +226,14 @@ export class BitTableToolbarComponent {
   protected appliedLabel(filter: FilterPresenter): string {
     const summary = filter.summary();
     return summary ? `${filter.label()}: ${summary}` : filter.label();
+  }
+
+  /**
+   * A per-option chip's `filter: option` label, used as both its tooltip and its accessible
+   * name. Built here rather than in the template so no whitespace lands around the colon.
+   */
+  protected accessibleLabel(filter: FilterPresenter, selection: FilterSelection): string {
+    return `${filter.label()}: ${selection.label}`;
   }
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */

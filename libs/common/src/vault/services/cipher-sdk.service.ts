@@ -583,7 +583,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             .ciphers()
             .move_many(
               ids.map((id) => asUuid(id)),
-              folderId == null ? undefined : asUuid(folderId),
+              folderId ? asUuid(folderId) : undefined,
             );
         }),
         catchError((error: unknown) => {
