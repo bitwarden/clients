@@ -27,6 +27,7 @@ import {
   AccessRequestView,
   ApprovalSdkService,
   canApprove,
+  isRequestNoLongerPendingError,
 } from "..";
 import {
   AccessNameResolverService,
@@ -195,6 +196,10 @@ export class ApproverInboxService {
    * Records an approve or deny. Removes the row from the inbox first so a slow server can't
    * leave a decided request sitting there; restores it and rethrows on failure.
    *
+   * A refusal meaning the request already left the pending set re-reads instead: the snapshot
+   * predates whatever resolved it, so restoring it would return a withdrawn request to the queue
+   * and clobber any push-driven load that landed meanwhile.
+   *
    * Reloads on success instead of moving the row to history itself: the decision response names
    * neither the approver nor the requester, which only the list reads resolve.
    */
@@ -213,7 +218,12 @@ export class ApproverInboxService {
     try {
       await this.approvalApi.decide(id, { verdict, comment });
     } catch (e) {
-      this._inbox$.next(current);
+      if (isRequestNoLongerPendingError(e)) {
+        this.accessRefresh.notifyAccessChanged();
+        await this.load();
+      } else {
+        this._inbox$.next(current);
+      }
       throw e;
     }
     this.accessRefresh.notifyAccessChanged();

@@ -18614,6 +18614,12 @@
   "pamInboxDecisionFailed": {
     "message": "Could not record decision"
   },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "This request is no longer pending. It was withdrawn or already decided."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "This request's window has ended and can no longer be decided."
+  },
   "pamInboxDeny": {
     "message": "Deny"
   },

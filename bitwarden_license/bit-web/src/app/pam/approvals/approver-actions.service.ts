@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import type { AccessDecisionVerdict } from "../abstractions/access-lease";
+import { decideAccessErrorMessageKey } from "../helpers/decide-access-error";
 
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
 
@@ -67,7 +68,7 @@ export class ApproverActionsService {
       () => run(result.verdict, result.comment),
       busy,
       result.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
-      "pamInboxDecisionFailed",
+      decideAccessErrorMessageKey,
     );
   }
 
@@ -85,7 +86,7 @@ export class ApproverActionsService {
     if (!confirmed) {
       return;
     }
-    await this.perform(run, busy, "pamInboxRevokedToast", "pamInboxRevokeFailed");
+    await this.perform(run, busy, "pamInboxRevokedToast", () => "pamInboxRevokeFailed");
   }
 
   /**
@@ -111,16 +112,19 @@ export class ApproverActionsService {
       run,
       busy,
       "pamInboxApprovalWithdrawnToast",
-      "pamInboxWithdrawApprovalFailed",
+      () => "pamInboxWithdrawApprovalFailed",
     );
   }
 
-  /** Run a confirmed mutation under the caller's busy flag, then toast its outcome. */
+  /**
+   * Run a confirmed mutation under the caller's busy flag, then toast its outcome. `failureKey`
+   * reads what was thrown, so a refusal the server worded gets its own copy.
+   */
   private async perform(
     run: () => Promise<void>,
     busy: ApproverActionBusy,
     successKey: string,
-    failureKey: string,
+    failureKey: (e: unknown) => string,
   ): Promise<void> {
     busy(true);
     try {
@@ -128,7 +132,10 @@ export class ApproverActionsService {
       this.toastService.showToast({ variant: "success", message: this.i18nService.t(successKey) });
     } catch (e) {
       this.logService.error(e);
-      this.toastService.showToast({ variant: "error", message: this.i18nService.t(failureKey) });
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(failureKey(e)),
+      });
     } finally {
       busy(false);
     }
