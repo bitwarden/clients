@@ -5,6 +5,7 @@ import { PremiumUpsellService } from "@bitwarden/angular/vault";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
@@ -34,6 +35,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockLogService = mock<LogService>();
   const mockPremiumUpsellService = mock<PremiumUpsellService>();
   const mockConfigService = mock<ConfigService>();
+  const mockGovModeService = mock<GovModeService>();
 
   /**
    * Creates a mock DialogRef that implements the required properties for testing
@@ -65,6 +67,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockLogService,
       mockPremiumUpsellService,
       mockConfigService,
+      mockGovModeService,
     );
   }
 
@@ -79,6 +82,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       mockStateProvider.getUserState$.mockReturnValue(of(false));
       mockConfigService.serverSettings$ = of(new ServerSettings());
+      mockGovModeService.isGovMode$.mockReturnValue(of(false));
 
       setupTestService();
     });
@@ -111,6 +115,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Default: server settings do not suppress onboarding interstitials
       mockConfigService.serverSettings$ = of(new ServerSettings());
+      mockGovModeService.isGovMode$.mockReturnValue(of(false));
     });
     it("should subscribe to account observables when checking display conditions", async () => {
       // Arrange
@@ -296,6 +301,19 @@ describe("UnifiedUpgradePromptService", () => {
       const result = await sut.displayUpgradePromptConditionally();
 
       // Assert
+      expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when in Gov mode", async () => {
+      mockPremiumUpsellService.showUpsell.mockReturnValue(true);
+      mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
+      mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+      mockGovModeService.isGovMode$.mockReturnValue(of(true));
+      setupTestService();
+
+      const result = await sut.displayUpgradePromptConditionally();
+
       expect(result).toBeNull();
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
