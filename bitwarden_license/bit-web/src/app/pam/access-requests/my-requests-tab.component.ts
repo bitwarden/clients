@@ -218,6 +218,23 @@ export class MyRequestsTabComponent {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
+  /**
+   * Bound onto each Collection option so the chip does not fall back to the count its host table
+   * computes: the chip narrows all three sections, but it is projected into the Pending table,
+   * whose data is the pending rows alone — an option whose collection holds only a lease would
+   * otherwise read "0" and still reveal rows when picked.
+   *
+   * Counted over the same rows {@link collectionOptions} is built from, and against no search
+   * term, matching the absolute (non-faceted) counts the host produces.
+   */
+  protected readonly collectionCounts = computed<ReadonlyMap<string, number>>(() => {
+    const counts = new Map<string, number>();
+    for (const row of [...this.allPending(), ...this.allExtensions(), ...this.allLeases()]) {
+      counts.set(row.collectionId, (counts.get(row.collectionId) ?? 0) + 1);
+    }
+    return counts;
+  });
+
   private readonly filteredPending = computed(() => this.applyFilters(this.allPending()));
 
   /** Rows still awaiting an approver's decision, before the toolbar narrows them. */

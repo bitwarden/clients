@@ -10,7 +10,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { BitTableV2Component, DialogService, ToastService } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  DialogService,
+  FilterOptionComponent,
+  ToastService,
+} from "@bitwarden/components";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
@@ -1028,6 +1033,33 @@ describe("MyRequestsTabComponent", () => {
         fixture.detectChanges();
 
         expect(table.optionCount("collection", "col-1")).toBe(1);
+      });
+
+      it("counts a chip option over every section it narrows, not over Pending alone", () => {
+        pendingRows$.next([requestRow({ id: "req-prod", status: "pending" })]);
+        leases$.next([
+          leaseRow({
+            id: "lease-staging",
+            requestId: "req-l2",
+            cipherName: "Staging DB",
+            collectionId: "col-2",
+            collectionName: "Staging",
+          }),
+        ]);
+
+        createWithFlag(true);
+
+        const options = fixture.debugElement
+          .queryAll(By.directive(FilterOptionComponent))
+          .map((de) => de.componentInstance as FilterOptionComponent<string>);
+        expect(options.map((option) => [option.value(), option.count()])).toEqual([
+          ["col-1", 1],
+          ["col-2", 1],
+        ]);
+
+        const table = fixture.debugElement.query(By.directive(BitTableV2Component))
+          .componentInstance as { optionCount(key: string, value: unknown): number | undefined };
+        expect(table.optionCount("collection", "col-2")).toBe(0);
       });
 
       it("holds the toolbar in place while Pending has nothing to show", () => {

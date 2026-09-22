@@ -41,7 +41,11 @@
             [unsetLabel]="'all' | i18n"
           >
             @for (option of collectionOptions(); track option.value) {
-              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+              <bit-filter-option
+                [value]="option.value"
+                [count]="collectionCounts().get(option.value)"
+                >{{ option.label }}</bit-filter-option
+              >
             }
           </bit-filter-menu>
         </bit-table-toolbar>
