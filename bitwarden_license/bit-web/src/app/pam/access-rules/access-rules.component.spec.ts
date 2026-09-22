@@ -1019,17 +1019,14 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   const toolbar = (fixture: ComponentFixture<AccessRulesComponent>) =>
     el(fixture).querySelector("bit-table-v2 bit-table-toolbar");
 
-  /** The toolbar's `end` slot: the last element of the row the search sits in. */
   const endSlot = (fixture: ComponentFixture<AccessRulesComponent>) =>
     toolbar(fixture)!.querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
 
-  /** The rule names the flag-on table is showing, in render order. */
   const rowNames = (fixture: ComponentFixture<AccessRulesComponent>) =>
     Array.from(el(fixture).querySelectorAll("button[bitlink]")).map((n) =>
       (n.textContent ?? "").replace(/\s+/g, " ").trim(),
     );
 
-  /** The rule names the flag-off table is showing, straight off its data source. */
   const v1Names = (fixture: ComponentFixture<AccessRulesComponent>) =>
     (fixture.componentInstance["dataSource"].filteredData ?? []).map((r) => r.name);
 

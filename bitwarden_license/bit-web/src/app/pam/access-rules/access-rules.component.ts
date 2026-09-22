@@ -486,7 +486,6 @@ type AccessRuleFilterValues = {
   collection?: unknown;
 };
 
-/** Normalizes the toolbar's raw values into the filter {@link accessRuleMatchesFilter} takes. */
 function toAccessRuleFilter(values: AccessRuleFilterValues): AccessRuleFilter {
   return {
     text: (values.search ?? "").trim().toLowerCase(),

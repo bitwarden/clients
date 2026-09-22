@@ -141,10 +141,7 @@ export const Default: Story = {
   },
 };
 
-/**
- * {@link Default} with the VFO1 flag on, rendering `bit-table-v2` — search, the filter chips
- * and the "Create access rule" menu all sit in the table's own toolbar rather than the page.
- */
+/** {@link Default} with the VFO1 flag on, rendering `bit-table-v2`. */
 export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
