@@ -97,36 +97,28 @@ export class OrganizationWarningsService {
           return null;
         }
 
-        const { remainingTrialDays } = warning;
+        const { remainingTrialDays, isSalesAssisted } = warning;
 
+        let message: string;
         if (remainingTrialDays >= 2) {
-          return {
-            organization,
-            message: includeOrganizationNameInMessaging
-              ? this.i18nService.t(
-                  "freeTrialEndPromptMultipleDays",
-                  organization.name,
-                  remainingTrialDays,
-                )
-              : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
-          };
-        }
-
-        if (remainingTrialDays == 1) {
-          return {
-            organization,
-            message: includeOrganizationNameInMessaging
-              ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
-              : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
-          };
-        }
-
-        return {
-          organization,
-          message: includeOrganizationNameInMessaging
+          message = includeOrganizationNameInMessaging
+            ? this.i18nService.t(
+                "freeTrialEndPromptMultipleDays",
+                organization.name,
+                remainingTrialDays,
+              )
+            : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays);
+        } else if (remainingTrialDays === 1) {
+          message = includeOrganizationNameInMessaging
+            ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
+            : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName");
+        } else {
+          message = includeOrganizationNameInMessaging
             ? this.i18nService.t("freeTrialEndPromptToday", organization.name)
-            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
-        };
+            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName");
+        }
+
+        return { organization, message, isSalesAssisted };
       }),
     );
 

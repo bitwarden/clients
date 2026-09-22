@@ -3,8 +3,9 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { TaxIdWarningResponse } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 export type OrganizationFreeTrialWarning = {
-  organization: Pick<Organization, "id" & "name">;
+  organization: Pick<Organization, "id" | "name">;
   message: string;
+  isSalesAssisted: boolean;
 };
 
 export type OrganizationResellerRenewalWarning = {
