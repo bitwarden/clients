@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -26,9 +26,9 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
     return Promise.resolve(this.parseLegacyExport(results));
   }
 
-  // Fields consumed explicitly below, or intentionally discarded (id/itemType/logoColor are
-  // presentational, cardType is redundant with the brand detected from cardNumber).
-  private readonly flatItemHandledKeys = new Set([
+  // Fields consumed explicitly below regardless of item type, or intentionally discarded
+  // (id/itemType/logoColor are presentational).
+  private readonly commonHandledKeys = new Set([
     "id",
     "itemType",
     "itemTypeName",
@@ -38,11 +38,10 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
     "notes",
     "customFields",
     "tags",
-    "url",
-    "username",
-    "password",
-    "totp",
-    "email",
+  ]);
+
+  // cardType is redundant with the brand detected from cardNumber.
+  private readonly cardHandledKeys = new Set([
     "cardNumber",
     "nameOnCard",
     "securityCode",
@@ -52,6 +51,10 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
     "issueDate",
     "pin",
   ]);
+
+  // "email" is deliberately excluded: it's only consumed as a username fallback when `username`
+  // is blank, so it's tracked per-item via `usernameFromEmail` instead of statically here.
+  private readonly loginHandledKeys = new Set(["url", "username", "password", "totp"]);
 
   private parseFlatItems(items: any[]): ImportResult {
     const result = new ImportResult();
@@ -88,8 +91,11 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
         }
         this.processKvp(cipher, "Issuing Bank", value.issuingBank);
         this.processKvp(cipher, "Issue Date", value.issueDate);
-        this.processKvp(cipher, "PIN", value.pin);
-      } else {
+        this.processKvp(cipher, "PIN", value.pin, FieldType.Hidden);
+      }
+
+      let usernameFromEmail = false;
+      if (!isCard) {
         cipher.login.uris = this.makeUriArray(value.url);
         cipher.login.username = this.getValueOrDefault(value.username);
         cipher.login.password = this.getValueOrDefault(value.password);
@@ -98,6 +104,7 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
           !this.isNullOrWhitespace(value.email)
         ) {
           cipher.login.username = value.email;
+          usernameFromEmail = true;
         }
         if (!this.isNullOrWhitespace(value.totp)) {
           cipher.login.totp = value.totp;
@@ -116,10 +123,13 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
 
       // Anything Password Boss adds that we don't explicitly map above still ends up on the
       // cipher, instead of silently disappearing.
+      const typeHandledKeys = isCard ? this.cardHandledKeys : this.loginHandledKeys;
       for (const property in value) {
         if (
           !Object.prototype.hasOwnProperty.call(value, property) ||
-          this.flatItemHandledKeys.has(property)
+          this.commonHandledKeys.has(property) ||
+          typeHandledKeys.has(property) ||
+          (property === "email" && usernameFromEmail)
         ) {
           continue;
         }

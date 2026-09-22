@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 
 import { PasswordBossJsonImporter } from "./passwordboss-json-importer";
 
@@ -124,6 +124,107 @@ describe("Password Boss JSON Importer", () => {
     expect(result.folderRelationships[0]).toEqual([0, 0]);
   });
 
+  it("keeps email as a custom field on a flat login item that also has a username", async () => {
+    const exportWithBothUsernameAndEmail = JSON.stringify([
+      {
+        id: "d2e7dbdb-71d5-4449-87a7-91b2b185dc4b",
+        itemType: 2,
+        folder: null,
+        logoColor: "#E92763",
+        username: "usernameTest",
+        password: "passwordTest",
+        name: "testPW",
+        notes: "",
+        url: "test.com",
+        totp: "",
+        email: "jdoe@example.com",
+        customFields: [],
+        tags: [],
+        itemTypeName: "Website",
+      },
+    ]);
+
+    const result = await importer.parse(exportWithBothUsernameAndEmail);
+
+    const login = result.ciphers[0];
+    expect(login.login.username).toEqual("usernameTest");
+    expect(login.fields.map((f) => [f.name, f.value])).toEqual(
+      expect.arrayContaining([["email", "jdoe@example.com"]]),
+    );
+  });
+
+  it("keeps username/password/url/totp as custom fields on a flat card item", async () => {
+    const cardWithLoginStyleFields = JSON.stringify([
+      {
+        id: "e2e7dbdb-71d5-4449-87a7-91b2b185dc4c",
+        itemType: 11,
+        folder: null,
+        logoColor: "#2196F3",
+        username: "cardUsername",
+        password: "cardPassword",
+        url: "issuer.example.com",
+        totp: "JBSWY3DPEHPK3PXP",
+        name: "Personal Card",
+        notes: "",
+        cardNumber: "4111111111111111",
+        nameOnCard: "Jane Doe",
+        expirationDate: "2030-01-31T23:59:59.000Z",
+        cardType: "visa",
+        issuingBank: "",
+        securityCode: "",
+        issueDate: "",
+        pin: "",
+        tags: [],
+        itemTypeName: "CreditCard",
+      },
+    ]);
+
+    const result = await importer.parse(cardWithLoginStyleFields);
+
+    const card = result.ciphers[0];
+    expect(card.type).toEqual(CipherType.Card);
+    expect(card.fields.map((f) => [f.name, f.value])).toEqual(
+      expect.arrayContaining([
+        ["username", "cardUsername"],
+        ["password", "cardPassword"],
+        ["url", "issuer.example.com"],
+        ["totp", "JBSWY3DPEHPK3PXP"],
+      ]),
+    );
+  });
+
+  it("stores a flat card's PIN as a hidden field", async () => {
+    const cardWithPin = JSON.stringify([
+      {
+        id: "f2e7dbdb-71d5-4449-87a7-91b2b185dc4d",
+        itemType: 11,
+        folder: null,
+        logoColor: "#2196F3",
+        username: "",
+        password: "",
+        name: "Personal Card",
+        notes: "",
+        cardNumber: "4111111111111111",
+        nameOnCard: "Jane Doe",
+        expirationDate: "2030-01-31T23:59:59.000Z",
+        cardType: "visa",
+        issuingBank: "",
+        securityCode: "",
+        issueDate: "",
+        pin: "1234",
+        tags: [],
+        itemTypeName: "CreditCard",
+      },
+    ]);
+
+    const result = await importer.parse(cardWithPin);
+
+    const card = result.ciphers[0];
+    const pinField = card.fields.find((f) => f.name === "PIN");
+    expect(pinField.value).toEqual("1234");
+    expect(pinField.type).toEqual(FieldType.Hidden);
+  });
+
   it("parses card expiration in UTC regardless of local timezone", async () => {
     const originalTz = process.env.TZ;
     process.env.TZ = "Asia/Tokyo";
@@ -133,7 +234,11 @@ describe("Password Boss JSON Importer", () => {
       expect(card.card.expYear).toEqual("2030");
       expect(card.card.expMonth).toEqual("1");
     } finally {
-      process.env.TZ = originalTz;
+      if (originalTz === undefined) {
+        delete process.env.TZ;
+      } else {
+        process.env.TZ = originalTz;
+      }
     }
   });
 
