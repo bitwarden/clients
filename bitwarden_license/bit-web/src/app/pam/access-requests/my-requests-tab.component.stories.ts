@@ -158,7 +158,6 @@ export const Default: Story = {
   parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
 };
 
-/** {@link Default} on the `bit-table-v2` path the VFO1 flag selects. */
 export const FlagOn: Story = {
   decorators: [myAccess()],
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],

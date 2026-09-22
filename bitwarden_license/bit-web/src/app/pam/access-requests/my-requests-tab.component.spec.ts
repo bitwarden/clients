@@ -528,7 +528,6 @@ describe("MyRequestsTabComponent", () => {
       return (element.textContent ?? "").replace(/\s+/g, " ").trim();
     }
 
-    /** The table inside the accordion titled `titleKey`, on whichever path rendered, or null. */
     function sectionTable(titleKey: string): HTMLElement | null {
       const section = queryAll(fixture.nativeElement, "bit-accordion").find((accordion) =>
         text(accordion).includes(titleKey),
