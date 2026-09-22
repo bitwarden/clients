@@ -12200,9 +12200,6 @@
   "groupSlashUser": {
     "message": "Group/User"
   },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
-  },
   "secretsManager": {
     "message": "Secrets Manager"
   },

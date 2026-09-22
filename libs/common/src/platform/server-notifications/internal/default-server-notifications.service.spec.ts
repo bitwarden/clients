@@ -438,7 +438,6 @@ describe("NotificationsService", () => {
       it.each([
         { featureFlagEnabled: false, reason: undefined },
         { featureFlagEnabled: true, reason: undefined },
-        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KdfChange },
       ])(
         "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
         async ({ featureFlagEnabled, reason }) => {
@@ -464,8 +463,8 @@ describe("NotificationsService", () => {
         },
       );
 
-      it("should skip logout when receiving KDF change reason with feature flag enabled", async () => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
+      it("should skip logout when receiving KDF change reason regardless of feature flags", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
 
         const notification = new NotificationResponse({
           type: NotificationType.LogOut,

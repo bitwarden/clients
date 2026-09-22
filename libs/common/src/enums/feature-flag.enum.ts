@@ -63,7 +63,6 @@ export enum FeatureFlag {
   // get to use the feature.
   SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
-  NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
@@ -234,7 +233,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
