@@ -24,11 +24,20 @@ import {
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   BadgeComponent,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitHeaderRowComponent,
+  BitRowComponent,
+  BitTableV2Component,
   ButtonModule,
   FILTER_CONTROL,
   FilterMenuModule,
@@ -39,6 +48,7 @@ import {
   TableDataSource,
   TableModule,
   TypographyModule,
+  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -85,6 +95,13 @@ const announcementHoldMs = 2000;
     RouterModule,
     AccessStateBadgeComponent,
     BadgeComponent,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitHeaderRowComponent,
+    BitRowComponent,
+    BitTableV2Component,
     ButtonModule,
     FilterMenuModule,
     IconComponent,
@@ -109,6 +126,13 @@ export class HistoryTabComponent {
   private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
   private readonly syncService = inject(SyncService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly HistoryScope = HistoryScope;
 
@@ -299,6 +323,8 @@ export class HistoryTabComponent {
   });
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
+
+  protected readonly historyTable = defineTable<MyAccessRequestRow, "actions">(this.historyRows);
 
   /**
    * The Resolved column's sort, which is what actually orders the rendered table. Sorting on

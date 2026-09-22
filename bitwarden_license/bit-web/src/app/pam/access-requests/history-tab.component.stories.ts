@@ -3,8 +3,10 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
@@ -196,6 +198,12 @@ type Story = StoryObj<HistoryTabComponent>;
  */
 export const Default: Story = {
   decorators: [history()],
+  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
+};
+
+export const FlagOn: Story = {
+  decorators: [history()],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** Nothing resolved yet. */
@@ -210,6 +218,12 @@ export const Empty: Story = {
  */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
+  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
+};
+
+export const WithManagedHistoryFlagOn: Story = {
+  decorators: [history({ managed: managedRows })],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** An approver with nothing decided yet: the filters are offered before there is anything to narrow. */

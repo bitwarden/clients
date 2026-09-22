@@ -3,8 +3,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -15,7 +16,7 @@ import { ApprovalPrivilegeService } from "../approvals/approval-privilege.servic
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
 import { HistoryTabComponent } from "./history-tab.component";
-import { MyAccessRequestRow } from "./my-access-row";
+import { historyDisplayStatus, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 // Loosely typed, not `Partial<MyAccessRequestRow>`, since `id` is an opaque branded type.
@@ -66,6 +67,7 @@ describe("HistoryTabComponent", () => {
   let canApprove$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let configService: MockProxy<ConfigService>;
 
   function create(): void {
     fixture = TestBed.createComponent(HistoryTabComponent);
@@ -133,6 +135,8 @@ describe("HistoryTabComponent", () => {
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [HistoryTabComponent, NoopAnimationsModule],
@@ -152,6 +156,7 @@ describe("HistoryTabComponent", () => {
         { provide: SyncService, useValue: { activeUserLastSync$: () => lastSync$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -898,6 +903,324 @@ describe("HistoryTabComponent", () => {
         variant: "error",
         message: "pamInboxWithdrawApprovalFailed",
       });
+    });
+  });
+
+  describe("with the VFO1 flag on", () => {
+    const liveGrant = historyRow({
+      id: "managed-live",
+      status: "approved",
+      statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
+      producedLeaseId: "lease-live",
+      producedLeaseStatus: "active",
+      resolvedAt: "2026-08-17T12:00:00.000Z",
+    });
+    const unstartedApproval = historyRow({
+      id: "managed-unstarted",
+      status: "approved",
+      statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+      producedLeaseId: null,
+      resolvedAt: "2026-08-17T10:00:00.000Z",
+    });
+    const deniedManaged = historyRow({
+      id: "managed-denied",
+      resolvedAt: "2026-08-17T08:00:00.000Z",
+    });
+
+    function endedLease(id: string, producedLeaseStatus: "canceled" | "revoked") {
+      const request = {
+        status: "approved",
+        producedLeaseId: `lease-${id}`,
+        producedLeaseStatus,
+      } as unknown as Parameters<typeof historyDisplayStatus>[0];
+      return historyRow({ id, ...request, ...historyDisplayStatus(request) });
+    }
+
+    function createWithFlag(enabled: boolean): void {
+      fixture?.destroy();
+      configService.getFeatureFlag$.mockReturnValue(of(enabled));
+      create();
+    }
+
+    function text(element: Element): string {
+      return (element.textContent ?? "").replace(/\s+/g, " ").trim();
+    }
+
+    function table(): HTMLElement {
+      return query("bit-table-v2, bit-table")!;
+    }
+
+    function headings(): string[] {
+      return [...table().querySelectorAll('th, [role="columnheader"]')].map(text);
+    }
+
+    function sortableHeadings(): string[] {
+      return [...table().querySelectorAll('th, [role="columnheader"]')]
+        .filter((header) => header.querySelector("button") != null)
+        .map(text);
+    }
+
+    /** Row ids in render order, read off the v1 `tr` or the v2 Item cell. */
+    function rowIds(): string[] {
+      return [...table().querySelectorAll("tr[bitRow], bit-row")].map((row) =>
+        (row.matches("[data-testid]") ? row : row.querySelector("[data-testid]"))!
+          .getAttribute("data-testid")!
+          .replace("my-access-history-", ""),
+      );
+    }
+
+    function actions(): { testId: string | null; label: string; id: string }[] {
+      return [...table().querySelectorAll<HTMLButtonElement>("button[data-testid]")].map(
+        (button) => ({
+          testId: button.getAttribute("data-testid"),
+          label: text(button),
+          id: button.id,
+        }),
+      );
+    }
+
+    function clickSortHeader(heading: string): void {
+      const header = [...table().querySelectorAll('[role="columnheader"]')].find(
+        (candidate) => text(candidate) === heading,
+      )!;
+      header.querySelector("button")!.click();
+      fixture.detectChanges();
+    }
+
+    function populateApprover(): void {
+      canApprove$.next(true);
+      managedIds$.next(new Set(["managed-live", "managed-unstarted", "managed-denied"]));
+      myRows$.next([
+        historyRow({ id: "mine-1", resolvedAt: "2026-08-17T11:00:00.000Z" }),
+        historyRow({
+          id: "mine-undecided",
+          resolvedAt: null,
+          submittedAt: "2026-08-17T13:00:00.000Z",
+        }),
+      ]);
+      managedRows$.next([deniedManaged, liveGrant, unstartedApproval]);
+    }
+
+    it("renders bit-table-v2 instead of bit-table", () => {
+      populateApprover();
+
+      createWithFlag(true);
+
+      expect(query("bit-table-v2")).not.toBeNull();
+      expect(query("bit-table")).toBeNull();
+    });
+
+    it("renders only the v1 table with the flag off", () => {
+      populateApprover();
+
+      createWithFlag(false);
+
+      expect(query("bit-table")).not.toBeNull();
+      expect(query("bit-table-v2")).toBeNull();
+    });
+
+    it("renders the same column headings, in the same order, as v1", () => {
+      populateApprover();
+      createWithFlag(false);
+      const v1 = headings();
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamColumnResolver",
+        "pamColumnComment",
+        "pamColumnResolved",
+        "pamColumnActions",
+      ]);
+      expect(headings()).toEqual(v1);
+    });
+
+    it("drops the Actions column when nothing listed can be acted on, as v1 does", () => {
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      createWithFlag(false);
+      const v1 = headings();
+
+      createWithFlag(true);
+
+      expect(v1).not.toContain("pamColumnActions");
+      expect(headings()).toEqual(v1);
+    });
+
+    it("renders the same rows, newest resolved-or-submitted first, as v1", () => {
+      populateApprover();
+      createWithFlag(false);
+      const v1 = rowIds();
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([
+        "mine-undecided",
+        "managed-live",
+        "mine-1",
+        "managed-unstarted",
+        "managed-denied",
+      ]);
+      expect(rowIds()).toEqual(v1);
+    });
+
+    it("sorts on Item, Status and Resolved only, as v1 does", () => {
+      populateApprover();
+
+      createWithFlag(true);
+
+      expect(sortableHeadings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnResolved"]);
+    });
+
+    it("reverses the Resolved sort on a header click, keeping undecided rows at their submitted place", () => {
+      populateApprover();
+      createWithFlag(true);
+
+      clickSortHeader("pamColumnResolved");
+
+      expect(rowIds()).toEqual([
+        "managed-denied",
+        "managed-unstarted",
+        "mine-1",
+        "managed-live",
+        "mine-undecided",
+      ]);
+    });
+
+    it("offers the same row actions, gated the same way, as v1", () => {
+      populateApprover();
+      createWithFlag(false);
+      const v1 = actions().map(({ testId, label }) => ({ testId, label }));
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([
+        { testId: "history-revoke-managed-live", label: "pamInboxRevoke" },
+        { testId: "history-cancel-approval-managed-unstarted", label: "pamInboxWithdrawApproval" },
+      ]);
+      expect(actions().map(({ testId, label }) => ({ testId, label }))).toEqual(v1);
+    });
+
+    it("gives every row action a descriptive id", () => {
+      populateApprover();
+
+      createWithFlag(true);
+
+      expect(actions().map(({ id }) => id)).toEqual([
+        "pam-history-tab_button_revoke-managed-live",
+        "pam-history-tab_button_withdraw-approval-managed-unstarted",
+      ]);
+    });
+
+    it("routes Revoke and Withdraw approval through the same component actions as v1", async () => {
+      populateApprover();
+      createWithFlag(true);
+
+      query('[data-testid="history-revoke-managed-live"]')!.click();
+      query('[data-testid="history-cancel-approval-managed-unstarted"]')!.click();
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(inbox.revokeLease).toHaveBeenCalledWith("managed-live", "lease-live");
+      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-unstarted");
+    });
+
+    it("labels a requester-canceled lease and an operator-revoked one differently", () => {
+      myRows$.next([
+        endedLease("ended-canceled", "canceled"),
+        endedLease("ended-revoked", "revoked"),
+      ]);
+
+      createWithFlag(true);
+
+      expect(text(query('[data-testid="my-access-history-status-ended-canceled"]')!)).toBe(
+        "pamStatusCanceled",
+      );
+      expect(text(query('[data-testid="my-access-history-status-ended-revoked"]')!)).toBe(
+        "pamStatusRevoked",
+      );
+    });
+
+    it("shows the same cell content as v1", () => {
+      canApprove$.next(true);
+      myRows$.next([
+        historyRow({
+          id: "mine-1",
+          approverComment: "Use the replica.",
+          extendedBySeconds: 3600,
+          extendedUntil: "2026-08-17T14:00:00.000Z",
+        }),
+        historyRow({ id: "mine-2", resolverName: null, resolverLabelKey: "pamResolverAccessRule" }),
+      ]);
+
+      createWithFlag(true);
+
+      const rendered = text(table());
+      expect(rendered).toContain("Prod database");
+      expect(rendered).toContain("pamInboxInCollection Production");
+      expect(rendered).toContain("Ada");
+      expect(rendered).toContain("pamResolverAccessRule");
+      expect(rendered).toContain("Use the replica.");
+      expect(query('[data-testid="my-access-history-extended-mine-1"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-history-status-mine-1"]')!.textContent).toContain(
+        "pamStatusDenied",
+      );
+    });
+
+    it("links each item to its request with a real anchor", () => {
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      createWithFlag(true);
+
+      expect(query('[data-testid="my-access-history-mine-1"] a')?.getAttribute("href")).toBe(
+        "/pam/requests/mine-1",
+      );
+    });
+
+    it("narrows the v2 table through the scope chip", () => {
+      populateApprover();
+      createWithFlag(true);
+
+      selectScope("mine");
+      expect(rowIds()).toEqual(["mine-undecided", "mine-1"]);
+
+      showManaged();
+      expect(rowIds()).toEqual(["managed-live", "managed-unstarted", "managed-denied"]);
+    });
+
+    it("shows the scope's empty state rather than an empty v2 table", () => {
+      canApprove$.next(true);
+
+      createWithFlag(true);
+
+      expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
+      expect(query("bit-table-v2")).toBeNull();
+    });
+
+    it("shows the hidden skeleton as a v2 table while the history loads", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+      createWithFlag(true);
+      passSkeletonDelay();
+
+      const skeleton = query('[data-testid="history-loading"]')!;
+      expect(skeleton.getAttribute("aria-hidden")).toBe("true");
+      expect(skeleton.querySelector("bit-table-v2")).not.toBeNull();
+      expect(skeleton.querySelector("bit-table")).toBeNull();
+      expect(skeleton.querySelectorAll("bit-row")).toHaveLength(5);
+      expect([...skeleton.querySelectorAll('[role="columnheader"]')].map(text)).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamColumnResolver",
+        "pamColumnComment",
+        "pamColumnResolved",
+      ]);
+
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="history-loading"]')).toBeNull();
     });
   });
 
