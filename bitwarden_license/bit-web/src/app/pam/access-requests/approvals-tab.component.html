@@ -124,34 +124,66 @@
     <span slot="description">{{ "pamInboxEmptyDescription" | i18n }}</span>
   </bit-status-lockup>
 } @else {
-  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-    <bit-search
-      class="tw-grow tw-max-w-md"
-      [formControl]="searchControl"
-      [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
-      id="pam-approvals_input_search"
-    />
-    <bit-filter-menu
-      #collectionFilter
-      key="collection"
-      [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
-      [unsetLabel]="'all' | i18n"
-    >
-      @for (option of collectionOptions(); track option.value) {
-        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-      }
-    </bit-filter-menu>
-    <bit-filter-menu
-      #requesterFilter
-      key="requester"
-      [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
-      [unsetLabel]="'all' | i18n"
-    >
-      @for (option of requesterOptions(); track option.value) {
-        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-      }
-    </bit-filter-menu>
-  </div>
+  @if (vfo1Enabled()) {
+    <bit-table-toolbar class="tw-mb-4">
+      <bit-search
+        class="tw-flex-1"
+        [formControl]="searchControl"
+        [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
+        id="pam-approvals_input_search"
+      />
+      <bit-filter-menu
+        #collectionFilter
+        key="collection"
+        [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of collectionOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+      <bit-filter-menu
+        #requesterFilter
+        key="requester"
+        [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of requesterOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    </bit-table-toolbar>
+  } @else {
+    <!-- Remove this branch along with the VFO1 flag. -->
+    <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+      <bit-search
+        class="tw-grow tw-max-w-md"
+        [formControl]="searchControl"
+        [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
+        id="pam-approvals_input_search"
+      />
+      <bit-filter-menu
+        #collectionFilter
+        key="collection"
+        [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of collectionOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+      <bit-filter-menu
+        #requesterFilter
+        key="requester"
+        [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of requesterOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    </div>
+  }
 
   @if (rows().length === 0 && leaseRows().length === 0) {
     <!-- Rendered inside the toolbar branch on purpose: a filter that matches nothing must not take
