@@ -64,6 +64,15 @@ import { DurationShortPipe } from "../date/duration-short.pipe";
 /** The fields the toolbar filters against, carried by both sections' row models. */
 type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
 
+/** The toolbar's three filters, resolved to what a row is tested against. */
+type ApprovalsFilter = { term: string; collection: string | null; requester: string | null };
+
+/**
+ * The toolbar's raw values, keyed by each control's filter key — `search` is the key the table
+ * adopts a projected `bit-search` under. Untyped per key because a chip's value is `unknown`.
+ */
+type ApprovalsFilterValues = { search?: unknown; collection?: unknown; requester?: unknown };
+
 /** An option offered by a `bit-filter-menu` chip. */
 type FilterOption = { label: string; value: string };
 
@@ -288,7 +297,13 @@ export class ApprovalsTabComponent {
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
 
-  protected readonly table = defineTable<ApprovalRow, "window" | "actions">(this.rows);
+  /**
+   * Fed the unfiltered inbox: the toolbar is projected into this table, so the chips and the
+   * search register with it and it narrows itself through {@link rowMatchesFilter}. Handing it
+   * {@link rows} as well would filter the same set twice and leave each chip's option counts
+   * measured against rows the other chips had already removed.
+   */
+  protected readonly table = defineTable<ApprovalRow, "window" | "actions">(this.allRows);
 
   /**
    * Seeded here rather than left to the column's `defaultSort`: bit-table-v2 seeds that once, from
@@ -355,20 +370,30 @@ export class ApprovalsTabComponent {
     });
   }
 
+  /** The toolbar's three filters, read from the controls this component holds. */
+  private readonly filterInputs = computed<ApprovalsFilter>(() => ({
+    term: this.searchTerm().trim().toLowerCase(),
+    collection: this.collectionFilter() ?? null,
+    requester: this.requesterFilter() ?? null,
+  }));
+
+  /**
+   * The Pending table's row test. The chips and the projected `bit-search` register with that
+   * table, so their values arrive as `values` rather than through {@link filterInputs} — the
+   * keyed shape is what lets the table count each chip's options.
+   */
+  protected readonly rowMatchesFilter = (
+    row: ApprovalRow,
+    values: ApprovalsFilterValues,
+  ): boolean => matchesFilter(row, toApprovalsFilter(values));
+
   /**
    * The toolbar's three filters, applied to either section's rows. Both row models carry the same
    * three fields, so one predicate keeps the two sections from drifting apart.
    */
   private applyFilters<T extends FilterableRow>(rows: readonly T[]): T[] {
-    const term = this.searchTerm().trim().toLowerCase();
-    const collection = this.collectionFilter();
-    const requester = this.requesterFilter();
-    return rows.filter(
-      (row) =>
-        (term === "" || row.searchText.includes(term)) &&
-        (collection == null || row.collectionName === collection) &&
-        (requester == null || row.requester === requester),
-    );
+    const filter = this.filterInputs();
+    return rows.filter((row) => matchesFilter(row, filter));
   }
 
   protected cipherFor(cipherId: string): CipherView | undefined {
@@ -407,6 +432,24 @@ export class ApprovalsTabComponent {
       rowBusy(this.revoking, String(row.leaseId)),
     );
   }
+}
+
+/** Whether a row survives the toolbar's three filters. */
+function matchesFilter(row: FilterableRow, filter: ApprovalsFilter): boolean {
+  return (
+    (filter.term === "" || row.searchText.includes(filter.term)) &&
+    (filter.collection == null || row.collectionName === filter.collection) &&
+    (filter.requester == null || row.requester === filter.requester)
+  );
+}
+
+/** The table's keyed filter values, resolved to what {@link matchesFilter} tests against. */
+function toApprovalsFilter(values: ApprovalsFilterValues): ApprovalsFilter {
+  return {
+    term: typeof values.search === "string" ? values.search.trim().toLowerCase() : "",
+    collection: typeof values.collection === "string" ? values.collection : null,
+    requester: typeof values.requester === "string" ? values.requester : null,
+  };
 }
 
 /** Whether two row lists hold the same row objects in the same order. */

@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -1056,13 +1057,15 @@ describe("ApprovalsTabComponent", () => {
       expect(pendingOrder()).toEqual(["keep"]);
     });
 
-    it("keeps the section empty states outside the table", () => {
+    it("keeps the pending empty state inside its table, and the lease one outside", () => {
       inbox.activeLeaseRows$.next([leaseRow()]);
 
       createWithFlag(true);
 
-      expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
-      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(1);
+      const pendingEmpty = query('[data-testid="approvals-pending-empty"]');
+      expect(pendingEmpty?.closest("bit-table-v2")).toBe(pendingTable());
+      expect(query('[data-testid="approvals-active-access-empty"]')).toBeNull();
+      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(2);
     });
 
     it("shows a v2 skeleton, hidden from assistive tech, once loading has run for a second", () => {
@@ -1092,6 +1095,11 @@ describe("ApprovalsTabComponent", () => {
     describe("toolbar", () => {
       function chips(root: ParentNode): HTMLElement[] {
         return queryAll(root, "bit-filter-menu");
+      }
+
+      /** The toolbar's chip row — the unit that collapses into the filter dialog below md. */
+      function filterRow(): HTMLElement {
+        return query("bit-table-toolbar [bitOverflowList]") as HTMLElement;
       }
 
       function optionLabels(chip: HTMLElement): string[] {
@@ -1232,8 +1240,14 @@ describe("ApprovalsTabComponent", () => {
         component["searchControl"].setValue("alan");
         fixture.detectChanges();
 
-        expect(query('[data-testid="approvals-no-results"]')).not.toBeNull();
-        expect(queryAll(fixture.nativeElement, "bit-accordion")).toHaveLength(0);
+        expect(pendingOrder()).toEqual([]);
+        expect(leaseIds()).toEqual([]);
+        expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
+          "pamApprovalsNoResults",
+        );
+        expect(query('[data-testid="approvals-active-access-empty"]')?.textContent).toContain(
+          "pamApprovalsNoResults",
+        );
       });
 
       it("narrows both sections from the search box, matching the same fields as v1", () => {
@@ -1255,24 +1269,83 @@ describe("ApprovalsTabComponent", () => {
         component["searchControl"].setValue("nothing matches this");
         fixture.detectChanges();
 
-        expect(query('[data-testid="approvals-no-results"]')).not.toBeNull();
+        expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
+          "pamApprovalsNoResults",
+        );
         expect(query("bit-table-toolbar bit-search")).not.toBeNull();
         expect(chips(query("bit-table-toolbar") as HTMLElement)).toHaveLength(2);
       });
 
-      it("keeps the toolbar outside both tables, so an emptied section cannot take it away", () => {
-        // A toolbar projected into the pending table would vanish with it, stranding the filter.
+      it("projects the toolbar into the pending table, which holds its place when emptied", () => {
         twoOfEach();
         createWithFlag(true);
 
-        component["requesterFilterMenu"]()?.setValue("Grace");
+        component["requesterFilterMenu"]()?.setValue("Alan");
+        component["searchControl"].setValue("nothing matches this");
         fixture.detectChanges();
 
         const toolbar = query("bit-table-toolbar") as HTMLElement;
-        expect(toolbar.closest("bit-table-v2")).toBeNull();
-        expect(toolbar.closest("bit-accordion")).toBeNull();
-        expect(query('[data-testid="approvals-pending-empty"]')).toBeNull();
+        expect(toolbar.closest("bit-table-v2")).toBe(pendingTable());
+        expect(pendingOrder()).toEqual([]);
+        expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
+        expect(chips(toolbar)).toHaveLength(2);
+      });
+
+      it("counts a chip's options against the pending rows the other chips have not seen", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        component["collectionFilterMenu"]()?.setValue("Production");
+        fixture.detectChanges();
+
+        const table = fixture.debugElement.query(By.css("bit-table-v2")).componentInstance as {
+          optionCount(key: string, value: unknown): number | undefined;
+        };
+        expect(table.optionCount("requester", "Alan")).toBe(1);
         expect(pendingOrder()).toEqual(["prod-grace"]);
+      });
+
+      it("lays both chips out in the visible filter row at md and up", () => {
+        twoOfEach();
+
+        createWithFlag(true);
+
+        expect(chips(filterRow())).toHaveLength(2);
+        expect(filterRow().classList).not.toContain("tw-invisible");
+        expect(query("bit-table-toolbar .bwi-sliders")).toBeNull();
+      });
+
+      it("collapses the same chips into the filter dialog trigger below md", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        resizeTo(500);
+
+        expect(query("bit-table-toolbar .bwi-sliders")).not.toBeNull();
+        // Laid out but invisible, so the overflow list can keep measuring it.
+        expect(chips(filterRow())).toHaveLength(2);
+        expect(filterRow().classList).toContain("tw-invisible");
+      });
+
+      it("clears a collapsed selection from its active-filter chip, re-listing both sections", () => {
+        twoOfEach();
+        createWithFlag(true);
+        resizeTo(500);
+
+        component["collectionFilterMenu"]()?.setValue("Staging");
+        fixture.detectChanges();
+
+        const applied = queryAll(fixture.nativeElement, "bit-table-toolbar bit-chip");
+        expect(applied).toHaveLength(1);
+        expect(text(applied[0])).toContain("Staging");
+        expect(pendingOrder()).toEqual(["staging-alan"]);
+
+        applied[0].querySelector<HTMLElement>("button[bit-chip-dismiss-button]")?.click();
+        fixture.detectChanges();
+
+        expect(component["collectionFilterMenu"]()?.active()).toBe(false);
+        expect(pendingOrder()).toEqual(["prod-grace", "staging-alan"]);
+        expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
       });
 
       it("shows no toolbar while the skeleton is up, as v1 does", () => {
