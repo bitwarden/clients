@@ -740,7 +740,6 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
   const headings = (fixture: ComponentFixture<AccessRulesComponent>) =>
     Array.from(el(fixture).querySelectorAll("th, [role=columnheader]")).map(text);
 
-  /** Row names in rendered order, read off each row's edit link. */
   const rowNames = (fixture: ComponentFixture<AccessRulesComponent>) =>
     Array.from(el(fixture).querySelectorAll("button[bitlink]")).map(text);
 
@@ -754,7 +753,6 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
   const accessibleName = (fixture: ComponentFixture<AccessRulesComponent>, id: string) =>
     text(el(fixture).querySelector(`label[for="${id}"]`)!);
 
-  /** Opens the first row's overflow menu and reads its items. */
   const firstRowMenu = (fixture: ComponentFixture<AccessRulesComponent>) => {
     const trigger = el(fixture).querySelector<HTMLButtonElement>(
       'button[biticonbutton="bwi-ellipsis-h"]',
