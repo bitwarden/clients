@@ -25,6 +25,7 @@ import { IconComponent } from "../icon";
 import { BitIconButtonComponent } from "../icon-button";
 import { BitKbdComponent } from "../kbd";
 import { FocusableElement } from "../shared/focusable-element";
+import { injectObscuredByDialog } from "../utils/obscured-by-dialog";
 
 let nextId = 0;
 
@@ -64,6 +65,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private readonly notifyOnTouch = signal<(() => void) | undefined>(undefined);
 
   private readonly input = viewChild<ElementRef<HTMLInputElement>>("input");
+  private readonly obscuredByDialog = injectObscuredByDialog();
 
   protected readonly id = `search-id-${nextId++}`;
   protected readonly searchText = signal<string | undefined>(undefined);
@@ -78,7 +80,10 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly autocomplete = input<string>();
   readonly size = input<FieldContainerSize>("base");
 
-  /** When true, enables ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field regardless. */
+  /**
+   * When true, enables ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field regardless.
+   * The shortcut is suppressed while a dialog is open, unless this search is inside that dialog.
+   */
   readonly useKeyShortcuts = input<boolean>(false);
 
   getFocusTarget() {
@@ -91,7 +96,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   protected handleDocumentShortcut(event: KeyboardEvent): void {
-    if (!this.useKeyShortcuts() || this.disabled()) {
+    if (!this.useKeyShortcuts() || this.disabled() || this.obscuredByDialog()) {
       return;
     }
 
