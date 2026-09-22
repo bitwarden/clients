@@ -22,7 +22,9 @@ describe("RoutedVaultFilterService", () => {
           provide: Vfo1TerminologyService,
           useValue: {
             enabled: () => flagEnabled,
-            collectionQueryParams: (collectionId: string | null | undefined) => {
+            collectionQueryParams: (
+              collectionId: string | null | undefined,
+            ): { collectionId: string | null; sharedFolderId: string | null } => {
               const value = collectionId ?? null;
               return flagEnabled
                 ? { sharedFolderId: value, collectionId: null }
