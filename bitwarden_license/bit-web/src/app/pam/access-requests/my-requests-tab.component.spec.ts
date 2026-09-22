@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -9,7 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { BitTableV2Component, DialogService, ToastService } from "@bitwarden/components";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
@@ -819,17 +820,19 @@ describe("MyRequestsTabComponent", () => {
       component["searchControl"].setValue("alpha");
       fixture.detectChanges();
 
-      expect(sectionTable("pamMyRequestsPendingSection")).toBeNull();
+      expect(rowIds(pendingTable())).toEqual([]);
       expect(rowIds(activeTable())).toEqual(["my-access-approved-req-alpha"]);
       expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
     });
 
-    it("shows the Pending and Active empty states on the v2 path", () => {
+    it("keeps the Pending empty state inside its table, and the Active one outside", () => {
       createWithFlag(true);
 
-      expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-active-empty"]')).not.toBeNull();
-      expect(query("bit-table-v2")).toBeNull();
+      expect(query('[data-testid="my-access-pending-empty"]')?.closest("bit-table-v2")).toBe(
+        pendingTable(),
+      );
+      expect(query('[data-testid="my-access-active-empty"]')?.closest("bit-table-v2")).toBeNull();
+      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(1);
     });
 
     it("routes Start, Cancel and End through the same component actions as v1", async () => {
@@ -847,6 +850,195 @@ describe("MyRequestsTabComponent", () => {
       expect(myAccess.cancel).toHaveBeenCalledWith("req-pending-new");
       expect(myAccess.cancel).toHaveBeenCalledWith("req-ext");
       expect(myAccess.endLease).toHaveBeenCalledWith("lease-soon");
+    });
+
+    describe("toolbar", () => {
+      function chips(root: ParentNode): HTMLElement[] {
+        return queryAll(root, "bit-filter-menu");
+      }
+
+      function optionLabels(chip: HTMLElement): string[] {
+        return queryAll(chip, "bit-filter-option").map(text);
+      }
+
+      function searchPlaceholder(): string | null | undefined {
+        return query("bit-search input")?.getAttribute("placeholder");
+      }
+
+      /** A section's row ids, or null when the section renders no table at all. */
+      function sectionRowIds(titleKey: string): (string | null)[] | null {
+        const table = sectionTable(titleKey);
+        return table ? rowIds(table) : null;
+      }
+
+      function allSectionRowIds(): ((string | null)[] | null)[] {
+        return [
+          sectionRowIds("pamMyRequestsPendingSection"),
+          sectionRowIds("pamMyRequestsGroupExtensions"),
+          sectionRowIds("pamMyRequestsActiveAccessSection"),
+        ];
+      }
+
+      function selectCollection(value: string): void {
+        component["collectionFilter"]()?.setValue(value);
+        fixture.detectChanges();
+      }
+
+      /** One row per section in each of two collections, so the chip can narrow all three. */
+      function twoCollections(): void {
+        pendingRows$.next([
+          requestRow({ id: "req-prod", status: "pending" }),
+          requestRow({
+            id: "req-staging",
+            status: "pending",
+            cipherName: "Staging DB",
+            collectionId: "col-2",
+            collectionName: "Staging",
+          }),
+        ]);
+        extensionRows$.next([
+          requestRow({ id: "req-ext-prod", status: "pending" }),
+          requestRow({
+            id: "req-ext-staging",
+            status: "pending",
+            cipherName: "Staging DB",
+            collectionId: "col-2",
+            collectionName: "Staging",
+          }),
+        ]);
+        leases$.next([
+          leaseRow({ id: "lease-prod" }),
+          leaseRow({
+            id: "lease-staging",
+            requestId: "req-l2",
+            cipherName: "Staging DB",
+            collectionId: "col-2",
+            collectionName: "Staging",
+          }),
+        ]);
+      }
+
+      it("projects the search and the collection chip into the Pending table's toolbar", () => {
+        twoCollections();
+
+        createWithFlag(true);
+
+        const toolbar = query("bit-table-toolbar");
+        expect(toolbar).not.toBeNull();
+        expect(toolbar?.closest("bit-table-v2")).toBe(pendingTable());
+        expect(toolbar?.querySelector("bit-search")).not.toBeNull();
+        expect(chips(toolbar as HTMLElement)).toHaveLength(1);
+        expect(queryAll(fixture.nativeElement, "bit-search")).toHaveLength(1);
+        expect(chips(fixture.nativeElement)).toHaveLength(1);
+      });
+
+      it("leaves the controls above the accordion group with the flag off", () => {
+        twoCollections();
+
+        createWithFlag(false);
+
+        expect(query("bit-table-toolbar")).toBeNull();
+        const search = query("bit-search");
+        expect(search?.closest("bit-accordion-group")).toBeNull();
+        expect(chips(fixture.nativeElement)).toHaveLength(1);
+      });
+
+      it("keeps the search placeholder the v1 toolbar rendered", () => {
+        twoCollections();
+
+        createWithFlag(false);
+        const v1Placeholder = searchPlaceholder();
+
+        createWithFlag(true);
+
+        expect(v1Placeholder?.trim()).toBe("pamAccessRequestsSearchPlaceholder");
+        expect(searchPlaceholder()).toBe(v1Placeholder);
+      });
+
+      it("keeps the chip's key, label and options", () => {
+        twoCollections();
+
+        createWithFlag(false);
+        const v1Options = optionLabels(chips(fixture.nativeElement)[0]);
+        const v1Label = text(chips(fixture.nativeElement)[0]);
+
+        createWithFlag(true);
+
+        expect(component["collectionOptions"]()).toEqual([
+          { value: "col-1", label: "Production" },
+          { value: "col-2", label: "Staging" },
+        ]);
+        expect(optionLabels(chips(fixture.nativeElement)[0])).toEqual(v1Options);
+        expect(text(chips(fixture.nativeElement)[0])).toBe(v1Label);
+        expect(component["collectionFilter"]()?.key()).toBe("collection");
+      });
+
+      it("starts with the chip unset, listing every section in full, as v1 does", () => {
+        twoCollections();
+
+        createWithFlag(true);
+
+        expect(component["collectionFilter"]()?.active()).toBe(false);
+        expect(allSectionRowIds().map((ids) => ids?.length)).toEqual([2, 2, 2]);
+      });
+
+      it("narrows every section from the chip, exactly as v1 does", () => {
+        twoCollections();
+
+        createWithFlag(false);
+        selectCollection("col-2");
+        const v1 = allSectionRowIds();
+
+        createWithFlag(true);
+        selectCollection("col-2");
+
+        expect(v1).toEqual([
+          ["my-access-pending-req-staging"],
+          ["my-access-extension-req-ext-staging"],
+          ["my-access-lease-lease-staging"],
+        ]);
+        expect(allSectionRowIds()).toEqual(v1);
+      });
+
+      it("intersects the chip with the search term, as v1 does", () => {
+        twoCollections();
+        createWithFlag(true);
+
+        // Either control alone leaves rows; together they must leave none.
+        selectCollection("col-1");
+        component["searchControl"].setValue("staging");
+        fixture.detectChanges();
+
+        expect(rowIds(pendingTable())).toEqual([]);
+        expect(sectionTable("pamMyRequestsGroupExtensions")).toBeNull();
+        expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
+        expect(query('[data-testid="my-access-active-empty"]')).not.toBeNull();
+      });
+
+      it("counts each chip option absolutely, not against the other controls", () => {
+        twoCollections();
+        createWithFlag(true);
+
+        const table = fixture.debugElement.query(By.directive(BitTableV2Component))
+          .componentInstance as { optionCount(key: string, value: unknown): number | undefined };
+        expect(table.optionCount("collection", "col-1")).toBe(1);
+        expect(table.optionCount("collection", "col-2")).toBe(1);
+
+        component["searchControl"].setValue("staging");
+        fixture.detectChanges();
+
+        expect(table.optionCount("collection", "col-1")).toBe(1);
+      });
+
+      it("holds the toolbar in place while Pending has nothing to show", () => {
+        leases$.next([leaseRow()]);
+
+        createWithFlag(true);
+
+        expect(rowIds(pendingTable())).toEqual([]);
+        expect(query("bit-table-toolbar")?.closest("bit-table-v2")).toBe(pendingTable());
+        expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
+      });
     });
   });
 });
