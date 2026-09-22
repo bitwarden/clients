@@ -162,15 +162,20 @@ export abstract class CipherReportComponent implements OnDestroy {
       }
       this.hasLoaded = true;
     } catch (e) {
-      this.logService?.error(`[CipherReport] load() failed`, e);
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("reportLoadFailed"),
-      });
+      this.reportLoadError("load()", e);
     } finally {
       this.loading = false;
     }
+  }
+
+  /** An exposure lookup can reject, and both entry points need to say so rather than fail silently. */
+  private reportLoadError(source: string, error: unknown) {
+    this.logService?.error(`[CipherReport] ${source} failed`, error);
+    this.toastService.showToast({
+      variant: "error",
+      title: this.i18nService.t("errorOccurred"),
+      message: this.i18nService.t("reportLoadFailed"),
+    });
   }
   async selectCipher(cipher: CipherView) {
     if (!(await this.repromptCipher(cipher))) {
@@ -234,6 +239,14 @@ export abstract class CipherReportComponent implements OnDestroy {
   }
 
   async refresh(result: VaultItemDialogResult, cipher: CipherView) {
+    try {
+      await this.refreshInternal(result, cipher);
+    } catch (e) {
+      this.reportLoadError("refresh()", e);
+    }
+  }
+
+  private async refreshInternal(result: VaultItemDialogResult, cipher: CipherView) {
     this.logService?.info(`[CipherReport] refresh() — result="${result}", cipherId="${cipher.id}"`);
 
     if (result === VaultItemDialogResult.Deleted) {

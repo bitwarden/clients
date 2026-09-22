@@ -103,4 +103,20 @@ describe("PasswordHealthService", () => {
       done();
     });
   });
+
+  it("should contain a failed lookup rather than failing the whole audit", (done) => {
+    // The caller treats an error here as a failed report, so one unreachable lookup must not take
+    // the rest down with it.
+    auditService.passwordLeaked.mockImplementation((password: string) =>
+      password === "leaked" ? Promise.reject(new Error("network down")) : Promise.resolve(3),
+    );
+
+    service.auditPasswordLeaks$(mockExposedCiphers).subscribe({
+      next: (result) => {
+        expect(result).toEqual([{ exposedXTimes: 3, cipherId: "cipher-id-2" }]);
+        done();
+      },
+      error: (e: unknown) => done(e),
+    });
+  });
 });

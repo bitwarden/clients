@@ -283,6 +283,27 @@ describe("DefaultCipherHealthService", () => {
       expect(health.size).toBe(4);
     });
 
+    it("should contain a failed lookup when the flag is off", async () => {
+      // The flag defaults to off, so this arm is what ships until the flag is turned on. Without
+      // containment here one rejected lookup errors the whole observable and loses the report.
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      const ciphers = [
+        createMockCipher({ id: "1", password: "unreachable" }),
+        createMockCipher({ id: "2", password: "fine" }),
+      ];
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as ZXCVBNResult);
+      auditService.passwordLeaked.mockImplementation((pw: string) =>
+        pw === "unreachable" ? Promise.reject(new Error("network down")) : Promise.resolve(0),
+      );
+
+      const health = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(health.size).toBe(2);
+      expect(health.get("1")!.hasExposedPassword).toBe(false);
+      expect(health.get("1")!.exposedCount).toBe(0);
+      expect(health.get("2")).toBeDefined();
+    });
+
     it("should report the same reuse counts on both sides of the flag", async () => {
       const ciphers = [
         createMockCipher({ id: "1", password: "shared" }),

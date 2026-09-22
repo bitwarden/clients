@@ -107,7 +107,12 @@ export class DefaultCipherHealthService extends CipherHealthService {
     // Measured as a batch; per-cipher entries would swamp the performance panel.
     const healthChecks$ = from(validCiphers).pipe(
       mergeMap(
-        (cipher) => this.checkSingleCipherHealthInternal(cipher),
+        (cipher) =>
+          this.checkSingleCipherHealthInternal(cipher).pipe(
+            // Contained per cipher, as the grouped arm contains per password group. Without this
+            // the arm differs from the grouped one in failure behaviour as well as lookup count.
+            catchError(() => of(this.healthWithoutExposure(cipher))),
+          ),
         this.MAX_CONCURRENT_HIBP_CALLS,
       ),
       toArray(),
@@ -287,6 +292,21 @@ export class DefaultCipherHealthService extends CipherHealthService {
     }
 
     return healthMap;
+  }
+
+  /** A cipher's health with the exposure result left at zero, for when its lookup failed. */
+  private healthWithoutExposure(cipher: CipherView): CipherHealthView {
+    const weakPasswordScore = this.getPasswordStrength(cipher);
+
+    return new CipherHealthView({
+      cipherId: cipher.id,
+      hasWeakPassword: weakPasswordScore != null && weakPasswordScore <= 2,
+      hasReusedPassword: false,
+      reuseCount: 0,
+      hasExposedPassword: false,
+      exposedCount: 0,
+      weakPasswordScore,
+    });
   }
 
   private checkSingleCipherHealthInternal(cipher: CipherView): Observable<CipherHealthView> {

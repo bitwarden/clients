@@ -42,13 +42,16 @@ describe("CipherReportComponent", () => {
   mockCipherService.deleteWithServer.mockResolvedValue(undefined);
   mockCipherService.softDeleteWithServer.mockResolvedValue(undefined);
 
+  let mockToastService: MockProxy<ToastService>;
+
   beforeEach(() => {
     mockAccountService = mock<AccountService>();
     mockAccountService.activeAccount$ = of({ id: "user1" } as any);
     mockAdminConsoleCipherFormConfigService = mock<AdminConsoleCipherFormConfigService>();
+    mockToastService = mock<ToastService>();
 
     TestBed.configureTestingModule({
-      providers: [{ provide: ToastService, useValue: mock<ToastService>() }],
+      providers: [{ provide: ToastService, useValue: mockToastService }],
     });
 
     component = TestBed.runInInjectionContext(
@@ -105,6 +108,25 @@ describe("CipherReportComponent", () => {
     expect(component.determinedUpdatedCipherReportStatus).toHaveBeenCalledWith(
       VaultItemDialogResult.Saved,
       updatedCipherView,
+    );
+  });
+
+  it("should surface an error toast when refreshing after a save fails", async () => {
+    // An exposure lookup can now reject, and refresh()'s promise is not consumed by its caller, so
+    // without this the failure reaches only the global handler and the row silently goes stale.
+    const cipherToUpdate = { ...mockCipher } as unknown as CipherView;
+    component.ciphers = [cipherToUpdate];
+
+    jest
+      .spyOn(component, "determinedUpdatedCipherReportStatus")
+      .mockRejectedValue(new Error("network down"));
+
+    await expect(
+      component.refresh(VaultItemDialogResult.Saved, cipherToUpdate),
+    ).resolves.toBeUndefined();
+
+    expect(mockToastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error" }),
     );
   });
 

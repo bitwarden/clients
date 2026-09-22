@@ -15,8 +15,10 @@ export abstract class CipherHealthService {
    *
    * Checks all ciphers for weak passwords (zxcvbn score <= 2), password reuse, and HIBP exposure.
    *
-   * Exposure is looked up once per distinct password, not once per cipher, so the number of
-   * requests tracks reuse rather than vault size.
+   * With `pm-43231-access-intelligence-performance-at-scale` on, exposure is looked up once per
+   * distinct password rather than once per cipher, so the number of requests tracks reuse rather
+   * than vault size. With it off, the pre-deduplication path runs instead, as the measurement
+   * baseline. Both contain failures the same way, so the arms differ only in lookup count.
    *
    * A failed exposure lookup does not fail the batch: that cipher is reported as not exposed and
    * its strength and reuse results still stand. Every cipher is present in the returned map.
