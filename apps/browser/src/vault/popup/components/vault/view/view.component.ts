@@ -5,7 +5,7 @@ import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
@@ -252,12 +252,8 @@ export class ViewComponent {
   }
 
   async getCipherData(id: string, userId: UserId) {
-    return await firstValueFrom(
-      this.cipherService.cipherViews$(userId).pipe(
-        filterOutNullish(),
-        map((ciphers) => ciphers.find((c) => c.id === id)),
-      ),
-    );
+    const [cipher] = await this.cipherService.getAllDecryptedForIdsIncludingPartials(userId, [id]);
+    return cipher;
   }
 
   async editCipher() {
@@ -361,7 +357,14 @@ export class ViewComponent {
       [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
     ).includes(CipherViewLikeUtils.getType(this.cipher));
 
-    return validAutofillType && !(this.cipher.isArchived || this.cipher.isDeleted);
+    return (
+      validAutofillType &&
+      !(
+        this.cipher.isArchived ||
+        this.cipher.isDeleted ||
+        CipherViewLikeUtils.isPartial(this.cipher)
+      )
+    );
   }
 
   async doAutofill() {
