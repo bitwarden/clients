@@ -1,8 +1,10 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { fromTsUserId } from "@bitwarden/common/key-management/utils";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -26,11 +28,20 @@ export class CliBiometricsService extends BiometricsService {
     private keyService: () => KeyService,
     private logService: LogService,
     private ipcService: CliIpcService,
+    private configService: () => ConfigService,
   ) {
     super();
   }
 
+  private async sdkIpcEnabled(): Promise<boolean> {
+    return await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC);
+  }
+
   async authenticateWithBiometrics(): Promise<boolean> {
+    if (!(await this.sdkIpcEnabled())) {
+      return false;
+    }
+
     try {
       return await ipcRequestAuthenticateBiometrics(
         this.ipcService.client,
@@ -50,6 +61,10 @@ export class CliBiometricsService extends BiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+    if (!(await this.sdkIpcEnabled())) {
+      return null;
+    }
+
     try {
       const response = await ipcRequestUnlockBiometrics(
         this.ipcService.client,
@@ -75,6 +90,10 @@ export class CliBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
+    if (!(await this.sdkIpcEnabled())) {
+      return BiometricsStatus.PlatformUnsupported;
+    }
+
     try {
       const status = await ipcRequestGetBiometricsStatus(
         this.ipcService.client,
