@@ -36,18 +36,15 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
 import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
-
-import { PopupCipherViewLike } from "../views/popup-cipher.view";
-
-const NESTING_DELIMITER = "/";
 
 interface CachedTableFilterState {
   organizationIds?: string[];
@@ -90,16 +87,18 @@ export class VaultPopupListTableFiltersService {
     filter((userId): userId is UserId => userId !== null),
   );
 
-  private readonly cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
+  private readonly _cachedFilters = this.viewCacheService.signal<CachedTableFilterState>({
     key: "vault-table-filters",
     initialValue: {},
     deserializer: (v) => v,
     persistNavigation: true,
   });
 
+  readonly cachedFilters = this._cachedFilters.asReadonly();
+
   /** Whether any chip filter is currently selected. */
   readonly hasFilterApplied = computed(() => {
-    const filters = this.cachedFilters();
+    const filters = this._cachedFilters();
     return !!(
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
@@ -162,9 +161,23 @@ export class VaultPopupListTableFiltersService {
 
   /** Clears all persisted filter state. Called when the active account changes. */
   private clearFilters(): void {
-    this.cachedFilters.set({});
+    this._cachedFilters.set({});
     this.selectedOrganizations.set([]);
   }
+
+  private fullCipherListViews$ = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      this.cipherService.cipherListViews$(userId).pipe(
+        filter((ciphers) => ciphers != null),
+        map((ciphers) =>
+          ciphers.filter(
+            (cipher) =>
+              !CipherViewLikeUtils.isDeleted(cipher) && !CipherViewLikeUtils.isArchived(cipher),
+          ),
+        ),
+      ),
+    ),
+  );
 
   /**
    * Persists the current chip selection to the view cache.
@@ -176,7 +189,7 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }): void {
-    this.cachedFilters.set({
+    this._cachedFilters.set({
       organizationIds: values.organization ?? [],
       collectionIds: values.collection ?? [],
       folderIds: values.folder ?? [],
@@ -190,7 +203,7 @@ export class VaultPopupListTableFiltersService {
    * span vaults.
    */
   clearVaultScopedFilters(): void {
-    this.cachedFilters.set({
+    this._cachedFilters.set({
       organizationIds: [],
       collectionIds: [],
       folderIds: [],
@@ -214,7 +227,7 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }> {
-    const state = this.cachedFilters();
+    const state = this._cachedFilters();
     return combineLatest([
       this.organizations$,
       this.collections$,
@@ -247,7 +260,7 @@ export class VaultPopupListTableFiltersService {
         }
 
         if (state.folderIds?.length) {
-          const validIds = new Set(folderViews.map((f) => f.id ?? NO_FOLDER));
+          const validIds = new Set(folderViews.map((f) => f.id || NO_FOLDER));
           const folder = state.folderIds.filter((id) => validIds.has(id));
           if (folder.length) {
             result.folder = folder;
@@ -264,16 +277,22 @@ export class VaultPopupListTableFiltersService {
   }
 
   /**
-   * Available cipher types, filtered by policy restrictions and feature flags.
+   * Available cipher types, filtered by vault presence, policy restrictions, and feature flags.
+   * Only types that exist in the vault are shown.
    */
   readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> = combineLatest([
     this.restrictedItemTypesService.restricted$,
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    this.fullCipherListViews$,
   ]).pipe(
-    map(([restrictedTypes, allowNewItemTypes]) => {
+    map(([restrictedTypes, allowNewItemTypes, ciphers]) => {
+      const presentTypes = new Set((ciphers ?? []).map((c) => CipherViewLikeUtils.getType(c)));
       const cipherMenuItems = allowNewItemTypes ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
       return cipherMenuItems
         .filter((item) => {
+          if (!presentTypes.has(item.type)) {
+            return false;
+          }
           const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
           return !restriction || restriction.allowViewOrgIds.length > 0;
         })
@@ -371,30 +390,17 @@ export class VaultPopupListTableFiltersService {
    */
   folders$: Observable<ChipFilterOption<FolderView>[]> = this.activeUserId$.pipe(
     switchMap((userId) => {
-      const cipherViews$ = this.cipherService
-        .cipherListViews$(userId)
-        .pipe(map((ciphers) => (ciphers ? (Object.values(ciphers) as PopupCipherViewLike[]) : [])));
-
       return combineLatest([
         this.selectedOrganizations$,
         this.folderService.folderViews$(userId),
-        cipherViews$,
+        this.fullCipherListViews$.pipe(map((ciphers) => ciphers ?? [])),
       ]).pipe(
         map(([selectedOrgs, folders, cipherViews]) => {
           if (folders.length === 1 && !folders[0].id) {
             return [selectedOrgs, [] as FolderView[], cipherViews] as const;
           }
 
-          folders.sort(Utils.getSortFunction(this.i18nService, "name"));
-          let arrangedFolders = folders;
-          const noFolder = folders.find((f) => !f.id);
-
-          if (noFolder) {
-            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("itemsWithNoFolder") };
-            arrangedFolders = [...folders.filter((f) => f.id), updatedNoFolder];
-          }
-
-          return [selectedOrgs, arrangedFolders, cipherViews] as const;
+          return [selectedOrgs, folders, cipherViews] as const;
         }),
         map(([selectedOrgs, folders, cipherViews]) => {
           const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
@@ -416,7 +422,7 @@ export class VaultPopupListTableFiltersService {
           });
         }),
         map((folders) => {
-          const nested = this.getAllFoldersNested(folders);
+          const nested = getNestedFolderTree(folders, this.i18nService);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
         map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
@@ -474,17 +480,5 @@ export class VaultPopupListTableFiltersService {
       label: item.node.name,
       children: item.children?.map((i) => this.convertToChipFilterOption(i)),
     };
-  }
-
-  private getAllFoldersNested(folders: FolderView[]): TreeNode<FolderView>[] {
-    const nodes: TreeNode<FolderView>[] = [];
-    folders.forEach((f) => {
-      const folderCopy = new FolderView();
-      folderCopy.id = f.id;
-      folderCopy.revisionDate = f.revisionDate;
-      const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NESTING_DELIMITER) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NESTING_DELIMITER);
-    });
-    return nodes;
   }
 }

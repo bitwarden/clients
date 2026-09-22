@@ -442,13 +442,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
     });
 
-    // (Re)build the selection model from config — in an effect, since the model's
-    // constructor writes a signal (not allowed in a computed). Scoped over the
-    // filtered rows for select-all.
+    /** (Re)build the selection model from config — in an effect, since the model's
+     * constructor writes a signal (not allowed in a computed). Scoped over the rows in display
+     * order (see {@link sorted}), so a capped select-all keeps the ones the user sees first.
+     */
     effect(() => {
       const config = this.selection();
       this._selectionModel.set(
-        config ? new TableSelectionModel<T>({ ...config, rows: this.filtered }) : undefined,
+        config ? new TableSelectionModel<T>({ ...config, rows: this.sorted }) : undefined,
       );
     });
 
@@ -660,6 +661,17 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
   }
 
+  /**
+   * Keeps the checkbox in sync with the selection, which the bindings alone don't guarantee.
+   * Without it the box can end up checked when nothing is selected, or empty when everything is.
+   */
+  protected onToggleAll(event: Event, sel: TableSelectionModel<T>): void {
+    sel.toggleAll();
+    const input = event.target as HTMLInputElement;
+    input.checked = sel.allSelected();
+    input.indeterminate = sel.indeterminate();
+  }
+
   /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {
     this._columns.update((cols) => [...cols, col]);
@@ -744,17 +756,25 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   ]);
 
   /**
-   * Rendered rows: {@link filtered} sorted by {@link sort}, then sliced to a projected
-   * paginator's page unless it's in server-side mode.
+   * {@link filtered} in display order — sorted, but not page-sliced. The selection model scopes over
+   * this, so a `max`-capped select-all keeps the rows shown at the top rather than scattered ones.
    */
-  protected readonly rows = computed(() => {
+  readonly sorted = computed<T[]>(() => {
     const filtered = this.filtered();
     const sort = this.sort();
-    let sorted = filtered;
-    if (sort.column) {
-      const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-      sorted = sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+    if (!sort.column) {
+      return filtered;
     }
+    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+  });
+
+  /**
+   * Rendered rows: {@link sorted} sliced to a projected paginator's page (unless it's in
+   * server-side mode, where the data already holds only the page).
+   */
+  protected readonly rows = computed(() => {
+    const sorted = this.sorted();
     const paginator = this.paginator();
     if (paginator && !paginator.manual()) {
       const start = paginator.currentPage() * paginator.pageSize();
