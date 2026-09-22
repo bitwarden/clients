@@ -14,6 +14,7 @@
       [attr.aria-labelledby]="labelId"
       class="tw-absolute tw-inset-0 tw-rounded-xl"
       [class]="control.disabled ? 'tw-cursor-default' : 'tw-cursor-pointer'"
+      [attr.title]="titleText || null"
     ></label>
 
     <div
@@ -42,7 +43,7 @@
         <span
           [id]="labelId"
           bitTypography="body2"
-          class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium tw-min-w-0"
+          class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium"
         >
           <ng-content select="bit-label"></ng-content>
           @if (control.required) {
