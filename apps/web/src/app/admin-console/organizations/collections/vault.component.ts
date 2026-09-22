@@ -725,11 +725,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   private go(queryParams: any = null, navigateOptions?: NavigationExtras) {
     if (queryParams == null) {
       const activeFilter = this.activeFilter();
-      const vfo1Enabled = this.vfo1TerminologyService.enabled();
       queryParams = {
         type: activeFilter.cipherType,
-        collectionId: vfo1Enabled ? null : activeFilter.collectionId,
-        sharedFolderId: vfo1Enabled ? activeFilter.collectionId : null,
+        ...this.vfo1TerminologyService.collectionQueryParams(activeFilter.collectionId),
         deleted: activeFilter.isDeleted || null,
       };
     }

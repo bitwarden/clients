@@ -157,10 +157,8 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   }
 
   /** Query params to navigate to this collection, using the terminology-appropriate param key. */
-  get collectionQueryParams(): { collectionId: string | null; sharedFolderId: string | null } {
-    return this.vfo1TerminologyService.enabled()
-      ? { sharedFolderId: this.collection.id, collectionId: null }
-      : { collectionId: this.collection.id, sharedFolderId: null };
+  get collectionQueryParams() {
+    return this.vfo1TerminologyService.collectionQueryParams(this.collection.id);
   }
 
   protected edit(readonly: boolean) {

@@ -135,13 +135,8 @@ export class VaultHeaderComponent {
   );
 
   /** Builds query params to navigate to a collection, using the terminology-appropriate param key. */
-  protected collectionQueryParams(collectionId: string): {
-    collectionId: string | null;
-    sharedFolderId: string | null;
-  } {
-    return this.vfo1TerminologyService.enabled()
-      ? { sharedFolderId: collectionId, collectionId: null }
-      : { collectionId, sharedFolderId: null };
+  protected collectionQueryParams(collectionId: string) {
+    return this.vfo1TerminologyService.collectionQueryParams(collectionId);
   }
 
   /**

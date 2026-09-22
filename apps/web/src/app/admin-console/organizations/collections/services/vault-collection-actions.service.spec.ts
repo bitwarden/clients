@@ -147,7 +147,14 @@ describe("VaultCollectionActionsService", () => {
         { provide: MessageListener, useValue: new MessageListener(messageSubject.asObservable()) },
         {
           provide: Vfo1TerminologyService,
-          useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
+          useValue: {
+            iconClass: (icon: string) => icon,
+            enabled: () => vfo1Enabled,
+            collectionQueryParams: (collectionId: string | null | undefined) =>
+              vfo1Enabled
+                ? { sharedFolderId: collectionId ?? null, collectionId: null }
+                : { collectionId: collectionId ?? null, sharedFolderId: null },
+          },
         },
       ],
     });
@@ -281,7 +288,31 @@ describe("VaultCollectionActionsService", () => {
       expect(router.navigate).toHaveBeenCalledWith(
         [],
         expect.objectContaining({
-          queryParams: { collectionId: "parent-col" },
+          queryParams: { collectionId: "parent-col", sharedFolderId: null },
+        }),
+      );
+    });
+
+    it("navigates using sharedFolderId and nulls collectionId when VFO1 is enabled", async () => {
+      vfo1Enabled = true;
+      const collection = buildCollection({ id: "target-col" as CollectionId });
+      const parentCol = buildCollection({ id: "parent-col" as CollectionId });
+      const parentNode = buildTreeNode(parentCol);
+      selectedCollection$.next(buildTreeNode(collection, parentNode));
+
+      jest.mocked(openCollectionDialog).mockReturnValue(
+        makeDialogRef<CollectionDialogResult>({
+          action: CollectionDialogAction.Deleted,
+          collection: buildCollection(),
+        }),
+      );
+
+      await service.editCollection(collection, CollectionDialogTabType.Info, false);
+
+      expect(router.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { sharedFolderId: "parent-col", collectionId: null },
         }),
       );
     });
@@ -434,7 +465,25 @@ describe("VaultCollectionActionsService", () => {
       expect(router.navigate).toHaveBeenCalledWith(
         [],
         expect.objectContaining({
-          queryParams: { collectionId: "parent-col" },
+          queryParams: { collectionId: "parent-col", sharedFolderId: null },
+        }),
+      );
+    });
+
+    it("navigates using sharedFolderId and nulls collectionId when VFO1 is enabled", async () => {
+      vfo1Enabled = true;
+      const collection = buildCollection({ id: "target-col" as CollectionId });
+      const parentCol = buildCollection({ id: "parent-col" as CollectionId });
+      const parentNode = buildTreeNode(parentCol);
+      selectedCollection$.next(buildTreeNode(collection, parentNode));
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await service.deleteCollection(collection);
+
+      expect(router.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { sharedFolderId: "parent-col", collectionId: null },
         }),
       );
     });
