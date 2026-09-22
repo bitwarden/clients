@@ -81,6 +81,17 @@ describe("AccessRequestCancelService", () => {
     expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
   });
 
+  it("leaves an approved request alone once it has produced a lease", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      state({ approvedRequest: { id: REQUEST_ID, producedLeaseId: "lease-1" } as never }),
+    );
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+  });
+
   it("describes the pending case in the confirmation", async () => {
     requestsApi.getCipherAccessState.mockResolvedValue(
       state({ pendingRequest: { id: REQUEST_ID } as never }),

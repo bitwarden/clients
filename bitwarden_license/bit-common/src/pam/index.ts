@@ -65,6 +65,7 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { unactivatedApprovedRequest } from "./helpers/unactivated-approved-request";
 export {
   cipherAccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,

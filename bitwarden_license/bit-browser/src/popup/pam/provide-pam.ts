@@ -6,15 +6,19 @@ import {
   LeasingErrorService,
 } from "@bitwarden/bit-common/pam";
 import { AccessLeasesSdkService } from "@bitwarden/bit-common/pam/services/access-leases-sdk.service";
+import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
 import { AccessRequestsSdkService } from "@bitwarden/bit-common/pam/services/access-requests-sdk.service";
 import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
 import { DefaultLeasingErrorService } from "@bitwarden/bit-common/pam/services/default-leasing-error.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { ITEM_DETAILS_BADGE } from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 
+import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { InertAccessEventService } from "./inert-access-event.service";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 
@@ -47,8 +51,24 @@ export function providePam(): SafeProvider[] {
       deps: [AccessEventService],
     }),
     safeProvider({
+      provide: AccessRequestCancelService,
+      useClass: AccessRequestCancelService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        DialogService,
+        ToastService,
+        I18nService,
+        LogService,
+      ],
+    }),
+    safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    safeProvider({
+      provide: CIPHER_VIEW_BANNER,
+      useValue: CipherViewBannerComponent,
     }),
   ];
 }
