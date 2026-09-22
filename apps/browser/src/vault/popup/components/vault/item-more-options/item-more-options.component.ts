@@ -167,6 +167,11 @@ export class ItemMoreOptionsComponent {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
+  /** True for a PAM-gated ("partial") cipher, whose secret fields are withheld by the server. */
+  get isPartial() {
+    return CipherViewLikeUtils.isPartial(this.cipher);
+  }
+
   /**
    * Determines if the cipher can be autofilled.
    */

@@ -246,7 +246,10 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
       // Use autofill title when autofill is the primary action
-      const key = this.canAutofill() ? "autofillTitle" : "viewItemTitle";
+      const key =
+        this.canAutofill() && !CipherViewLikeUtils.isPartial(cipher)
+          ? "autofillTitle"
+          : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
@@ -394,7 +397,9 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   }
 
   onCipherSelect(cipher: PopupCipherViewLike) {
-    return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
+    return this.canAutofill() && !CipherViewLikeUtils.isPartial(cipher)
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
   }
 
   /**
@@ -402,7 +407,11 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      CipherViewLikeUtils.isPartial(cipher)
+    ) {
       return;
     }
 

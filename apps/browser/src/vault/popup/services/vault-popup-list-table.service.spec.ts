@@ -540,6 +540,42 @@ describe("VaultPopupListTableService", () => {
       });
     });
 
+    describe("a PAM-gated partial row", () => {
+      const gatedAutofillRow = () => {
+        autoFillCiphers$.next([makeCipher({ id: "gated", partial: true })]);
+        return latestRows()[0].actions;
+      };
+      const gatedAllItemsRow = () => {
+        filteredCiphers$.next([makeCipher({ id: "gated", partial: true })]);
+        return latestRows().find((r) => r._section === "allItems")!.actions;
+      };
+
+      it("never autofills, even in the autofill section where a normal row would", async () => {
+        for (const simplified of [true, false]) {
+          simplifiedItemActionEnabled$.next(simplified);
+          clickItemsToAutofillVaultView$.next(true);
+          currentTabIsOnBlocklist$.next(false);
+
+          expect(autofillRow()).toMatchObject({ primaryAutofill: true });
+          expect(gatedAutofillRow()).toMatchObject({
+            primaryAutofill: false,
+            showFillOnHover: false,
+            showAutofillBadge: false,
+            showAutofillInMenu: false,
+            titleKey: expect.stringMatching(/^viewItemTitle/),
+          });
+        }
+      });
+
+      it("never offers launch", async () => {
+        clickItemsToAutofillVaultView$.next(true);
+        currentTabIsOnBlocklist$.next(false);
+
+        expect(sectionRow("allItems")).toMatchObject({ showLaunch: true });
+        expect(gatedAllItemsRow()).toMatchObject({ showLaunch: false });
+      });
+    });
+
     describe("titleKey", () => {
       it("uses the autofill title (named field when a username is present) for fill-on-click rows", async () => {
         simplifiedItemActionEnabled$.next(true);

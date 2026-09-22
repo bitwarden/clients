@@ -313,13 +313,16 @@ export class VaultPopupListTableService {
     }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
+    const gated = CipherViewLikeUtils.isPartial(cipher as CipherViewLike);
 
     // Whether clicking the row autofills. Simplified: the autofill section fills unless the URI is
     // blocked. Legacy: the autofill section fills only when the user's click-to-autofill setting is
     // on, and never when the URI is blocked.
-    const primaryAutofill = simplifiedItemActionEnabled
-      ? isAutofill && !currentUriIsBlocked
-      : !currentUriIsBlocked && isAutofill && clickItemsToAutofillVaultView;
+    const primaryAutofill =
+      !gated &&
+      (simplifiedItemActionEnabled
+        ? isAutofill && !currentUriIsBlocked
+        : !currentUriIsBlocked && isAutofill && clickItemsToAutofillVaultView);
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
@@ -329,14 +332,15 @@ export class VaultPopupListTableService {
       showFillOnHover: simplifiedItemActionEnabled && primaryAutofill,
       // Legacy standalone chip: shown on autofill rows when click-to-autofill is off and not blocked.
       showAutofillBadge:
+        !gated &&
         !simplifiedItemActionEnabled &&
         isAutofill &&
         !currentUriIsBlocked &&
         !clickItemsToAutofillVaultView,
-      showLaunch: !isAutofill,
-      showAutofillInMenu: simplifiedItemActionEnabled
-        ? !primaryAutofill
-        : !currentUriIsBlocked && !isAutofill,
+      showLaunch: !isAutofill && !gated,
+      showAutofillInMenu:
+        !gated &&
+        (simplifiedItemActionEnabled ? !primaryAutofill : !currentUriIsBlocked && !isAutofill),
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,
@@ -378,7 +382,11 @@ export class VaultPopupListTableService {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      CipherViewLikeUtils.isPartial(cipher)
+    ) {
       return;
     }
 

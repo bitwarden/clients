@@ -132,7 +132,7 @@
           </button>
 
           <ng-container slot="end">
-            @if (showFillTextOnHover()) {
+            @if (showFillTextOnHover() && !CipherViewLikeUtils.isPartial(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -144,7 +144,7 @@
                 </button>
               </bit-item-action>
             }
-            @if (showAutofillBadge()) {
+            @if (showAutofillBadge() && !CipherViewLikeUtils.isPartial(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -157,7 +157,11 @@
                 ></button>
               </bit-item-action>
             }
-            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+            @if (
+              showLaunchButton() &&
+              CipherViewLikeUtils.canLaunch(cipher) &&
+              !CipherViewLikeUtils.isPartial(cipher)
+            ) {
               <bit-item-action>
                 <button
                   type="button"
@@ -168,7 +172,9 @@
                 ></button>
               </bit-item-action>
             }
-            <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            @if (!CipherViewLikeUtils.isPartial(cipher)) {
+              <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            }
             <app-item-more-options
               [cipher]="cipher"
               [showAutofill]="showAutofillInMenu()"

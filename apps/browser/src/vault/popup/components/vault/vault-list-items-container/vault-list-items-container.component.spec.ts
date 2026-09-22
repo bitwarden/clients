@@ -329,5 +329,44 @@ describe("VaultListItemsContainerComponent", () => {
 
       expect(result).toBe("viewItemTitle");
     });
+
+    it("should return viewItemTitle for a gated cipher in an autofill list", () => {
+      featureFlag$.next(true);
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+
+      const titleKeyFn = component.cipherItemTitleKey();
+      const result = titleKeyFn({ ...mockCipher, partial: true } as PopupCipherViewLike);
+
+      expect(result).toBe("viewItemTitleWithField");
+    });
+  });
+
+  describe("onCipherSelect", () => {
+    it("views a gated cipher instead of autofilling it, even when the list would otherwise autofill", () => {
+      featureFlag$.next(true);
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+      jest.spyOn(component, "doAutofill").mockResolvedValue();
+      jest.spyOn(component, "onViewCipher").mockResolvedValue();
+
+      void component.onCipherSelect({ ...mockCipher, partial: true } as PopupCipherViewLike);
+
+      expect(component.doAutofill).not.toHaveBeenCalled();
+      expect(component.onViewCipher).toHaveBeenCalled();
+    });
+
+    it("autofills a normal cipher when the list autofills on select", () => {
+      featureFlag$.next(true);
+      fixture.componentRef.setInput("isAutofillList", true);
+      fixture.detectChanges();
+      jest.spyOn(component, "doAutofill").mockResolvedValue();
+      jest.spyOn(component, "onViewCipher").mockResolvedValue();
+
+      void component.onCipherSelect(mockCipher as PopupCipherViewLike);
+
+      expect(component.doAutofill).toHaveBeenCalled();
+      expect(component.onViewCipher).not.toHaveBeenCalled();
+    });
   });
 });
