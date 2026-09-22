@@ -751,7 +751,6 @@ describe("ApprovalsTabComponent", () => {
       return (element.textContent ?? "").replace(/\s+/g, " ").trim();
     }
 
-    /** The pending section's table, v1 or v2, whichever the flag rendered. */
     function pendingTable(): HTMLElement {
       return queryAll(fixture.nativeElement, "bit-accordion")[0].querySelector(
         "bit-table, bit-table-v2",
@@ -768,7 +767,6 @@ describe("ApprovalsTabComponent", () => {
       return queryAll(table, 'th, [role="columnheader"]').map(text);
     }
 
-    /** Row ids in rendered order, read off each row's approve button. */
     function pendingOrder(): string[] {
       return queryAll(pendingTable(), '[data-testid^="approvals-approve-"]').map((button) =>
         (button.getAttribute("data-testid") ?? "").replace("approvals-approve-", ""),
