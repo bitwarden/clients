@@ -8,9 +8,10 @@
       sendFormService.originalSendView()?.type === SendType.Item && !editing();
     @if (isReadonlyItemSend) {
       <bit-section class="tw-text-sm">
-        <bit-section-header class="!tw-px-0">
+        <bit-section-header>
           <h2 bitTypography="h6">Send {{ "name" | i18n | lowercase }}</h2>
           <sup class="tw-text-sm/5 !tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+          <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
         </bit-section-header>
         <bit-card>
           {{ sendFormService.originalSendView()?.name }}
@@ -43,6 +44,7 @@
         <bit-section-header>
           <h2 bitTypography="h6">{{ "deletionDate" | i18n }}</h2>
           <sup class="tw-text-sm/5 !tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+          <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
         </bit-section-header>
         <bit-card>
           {{ sendFormService.originalSendView()?.deletionDate | date: "short" }}
@@ -167,13 +169,14 @@
 
     @if (sendDetailsForm.get("authType").value === AuthType.Email) {
       @if (isReadonlyItemSend) {
-        <bit-section class="tw-text-sm">
+        <bit-section class="tw-text-sm" disableMargin>
           <bit-section-header>
             <h2 bitTypography="h6">{{ "emails" | i18n }}</h2>
             <sup class="tw-text-sm/5 !tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+            <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
           </bit-section-header>
           <bit-card>
-            {{ sendFormService.originalSendView()?.emails }}
+            {{ sendFormService.originalSendView()?.emails?.join(", ") }}
           </bit-card>
         </bit-section>
       } @else {
