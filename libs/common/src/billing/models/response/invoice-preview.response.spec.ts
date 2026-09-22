@@ -108,6 +108,21 @@ describe("InvoicePreviewResponse", () => {
       expect(response.startingBalance).toBe(0);
     });
 
+    it("should parse a password manager section without seats", () => {
+      // A Premium to organization upgrade previewed under always_invoice carries only prorations.
+      const response = new InvoicePreviewResponse({
+        ...minimal(),
+        PasswordManager: {
+          Seats: null,
+          Prorations: [{ Credit: 6.67, Charge: 26.67, Tax: 2, Total: 20, Months: 8 }],
+        },
+      });
+
+      expect(response.passwordManager.seats).toBeUndefined();
+      expect(response.passwordManager.prorations).toHaveLength(1);
+      expect(response.passwordManager.prorations![0].charge).toBe(26.67);
+    });
+
     it("should parse a secrets manager section without seats", () => {
       // A mid-cycle SM removal yields a section with proration credits but no recurring seat line.
       const response = new InvoicePreviewResponse({

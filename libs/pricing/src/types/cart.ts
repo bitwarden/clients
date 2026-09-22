@@ -27,9 +27,10 @@ export type Cart = {
   discounts?: CartDiscount[];
   credit?: Credit;
   estimatedTax: number;
+  accountCredit?: Credit;
   /**
-   * The authoritative invoice total, set by the preview adapter. Absent on legacy carts, in
-   * which case the renderer falls back to computing the total from the cart's line items.
+   * The invoice's `amountDue`, set by the preview adapter. Absent on legacy carts, where the
+   * renderer computes the total from the line items instead.
    */
   total?: number;
 };
