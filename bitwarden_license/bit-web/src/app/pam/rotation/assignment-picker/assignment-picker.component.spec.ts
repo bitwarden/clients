@@ -8,7 +8,12 @@ import { of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SelectItemView, TableModule, TooltipDirective } from "@bitwarden/components";
+import {
+  BitCellComponent,
+  SelectItemView,
+  TableModule,
+  TooltipDirective,
+} from "@bitwarden/components";
 
 import {
   AssignmentPickerColumn,
@@ -56,7 +61,7 @@ function row(id: string, label: string, kind = "kindEntra"): TestRow {
 @Component({
   selector: "app-assignment-picker-host",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AssignmentPickerComponent, TableModule],
+  imports: [AssignmentPickerComponent, BitCellComponent, TableModule],
   template: `
     <pam-assignment-picker
       idPrefix="host"
@@ -78,9 +83,14 @@ function row(id: string, label: string, kind = "kindEntra"): TestRow {
       [goToRoute]="goToRoute"
       [goToLabelKey]="goToLabelKey"
     />
-    <ng-template #rowTemplate let-row>
-      <td bitCell data-testid="cell-label">{{ row.label }}</td>
-      <td bitCell data-testid="cell-kind">{{ row.kind }}</td>
+    <ng-template #rowTemplate let-row let-vfo1="vfo1">
+      @if (vfo1) {
+        <bit-cell data-testid="cell-label">{{ row.label }}</bit-cell>
+        <bit-cell data-testid="cell-kind">{{ row.kind }}</bit-cell>
+      } @else {
+        <td bitCell data-testid="cell-label">{{ row.label }}</td>
+        <td bitCell data-testid="cell-kind">{{ row.kind }}</td>
+      }
     </ng-template>
   `,
 })
@@ -637,6 +647,18 @@ describe("AssignmentPickerComponent with the VFO1 flag on", () => {
       "Staging Entra",
     ]);
     expect(texts('bit-table-v2 [data-testid="cell-kind"]')).toEqual(["kindMssql", "kindEntra"]);
+  });
+
+  it("exposes every cell of an assigned row as a cell, the caller's included", async () => {
+    host.assignments = [row("row-1", "Prod MSSQL", "kindMssql"), row("row-2", "Staging Entra")];
+    await render();
+
+    const rows = [...root().querySelectorAll("bit-table-v2 bit-row")];
+    expect(rows).toHaveLength(2);
+    for (const bitRow of rows) {
+      expect(bitRow.querySelectorAll("[role=cell]")).toHaveLength(COLUMNS.length + 1);
+      expect(bitRow.querySelectorAll("td")).toHaveLength(0);
+    }
   });
 
   it("names the row in the remove control, which is all a screen reader gets", async () => {

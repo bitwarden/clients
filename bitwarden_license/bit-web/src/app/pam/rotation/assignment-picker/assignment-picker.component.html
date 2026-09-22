@@ -62,7 +62,7 @@
           <bit-row>
             <ng-container
               [ngTemplateOutlet]="rowTemplate()"
-              [ngTemplateOutletContext]="{ $implicit: row }"
+              [ngTemplateOutletContext]="{ $implicit: row, vfo1: true }"
             ></ng-container>
             <bit-cell>
               <button

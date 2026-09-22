@@ -56,6 +56,12 @@ export interface AssignmentPickerColumn {
 /** The context each assigned row's cells are rendered with. */
 export interface AssignmentPickerRowContext<TRow extends AssignmentPickerRow> {
   readonly $implicit: TRow;
+  /**
+   * Set when the row is drawn by `bit-table-v2`, whose cells must then be `<bit-cell>`: a `<td>`
+   * there has no `<table>` ancestor, so it is exposed with no cell role at all. Remove when the
+   * VFO1 flag is removed.
+   */
+  readonly vfo1?: boolean;
 }
 
 /** The i18n key for the hint under the picker, one per state the section can be in. */
