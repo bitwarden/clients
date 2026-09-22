@@ -4,15 +4,18 @@ import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrollin
 import { CommonModule } from "@angular/common";
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
+  computed,
   EventEmitter,
   inject,
+  Inject,
+  input,
+  Optional,
   Output,
   Signal,
+  Type,
   ViewChild,
-  computed,
-  ChangeDetectionStrategy,
-  input,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
@@ -60,6 +63,8 @@ import {
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+
+import { VAULT_ROW_ACCESS_ACTION } from "./vault-row-access-action.token";
 
 @Component({
   imports: [
@@ -301,12 +306,17 @@ export class VaultListItemsContainerComponent {
     private router: Router,
     private dialogService: DialogService,
     private accountService: AccountService,
+    @Optional() @Inject(VAULT_ROW_ACCESS_ACTION) protected accessAction: Type<unknown> | null,
   ) {}
 
   onCipherSelect(cipher: PopupCipherViewLike) {
     return this.canAutofill() && !CipherViewLikeUtils.isRestricted(cipher)
       ? this.doAutofill(cipher)
       : this.onViewCipher(cipher);
+  }
+
+  protected showAccessAction(cipher: CipherViewLike): boolean {
+    return this.accessAction != null && CipherViewLikeUtils.isRestricted(cipher);
   }
 
   /**
