@@ -1259,12 +1259,13 @@ describe("HistoryTabComponent", () => {
       expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    it("shows the scope's empty state on its own when no scope chip is offered", () => {
+    it("shows the scope's empty state inside the table when no scope chip is offered", () => {
       createWithFlag(true);
 
-      expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
-      expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
-      expect(query("bit-table-v2")).toBeNull();
+      const empty = query('[data-testid="my-access-history-empty"]')!;
+      expect(empty.closest("bit-table-v2")).not.toBeNull();
+      expect(text(empty)).toContain("pamHistoryEmpty");
+      expect(query("bit-table-toolbar")).toBeNull();
     });
 
     it("holds the scope when the chosen scope matches nothing", () => {
@@ -1306,6 +1307,27 @@ describe("HistoryTabComponent", () => {
       fixture.detectChanges();
 
       expect(query('[data-testid="history-loading"]')).toBeNull();
+    });
+
+    // The chip lands in the table's toolbar, so a placeholder above the skeleton would promise a
+    // control in a place that never receives one.
+    it("leaves the scope-chip placeholder out of the skeleton", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+
+      createWithFlag(false);
+      passSkeletonDelay();
+
+      expect(
+        query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
+      ).not.toBeNull();
+
+      createWithFlag(true);
+      passSkeletonDelay();
+
+      expect(
+        query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
+      ).toBeNull();
     });
   });
 

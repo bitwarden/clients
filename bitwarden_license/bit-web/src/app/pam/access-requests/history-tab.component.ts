@@ -255,16 +255,6 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Whether the VFO1 path draws the table. It is held up over an empty result whenever the scope
-   * chip is offered, because the chip lives in the table's toolbar: letting the table go would
-   * destroy the chip, and {@link scope} reads the chip, so the scope would snap back to All and
-   * refill the table the reader had just emptied.
-   */
-  protected readonly vfo1TableVisible = computed(
-    () => this.vfo1Enabled() && (this.canSwitchScope() || this.historyRows().length > 0),
-  );
-
-  /**
    * One source of truth for the scope — the shape the sibling access-audit page uses for its
    * chips.
    *
