@@ -1744,5 +1744,23 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
       expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
       expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
     });
+
+    // The search and the chips land inside the table's toolbar, so a placeholder row above the
+    // skeleton would promise controls in a place that never receives them.
+    it("leaves the toolbar placeholder out of the skeleton", () => {
+      const placeholders = (el: HTMLElement): number =>
+        el.querySelectorAll(
+          '[data-testid="managed-credentials-loading"] > div:first-child bit-skeleton',
+        ).length;
+
+      const off = render(false);
+      configsService.loading$.next(true);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(placeholders(off)).toBeGreaterThan(0);
+      expect(placeholders(renderSkeleton())).toBe(0);
+    });
   });
 });
