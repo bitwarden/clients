@@ -235,7 +235,7 @@
                   {{ assignment.qualifierKey | i18n }}
                 }
               </bit-cell>
-              <bit-cell>
+              <bit-cell [truncate]="false">
                 <div class="tw-flex tw-items-center tw-gap-1">
                   <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
                   <button
