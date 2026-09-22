@@ -8,13 +8,16 @@
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
 } @else if (loadingVisible()) {
   <div aria-hidden="true" data-testid="access-connectors-loading">
-    <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
-      @if (showSkeleton()) {
-        <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
-        <bit-skeleton class="tw-h-10 tw-w-24"></bit-skeleton>
-        <bit-skeleton class="tw-h-10 tw-w-32"></bit-skeleton>
-      }
-    </div>
+    @if (!vfo1Enabled()) {
+      <!-- remove this branch when the VFO1 flag is removed -->
+      <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
+        @if (showSkeleton()) {
+          <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
+          <bit-skeleton class="tw-h-10 tw-w-24"></bit-skeleton>
+          <bit-skeleton class="tw-h-10 tw-w-32"></bit-skeleton>
+        }
+      </div>
+    }
 
     @if (vfo1Enabled()) {
       <bit-table-v2

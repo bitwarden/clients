@@ -1795,6 +1795,18 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       expect(placeholder().querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
     });
 
+    it("leaves the page-level toolbar placeholder out, so the strip does not move on load", () => {
+      const el = render(true, [], true);
+      advance(1000);
+
+      expect(
+        el.querySelectorAll(
+          '[data-testid="access-connectors-loading"] > div:first-child bit-skeleton',
+        ),
+      ).toHaveLength(0);
+      expect(placeholder().querySelectorAll("bit-row").length).toBeGreaterThan(0);
+    });
+
     it("draws the headers alone, with no skeleton or empty state, before the delay is up", () => {
       render(true, [], true);
       advance(999);
