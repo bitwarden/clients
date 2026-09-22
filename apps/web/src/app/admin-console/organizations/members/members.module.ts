@@ -49,12 +49,7 @@ import { MemberExportService } from "./services";
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
-  declarations: [
-    BulkProgressDialogComponent,
-    BulkReinviteFailureDialogComponent,
-    MembersComponent,
-    UserStatusPipe,
-  ],
+  declarations: [BulkProgressDialogComponent, BulkReinviteFailureDialogComponent, MembersComponent],
   providers: [MemberExportService, UserStatusPipe],
 })
 export class MembersModule {}

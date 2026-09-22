@@ -198,6 +198,11 @@ const actions = [
       "Remove, subtract, or delete action. This outlined version should primarily be placed in a component with a transparent background, such as a link or tertiary button. If using in a filled or outline button or FAB, prefer the standard subtract button.",
   },
   {
+    id: "bwi-pause-circle",
+    usage:
+      "Pause action. Used for pausing scheduled or recurring work such as credential rotations, subscriptions, or background jobs.",
+  },
+  {
     id: "bwi-pencil-square",
     usage: "Edit action.",
   },
@@ -218,6 +223,11 @@ const actions = [
   {
     id: "bwi-refresh",
     usage: "Refresh action. Reloads selected screen or element.",
+  },
+  {
+    id: "bwi-resume",
+    usage:
+      "Resume action. Restarts paused scheduled or recurring work. Pairs with the pause-circle icon.",
   },
   {
     id: "bwi-search",
@@ -358,6 +368,10 @@ const miscObjects = [
   {
     id: "bwi-bug",
     usage: "Indicates a test or debug action.",
+  },
+  {
+    id: "bwi-calendar",
+    usage: "Used for date-based actions or views, like scheduling or picking a date.",
   },
   {
     id: "bwi-camera",
