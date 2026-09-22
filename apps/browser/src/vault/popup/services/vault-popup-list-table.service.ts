@@ -290,9 +290,11 @@ export class VaultPopupListTableService {
     { currentUriIsBlocked }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
+    const gated = CipherViewLikeUtils.isRestricted(cipher as CipherViewLike);
 
-    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
-    const primaryAutofill = isAutofill && !currentUriIsBlocked;
+    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked. A
+    // gated row never fills, since the server withholds its credentials.
+    const primaryAutofill = !gated && isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
@@ -300,8 +302,8 @@ export class VaultPopupListTableService {
     return {
       primaryAutofill,
       showFillOnHover: primaryAutofill,
-      showLaunch: !isAutofill,
-      showAutofillInMenu: !primaryAutofill,
+      showLaunch: !isAutofill && !gated,
+      showAutofillInMenu: !gated && !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,
@@ -343,7 +345,11 @@ export class VaultPopupListTableService {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      CipherViewLikeUtils.isRestricted(cipher)
+    ) {
       return;
     }
 

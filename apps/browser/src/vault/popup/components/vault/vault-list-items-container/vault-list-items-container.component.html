@@ -132,7 +132,7 @@
           </button>
 
           <ng-container slot="end">
-            @if (showFillTextOnHover()) {
+            @if (showFillTextOnHover() && !CipherViewLikeUtils.isRestricted(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -144,7 +144,11 @@
                 </button>
               </bit-item-action>
             }
-            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+            @if (
+              showLaunchButton() &&
+              CipherViewLikeUtils.canLaunch(cipher) &&
+              !CipherViewLikeUtils.isRestricted(cipher)
+            ) {
               <bit-item-action>
                 <button
                   type="button"
@@ -155,7 +159,9 @@
                 ></button>
               </bit-item-action>
             }
-            <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            @if (!CipherViewLikeUtils.isRestricted(cipher)) {
+              <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            }
             <app-item-more-options
               [cipher]="cipher"
               [showAutofill]="showAutofillInMenu()"

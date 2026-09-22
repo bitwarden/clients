@@ -232,7 +232,10 @@ export class VaultListItemsContainerComponent {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
       // Use autofill title when autofill is the primary action
-      const key = this.canAutofill() ? "autofillTitle" : "viewItemTitle";
+      const key =
+        this.canAutofill() && !CipherViewLikeUtils.isRestricted(cipher)
+          ? "autofillTitle"
+          : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
@@ -301,7 +304,9 @@ export class VaultListItemsContainerComponent {
   ) {}
 
   onCipherSelect(cipher: PopupCipherViewLike) {
-    return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
+    return this.canAutofill() && !CipherViewLikeUtils.isRestricted(cipher)
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
   }
 
   /**
@@ -309,7 +314,11 @@ export class VaultListItemsContainerComponent {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      CipherViewLikeUtils.isRestricted(cipher)
+    ) {
       return;
     }
 

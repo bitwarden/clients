@@ -193,7 +193,9 @@
             [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
-        <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        @if (!CipherViewLikeUtils.isRestricted(row.cipher)) {
+          <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        }
         <app-item-more-options
           [cipher]="row.cipher"
           [showAutofill]="row.actions.showAutofillInMenu"
