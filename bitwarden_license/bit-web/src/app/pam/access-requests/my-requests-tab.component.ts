@@ -237,7 +237,6 @@ export class MyRequestsTabComponent {
 
   private readonly filteredPending = computed(() => this.applyFilters(this.allPending()));
 
-  /** Rows still awaiting an approver's decision, before the toolbar narrows them. */
   private readonly allPendingRows = computed(() =>
     this.allPending().filter((row) => row.status === "pending"),
   );

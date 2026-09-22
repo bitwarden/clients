@@ -870,7 +870,6 @@ describe("MyRequestsTabComponent", () => {
         return query("bit-search input")?.getAttribute("placeholder");
       }
 
-      /** A section's row ids, or null when the section renders no table at all. */
       function sectionRowIds(titleKey: string): (string | null)[] | null {
         const table = sectionTable(titleKey);
         return table ? rowIds(table) : null;
