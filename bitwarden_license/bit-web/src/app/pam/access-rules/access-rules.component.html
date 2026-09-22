@@ -1,43 +1,52 @@
-<app-header [title]="'pamAccessRules' | i18n">
-  @if (!loading() && rules().length > 0) {
-    <button
-      type="button"
-      bitButton
-      buttonType="primary"
-      startIcon="bwi-plus"
-      [bitMenuTriggerFor]="createMenu"
-      id="access-rules_button_new"
-    >
-      {{ "pamAccessRuleCreate" | i18n }}
+<!--
+  One declaration, two homes: the page header off the flag, the table toolbar's end slot on it.
+  Stamping it twice would let the two copies drift apart on ids and handlers, which is exactly
+  what the flag-off path is checked against.
+-->
+<ng-template #createAction>
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    startIcon="bwi-plus"
+    [bitMenuTriggerFor]="createMenu"
+    id="access-rules_button_new"
+  >
+    {{ "pamAccessRuleCreate" | i18n }}
+  </button>
+  <bit-menu #createMenu [ariaLabel]="'pamAccessRuleCreate' | i18n">
+    <!-- Custom stays first: the trigger focuses the first item on every open. -->
+    <button type="button" bitMenuItem (click)="openCreate()" id="access-rules_button_new-custom">
+      <bit-icon fixedWidth name="bwi-lock-encrypted" slot="start" />
+      {{ "custom" | i18n }}
     </button>
-    <bit-menu #createMenu [ariaLabel]="'pamAccessRuleCreate' | i18n">
-      <!-- Custom stays first: the trigger focuses the first item on every open. -->
-      <button type="button" bitMenuItem (click)="openCreate()" id="access-rules_button_new-custom">
-        <bit-icon fixedWidth name="bwi-lock-encrypted" slot="start" />
-        {{ "custom" | i18n }}
-      </button>
-      <bit-menu-divider />
-      <div role="group" aria-labelledby="access-rules_label_templates" class="tw-contents">
-        <span
-          id="access-rules_label_templates"
-          bitTypography="helper"
-          class="tw-px-2 tw-pt-1 tw-text-muted"
+    <bit-menu-divider />
+    <div role="group" aria-labelledby="access-rules_label_templates" class="tw-contents">
+      <span
+        id="access-rules_label_templates"
+        bitTypography="helper"
+        class="tw-px-2 tw-pt-1 tw-text-muted"
+      >
+        {{ "pamAccessRulesStartFromTemplate" | i18n }}
+      </span>
+      @for (template of templates; track template.key) {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="openFromTemplate(template.key)"
+          [id]="'access-rules_button_new-template-' + template.key"
         >
-          {{ "pamAccessRulesStartFromTemplate" | i18n }}
-        </span>
-        @for (template of templates; track template.key) {
-          <button
-            type="button"
-            bitMenuItem
-            (click)="openFromTemplate(template.key)"
-            [id]="'access-rules_button_new-template-' + template.key"
-          >
-            <bit-icon fixedWidth [name]="template.icon" slot="start" />
-            {{ template.titleKey | i18n }}
-          </button>
-        }
-      </div>
-    </bit-menu>
+          <bit-icon fixedWidth [name]="template.icon" slot="start" />
+          {{ template.titleKey | i18n }}
+        </button>
+      }
+    </div>
+  </bit-menu>
+</ng-template>
+
+<app-header [title]="'pamAccessRules' | i18n">
+  @if (!vfo1Enabled() && !loading() && rules().length > 0) {
+    <ng-container *ngTemplateOutlet="createAction" />
   }
 </app-header>
 
@@ -45,36 +54,38 @@
 
 @if (!loading()) {
   @if (rules().length > 0) {
-    <div class="tw-mb-4 tw-flex tw-items-center tw-gap-3" [formGroup]="filterForm">
-      <bit-search
-        class="tw-grow tw-max-w-md"
-        [placeholder]="'pamSearchRules' | i18n"
-        formControlName="search"
-      />
-      <bit-filter-menu
-        #statusFilter
-        key="status"
-        [placeholderText]="'status' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
-        @for (option of statusOptions; track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-      <bit-filter-menu
-        #collectionFilter
-        key="collection"
-        [placeholderText]="'pamAccessRuleCollectionsColumn' | i18n"
-        multiple
-      >
-        @for (option of collectionOptions(); track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-    </div>
-
     @if (vfo1Enabled()) {
-      <bit-table-v2 [tableDef]="table" [filter]="ruleFilter()">
+      <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter">
+        <bit-table-toolbar [formGroup]="filterForm">
+          <bit-search
+            class="tw-flex-1"
+            [placeholder]="'pamSearchRules' | i18n"
+            formControlName="search"
+          />
+          <div slot="end">
+            <ng-container *ngTemplateOutlet="createAction" />
+          </div>
+          <bit-filter-menu
+            #statusFilter
+            key="status"
+            [placeholderText]="'status' | i18n"
+            [unsetLabel]="'all' | i18n"
+          >
+            @for (option of statusOptions; track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+          <bit-filter-menu
+            #collectionFilter
+            key="collection"
+            [placeholderText]="'pamAccessRuleCollectionsColumn' | i18n"
+            multiple
+          >
+            @for (option of collectionOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        </bit-table-toolbar>
         <div slot="empty" class="tw-py-6 tw-text-center tw-text-muted">
           {{ "pamAccessRulesNoResults" | i18n }}
         </div>
@@ -208,6 +219,34 @@
       </bit-table-v2>
     } @else {
       <!-- Remove this branch along with the VFO1 flag. -->
+      <div class="tw-mb-4 tw-flex tw-items-center tw-gap-3" [formGroup]="filterForm">
+        <bit-search
+          class="tw-grow tw-max-w-md"
+          [placeholder]="'pamSearchRules' | i18n"
+          formControlName="search"
+        />
+        <bit-filter-menu
+          #statusFilter
+          key="status"
+          [placeholderText]="'status' | i18n"
+          [unsetLabel]="'all' | i18n"
+        >
+          @for (option of statusOptions; track option.value) {
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          }
+        </bit-filter-menu>
+        <bit-filter-menu
+          #collectionFilter
+          key="collection"
+          [placeholderText]="'pamAccessRuleCollectionsColumn' | i18n"
+          multiple
+        >
+          @for (option of collectionOptions(); track option.value) {
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          }
+        </bit-filter-menu>
+      </div>
+
       <div class="tw-overflow-x-auto">
         <bit-table [dataSource]="dataSource">
           <ng-container header>

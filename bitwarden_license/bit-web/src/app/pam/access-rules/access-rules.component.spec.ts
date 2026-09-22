@@ -957,3 +957,203 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     expect(rowNames(fixture)).toEqual(["DB", "SSH", "VPN"]);
   });
 });
+
+describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
+  const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
+
+  const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>
+    ({ ...rule(id, name, enabled), collections }) as unknown as AccessRuleView;
+
+  const COLLECTIONS = [collection("col-1", "Databases"), collection("col-2", "Servers")];
+
+  const RULES = [
+    ruleIn("rule-1", "VPN", ["col-1"]),
+    ruleIn("rule-2", "SSH", ["col-2"], false),
+    ruleIn("rule-3", "Backup", ["col-2"]),
+  ];
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    document.body.querySelectorAll(".cdk-overlay-container").forEach((el) => el.remove());
+  });
+
+  const render = async (vfo1: boolean): Promise<ComponentFixture<AccessRulesComponent>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [AccessRulesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { listAccessRules: jest.fn().mockResolvedValue(RULES) },
+        },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => of(COLLECTIONS) },
+        },
+        { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
+        { provide: ConfigService, useValue: configServiceWithVfo1(vfo1) },
+      ],
+    });
+    TestBed.overrideComponent(AccessRulesComponent, {
+      remove: { imports: [HeaderModule] },
+      add: { schemas: [NO_ERRORS_SCHEMA] },
+    });
+    TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog: jest.fn() } });
+
+    const fixture = TestBed.createComponent(AccessRulesComponent);
+    for (let i = 0; i < 3; i++) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+    return fixture;
+  };
+
+  const el = (fixture: ComponentFixture<AccessRulesComponent>): HTMLElement =>
+    fixture.nativeElement as HTMLElement;
+
+  const toolbar = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    el(fixture).querySelector("bit-table-v2 bit-table-toolbar");
+
+  /** The rule names the flag-on table is showing, in render order. */
+  const rowNames = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    Array.from(el(fixture).querySelectorAll("button[bitlink]")).map((n) =>
+      (n.textContent ?? "").replace(/\s+/g, " ").trim(),
+    );
+
+  /** The rule names the flag-off table is showing, straight off its data source. */
+  const v1Names = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    (fixture.componentInstance["dataSource"].filteredData ?? []).map((r) => r.name);
+
+  const setFilters = (
+    fixture: ComponentFixture<AccessRulesComponent>,
+    filters: { search?: string; status?: unknown; collection?: unknown },
+  ) => {
+    if (filters.search !== undefined) {
+      fixture.componentInstance["filterForm"].controls.search.setValue(filters.search);
+    }
+    if (filters.status !== undefined) {
+      fixture.componentInstance["statusFilter"]()!.setValue(filters.status);
+    }
+    if (filters.collection !== undefined) {
+      fixture.componentInstance["collectionFilter"]()!.setValue(filters.collection);
+    }
+    fixture.detectChanges();
+  };
+
+  it("puts the search and both filter chips inside the table's toolbar", async () => {
+    const fixture = await render(true);
+
+    expect(toolbar(fixture)!.querySelector("bit-search")).not.toBeNull();
+    expect(toolbar(fixture)!.querySelectorAll("bit-filter-menu")).toHaveLength(2);
+    expect(el(fixture).querySelectorAll("bit-search")).toHaveLength(1);
+    expect(el(fixture).querySelectorAll("bit-filter-menu")).toHaveLength(2);
+  });
+
+  it("leaves the controls outside the table when the flag is off", async () => {
+    const fixture = await render(false);
+
+    expect(el(fixture).querySelector("bit-table-toolbar")).toBeNull();
+    expect(el(fixture).querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
+    expect(el(fixture).querySelectorAll("bit-filter-menu")).toHaveLength(2);
+  });
+
+  it("keeps the chips' labels, options and unset state", async () => {
+    const fixture = await render(true);
+    const chips = Array.from(toolbar(fixture)!.querySelectorAll("bit-filter-menu"));
+
+    expect(chips.map((c) => c.getAttribute("key"))).toEqual(["status", "collection"]);
+    expect(fixture.componentInstance["statusFilter"]()!.active()).toBe(false);
+    expect(fixture.componentInstance["collectionFilter"]()!.active()).toBe(false);
+    expect(rowNames(fixture)).toEqual(["VPN", "SSH", "Backup"]);
+  });
+
+  it("keeps the search placeholder it had off the flag", async () => {
+    const off = await render(false);
+    const offPlaceholder = off.nativeElement
+      .querySelector("bit-search input")
+      ?.getAttribute("placeholder");
+
+    const on = await render(true);
+
+    expect(toolbar(on)!.querySelector("bit-search input")!.getAttribute("placeholder")).toBe(
+      offPlaceholder,
+    );
+    expect(offPlaceholder).toBe("pamSearchRules");
+  });
+
+  it("moves the create action into the toolbar's end slot, keeping its id", async () => {
+    const on = await render(true);
+
+    const action = toolbar(on)!.querySelector('[slot="end"] #access-rules_button_new');
+    expect(action).not.toBeNull();
+    expect(on.nativeElement.querySelectorAll("#access-rules_button_new")).toHaveLength(1);
+
+    const off = await render(false);
+    expect(off.nativeElement.querySelector("bit-table-toolbar")).toBeNull();
+    expect(off.nativeElement.querySelector("#access-rules_button_new")).not.toBeNull();
+  });
+
+  it("still opens the create menu from the toolbar", async () => {
+    const fixture = await render(true);
+
+    toolbar(fixture)!.querySelector<HTMLButtonElement>("#access-rules_button_new")!.click();
+    fixture.detectChanges();
+
+    expect(document.querySelector("#access-rules_button_new-custom")).not.toBeNull();
+  });
+
+  it.each<[string, { search?: string; status?: unknown; collection?: unknown }]>([
+    ["the status chip", { status: "enabled" }],
+    ["the collections chip", { collection: ["col-2"] }],
+    ["search on a rule name", { search: "vpn" }],
+    ["search on a collection name", { search: "databases" }],
+    ["every control at once", { search: "s", status: "enabled", collection: ["col-2"] }],
+  ])("narrows the toolbar's rows the same way the flag-off path does: %s", async (_, filters) => {
+    const off = await render(false);
+    setFilters(off, filters);
+    const expected = v1Names(off);
+    // Guards the comparison: two empty lists would agree without either path filtering.
+    expect(expected.length).toBeGreaterThan(0);
+    expect(expected.length).toBeLessThan(RULES.length);
+
+    const on = await render(true);
+    setFilters(on, filters);
+
+    expect(rowNames(on)).toEqual(expected);
+  });
+
+  it("restores every rule when a chip is cleared from the toolbar", async () => {
+    const fixture = await render(true);
+
+    setFilters(fixture, { collection: ["col-1"] });
+    expect(rowNames(fixture)).toEqual(["VPN"]);
+
+    setFilters(fixture, { collection: [] });
+    expect(rowNames(fixture)).toEqual(["VPN", "SSH", "Backup"]);
+  });
+
+  it("scopes select-all to the rows the toolbar left visible", async () => {
+    const fixture = await render(true);
+
+    setFilters(fixture, { status: "enabled" });
+    fixture.componentInstance["toggleAll"]();
+
+    expect(fixture.componentInstance["selection"].selected).toEqual(["rule-1", "rule-3"]);
+  });
+
+  it("keeps the toolbar rendered when the filters exclude every rule", async () => {
+    const fixture = await render(true);
+
+    setFilters(fixture, { search: "nothing matches" });
+
+    expect(rowNames(fixture)).toEqual([]);
+    expect(toolbar(fixture)!.querySelector("bit-search")).not.toBeNull();
+    expect(toolbar(fixture)!.querySelectorAll("bit-filter-menu")).toHaveLength(2);
+    expect(toolbar(fixture)!.querySelector("#access-rules_button_new")).not.toBeNull();
+  });
+});
