@@ -1,11 +1,14 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, FilterControl, ToastService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -59,6 +62,14 @@ function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
 
 type ProviderOverride = { provide: unknown; useValue: unknown };
 
+const configServiceWithVfo1 = (enabled: boolean): ConfigService => {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockImplementation((flag) =>
+    of(flag === FeatureFlag.VFO1Foundation ? enabled : false),
+  );
+  return configService as ConfigService;
+};
+
 type SetupOptions = {
   overrides?: ProviderOverride[];
   /** Resolves to the user's answer for every confirmation the test triggers. */
@@ -87,6 +98,7 @@ const setup = async (
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
       { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
       { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
+      { provide: ConfigService, useValue: configServiceWithVfo1(false) },
       ...overrides,
     ],
   });
@@ -555,6 +567,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
           useValue: { collectionAdminViews$: () => of(collections) },
         },
         { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
+        { provide: ConfigService, useValue: configServiceWithVfo1(false) },
       ],
     });
 
@@ -670,5 +683,200 @@ describe("AccessRulesComponent — toolbar filters", () => {
 
     select("collectionFilter", ["col-1"]);
     expect(visible()).toEqual([]);
+  });
+});
+
+describe("AccessRulesComponent — VFO1 table (flag on)", () => {
+  const RULES = [
+    { ...rule("rule-1", "VPN", true), revisionDate: "2024-03-01T00:00:00.000Z" },
+    { ...rule("rule-2", "SSH", false), revisionDate: "2024-05-01T00:00:00.000Z" },
+    { ...rule("rule-3", "DB", true), revisionDate: "2024-04-01T00:00:00.000Z" },
+  ] as AccessRuleView[];
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    document.body.querySelectorAll(".cdk-overlay-container").forEach((el) => el.remove());
+  });
+
+  /** Renders the real template under the given flag state; a fresh TestBed each time. */
+  const render = async (vfo1: boolean): Promise<ComponentFixture<AccessRulesComponent>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [AccessRulesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { listAccessRules: jest.fn().mockResolvedValue(RULES) },
+        },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+        { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
+        { provide: ConfigService, useValue: configServiceWithVfo1(vfo1) },
+      ],
+    });
+    TestBed.overrideComponent(AccessRulesComponent, {
+      remove: { imports: [HeaderModule] },
+      add: { schemas: [NO_ERRORS_SCHEMA] },
+    });
+    TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog: jest.fn() } });
+
+    const fixture = TestBed.createComponent(AccessRulesComponent);
+    for (let i = 0; i < 3; i++) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+    return fixture;
+  };
+
+  const el = (fixture: ComponentFixture<AccessRulesComponent>): HTMLElement =>
+    fixture.nativeElement as HTMLElement;
+
+  const text = (node: Element) => (node.textContent ?? "").replace(/\s+/g, " ").trim();
+
+  const headings = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    Array.from(el(fixture).querySelectorAll("th, [role=columnheader]")).map(text);
+
+  /** Row names in rendered order, read off each row's edit link. */
+  const rowNames = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    Array.from(el(fixture).querySelectorAll("button[bitlink]")).map(text);
+
+  const rowCheckboxes = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    Array.from(
+      el(fixture).querySelectorAll<HTMLInputElement>(
+        'input[id^="access-rules_checkbox_"]:not(#access-rules_checkbox_select-all)',
+      ),
+    );
+
+  const accessibleName = (fixture: ComponentFixture<AccessRulesComponent>, id: string) =>
+    text(el(fixture).querySelector(`label[for="${id}"]`)!);
+
+  /** Opens the first row's overflow menu and reads its items. */
+  const firstRowMenu = (fixture: ComponentFixture<AccessRulesComponent>) => {
+    const trigger = el(fixture).querySelector<HTMLButtonElement>(
+      'button[biticonbutton="bwi-ellipsis-h"]',
+    )!;
+    trigger.click();
+    fixture.detectChanges();
+    return Array.from(document.querySelectorAll("button[bitmenuitem]")).map(text);
+  };
+
+  it("renders bit-table-v2 in place of the v1 table", async () => {
+    const fixture = await render(true);
+
+    expect(el(fixture).querySelector("bit-table-v2")).not.toBeNull();
+    expect(el(fixture).querySelector("bit-table")).toBeNull();
+  });
+
+  it("keeps the v1 table when the flag is off", async () => {
+    const fixture = await render(false);
+
+    expect(el(fixture).querySelector("bit-table")).not.toBeNull();
+    expect(el(fixture).querySelector("bit-table-v2")).toBeNull();
+  });
+
+  it("renders the same column headings, in the same order, as the v1 table", async () => {
+    const v1 = headings(await render(false));
+    const v2 = headings(await render(true));
+
+    expect(v2).toEqual(v1);
+    expect(v2).toEqual([
+      "selectAll",
+      "pamAccessRuleName",
+      "pamAccessRuleAppliesTo",
+      "pamAccessRuleApprovalMethodColumn",
+      "pamAccessRuleDurationColumn",
+      "status",
+      "pamAccessRuleLastModified",
+      "options",
+    ]);
+  });
+
+  it("renders the same rows in the same default order (last modified, newest first)", async () => {
+    const v1 = rowNames(await render(false));
+    const v2 = rowNames(await render(true));
+
+    expect(v2).toEqual(["SSH", "DB", "VPN"]);
+    expect(v2).toEqual(v1);
+  });
+
+  it("gives the selection checkboxes the same accessible names as v1", async () => {
+    const fixture = await render(true);
+
+    expect(rowCheckboxes(fixture)).toHaveLength(RULES.length);
+    expect(accessibleName(fixture, "access-rules_checkbox_select-all")).toBe("selectAll");
+    expect(accessibleName(fixture, "access-rules_checkbox_rule-2")).toBe("SSH");
+  });
+
+  it("offers the same row actions, in the same order, as the v1 menu", async () => {
+    const v1 = firstRowMenu(await render(false));
+    document.body.querySelectorAll(".cdk-overlay-container").forEach((node) => node.remove());
+    const v2 = firstRowMenu(await render(true));
+
+    expect(v2).toEqual(["edit", "makeACopy", "pamAccessRuleActivate", "delete"]);
+    expect(v2).toEqual(v1);
+  });
+
+  it("feeds row checkboxes into the selection the bulk actions read", async () => {
+    const fixture = await render(true);
+
+    rowCheckboxes(fixture)[0].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance["selectedCount"]()).toBe(1);
+    expect(fixture.componentInstance["selectedRules"]().map((r) => r.name)).toEqual(["SSH"]);
+  });
+
+  it("selects every filtered row from the header checkbox", async () => {
+    const fixture = await render(true);
+
+    fixture.componentInstance["statusFilter"]()!.setValue("enabled");
+    fixture.detectChanges();
+    el(fixture).querySelector<HTMLInputElement>("#access-rules_checkbox_select-all")!.click();
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance["selectedRules"]()
+        .map((r) => r.name)
+        .sort(),
+    ).toEqual(["DB", "VPN"]);
+  });
+
+  it("narrows the v2 rows on the toolbar chips and search", async () => {
+    const fixture = await render(true);
+
+    fixture.componentInstance["statusFilter"]()!.setValue("disabled");
+    fixture.detectChanges();
+    expect(rowNames(fixture)).toEqual(["SSH"]);
+
+    fixture.componentInstance["statusFilter"]()!.setValue(null);
+    fixture.componentInstance["filterForm"].controls.search.setValue("db");
+    fixture.detectChanges();
+    expect(rowNames(fixture)).toEqual(["DB"]);
+  });
+
+  it("shows the no-results copy when the filters exclude every rule", async () => {
+    const fixture = await render(true);
+
+    fixture.componentInstance["filterForm"].controls.search.setValue("nothing matches");
+    fixture.detectChanges();
+
+    expect(rowNames(fixture)).toEqual([]);
+    expect(text(el(fixture).querySelector("bit-table-v2")!)).toContain("pamAccessRulesNoResults");
+  });
+
+  it("sorts by name when its header is clicked, as v1 does", async () => {
+    const fixture = await render(true);
+
+    const nameHeader = Array.from(
+      el(fixture).querySelectorAll<HTMLButtonElement>("[role=columnheader] button"),
+    ).find((b) => text(b) === "pamAccessRuleName")!;
+    nameHeader.click();
+    fixture.detectChanges();
+
+    expect(rowNames(fixture)).toEqual(["DB", "SSH", "VPN"]);
   });
 });

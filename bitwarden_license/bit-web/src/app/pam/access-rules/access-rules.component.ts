@@ -14,11 +14,18 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, startWith } from "rxjs";
 
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   BulkActionComponent,
   BulkActionsBarComponent,
   ButtonModule,
@@ -35,6 +42,7 @@ import {
   SortFn,
   TableDataSource,
   TableModule,
+  defineTable,
   ToastService,
   TooltipDirective,
   TypographyModule,
@@ -75,6 +83,11 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitTableV2Component,
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
@@ -103,6 +116,13 @@ export class AccessRulesComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
   protected readonly collections = toSignal(this.accessRules.collections$, {
@@ -125,6 +145,8 @@ export class AccessRulesComponent {
     initialValue: [] as AccessRuleView[],
   });
 
+  protected readonly table = defineTable<AccessRuleView, "select" | "actions">(this.rules);
+
   // --- Toolbar filters ---
   // `bit-filter-menu` isn't a `ControlValueAccessor`, so only `search` is a form control; the
   // status/collection chips own their selection and are read through the `FilterControl` contract.
@@ -146,6 +168,18 @@ export class AccessRulesComponent {
       text: this.searchTerm().trim().toLowerCase(),
       status: (typeof status === "string" ? status : null) as AccessRuleStatusFilter | null,
       collectionIds: selectedFilterStrings(this.collectionFilter()?.value()),
+    };
+  });
+
+  protected readonly ruleFilter = computed(() => {
+    const { text, status, collectionIds } = this.filterInputs();
+    return (rule: AccessRuleView): boolean => {
+      const ruleCollectionIds = rule.collections.map(uuidAsString);
+      return accessRuleMatchesFilter(
+        { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
+        resolveCollectionNames(ruleCollectionIds, this.collections()),
+        { text, status, collectionIds },
+      );
     };
   });
 
@@ -195,15 +229,7 @@ export class AccessRulesComponent {
 
     // Recompute the combined filter whenever any toolbar control changes.
     effect(() => {
-      const { text, status, collectionIds } = this.filterInputs();
-      this.dataSource.filter = (rule) => {
-        const ruleCollectionIds = rule.collections.map(uuidAsString);
-        return accessRuleMatchesFilter(
-          { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-          resolveCollectionNames(ruleCollectionIds, this.collections()),
-          { text, status, collectionIds },
-        );
-      };
+      this.dataSource.filter = this.ruleFilter();
     });
   }
 
