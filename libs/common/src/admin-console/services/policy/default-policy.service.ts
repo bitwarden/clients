@@ -19,10 +19,6 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
 
 import { POLICIES } from "./policy-state";
 
-export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }): Policy[] {
-  return Object.values(policiesMap || {}).map((f) => new Policy(f));
-}
-
 export const getFirstPolicy = map<Policy[], Policy | undefined>((policies) => {
   return policies.at(0) ?? undefined;
 });
@@ -44,12 +40,11 @@ export class DefaultPolicyService implements PolicyService {
     return this.stateProvider.getUser(userId, POLICIES);
   }
 
-  private policyData$(userId: UserId) {
-    return this.policyState(userId).state$.pipe(map((policyData) => policyData ?? {}));
-  }
-
   policies$(userId: UserId) {
-    return this.policyData$(userId).pipe(map((policyData) => policyRecordToArray(policyData)));
+    // Read from the accepted-or-confirmed state (`policiesNew`).
+    // This is a temporary redirect and will be removed once `policiesNew` state is
+    // folded back into the main `policies` state, completing the migration cycle.
+    return this.newPolicyService.policies$(userId);
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId): Observable<Policy[]> {
