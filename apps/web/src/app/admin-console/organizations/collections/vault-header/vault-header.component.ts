@@ -134,6 +134,16 @@ export class VaultHeaderComponent {
     () => this.filter().collectionId !== undefined && this.filter().collectionId !== All,
   );
 
+  /** Builds query params to navigate to a collection, using the terminology-appropriate param key. */
+  protected collectionQueryParams(collectionId: string): {
+    collectionId: string | null;
+    sharedFolderId: string | null;
+  } {
+    return this.vfo1TerminologyService.enabled()
+      ? { sharedFolderId: collectionId, collectionId: null }
+      : { collectionId, sharedFolderId: null };
+  }
+
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.
    * Begins from the organization root and excludes the currently selected collection.
