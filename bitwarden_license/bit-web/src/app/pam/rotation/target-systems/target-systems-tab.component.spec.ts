@@ -1851,3 +1851,255 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     });
   });
 });
+
+describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
+  let fixture: ComponentFixture<TargetSystemsTabComponent>;
+
+  const entraActive = makeSystem({
+    id: sysId("1"),
+    name: "Prod Entra",
+    method: TargetSystemMethod.Automatic,
+    kind: TargetSystemKind.Entra,
+    status: TargetSystemStatus.Active,
+  });
+  const scriptDisabled = makeSystem({
+    id: sysId("2"),
+    name: "Billing script",
+    method: TargetSystemMethod.Automatic,
+    kind: TargetSystemKind.CustomScript,
+    status: TargetSystemStatus.Disabled,
+  });
+  const manualActive = makeSystem({
+    id: sysId("3"),
+    name: "Mainframe payroll",
+    method: TargetSystemMethod.Manual,
+    kind: undefined,
+    status: TargetSystemStatus.Active,
+  });
+  const SYSTEMS = [entraActive, scriptDisabled, manualActive];
+
+  async function render(
+    vfo1: boolean,
+    systems: TargetSystem[] = SYSTEMS,
+  ): Promise<ComponentFixture<TargetSystemsTabComponent>> {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        {
+          provide: TargetSystemsService,
+          useValue: {
+            loading$: new BehaviorSubject<boolean>(false),
+            loadError$: new BehaviorSubject<unknown | null>(null),
+            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systemById$: new BehaviorSubject(new Map()),
+            automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            load: jest.fn().mockResolvedValue(undefined),
+            setEnabled: jest.fn().mockResolvedValue(undefined),
+            delete: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: AccessConnectorsService,
+          useValue: {
+            accessConnectors$: new BehaviorSubject<AccessConnector[]>([]),
+            loading$: new BehaviorSubject<boolean>(false),
+            loadError$: new BehaviorSubject<unknown | null>(null),
+            load: jest.fn().mockResolvedValue(undefined),
+            forgetTargetSystem: jest.fn(),
+            assign: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TargetSystemsTabComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  const el = (f: ComponentFixture<TargetSystemsTabComponent>): HTMLElement =>
+    f.nativeElement as HTMLElement;
+
+  const toolbar = (f: ComponentFixture<TargetSystemsTabComponent>): HTMLElement =>
+    el(f).querySelector("bit-table-v2 bit-table-toolbar")!;
+
+  /** The toolbar's `slot=end` container: the last child of the row holding the search. */
+  const endSlot = (f: ComponentFixture<TargetSystemsTabComponent>): Element =>
+    toolbar(f).querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
+
+  const text = (node: Element): string => (node.textContent ?? "").replace(/\s+/g, " ").trim();
+
+  /** The names the v2 table actually renders, in order. */
+  const rowNames = (f: ComponentFixture<TargetSystemsTabComponent>): string[] =>
+    Array.from(el(f).querySelectorAll("bit-table-v2 bit-row")).map((row) =>
+      text(row.querySelector("button[bitLink]")!),
+    );
+
+  /** The names the v1 path narrows to, read off its data source. */
+  const v1Names = (f: ComponentFixture<TargetSystemsTabComponent>): string[] =>
+    (
+      (f.componentInstance as unknown as { dataSource: { filteredData?: TargetSystemRow[] } })
+        .dataSource.filteredData ?? []
+    ).map((row) => row.name);
+
+  const chip = (f: ComponentFixture<TargetSystemsTabComponent>, key: string): FilterMenuComponent =>
+    f.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
+
+  function setFilters(
+    f: ComponentFixture<TargetSystemsTabComponent>,
+    filters: { search?: string; method?: string; kind?: string; status?: string },
+  ): void {
+    if (filters.search !== undefined) {
+      (
+        f.componentInstance as unknown as { searchControl: { setValue: (v: string) => void } }
+      ).searchControl.setValue(filters.search);
+    }
+    for (const key of ["method", "kind", "status"] as const) {
+      const value = filters[key];
+      if (value !== undefined) {
+        chip(f, key).toggle(value);
+      }
+    }
+    f.detectChanges();
+  }
+
+  it("puts the search and every filter chip inside the table's toolbar", async () => {
+    const on = await render(true);
+
+    expect(toolbar(on).querySelector("bit-search")).not.toBeNull();
+    expect(
+      Array.from(toolbar(on).querySelectorAll("bit-filter-menu")).map((c) => c.getAttribute("key")),
+    ).toEqual(["method", "kind", "status"]);
+    expect(el(on).querySelectorAll("bit-search")).toHaveLength(1);
+    expect(el(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
+  });
+
+  it("leaves the controls outside the table when the flag is off", async () => {
+    const off = await render(false);
+
+    expect(el(off).querySelector("bit-table-toolbar")).toBeNull();
+    expect(el(off).querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
+    expect(el(off).querySelectorAll("bit-search")).toHaveLength(1);
+    expect(el(off).querySelectorAll("bit-filter-menu")).toHaveLength(3);
+  });
+
+  it("keeps each chip's label and unset state", async () => {
+    const off = await render(false);
+    const offLabels = Array.from(el(off).querySelectorAll("bit-filter-menu")).map(text);
+
+    const on = await render(true);
+    const chips = Array.from(toolbar(on).querySelectorAll("bit-filter-menu"));
+
+    expect(chips.map(text)).toEqual(offLabels);
+    expect(rowNames(on)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
+  });
+
+  it("keeps the search placeholder and accessible name it had off the flag", async () => {
+    const off = await render(false);
+    const offInput = el(off).querySelector("bit-search input")!;
+
+    const on = await render(true);
+    const onInput = toolbar(on).querySelector("bit-search input")!;
+
+    expect(onInput.getAttribute("placeholder")).toBe("pamTargetSystemSearch");
+    expect(onInput.getAttribute("placeholder")).toBe(offInput.getAttribute("placeholder"));
+    expect(onInput.getAttribute("type")).toBe(offInput.getAttribute("type"));
+    expect(onInput.hasAttribute("disabled")).toBe(false);
+  });
+
+  it("drops the kind chip from the toolbar when no loaded target carries a kind", async () => {
+    const on = await render(true, [manualActive]);
+
+    expect(toolbar(on).querySelector('bit-filter-menu[key="kind"]')).toBeNull();
+    expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(2);
+  });
+
+  it.each<[string, { search?: string; method?: string; kind?: string; status?: string }]>([
+    ["the method chip", { method: "pamTargetSystemMethodManual" }],
+    ["the kind chip", { kind: TargetSystemKind.CustomScript }],
+    ["the status chip", { status: "pamTargetSystemStatusInactive" }],
+    ["search on a target name", { search: "prod" }],
+    ["search on a kind label", { search: "customscript" }],
+    ["every control at once", { search: "script", status: "pamTargetSystemStatusInactive" }],
+  ])("narrows the toolbar's rows the same way the flag-off path does: %s", async (_, filters) => {
+    const off = await render(false);
+    setFilters(off, filters);
+    const expected = v1Names(off);
+    // Guards the comparison: two empty lists would agree without either path filtering.
+    expect(expected.length).toBeGreaterThan(0);
+    expect(expected.length).toBeLessThan(SYSTEMS.length);
+
+    const on = await render(true);
+    setFilters(on, filters);
+
+    expect(rowNames(on)).toEqual(expected);
+  });
+
+  it("applies the search once, not once per host, when the term matches a subset", async () => {
+    const on = await render(true);
+
+    setFilters(on, { search: "prod" });
+    expect(rowNames(on)).toEqual(["Prod Entra"]);
+
+    setFilters(on, { search: "" });
+    expect(rowNames(on)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
+  });
+
+  it("restores every row when a chip is cleared from the toolbar", async () => {
+    const on = await render(true);
+
+    setFilters(on, { status: "pamTargetSystemStatusInactive" });
+    expect(rowNames(on)).toEqual(["Billing script"]);
+
+    chip(on, "status").clear();
+    on.detectChanges();
+    expect(rowNames(on)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
+  });
+
+  it("keeps the toolbar rendered when the filters exclude every row", async () => {
+    const on = await render(true);
+
+    setFilters(on, { search: "nothing matches" });
+
+    expect(rowNames(on)).toEqual([]);
+    expect(text(el(on).querySelector('bit-table-v2 [slot="empty"]')!)).toBe(
+      "pamTargetSystemNoFilterResults",
+    );
+    expect(toolbar(on).querySelector("bit-search")).not.toBeNull();
+    expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
+  });
+
+  it("leaves the end slot empty, since the create action belongs to the rotation shell header", async () => {
+    const on = await render(true);
+
+    expect(endSlot(on).children).toHaveLength(0);
+    expect(el(on).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
+  });
+
+  it("keeps every toolbar control keyboard reachable", async () => {
+    const on = await render(true);
+    const controls = [
+      toolbar(on).querySelector("bit-search input")!,
+      ...Array.from(toolbar(on).querySelectorAll("bit-filter-menu button")),
+    ];
+
+    expect(controls).toHaveLength(4);
+    for (const control of controls) {
+      expect(control.getAttribute("tabindex")).not.toBe("-1");
+      expect(control.hasAttribute("disabled")).toBe(false);
+    }
+  });
+});
