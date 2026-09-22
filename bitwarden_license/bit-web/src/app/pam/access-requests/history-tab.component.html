@@ -29,12 +29,9 @@
 @if (!historyLoaded()) {
   @if (skeletonVisible()) {
     <div data-testid="history-loading" aria-hidden="true">
-      @if (!vfo1Enabled()) {
-        <!-- Remove this branch along with the VFO1 flag. -->
-        <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-          <bit-skeleton edgeShape="circle" class="tw-h-8 tw-w-56"></bit-skeleton>
-        </div>
-      }
+      <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+        <bit-skeleton edgeShape="circle" class="tw-h-8 tw-w-56"></bit-skeleton>
+      </div>
 
       @if (vfo1Enabled()) {
         <bit-table-v2

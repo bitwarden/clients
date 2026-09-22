@@ -1311,7 +1311,7 @@ describe("HistoryTabComponent", () => {
 
     // The chip lands in the table's toolbar, so a placeholder above the skeleton would promise a
     // control in a place that never receives one.
-    it("leaves the scope-chip placeholder out of the skeleton", () => {
+    it("reserves the scope-chip row while loading on both paths", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
 
@@ -1327,7 +1327,7 @@ describe("HistoryTabComponent", () => {
 
       expect(
         query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
-      ).toBeNull();
+      ).not.toBeNull();
     });
   });
 
