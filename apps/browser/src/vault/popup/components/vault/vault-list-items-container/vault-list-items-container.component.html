@@ -120,6 +120,11 @@
                   [appA11yTitle]="orgIconTooltip(cipher)"
                 ></i>
               }
+              @if (showAccessStatus(cipher)) {
+                <ng-container
+                  *ngComponentOutlet="accessAction; inputs: { cipher: cipher, render: 'status' }"
+                />
+              }
               @if (CipherViewLikeUtils.hasAttachments(cipher)) {
                 <bit-icon
                   name="bwi-paperclip"
@@ -172,11 +177,12 @@
                 ></button>
               </bit-item-action>
             }
-            @if (CipherViewLikeUtils.isPartial(cipher)) {
-              @if (showAccessAction(cipher)) {
-                <ng-container *ngComponentOutlet="accessAction; inputs: { cipher: cipher }" />
-              }
-            } @else {
+            @if (showAccessAction(cipher)) {
+              <ng-container
+                *ngComponentOutlet="accessAction; inputs: { cipher: cipher, render: 'action' }"
+              />
+            }
+            @if (!CipherViewLikeUtils.isPartial(cipher)) {
               <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             }
             <app-item-more-options

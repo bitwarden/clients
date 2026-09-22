@@ -172,6 +172,11 @@ export class ItemMoreOptionsComponent {
     return CipherViewLikeUtils.isPartial(this.cipher);
   }
 
+  /** True while partial or leased: a save would build on the partial copy and blank its secrets. */
+  get writeLocked() {
+    return this.isPartial || ("leaseGated" in this.cipher && this.cipher.leaseGated === true);
+  }
+
   /**
    * Determines if the cipher can be autofilled.
    */
@@ -190,6 +195,9 @@ export class ItemMoreOptionsComponent {
   }
 
   async doAutofillAndSave() {
+    if (this.writeLocked) {
+      return;
+    }
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
     await this.vaultPopupAutofillService.doAutofillAndSave(cipher);
   }
@@ -229,7 +237,7 @@ export class ItemMoreOptionsComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        viewOnly: !this.cipher.edit || this.writeLocked,
       },
     });
 

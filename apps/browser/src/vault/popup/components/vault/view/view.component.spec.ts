@@ -54,6 +54,7 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
+import { LEASED_CIPHER_SOURCE } from "../vault-list-items-container/leased-cipher-source.token";
 
 import { ViewComponent } from "./view.component";
 
@@ -77,6 +78,7 @@ describe("ViewComponent", () => {
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
   const currentAutofillTab$ = of({ url: "https://example.com", id: 1 });
+  const leased$ = new BehaviorSubject<ReadonlyMap<string, CipherView>>(new Map());
 
   const mockCipher = {
     id: "122-333-444",
@@ -135,6 +137,7 @@ describe("ViewComponent", () => {
     showToast.mockClear();
     showPasswordPrompt.mockClear();
     autofillAllowed$.next(true);
+    leased$.next(new Map());
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
     cipherArchiveService.unarchiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
@@ -257,6 +260,7 @@ describe("ViewComponent", () => {
           provide: ChangeLoginPasswordService,
           useValue: mock<ChangeLoginPasswordService>(),
         },
+        { provide: LEASED_CIPHER_SOURCE, useValue: { leasedCipherViews$: () => leased$ } },
       ],
     })
       .overrideProvider(DialogService, {
@@ -496,6 +500,133 @@ describe("ViewComponent", () => {
       expect(focusSpy).toHaveBeenCalledWith(99);
       expect(closeSpy).toHaveBeenCalledTimes(1);
     }));
+  });
+
+  describe("leased cipher", () => {
+    const partialCipher = { ...mockCipher, partial: true } as CipherView;
+    const leasedCipher = {
+      ...mockCipher,
+      partial: false,
+      leaseGated: true,
+      edit: true,
+      canBeArchived: true,
+    } as unknown as CipherView;
+
+    const buttonLabels = () =>
+      (Array.from(fixture.nativeElement.querySelectorAll("button")) as HTMLElement[]).map((b) =>
+        b.textContent?.trim(),
+      );
+
+    beforeEach(() => {
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([partialCipher]);
+    });
+
+    afterEach(() => {
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([mockCipher]);
+    });
+
+    it("shows the leased full view while a lease is active", fakeAsync(() => {
+      leased$.next(new Map([[mockCipher.id, leasedCipher]]));
+      params$.next({ cipherId: mockCipher.id });
+
+      flush();
+      fixture.detectChanges();
+
+      expect(component.cipher).toBe(leasedCipher);
+      expect(component.showAutofillButton()).toBe(true);
+    }));
+
+    it("reveals when access begins on an open item", fakeAsync(() => {
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+      expect(component.cipher).toBe(partialCipher);
+
+      leased$.next(new Map([[mockCipher.id, leasedCipher]]));
+      flush();
+
+      expect(component.cipher).toBe(leasedCipher);
+    }));
+
+    it("re-locks to the partial copy when the lease ends", fakeAsync(() => {
+      leased$.next(new Map([[mockCipher.id, leasedCipher]]));
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+      expect(component.cipher).toBe(leasedCipher);
+
+      leased$.next(new Map());
+      flush();
+      fixture.detectChanges();
+
+      expect(component.cipher).toBe(partialCipher);
+      expect(component.showAutofillButton()).toBe(false);
+    }));
+
+    it("records the view event once across a reveal and re-lock", fakeAsync(() => {
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+      leased$.next(new Map([[mockCipher.id, leasedCipher]]));
+      flush();
+      leased$.next(new Map());
+      flush();
+
+      expect(collect).toHaveBeenCalledTimes(1);
+    }));
+
+    it("hides Edit, Archive and Delete while leased", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      leased$.next(new Map([[mockCipher.id, leasedCipher]]));
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+      fixture.detectChanges();
+
+      const labels = buttonLabels();
+      expect(labels).not.toContain("edit");
+      expect(fixture.nativeElement.querySelector("button[bitIconButton='bwi-archive']")).toBeNull();
+      expect(fixture.nativeElement.querySelector("button[bitIconButton='bwi-trash']")).toBeNull();
+    }));
+
+    it("keeps Edit, Archive and Delete on a full cipher", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([
+        { ...mockCipher, canBeArchived: true },
+      ]);
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+      fixture.detectChanges();
+
+      expect(buttonLabels()).toContain("edit");
+      expect(
+        fixture.nativeElement.querySelector("button[bitIconButton='bwi-archive']"),
+      ).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("button[bitIconButton='bwi-trash']"),
+      ).not.toBeNull();
+    }));
+
+    it("ignores the source for an ungated cipher", fakeAsync(() => {
+      mockCipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([mockCipher]);
+      leased$.next(new Map([[mockCipher.id, leasedCipher]]));
+      params$.next({ cipherId: mockCipher.id });
+      flush();
+
+      expect(component.cipher).toBe(mockCipher);
+    }));
+
+    it("opens the autofill confirmation view-only, so no URL is saved onto a leased cipher", async () => {
+      component.cipher = leasedCipher;
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const open = jest
+        .spyOn(AutofillConfirmationDialogComponent, "open")
+        .mockReturnValue({ closed: of(AutofillConfirmationDialogResult.Canceled) } as any);
+
+      await component.doAutofill();
+
+      expect(open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining({ viewOnly: true }) }),
+      );
+      expect(doAutofillAndSave).not.toHaveBeenCalled();
+    });
   });
 
   describe("archive button", () => {

@@ -1,26 +1,34 @@
 @if (action(); as action) {
-  @if (action.kind === "request") {
-    <button
-      type="button"
-      bit-chip-action
-      variant="primary"
-      (click)="requestAccess($event)"
-      [attr.aria-label]="'pamRequestAccessButton' | i18n"
-      [label]="'pamRequestAccessShort' | i18n"
-      data-testid="vault-row-access-action"
-    ></button>
-  } @else if (action.kind === "start") {
-    <button
-      type="button"
-      bit-chip-action
-      variant="primary"
-      [disabled]="starting()"
-      (click)="startAccess($event, action.request)"
-      [attr.aria-label]="'pamStartLeaseButton' | i18n"
-      [label]="'pamStartLeaseShort' | i18n"
-      data-testid="vault-row-access-start"
-    ></button>
-  } @else {
-    <app-pam-access-state-badge [state]="action.badge" data-testid="vault-row-access-badge" />
+  @if (action.kind === "badge") {
+    @if (render() === "status") {
+      <app-pam-access-state-badge
+        [state]="action.badge"
+        [display]="'compact'"
+        data-testid="vault-row-access-badge"
+      />
+    }
+  } @else if (render() === "action") {
+    @if (action.kind === "request") {
+      <button
+        type="button"
+        bit-chip-action
+        variant="primary"
+        (click)="requestAccess($event)"
+        [attr.aria-label]="'pamRequestAccessButton' | i18n"
+        [label]="'pamRequestAccessShort' | i18n"
+        data-testid="vault-row-access-action"
+      ></button>
+    } @else {
+      <button
+        type="button"
+        bit-chip-action
+        variant="primary"
+        [disabled]="starting()"
+        (click)="startAccess($event, action.request)"
+        [attr.aria-label]="'pamStartLeaseButton' | i18n"
+        [label]="'pamStartLeaseShort' | i18n"
+        data-testid="vault-row-access-start"
+      ></button>
+    }
   }
 }

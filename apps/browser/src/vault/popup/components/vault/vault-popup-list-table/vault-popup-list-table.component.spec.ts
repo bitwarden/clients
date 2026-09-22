@@ -568,6 +568,11 @@ describe("VaultPopupListTableComponent", () => {
       Object.defineProperty(component, "accessAction", { value: class {} });
       expect(component["showAccessAction"](gated)).toBe(true);
       expect(component["showAccessAction"](full)).toBe(false);
+      const revealed = { id: "l", leaseGated: true } as unknown as PopupCipherViewLike;
+      expect(component["showAccessAction"](revealed)).toBe(false);
+      expect(component["showAccessStatus"](revealed)).toBe(true);
+      expect(component["showAccessStatus"](gated)).toBe(true);
+      expect(component["showAccessStatus"](full)).toBe(false);
     });
   });
 

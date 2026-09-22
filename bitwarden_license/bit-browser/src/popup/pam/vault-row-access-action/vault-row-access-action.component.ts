@@ -61,6 +61,8 @@ type RowAccessAction =
 })
 export class VaultRowAccessActionComponent {
   readonly cipher = input<CipherViewLike | null>(null);
+  /** `status` renders pills only (compact, beside the name); `action` renders chips only. */
+  readonly render = input<"status" | "action">("action");
 
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
@@ -83,11 +85,13 @@ export class VaultRowAccessActionComponent {
     toObservable(this.cipher),
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
   ]).pipe(
-    map(([cipher, enabled]) =>
-      !enabled || cipher == null || cipher.id == null || !CipherViewLikeUtils.isPartial(cipher)
-        ? null
-        : cipher,
-    ),
+    map(([cipher, enabled]) => {
+      if (!enabled || cipher == null || cipher.id == null) {
+        return null;
+      }
+      const leaseGated = "leaseGated" in cipher && cipher.leaseGated === true;
+      return CipherViewLikeUtils.isPartial(cipher) || leaseGated ? cipher : null;
+    }),
     distinctUntilChanged(),
   );
 

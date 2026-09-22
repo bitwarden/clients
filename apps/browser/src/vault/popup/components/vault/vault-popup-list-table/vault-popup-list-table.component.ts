@@ -171,6 +171,11 @@ export class VaultPopupListTableComponent {
     return this.accessAction != null && CipherViewLikeUtils.isPartial(cipher);
   }
 
+  protected showAccessStatus(cipher: PopupCipherViewLike): boolean {
+    const leaseGated = "leaseGated" in cipher && cipher.leaseGated === true;
+    return this.accessAction != null && (CipherViewLikeUtils.isPartial(cipher) || leaseGated);
+  }
+
   protected readonly deactivatedIcon = DeactivatedOrg;
 
   protected searchText: string = "";

@@ -63,7 +63,7 @@ export {
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
-export { formatRemaining } from "./date/format-remaining";
+export { formatRemaining, formatRemainingCompact } from "./date/format-remaining";
 export { liveActiveLease } from "./helpers/lease-liveness";
 export {
   cipherAccessBadgeState,

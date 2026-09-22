@@ -6,19 +6,26 @@ import {
   AccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
   formatRemaining,
+  formatRemainingCompact,
 } from "@bitwarden/bit-common/pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
+import { A11yTitleDirective, BadgeComponent, BadgeVariant } from "@bitwarden/components";
 
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =
   "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check" | "bwi-exclamation-triangle";
 
+/** `compact` shortens an active countdown to its largest unit, e.g. "3h". */
+export type AccessStateBadgeDisplay = "full" | "compact";
+
 type BadgeRecipe = {
   readonly variant: BadgeVariant;
   readonly icon: BadgeIcon;
+  /** The full wording, always the tooltip and accessible name. */
   readonly label: string;
+  /** The visible text. */
+  readonly text: string;
   readonly testId: string;
 };
 
@@ -26,11 +33,12 @@ type BadgeRecipe = {
 @Component({
   selector: "app-pam-access-state-badge",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent],
+  imports: [A11yTitleDirective, BadgeComponent],
   templateUrl: "./access-state-badge.component.html",
 })
 export class AccessStateBadgeComponent {
   readonly state = input.required<AccessBadgeState | null>();
+  readonly display = input<AccessStateBadgeDisplay>("full");
 
   private readonly i18nService = inject(I18nService);
   private readonly ticker = inject(AccessBadgeTickerService);
@@ -55,18 +63,23 @@ export class AccessStateBadgeComponent {
         return this.staticRecipe("expired");
       }
       const remaining = formatRemaining(remainingMs);
+      const compact = this.display() === "compact";
       if (remainingMs <= ENDING_SOON_THRESHOLD_MS) {
+        const label = this.i18nService.t("pamAccessBadgeEndingSoon", remaining);
         return {
           variant: "danger",
           icon: "bwi-exclamation-triangle",
-          label: this.i18nService.t("pamAccessBadgeEndingSoon", remaining),
+          label,
+          text: compact ? formatRemainingCompact(remainingMs) : label,
           testId: "access-state-badge-ending-soon",
         };
       }
+      const label = this.i18nService.t("pamAccessBadgeTimeLeft", remaining);
       return {
         variant: "accent-primary",
         icon: "bwi-unlock",
-        label: this.i18nService.t("pamAccessBadgeTimeLeft", remaining),
+        label,
+        text: compact ? formatRemainingCompact(remainingMs) : label,
         testId: "access-state-badge-active",
       };
     }
@@ -75,6 +88,13 @@ export class AccessStateBadgeComponent {
   });
 
   private staticRecipe(kind: Exclude<AccessBadgeState["kind"], "active">): BadgeRecipe {
+    const recipe = this.staticRecipeWithoutText(kind);
+    return { ...recipe, text: recipe.label };
+  }
+
+  private staticRecipeWithoutText(
+    kind: Exclude<AccessBadgeState["kind"], "active">,
+  ): Omit<BadgeRecipe, "text"> {
     switch (kind) {
       case "privileged":
         return {
