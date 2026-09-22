@@ -156,6 +156,18 @@ export abstract class BaseImporter {
     return doc != null && doc.querySelector("parsererror") == null ? doc : null;
   }
 
+  /**
+   * Parses an HTML export. HTML parsing never processes DTDs — a DOCTYPE is inert quirks-mode
+   * signalling — so this is not an XXE sink and needs no entity guard. Use this rather than
+   * {@link parseXml} for exports that merely happen to be well-formed XHTML: parsing them as XML
+   * would reject their DOCTYPE for no benefit.
+   */
+  protected parseHtml(data: string): Document {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data, "text/html");
+    return doc != null ? doc : null;
+  }
+
   protected parseCsv(data: string, header: boolean, options: any = {}): any[] {
     const parseOptions: papa.ParseConfig<string> = Object.assign(
       { header: header },
@@ -457,13 +469,23 @@ export abstract class BaseImporter {
     if (/<!ENTITY/i.test(data)) {
       return false;
     }
-    // Block DOCTYPE declarations that reference an external DTD subset via SYSTEM
-    // (e.g. <!DOCTYPE foo SYSTEM "http://evil.com/evil.dtd">). An internal-only subset
-    // (<!DOCTYPE foo [...]>) is safe and is not blocked: [^>[]* stops at '['.
-    // PUBLIC is intentionally not blocked: XHTML exports (e.g. Clipperz) carry a
-    // PUBLIC identifier, and modern DOMParsers never fetch external DTDs from PUBLIC IDs.
-    if (/<!DOCTYPE[^>[]*\bSYSTEM\b/i.test(data)) {
-      return false;
+    // Block DOCTYPE declarations that reference an external DTD subset. Both spellings carry a
+    // mandatory SystemLiteral (XML 1.0 §2.8: ExternalID ::= 'SYSTEM' S SystemLiteral
+    // | 'PUBLIC' S PubidLiteral S SystemLiteral), so PUBLIC is an external reference too —
+    // `PUBLIC "-//x//y//EN" "file:///etc/passwd"` is the SYSTEM payload with two words changed.
+    // Rejecting only SYSTEM also leaves the <!ENTITY check above defeatable, since declarations
+    // in a remotely fetched DTD never appear in `data`.
+    // An internal-only subset (<!DOCTYPE foo [...]>) stays allowed: [^>[]* stops at '['.
+    //
+    // Two properties here are deliberate and easy to destroy by "cleaning this up":
+    //   - matchAll, not a single match: a decoy <!DOCTYPE> in a leading comment must not shadow a
+    //     later malicious one. A first-match refactor is exploitable.
+    //   - no atom after [^>[]*: `[^>[]*\bSYSTEM\b` backtracks quadratically. 1.5 MB of repeated
+    //     "<!DOCTYPE " froze the calling thread for 109s; this form runs in ~10ms on 10 MB.
+    for (const doctype of data.matchAll(/<!DOCTYPE[^>[]*/gi)) {
+      if (/\b(?:SYSTEM|PUBLIC)\b/i.test(doctype[0])) {
+        return false;
+      }
     }
     return true;
   }
