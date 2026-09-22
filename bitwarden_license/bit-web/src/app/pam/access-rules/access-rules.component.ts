@@ -183,6 +183,10 @@ export class AccessRulesComponent {
     };
   });
 
+  private readonly selectableRows = computed(() =>
+    this.vfo1Enabled() ? this.rules().filter(this.ruleFilter()) : this.processedRows(),
+  );
+
   protected readonly statusOptions: { label: string; value: AccessRuleStatusFilter }[] = [
     { label: this.i18nService.t("pamAccessRuleActive"), value: "enabled" },
     { label: this.i18nService.t("pamAccessRuleInactive"), value: "disabled" },
@@ -202,7 +206,7 @@ export class AccessRulesComponent {
   }
 
   protected allSelected(): boolean {
-    const rows = this.processedRows();
+    const rows = this.selectableRows();
     return rows.length > 0 && rows.every((r) => this.selection.isSelected(r.id));
   }
 
@@ -361,7 +365,7 @@ export class AccessRulesComponent {
       this.selection.clear();
       return;
     }
-    this.selection.select(...this.processedRows().map((r) => r.id));
+    this.selection.select(...this.selectableRows().map((r) => r.id));
   }
 
   protected readonly clearSelection = (): void => {
@@ -439,7 +443,7 @@ export class AccessRulesComponent {
   // --- Helpers ---
 
   private selectedRules(): AccessRuleView[] {
-    return this.processedRows().filter((r) => this.selection.isSelected(r.id));
+    return this.selectableRows().filter((r) => this.selection.isSelected(r.id));
   }
 
   /**
