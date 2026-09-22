@@ -46,26 +46,27 @@
       >
     }
 
-    <bit-table class="tw-mt-6 tw-block">
-      <ng-container header>
-        <tr>
+    @if (vfo1Enabled()) {
+      <bit-table-v2 class="tw-mt-6 tw-block">
+        <bit-header-row>
           @for (column of columns(); track $index) {
-            <th bitCell [class]="column.headerClass ?? ''">{{ column.headerKey | i18n }}</th>
+            <bit-header-cell [class]="column.headerClass ?? ''">{{
+              column.headerKey | i18n
+            }}</bit-header-cell>
           }
-          <th bitCell class="tw-w-20">
+          <bit-header-cell>
             <span class="tw-sr-only">{{ "options" | i18n }}</span>
-          </th>
-        </tr>
-      </ng-container>
-      <ng-template body>
+          </bit-header-cell>
+        </bit-header-row>
         @for (row of assignments(); track row.id) {
-          <tr bitRow>
+          <bit-row>
             <ng-container
               [ngTemplateOutlet]="rowTemplate()"
               [ngTemplateOutletContext]="{ $implicit: row }"
             ></ng-container>
-            <td bitCell class="tw-text-right">
+            <bit-cell>
               <button
+                slot="end"
                 type="button"
                 bitIconButton="bwi-close"
                 buttonType="primaryGhost"
@@ -74,16 +75,62 @@
                 (click)="removeAssignment(row)"
                 [id]="idPrefix() + '_button_unassign-' + row.id"
               ></button>
-            </td>
-          </tr>
-        } @empty {
-          <tr bitRow>
-            <td bitCell [attr.colspan]="columnCount()" class="tw-text-muted">
-              {{ emptyKey() | i18n }}
-            </td>
-          </tr>
+            </bit-cell>
+          </bit-row>
         }
-      </ng-template>
-    </bit-table>
+        @if (assignments().length === 0) {
+          <bit-row>
+            <div
+              role="cell"
+              [attr.aria-colspan]="columnCount()"
+              class="tw-flex tw-items-center tw-px-4 tw-py-2 tw-text-muted"
+            >
+              {{ emptyKey() | i18n }}
+            </div>
+          </bit-row>
+        }
+      </bit-table-v2>
+    } @else {
+      <!-- remove this branch when the VFO1 flag is removed -->
+      <bit-table class="tw-mt-6 tw-block">
+        <ng-container header>
+          <tr>
+            @for (column of columns(); track $index) {
+              <th bitCell [class]="column.headerClass ?? ''">{{ column.headerKey | i18n }}</th>
+            }
+            <th bitCell class="tw-w-20">
+              <span class="tw-sr-only">{{ "options" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (row of assignments(); track row.id) {
+            <tr bitRow>
+              <ng-container
+                [ngTemplateOutlet]="rowTemplate()"
+                [ngTemplateOutletContext]="{ $implicit: row }"
+              ></ng-container>
+              <td bitCell class="tw-text-right">
+                <button
+                  type="button"
+                  bitIconButton="bwi-close"
+                  buttonType="primaryGhost"
+                  [disabled]="unassigning()"
+                  label="{{ unassignLabelKey() | i18n: row.label }}"
+                  (click)="removeAssignment(row)"
+                  [id]="idPrefix() + '_button_unassign-' + row.id"
+                ></button>
+              </td>
+            </tr>
+          } @empty {
+            <tr bitRow>
+              <td bitCell [attr.colspan]="columnCount()" class="tw-text-muted">
+                {{ emptyKey() | i18n }}
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
   </bit-card>
 </bit-section>

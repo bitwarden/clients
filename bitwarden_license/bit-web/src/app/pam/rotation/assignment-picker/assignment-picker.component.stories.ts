@@ -2,7 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BadgeModule, SelectItemView, TableModule } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -184,11 +186,23 @@ export default {
 type Story = StoryObj<AssignmentPickerComponent<TargetRow>>;
 
 /** The resting state: something assigned, something left to assign. */
-export const Default: Story = {};
+export const Default: Story = {
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
+};
+
+/** {@link Default} with the VFO1 flag on, which draws the assigned rows with `bit-table-v2`. */
+export const FlagOn: Story = {
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+};
 
 /** Nothing assigned yet. */
 export const NoAssignments: Story = {
   args: { assignments: [] },
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
 };
 
 /** Everything eligible is already assigned. */
@@ -229,6 +243,9 @@ export const ConnectorColumns: Story = {
     hints: CONNECTOR_HINTS,
   },
   render: (args) => ({ props: args, template: connectorTemplate }),
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
 };
 
 /** The badge columns with nothing assigned. */
