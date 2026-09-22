@@ -13,6 +13,7 @@ export class AutotypeSetEnabledDriver implements AutotypeDriver {
   constructor(private autotypeService: MainDesktopAutotypeService) {}
 
   async set_autotype_enabled(enabled: boolean): Promise<boolean> {
+    console.log("Receiving a request to autotypeRequestSetEnabled, enabled value is: " + enabled);
     return this.autotypeService.setAutotypeEnabled(enabled);
   }
 }
