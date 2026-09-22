@@ -1148,7 +1148,6 @@ describe("ApprovalsTabComponent", () => {
         expect(toolbar).not.toBeNull();
         expect(toolbar?.querySelector("bit-search")).not.toBeNull();
         expect(chips(toolbar as HTMLElement)).toHaveLength(2);
-        // Nothing left behind in the old hand-rolled row.
         expect(queryAll(fixture.nativeElement, "bit-search")).toHaveLength(1);
         expect(chips(fixture.nativeElement)).toHaveLength(2);
       });
