@@ -4506,6 +4506,12 @@
     "message": "Account credit",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "Applied balance"
+  },
+  "amountDue": {
+    "message": "Amount due"
+  },
   "accountBalance": {
     "message": "Account balance",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."

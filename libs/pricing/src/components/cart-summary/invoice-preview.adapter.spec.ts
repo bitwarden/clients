@@ -622,8 +622,44 @@ describe("adaptInvoicePreviewToCart", () => {
     });
   });
 
+  describe("applied balance, amount due, and total", () => {
+    it("maps a gross total, amountDue, and a negative starting balance to appliedBalance", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 14.54, amountDue: 1.58, startingBalance: -12.96 }),
+        InvoicePreviewFlowContext.PremiumSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.total).toBe(14.54);
+      expect(cart.amountDue).toBe(1.58);
+      expect(cart.appliedBalance).toBe(12.96);
+    });
+
+    it("omits appliedBalance when there is no negative starting balance", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 14.54, amountDue: 14.54, startingBalance: 5 }),
+        InvoicePreviewFlowContext.PremiumSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.appliedBalance).toBeUndefined();
+      expect(cart.amountDue).toBe(14.54);
+      expect(cart.total).toBe(14.54);
+    });
+
+    it("does not emit an accountCredit field", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 14.54, amountDue: 1.58, startingBalance: -12.96 }),
+        InvoicePreviewFlowContext.PremiumSubscriptionPage,
+        logService,
+      );
+
+      expect("accountCredit" in cart).toBe(false);
+    });
+  });
+
   describe("total and tax", () => {
-    it("should render the amount due, not the pre-credit invoice total", () => {
+    it("should map the gross invoice total alongside the amount due", () => {
       // A customer carrying $50 of account credit: Stripe reports total 412.75, amountDue 362.75.
       const cart = adaptInvoicePreviewToCart(
         basePreview({ total: 412.75, amountDue: 362.75, startingBalance: -50 }),
@@ -631,7 +667,8 @@ describe("adaptInvoicePreviewToCart", () => {
         logService,
       );
 
-      expect(cart.total).toBe(362.75);
+      expect(cart.total).toBe(412.75);
+      expect(cart.amountDue).toBe(362.75);
     });
 
     it("should pass an amount due of zero through rather than dropping it", () => {
@@ -641,98 +678,8 @@ describe("adaptInvoicePreviewToCart", () => {
         logService,
       );
 
-      expect(cart.total).toBe(0);
-    });
-  });
-
-  describe("account credit row", () => {
-    it("should render the applied account balance as its own row so the rows sum to the amount due", () => {
-      // The $50 balance closes the gap between the invoice total and what the customer is charged.
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 412.75, amountDue: 362.75, startingBalance: -50 }),
-        InvoicePreviewFlowContext.OrganizationCheckout,
-        logService,
-      );
-
-      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 50 });
-      expect(cart.total).toBe(362.75);
-    });
-
-    it("should cap the row at the invoice total when the balance exceeds it", () => {
-      // Only $12 of the $500 balance is consumed; the rest stays on the customer's account.
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 12, amountDue: 0, startingBalance: -500 }),
-        InvoicePreviewFlowContext.OrganizationCheckout,
-        logService,
-      );
-
-      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 12 });
-      expect(cart.total).toBe(0);
-    });
-
-    it("should sum in integer cents so the row matches the server's figures exactly", () => {
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 0.3, amountDue: 0.1, startingBalance: -0.2 }),
-        InvoicePreviewFlowContext.OrganizationCheckout,
-        logService,
-      );
-
-      expect(cart.accountCredit!.value).toBe(0.2);
-    });
-
-    it("should emit no row when the preview carries no starting balance", () => {
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 259.6, amountDue: 259.6 }),
-        InvoicePreviewFlowContext.OrganizationCheckout,
-        logService,
-      );
-
-      expect(cart.accountCredit).toBeUndefined();
-    });
-
-    it("should emit no row when the balance was not applied to the invoice", () => {
-      // A negative balance with nothing consumed (total equals amount due) has nothing to show.
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 100, amountDue: 100, startingBalance: -50 }),
-        InvoicePreviewFlowContext.OrganizationCheckout,
-        logService,
-      );
-
-      expect(cart.accountCredit).toBeUndefined();
-    });
-
-    it("should render alongside a proration credit row without merging the two", () => {
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({
-          passwordManager: {
-            seats: { reference: "pm-seat", quantity: 1, cost: 40 },
-            prorations: [{ credit: 6.67, charge: 0, tax: 0, total: -6.67, months: 8 }],
-          },
-          total: 33.33,
-          amountDue: 23.33,
-          startingBalance: -10,
-        }),
-        InvoicePreviewFlowContext.PremiumOrgUpgrade,
-        logService,
-      );
-
-      expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 6.67 });
-      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 10 });
-    });
-
-    it.each([
-      InvoicePreviewFlowContext.OrganizationCheckout,
-      InvoicePreviewFlowContext.PersonalCheckout,
-      InvoicePreviewFlowContext.PremiumSubscriptionPage,
-    ])("should render for %s, which has no proration credit copy", (flowContext) => {
-      const cart = adaptInvoicePreviewToCart(
-        basePreview({ total: 100, amountDue: 75, startingBalance: -25 }),
-        flowContext,
-        logService,
-      );
-
-      expect(cart.credit).toBeUndefined();
-      expect(cart.accountCredit).toEqual({ translationKey: "accountCredit", value: 25 });
+      expect(cart.amountDue).toBe(0);
+      expect(cart.total).toBe(12);
     });
   });
 
@@ -748,14 +695,13 @@ describe("adaptInvoicePreviewToCart", () => {
       expect((cart as Record<string, unknown>).startingBalance).toBeUndefined();
     });
 
-    it("should not map amountDue or nextPaymentAttempt onto the cart as their own fields", () => {
+    it("should not map nextPaymentAttempt onto the cart as its own field", () => {
       const cart = adaptInvoicePreviewToCart(
-        basePreview({ amountDue: 123, nextPaymentAttempt: new Date("2026-01-01") }),
+        basePreview({ nextPaymentAttempt: new Date("2026-01-01") }),
         InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
-      expect(Object.keys(cart)).not.toContain("amountDue");
       expect(Object.keys(cart)).not.toContain("nextPaymentAttempt");
     });
   });

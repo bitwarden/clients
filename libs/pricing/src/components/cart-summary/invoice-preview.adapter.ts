@@ -212,7 +212,7 @@ export const adaptInvoicePreviewToCart = (
     ...(allProrationInvoice ? { hidePricingTerm: true } : {}),
     ...(preview.discounts ? { discounts: preview.discounts } : {}),
     estimatedTax: preview.estimatedTax,
-    total: preview.amountDue,
+    total: preview.total,
   };
 
   const credit = buildCreditRow(preview, flowContext);
@@ -220,15 +220,11 @@ export const adaptInvoicePreviewToCart = (
     cart.credit = credit;
   }
 
-  const accountCredit = buildAccountCreditRow(preview);
-  if (accountCredit) {
-    cart.accountCredit = accountCredit;
+  cart.amountDue = preview.amountDue;
+  if (preview.startingBalance != null && preview.startingBalance < 0) {
+    cart.appliedBalance = Math.abs(preview.startingBalance);
   }
 
-  // Deliberately NOT mapped as their own fields:
-  // - `total`: rendered indirectly, as `amountDue` plus the account credit row.
-  // - `startingBalance`: rendered indirectly, as the account credit row.
-  // - `nextPaymentAttempt`: no corresponding `Cart` field.
   return cart;
 };
 
@@ -266,28 +262,4 @@ const buildCreditRow = (
   }
 
   return { translationKey, value };
-};
-
-/**
- * Emits the account balance Stripe applied to the invoice as its own row, so the line items still
- * sum to the rendered `amountDue`.
- *
- * The row's value is `total - amountDue` rather than `startingBalance`: a balance larger than the
- * invoice is only applied up to the invoice total, and the difference between the two
- * server-supplied figures is exactly what Stripe consumed. `startingBalance` gates the row so the
- * "Account credit" label is only shown when a credit balance is what closed the gap.
- *
- * No debit-balance row: the server omits `startingBalance` unless it is negative.
- */
-const buildAccountCreditRow = (preview: InvoicePreview): Cart["accountCredit"] => {
-  if (preview.startingBalance === undefined || preview.startingBalance >= 0) {
-    return undefined;
-  }
-
-  const value = sumInCents([preview.total, -preview.amountDue]);
-  if (value <= 0) {
-    return undefined;
-  }
-
-  return { translationKey: "accountCredit", value };
 };

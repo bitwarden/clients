@@ -91,8 +91,10 @@ describe("CartSummaryComponent", () => {
                   return "Premium membership";
                 case "discount":
                   return "discount";
-                case "accountCredit":
-                  return "accountCredit";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -1149,62 +1151,6 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain("$0.00");
     });
 
-    it("should render the account credit between tax and total so the rows reconcile with the amount due", () => {
-      // Arrange — the shape the adapter ships for a customer carrying a $50 balance: line items
-      // and tax sum to $381.60, Stripe applies $50 of balance, and charges $331.60.
-      const cartWithAccountCredit: Cart = {
-        ...mockCart,
-        accountCredit: { translationKey: "accountCredit", value: 50 },
-        total: 331.6,
-      };
-      fixture.componentRef.setInput("cart", cartWithAccountCredit);
-      fixture.detectChanges();
-
-      // Act
-      const details = fixture.debugElement.query(By.css('[id="purchase-summary-details"]'));
-      const rowIds = (details.nativeElement as HTMLElement).querySelectorAll(
-        "#estimated-tax-section, #account-credit-section, #total-section",
-      );
-      const accountCreditSection = fixture.debugElement.query(
-        By.css('[data-testid="account-credit-section"]'),
-      );
-      const accountCreditAmount = fixture.debugElement.query(
-        By.css('[data-testid="account-credit-amount"]'),
-      );
-      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
-
-      // Assert
-      expect(Array.from(rowIds).map((row) => row.id)).toEqual([
-        "estimated-tax-section",
-        "account-credit-section",
-        "total-section",
-      ]);
-      expect(accountCreditSection.nativeElement.textContent).toContain("accountCredit");
-      expect(accountCreditAmount.nativeElement.textContent).toContain("-$50.00");
-      expect(bottomTotal.nativeElement.textContent).toContain("$331.60");
-    });
-
-    it("should subtract the account credit from the computed total when no authoritative total is present", () => {
-      const cartWithAccountCredit: Cart = {
-        ...mockCart,
-        accountCredit: { translationKey: "accountCredit", value: 50 },
-      };
-      fixture.componentRef.setInput("cart", cartWithAccountCredit);
-      fixture.detectChanges();
-
-      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
-
-      expect(bottomTotal.nativeElement.textContent).toContain("$331.60"); // 381.60 - 50
-    });
-
-    it("should not render an account credit row when the cart carries none", () => {
-      const accountCreditSection = fixture.debugElement.query(
-        By.css('[data-testid="account-credit-section"]'),
-      );
-
-      expect(accountCreditSection).toBeFalsy();
-    });
-
     it("should cascade a derived discount against the subtotal net of a preceding authoritative amount", () => {
       // Pins the mixed authoritative/derived case the calculateDiscountLineItems doc describes
       // as out-of-contract but unenforced: the derived 10% is measured against 372 - 30 = 342,
@@ -1374,6 +1320,39 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
   });
+
+  describe("applied balance and amount due", () => {
+    it("renders Total (gross), Applied balance, and Amount due when a balance applies", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="final-total"]')).nativeElement.textContent,
+      ).toContain("$14.54");
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="applied-balance-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$12.96");
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="amount-due"]')).nativeElement.textContent,
+      ).toContain("$1.58");
+    });
+
+    it("omits the applied balance and amount due rows when there is no balance", () => {
+      fixture.componentRef.setInput("cart", mockCart);
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="applied-balance-amount"]')),
+      ).toBeNull();
+      expect(fixture.debugElement.query(By.css('[data-testid="amount-due"]'))).toBeNull();
+    });
+  });
 });
 
 describe("CartSummaryComponent - Non-Latin locale (double-translation regression)", () => {
@@ -1518,8 +1497,10 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Collapse purchase details";
                 case "discount":
                   return "discount";
-                case "accountCredit":
-                  return "accountCredit";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }

@@ -59,20 +59,9 @@ describe("cart preview translation keys", () => {
     getProratedSeatTranslationKey(flowContext),
   );
 
-  // The account credit row is the one key the adapter hardcodes rather than resolving through
-  // translation.ts (see `buildAccountCreditRow` in invoice-preview.adapter.ts), so it is listed
-  // here by hand to keep it behind the same guard.
-  const adapterKeys = ["accountCredit"];
-
   // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
   const resolvedKeys = [
-    ...new Set([
-      ...lineItemKeys,
-      ...creditKeys,
-      ...prorationChargeKeys,
-      ...proratedSeatKeys,
-      ...adapterKeys,
-    ]),
+    ...new Set([...lineItemKeys, ...creditKeys, ...prorationChargeKeys, ...proratedSeatKeys]),
   ].filter((key): key is string => !!key);
 
   const localeMessages = messages as Record<string, { message: string } | undefined>;
@@ -101,7 +90,6 @@ describe("cart preview translation keys", () => {
         "serviceAccountsProratedCharge",
         "memberLower",
         "planProratedMembershipInMonths",
-        "accountCredit",
       ].sort(),
     );
   });
