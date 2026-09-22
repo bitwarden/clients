@@ -247,7 +247,6 @@ export class TargetSystemsTabComponent {
     filterOptions(this.rows().map((row) => [row.statusLabelKey, row.statusLabel] as const)),
   );
 
-  /** The search text and the toolbar chips, ANDed. */
   protected readonly rowFilter = computed(() => {
     const text = this.searchText().trim().toLowerCase();
     const method = this.methodFilterChip()?.value() as string | null | undefined;
