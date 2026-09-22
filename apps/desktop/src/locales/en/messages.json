@@ -3355,14 +3355,14 @@
   "disabled": {
     "message": "Disabled"
   },
-  "removePassword": {
-    "message": "Remove password"
+  "removeAuth": {
+    "message": "Remove password or email verification"
   },
-  "removedPassword": {
-    "message": "Password removed"
+  "removedAuth": {
+    "message": "Password or email verification removed"
   },
-  "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
   },
   "maxAccessCountReached": {
     "message": "Max access count reached"

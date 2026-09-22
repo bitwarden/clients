@@ -205,7 +205,7 @@ describe("SendApiServiceSelector", () => {
 
   describe.each([
     ["delete", (s: SendApiServiceSelector) => s.delete("id")],
-    ["removePassword", (s: SendApiServiceSelector) => s.removePassword("id")],
+    ["removeAuth", (s: SendApiServiceSelector) => s.removeAuth("id")],
     ["deleteSend", (s: SendApiServiceSelector) => s.deleteSend("id")],
   ])("%s — flag-controlled, no overrides", (methodName, invoke) => {
     it("routes to SDK when the flag is on", async () => {
@@ -230,7 +230,7 @@ describe("SendApiServiceSelector", () => {
   describe.each([
     ["getSend", (s: SendApiServiceSelector) => s.getSend("id"), ["id"]],
     ["getSends", (s: SendApiServiceSelector) => s.getSends(), []],
-    ["putSendRemovePassword", (s: SendApiServiceSelector) => s.putSendRemovePassword("id"), ["id"]],
+    ["putSendRemoveAuth", (s: SendApiServiceSelector) => s.putSendRemoveAuth("id"), ["id"]],
   ])("%s — always legacy", (methodName, invoke, expectedArgs) => {
     it.each([true, false])("routes to legacy regardless of flag (flag=%s)", async (flagOn) => {
       const selector = buildSelector(flagOn);
@@ -341,7 +341,7 @@ describe("SendApiServiceSelector", () => {
       await selector.delete("a");
       await selector.delete("b");
       await selector.deleteSend("c");
-      await selector.removePassword("d");
+      await selector.removeAuth("d");
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledTimes(1);
     });

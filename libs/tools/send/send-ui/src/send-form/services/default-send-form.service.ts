@@ -212,14 +212,14 @@ export class DefaultSendFormService implements SendFormService {
     return true;
   }
 
-  async removeSendPassword(): Promise<boolean> {
+  async removeSendAuth(): Promise<boolean> {
     const originalSendViewId = this.originalSendView()?.id;
     if (!originalSendViewId) {
       return false;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: "removeAuth" },
+      content: { key: "removeAuthConfirmation" },
       type: "warning",
     });
 
@@ -227,12 +227,12 @@ export class DefaultSendFormService implements SendFormService {
       return false;
     }
 
-    await this.sendApiService.removePassword(originalSendViewId);
+    await this.sendApiService.removeAuth(originalSendViewId);
 
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("removedPassword"),
+      message: this.i18nService.t("removedAuth"),
     });
 
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
