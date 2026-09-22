@@ -1936,19 +1936,16 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   const toolbar = (f: ComponentFixture<TargetSystemsTabComponent>): HTMLElement =>
     el(f).querySelector("bit-table-v2 bit-table-toolbar")!;
 
-  /** The toolbar's `slot=end` container: the last child of the row holding the search. */
   const endSlot = (f: ComponentFixture<TargetSystemsTabComponent>): Element =>
     toolbar(f).querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
 
   const text = (node: Element): string => (node.textContent ?? "").replace(/\s+/g, " ").trim();
 
-  /** The names the v2 table actually renders, in order. */
   const rowNames = (f: ComponentFixture<TargetSystemsTabComponent>): string[] =>
     Array.from(el(f).querySelectorAll("bit-table-v2 bit-row")).map((row) =>
       text(row.querySelector("button[bitLink]")!),
     );
 
-  /** The names the v1 path narrows to, read off its data source. */
   const v1Names = (f: ComponentFixture<TargetSystemsTabComponent>): string[] =>
     (
       (f.componentInstance as unknown as { dataSource: { filteredData?: TargetSystemRow[] } })
