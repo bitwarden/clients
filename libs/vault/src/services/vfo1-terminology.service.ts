@@ -40,8 +40,9 @@ export class Vfo1TerminologyService {
     collectionId: string | null;
     sharedFolderId: string | null;
   } {
+    const value = collectionId ?? null;
     return this.enabled()
-      ? { sharedFolderId: collectionId ?? null, collectionId: null }
-      : { collectionId: collectionId ?? null, sharedFolderId: null };
+      ? { sharedFolderId: value, collectionId: null }
+      : { collectionId: value, sharedFolderId: null };
   }
 }

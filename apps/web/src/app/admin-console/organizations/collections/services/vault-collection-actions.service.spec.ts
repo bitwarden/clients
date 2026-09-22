@@ -150,7 +150,9 @@ describe("VaultCollectionActionsService", () => {
           useValue: {
             iconClass: (icon: string) => icon,
             enabled: () => vfo1Enabled,
-            collectionQueryParams: (collectionId: string | null | undefined) =>
+            collectionQueryParams: (
+              collectionId: string | null | undefined,
+            ): { collectionId: string | null; sharedFolderId: string | null } =>
               vfo1Enabled
                 ? { sharedFolderId: collectionId ?? null, collectionId: null }
                 : { collectionId: collectionId ?? null, sharedFolderId: null },
