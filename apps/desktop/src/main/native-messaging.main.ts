@@ -166,6 +166,13 @@ export class NativeMessagingMain {
       throw new Error(`Unable to find proxy binary: ${binaryPath}`);
     }
 
+    // When debugging against a dedicated chrome profile, only that profile gets a
+    // manifest, so the real browser installs are left untouched.
+    if (this.debugChromeProfileDir() != null) {
+      await this.generateDebugChromeManifest(binaryPath);
+      return;
+    }
+
     switch (process.platform) {
       case "win32": {
         const destination = path.join(this.userPath, "browsers");
@@ -281,6 +288,43 @@ export class NativeMessagingMain {
       default:
         break;
     }
+  }
+
+  // Chrome only reads per-profile NativeMessagingHosts directories on macOS and Linux;
+  // on Windows it discovers hosts through the registry, which is shared with the
+  // installed client, so the debug profile is not supported there.
+  private debugChromeProfileDir(): string | null {
+    const profileDir = process.env.BITWARDEN_CHROME_PROFILE_DIR;
+
+    if (!profileDir) {
+      return null;
+    }
+
+    if (process.platform === "win32") {
+      this.logService.warning(
+        "[Native messaging] BITWARDEN_CHROME_PROFILE_DIR is not supported on Windows, ignoring it",
+      );
+      return null;
+    }
+
+    return profileDir;
+  }
+
+  // Allow pointing chrome at a custom local profile for debugging
+  private async generateDebugChromeManifest(binaryPath: string) {
+    const profileDir = this.debugChromeProfileDir();
+
+    if (!profileDir) {
+      return;
+    }
+
+    const nmhsPath = path.join(profileDir, "NativeMessagingHosts");
+    await fs.mkdir(nmhsPath, { recursive: true });
+
+    await this.writeManifest(
+      path.join(nmhsPath, "com.8bit.bitwarden.json"),
+      await this.generateChromeJson(binaryPath),
+    );
   }
 
   async generateDdgManifests() {
@@ -487,6 +531,11 @@ export class NativeMessagingMain {
         ];
         break;
       }
+    }
+
+    const debugProfileDir = this.debugChromeProfileDir();
+    if (debugProfileDir != null) {
+      chromePaths.push(debugProfileDir);
     }
 
     for (const chromePath of chromePaths) {

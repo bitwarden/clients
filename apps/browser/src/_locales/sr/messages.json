@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
   },
   "importTargetHintFolder": {
     "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у фасцикли"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."

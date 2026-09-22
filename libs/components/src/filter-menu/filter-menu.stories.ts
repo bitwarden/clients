@@ -417,7 +417,7 @@ export const OptionDividers: Story = {
  * A label longer than its row truncates rather than wraps, so every row carries a tooltip with
  * the full text: the section header, the parent option, and the nested child. The story hovers
  * the first row and waits out the delay, so the tooltip is up alongside the rows it explains.
- * The chip trigger's own label behaves the same way.
+ * The chip trigger truncates too, but carries no tooltip of its own.
  */
 export const LongLabels: Story = {
   render: () => ({

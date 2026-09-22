@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "Bu düymənin üzərində daha $COUNT$ ədəd paylaşılan qovluq göstərilir",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "Bu düymənin üzərində daha 1 ədəd paylaşılan qovluq göstərilir",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Qovluğum"
   },
@@ -1276,7 +1262,7 @@
     "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "Elementləri burada filtrləmək üçün onları \"Elementlərim\"ə əlavə edin."
   },
   "sharedFolderFilterTooltip": {
     "message": "Burada filtrləmək üçün elementləri paylaşılan qovluğa əlavə et."
@@ -1704,11 +1690,11 @@
     "description": "Copy username to clipboard"
   },
   "copyExternalId": {
-    "message": "Copy external ID",
+    "message": "Xarici ID-ni kopyala",
     "description": "Copy external ID to clipboard"
   },
   "copySsoExternalId": {
-    "message": "Copy SSO external ID",
+    "message": "Xarici SSO ID-sini kopyala",
     "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
@@ -3472,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Bir kolleksiya seçin"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importTargetHintFolder": {
     "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."
@@ -4697,13 +4689,13 @@
     "message": "Abunəliyi əvvəlki halına qaytar"
   },
   "keepSubscription": {
-    "message": "Keep subscription"
+    "message": "Abunəliyi saxla"
   },
   "subscriptionPastDueWillPauseSoon": {
-    "message": "Your subscription is past due and will be paused soon."
+    "message": "Abunəliyinizin vaxtı bitib və tezliklə fasilə veriləcək."
   },
   "subscriptionPastDuePaused": {
-    "message": "Your subscription is past due and has been paused."
+    "message": "Abunəliyinizin vaxtı bitib və fasilə verilib."
   },
   "reinstateConfirmation": {
     "message": "Gözləyən imtina tələbini çıxartmaq və abunəliyini əvvəlki halına qaytarmaq istədiyinizə əminsiniz?"
@@ -7497,7 +7489,7 @@
     "message": "Dəvət keçidi yenidən yaradıldı"
   },
   "inviteLinkConfirmationUpdated": {
-    "message": "Invite link updated"
+    "message": "Dəvət keçidi güncəlləndi"
   },
   "regenerateInviteLink": {
     "message": "Dəvət keçidini yenidən yarat"
@@ -11328,15 +11320,15 @@
     "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
   },
   "previousVersions": {
-    "message": "Previous versions",
+    "message": "Əvvəlki versiyalar",
     "description": "Section header for previous versions of a secret in the version history."
   },
   "versionHistory": {
-    "message": "Version history",
+    "message": "Versiya tarixçəsi",
     "description": "Menu option to view the version history of a secret."
   },
   "noVersionHistory": {
-    "message": "No version history",
+    "message": "Versiya tarixçəsi yoxdur",
     "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
@@ -12520,7 +12512,7 @@
     "message": "Bu sirləri bərpa etmək istədiyinizə əminsiniz?"
   },
   "restoreThisVersion": {
-    "message": "Restore this version"
+    "message": "Bu versiyanı bərpa et"
   },
   "secretRestoredSuccessToast": {
     "message": "Sirr bərpa olundu"
@@ -17761,65 +17753,65 @@
     "message": "Invite members dialog preview showing the new by-link tab"
   },
   "showMeHow": {
-    "message": "Show me how"
+    "message": "Mənə göstər"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "Paylaş"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "Kimlər görə bilər",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "Bu keçidi paylaşdıqdan sonra, alıcılar bu elementə baxmaq üçün öz e-poçtlarını bir kodla doğrulamalıdırlar.",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "Bu tarixdən sonra keçidin istifadə müddəti bitir, ancaq alıcılar daha əvvəl paylaşılan məlumatları saxlaya bilərlər. Erişimi ləğv etmək üçün kimlik məlumatlarını yenidən yaradın.",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "Keçidin etibarlılıq müddəti",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "Təkistifadəlik paylaşma",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "Aktiv keçidlər",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "Keçid lövhəyə kopyalandı",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "Paylaşım keçidi yaradıla bilmir",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "Keçid saxlanıldı və lövhəyə kopyalandı",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "Paylaşım keçidi lövhəyə kopyalanmadı",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "Paylaşım keçidi silindi",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "Paylaşım keçidi silinmədi",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "Keçid ilə paylaş",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "Seyf elementini paylaş: $ITEM$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -17828,11 +17820,11 @@
     }
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Müddəti bitir",
     "description": "Label preceding the expiration date of an active share link."
   },
   "sendAccessItemSubtitle": {
-    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "message": "$SENDER_NAME$ sizinlə bu elementi paylaşdı.",
     "placeholders": {
       "sender_name": {
         "content": "$1",
@@ -17841,25 +17833,25 @@
     }
   },
   "additionalServiceAccountsLower": {
-    "message": "additional service accounts"
+    "message": "əlavə xidmət hesabları"
   },
   "additionalStorageGbLower": {
-    "message": "additional storage GB"
+    "message": "əlavə GB depolama sahəsi"
   },
   "membersLower": {
-    "message": "members"
+    "message": "üzv"
   },
   "memberLower": {
-    "message": "member"
+    "message": "üzv"
   },
   "annualLower": {
-    "message": "annual"
+    "message": "illik"
   },
   "monthlyLower": {
-    "message": "monthly"
+    "message": "aylıq"
   },
   "organizationSubscriptionCardTitle": {
-    "message": "$PLAN$ $CADENCE$ subscription",
+    "message": "$PLAN$ $CADENCE$ abunəliyi",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -17872,30 +17864,30 @@
     }
   },
   "keepAndReactivate": {
-    "message": "Keep and reactivate"
+    "message": "Saxla və təkrar aktivləşdir"
   },
   "subscriptionIsNowActive": {
-    "message": "Subscription is now active"
+    "message": "Abunəlik artıq aktivdir"
   },
   "undoCancellationRequestConfirmation": {
-    "message": "This will undo your cancellation request and reactivate your subscription."
+    "message": "Bununla ləğv tələbiniz geri alınacaq və abunəliyiniz yenidən aktivləşdiriləcək."
   },
   "subscriptionDetailsNotLoading": {
-    "message": "Subscription details not loading"
+    "message": "Abunəlik ayrıntıları yüklənmir"
   },
   "subscriptionDetailsNotLoadingDesc": {
-    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+    "message": "Faktura xidmətimiz əlçatmazdır, ona görə də hal-hazırda abunəliyinizi və qiymətini göstərə bilmirik. Bu hal abunəliyinizə təsir etmir."
   },
   "passwordManagerProratedCharge": {
-    "message": "Password Manager prorated charge"
+    "message": "Parol Meneceri üçün mütənasib ödəniş haqqı"
   },
   "storageProratedCharge": {
-    "message": "Storage prorated charge"
+    "message": "Depolama üçün mütənasib ödəniş haqqı"
   },
   "secretsManagerProratedCharge": {
-    "message": "Secrets Manager prorated charge"
+    "message": "Sirr Meneceri üçün mütənasib ödəniş haqqı"
   },
   "serviceAccountsProratedCharge": {
-    "message": "Service accounts prorated charge"
+    "message": "Xidmət hesabları üçün mütənasib ödəniş haqqı"
   }
 }

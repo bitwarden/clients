@@ -27,6 +27,7 @@ import {
   FilterSelection,
 } from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
+import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import {
   OverflowItemDirective,
   OverflowListDirective,
@@ -121,8 +122,19 @@ export class BitTableToolbarComponent {
     this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
   );
 
-  protected readonly hostClasses = computed(() =>
-    [
+  /**
+   * An enabled `bitCollapseOnScroll` on this element draws the page's seam, so the toolbar leaves
+   * the border to it — two `border-color` utilities on one host resolve by stylesheet order. Opted
+   * out, the directive draws nothing and the toolbar keeps its own divider.
+   */
+  private readonly collapse = inject(CollapseOnScrollDirective, { optional: true, self: true });
+
+  protected readonly hostClasses = computed(() => {
+    if (this.collapse?.bitCollapseOnScroll()) {
+      return "";
+    }
+
+    return [
       "tw-border-0",
       "tw-border-b",
       "tw-border-solid",
@@ -131,8 +143,8 @@ export class BitTableToolbarComponent {
       this.isList() && !this.table?.isScrolled()
         ? "tw-border-transparent"
         : "tw-border-border-base",
-    ].join(" "),
-  );
+    ].join(" ");
+  });
 
   private readonly isList = computed(() => this.table?.presentation() === "list");
 
@@ -148,7 +160,7 @@ export class BitTableToolbarComponent {
     "tw-items-center",
     "tw-gap-2",
     this.insetX(),
-    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5"]),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5", "tw-min-h-[60px]"]),
     "empty:tw-hidden",
     ...(this.collapsed()
       ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]
@@ -168,7 +180,7 @@ export class BitTableToolbarComponent {
     "tw-flex",
     "tw-flex-wrap",
     "tw-items-center",
-    "tw-gap-3",
+    "tw-gap-x-3",
     // Row gap for when the `slot=end` controls wrap to their own line below `md`.
     "tw-gap-y-4",
     ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),

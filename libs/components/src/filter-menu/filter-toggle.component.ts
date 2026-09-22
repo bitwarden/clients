@@ -72,8 +72,9 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   readonly iconActive = input<BitwardenIcon>();
 
   /**
-   * Tooltip text to explain why the chip is disabled, shown in place of the label tooltip while
-   * {@link disabled} is true. Pass an already-localized string.
+   * Tooltip text to explain why the chip is disabled. The chip carries no tooltip otherwise, so
+   * this is the only one it shows, and only while {@link disabled} is true. Pass an
+   * already-localized string.
    */
   readonly disabledTooltip = input("");
 
@@ -118,9 +119,12 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
     () => this.disabled() && this.disabledTooltip().length > 0,
   );
 
-  /** The chip's tooltip: the disabled reason when there is one, else the label. */
+  /**
+   * The chip's tooltip: the disabled reason, and nothing otherwise. The label is already the
+   * chip's accessible name, so it gets no tooltip of its own.
+   */
   protected readonly chipTooltip = computed(() =>
-    this.showDisabledReason() ? this.disabledTooltip() : this.label(),
+    this.showDisabledReason() ? this.disabledTooltip() : "",
   );
 
   constructor() {
