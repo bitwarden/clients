@@ -17,6 +17,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services/organization-warnings.service";
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
+import { InviteLinkCalloutService } from "../members/services/invite-link-callout/invite-link-callout.service";
 
 import { OrganizationLayoutComponent } from "./organization-layout.component";
 
@@ -30,6 +31,7 @@ describe("OrganizationLayoutComponent", () => {
   let mockProviderService: MockProxy<ProviderService>;
   let mockFreeFamiliesPolicyService: MockProxy<FreeFamiliesPolicyService>;
   let mockOrganizationWarningsService: MockProxy<OrganizationWarningsService>;
+  let mockInviteLinkCalloutService: MockProxy<InviteLinkCalloutService>;
   let mockAccountService: ReturnType<typeof mockAccountServiceWith>;
 
   let routeParamsSubject: BehaviorSubject<{ organizationId: OrganizationId }>;
@@ -84,6 +86,7 @@ describe("OrganizationLayoutComponent", () => {
     mockProviderService = mock<ProviderService>();
     mockFreeFamiliesPolicyService = mock<FreeFamiliesPolicyService>();
     mockOrganizationWarningsService = mock<OrganizationWarningsService>();
+    mockInviteLinkCalloutService = mock<InviteLinkCalloutService>();
     mockAccountService = mockAccountServiceWith(userId);
 
     mockOrganizationService.organizations$.mockReturnValue(of([makeOrg()]));
@@ -92,6 +95,7 @@ describe("OrganizationLayoutComponent", () => {
     mockProviderService.get$.mockReturnValue(of(undefined));
     mockFreeFamiliesPolicyService.showSponsoredFamiliesDropdown$.mockReturnValue(of(false));
     mockOrganizationWarningsService.getTaxIdWarning$.mockReturnValue(of(null));
+    mockInviteLinkCalloutService.showIfEligible.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [OrganizationLayoutComponent],
@@ -104,6 +108,7 @@ describe("OrganizationLayoutComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
+        { provide: InviteLinkCalloutService, useValue: mockInviteLinkCalloutService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

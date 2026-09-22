@@ -13,6 +13,7 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { BerryComponent } from "../berry/berry.component";
 import { IconTileComponent } from "../icon-tile";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { TooltipDirective } from "../tooltip";
@@ -82,6 +83,101 @@ describe("FilterMenuComponent", () => {
 
     expect(menu.isSelected("abc")).toBe(true);
     expect(menu.summary()).toBe("abc");
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu #multi key="type" placeholderText="Type" multiple>
+      <bit-filter-option [value]="'login'">Login</bit-filter-option>
+      <bit-filter-option [value]="'card'">Card</bit-filter-option>
+    </bit-filter-menu>
+    <bit-filter-menu #single key="vault" placeholderText="Vault">
+      <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class SelectionHostComponent {
+  readonly multi = viewChild.required<FilterMenuComponent>("multi");
+  readonly single = viewChild.required<FilterMenuComponent>("single");
+}
+
+describe("FilterMenuComponent selections", () => {
+  let fixture: ComponentFixture<SelectionHostComponent>;
+  let host: SelectionHostComponent;
+
+  /** The committed count the chip's berry shows; normally only a menu close updates it. */
+  const berryValue = (menu: FilterMenuComponent) =>
+    fixture.debugElement
+      .queryAll(By.directive(BerryComponent))
+      .map((el) => el.componentInstance as BerryComponent)
+      [menu === host.multi() ? 0 : 1].value();
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SelectionHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SelectionHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("pairs each selected option's label with the value that produced it", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([
+      { value: "login", label: "Login" },
+      { value: "card", label: "Card" },
+    ]);
+  });
+
+  it("drops a single selection and leaves the rest", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    host.multi().deselect("login");
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([{ value: "card", label: "Card" }]);
+    expect(host.multi().isSelected("login")).toBe(false);
+    expect(host.multi().active()).toBe(true);
+  });
+
+  it("commits the berry on deselect, since nothing closed the menu to do it", () => {
+    host.multi().setValue(["login", "card"]);
+    fixture.detectChanges();
+    expect(berryValue(host.multi())).toBe(2);
+
+    host.multi().deselect("login");
+    fixture.detectChanges();
+
+    expect(berryValue(host.multi())).toBe(1);
+  });
+
+  it("ignores a value that isn't selected", () => {
+    host.multi().setValue(["login"]);
+    fixture.detectChanges();
+
+    host.multi().deselect("card");
+    fixture.detectChanges();
+
+    expect(host.multi().selections()).toEqual([{ value: "login", label: "Login" }]);
+  });
+
+  it("leaves a single-select chip alone — it clears rather than deselects", () => {
+    host.single().setValue("mine");
+    fixture.detectChanges();
+
+    host.single().deselect("mine");
+    fixture.detectChanges();
+
+    expect(host.single().selections()).toEqual([{ value: "mine", label: "My vault" }]);
   });
 });
 
@@ -299,8 +395,8 @@ class FlatTooltipHostComponent {
 
 /**
  * Every row truncates its label, so each one carries a tooltip with the full text — the
- * regression this covers is a row that truncates with nothing on hover. The chip trigger
- * truncates too, so it carries one as well.
+ * regression this covers is a row that truncates with nothing on hover. The chip trigger is the
+ * exception: it carries no label tooltip, only a `disabledTooltip`.
  */
 describe("FilterMenuComponent row tooltips", () => {
   const setUp = async <T extends { showRows: WritableSignal<boolean> }>(
@@ -322,19 +418,28 @@ describe("FilterMenuComponent row tooltips", () => {
     return fixture;
   };
 
-  /** Each tooltipped element, paired with the text it renders, in row order. */
-  const tooltips = (fixture: ComponentFixture<unknown>) =>
-    fixture.debugElement.queryAll(By.directive(TooltipDirective)).map((row) => ({
-      tooltip: (row.injector.get(TooltipDirective) as TooltipDirective).tooltipContent(),
-      text: (row.nativeElement as HTMLElement).textContent?.replace(/\s+/g, " ").trim(),
-    }));
+  /**
+   * Each tooltipped row, paired with the text it renders, in row order. Scoped to the stamped
+   * rows, which sit outside the chip — the trigger has a tooltip directive but no label content
+   * for it.
+   */
+  const tooltips = (fixture: ComponentFixture<unknown>) => {
+    const chip = fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .nativeElement as HTMLElement;
+
+    return fixture.debugElement
+      .queryAll(By.directive(TooltipDirective))
+      .filter((row) => !chip.contains(row.nativeElement as HTMLElement))
+      .map((row) => ({
+        tooltip: (row.injector.get(TooltipDirective) as TooltipDirective).tooltipContent(),
+        text: (row.nativeElement as HTMLElement).textContent?.replace(/\s+/g, " ").trim(),
+      }));
+  };
 
   it("tooltips each multi-select tree row, sections and nested options included", async () => {
     const fixture = await setUp(TreeTooltipHostComponent);
 
-    // The chip trigger leads: it precedes the stamped rows in the host's DOM order.
     expect(tooltips(fixture).map((row) => row.tooltip)).toEqual([
-      "Shared folders",
       LONG_SECTION,
       LONG_PARENT,
       LONG_CHILD,
@@ -346,7 +451,6 @@ describe("FilterMenuComponent row tooltips", () => {
 
     // `mockI18nService` echoes the key, so the unset row's label is "all".
     expect(tooltips(fixture).map((row) => row.tooltip)).toEqual([
-      "My folders",
       "all",
       LONG_PARENT,
       LONG_SECTION,
@@ -378,9 +482,9 @@ describe("FilterMenuComponent row tooltips", () => {
 class DisabledHostComponent {}
 
 /**
- * A disabled chip is `aria-disabled`, not `disabled`, so it stays focusable and its tooltip can
- * still read out a truncated label. The regression that buys is a disabled chip whose full label
- * is unreachable by keyboard.
+ * A disabled chip is `aria-disabled`, not `disabled`, so it stays focusable and a
+ * `disabledTooltip` can still reach a keyboard user. `MenuTriggerForDirective` is what keeps it
+ * from opening, not the missing attribute.
  */
 describe("FilterMenuComponent disabled trigger", () => {
   let fixture: ComponentFixture<DisabledHostComponent>;
@@ -405,12 +509,12 @@ describe("FilterMenuComponent disabled trigger", () => {
     expect(trigger().disabled).toBe(false);
   });
 
-  it("keeps the trigger's tooltip so the label stays reachable while disabled", () => {
+  it("leaves the trigger untooltipped when disabled with no reason supplied", () => {
     const tooltip = fixture.debugElement
       .query(By.directive(MenuTriggerForDirective))
       .injector.get(TooltipDirective);
 
-    expect(tooltip.tooltipContent()).toBe("Shared folders");
+    expect(tooltip.tooltipContent()).toBe("");
   });
 
   it("does not open the menu when the disabled trigger is clicked", () => {
@@ -421,7 +525,7 @@ describe("FilterMenuComponent disabled trigger", () => {
     trigger().click();
     fixture.detectChanges();
 
-    expect(menuTrigger.isOpen).toBe(false);
+    expect(menuTrigger.isOpen()).toBe(false);
   });
 });
 
@@ -447,9 +551,8 @@ class DisabledReasonHostComponent {
 }
 
 /**
- * `disabledTooltip` is the reason a chip is disabled — something the label can't convey, so unlike
- * the label it has to reach assistive tech. It rides the trigger's `aria-describedby`, which is
- * why it is the one tooltip on this component that opts into `addTooltipToDescribedby`.
+ * `disabledTooltip` is the reason a chip is disabled — something the label can't convey. It is the
+ * chip's only tooltip, and it rides the trigger's `aria-describedby` so assistive tech hears it.
  */
 describe("FilterMenuComponent disabledTooltip", () => {
   let fixture: ComponentFixture<DisabledReasonHostComponent>;
@@ -473,7 +576,7 @@ describe("FilterMenuComponent disabledTooltip", () => {
       .query(By.directive(MenuTriggerForDirective))
       .injector.get(TooltipDirective);
 
-  it("shows the reason in place of the label while disabled", () => {
+  it("tooltips the trigger with the reason while disabled", () => {
     expect(tooltip().tooltipContent()).toBe("No shared folders to show");
   });
 
@@ -492,21 +595,21 @@ describe("FilterMenuComponent disabledTooltip", () => {
     expect(triggerEl().classList).toContain("tw-pointer-events-auto");
   });
 
-  it("falls back to the label, and describes nothing, once enabled", () => {
+  it("drops the tooltip, and describes nothing, once enabled", () => {
     fixture.componentInstance.off.set(false);
     fixture.detectChanges();
 
-    expect(tooltip().tooltipContent()).toBe("Shared folders");
+    expect(tooltip().tooltipContent()).toBe("");
     // The label is already the trigger's accessible name; repeating it as a description is noise.
     expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
     expect(triggerEl().classList).not.toContain("tw-pointer-events-auto");
   });
 
-  it("falls back to the label when disabled with no reason supplied", () => {
+  it("drops the tooltip when disabled with no reason supplied", () => {
     fixture.componentInstance.reason.set("");
     fixture.detectChanges();
 
-    expect(tooltip().tooltipContent()).toBe("Shared folders");
+    expect(tooltip().tooltipContent()).toBe("");
     expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
   });
 });
