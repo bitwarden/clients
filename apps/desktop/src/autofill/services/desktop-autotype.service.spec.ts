@@ -298,7 +298,7 @@ describe("DesktopAutotypeService", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockLogService.error).toHaveBeenCalledWith(
-        "The main process did not apply the Autotype enabled state: true.",
+        "Failed to set the Autotype enabled state to: true",
       );
     });
 

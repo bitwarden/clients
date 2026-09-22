@@ -6,9 +6,9 @@ import { LogService } from "@bitwarden/logging";
 import { autotypeRegisterSetEnabledHandler, IpcClient } from "@bitwarden/sdk-internal";
 
 import { WindowMain } from "../../main/window.main";
+import { AutotypeSetEnabledDriver } from "../ipc-drivers/autotype-set-enabled-driver";
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
-import { AutotypeSetEnabledDriver } from "./autotype-set-enabled-driver";
 import { MainDesktopAutotypeService } from "./main-desktop-autotype.service";
 
 /*
