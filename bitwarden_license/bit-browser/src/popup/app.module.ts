@@ -11,6 +11,7 @@ import { AppModule as OssModule } from "@bitwarden/browser/popup/app.module";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
+import { providePam } from "./pam/provide-pam";
 /**
  * This is the AppModule for the commercial version of Bitwarden.
  * `apps/browser/app.module.ts` contains the OSS version.
@@ -35,6 +36,6 @@ import { AppComponent } from "./app.component";
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
-  providers: [],
+  providers: [...providePam()],
 })
 export class AppModule {}

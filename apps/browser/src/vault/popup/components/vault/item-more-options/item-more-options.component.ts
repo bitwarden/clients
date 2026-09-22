@@ -157,8 +157,16 @@ export class ItemMoreOptionsComponent {
     private domainSettingsService: DomainSettingsService,
   ) {}
 
+  /**
+   * A PAM-gated item arrives as a reduced partial envelope: there is nothing to edit or fill until
+   * access is active, and the form and autofill paths do not exclude partials themselves.
+   */
+  get isPartial() {
+    return CipherViewLikeUtils.isRestricted(this.cipher);
+  }
+
   get canEdit() {
-    return this.cipher.edit;
+    return this.cipher.edit && !this.isPartial;
   }
 
   get canViewPassword() {
@@ -174,8 +182,11 @@ export class ItemMoreOptionsComponent {
    */
   get canAutofill() {
     return (
-      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
-    ).includes(CipherViewLikeUtils.getType(this.cipher));
+      !this.isPartial &&
+      (
+        [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
+      ).includes(CipherViewLikeUtils.getType(this.cipher))
+    );
   }
 
   get isLogin() {

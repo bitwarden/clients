@@ -436,4 +436,20 @@ describe("ItemMoreOptionsComponent", () => {
       });
     });
   });
+
+  describe("PAM-gated (partial) ciphers", () => {
+    it("offers Autofill and Edit on a full login", () => {
+      component.cipher = { ...baseCipher };
+
+      expect(component.canAutofill).toBe(true);
+      expect(component.canEdit).toBe(true);
+    });
+
+    it("offers neither Autofill nor Edit on a partial cipher", () => {
+      component.cipher = { ...baseCipher, partial: true };
+
+      expect(component.canAutofill).toBe(false);
+      expect(component.canEdit).toBe(false);
+    });
+  });
 });

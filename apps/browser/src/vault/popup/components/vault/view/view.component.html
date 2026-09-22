@@ -34,7 +34,7 @@
 
   @if (showFooter$ | async) {
     <popup-footer slot="footer">
-      @if (!cipher.isDeleted) {
+      @if (!cipher.isDeleted && !cipher.partial) {
         <button buttonType="primary" type="button" bitButton (click)="editCipher()">
           {{ "edit" | i18n }}
         </button>
@@ -53,7 +53,7 @@
             [label]="'unarchive' | i18n"
           ></button>
         }
-        @if ((userCanArchive$ | async) && cipher.canBeArchived) {
+        @if ((userCanArchive$ | async) && cipher.canBeArchived && !cipher.partial) {
           <button
             type="button"
             [bitAction]="archive"
@@ -61,7 +61,7 @@
             [label]="'archiveVerb' | i18n"
           ></button>
         }
-        @if (canDeleteCipher$ | async) {
+        @if ((canDeleteCipher$ | async) && !cipher.partial) {
           <button
             [bitAction]="delete"
             type="button"
