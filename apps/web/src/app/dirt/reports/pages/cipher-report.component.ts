@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, Optional } from "@angular/core";
+import { Directive, inject, OnDestroy, Optional } from "@angular/core";
 import {
   BehaviorSubject,
   lastValueFrom,
@@ -55,6 +55,7 @@ export abstract class CipherReportComponent implements OnDestroy {
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
   protected destroyed$: Subject<void> = new Subject();
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+  private toastService = inject(ToastService);
 
   constructor(
     protected cipherService: CipherService,
@@ -67,7 +68,6 @@ export abstract class CipherReportComponent implements OnDestroy {
     private cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
     @Optional() protected logService?: LogService,
-    @Optional() private toastService?: ToastService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -163,7 +163,7 @@ export abstract class CipherReportComponent implements OnDestroy {
       this.hasLoaded = true;
     } catch (e) {
       this.logService?.error(`[CipherReport] load() failed`, e);
-      this.toastService?.showToast({
+      this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("reportLoadFailed"),

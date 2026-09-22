@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -9,7 +10,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -46,16 +47,23 @@ describe("CipherReportComponent", () => {
     mockAccountService.activeAccount$ = of({ id: "user1" } as any);
     mockAdminConsoleCipherFormConfigService = mock<AdminConsoleCipherFormConfigService>();
 
-    component = new CipherReportComponent(
-      mockCipherService,
-      mock<DialogService>(),
-      mock<PasswordRepromptService>(),
-      mock<OrganizationService>(),
-      mockAccountService,
-      mock<I18nService>(),
-      mock<SyncService>(),
-      mock<CipherFormConfigService>(),
-      mockAdminConsoleCipherFormConfigService,
+    TestBed.configureTestingModule({
+      providers: [{ provide: ToastService, useValue: mock<ToastService>() }],
+    });
+
+    component = TestBed.runInInjectionContext(
+      () =>
+        new CipherReportComponent(
+          mockCipherService,
+          mock<DialogService>(),
+          mock<PasswordRepromptService>(),
+          mock<OrganizationService>(),
+          mockAccountService,
+          mock<I18nService>(),
+          mock<SyncService>(),
+          mock<CipherFormConfigService>(),
+          mockAdminConsoleCipherFormConfigService,
+        ),
     );
     component.ciphers = [];
     component.allCiphers = [];

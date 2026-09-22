@@ -23,6 +23,7 @@ import {
   ButtonModule,
   FormFieldModule,
   IconModule,
+  ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -139,6 +140,10 @@ describe("ExposedPasswordsReportComponent", () => {
         {
           provide: LogService,
           useValue: mock<LogService>(),
+        },
+        {
+          provide: ToastService,
+          useValue: mock<ToastService>(),
         },
       ],
       schemas: [],
