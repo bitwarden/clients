@@ -74,20 +74,18 @@ const makeDoc = (platform: string) =>
   }) as unknown as Document;
 
 @Component({
-  standalone: true,
   selector: "bw-windows-search-story",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SearchComponent, FormsModule],
+  imports: [SearchComponent],
   template: `<bit-search [useKeyShortcuts]="true"></bit-search>`,
   providers: [{ provide: DOCUMENT, useValue: makeDoc("Win32") }],
 })
 class WindowsSearchStoryComponent {}
 
 @Component({
-  standalone: true,
   selector: "bw-mac-search-story",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SearchComponent, FormsModule],
+  imports: [SearchComponent],
   template: `<bit-search [useKeyShortcuts]="true"></bit-search>`,
   providers: [{ provide: DOCUMENT, useValue: makeDoc("MacIntel") }],
 })
@@ -104,7 +102,6 @@ export const WithShortcutHintsMac: Story = {
 };
 
 @Component({
-  standalone: true,
   selector: "bw-dialog-search-story",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SearchComponent, ButtonModule],
@@ -133,7 +130,6 @@ class DialogSearchStoryComponent {
 }
 
 @Component({
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SearchComponent, DialogModule, ButtonModule],
   template: `
@@ -150,7 +146,6 @@ class DialogSearchStoryComponent {
 class DialogWithSearchComponent {}
 
 @Component({
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DialogModule, ButtonModule],
   template: `
