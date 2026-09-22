@@ -2407,9 +2407,43 @@ describe("AccessAuditComponent", () => {
     const ITEM = 4;
     const DURATION = 5;
 
+    const realMatchMedia = window.matchMedia;
+
+    /**
+     * jsdom answers every media query `false`, which holds `bit-table-toolbar` in the collapsed
+     * trigger + dialog it renders below `md` — a mode where the chip row is laid out but
+     * invisible, so presence assertions pass either way. The row this path is about only shows
+     * at `md` and up, so the suite states its viewport instead of inheriting one.
+     */
+    const viewportAtLeastMd = (matches: boolean) => {
+      Object.defineProperty(window, "matchMedia", {
+        configurable: true,
+        writable: true,
+        value: (query: string) => ({
+          matches: matches && query === "(min-width: 768px)",
+          media: query,
+          onchange: null,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn(),
+        }),
+      });
+    };
+
     beforeEach(() => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
+      viewportAtLeastMd(true);
       fixture = TestBed.createComponent(AccessAuditComponent);
+    });
+
+    afterEach(() => {
+      Object.defineProperty(window, "matchMedia", {
+        configurable: true,
+        writable: true,
+        value: realMatchMedia,
+      });
     });
 
     const render = async (events: AccessAuditEventResponse[]) => {
@@ -2520,6 +2554,26 @@ describe("AccessAuditComponent", () => {
     });
 
     describe("toolbar", () => {
+      /** The toolbar's wide-viewport chip row — the unit that collapses below `md`. */
+      const filterRow = (): HTMLElement => toolbar().querySelector("[bitOverflowList]")!;
+
+      it("lays the five chips out in the visible filter row at md and up", async () => {
+        await render([event()]);
+
+        expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+        expect(filterRow().classList).not.toContain("tw-invisible");
+        expect(toolbar().querySelector(".bwi-sliders")).toBeNull();
+      });
+
+      it("collapses the same chips into the filter dialog trigger below md", async () => {
+        viewportAtLeastMd(false);
+        await render([event()]);
+
+        expect(toolbar().querySelector(".bwi-sliders")).not.toBeNull();
+        expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+        expect(filterRow().classList).toContain("tw-invisible");
+      });
+
       it("moves the chips and the page actions into the table's toolbar", async () => {
         await render([event()]);
 
