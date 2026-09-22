@@ -668,6 +668,39 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.appliedBalance).toBe(12);
     });
+
+    it("emits a proration credit row and an applied balance as independent values", () => {
+      // A subscription-page invoice with a pure-credit proration (cart.credit) and a $10 account
+      // balance consumed this cycle (cart.appliedBalance): the two are distinct rows and must not
+      // merge or double-count.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 1, cost: 40 },
+            prorations: [{ credit: 6.67, charge: 0, tax: 0, total: -6.67, months: 8 }],
+          },
+          total: 33.33,
+          amountDue: 23.33,
+          startingBalance: -10,
+        }),
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.credit).toEqual({ translationKey: "appliedSubscriptionCredits", value: 6.67 });
+      expect(cart.appliedBalance).toBe(10);
+    });
+
+    it("sums appliedBalance in integer cents so fractional amounts do not drift", () => {
+      // total - amountDue is 0.3 - 0.1, which is 0.19999999999999998 in float arithmetic.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 0.3, amountDue: 0.1, startingBalance: -0.2 }),
+        InvoicePreviewFlowContext.PremiumSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.appliedBalance).toBe(0.2);
+    });
   });
 
   describe("total and tax", () => {
