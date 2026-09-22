@@ -2459,7 +2459,6 @@ describe("AccessAuditComponent", () => {
     const bodyRows = (): HTMLElement[] =>
       Array.from(fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"));
 
-    /** The table's own toolbar, resolved through the component so a bare tag can't stand in for it. */
     const toolbar = (): HTMLElement =>
       fixture.debugElement.query(By.directive(BitTableToolbarComponent)).nativeElement;
 
@@ -2554,7 +2553,6 @@ describe("AccessAuditComponent", () => {
     });
 
     describe("toolbar", () => {
-      /** The toolbar's wide-viewport chip row — the unit that collapses below `md`. */
       const filterRow = (): HTMLElement => toolbar().querySelector("[bitOverflowList]")!;
 
       it("lays the five chips out in the visible filter row at md and up", async () => {
