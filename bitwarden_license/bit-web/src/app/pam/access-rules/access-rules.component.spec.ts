@@ -1019,6 +1019,10 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   const toolbar = (fixture: ComponentFixture<AccessRulesComponent>) =>
     el(fixture).querySelector("bit-table-v2 bit-table-toolbar");
 
+  /** The toolbar's `end` slot: the last element of the row the search sits in. */
+  const endSlot = (fixture: ComponentFixture<AccessRulesComponent>) =>
+    toolbar(fixture)!.querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
+
   /** The rule names the flag-on table is showing, in render order. */
   const rowNames = (fixture: ComponentFixture<AccessRulesComponent>) =>
     Array.from(el(fixture).querySelectorAll("button[bitlink]")).map((n) =>
@@ -1089,8 +1093,9 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
   it("moves the create action into the toolbar's end slot, keeping its id", async () => {
     const on = await render(true);
 
-    const action = toolbar(on)!.querySelector('[slot="end"] #access-rules_button_new');
-    expect(action).not.toBeNull();
+    // The button itself has to be the slot's child: below `md` the slot sizes what it projects,
+    // and a wrapper would take the row and leave the button at its intrinsic width.
+    expect(Array.from(endSlot(on).children).map((n) => n.id)).toEqual(["access-rules_button_new"]);
     expect(on.nativeElement.querySelectorAll("#access-rules_button_new")).toHaveLength(1);
 
     const off = await render(false);
@@ -1102,6 +1107,15 @@ describe("AccessRulesComponent — VFO1 toolbar (flag on)", () => {
     const fixture = await render(true);
 
     toolbar(fixture)!.querySelector<HTMLButtonElement>("#access-rules_button_new")!.click();
+    fixture.detectChanges();
+
+    expect(document.querySelector("#access-rules_button_new-custom")).not.toBeNull();
+  });
+
+  it("still opens the create menu from the page header when the flag is off", async () => {
+    const fixture = await render(false);
+
+    el(fixture).querySelector<HTMLButtonElement>("#access-rules_button_new")!.click();
     fixture.detectChanges();
 
     expect(document.querySelector("#access-rules_button_new-custom")).not.toBeNull();
