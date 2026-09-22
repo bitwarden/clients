@@ -124,36 +124,7 @@
     <span slot="description">{{ "pamInboxEmptyDescription" | i18n }}</span>
   </bit-status-lockup>
 } @else {
-  @if (vfo1Enabled()) {
-    <bit-table-toolbar class="tw-mb-4">
-      <bit-search
-        class="tw-flex-1"
-        [formControl]="searchControl"
-        [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
-        id="pam-approvals_input_search"
-      />
-      <bit-filter-menu
-        #collectionFilter
-        key="collection"
-        [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
-        @for (option of collectionOptions(); track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-      <bit-filter-menu
-        #requesterFilter
-        key="requester"
-        [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
-        @for (option of requesterOptions(); track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-    </bit-table-toolbar>
-  } @else {
+  @if (!vfo1Enabled()) {
     <!-- Remove this branch along with the VFO1 flag. -->
     <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
       <bit-search
@@ -185,9 +156,11 @@
     </div>
   }
 
-  @if (rows().length === 0 && leaseRows().length === 0) {
-    <!-- Rendered inside the toolbar branch on purpose: a filter that matches nothing must not take
-         the filter controls away with it, or there is no way back. -->
+  @if (!vfo1Enabled() && rows().length === 0 && leaseRows().length === 0) {
+    <!-- Rendered after the toolbar on purpose: a filter that matches nothing must not take the
+         filter controls away with it, or there is no way back. On the VFO1 path the toolbar sits
+         in the Pending table, which holds its place above its own empty state, so the accordion
+         group stays up instead. -->
     <bit-status-lockup class="tw-mt-2 tw-block" data-testid="approvals-no-results">
       <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
       <span slot="title">{{ "pamApprovalsNoResults" | i18n }}</span>
@@ -197,106 +170,249 @@
       <bit-accordion [title]="'pamApprovalsPendingSection' | i18n" [open]="true">
         <span slot="end" bitBadge variant="secondary">{{ rows().length }}</span>
 
-        @if (rows().length === 0) {
-          <p
-            bitTypography="body2"
-            class="tw-mb-0 tw-text-muted"
-            data-testid="approvals-pending-empty"
+        @if (vfo1Enabled()) {
+          <bit-table-v2
+            [tableDef]="table"
+            [displayedColumns]="displayedColumns()"
+            [filter]="rowMatchesFilter"
+            [(sort)]="pendingSort"
           >
-            {{
-              (pendingHiddenByFilters() ? "pamApprovalsNoResults" : "pamApprovalsPendingEmpty")
-                | i18n
-            }}
-          </p>
+            <bit-table-toolbar>
+              <bit-search
+                class="tw-flex-1"
+                [formControl]="searchControl"
+                [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
+                id="pam-approvals_input_search"
+              />
+              <bit-filter-menu
+                #collectionFilter
+                key="collection"
+                [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
+                [unsetLabel]="'all' | i18n"
+              >
+                @for (option of collectionOptions(); track option.value) {
+                  <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+                }
+              </bit-filter-menu>
+              <bit-filter-menu
+                #requesterFilter
+                key="requester"
+                [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
+                [unsetLabel]="'all' | i18n"
+              >
+                @for (option of requesterOptions(); track option.value) {
+                  <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+                }
+              </bit-filter-menu>
+            </bit-table-toolbar>
+            <div slot="empty" class="tw-py-6 tw-text-center">
+              <ng-container *ngTemplateOutlet="pendingEmptyState" />
+            </div>
+            <bit-column sortable width="minmax(240px, 2fr)">
+              <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
+              <bit-cell
+                *bitCellDef="table.columns.cipherName; let row"
+                [truncate]="false"
+                [attr.data-testid]="'approvals-cell-item-' + row.id"
+              >
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon slot="start" [cipher]="cipher" />
+                }
+                <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName }}</a>
+                @if (row.collectionName) {
+                  <span slot="secondary">{{
+                    "pamInboxInCollection" | i18n: row.collectionName
+                  }}</span>
+                }
+              </bit-cell>
+            </bit-column>
+            <bit-column sortable width="minmax(180px, 1fr)">
+              <bit-header-cell>{{ "pamInboxRequester" | i18n }}</bit-header-cell>
+              <bit-cell *bitCellDef="table.columns.requester; let row" [truncate]="false">
+                {{ row.requester }}
+                @if (row.requesterEmail && row.requesterEmail !== row.requester) {
+                  <span slot="secondary">{{ row.requesterEmail }}</span>
+                }
+              </bit-cell>
+            </bit-column>
+            <bit-column width="minmax(200px, 1fr)">
+              <bit-header-cell>{{ "pamInboxWindow" | i18n }}</bit-header-cell>
+              <bit-cell
+                *bitCellDef="table.columns.window; let row"
+                [truncate]="false"
+                [attr.data-testid]="'approvals-cell-window-' + row.id"
+              >
+                <span [title]="row.exactWindow">
+                  {{ row.duration.key | i18n: row.duration.value }},
+                  {{ row.relativeStart.key | i18n: row.relativeStart.value }}
+                </span>
+              </bit-cell>
+            </bit-column>
+            <bit-column width="minmax(200px, 2fr)">
+              <bit-header-cell>{{ "pamInboxReason" | i18n }}</bit-header-cell>
+              <bit-cell
+                *bitCellDef="table.columns.reason; let row"
+                [truncate]="false"
+                [attr.data-testid]="'approvals-cell-reason-' + row.id"
+              >
+                @if (row.reason) {
+                  <div class="tw-line-clamp-2 tw-break-words" [title]="row.reason">
+                    {{ row.reason }}
+                  </div>
+                } @else {
+                  <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+                }
+              </bit-cell>
+            </bit-column>
+            <bit-column sortable defaultSort="asc" width="minmax(140px, 1fr)">
+              <bit-header-cell>{{ "pamColumnSubmitted" | i18n }}</bit-header-cell>
+              <bit-cell
+                *bitCellDef="table.columns.submittedAtMs; let row"
+                [truncate]="false"
+                [attr.data-testid]="'approvals-cell-submitted-' + row.id"
+              >
+                <span [title]="row.request.submittedAt | date: 'medium'">
+                  {{ row.elapsed.key | i18n: row.elapsed.value }}
+                </span>
+              </bit-cell>
+            </bit-column>
+            <bit-column width="200px">
+              <bit-header-cell>{{ "pamColumnActions" | i18n }}</bit-header-cell>
+              <bit-cell
+                *bitCellDef="table.columns.actions; let row"
+                [truncate]="false"
+                [attr.data-testid]="'approvals-cell-actions-' + row.id"
+              >
+                <div class="tw-flex tw-gap-2">
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="primary"
+                    size="small"
+                    [id]="'pam-approvals_button_approve-' + row.id"
+                    [disabled]="!row.canDecide || isDeciding(row)"
+                    [loading]="isDeciding(row)"
+                    [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
+                    (click)="decide(row, 'approve')"
+                    [attr.data-testid]="'approvals-approve-' + row.id"
+                  >
+                    {{ "pamInboxApprove" | i18n }}
+                  </button>
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [id]="'pam-approvals_button_deny-' + row.id"
+                    [disabled]="!row.canDecide || isDeciding(row)"
+                    [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
+                    (click)="decide(row, 'deny')"
+                    [attr.data-testid]="'approvals-deny-' + row.id"
+                  >
+                    {{ "pamInboxDeny" | i18n }}
+                  </button>
+                </div>
+              </bit-cell>
+            </bit-column>
+          </bit-table-v2>
+        } @else if (rows().length === 0) {
+          <ng-container *ngTemplateOutlet="pendingEmptyState" />
         } @else {
-          @if (vfo1Enabled()) {
-            <bit-table-v2
-              [tableDef]="table"
-              [displayedColumns]="displayedColumns()"
-              [(sort)]="pendingSort"
-            >
-              <bit-column sortable width="minmax(240px, 2fr)">
-                <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
-                <bit-cell
-                  *bitCellDef="table.columns.cipherName; let row"
-                  [truncate]="false"
-                  [attr.data-testid]="'approvals-cell-item-' + row.id"
+          <!-- Remove this branch along with the VFO1 flag. -->
+          <bit-table [dataSource]="dataSource">
+            <ng-container header>
+              <tr>
+                <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+                <th bitCell bitSortable="requester">{{ "pamInboxRequester" | i18n }}</th>
+                <th bitCell class="tw-hidden xl:tw-table-cell" data-testid="approvals-col-window">
+                  {{ "pamInboxWindow" | i18n }}
+                </th>
+                <th bitCell class="tw-hidden xl:tw-table-cell" data-testid="approvals-col-reason">
+                  {{ "pamInboxReason" | i18n }}
+                </th>
+                <th
+                  bitCell
+                  bitSortable="submittedAtMs"
+                  default="asc"
+                  class="tw-hidden lg:tw-table-cell"
+                  data-testid="approvals-col-submitted"
                 >
-                  @if (cipherFor(row.cipherId); as cipher) {
-                    <app-vault-icon slot="start" [cipher]="cipher" />
-                  }
-                  <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName }}</a>
-                  @if (row.collectionName) {
-                    <span slot="secondary">{{
-                      "pamInboxInCollection" | i18n: row.collectionName
-                    }}</span>
-                  }
-                </bit-cell>
-              </bit-column>
-              <bit-column sortable width="minmax(180px, 1fr)">
-                <bit-header-cell>{{ "pamInboxRequester" | i18n }}</bit-header-cell>
-                <bit-cell *bitCellDef="table.columns.requester; let row" [truncate]="false">
-                  {{ row.requester }}
+                  {{ "pamColumnSubmitted" | i18n }}
+                </th>
+                <th bitCell data-testid="approvals-col-actions">
+                  {{ "pamColumnActions" | i18n }}
+                </th>
+              </tr>
+            </ng-container>
+            <ng-template body let-rows$>
+              <tr
+                bitRow
+                *ngFor="let row of rows$ | async"
+                [attr.data-testid]="'approvals-row-' + row.id"
+              >
+                <td bitCell>
+                  <div class="tw-flex tw-items-center tw-gap-3">
+                    @if (cipherFor(row.cipherId); as cipher) {
+                      <app-vault-icon [cipher]="cipher" />
+                    }
+                    <div>
+                      <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName }}</a>
+                      @if (row.collectionName) {
+                        <div class="tw-text-xs tw-text-muted">
+                          {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td bitCell>
+                  <div>{{ row.requester }}</div>
                   @if (row.requesterEmail && row.requesterEmail !== row.requester) {
-                    <span slot="secondary">{{ row.requesterEmail }}</span>
+                    <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
                   }
-                </bit-cell>
-              </bit-column>
-              <bit-column width="minmax(200px, 1fr)">
-                <bit-header-cell>{{ "pamInboxWindow" | i18n }}</bit-header-cell>
-                <bit-cell
-                  *bitCellDef="table.columns.window; let row"
-                  [truncate]="false"
+                </td>
+                <td
+                  bitCell
+                  class="tw-hidden xl:tw-table-cell"
                   [attr.data-testid]="'approvals-cell-window-' + row.id"
                 >
-                  <span [title]="row.exactWindow">
+                  <span class="tw-whitespace-nowrap" [title]="row.exactWindow">
                     {{ row.duration.key | i18n: row.duration.value }},
                     {{ row.relativeStart.key | i18n: row.relativeStart.value }}
                   </span>
-                </bit-cell>
-              </bit-column>
-              <bit-column width="minmax(200px, 2fr)">
-                <bit-header-cell>{{ "pamInboxReason" | i18n }}</bit-header-cell>
-                <bit-cell
-                  *bitCellDef="table.columns.reason; let row"
-                  [truncate]="false"
+                </td>
+                <td
+                  bitCell
+                  class="tw-hidden xl:tw-table-cell"
                   [attr.data-testid]="'approvals-cell-reason-' + row.id"
                 >
                   @if (row.reason) {
-                    <div class="tw-line-clamp-2 tw-break-words" [title]="row.reason">
+                    <div class="tw-line-clamp-2 tw-max-w-xs tw-break-words" [title]="row.reason">
                       {{ row.reason }}
                     </div>
                   } @else {
                     <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
                   }
-                </bit-cell>
-              </bit-column>
-              <bit-column sortable defaultSort="asc" width="minmax(140px, 1fr)">
-                <bit-header-cell>{{ "pamColumnSubmitted" | i18n }}</bit-header-cell>
-                <bit-cell
-                  *bitCellDef="table.columns.submittedAtMs; let row"
-                  [truncate]="false"
+                </td>
+                <td
+                  bitCell
+                  class="tw-hidden lg:tw-table-cell"
                   [attr.data-testid]="'approvals-cell-submitted-' + row.id"
                 >
-                  <span [title]="row.request.submittedAt | date: 'medium'">
+                  <span
+                    class="tw-whitespace-nowrap"
+                    [title]="row.request.submittedAt | date: 'medium'"
+                  >
                     {{ row.elapsed.key | i18n: row.elapsed.value }}
                   </span>
-                </bit-cell>
-              </bit-column>
-              <bit-column width="200px">
-                <bit-header-cell>{{ "pamColumnActions" | i18n }}</bit-header-cell>
-                <bit-cell
-                  *bitCellDef="table.columns.actions; let row"
-                  [truncate]="false"
-                  [attr.data-testid]="'approvals-cell-actions-' + row.id"
-                >
+                </td>
+                <td bitCell>
                   <div class="tw-flex tw-gap-2">
                     <button
                       type="button"
                       bitButton
                       buttonType="primary"
                       size="small"
-                      [id]="'pam-approvals_button_approve-' + row.id"
                       [disabled]="!row.canDecide || isDeciding(row)"
                       [loading]="isDeciding(row)"
                       [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
@@ -310,7 +426,6 @@
                       bitButton
                       buttonType="secondary"
                       size="small"
-                      [id]="'pam-approvals_button_deny-' + row.id"
                       [disabled]="!row.canDecide || isDeciding(row)"
                       [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
                       (click)="decide(row, 'deny')"
@@ -319,131 +434,10 @@
                       {{ "pamInboxDeny" | i18n }}
                     </button>
                   </div>
-                </bit-cell>
-              </bit-column>
-            </bit-table-v2>
-          } @else {
-            <!-- Remove this branch along with the VFO1 flag. -->
-            <bit-table [dataSource]="dataSource">
-              <ng-container header>
-                <tr>
-                  <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-                  <th bitCell bitSortable="requester">{{ "pamInboxRequester" | i18n }}</th>
-                  <th bitCell class="tw-hidden xl:tw-table-cell" data-testid="approvals-col-window">
-                    {{ "pamInboxWindow" | i18n }}
-                  </th>
-                  <th bitCell class="tw-hidden xl:tw-table-cell" data-testid="approvals-col-reason">
-                    {{ "pamInboxReason" | i18n }}
-                  </th>
-                  <th
-                    bitCell
-                    bitSortable="submittedAtMs"
-                    default="asc"
-                    class="tw-hidden lg:tw-table-cell"
-                    data-testid="approvals-col-submitted"
-                  >
-                    {{ "pamColumnSubmitted" | i18n }}
-                  </th>
-                  <th bitCell data-testid="approvals-col-actions">
-                    {{ "pamColumnActions" | i18n }}
-                  </th>
-                </tr>
-              </ng-container>
-              <ng-template body let-rows$>
-                <tr
-                  bitRow
-                  *ngFor="let row of rows$ | async"
-                  [attr.data-testid]="'approvals-row-' + row.id"
-                >
-                  <td bitCell>
-                    <div class="tw-flex tw-items-center tw-gap-3">
-                      @if (cipherFor(row.cipherId); as cipher) {
-                        <app-vault-icon [cipher]="cipher" />
-                      }
-                      <div>
-                        <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName }}</a>
-                        @if (row.collectionName) {
-                          <div class="tw-text-xs tw-text-muted">
-                            {{ "pamInboxInCollection" | i18n: row.collectionName }}
-                          </div>
-                        }
-                      </div>
-                    </div>
-                  </td>
-                  <td bitCell>
-                    <div>{{ row.requester }}</div>
-                    @if (row.requesterEmail && row.requesterEmail !== row.requester) {
-                      <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
-                    }
-                  </td>
-                  <td
-                    bitCell
-                    class="tw-hidden xl:tw-table-cell"
-                    [attr.data-testid]="'approvals-cell-window-' + row.id"
-                  >
-                    <span class="tw-whitespace-nowrap" [title]="row.exactWindow">
-                      {{ row.duration.key | i18n: row.duration.value }},
-                      {{ row.relativeStart.key | i18n: row.relativeStart.value }}
-                    </span>
-                  </td>
-                  <td
-                    bitCell
-                    class="tw-hidden xl:tw-table-cell"
-                    [attr.data-testid]="'approvals-cell-reason-' + row.id"
-                  >
-                    @if (row.reason) {
-                      <div class="tw-line-clamp-2 tw-max-w-xs tw-break-words" [title]="row.reason">
-                        {{ row.reason }}
-                      </div>
-                    } @else {
-                      <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
-                    }
-                  </td>
-                  <td
-                    bitCell
-                    class="tw-hidden lg:tw-table-cell"
-                    [attr.data-testid]="'approvals-cell-submitted-' + row.id"
-                  >
-                    <span
-                      class="tw-whitespace-nowrap"
-                      [title]="row.request.submittedAt | date: 'medium'"
-                    >
-                      {{ row.elapsed.key | i18n: row.elapsed.value }}
-                    </span>
-                  </td>
-                  <td bitCell>
-                    <div class="tw-flex tw-gap-2">
-                      <button
-                        type="button"
-                        bitButton
-                        buttonType="primary"
-                        size="small"
-                        [disabled]="!row.canDecide || isDeciding(row)"
-                        [loading]="isDeciding(row)"
-                        [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
-                        (click)="decide(row, 'approve')"
-                        [attr.data-testid]="'approvals-approve-' + row.id"
-                      >
-                        {{ "pamInboxApprove" | i18n }}
-                      </button>
-                      <button
-                        type="button"
-                        bitButton
-                        buttonType="secondary"
-                        size="small"
-                        [disabled]="!row.canDecide || isDeciding(row)"
-                        [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
-                        (click)="decide(row, 'deny')"
-                        [attr.data-testid]="'approvals-deny-' + row.id"
-                      >
-                        {{ "pamInboxDeny" | i18n }}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </ng-template>
-            </bit-table>
-          }
+                </td>
+              </tr>
+            </ng-template>
+          </bit-table>
         }
       </bit-accordion>
 
@@ -637,3 +631,9 @@
     </bit-accordion-group>
   }
 }
+
+<ng-template #pendingEmptyState>
+  <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="approvals-pending-empty">
+    {{ (pendingHiddenByFilters() ? "pamApprovalsNoResults" : "pamApprovalsPendingEmpty") | i18n }}
+  </p>
+</ng-template>
