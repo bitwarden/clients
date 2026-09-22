@@ -29,6 +29,17 @@ export async function disableUnlockSetting(page: Page, setting: UnlockSetting): 
   await setUnlockSetting(page, setting, false);
 }
 
+/** Reads the setting back without touching it, for asserting on it. */
+export async function expectUnlockSetting(
+  page: Page,
+  setting: UnlockSetting,
+  enabled: boolean,
+): Promise<void> {
+  await page.goto(popupUrl(page.url(), ACCOUNT_SECURITY_ROUTE));
+
+  await expect(page.locator(setting)).toBeChecked({ checked: enabled });
+}
+
 async function setUnlockSetting(
   page: Page,
   setting: UnlockSetting,

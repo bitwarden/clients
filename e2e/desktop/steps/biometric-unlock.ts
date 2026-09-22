@@ -6,7 +6,7 @@ import { BIOMETRIC_UNLOCK_TEXT, offersUnlockOption, UnlockOption } from "../../u
 import { ensureUnlocked } from "../../utils/login";
 import { LOCK_ROUTE, VAULT_ROUTE } from "../../utils/routes";
 import { Given, Then, When } from "../utils/bdd";
-import { disableBiometrics, enableBiometrics } from "../utils/biometrics";
+import { disableBiometrics, enableBiometrics, expectBiometrics } from "../utils/biometrics";
 
 Given("I have an unlocked vault as the {string} account", async ({ page }, name: string) => {
   await ensureUnlocked(page, readAccount(name));
@@ -31,8 +31,16 @@ Given("biometrics are unavailable", async ({ driver }) => {
   await driver.biometrics.setStatus(BiometricsStatus.HardwareUnavailable);
 });
 
-When("I lock the vault", async ({ driver }) => {
+Given("the vault is locked", async ({ driver }) => {
   await driver.lockVault();
+});
+
+When("I enable biometric unlock", async ({ page, driver }) => {
+  await enableBiometrics(page, driver);
+});
+
+When("I disable biometric unlock", async ({ page, driver }) => {
+  await disableBiometrics(page, driver);
 });
 
 When("I unlock with biometrics", async ({ page, driver }) => {
@@ -44,8 +52,18 @@ When("I unlock with biometrics", async ({ page, driver }) => {
   await driver.biometrics.approve();
 });
 
-Then("the lock screen is shown", async ({ page }) => {
-  await expect(page).toHaveURL(LOCK_ROUTE);
+When("I click the biometric unlock button", async ({ page }) => {
+  // Forced, because this step exists to press the button while it is disabled,
+  // which the default actionability wait would sit and time out on.
+  await page.getByRole("button", { name: BIOMETRIC_UNLOCK_TEXT }).click({ force: true });
+});
+
+Then("biometric unlock is enabled", async ({ page, driver }) => {
+  await expectBiometrics(page, driver, true);
+});
+
+Then("biometric unlock is disabled", async ({ page, driver }) => {
+  await expectBiometrics(page, driver, false);
 });
 
 Then("the lock screen offers the master password", async ({ page }) => {
@@ -67,3 +85,8 @@ Then("the vault stays locked", async ({ page }) => {
 Then("the vault is shown", async ({ page }) => {
   await expect(page).toHaveURL(VAULT_ROUTE);
 });
+
+// Deliberately undefined, so the scenario reports as skipped rather than failing:
+//   When I stop requiring the master password on app restart
+//   Then the master password is not required on app restart
+// That checkbox is Windows-only. See features/security/biometrics.feature.

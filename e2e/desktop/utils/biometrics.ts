@@ -19,6 +19,19 @@ export async function disableBiometrics(page: Page, driver: AutomationDriver): P
   await setBiometrics(page, driver, false);
 }
 
+/** Reads the setting back without touching it, for asserting on it. */
+export async function expectBiometrics(
+  page: Page,
+  driver: AutomationDriver,
+  enabled: boolean,
+): Promise<void> {
+  const settings = await openSettings(page, driver);
+
+  await expect(settings.locator(BIOMETRIC_SETTING_CHECKBOX)).toBeChecked({ checked: enabled });
+
+  await closeSettings(settings);
+}
+
 async function setBiometrics(
   page: Page,
   driver: AutomationDriver,

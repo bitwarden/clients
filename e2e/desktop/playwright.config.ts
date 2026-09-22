@@ -1,5 +1,12 @@
+import path from "node:path";
+
 import { defineConfig } from "@playwright/test";
 import { defineBddConfig } from "playwright-bdd";
+
+// Absolute, because playwright-bdd validates `featuresRoot` against the process
+// cwd but resolves it against the config directory, so a relative path outside
+// this folder fails validation before it is ever resolved.
+const FEATURES_ROOT = path.resolve(__dirname, "../features");
 
 // The desktop app is started from a wiped debug profile and Playwright attaches to
 // its CDP port, so the tests always run against a fresh, logged-out app. A single
@@ -9,10 +16,24 @@ const BUILD_AND_LAUNCH_TIMEOUT = 15 * 60 * 1000;
 
 // Gherkin features are compiled into Playwright test files under `.features-gen`,
 // which is why they need a project of their own: a project has one testDir.
+//
+// The features live in one tree shared by every suite, organised by product area
+// rather than by client, and each scenario names the suites it belongs to with a
+// tag. Scenarios tagged for other suites are dropped here — silently, so
+// `e2e/features/lint.mjs` guards against a missing or misspelt tag.
 const bddTestDir = defineBddConfig({
-  features: "./features/*.feature",
+  features: `${FEATURES_ROOT}/**/*.feature`,
+  featuresRoot: FEATURES_ROOT,
+  tags: "@desktop",
   steps: ["./steps/*.ts", "./utils/bdd.ts"],
   outputDir: "./.features-gen",
+  // Match on the keyword too, not just the text. Without this a `Then` can bind
+  // to a same-worded `Given` and quietly perform the action it was meant to
+  // assert, which passes no matter what the app did.
+  matchKeywords: true,
+  // The tree carries scenarios this suite has no steps for yet. Generate them as
+  // `fixme` so the gap shows up as skipped, instead of failing generation.
+  missingSteps: "skip-scenario",
 });
 
 export default defineConfig({
