@@ -20,6 +20,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
+  BitTableToolbarComponent,
   DialogService,
   DrawerRef,
   FilterMenuComponent,
@@ -148,6 +149,9 @@ describe("AccessAuditComponent", () => {
             custom: "Custom",
             edit: "Edit",
             clearAll: "Clear all",
+            // Rendered by `bit-table-toolbar` itself on the flag-on path, not by this template.
+            filters: "Filters",
+            itemCount: (count?: string) => `${count} items`,
             pamAuditNoMatchesTitle: "No matching events",
             pamAuditNoMatchesMessage: "No events match the current filters.",
             timestamp: "Timestamp",
@@ -2421,6 +2425,10 @@ describe("AccessAuditComponent", () => {
     const bodyRows = (): HTMLElement[] =>
       Array.from(fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"));
 
+    /** The table's own toolbar, resolved through the component so a bare tag can't stand in for it. */
+    const toolbar = (): HTMLElement =>
+      fixture.debugElement.query(By.directive(BitTableToolbarComponent)).nativeElement;
+
     const cellsOf = (row: HTMLElement): HTMLElement[] =>
       Array.from(row.querySelectorAll("[role='cell']"));
 
@@ -2486,17 +2494,134 @@ describe("AccessAuditComponent", () => {
       expect(bodyRows()).toHaveLength(3);
     });
 
-    it("keeps the no-matches empty state outside the table", async () => {
+    // The chips live in the table's toolbar now, so dropping the table on an over-narrowed
+    // filter would take every way back out with it but the empty state's own Clear all.
+    it("keeps the toolbar on screen when nothing matches, with the same empty state", async () => {
       await render([event()]);
       returnsTrail([]);
       selectFilter("kind", ["ruleCreated"]);
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("bit-table-v2")).toBeNull();
-      expect(
-        fixture.nativeElement.querySelector("#access-audit_button_no-matches-clear-all"),
-      ).not.toBeNull();
+      expect(bodyRows()).toHaveLength(0);
+      expect(toolbar().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+
+      const clearAll = fixture.nativeElement.querySelector(
+        "#access-audit_button_no-matches-clear-all",
+      );
+      expect(clearAll).not.toBeNull();
+      const emptyState = clearAll.closest("bit-status-lockup")!;
+      expect(emptyState.querySelector("[slot=title]")!.textContent!.trim()).toBe(
+        "No matching events",
+      );
+      expect(emptyState.querySelector("[slot=description]")!.textContent!.trim()).toBe(
+        "No events match the current filters.",
+      );
+    });
+
+    describe("toolbar", () => {
+      it("moves the chips and the page actions into the table's toolbar", async () => {
+        await render([event()]);
+
+        expect(toolbar().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+        expect(toolbar().querySelector("#access-audit_container_actions")).not.toBeNull();
+        expect(fixture.nativeElement.querySelector("#access-audit_container_toolbar")).toBeNull();
+        expect(fixture.nativeElement.querySelector("#access-audit_container_filters")).toBeNull();
+      });
+
+      it("keeps the same five chips, with the same labels and the same multi-select", async () => {
+        await render([event()]);
+
+        const chips = [...toolbar().querySelectorAll("bit-filter-menu")];
+        expect(chips.map((chip) => chip.querySelector("button")!.textContent!.trim())).toEqual([
+          "Event",
+          "Actor",
+          "Requester",
+          "Item",
+          "Time period: All time",
+        ]);
+        expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
+      });
+
+      it("keeps Update and Export together, with their ids and their handlers", async () => {
+        await render([event()]);
+        const actions = toolbar().querySelector("#access-audit_container_actions")!;
+
+        expect(actions.querySelector("#access-audit_button_refresh")).not.toBeNull();
+        const exportButton = actions.querySelector("#access-audit_button_export")!;
+        expect(exportButton.getAttribute("aria-disabled")).toBeNull();
+        expect(exportButton.querySelector("i")!.classList).toContain("bwi-import");
+
+        const before = readCount();
+        (actions.querySelector("#access-audit_button_refresh") as HTMLButtonElement).click();
+        await fixture.whenStable();
+        expect(readCount()).toBe(before + 1);
+      });
+
+      it("leaves nothing to export while nothing matches", async () => {
+        await render([event()]);
+        returnsTrail([]);
+        selectFilter("kind", ["ruleCreated"]);
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        const exportButton = toolbar().querySelector(
+          "#access-audit_button_export",
+        ) as HTMLButtonElement;
+        exportButton.click();
+        expect(fileDownloadService.download).not.toHaveBeenCalled();
+      });
+
+      // The reads are re-issued server-side, so the page that comes back is already narrowed;
+      // a client-side `[filter]` over it would narrow the same rows a second time.
+      it("narrows through the server and renders every row the narrowed read returns", async () => {
+        await render([event(), event()]);
+        const before = readCount();
+
+        returnsTrail([event()]);
+        selectFilter("kind", ["ruleCreated"]);
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(readCount()).toBe(before + 1);
+        expect(lastFilter().kinds).toEqual(["ruleCreated"]);
+        expect(bodyRows()).toHaveLength(1);
+      });
+
+      it("carries a chosen time period to the server the same way", async () => {
+        await render([event()]);
+        const before = readCount();
+
+        selectFilter("timePeriod", "today");
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(readCount()).toBe(before + 1);
+        expect(lastFilter().start).not.toBeUndefined();
+      });
+
+      it("offers the custom range's Edit from the toolbar once a range is in force", async () => {
+        await render([event()]);
+        dialogService.open.mockReturnValue({
+          closed: of({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" }),
+        } as any);
+
+        selectFilter("timePeriod", "custom");
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(toolbar().querySelector("#access-audit_button_edit-range")).not.toBeNull();
+      });
+
+      it("keeps the load-more button below the table", async () => {
+        returnsTrailOnce([event()], "page-2");
+        returnsTrailOnce([event(), event()]);
+        await renderReady();
+
+        const loadMore = fixture.nativeElement.querySelector("#access-audit_button_load-more");
+        expect(loadMore).not.toBeNull();
+        expect(toolbar().contains(loadMore)).toBe(false);
+      });
     });
 
     it("opens the drawer over the row that was activated", async () => {
