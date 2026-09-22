@@ -94,6 +94,50 @@ describe("Menu", () => {
     expect(getBitMenuPanel()).toBeTruthy();
   });
 
+  it("blocks page scrolling while a right-click menu is open", () => {
+    getMenuTriggerDirective().toggleMenuOnRightClick(
+      new MouseEvent("contextmenu", { clientX: 10, clientY: 10 }),
+    );
+
+    const wheel = new WheelEvent("wheel", { bubbles: true, cancelable: true });
+    fixture.nativeElement.dispatchEvent(wheel);
+
+    expect(wheel.defaultPrevented).toBe(true);
+    expect(getBitMenuPanel()).toBeTruthy();
+  });
+
+  it("allows scrolling inside a right-click menu", () => {
+    getMenuTriggerDirective().toggleMenuOnRightClick(
+      new MouseEvent("contextmenu", { clientX: 10, clientY: 10 }),
+    );
+
+    const wheel = new WheelEvent("wheel", { bubbles: true, cancelable: true });
+    getBitMenuPanel()!.dispatchEvent(wheel);
+
+    expect(wheel.defaultPrevented).toBe(false);
+  });
+
+  it("allows page scrolling once the right-click menu closes", () => {
+    const directive = getMenuTriggerDirective();
+    const contextMenuEvent = new MouseEvent("contextmenu", { clientX: 10, clientY: 10 });
+    directive.toggleMenuOnRightClick(contextMenuEvent);
+    directive.toggleMenu();
+
+    const wheel = new WheelEvent("wheel", { bubbles: true, cancelable: true });
+    fixture.nativeElement.dispatchEvent(wheel);
+
+    expect(wheel.defaultPrevented).toBe(false);
+  });
+
+  it("does not block page scrolling for a click-opened menu", () => {
+    getMenuTriggerDirective().toggleMenu();
+
+    const wheel = new WheelEvent("wheel", { bubbles: true, cancelable: true });
+    fixture.nativeElement.dispatchEvent(wheel);
+
+    expect(wheel.defaultPrevented).toBe(false);
+  });
+
   describe("position preference", () => {
     // The `positions` getter is private; the unknown cast lets us assert
     // ordering without depending on CDK overlay internals.

@@ -13,7 +13,7 @@ import {
   signal,
 } from "@angular/core";
 import { outputToObservable } from "@angular/core/rxjs-interop";
-import { merge, Subscription } from "rxjs";
+import { fromEvent, merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
 import { TooltipDirective } from "../tooltip/tooltip.directive";
@@ -87,6 +87,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   private closedEventsSub: Subscription | null = null;
   private keyDownEventsSub: Subscription | null = null;
   private menuCloseListenerSub: Subscription | null = null;
+  private scrollBlockListenerSub: Subscription | null = null;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -146,6 +147,9 @@ export class MenuTriggerForDirective implements OnDestroy {
     const isContextMenu = !!event;
     this.setupClosingActions(isContextMenu);
     this.setupMenuCloseListener();
+    if (isContextMenu) {
+      this.setupScrollBlockListener();
+    }
 
     const menuKeyManager = menu.keyManager();
     if (menuKeyManager) {
@@ -239,8 +243,31 @@ export class MenuTriggerForDirective implements OnDestroy {
       });
   }
 
+  /**
+   * Blocks scrolling outside a context menu: it's anchored to a viewport point, so it would
+   * otherwise float over other content. Scroll inputs are cancelled since inner containers can scroll.
+   */
+  private setupScrollBlockListener() {
+    if (!this.overlayRef) {
+      return;
+    }
+
+    const overlayElement = this.overlayRef.overlayElement;
+    const options = { capture: true, passive: false };
+    this.scrollBlockListenerSub = merge(
+      fromEvent(document, "wheel", options),
+      fromEvent(document, "touchmove", options),
+    )
+      .pipe(
+        filter((event) => !(event.target instanceof Node && overlayElement.contains(event.target))),
+        takeUntil(this.overlayRef.detachments()),
+      )
+      .subscribe((event) => event.preventDefault());
+  }
+
   private disposeAll() {
     this.closedEventsSub?.unsubscribe();
+    this.scrollBlockListenerSub?.unsubscribe();
     this.keyDownEventsSub?.unsubscribe();
     this.menuCloseListenerSub?.unsubscribe();
     this.overlayRef?.dispose();
