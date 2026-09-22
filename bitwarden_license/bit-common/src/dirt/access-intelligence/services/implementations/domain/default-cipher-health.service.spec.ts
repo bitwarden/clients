@@ -1,8 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -17,12 +18,20 @@ describe("DefaultCipherHealthService", () => {
   let auditService: MockProxy<AuditService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
   let logService: MockProxy<LogService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     auditService = mock<AuditService>();
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
     logService = mock<LogService>();
-    service = new DefaultCipherHealthService(auditService, passwordStrengthService, logService);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(true));
+    service = new DefaultCipherHealthService(
+      auditService,
+      passwordStrengthService,
+      logService,
+      configService,
+    );
   });
 
   // Helper to create mock ciphers
@@ -255,6 +264,42 @@ describe("DefaultCipherHealthService", () => {
       expect(auditService.passwordLeaked).toHaveBeenCalledTimes(2);
       expect(auditService.passwordLeaked).toHaveBeenCalledWith("shared");
       expect(auditService.passwordLeaked).toHaveBeenCalledWith("unique");
+    });
+
+    it("should look up each cipher separately when the flag is off", async () => {
+      // The flag-off arm is the measurement baseline, so it has to keep costing one lookup per
+      // cipher. If this matches the flag-on count, the before/after comparison proves nothing.
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      const ciphers = [
+        createMockCipher({ id: "1", password: "shared" }),
+        createMockCipher({ id: "2", password: "shared" }),
+        createMockCipher({ id: "3", password: "shared" }),
+        createMockCipher({ id: "4", password: "unique" }),
+      ];
+
+      const health = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(auditService.passwordLeaked).toHaveBeenCalledTimes(4);
+      expect(health.size).toBe(4);
+    });
+
+    it("should report the same reuse counts on both sides of the flag", async () => {
+      const ciphers = [
+        createMockCipher({ id: "1", password: "shared" }),
+        createMockCipher({ id: "2", password: "shared" }),
+        createMockCipher({ id: "3", password: "unique" }),
+      ];
+
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      const grouped = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      const perCipher = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      for (const id of ["1", "2", "3"]) {
+        expect(perCipher.get(id)!.reuseCount).toBe(grouped.get(id)!.reuseCount);
+        expect(perCipher.get(id)!.hasReusedPassword).toBe(grouped.get(id)!.hasReusedPassword);
+      }
     });
 
     it("should apply one lookup result to every cipher sharing the password", async () => {

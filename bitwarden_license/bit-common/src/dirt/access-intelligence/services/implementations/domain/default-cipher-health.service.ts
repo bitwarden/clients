@@ -1,6 +1,19 @@
-import { catchError, from, map, mergeMap, Observable, of, toArray } from "rxjs";
+import {
+  catchError,
+  first,
+  forkJoin,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  switchMap,
+  toArray,
+} from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -25,15 +38,19 @@ type PasswordGroupHealth = {
 /**
  * Default implementation of CipherHealthService.
  *
- * Exposure lookups are not concurrency-limited here. {@link AuditService} owns the only limiter, so
- * a second one at this layer would just hide it: whichever is tighter wins, and neither is
- * discoverable from the other.
+ * Runs one of two exposure-lookup paths depending on
+ * {@link FeatureFlag.AccessIntelligencePerformanceAtScale}, so a baseline run can be measured
+ * against the grouped one. Both emit the same measurement step name.
  */
 export class DefaultCipherHealthService extends CipherHealthService {
+  /** Only the flag-off path limits concurrency here; the grouped path defers to {@link AuditService}. */
+  private readonly MAX_CONCURRENT_HIBP_CALLS = 5;
+
   constructor(
     private auditService: AuditService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     super();
   }
@@ -45,6 +62,22 @@ export class DefaultCipherHealthService extends CipherHealthService {
       return of(new Map());
     }
 
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+      .pipe(
+        first(),
+        switchMap((dedupeLookups) =>
+          dedupeLookups
+            ? this.checkHealthByPasswordGroup(validCiphers)
+            : this.checkHealthPerCipher(validCiphers),
+        ),
+      );
+  }
+
+  /** One exposure lookup per distinct password. */
+  private checkHealthByPasswordGroup(
+    validCiphers: CipherView[],
+  ): Observable<Map<string, CipherHealthView>> {
     // One grouping drives everything below: the exposure lookups, the reuse counts, and the
     // password each cipher maps back to. Reuse is the premise of the report, so grouping first
     // means the number of lookups tracks distinct passwords rather than cipher count.
@@ -62,6 +95,55 @@ export class DefaultCipherHealthService extends CipherHealthService {
         ],
       ),
       map((groupHealths) => this.buildHealthMap(ciphersByPassword, groupHealths)),
+    );
+  }
+
+  /** One exposure lookup per cipher. Retained as the measurement baseline; remove with the flag. */
+  private checkHealthPerCipher(
+    validCiphers: CipherView[],
+  ): Observable<Map<string, CipherHealthView>> {
+    const reuseMap$ = this.detectPasswordReuse(validCiphers);
+
+    // Measured as a batch; per-cipher entries would swamp the performance panel.
+    const healthChecks$ = from(validCiphers).pipe(
+      mergeMap(
+        (cipher) => this.checkSingleCipherHealthInternal(cipher),
+        this.MAX_CONCURRENT_HIBP_CALLS,
+      ),
+      toArray(),
+      measureFlowStep(
+        this.logService,
+        "Generate: password strength and breach checks complete",
+        (results) => [
+          ["itemCount", results.length],
+          ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
+        ],
+      ),
+    );
+
+    return forkJoin({
+      reuseMap: reuseMap$,
+      healthResults: healthChecks$,
+    }).pipe(
+      map(({ reuseMap, healthResults }) => {
+        const measureStep = flowTimer(this.logService);
+        const healthMap = new Map<string, CipherHealthView>();
+
+        healthResults.forEach((health) => {
+          const password = this.getCipherPassword(
+            validCiphers.find((c) => c.id === health.cipherId)!,
+          );
+          const reusedCipherIds = password ? reuseMap.get(password) : undefined;
+          health.hasReusedPassword = reusedCipherIds ? reusedCipherIds.length > 1 : false;
+          health.reuseCount = reusedCipherIds ? reusedCipherIds.length : 0;
+
+          healthMap.set(health.cipherId, health);
+        });
+
+        measureStep("Generate: health and reuse combined", [["itemCount", healthResults.length]]);
+
+        return healthMap;
+      }),
     );
   }
 
