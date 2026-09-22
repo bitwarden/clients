@@ -556,6 +556,21 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
+  describe("access action seam", () => {
+    const gated = { id: "g", partial: true } as unknown as PopupCipherViewLike;
+    const full = { id: "f" } as unknown as PopupCipherViewLike;
+
+    it("renders nothing in place of copy when no action is provided", () => {
+      expect(component["showAccessAction"](gated)).toBe(false);
+    });
+
+    it("renders the provided action on gated rows only", () => {
+      Object.defineProperty(component, "accessAction", { value: class {} });
+      expect(component["showAccessAction"](gated)).toBe(true);
+      expect(component["showAccessAction"](full)).toBe(false);
+    });
+  });
+
   describe("group predicates", () => {
     it("isAutofill returns true only for autofill-tagged rows", () => {
       const row = makeRow("autofill");
