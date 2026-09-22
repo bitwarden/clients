@@ -2,7 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import {
@@ -153,6 +155,13 @@ type Story = StoryObj<MyRequestsTabComponent>;
  */
 export const Default: Story = {
   decorators: [myAccess()],
+  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
+};
+
+/** {@link Default} on the `bit-table-v2` path the VFO1 flag selects. */
+export const FlagOn: Story = {
+  decorators: [myAccess()],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** Nothing outstanding. Pending and Active carry their own empty state; Extension requests renders nothing at all. */
