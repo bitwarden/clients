@@ -121,9 +121,6 @@ export enum FeatureFlag {
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
 
-  /* Innovation */
-  ElectronStorageCache = "pm-32783-electron-storage-cache",
-
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
 
@@ -252,9 +249,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
-
-  /* Innovation */
-  [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,

@@ -77,7 +77,7 @@ import {
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
 
-import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
+import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
@@ -104,7 +104,7 @@ const Allowed2020PlansForLegacyProviders = [
   templateUrl: "organization-plans.component.html",
   imports: [
     BillingSharedModule,
-    OrganizationCreateModule,
+    OrganizationInformationComponent,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     IconComponent,
