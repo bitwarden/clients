@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
@@ -841,6 +841,75 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
         .map((r) => r.name)
         .sort(),
     ).toEqual(["DB", "VPN"]);
+  });
+
+  it("scopes select-all and bulk actions to the filtered rules when the flag turns on after the rules load", async () => {
+    const flag = new BehaviorSubject(false);
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation((f) =>
+      f === FeatureFlag.VFO1Foundation ? flag.asObservable() : of(false),
+    );
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [AccessRulesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { listAccessRules: jest.fn().mockResolvedValue(RULES) },
+        },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+        { provide: GovernedCollectionsService, useValue: { invalidate: jest.fn() } },
+        { provide: ConfigService, useValue: configService },
+      ],
+    });
+    TestBed.overrideComponent(AccessRulesComponent, {
+      remove: { imports: [HeaderModule] },
+      add: { schemas: [NO_ERRORS_SCHEMA] },
+    });
+    TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog: jest.fn() } });
+    const fixture = TestBed.createComponent(AccessRulesComponent);
+    const settle = async () => {
+      for (let i = 0; i < 3; i++) {
+        fixture.detectChanges();
+        await fixture.whenStable();
+      }
+    };
+    await settle();
+
+    expect(rowNames(fixture)).toEqual(["SSH", "DB", "VPN"]);
+    expect(el(fixture).querySelector("bit-table")).not.toBeNull();
+    expect(el(fixture).querySelector("bit-table-v2")).toBeNull();
+
+    flag.next(true);
+    await settle();
+
+    expect(el(fixture).querySelector("bit-table-v2")).not.toBeNull();
+    expect(el(fixture).querySelector("bit-table")).toBeNull();
+
+    fixture.componentInstance["filterForm"].controls.search.setValue("ssh");
+    await settle();
+    expect(rowNames(fixture)).toEqual(["SSH"]);
+
+    el(fixture).querySelector<HTMLInputElement>("#access-rules_checkbox_select-all")!.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance["selection"].selected).toEqual(["rule-2"]);
+    expect(fixture.componentInstance["allSelected"]()).toBe(true);
+
+    const setManyEnabled = jest
+      .spyOn(fixture.componentInstance["accessRules"], "setManyEnabled")
+      .mockResolvedValue(1);
+    fixture.componentInstance["bulkActivate"]();
+    await fixture.whenStable();
+
+    expect(setManyEnabled).toHaveBeenCalledTimes(1);
+    expect(setManyEnabled.mock.calls[0][0].map((r) => r.id)).toEqual(["rule-2"]);
+    expect(setManyEnabled.mock.calls[0][1]).toBe(true);
   });
 
   it("narrows the v2 rows on the toolbar chips and search", async () => {
