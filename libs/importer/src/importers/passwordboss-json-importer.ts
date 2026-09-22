@@ -134,7 +134,13 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
           continue;
         }
         const val = value[property];
-        this.processKvp(cipher, property, val != null ? val.toString() : null);
+        const isSensitive = this.passwordFieldNames.indexOf(property.toLowerCase()) > -1;
+        this.processKvp(
+          cipher,
+          property,
+          val != null ? val.toString() : null,
+          isSensitive ? FieldType.Hidden : FieldType.Text,
+        );
       }
 
       this.convertToNoteIfNeeded(cipher);

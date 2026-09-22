@@ -191,6 +191,38 @@ describe("Password Boss JSON Importer", () => {
         ["totp", "JBSWY3DPEHPK3PXP"],
       ]),
     );
+
+    // The stray "password" field lands via the catch-all loop, not the explicit login
+    // branch (this item is a card), so it must still be masked.
+    const passwordField = card.fields.find((f) => f.name === "password");
+    expect(passwordField.type).toEqual(FieldType.Hidden);
+  });
+
+  it("masks a stray sensitive field caught by the catch-all loop on a non-card item", async () => {
+    const loginWithStrayPin = JSON.stringify([
+      {
+        id: "a3e7dbdb-71d5-4449-87a7-91b2b185dc4e",
+        itemType: 2,
+        folder: null,
+        logoColor: "#E92763",
+        username: "usernameTest",
+        password: "passwordTest",
+        name: "testPW",
+        notes: "",
+        url: "test.com",
+        totp: "",
+        pin: "9999",
+        tags: [],
+        itemTypeName: "Website",
+      },
+    ]);
+
+    const result = await importer.parse(loginWithStrayPin);
+
+    const login = result.ciphers[0];
+    const pinField = login.fields.find((f) => f.name === "pin");
+    expect(pinField.value).toEqual("9999");
+    expect(pinField.type).toEqual(FieldType.Hidden);
   });
 
   it("stores a flat card's PIN as a hidden field", async () => {
