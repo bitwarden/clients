@@ -1,6 +1,6 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent } from "storybook/test";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -100,12 +100,7 @@ export const WithContentVfo1: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
-/**
- * Overflowing nav in a tall viewport, where both sticky bands engage. The logo header pins to the
- * top and the account footer to the bottom; below the 600px container-query threshold both release
- * and scroll with the content.
- */
-export const StickyChromeVfo1: Story = {
+export const StickyHeaderAndFooterVfo1: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
   render: (args) => ({
     props: { ...args, logo: PasswordManagerLogo, items: Array.from({ length: 30 }, (_, i) => i) },
@@ -122,6 +117,19 @@ export const StickyChromeVfo1: Story = {
       </bit-layout>
     `,
   }),
+  play: async ({ canvasElement }) => {
+    // The nav scrolls itself, not the page; the sticky bands only engage once it is 600px tall.
+    const scroller = await waitFor(() => {
+      const el = canvasElement.querySelector<HTMLElement>("#bit-side-nav--scroll");
+      if (el == null) {
+        throw new Error("Side nav scroll container has not rendered");
+      }
+      return el;
+    });
+
+    scroller.scrollTop = 400;
+    await waitFor(async () => await expect(scroller.scrollTop).toBeGreaterThan(0));
+  },
 };
 
 export const SkipLinks: Story = {
