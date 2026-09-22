@@ -36,6 +36,7 @@ import { Importer } from "../importers/importer";
 import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
 import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
+import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
@@ -516,7 +517,11 @@ describe("ImportService", () => {
       expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
         organization_id: organizationId,
         target_folder: undefined,
-        target_collection: { id: target.id, name: "Shared" },
+        target_collection: {
+          id: target.id,
+          name: "Shared",
+          type: toSdkCollectionType(target.type),
+        },
         restricted_types: [],
       });
     });

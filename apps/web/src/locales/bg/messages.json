@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "още $COUNT$ споделени папки над този бутон",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "още 1 споделена папка над този бутон",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Моята папка"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Добавете папки към елементите, за да ги филтрирате тук."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Добавете папки към „Моите елементи“, за да ги филтрирате тук."
   },
   "sharedFolderFilterTooltip": {
     "message": "Добавете записи в споделена папка, за да филтрирате тук."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Копиране на потребителското име",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Копиране на външния идентификатор",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Копиране на външния идентификатор за еднократно удостоверяване",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Копиране на но̀мера",
@@ -3461,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
   "importTargetHintFolder": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -4685,6 +4688,15 @@
   "reinstateSubscription": {
     "message": "Подновяване на абонамента"
   },
+  "keepSubscription": {
+    "message": "Запазване на абонамента"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Вашият абонамент е просрочен и скоро ще бъде поставен на пауза."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Вашият абонамент е просрочен и беше поставен на пауза."
+  },
   "reinstateConfirmation": {
     "message": "Уверени ли сте, че искате да подновите абонамента и да отмените заявката за прекратяването му?"
   },
@@ -5418,10 +5430,6 @@
   },
   "collectionInfo": {
     "message": "Информация за колекцията"
-  },
-  "sharedFolderInfo": {
-    "message": "Информация за споделената папка",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете тази колекция?"
@@ -7480,6 +7488,9 @@
   "inviteLinkRegenerated": {
     "message": "Връзката за покана е създадена наново"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Връзката за покана е обновена"
+  },
   "regenerateInviteLink": {
     "message": "Създаване на връзката за покана наново"
   },
@@ -7554,6 +7565,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Поканете членове в организацията си чрез връзка. Ако все още не е определена роля, те ще бъдат добавени като обикновени потребители."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Използването на връзка за покана може да представлява риск за сигурността, тъй като ползвате собствен хостинг, а потребителите няма да трябва да потвърждават е-пощите си."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ако продължите, Вие се съгласявате с"
@@ -8853,16 +8867,16 @@
   "sendControls": {
     "message": "Управление на Изпращанията"
   },
-  "manageSend": {
-    "message": "Управление на Изпращането",
+  "manageSendV2": {
+    "message": "Управление на Изпращанията и споделянето",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Управлявайте настройките си за създаване и редактиране на Изпращания, включително и възможността да ги премахвате.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Управлявайте това как членовете ползват Изпращанията. Тази политика ще се прилага за всички Изпращания създадени след включването ѝ. Не засяга администратори и собственици.",
+  "sendControlsPolicyDescV5": {
+    "message": "Управляване на това как членовете използват Изпращания и как споделят данните от трезорите си. Тази политика няма да бъде прилагана към собствениците и администраторите.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9547,25 @@
   "decryptionError": {
     "message": "Грешка при дешифриране"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  "couldNotDecryptVaultItem": {
+    "message": "Битуорден не може да дешифрова посочения по-долу запис от трезора. Свържете се с поддръжката на Битуорден и дайте идентификатора на записа по-долу, за да проверите дали може да бъде възстановен."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Свържете се с поддръжката",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Битуорден не може да дешифрова посочените по-долу записи от трезора. Свържете се с поддръжката на Битуорден и дайте идентификаторите на записите по-долу, за да проверите дали могат да бъдат възстановени."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "за да избегнете загубата на данни.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Идентификатор на запис",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Идентификатори на записи",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Копиране на идентификатора"
+  },
+  "copyAllIds": {
+    "message": "Копиране на всички идентификатори"
   },
   "accountRecoveryManageUsers": {
     "message": "Управлението на потребителите трябва да бъде дадено заедно с разрешението за Управление на възстановяването на регистрации"
@@ -10919,18 +10942,6 @@
   "scimLearnMore": {
     "message": "Научете повече относно SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Предоставете на потребителите и групите си автоматично удостоверяване със своя предпочитан доставчик на удостоверителни данни като използвате удостоверяване чрез SCIM. Разгледайте поддържаните такива.",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Включване на SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Задайте предпочитания си доставчик на удостоверителни данни като настроите адреса и ключа за API на SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Този ключ за API предоставя достъп за управление на потребителите в организацията Ви. Трябва да го пазите в тайна."
   },
@@ -11277,6 +11288,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Окончателно изтриване на тайните"
+  },
+  "currentVersion": {
+    "message": "Текуща версия",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Променено от: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Стойността на тайната е копирана",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Тайната е възстановена до избраната версия",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Възстановяване на версията на тайна",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Наистина ли искате да възстановите тази тайна до избраната версия? Текущата стойност ще бъде заменена.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Предишни версии",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "История на версиите",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Няма история на версиите",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Изберете проектите, с които ще бъде свързана тази тайна. Само потребителите в организацията, които имат достъп до тези проекти, ще могат да виждат тайната.",
@@ -12457,6 +12510,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Наистина ли искате да възстановите тайните?"
+  },
+  "restoreThisVersion": {
+    "message": "Възстановяване на тази версия"
   },
   "secretRestoredSuccessToast": {
     "message": "Тайната е възстановена"
@@ -17686,5 +17742,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Поканете целия си екип с една единствена връзка"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Всеки с фирмена е-поща може да използва връзката за покана, за да се присъедини към организацията. Добавете я в уводната документация, така че новите хора в компанията да могат да се присъединят когато са готови."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Предварителен преглед на прозореца за канене на членове, който показва новия раздел по връзки"
+  },
+  "showMeHow": {
+    "message": "Покажете ми как"
+  },
+  "shareVerb": {
+    "message": "Споделяне"
+  },
+  "peopleWhoCanView": {
+    "message": "Хора, които могат да преглеждат",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "След като споделите тази връзка, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят записа.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Тази връзка изтича след тази дата, но получателите биха могли да запазят споделената информация. Променете удостоверителните данни, за да отнемете достъпа им.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Връзката изтича след",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Еднократно споделяне",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Активни връзки",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Връзката е копирана в операт. памет",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не може да се създаде споделена връзка",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Връзката е запазена и копирана в буфера за обмен",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Връзката за споделяне не може да бъде копирана в буфера за обмен",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Връзката за споделяне е изтрита",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Споделената връзка не успя да бъде изтрита",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Споделяне чрез връзка",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Споделяне за запис от трезора $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Изтича",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ сподели следния запис с Вас.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "допълнителни сервизни акаунти"
+  },
+  "additionalStorageGbLower": {
+    "message": "допълнително място в ГБ"
+  },
+  "membersLower": {
+    "message": "членове"
+  },
+  "memberLower": {
+    "message": "член"
+  },
+  "annualLower": {
+    "message": "годишен"
+  },
+  "monthlyLower": {
+    "message": "месечен"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ — $CADENCE$ абонамент",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Запазване и активиране отново"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Абонаментът вече е активен"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Това ще отмени заявката за прекратяване и ще активира отново абонамента."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Подробностите за абонамента не се зареждат"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Услугата за таксуване не е налична, така че не можем да покажем абонамента Ви и цената му в момента. Самият абонамент не е засегнат."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Пропорционално таксуване за Управителя на пароли"
+  },
+  "storageProratedCharge": {
+    "message": "Пропорционално таксуване за място за съхранение"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Пропорционално таксуване за Управителя на тайни"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Пропорционално таксуване за сервизни акаунти"
   }
 }
