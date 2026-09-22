@@ -323,11 +323,12 @@
               }
             </bit-cell>
           </bit-column>
-          <bit-column width="minmax(160px, 1fr)">
+          <bit-column width="minmax(224px, 1fr)">
             <bit-header-cell>{{ "pamAuditColumnDuration" | i18n }}</bit-header-cell>
             <bit-cell
               *bitCellDef="table.columns.duration; let row"
               class="tw-cursor-pointer"
+              [truncate]="false"
               (click)="openDetails(row)"
             >
               @if (row.duration; as duration) {
