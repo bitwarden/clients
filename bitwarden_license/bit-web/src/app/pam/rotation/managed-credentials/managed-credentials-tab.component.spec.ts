@@ -1747,7 +1747,7 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
 
     // The search and the chips land inside the table's toolbar, so a placeholder row above the
     // skeleton would promise controls in a place that never receives them.
-    it("leaves the toolbar placeholder out of the skeleton", () => {
+    it("reserves the toolbar row while loading on both paths", () => {
       const placeholders = (el: HTMLElement): number =>
         el.querySelectorAll(
           '[data-testid="managed-credentials-loading"] > div:first-child bit-skeleton',
@@ -1760,7 +1760,7 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
       fixture.detectChanges();
 
       expect(placeholders(off)).toBeGreaterThan(0);
-      expect(placeholders(renderSkeleton())).toBe(0);
+      expect(placeholders(renderSkeleton())).toBeGreaterThan(0);
     });
   });
 });
