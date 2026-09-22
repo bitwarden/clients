@@ -174,7 +174,9 @@ export class DesktopAutotypeService implements OnDestroy {
               AbortSignal.timeout(AUTOTYPE_SET_ENABLED_TIMEOUT_MS),
             );
 
-            console.log("Sending a request to autotypeRequestSetEnabled, response is: " + response);
+            this.logService.info(
+              `Sent a request to set the Autotype enabled state, response: ${response}`,
+            );
 
             if (!response.success) {
               this.logService.error(`Failed to set the Autotype enabled state to: ${enabled}`);

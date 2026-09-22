@@ -1,3 +1,4 @@
+import { LogService } from "@bitwarden/logging";
 import { AutotypeDriver } from "@bitwarden/sdk-internal";
 
 import type { MainDesktopAutotypeService } from "../main/main-desktop-autotype.service";
@@ -10,10 +11,13 @@ import type { MainDesktopAutotypeService } from "../main/main-desktop-autotype.s
  * runtime dependency back onto the service that constructs it.
  */
 export class AutotypeSetEnabledDriver implements AutotypeDriver {
-  constructor(private autotypeService: MainDesktopAutotypeService) {}
+  constructor(
+    private autotypeService: MainDesktopAutotypeService,
+    private logService: LogService,
+  ) {}
 
   async set_autotype_enabled(enabled: boolean): Promise<boolean> {
-    console.log("Receiving a request to autotypeRequestSetEnabled, enabled value is: " + enabled);
+    this.logService.info(`Received a request to set the Autotype enabled state to: ${enabled}`);
     return this.autotypeService.setAutotypeEnabled(enabled);
   }
 }

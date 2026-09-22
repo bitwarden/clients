@@ -24,7 +24,7 @@ export class MainDesktopAutotypeService {
     try {
       await autotypeRegisterSetEnabledHandler(
         this.ipcService.client,
-        new AutotypeSetEnabledDriver(this),
+        new AutotypeSetEnabledDriver(this, this.logService),
       );
     } catch (e) {
       this.logService.error("Failed to register the Autotype set-enabled IPC handler.", e);
