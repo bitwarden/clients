@@ -5,7 +5,7 @@ import { NgModule } from "@angular/core";
 import { InputPasswordComponent } from "@bitwarden/auth/angular";
 import { FormFieldModule } from "@bitwarden/components";
 
-import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
+import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { SharedModule } from "../../shared";
 
 import { CompleteTrialInitiationComponent } from "./complete-trial-initiation/complete-trial-initiation.component";
@@ -19,7 +19,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     CdkStepperModule,
     VerticalStepperModule,
     FormFieldModule,
-    OrganizationInformationComponent,
+    OrganizationCreateModule,
     TrialBillingStepComponent,
     InputPasswordComponent,
   ],

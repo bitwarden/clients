@@ -1,19 +1,16 @@
-import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
-import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
+import { UntypedFormGroup } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FormFieldModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-info",
   templateUrl: "organization-information.component.html",
-  imports: [CommonModule, ReactiveFormsModule, FormFieldModule, I18nPipe, Vfo1I18nPipe],
+  standalone: false,
 })
 export class OrganizationInformationComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
