@@ -656,6 +656,18 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect("accountCredit" in cart).toBe(false);
     });
+
+    it("caps appliedBalance at the invoice total when the balance exceeds it", () => {
+      // Only $12 of the $500 balance is consumed; appliedBalance is what was applied
+      // (total - amountDue), not the whole balance, so Total - Applied balance = Amount due.
+      const cart = adaptInvoicePreviewToCart(
+        basePreview({ total: 12, amountDue: 0, startingBalance: -500 }),
+        InvoicePreviewFlowContext.PremiumSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.appliedBalance).toBe(12);
+    });
   });
 
   describe("total and tax", () => {

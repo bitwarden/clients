@@ -221,8 +221,9 @@ export const adaptInvoicePreviewToCart = (
   }
 
   cart.amountDue = preview.amountDue;
-  if (preview.startingBalance != null && preview.startingBalance < 0) {
-    cart.appliedBalance = Math.abs(preview.startingBalance);
+  const appliedBalance = sumInCents([preview.total, -preview.amountDue]);
+  if (appliedBalance > 0) {
+    cart.appliedBalance = appliedBalance;
   }
 
   return cart;

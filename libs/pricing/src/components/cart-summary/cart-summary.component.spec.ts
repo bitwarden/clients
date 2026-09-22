@@ -1352,6 +1352,46 @@ describe("CartSummaryComponent", () => {
       ).toBeNull();
       expect(fixture.debugElement.query(By.css('[data-testid="amount-due"]'))).toBeNull();
     });
+
+    it("shows amount due, not the gross total, in the default header", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      const defaultHeader = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(defaultHeader.nativeElement.textContent).toContain("$1.58");
+      expect(defaultHeader.nativeElement.textContent).not.toContain("$14.54");
+    });
+
+    it("labels the default header 'Amount due' when a balance applies and 'Total' otherwise", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      const withBalance = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(withBalance.nativeElement.textContent).toContain("Amount due");
+      expect(withBalance.nativeElement.textContent).not.toContain("Total");
+
+      fixture.componentRef.setInput("cart", mockCart);
+      fixture.detectChanges();
+
+      const noBalance = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(noBalance.nativeElement.textContent).toContain("Total");
+    });
   });
 });
 

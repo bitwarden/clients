@@ -15,7 +15,8 @@
           class="!tw-m-0"
           data-testid="purchase-summary-heading-total"
         >
-          {{ "total" | i18n }}: {{ amountDue() | currency: "USD" : "symbol" }} USD
+          {{ (appliedBalance() > 0 ? "amountDue" : "total") | i18n }}:
+          {{ amountDue() | currency: "USD" : "symbol" }} USD
         </h2>
         <span bitTypography="h3">&nbsp;</span>
         @if (!hideTerm) {
