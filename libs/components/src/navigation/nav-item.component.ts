@@ -14,6 +14,7 @@ import { RouterModule, RouterLinkActive } from "@angular/router";
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile";
+import { TooltipDirective } from "../tooltip";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { SideNavService } from "./side-nav.service";
@@ -40,7 +41,7 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent],
+  imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent, TooltipDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(focusin)": "onFocusIn($event.target)",

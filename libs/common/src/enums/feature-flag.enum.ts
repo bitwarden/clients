@@ -77,6 +77,7 @@ export enum FeatureFlag {
   /* Tools */
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
+  ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
   /* DIRT */
@@ -92,6 +93,7 @@ export enum FeatureFlag {
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -120,8 +122,8 @@ export enum FeatureFlag {
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
 
-  /* Innovation */
-  ElectronStorageCache = "pm-32783-electron-storage-cache",
+  /* Secrets Manager */
+  SecretVersioning = "sm-1587-secrets-versioning",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -167,6 +169,7 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
+  [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
   /* DIRT */
@@ -182,6 +185,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -248,8 +252,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
 
-  /* Innovation */
-  [FeatureFlag.ElectronStorageCache]: FALSE,
+  /* Secrets Manager */
+  [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -24,6 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -84,6 +85,16 @@ export class ByLinkTabComponent {
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly serverSettingsService = inject(DefaultServerSettingsService);
+
+  private readonly isSelfHost = this.platformUtilsService.isSelfHost();
+  private readonly emailVerificationDisabled = toSignal(
+    this.serverSettingsService.isEmailVerificationDisabled$,
+    { initialValue: false },
+  );
+  protected readonly showSelfHostWarning = computed(
+    () => this.isSelfHost && this.emailVerificationDisabled(),
+  );
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
 
@@ -165,7 +176,8 @@ export class ByLinkTabComponent {
 
       if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
         this.tourStarted.set(true);
-        this.tourStep.set(1);
+        // HACK: wait until the dialog has settled, otherwise the popover can anchor to a stale rect and render out of place.
+        setTimeout(() => this.tourStep.set(1), 250);
       }
     });
 

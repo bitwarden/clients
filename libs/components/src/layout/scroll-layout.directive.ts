@@ -21,7 +21,7 @@ export class ScrollLayoutService {
   scrollableRef$ = toObservable(this.scrollableRef);
 
   /**
-   * Whether the page is restoring a scroll position, so collapsing chrome starts collapsed.
+   * Whether the page is restoring a scroll position, so the collapsing regions start collapsed.
    */
   readonly restoredScrolled = signal(false);
 }

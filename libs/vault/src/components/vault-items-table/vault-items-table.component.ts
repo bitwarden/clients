@@ -8,6 +8,7 @@ import {
   input,
   output,
   signal,
+  TrackByFunction,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -17,18 +18,21 @@ import { map, of, switchMap } from "rxjs";
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DIALOG_CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import {
   BitwardenIcon,
   BitCellComponent,
@@ -44,6 +48,7 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
+  FilterOptionNode,
   getAvatarDefaultColor,
   IconModule,
   IconTileComponent,
@@ -397,6 +402,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     max: MAX_SELECTION_COUNT,
   };
 
+  /**
+   * Keys rows by cipher id rather than object identity. `cipherListViews$` rebuilds every row
+   * on each emission (see {@link reconcileSelection}), so without this `bit-table-v2` would treat
+   * every unrelated row as new on any sync or edit and tear down and recreate its cells —
+   * including `app-vault-icon`, which is what actually caused the icon flicker.
+   */
+  protected readonly trackByCipherId: TrackByFunction<C> = (_, row) => String(row.id);
+
   /** The configured column set to display */
   protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);
 
@@ -418,7 +431,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly MY_VAULT = MY_VAULT;
-  protected readonly NO_FOLDER = NO_FOLDER;
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 
@@ -588,9 +600,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly showSharedFolders = computed(() => this.organizations().length > 0);
 
-  /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
-  protected readonly sortedCollections = computed(() =>
-    [...this.collections()].sort((a, b) => a.name.localeCompare(b.name)),
+  /** The Shared folders chip's nested options, when it isn't grouped by organization. */
+  protected readonly nestedSharedFolders = computed(() =>
+    this.buildNestedSharedFolders(this.collections()),
   );
 
   /**
@@ -630,15 +642,20 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     return [...groups.values()]
       .map((group) => ({
         ...group,
-        collections: [...group.collections].sort((a, b) => a.name.localeCompare(b.name)),
+        collections: this.buildNestedSharedFolders(group.collections),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
-  /** The My folders chip's options, sorted for a stable menu; {@link NO_FOLDER} stays pinned first. */
-  protected readonly sortedFolders = computed(() =>
-    [...this.folders()].sort((a, b) => a.name.localeCompare(b.name)),
-  );
+  /**
+   * The My folders chip's nested options, {@link NO_FOLDER} pinned first. A chip can only take
+   * `options` as an array input or as projected content, never both, so the pinned row has to be
+   * part of the tree rather than projected `bit-filter-option` markup alongside it.
+   */
+  protected readonly nestedFolders = computed<FilterOptionNode<string>[]>(() => [
+    { value: NO_FOLDER, label: this.i18nService.t("noneFolder"), options: [] },
+    ...this.buildNestedFolders(this.folders()),
+  ]);
 
   /** The owning vault's display name: the organization's name, or "My vault". */
   protected vaultName(cipher: C): string {
@@ -896,5 +913,45 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       .filterControls()
       .find((control) => control.key() === SEARCH_FILTER_KEY)
       ?.setValue("");
+  }
+
+  /**
+   * Builds the shared folder tree via {@link getNestedCollectionTree}, the same name-delimited
+   * nesting used for the collections sidebar — so a collection whose parent path is missing
+   * (or belongs to a different organization) nests and sorts identically here and there, rather
+   * than diverging with bespoke logic. That helper buckets its return by organization, so the
+   * top level is re-sorted by label here to restore one global alphabetical list — safe to call
+   * with collections spanning more than one org (see {@link nestedSharedFolders}), where the
+   * per-org clusters would otherwise stay grouped with no section header to explain why.
+   *
+   * Shaped as {@link FilterOptionNode} so it binds directly to `bit-filter-menu`'s `options`
+   * input — the collection tree is data-driven and can nest arbitrarily deep, which is exactly
+   * what that input is for.
+   */
+  private buildNestedSharedFolders(
+    sharedFolders: CollectionView[],
+  ): FilterOptionNode<CollectionId>[] {
+    const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
+      value: node.node.id,
+      label: node.node.name,
+      options: node.children.map(toNode),
+    });
+    return getNestedCollectionTree([...sharedFolders])
+      .map(toNode)
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  /**
+   * Builds the My folders tree via {@link getNestedFolderTree}, the same name-delimited nesting
+   * {@link buildNestedSharedFolders} uses for collections — so a folder whose parent path is
+   * missing nests and sorts the same way a collection in that situation would.
+   */
+  private buildNestedFolders(folders: FolderView[]): FilterOptionNode<string>[] {
+    const toNode = (node: TreeNode<FolderView>): FilterOptionNode<string> => ({
+      value: node.node.id,
+      label: node.node.name,
+      options: node.children.map(toNode),
+    });
+    return getNestedFolderTree([...folders]).map(toNode);
   }
 }

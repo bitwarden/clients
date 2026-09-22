@@ -348,7 +348,12 @@ filter: (row, f) =>
   the chips to reset them in one click — search is untouched.
 
 The filter row collapses into a single trigger and dialog once its contents stop fitting on one
-line, and always below `md`.
+line, and always below `md`. Collapsed, the active filters get a row of dismissible chips beneath
+the search: a single-select or a toggle takes one chip naming the filter and its value
+(`Type: Login`), while a **multi-select takes one chip per selected option**, named for the option
+alone and led by the filter's `icon`. Dismissing one of those drops just that option; the others
+stay applied. Each chip's dismiss button is named for both the filter and the option, so a screen
+reader still hears which filter a chip belongs to.
 
 ```html
 <bit-table-v2 [tableDef]="table">
