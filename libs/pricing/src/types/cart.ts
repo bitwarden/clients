@@ -23,6 +23,7 @@ export type Cart = {
     prorationCharges?: CartItem[];
   };
   cadence: "annually" | "monthly";
+  hidePricingTerm?: boolean;
   discounts?: CartDiscount[];
   credit?: Credit;
   estimatedTax: number;

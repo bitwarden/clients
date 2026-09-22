@@ -8,8 +8,6 @@ import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { PageDetail } from "../../services/abstractions/autofill.service";
 
-import { LockedVaultPendingNotificationsData } from "./notification.background";
-
 export type TabId = NonNullable<chrome.tabs.Tab["id"]>;
 
 export type FrameId = NonNullable<chrome.runtime.MessageSender["frameId"]>;
@@ -156,7 +154,6 @@ export type OverlayBackgroundExtensionMessage = {
   allFieldsRect?: AutofillField[];
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
-  data?: LockedVaultPendingNotificationsData;
   iframeSrc?: string;
   iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
 } & OverlayAddNewItemMessage &
@@ -272,7 +269,6 @@ export type OverlayBackgroundExtensionMessageHandlers = {
     sender,
   }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   doFullSync: () => void;
   addedCipher: () => void;
   addEditCipherSubmitted: () => void;

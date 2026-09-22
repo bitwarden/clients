@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ dalších sdílených složek zobrazených nad tímto tlačítkem",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 další sdílená složka zobrazená nad tímto tlačítkem",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Moje složka"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Přidejte složky k položkám pro jejich filtrování zde."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Přidejte složky do mých položek pro jejich filtrování zde."
   },
   "sharedFolderFilterTooltip": {
     "message": "Přidejte položky do sdílené složky pro filtrování."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Kopírovat uživatelské jméno",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Kopírovat externí ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Kopírovat externí SSO ID",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Kopírovat číslo",
@@ -3461,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Zvolte sbírku"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
   },
   "importTargetHintFolder": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -4685,6 +4688,15 @@
   "reinstateSubscription": {
     "message": "Obnovit předplatné"
   },
+  "keepSubscription": {
+    "message": "Zachovat předplatné"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Vaše předplatné je po termínu a brzy bude pozastaveno."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Vaše předplatné je po termínu a bylo pozastaveno."
+  },
   "reinstateConfirmation": {
     "message": "Opravdu chcete zrušit požadavek na zrušení předplatného a obnovit původní předplatné?"
   },
@@ -5418,10 +5430,6 @@
   },
   "collectionInfo": {
     "message": "Informace o sbírce"
-  },
-  "sharedFolderInfo": {
-    "message": "Informace o sdílené složce",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Opravdu chcete smazat tuto sbírku?"
@@ -7480,6 +7488,9 @@
   "inviteLinkRegenerated": {
     "message": "Zvací odkaz byl znovu vygenerován"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Zvací odkaz byl aktualizován"
+  },
   "regenerateInviteLink": {
     "message": "Znovu vygenerovat zvací odkaz"
   },
@@ -7554,6 +7565,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Pozvěte členy do Vaší organizace s odkazem. Pokud ještě nebyla zadána žádná role, budou přidáni jako výchozí uživatel."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Použití pozvánkového odkazu může Vašem vlastním hostovaném prostředí představovat bezpečnostní riziko, protože uživatelé nemusí ověřovat své e-mailové adresy."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Pokračováním souhlasíte s dokumenty"
@@ -8853,16 +8867,16 @@
   "sendControls": {
     "message": "Ovládání Send"
   },
-  "manageSend": {
-    "message": "Spravovat Send",
+  "manageSendV2": {
+    "message": "Spravovat Send a sdílení",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Nastavte, jak mohou členové používat Send. Tato zásada se bude vztahovat na zprávy odeslané po jejím aktivování. Správci a vlastníci jsou z této zásady vyňati.",
+  "sendControlsPolicyDescV5": {
+    "message": "Nastavte, jak mohou členové odesílat a sdílet položky v trezoru. Tato zásada se nevztahuje na vlastníky a správce.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9547,25 @@
   "decryptionError": {
     "message": "Chyba dešifrování"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nemohl dešifrovat položku z trezoru zobrazenou níže. Kontaktujte zákaznickou podporu Bitwarden a zadejte ID položky níže a zjistěte, zda je možné ji obnovit."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznickou podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nemohl dešifrovat položky z trezoru zobrazené níže. Kontaktujte zákaznickou podporu Bitwarden a zadejte ID položek níže a zjistěte, zda je možné je obnovit."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "abyste zabránili ztrátě dat.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovat ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovat všechna ID"
   },
   "accountRecoveryManageUsers": {
     "message": "S oprávněním spravovat obnovení hesla musí být povolena také správa uživatelů"
@@ -10919,18 +10942,6 @@
   "scimLearnMore": {
     "message": "Více informací o SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM. Najde podporované integrace.",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Povolit SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Nastavte svého preferovaného poskytovatele identity nastavením URL a klíče SCIM API",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Tento klíč API má přístup ke správě uživatelů ve Vaší organizaci. Měl by být zachován v tajnosti."
   },
@@ -11277,6 +11288,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Trvale smazat tajné klíče"
+  },
+  "currentVersion": {
+    "message": "Aktuální verze",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Upravil: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Tajný klíč zkopírován",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Tajný klíč obnoven do vybrané verze",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Obnovit tajnou verzi",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Jste si jisti, že chcete obnovit tento tajný klíč do vybrané verze? Aktuální hodnota bude nahrazena.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Předchozí verze",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Historie verzí",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Žádná historie verzí",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Vyberte projekty, se kterými bude spojen tajný klíč. Tajný klíč budou moci vidět jen uživatelé organizace s přístupem k těmto projektům.",
@@ -12457,6 +12510,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Opravdu chcete obnovit tyto tajné klíče?"
+  },
+  "restoreThisVersion": {
+    "message": "Obnovit tuto verzi"
   },
   "secretRestoredSuccessToast": {
     "message": "Tajný klíč byl obnoven"
@@ -17686,5 +17742,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Pozvěte celý tým jediným odkazem"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Každý, kdo má firemní e-mail, může použít pozvánku pro připojení k Vaší organizaci. Přetáhněte ji do zdrojů pro onboarding, aby se nové nábory mohly připojit, až budou připraveny."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Náhled dialogu pozvání členů zobrazující novou záložku podle odkazu"
+  },
+  "showMeHow": {
+    "message": "Ukaž mi jak"
+  },
+  "shareVerb": {
+    "message": "Sdílet"
+  },
+  "peopleWhoCanView": {
+    "message": "Lidé, kteří mohou zobrazit",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po sdílení tohoto odkazu budou muset příjemci ověřit svůj e-mail pomocí kódu pro zobrazení této položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz vyprší po tomto datu, ale příjemci si mohou ponechat dříve sdílené informace. Obnovte pověření pro zrušení přístupu.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkazu vyprší platnost za",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorázové sdílení",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktivní odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz byl zkopírován do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nelze vytvořit odkaz pro sdílení",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz byl uložen a zkopírován do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodařilo se zkopírovat odkaz do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz pro sdílení byl smazán",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodařilo se smazat odkaz pro sdílení",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Sdílet přes odkaz",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Sdílet pro položku v trezoru $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Vyprší",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ s Vámi sdílel následující položku.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "další účty služeb"
+  },
+  "additionalStorageGbLower": {
+    "message": "další úložiště GB"
+  },
+  "membersLower": {
+    "message": "členové"
+  },
+  "memberLower": {
+    "message": "člen"
+  },
+  "annualLower": {
+    "message": "ročně"
+  },
+  "monthlyLower": {
+    "message": "měsíčně"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "Předplatné $PLAN$ $CADENCE$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Zachovat a znovu aktivovat"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Předplatné je nyní aktivní"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Tímto se vrátí Váš požadavek na zrušení a znovu aktivuje předplatné."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Detaily předplatného se nenačítají"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Naše fakturační služba není k dispozici, takže momentálně nemůžeme ukázat Vaše předplatné a ceny. Vaše předplatné samo o sobě nebylo dotčeno."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Poměrný poplatek za správce hesel"
+  },
+  "storageProratedCharge": {
+    "message": "Poměrný poplatek za úložiště"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Poměrný poplatek za správce tajných kódů"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Poměrný poplatek za servisní účty"
   }
 }

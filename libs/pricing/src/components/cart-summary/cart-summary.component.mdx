@@ -26,6 +26,8 @@ behavior across Bitwarden applications.
   - [With Secrets Manager and Additional Service Accounts](#with-secrets-manager-and-additional-service-accounts)
   - [All Products](#all-products)
   - [With Account Credit](#with-account-credit)
+  - [All Proration Invoice](#all-proration-invoice)
+  - [Recurring Items With Proration](#recurring-items-with-proration)
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
   - [With Item-Level Discount](#with-item-level-discount)
@@ -101,6 +103,7 @@ export type Cart = {
     prorationCharges?: CartItem[]; // Optional mid-cycle proration charges
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
+  hidePricingTerm?: boolean; // Optional set if term should be removed
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
   credit?: Credit; // Optional account credit
   estimatedTax: number; // Tax amount
@@ -390,6 +393,46 @@ Show cart with account credit applied:
 </billing-cart-summary>
 ```
 
+### All Proration Invoice
+
+Show a seatless mid-cycle transition invoice — only one-time proration charges and a credit, no
+recurring line items. The total is a one-time amount, so the cart sets `hidePricingTerm` and the
+term is dropped:
+
+<Canvas of={CartSummaryStories.AllProrationInvoice} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      prorationCharges: [
+        {
+          translationKey: 'passwordManagerProratedCharge',
+          quantity: 1,
+          cost: 188.22,
+          hideBreakdown: true
+        }
+      ]
+    },
+    cadence: 'annually',
+    credit: {
+      translationKey: 'appliedSubscriptionCredits',
+      value: 37.64
+    },
+    estimatedTax: 12.05,
+    hidePricingTerm: true
+  }"
+>
+</billing-cart-summary>
+```
+
+### Recurring Items With Proration
+
+Show a renewal with a mid-cycle change: recurring seat and storage lines alongside their own
+proration charge rows, with the billing term retained:
+
+<Canvas of={CartSummaryStories.RecurringWithProration} />
+
 ### With Percent Discount
 
 Show cart with percentage-based discount:
@@ -491,8 +534,8 @@ discount):
 Show cart with both a cart-level discount and an item-level discount. The item-level discount
 renders indented under its line item, while the cart-level discount renders in a grouped summary
 block between two dividers: Subtotal → cart-level discount(s) → Estimated tax, followed by the
-Total. The Subtotal row (extended prices before any discounts) appears only when a cart-level
-discount is present:
+Total. The Subtotal row (extended prices net of any per-line discounts, matching Stripe's invoice
+subtotal) appears only when a cart-level discount is present:
 
 <Canvas of={CartSummaryStories.PerLineAndCartWideStacked} />
 

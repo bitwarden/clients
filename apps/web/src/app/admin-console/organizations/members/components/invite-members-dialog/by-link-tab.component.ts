@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -15,14 +15,17 @@ import {
 } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainMiniResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-mini.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -78,9 +81,20 @@ export class ByLinkTabComponent {
   private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly serverSettingsService = inject(DefaultServerSettingsService);
+
+  private readonly isSelfHost = this.platformUtilsService.isSelfHost();
+  private readonly emailVerificationDisabled = toSignal(
+    this.serverSettingsService.isEmailVerificationDisabled$,
+    { initialValue: false },
+  );
+  protected readonly showSelfHostWarning = computed(
+    () => this.isSelfHost && this.emailVerificationDisabled(),
+  );
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
 
@@ -162,7 +176,8 @@ export class ByLinkTabComponent {
 
       if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
         this.tourStarted.set(true);
-        this.tourStep.set(1);
+        // HACK: wait until the dialog has settled, otherwise the popover can anchor to a stale rect and render out of place.
+        setTimeout(() => this.tourStep.set(1), 250);
       }
     });
 
@@ -204,7 +219,19 @@ export class ByLinkTabComponent {
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
-    const allDomains = await this.orgDomainApiService.getAllByOrgId(this.organizationId());
+    let allDomains: OrganizationDomainMiniResponse[];
+    try {
+      // Use the mini endpoint, not getAllByOrgId: the full domains endpoint requires Manage SSO,
+      // and calling it without that permission returns a 401 that the api service treats as an
+      // invalid access token, logging the user out of the vault entirely.
+      allDomains = await this.orgDomainApiService.getAllMiniByOrgId(this.organizationId());
+    } catch (e) {
+      // Prefilling is a convenience, so a failure here should leave the field empty rather than
+      // surface an error. Servers older than this endpoint answer with a 404.
+      this.logService.error("Failed to prefill invite link domains from org domains.", e);
+      return;
+    }
+
     const verifiedDomainNames = allDomains
       .filter((d) => d.verifiedDate != null)
       .map((d) => d.domainName);

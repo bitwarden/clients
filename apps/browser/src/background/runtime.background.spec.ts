@@ -3,15 +3,59 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "../autofill/background/abstractions/notification.background";
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
+import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
+import { BrowserApi } from "../platform/browser/browser-api";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
 import RuntimeBackground from "./runtime.background";
+
+type RuntimeBackgroundOverrides = {
+  main?: MockProxy<MainBackground>;
+  autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
+  intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
+};
+
+function createRuntimeBackground({
+  main = mock<MainBackground>(),
+  autofillOrchestrator = mock<AutofillOrchestrator>(),
+  intraprocessMessageSender = mock<IntraprocessMessageSender>(),
+}: RuntimeBackgroundOverrides = {}) {
+  // The `undefined` slots are collaborators no covered path reaches.
+  // Give one a mock as soon as a test needs it.
+  return new RuntimeBackground(
+    main,
+    mock<AutofillService>(),
+    mock<BrowserPlatformUtilsService>(),
+    undefined as any, // autofillSettingsService
+    undefined as any, // environmentService
+    undefined as any, // messagingService
+    mock<LogService>(),
+    undefined as any, // configService
+    undefined as any, // messageListener
+    undefined as any, // accountService
+    undefined as any, // lockService
+    undefined as any, // billingAccountProfileStateService
+    undefined as any, // browserInitialInstallService
+    undefined as any, // autofillLifecycleService
+    undefined as any, // defaultPasswordManagerPromptStateAccessor
+    autofillOrchestrator,
+    intraprocessMessageSender,
+  );
+}
 
 // The `collectPageDetailsResponse` handler is the seam Step 5 rewired: the
 // page-load ("autofiller") sender no longer routes here, and the user-initiated
@@ -37,25 +81,7 @@ describe("RuntimeBackground collectPageDetailsResponse routing", () => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
 
     autofillOrchestrator = mock<AutofillOrchestrator>();
-
-    runtimeBackground = new RuntimeBackground(
-      mock<MainBackground>(),
-      mock<AutofillService>(),
-      mock<BrowserPlatformUtilsService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      mock<LogService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      autofillOrchestrator,
-    );
+    runtimeBackground = createRuntimeBackground({ autofillOrchestrator });
   });
 
   it("forwards a keyboard-shortcut collection to AutofillOrchestrator", async () => {
@@ -141,24 +167,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     mainBackground = mock<MainBackground>();
     (mainBackground as any).domainSettingsService = domainSettingsService;
 
-    runtimeBackground = new RuntimeBackground(
-      mainBackground,
-      mock<AutofillService>(),
-      mock<BrowserPlatformUtilsService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      mock<LogService>(),
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      undefined as any,
-      mock<AutofillOrchestrator>(),
-    );
+    runtimeBackground = createRuntimeBackground({ main: mainBackground });
   });
 
   afterEach(() => {
@@ -243,5 +252,122 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(result).toBe(rules);
+  });
+});
+
+describe("RuntimeBackground locked vault pending notifications", () => {
+  let runtimeBackground: RuntimeBackground;
+  let intraprocessMessageSender: MockProxy<IntraprocessMessageSender>;
+  let tabSendMessageDataSpy: jest.SpyInstance;
+  let focusWindowSpy: jest.SpyInstance;
+  let focusTabSpy: jest.SpyInstance;
+
+  const retainedRetry = (): LockedVaultPendingNotificationsData => ({
+    commandToRetry: {
+      message: { command: ExtensionCommand.AutofillLogin },
+      [RETRY_SENDER]: { tab: createChromeTabMock({ id: 7, windowId: 3 }) },
+    },
+    target: "commands.background",
+  });
+
+  const enqueue = (message: Message<Record<string, unknown>>) =>
+    runtimeBackground.processMessage(message);
+
+  beforeEach(() => {
+    // The ctor wires an onInstalled listener that the shared chrome mock omits.
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+    jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockImplementation();
+    focusWindowSpy = jest.spyOn(BrowserApi, "focusWindow").mockImplementation();
+    focusTabSpy = jest.spyOn(BrowserApi, "focusTab").mockImplementation();
+    jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+    tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+
+    intraprocessMessageSender = mock<IntraprocessMessageSender>();
+    runtimeBackground = createRuntimeBackground({ intraprocessMessageSender });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  // Asserted through the dispatch rather than the private queue: a retry only matters if it is
+  // actually replayed, and `unlocked` is the only thing that drains it.
+  it("replays a retry that was published inside the background", async () => {
+    const data = retainedRetry();
+    await enqueue({ command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command, data });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).toHaveBeenCalledWith(RETRY_WHEN_UNLOCK_COMPLETED, {
+      data,
+    });
+  });
+
+  it("security: never republishes the retry to the sender tab", async () => {
+    await enqueue({
+      command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command,
+      data: retainedRetry(),
+    });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(
+      expect.anything(),
+      RETRY_WHEN_UNLOCK_COMPLETED.command,
+      expect.anything(),
+    );
+  });
+
+  it("security: drops a retry that arrived from outside the background", async () => {
+    // `commandToRetry` names the tab that receives the retried autofill and the click data that
+    // selects the cipher, so a sender able to reach `chrome.runtime.onMessage` must not be able
+    // to enqueue one.
+    await enqueue(
+      tagAsExternalMessage({
+        command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command,
+        data: retainedRetry(),
+      }),
+    );
+
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).not.toHaveBeenCalledWith(
+      RETRY_WHEN_UNLOCK_COMPLETED,
+      expect.anything(),
+    );
+  });
+
+  it("security: focuses no tab for a retry whose sender did not survive leaving this context", async () => {
+    const data = crossContextBoundary(retainedRetry());
+
+    await enqueue({ command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command, data });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(focusWindowSpy).not.toHaveBeenCalled();
+    expect(focusTabSpy).not.toHaveBeenCalled();
+  });
+
+  it("publishes a retry whose sender did not survive leaving this context", async () => {
+    // Failing closed is local, not global: `OverlayBackground` refreshes auth status and ciphers
+    // on the retry regardless, so the publish has to survive the missing sender.
+    const data = crossContextBoundary(retainedRetry());
+
+    await enqueue({ command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command, data });
+
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).toHaveBeenCalledWith(RETRY_WHEN_UNLOCK_COMPLETED, {
+      data,
+    });
+  });
+
+  it("dispatches no retry when none was queued", async () => {
+    await enqueue({ command: "unlocked" });
+
+    expect(intraprocessMessageSender.send).not.toHaveBeenCalledWith(
+      RETRY_WHEN_UNLOCK_COMPLETED,
+      expect.anything(),
+    );
   });
 });
