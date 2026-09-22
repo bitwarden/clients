@@ -93,6 +93,7 @@ export enum FeatureFlag {
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -120,9 +121,6 @@ export enum FeatureFlag {
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
-
-  /* Innovation */
-  ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
@@ -187,6 +185,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -252,9 +251,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
-
-  /* Innovation */
-  [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
