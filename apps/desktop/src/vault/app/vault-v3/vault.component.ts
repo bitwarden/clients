@@ -89,6 +89,7 @@ import {
   AutofocusDirective,
   IconTileComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -1149,7 +1150,25 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   protected openImport(): void {
-    this.dialogService.open(ImportDesktopComponent);
+    let defaultOrganizationId;
+    let defaultCollectionId;
+
+    const vfo1Enabled = this.vfo1Foundation();
+    const scope = this.vaultScope();
+    if (vfo1Enabled) {
+      defaultOrganizationId =
+        scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
+      defaultCollectionId =
+        scope.type === VaultScopeType.Organization &&
+        scope.collectionId &&
+        isGuid(scope.collectionId)
+          ? scope.collectionId
+          : undefined;
+    }
+
+    this.dialogService.open(ImportDesktopComponent, {
+      data: { defaultOrganizationId, defaultCollectionId },
+    });
   }
 
   filterSearchText(searchText: string) {
