@@ -267,10 +267,30 @@ export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
 
 export type FeatureFlagValueType<Flag extends FeatureFlag> = DefaultFeatureFlagValueType[Flag];
 
+/**
+ * pam/uat only - do not carry this to main.
+ *
+ * Flags pinned to a value the server cannot override, so the branch keeps rendering the v1
+ * layout while the VFO refresh rolls out elsewhere. Unlike {@link DefaultFeatureFlagValue}
+ * this wins over `serverConfig.featureStates`, which is the point: a LaunchDarkly-connected
+ * environment reports `vfo1-foundation` on, and a default would lose to it.
+ *
+ * Storybook is unaffected - its mock `ConfigService` reads {@link DefaultFeatureFlagValue}
+ * and the story globals directly, so the UIF v2 layout stories still render v2.
+ */
+const PinnedFeatureFlagValue: Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>> = {
+  [FeatureFlag.VFO1Foundation]: false,
+};
+
 export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
+  const pinned = PinnedFeatureFlagValue[flag];
+  if (pinned !== undefined) {
+    return pinned as FeatureFlagValueType<Flag>;
+  }
+
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
