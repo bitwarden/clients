@@ -77,6 +77,7 @@ export interface InviteMembersDialogParams {
   isOnSecretsManagerStandalone: boolean;
   occupiedSeatCount: number;
   allOrganizationUsers: OrganizationUserView[];
+  showCoachMarks?: boolean;
 }
 
 @Component({
@@ -125,7 +126,7 @@ export class InviteMembersDialogComponent {
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
-  protected readonly selectedTabIndex = signal(0);
+  protected readonly selectedTabIndex = signal(this.params.showCoachMarks ? 1 : 0);
   protected readonly moreSettingsOpen = signal(false);
 
   protected byLinkTabDirty(): boolean {

@@ -16,7 +16,7 @@
     "message": "Bütün seyf elementləri"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Elementlərim"
   },
   "vaults": {
     "message": "Seyflər"
@@ -182,6 +182,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Elementləri burada filtrləmək üçün onları \"Elementlərim\"ə əlavə edin."
   },
   "sharedFolderFilterTooltip": {
     "message": "Burada filtrləmək üçün elementləri paylaşılan qovluğa əlavə et."
@@ -802,16 +805,25 @@
   "decryptionError": {
     "message": "Şifrə açma xətası"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-sini təqdim edin."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Əlavə data itkisini önləmək üçün",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden, aşağıda sadalanmış seyf elementlərinin şifrəsini aça bilmədi. Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın və həmin elementlərin bərpa edilib-edilə bilməyəcəyini öyrənmək üçün aşağıdakı element ID-lərini təqdim edin."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Element ID-si",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Element ID-ləri",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "ID-ni kopyala"
+  },
+  "copyAllIds": {
+    "message": "Bütün ID-ləri kopyala"
   },
   "january": {
     "message": "Yanvar"
@@ -2423,6 +2435,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 nəticə",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ nəticə",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "“$SEARCH$” ilə uyuşan heç bir filtr yoxdur",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Axtarışı təmizlə"
@@ -5958,6 +5994,9 @@
   "enableAutotypeShortcutPreview": {
     "message": "Avto-yazma qısayolunu fəallaşdır (Özəllik önizləməsi)"
   },
+  "enableAutotypeGaShortcut": {
+    "message": "Avto-yazma qısayolunu fəallaşdır"
+  },
   "enableAutotypeShortcutDescription": {
     "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
   },
@@ -6276,11 +6315,80 @@
   "noItemsInTrashDesc": {
     "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək"
   },
+  "noItemsInTrashDescription": {
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək."
+  },
   "noItemsInVault": {
     "message": "Seyfdə element yoxdur"
   },
+  "noItemsInMyVault": {
+    "message": "Seyfimdə element yoxdur"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ seyfində element yoxdur",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ seyfində element yoxdur",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Elementlərimdə element yoxdur"
+  },
+  "noItemsInVaults": {
+    "message": "Seyfləriniz boşdur"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Seçilmiş filtrlərlə uyuşan heç bir element yoxdur"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" ilə uyuşan heç bir element yoxdur",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Elementləri bu paylaşılan qovluğa əlavə et, sonra digər $VAULT_NAME$ üzvlərinə erişim hüququ verin.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "“Elementlərim” sahibi $VAULT_NAME$ olan, lakin digər üzvlərə görünməyən elementləri saxlamaq üçün şəxsi məkanınızdır.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Heç bir qovluğunuz yoxdur."
+  },
+  "emptyFoldersDescription": {
+    "message": "Seyf elementlərini düzənləmək üçün qovluqları istifadə edin. Bunlar sadəcə sizin üçündür, başqa heç kəs onları görə və ya istifadə edə bilməz."
+  },
+  "emptyVaultsDescription": {
+    "message": "Başlamaq üçün giriş məlumatlarını, kimliklərinizi, kartlarınızı və digər elementlərinizi əlavə edin."
   },
   "emptyFavorites": {
     "message": "Hələ sevimlilərinizdə heç nə yoxdur"
@@ -6755,5 +6863,80 @@
   },
   "editItemsHidePass": {
     "message": "Elementlərə, gizli parollara düzəliş et"
+  },
+  "shareVerb": {
+    "message": "Paylaş"
+  },
+  "peopleWhoCanView": {
+    "message": "Kimlər görə bilər",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Bu keçidi paylaşdıqdan sonra, alıcılar bu elementə baxmaq üçün öz e-poçtlarını bir kodla doğrulamalıdırlar.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Bu tarixdən sonra keçidin istifadə müddəti bitir, ancaq alıcılar daha əvvəl paylaşılan məlumatları saxlaya bilərlər. Erişimi ləğv etmək üçün kimlik məlumatlarını yenidən yaradın.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Keçidin etibarlılıq müddəti",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Təkistifadəlik paylaşma",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktiv keçidlər",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Keçid lövhəyə kopyalandı",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Paylaşım keçidi yaradıla bilmir",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Keçid saxlanıldı və lövhəyə kopyalandı",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Paylaşım keçidi lövhəyə kopyalanmadı",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Paylaşım keçidi silindi",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Paylaşım keçidi silinmədi",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Keçid ilə paylaş",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Seyf elementini paylaş: $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Müddəti bitir",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Müddəti bitir",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Bilinməyən element, bu elementə erişmək üçün izin istəməyiniz lazım gələ bilər."
   }
 }

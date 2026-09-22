@@ -16,9 +16,11 @@ import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.componen
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
+import { ChipActionComponent } from "../../chips/chip-action";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
+import { IconButtonModule } from "../../icon-button";
 import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
@@ -329,7 +331,7 @@ type VaultFilters = {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions; track option.value) {
               <bit-filter-option [value]="option.value">
                 {{ option.label }}
@@ -337,7 +339,12 @@ type VaultFilters = {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Collections"
+            multiple
+          >
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -462,7 +469,7 @@ class DemoFilterableTableComponent {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions; track option.value) {
               <bit-filter-option [value]="option.value">
                 {{ option.label }}
@@ -470,7 +477,12 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Shared folders"
+            multiple
+          >
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -492,7 +504,7 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+          <bit-filter-menu icon="bwi-folder" key="folder" placeholderText="My folders" multiple>
             <bit-filter-option [value]="null">No folders</bit-filter-option>
             <bit-filter-option-divider></bit-filter-option-divider>
             @for (folder of folders; track folder.id) {
@@ -664,7 +676,7 @@ class DemoSearchableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions(); track option.value) {
               <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
             }
@@ -808,6 +820,114 @@ class DemoFormTableComponent {
   };
 }
 
+type LongLabelRow = { id: number; name: string; collectionIds: string[]; folderId: string };
+type LongLabelFilters = { search?: string; collection?: string[]; folder?: string[] };
+
+const LONG_LABEL_ORG = "Bitwarden Design System and Component Library";
+
+const LONG_LABEL_COLLECTIONS = [
+  { id: "onboarding", name: "Onboarding materials for new design system contributors" },
+  { id: "tokens", name: "Design tokens, themes, and every palette we publish" },
+];
+
+const LONG_LABEL_FOLDERS = [
+  { id: "household", name: "Household paperwork, warranties, and appliance manuals" },
+  { id: "subscriptions", name: "Streaming subscriptions I keep meaning to cancel" },
+];
+
+const LONG_LABEL_ROWS: LongLabelRow[] = [
+  {
+    id: 1,
+    name: "Design system handbook",
+    collectionIds: ["onboarding"],
+    folderId: "household",
+  },
+  { id: 2, name: "Palette generator", collectionIds: ["tokens"], folderId: "subscriptions" },
+  {
+    id: 3,
+    name: "Contributor checklist",
+    collectionIds: ["onboarding", "tokens"],
+    folderId: "household",
+  },
+];
+
+/**
+ * Filter options named after real organizations, collections, and folders — long enough that
+ * every surface has to truncate them.
+ */
+@Component({
+  selector: "demo-long-label-filters-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    FilterMenuModule,
+    SearchModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="seed()">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+
+          <bit-filter-menu
+            key="collection"
+            placeholderText="Shared folders"
+            icon="bwi-shared-folder"
+            multiple
+          >
+            <bit-filter-section [label]="orgName" collapsible>
+              @for (collection of collections; track collection.id) {
+                <bit-filter-option [value]="collection.id">
+                  {{ collection.name }}
+                </bit-filter-option>
+              }
+            </bit-filter-section>
+          </bit-filter-menu>
+
+          <bit-filter-menu icon="bwi-folder" key="folder" placeholderText="My folders" multiple>
+            @for (folder of folders; track folder.id) {
+              <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoLongLabelFiltersTableComponent {
+  /** Seeds a selection, so the collapsed toolbar's active-filter chips have something to show. */
+  readonly applied = input(false);
+
+  protected readonly data = signal(LONG_LABEL_ROWS);
+  protected readonly table = defineTable<LongLabelRow>(this.data);
+
+  protected readonly orgName = LONG_LABEL_ORG;
+  protected readonly collections = LONG_LABEL_COLLECTIONS;
+  protected readonly folders = LONG_LABEL_FOLDERS;
+
+  // `{}` rather than `undefined` when nothing is applied: the input's declared type isn't
+  // nullable, and an empty object seeds no chip.
+  protected readonly seed = computed<Partial<LongLabelFilters>>(() =>
+    this.applied() ? { collection: LONG_LABEL_COLLECTIONS.map((c) => c.id) } : {},
+  );
+
+  protected readonly filter = (row: LongLabelRow, f: Partial<LongLabelFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.folder?.length || f.folder.includes(row.folderId));
+}
+
 export default {
   title: "Component Library/Table V2 (Beta)",
   decorators: [
@@ -829,6 +949,7 @@ export default {
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
         DemoKitchenSinkTableComponent,
+        DemoLongLabelFiltersTableComponent,
         DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
@@ -836,6 +957,8 @@ export default {
         BulkActionComponent,
         BulkAdditionalActionComponent,
         IconTileComponent,
+        ChipActionComponent,
+        IconButtonModule,
         LayoutComponent,
         PageComponent,
         TypographyModule,
@@ -1062,6 +1185,40 @@ export const RichCells: Story = {
   }),
 };
 
+export const CellFocusRings: Story = {
+  render: () => ({
+    props: { table: userTable },
+    template: /*html*/ `
+      <bit-table-v2 [tableDef]="table" [virtualRowHeight]="48" [height]="5">
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">
+            <button
+              type="button"
+              bit-chip-action
+              size="small"
+              [label]="row.name + ' with a name long enough to truncate'"
+              class="tw-test-focus-visible"
+            ></button>
+          </bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Actions</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.email; let row">
+            <button
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              label="Options"
+              class="tw-test-focus-visible"
+            ></button>
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
 export const EmptyCells: Story = {
   render: () => ({
     props: { table: sparseTable },
@@ -1202,7 +1359,7 @@ export const GroupedVirtualized: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="44"
+          [virtualRowHeight]="48"
           [trackBy]="trackBy"
           [height]="8"
         >
@@ -1239,7 +1396,7 @@ export const GroupedInitiallyCollapsed: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="44"
+          [virtualRowHeight]="48"
           [trackBy]="trackBy"
           [height]="8"
         >
@@ -1286,7 +1443,7 @@ export const GroupedDescription: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="44"
+          [virtualRowHeight]="48"
           [height]="8"
         >
           <bit-column>
@@ -1518,6 +1675,39 @@ export const KitchenSinkFilterEmpty: Story = {
 };
 
 /**
+ * Long option names, with a selection already applied. Nothing here can show a name in full,
+ * so each surface truncates and carries a tooltip with the whole thing: the chip triggers, and
+ * below `md` the dismissible chips on the collapsed toolbar's own row. A multi-select puts one
+ * chip on that row per selected option — named for the option alone, led by the filter's icon —
+ * so each can be dropped without clearing the rest. Snapshotted at both widths.
+ */
+export const FilterLongLabelsApplied: Story = {
+  render: () => ({
+    template: `<demo-long-label-filters-table [applied]="true"></demo-long-label-filters-table>`,
+  }),
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * The same filters opened: the popover's rows above `md`, the dialog's row list below it —
+ * where a row shows its label, then as many selected names as fit and a `+N` for the rest.
+ * Hovering a row reads out the full text either way.
+ */
+export const FilterLongLabelsOpen: Story = {
+  render: () => ({
+    template: `<demo-long-label-filters-table [applied]="true"></demo-long-label-filters-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openSharedFoldersFilter(canvasElement);
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
  * Search with no filter chips — the toolbar holds only `<bit-search>` and an action
  * button. Searching is just another filter key, so nothing else has to be wired up.
  */
@@ -1634,6 +1824,32 @@ export const SelectableSubset: Story = {
         table,
         selection: { multiple: true, canSelect: (row: DemoRow) => row.id % 2 === 0 },
       },
+      template: `
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Other</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      `,
+    };
+  },
+};
+
+/** `max` bounds the selection — capped to 3 of 5 rows here. See the docs page. */
+export const SelectableCapped: Story = {
+  render: () => {
+    const table = defineTable<DemoRow>(basicData);
+    return {
+      props: { table, selection: { multiple: true, max: 3 } },
       template: `
         <bit-table-v2 [tableDef]="table" [selection]="selection">
           <bit-column>

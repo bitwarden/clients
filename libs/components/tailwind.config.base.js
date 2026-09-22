@@ -16,12 +16,14 @@ const libContent = [
   "../../libs/auth/src/**/*.{html,ts,mdx}",
   "../../libs/billing/src/**/*.{html,ts,mdx}",
   "../../libs/dirt/card/src/**/*.{html,ts,mdx}",
+  "../../libs/importer/src/**/*.{html,ts,mdx}",
   "../../libs/key-management-ui/src/**/*.{html,ts,mdx}",
   "../../libs/platform/src/**/*.{html,ts,mdx}",
   "../../libs/pricing/src/**/*.{html,ts,mdx}",
   "../../libs/subscription/src/**/*.{html,ts,mdx}",
   "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}",
   "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/share/src/**/*.{html,ts,mdx}",
   "../../libs/vault/src/**/*.{html,ts,mdx}",
 ].map((libPath) => path.resolve(__dirname, libPath));
 

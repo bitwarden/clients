@@ -183,6 +183,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "myItemsFilterTooltip": {
+    "message": "Add items to My items to filter them here."
+  },
   "sharedFolderFilterTooltip": {
     "message": "Add items to a shared folder to filter here."
   },
@@ -802,16 +805,25 @@
   "decryptionError": {
     "message": "Pogreška pri dešifriranju"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nije mogao dešifrirati sljedeće stavke trezora."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktiraj službu za korisnike",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "kako bi izbjegli gubitak podataka.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "january": {
     "message": "siječanj"
@@ -2423,6 +2435,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Clear search"
@@ -5958,6 +5994,9 @@
   "enableAutotypeShortcutPreview": {
     "message": "Uključi prečac Autotype (Pretpregled značajke)"
   },
+  "enableAutotypeGaShortcut": {
+    "message": "Enable autotype shortcut"
+  },
   "enableAutotypeShortcutDescription": {
     "message": "Prije korištenja prečaca provjeri jesi li u ispravnom polju kako podaci ne bi bili uneseni na pogrešno mjesto."
   },
@@ -6276,11 +6315,80 @@
   "noItemsInTrashDesc": {
     "message": "Stavke koje obrišeš biti će premještene ovdje, a nakon 30 dana biti će trajno izbrisane"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "Nema stavaka u trezoru"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Trezor štiti više od lozinki. Sigurno spremi prijave, identitete, kartice i bilješke."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "Niti jedna stavka nije dodana u favorite"
@@ -6755,5 +6863,80 @@
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
   }
 }

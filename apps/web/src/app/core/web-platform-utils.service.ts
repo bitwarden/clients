@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { hasUserAgentBrand } from "@bitwarden/common/platform/misc/user-agent-data";
 
 @Injectable()
 export class WebPlatformUtilsService implements PlatformUtilsService {
@@ -28,19 +29,23 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
       navigator.userAgent.indexOf(" Gecko/") !== -1
     ) {
       this.browserCache = DeviceType.FirefoxBrowser;
+    } else if (
+      // DuckDuckGo advertises itself in two different ways depending on the platform, and
+      // both must be checked before the Chromium brands below:
+      //  - Its Chromium builds report a "DuckDuckGo" brand alongside "Chromium", and their
+      //    user agent carries an "Edg/" suffix that would otherwise match Edge.
+      //  - Its macOS build is WebKit-based, exposes no userAgentData, and instead appends a
+      //    "Ddg" suffix to the user agent.
+      hasUserAgentBrand("DuckDuckGo") ||
+      navigator.userAgent.indexOf("Ddg") !== -1
+    ) {
+      this.browserCache = DeviceType.DuckDuckGoBrowser;
     } else if (navigator.userAgent.indexOf(" OPR/") >= 0) {
       this.browserCache = DeviceType.OperaBrowser;
     } else if (navigator.userAgent.indexOf(" Edg/") !== -1) {
       this.browserCache = DeviceType.EdgeBrowser;
     } else if (navigator.userAgent.indexOf(" Vivaldi/") !== -1) {
       this.browserCache = DeviceType.VivaldiBrowser;
-    } else if (
-      // We are only detecting DuckDuckGo browser on macOS currently, as
-      // it is not presenting the Ddg suffix on Windows. DuckDuckGo users
-      // on Windows will be detected as Edge.
-      navigator.userAgent.indexOf("Ddg") !== -1
-    ) {
-      this.browserCache = DeviceType.DuckDuckGoBrowser;
     } else if (
       navigator.userAgent.indexOf(" Safari/") !== -1 &&
       navigator.userAgent.indexOf("Chrome") === -1
@@ -90,8 +95,25 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isDuckDuckGo(): boolean {
+    return this.getDevice() === DeviceType.DuckDuckGoBrowser;
+  }
+
+  private isWindows(): boolean {
+    return navigator.userAgent.indexOf("Windows") !== -1;
+  }
+
   isChromium(): boolean {
-    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+    // DuckDuckGo ships a Chromium engine on Windows but a WebKit engine on macOS, so it is
+    // the one browser where this answer depends on the platform. Revisit if DuckDuckGo ever
+    // ships a Chromium build on another platform.
+    return (
+      this.isChrome() ||
+      this.isEdge() ||
+      this.isOpera() ||
+      this.isVivaldi() ||
+      (this.isDuckDuckGo() && this.isWindows())
+    );
   }
 
   isWebKit(): boolean {

@@ -82,3 +82,16 @@ export function matchesFolder(cipher: CipherViewLike, folder: string[] | undefin
     value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
   );
 }
+
+/**
+ * Whether the cipher matches the My items filter — membership in the given collection id.
+ * `false`/`undefined` `myItems`, or an unresolved `collectionId`, mean "no filter, match everything".
+ */
+export function matchesMyItems(
+  cipher: CipherViewLike,
+  myItems: boolean | undefined,
+  collectionId: string | undefined,
+): boolean {
+  const sharedFolder = myItems && collectionId != null ? [collectionId] : undefined;
+  return matchesSharedFolder(cipher, sharedFolder);
+}

@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Няма папки за показване."
   },
+  "noFoldersFilter": {
+    "message": "Няма папки"
+  },
   "helpFeedback": {
     "message": "Помощ и обратна връзка"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "Няма елементи в трезора"
+  },
+  "noItemsInMyVault": {
+    "message": "Няма елементи в Моя трезор"
+  },
+  "emptyMyItems": {
+    "message": "Няма елементи в Моите елементи"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Трезорите Ви са празни"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Няма елементи отговарящи на „$SEARCH_TERM$“",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Дължина"
@@ -1497,6 +1539,9 @@
   "importVerb": {
     "message": "Внасяне",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Внасяне на елементи"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -2766,7 +2811,7 @@
     "message": "Няма съвпадащи елементи"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2774,8 +2819,32 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 резултат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ резултата",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Изчистване на търсенето"
   },
   "selected": {
     "message": "Избрано"
@@ -3993,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Грешка при получаването на данните за автоматично попълване"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  "couldNotDecryptVaultItem": {
+    "message": "Битуорден не може да дешифрова посочения по-долу запис от трезора. Свържете се с поддръжката на Битуорден и дайте идентификатора на записа по-долу, за да проверите дали може да бъде възстановен."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Свържете се с поддръжката",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Битуорден не може да дешифрова посочените по-долу записи от трезора. Свържете се с поддръжката на Битуорден и дайте идентификаторите на записите по-долу, за да проверите дали могат да бъдат възстановени."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "за да избегнете загубата на данни.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Идентификатор на запис",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Идентификатори на записи",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Копиране на идентификатора"
+  },
+  "copyAllIds": {
+    "message": "Копиране на всички идентификатори"
   },
   "generateUsername": {
     "message": "Генериране на потр. име"
@@ -5063,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
   "importTargetHintFolder": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -5755,6 +5839,9 @@
   "switchAccounts": {
     "message": "Превключване на регистрациите"
   },
+  "switchVault": {
+    "message": "Превключване на трезора"
+  },
   "switchToAccount": {
     "message": "Превключване към регистрацията"
   },
@@ -5974,10 +6061,10 @@
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Няма добавени споделени папки"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
   },
   "moreOptionsLabel": {
     "message": "Още опции, $ITEMNAME$",
@@ -6853,6 +6940,9 @@
   "noItemsInTrashDesc": {
     "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
   },
+  "noItemsInTrashDescription": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни."
+  },
   "trashWarning": {
     "message": "Елементите, които са били в кошчето за повече от 30 дни, ще бъдат изтривани автоматично"
   },
@@ -7138,6 +7228,33 @@
   "emptyVaultDescription": {
     "message": "Трезорът може да пази не само паролите Ви. Съхранявайте защитени данни за вход, идентификационни данни, карти и бележки."
   },
+  "emptyVaultsDescription": {
+    "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавете елементи в тази споделена папка, а след това дайте достъп на други членове на $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Моите елементи“ е Вашето лично място за съхраняване на записи, които въпреки че остават притежание на „$VAULT_NAME$“, не са видими за други хора.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Нямате никакви папки."
+  },
+  "emptyFoldersDescription": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
+  },
   "introCarouselLabel": {
     "message": "Добре дошли в Битуорден"
   },
@@ -7307,7 +7424,7 @@
     "message": "Показване на повече"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Показване на още $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7975,7 +8092,7 @@
     "message": "Тези записи имате преизползвани пароли. Създайте уникална парола за всеки акаунт, за да не може някой да получи достъп до няколко Ваши акаунта с една разкрита парола."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Първо се уверете, че сте сменили паролата си. Изтриването само премахва записа от трезора, но не отстранява риска."
   },
   "passwordHasAdditionalRisks": {
     "message": "Тази парола има допълнителни рискове:"
@@ -8007,18 +8124,97 @@
     "message": "Всичко е готово!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Права"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Преглед на елементите"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Преглед на елементите, със скрити пароли"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Редактиране на елементите"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Редактиране на елементите, със скрити пароли"
+  },
+  "shareVerb": {
+    "message": "Споделяне"
+  },
+  "peopleWhoCanView": {
+    "message": "Хора, които могат да преглеждат",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "След като споделите тази връзка, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят записа.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Тази връзка изтича след тази дата, но получателите биха могли да запазят споделената информация. Променете удостоверителните данни, за да отнемете достъпа им.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Връзката изтича след",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Еднократно споделяне",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Активни връзки",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Връзката е копирана в буфера за обмен",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Не може да се създаде споделена връзка",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Връзката е запазена и копирана в буфера за обмен",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Връзката за споделяне не може да бъде копирана в буфера за обмен",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Връзката за споделяне е изтрита",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Споделената връзка не успя да бъде изтрита",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Споделяне чрез връзка",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Споделяне за запис от трезора $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Споделяне",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Изтича",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Изтича",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
   }
 }

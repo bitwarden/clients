@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "一覧表示するフォルダーはありません。"
   },
+  "noFoldersFilter": {
+    "message": "フォルダーがありません"
+  },
   "helpFeedback": {
     "message": "ヘルプ＆フィードバック"
   },
@@ -553,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "保管庫にアイテムがありません"
+  },
+  "noItemsInMyVault": {
+    "message": "保管庫にアイテムがありません"
+  },
+  "emptyMyItems": {
+    "message": "マイアイテムにアイテムがありません"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ にアイテムがありません",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ にアイテムがありません",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "保管庫は空です"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "選択されたフィルターに一致するアイテムはありません"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" に一致するアイテムはありません",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "長さ"
@@ -1497,6 +1539,9 @@
   "importVerb": {
     "message": "インポート",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "アイテムのインポート"
   },
   "fileFormat": {
     "message": "ファイル形式"
@@ -2774,6 +2819,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1件の結果",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$件の結果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "\"$SEARCH$\" に一致するフィルターはありません",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "検索をクリア"
   },
@@ -3993,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "自動入力データの取得に失敗しました"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden は以下の保管庫のアイテムを復号できませんでした。"
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden は以下の保管庫アイテムを復号できませんでした。 Bitwarden カスタマーサポートに以下のアイテム ID と合わせて問い合わせして、復元できるかどうかを確認してください。"
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "カスタマーサクセスに問い合わせて、",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden は以下の保管庫アイテムを復号できませんでした。 Bitwarden カスタマーサポートに以下のアイテム ID と合わせて問い合わせして、復元できるかどうかを確認してください。"
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "さらなるデータ損失を回避してください。",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "アイテム ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "アイテム ID",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "ID をコピー"
+  },
+  "copyAllIds": {
+    "message": "すべての ID をコピー"
   },
   "generateUsername": {
     "message": "ユーザー名を生成"
@@ -5063,11 +5141,17 @@
   "selectImportCollection": {
     "message": "コレクションを選択"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "インポートしたファイルコンテンツをコレクションに移動したい場合は、このオプションを選択してください"
   },
   "importTargetHintFolder": {
     "message": "インポートしたファイルコンテンツをフォルダーに移動したい場合は、このオプションを選択してください"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -5754,6 +5838,9 @@
   },
   "switchAccounts": {
     "message": "アカウントの切り替え"
+  },
+  "switchVault": {
+    "message": "保管庫を切り替え"
   },
   "switchToAccount": {
     "message": "アカウントに切り替え"
@@ -6853,6 +6940,9 @@
   "noItemsInTrashDesc": {
     "message": "削除したアイテムはここに表示され、30日後に完全に削除されます"
   },
+  "noItemsInTrashDescription": {
+    "message": "削除したアイテムはここに表示され、30 日後に完全に削除されます。"
+  },
   "trashWarning": {
     "message": "30日以上ゴミ箱にあったアイテムは自動的に削除されます"
   },
@@ -7137,6 +7227,33 @@
   },
   "emptyVaultDescription": {
     "message": "保管庫はパスワードだけではなく、ログイン情報、ID、カード、メモを安全に保管できます。"
+  },
+  "emptyVaultsDescription": {
+    "message": "ログイン、ID、カード、その他のアイテムを追加して開始します。"
+  },
+  "emptySharedFolderDescription": {
+    "message": "この共有フォルダーにアイテムを追加し、他の $VAULT_NAME$ メンバーにアクセスを許可してください。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "マイアイテムは、 $VAULT_NAME$ が所有しているものの他のメンバーには表示させないアイテムを保存するためのプライベートスペースです。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "フォルダーがありません。"
+  },
+  "emptyFoldersDescription": {
+    "message": "保管庫のアイテムを整理するためにフォルダーを使用してください。あなただけのもので、他の誰にも見られたり使用されたりすることはありません。"
   },
   "introCarouselLabel": {
     "message": "Bitwarden へようこそ"
@@ -8020,5 +8137,84 @@
   },
   "editItemsHidePass": {
     "message": "アイテム、非表示のパスワードを編集"
+  },
+  "shareVerb": {
+    "message": "共有"
+  },
+  "peopleWhoCanView": {
+    "message": "表示できる人",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "このリンクを共有した後、受信者はアイテムを表示するにはコードを使用してメール認証する必要があります。",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "このリンクはこの日付以降に有効期限が切れますが、受信者は以前に共有された情報を保持できます。アクセスを取り消すには資格情報を再生成してください。",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "リンクの有効期限：",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "一度だけ共有",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "有効なリンク",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "リンクをクリップボードにコピーしました",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "共有リンクを作成できません",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "リンクを保存してクリップボードにコピーしました",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "共有リンクをクリップボードにコピーできませんでした",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "共有リンクを削除しました",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "共有リンクの削除に失敗しました",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "リンク経由で共有",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "保管庫アイテム $ITEM$ を共有",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "共有",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "有効期限",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "有効期限",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "不明なアイテムです。このアイテムにアクセスする権限をリクエストする必要がある場合があります。"
   }
 }

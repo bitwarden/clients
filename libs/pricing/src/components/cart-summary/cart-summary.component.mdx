@@ -26,6 +26,9 @@ behavior across Bitwarden applications.
   - [With Secrets Manager and Additional Service Accounts](#with-secrets-manager-and-additional-service-accounts)
   - [All Products](#all-products)
   - [With Account Credit](#with-account-credit)
+  - [All Proration Invoice](#all-proration-invoice)
+  - [Recurring Items With Proration](#recurring-items-with-proration)
+  - [With Applied Account Balance](#with-applied-account-balance)
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
   - [With Item-Level Discount](#with-item-level-discount)
@@ -90,18 +93,22 @@ export type CartItem = {
 
 export type Cart = {
   passwordManager: {
-    seats: CartItem; // Required PM seats
+    seats?: CartItem; // Absent on an all-proration transition invoice
     additionalStorage?: CartItem; // Optional additional storage
+    prorationCharges?: CartItem[]; // Optional mid-cycle proration charges, rendered as their own lines
   };
   secretsManager?: {
     // Optional SM section
-    seats: CartItem; // SM seats
+    seats?: CartItem; // SM seats
     additionalServiceAccounts?: CartItem; // Optional service accounts
+    prorationCharges?: CartItem[]; // Optional mid-cycle proration charges
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
+  hidePricingTerm?: boolean; // Optional set if term should be removed
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
-  credit?: Credit; // Optional account credit
+  credit?: Credit; // Optional pre-tax credit (e.g. prorated subscription credit)
   estimatedTax: number; // Tax amount
+  accountCredit?: Credit; // Optional account balance applied to the taxed total; rendered between tax and total
   total?: number; // Optional authoritative total; when absent the component computes it
 };
 
@@ -123,6 +130,7 @@ export type CartDiscount = {
   value: number; // Dollar amount or percentage (20 for 20%)
   amount?: number; // Optional authoritative applied amount in dollars
   label?: string; // Optional coupon name, preferred over the derived label
+  durationInMonths?: number; // Optional repeating-coupon duration, appended to the derived label
 };
 ```
 
@@ -387,6 +395,82 @@ Show cart with account credit applied:
 </billing-cart-summary>
 ```
 
+### All Proration Invoice
+
+Show a seatless mid-cycle transition invoice — only one-time proration charges and a credit, no
+recurring line items. The total is a one-time amount, so the cart sets `hidePricingTerm` and the
+term is dropped:
+
+<Canvas of={CartSummaryStories.AllProrationInvoice} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      prorationCharges: [
+        {
+          translationKey: 'passwordManagerProratedCharge',
+          quantity: 1,
+          cost: 188.22,
+          hideBreakdown: true
+        }
+      ]
+    },
+    cadence: 'annually',
+    credit: {
+      translationKey: 'appliedSubscriptionCredits',
+      value: 37.64
+    },
+    estimatedTax: 12.05,
+    hidePricingTerm: true
+  }"
+>
+</billing-cart-summary>
+```
+
+### Recurring Items With Proration
+
+Show a renewal with a mid-cycle change: recurring seat and storage lines alongside their own
+proration charge rows, with the billing term retained:
+
+<Canvas of={CartSummaryStories.RecurringWithProration} />
+
+### With Applied Account Balance
+
+Show a cart where Stripe applied part of the customer's account balance to the invoice. The balance
+is rendered as its own row between Estimated tax and Total so the rows still sum to the
+authoritative total (the invoice's amount due):
+
+<Canvas of={CartSummaryStories.WithAppliedAccountBalance} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 1,
+        translationKey: 'familiesMembership',
+        cost: 40.00,
+        hideBreakdown: true
+      }
+    },
+    cadence: 'annually',
+    credit: {
+      translationKey: 'premiumSubscriptionCredit',
+      value: 6.67
+    },
+    estimatedTax: 2.00,
+    accountCredit: {
+      translationKey: 'accountCredit',
+      value: 10.00
+    },
+    total: 25.33
+  }"
+  [hidePricingTerm]="true"
+>
+</billing-cart-summary>
+```
+
 ### With Percent Discount
 
 Show cart with percentage-based discount:
@@ -488,8 +572,8 @@ discount):
 Show cart with both a cart-level discount and an item-level discount. The item-level discount
 renders indented under its line item, while the cart-level discount renders in a grouped summary
 block between two dividers: Subtotal → cart-level discount(s) → Estimated tax, followed by the
-Total. The Subtotal row (extended prices before any discounts) appears only when a cart-level
-discount is present:
+Total. The Subtotal row (extended prices net of any per-line discounts, matching Stripe's invoice
+subtotal) appears only when a cart-level discount is present:
 
 <Canvas of={CartSummaryStories.PerLineAndCartWideStacked} />
 
@@ -767,7 +851,9 @@ Show cart with families plan:
 
 ### ❌ Don't
 
-- Omit required Cart fields (passwordManager.seats, cadence, estimatedTax)
+- Omit required Cart fields (cadence, estimatedTax)
+- Invent a proration charge without a purchasable reference — the label resolves from the reference
+  and falls back to the product group
 - Use old "month"/"year" cadence values (use "monthly"/"annually")
 - Modify the component's internal calculations or totals
 - Use inconsistent formatting for monetary values
