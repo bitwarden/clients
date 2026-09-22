@@ -209,47 +209,90 @@
             [goToRoute]="targetSystemsRoute"
           />
 
-          <ng-template #assignmentRow let-assignment>
-            <td bitCell>
-              <span
-                [class.tw-line-through]="assignment.pending === 'remove'"
-                [class.tw-text-muted]="assignment.pending === 'remove'"
-                >{{ assignment.name }}</span
-              >
-              @switch (assignment.pending) {
-                @case ("add") {
-                  <span bitBadge variant="subtle" class="tw-ms-2">{{
-                    "pamRotationAssignmentPendingAssign" | i18n
-                  }}</span>
+          <ng-template #assignmentRow let-assignment let-vfo1="vfo1">
+            @if (vfo1) {
+              <bit-cell>
+                <span
+                  [class.tw-line-through]="assignment.pending === 'remove'"
+                  [class.tw-text-muted]="assignment.pending === 'remove'"
+                  >{{ assignment.name }}</span
+                >
+                @switch (assignment.pending) {
+                  @case ("add") {
+                    <span bitBadge variant="subtle" class="tw-ms-2">{{
+                      "pamRotationAssignmentPendingAssign" | i18n
+                    }}</span>
+                  }
+                  @case ("remove") {
+                    <span bitBadge variant="subtle" class="tw-ms-2">{{
+                      "pamRotationAssignmentPendingUnassign" | i18n
+                    }}</span>
+                  }
                 }
-                @case ("remove") {
-                  <span bitBadge variant="subtle" class="tw-ms-2">{{
-                    "pamRotationAssignmentPendingUnassign" | i18n
-                  }}</span>
+              </bit-cell>
+              <bit-cell class="tw-text-muted">
+                @if (assignment.qualifierKey) {
+                  {{ assignment.qualifierKey | i18n }}
                 }
-              }
-            </td>
-            <td bitCell class="tw-text-muted">
-              @if (assignment.qualifierKey) {
-                {{ assignment.qualifierKey | i18n }}
-              }
-            </td>
-            <td bitCell>
-              <div class="tw-flex tw-items-center tw-gap-1">
-                <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
-                <button
-                  type="button"
-                  bitIconButton="bwi-clone"
-                  buttonType="subtleGhost"
-                  size="small"
-                  [appCopyClick]="assignment.id"
-                  showToast
-                  [valueLabel]="'pamTargetSystemIdLabel' | i18n"
-                  [label]="'pamTargetSystemCopyId' | i18n"
-                  id="access-connector-detail_button_copy-target-id-{{ assignment.id }}"
-                ></button>
-              </div>
-            </td>
+              </bit-cell>
+              <bit-cell>
+                <div class="tw-flex tw-items-center tw-gap-1">
+                  <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
+                  <button
+                    type="button"
+                    bitIconButton="bwi-clone"
+                    buttonType="subtleGhost"
+                    size="small"
+                    [appCopyClick]="assignment.id"
+                    showToast
+                    [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+                    [label]="'pamTargetSystemCopyId' | i18n"
+                    id="access-connector-detail_button_copy-target-id-{{ assignment.id }}"
+                  ></button>
+                </div>
+              </bit-cell>
+            } @else {
+              <td bitCell>
+                <span
+                  [class.tw-line-through]="assignment.pending === 'remove'"
+                  [class.tw-text-muted]="assignment.pending === 'remove'"
+                  >{{ assignment.name }}</span
+                >
+                @switch (assignment.pending) {
+                  @case ("add") {
+                    <span bitBadge variant="subtle" class="tw-ms-2">{{
+                      "pamRotationAssignmentPendingAssign" | i18n
+                    }}</span>
+                  }
+                  @case ("remove") {
+                    <span bitBadge variant="subtle" class="tw-ms-2">{{
+                      "pamRotationAssignmentPendingUnassign" | i18n
+                    }}</span>
+                  }
+                }
+              </td>
+              <td bitCell class="tw-text-muted">
+                @if (assignment.qualifierKey) {
+                  {{ assignment.qualifierKey | i18n }}
+                }
+              </td>
+              <td bitCell>
+                <div class="tw-flex tw-items-center tw-gap-1">
+                  <span class="tw-font-mono tw-text-sm tw-break-all">{{ assignment.id }}</span>
+                  <button
+                    type="button"
+                    bitIconButton="bwi-clone"
+                    buttonType="subtleGhost"
+                    size="small"
+                    [appCopyClick]="assignment.id"
+                    showToast
+                    [valueLabel]="'pamTargetSystemIdLabel' | i18n"
+                    [label]="'pamTargetSystemCopyId' | i18n"
+                    id="access-connector-detail_button_copy-target-id-{{ assignment.id }}"
+                  ></button>
+                </div>
+              </td>
+            }
           </ng-template>
         }
       }
