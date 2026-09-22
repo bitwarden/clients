@@ -960,7 +960,6 @@ describe("HistoryTabComponent", () => {
         .map(text);
     }
 
-    /** Row ids in render order, read off the v1 `tr` or the v2 Item cell. */
     function rowIds(): string[] {
       return [...table().querySelectorAll("tr[bitRow], bit-row")].map((row) =>
         (row.matches("[data-testid]") ? row : row.querySelector("[data-testid]"))!
