@@ -10,6 +10,7 @@ import {
   ViewContainerRef,
   inject,
   input,
+  signal,
 } from "@angular/core";
 import { outputToObservable } from "@angular/core/rxjs-interop";
 import { merge, Subscription } from "rxjs";
@@ -23,10 +24,23 @@ import { MenuComponent } from "./menu.component";
 @Directive({
   selector: "[bitMenuTriggerFor]",
   exportAs: "menuTrigger",
-  host: { "[attr.role]": "this.role()" },
+  host: {
+    "[attr.role]": "this.role()",
+    "[attr.aria-expanded]": "isOpen()",
+  },
 })
 export class MenuTriggerForDirective implements OnDestroy {
-  @HostBinding("attr.aria-expanded") isOpen = false;
+  private readonly _isOpen = signal(false);
+
+  /**
+   * Whether the menu is currently open.
+   *
+   * A signal so that consumers styling the trigger off its open state stay in sync: the menu
+   * can close from events outside the trigger's view (backdrop click, escape), which would
+   * otherwise leave an `OnPush` host unaware that the state changed.
+   */
+  readonly isOpen = this._isOpen.asReadonly();
+
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
     return this.menu()?.ariaRole() || "menu";
   }
@@ -81,7 +95,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   ) {}
 
   @HostListener("click") toggleMenu() {
-    this.isOpen ? this.destroyMenu() : this.openMenu();
+    this.isOpen() ? this.destroyMenu() : this.openMenu();
   }
 
   /**
@@ -91,7 +105,7 @@ export class MenuTriggerForDirective implements OnDestroy {
    */
   toggleMenuOnRightClick(event: MouseEvent) {
     event.preventDefault(); // Prevent default context menu
-    this.isOpen ? this.updateMenuPosition(event) : this.openMenu(event);
+    this.isOpen() ? this.updateMenuPosition(event) : this.openMenu(event);
   }
 
   ngOnDestroy() {
@@ -104,7 +118,7 @@ export class MenuTriggerForDirective implements OnDestroy {
       throw new Error("Cannot find bit-menu element");
     }
 
-    this.isOpen = true;
+    this._isOpen.set(true);
     this.hostTooltip?.suppressed.set(true);
 
     const baseConfig = this.defaultMenuConfig;
@@ -162,11 +176,11 @@ export class MenuTriggerForDirective implements OnDestroy {
   }
 
   private destroyMenu() {
-    if (this.overlayRef == null || !this.isOpen) {
+    if (this.overlayRef == null || !this.isOpen()) {
       return;
     }
 
-    this.isOpen = false;
+    this._isOpen.set(false);
     this.hostTooltip?.suppressed.set(false);
     this.disposeAll();
     this.menu().closed.emit();

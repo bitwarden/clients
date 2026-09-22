@@ -14,6 +14,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   inject,
+  untracked,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
@@ -174,10 +175,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
       const items = this.menuItems();
       const currentMenu = this.menu();
       const trigger = this.menuTrigger();
-      // Note: `isOpen` is intentionally accessed outside signal tracking (via `trigger?.isOpen`)
-      // to avoid re-focusing when the menu state changes. We only want to focus during
-      // submenu navigation, not on initial open/close.
-      if (items.length > 0 && trigger?.isOpen) {
+      // Note: `isOpen` is intentionally read untracked to avoid re-focusing when the menu state
+      // changes. We only want to focus during submenu navigation, not on initial open/close.
+      if (items.length > 0 && untracked(() => trigger?.isOpen())) {
         currentMenu?.keyManager()?.setFirstItemActive();
       }
     });
