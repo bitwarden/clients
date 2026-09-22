@@ -29,6 +29,7 @@ import {
   BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
+  BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
   ChipActionComponent,
@@ -105,6 +106,7 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -235,23 +237,26 @@ export class AccessConnectorsTabComponent {
   protected readonly isRowBusy = this.busyRows.isBusy;
 
   protected readonly rowFilter = computed(() => {
-    const text = this.searchText().trim().toLowerCase();
-    const status = this.statusFilterChip()?.value() as string | null | undefined;
-    const connected = this.connectionFilterChip()?.value() as boolean | null | undefined;
-
-    return (row: AccessConnectorTabRow): boolean => {
-      if (text !== "" && !row.name.toLowerCase().includes(text)) {
-        return false;
-      }
-      if (status != null && row.statusLabelKey !== status) {
-        return false;
-      }
-      if (connected != null && row.isConnected !== connected) {
-        return false;
-      }
-      return true;
-    };
+    const filter = toAccessConnectorFilter({
+      search: this.searchText(),
+      status: this.statusFilterChip()?.value(),
+      connection: this.connectionFilterChip()?.value(),
+    });
+    return (row: AccessConnectorTabRow): boolean => matchesFilter(row, filter);
   });
+
+  /**
+   * The v2 table's row test. Inside the toolbar the chips and the `bit-search` register with
+   * `bit-table-v2`, so their values arrive as `values` rather than through the chip refs — the
+   * table needs the keyed shape to count each chip's options.
+   *
+   * The term must come from `values.search` alone. {@link searchText} carries the same term (the
+   * projected `bit-search` keeps its form control), and reading both would narrow the rows twice.
+   */
+  protected readonly rowMatchesFilter = (
+    row: AccessConnectorTabRow,
+    values: AccessConnectorFilterValues,
+  ): boolean => matchesFilter(row, toAccessConnectorFilter(values));
 
   constructor() {
     effect(() => {
@@ -472,4 +477,47 @@ export class AccessConnectorsTabComponent {
         : this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
+}
+
+/**
+ * The toolbar's raw values, keyed by each control's filter key. Untyped per chip because that is
+ * what both hosts hand over: `bit-table-v2` collects whatever each chip reports, and off the flag
+ * the chips are read one at a time through `FilterControl`.
+ */
+type AccessConnectorFilterValues = {
+  search?: string;
+  status?: unknown;
+  connection?: unknown;
+};
+
+type AccessConnectorFilter = {
+  text: string;
+  statusLabelKey: string | null;
+  isConnected: boolean | null;
+};
+
+/**
+ * `??` rather than a truthiness test: the connection chip's unselected side carries `false`, which
+ * is a narrowing the operator asked for, not an absent filter.
+ */
+function toAccessConnectorFilter(values: AccessConnectorFilterValues): AccessConnectorFilter {
+  return {
+    text: (values.search ?? "").trim().toLowerCase(),
+    statusLabelKey: (values.status ?? null) as string | null,
+    isConnected: (values.connection ?? null) as boolean | null,
+  };
+}
+
+function matchesFilter(row: AccessConnectorTabRow, filter: AccessConnectorFilter): boolean {
+  const { text, statusLabelKey, isConnected } = filter;
+  if (text !== "" && !row.name.toLowerCase().includes(text)) {
+    return false;
+  }
+  if (statusLabelKey != null && row.statusLabelKey !== statusLabelKey) {
+    return false;
+  }
+  if (isConnected != null && row.isConnected !== isConnected) {
+    return false;
+  }
+  return true;
 }
