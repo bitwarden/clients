@@ -389,7 +389,7 @@ export class AccessConnectorsTabComponent {
 
   protected readonly unassign = (
     row: AccessConnectorRow,
-    targetSystemId: string,
+    targetSystemId: TargetSystemId,
     targetName: string,
   ): Promise<void> =>
     this.busyRows.run(row.id, async () => {
@@ -404,10 +404,7 @@ export class AccessConnectorsTabComponent {
         return;
       }
       try {
-        await this.accessConnectorsService.unassign(
-          row.accessConnector,
-          asUuid<TargetSystemId>(targetSystemId),
-        );
+        await this.accessConnectorsService.unassign(row.accessConnector, targetSystemId);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorUnassigned"),
