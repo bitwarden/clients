@@ -1,12 +1,11 @@
 import { AbstractControl, ValidationErrors, Validators } from "@angular/forms";
 
+import { parseCommaSeparatedEmails } from "./parse-comma-separated-emails";
+
 function validateEmails(emails: string) {
   // Empty entries are tolerated so that a stray or trailing comma isn't treated as a typo,
   // but at least one email must remain once they're discarded.
-  const entries = emails
-    .split(",")
-    .map((email) => email.trim())
-    .filter((email) => email !== "");
+  const entries = parseCommaSeparatedEmails(emails);
 
   return (
     entries.length > 0 &&
