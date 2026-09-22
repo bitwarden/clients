@@ -20,6 +20,7 @@ import type { RotationConfig } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
 import {
+  CIPHER_ID,
   ORGANIZATION_ID,
   configId,
   id,
@@ -1558,6 +1559,141 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
 
     expect(el.querySelector("bit-table-v2")).toBeNull();
     expect(el.textContent).toContain("pamRotationConfigEmptyState");
+  });
+
+  describe("toolbar", () => {
+    function toolbar(el: HTMLElement): HTMLElement {
+      return el.querySelector("bit-table-v2 bit-table-toolbar")!;
+    }
+
+    function chipKeys(root: ParentNode): (string | null)[] {
+      return Array.from(root.querySelectorAll("bit-filter-menu")).map((menu) =>
+        menu.getAttribute("key"),
+      );
+    }
+
+    it("puts the search and every filter chip inside the table's toolbar", () => {
+      const el = render(true);
+
+      expect(toolbar(el)).not.toBeNull();
+      expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
+      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
+      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
+      expect(el.querySelectorAll("bit-filter-menu")).toHaveLength(2);
+    });
+
+    it("leaves the controls outside the table when the flag is off", () => {
+      const el = render(false);
+
+      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(el.querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
+      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
+      expect(chipKeys(el)).toEqual(["status", "targetSystem"]);
+    });
+
+    it("keeps each chip's label and unset state", () => {
+      const offLabels = Array.from(render(false).querySelectorAll("bit-filter-menu")).map(text);
+      const onLabels = Array.from(toolbar(render(true)).querySelectorAll("bit-filter-menu")).map(
+        text,
+      );
+
+      expect(onLabels).toEqual(offLabels);
+    });
+
+    it("keeps the search placeholder and input type it had off the flag", () => {
+      const offInput = render(false).querySelector("bit-search input")!;
+      const offPlaceholder = offInput.getAttribute("placeholder");
+      const offType = offInput.getAttribute("type");
+
+      const onInput = toolbar(render(true)).querySelector("bit-search input")!;
+
+      expect(onInput.getAttribute("placeholder")).toBe("pamRotationConfigSearch");
+      expect(onInput.getAttribute("placeholder")).toBe(offPlaceholder);
+      expect(onInput.getAttribute("type")).toBe(offType);
+      expect(onInput.hasAttribute("disabled")).toBe(false);
+    });
+
+    it("projects the collection chip into the toolbar when the rows' ciphers carry one", async () => {
+      TestBed.resetTestingModule();
+      const targetSystemsService = makeTargetSystemsServiceStub();
+
+      TestBed.configureTestingModule({
+        imports: [ManagedCredentialsTabComponent],
+        providers: [
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+          },
+          {
+            provide: RotationConfigsService,
+            useValue: makeConfigsServiceStub(targetSystemsService, ROWS),
+          },
+          { provide: TargetSystemsService, useValue: targetSystemsService },
+          ...makeCipherCollectionProviders(
+            [makeCipher(CIPHER_ID, ["col-1"])],
+            [{ id: "col-1", name: "Engineering" } as CollectionAdminView],
+          ),
+          { provide: ToastService, useValue: { showToast: jest.fn() } },
+          { provide: DialogService, useValue: { openSimpleDialog: jest.fn() } },
+          { provide: I18nService, useValue: i18nFake },
+          { provide: ConfigService, useValue: vfo1ConfigService(true) },
+        ],
+      });
+
+      fixture = TestBed.createComponent(ManagedCredentialsTabComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+
+      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem", "collection"]);
+    });
+
+    it.each<[string, { search?: string; status?: string; targetSystem?: unknown }]>([
+      ["the status chip", { status: "pamRotationConfigStatusPaused" }],
+      ["the target-system chip", { targetSystem: sysId("2") }],
+      ["search on a credential name", { search: "mainframe" }],
+      ["search on a target-system name", { search: "staging" }],
+      ["every control at once", { search: "staging", status: "pamRotationConfigRotationDueBadge" }],
+    ])("narrows the toolbar's rows the same way the flag-off path does: %s", (_, filters) => {
+      const names = (vfo1: boolean): string[] => {
+        const el = render(vfo1);
+        if (filters.search !== undefined) {
+          fixture.componentInstance["searchControl"].setValue(filters.search);
+        }
+        if (filters.status !== undefined) {
+          chip("status").toggle(filters.status);
+        }
+        if (filters.targetSystem !== undefined) {
+          chip("targetSystem").toggle(filters.targetSystem);
+        }
+        fixture.detectChanges();
+        return rowNames(el);
+      };
+
+      expect(names(true)).toEqual(names(false));
+    });
+
+    it("keeps the toolbar in place when the filters empty the table", () => {
+      const el = render(true);
+      chip("status").toggle("pamRotationConfigStatusPaused");
+      chip("targetSystem").toggle(sysId("1"));
+      fixture.detectChanges();
+
+      expect(bodyRows(el)).toHaveLength(0);
+      expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
+      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
+    });
+
+    it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
+      const el = render(true);
+      fixture.componentInstance["searchControl"].setValue("mainframe");
+      fixture.detectChanges();
+
+      expect(rowNames(el)).toEqual(["Mainframe operator"]);
+      expect(menuItems(el, 0)).toContain("pamRotationConfigMarkRotated");
+    });
   });
 
   describe("loading skeleton", () => {
