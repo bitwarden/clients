@@ -226,6 +226,19 @@ export const WithManagedHistoryFlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
+/**
+ * The scope chip in force on the `bit-table-v2` path: the toolbar's second row, the applied-filter
+ * styling and the item count only render once a scope is picked, and the whole toolbar sits inside
+ * the table's border.
+ */
+export const FlagOnFiltered: Story = {
+  decorators: [history({ managed: managedRows })],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+  play: async ({ canvasElement }) => {
+    await selectHistoryScope(canvasElement, "For my collections");
+  },
+};
+
 /** An approver with nothing decided yet: the filters are offered before there is anything to narrow. */
 export const ApproverWithoutManagedHistory: Story = {
   decorators: [history({ canApprove: true })],

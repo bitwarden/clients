@@ -1216,14 +1216,71 @@ describe("HistoryTabComponent", () => {
       expect(rowIds()).toEqual(["managed-live", "managed-unstarted", "managed-denied"]);
     });
 
-    it("shows the scope's empty state rather than an empty v2 table", () => {
+    it("moves the scope chip into the table's toolbar", () => {
+      populateApprover();
+
+      createWithFlag(true);
+
+      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
+      expect(query('bit-table-v2 [data-testid="history-scope-filter"]')).not.toBeNull();
+    });
+
+    it("leaves the scope chip above the table with the flag off", () => {
+      populateApprover();
+
+      createWithFlag(false);
+
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
+      expect(query("bit-table-toolbar")).toBeNull();
+      expect(query('bit-table [data-testid="history-scope-filter"]')).toBeNull();
+    });
+
+    it("keeps the chip's label and options unchanged in the toolbar", () => {
+      populateApprover();
+      createWithFlag(false);
+      const v1 = text(query('[data-testid="history-scope-filter"]')!);
+
+      createWithFlag(true);
+
+      expect(v1).toContain("pamHistoryScopeLabel");
+      expect(v1).toContain("pamHistoryScopeMine");
+      expect(v1).toContain("pamHistoryScopeManaged");
+      expect(text(query('[data-testid="history-scope-filter"]')!)).toBe(v1);
+    });
+
+    it("shows the scope's empty state inside the table, with the toolbar still up", () => {
       canApprove$.next(true);
 
+      createWithFlag(true);
+
+      const empty = query('[data-testid="my-access-history-empty"]')!;
+      expect(empty.closest("bit-table-v2")).not.toBeNull();
+      expect(text(empty)).toContain("pamHistoryEmpty");
+      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
+    });
+
+    it("shows the scope's empty state on its own when no scope chip is offered", () => {
       createWithFlag(true);
 
       expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
       expect(query("bit-table-v2")).toBeNull();
+    });
+
+    it("holds the scope when the chosen scope matches nothing", () => {
+      canApprove$.next(true);
+      managedIds$.next(new Set(["managed-denied"]));
+      managedRows$.next([deniedManaged]);
+      createWithFlag(true);
+
+      selectScope("mine");
+
+      expect(component["scope"]()).toBe("mine");
+      expect(rowIds()).toEqual([]);
+      expect(text(query('[data-testid="my-access-history-empty"]')!)).toContain(
+        "pamMyRequestsHistoryEmpty",
+      );
+      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
     it("shows the hidden skeleton as a v2 table while the history loads", () => {
