@@ -42,6 +42,7 @@ import {
   SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
+  SortState,
   TableDataSource,
   TableModule,
   TooltipDirective,
@@ -295,6 +296,15 @@ export class ApprovalsTabComponent {
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
 
   protected readonly table = defineTable<ApprovalRow, "window" | "actions">(this.rows);
+
+  /**
+   * Seeded here rather than left to the column's `defaultSort`: bit-table-v2 seeds that once, from
+   * the displayed columns only, so opening below the lg breakpoint would leave the table unsorted.
+   */
+  protected readonly pendingSort = signal<SortState<ApprovalColumn>>({
+    column: "submittedAtMs",
+    direction: "asc",
+  });
   protected readonly leasesTable = defineTable<ManagedLeaseRow, "window" | "actions">(
     this.leaseRows,
   );

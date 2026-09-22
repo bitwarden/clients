@@ -178,7 +178,11 @@
           </p>
         } @else {
           @if (vfo1Enabled()) {
-            <bit-table-v2 [tableDef]="table" [displayedColumns]="displayedColumns()">
+            <bit-table-v2
+              [tableDef]="table"
+              [displayedColumns]="displayedColumns()"
+              [(sort)]="pendingSort"
+            >
               <bit-column sortable width="minmax(240px, 2fr)">
                 <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
                 <bit-cell

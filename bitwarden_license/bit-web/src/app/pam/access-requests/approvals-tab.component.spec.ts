@@ -709,6 +709,11 @@ describe("ApprovalsTabComponent", () => {
 
   describe("with the VFO1 flag on", () => {
     let viewportWidth: number;
+    let mediaListeners: Array<() => void>;
+
+    function matchesWidth(query: string): boolean {
+      return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
+    }
 
     /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
     function stubMatchMedia(): void {
@@ -716,12 +721,20 @@ describe("ApprovalsTabComponent", () => {
         configurable: true,
         writable: true,
         value: (query: string) => ({
-          matches: viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0),
+          matches: matchesWidth(query),
           media: query,
-          addEventListener: jest.fn(),
+          addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
+            mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
+          ),
           removeEventListener: jest.fn(),
         }),
       });
+    }
+
+    function resizeTo(width: number): void {
+      viewportWidth = width;
+      mediaListeners.forEach((notify) => notify());
+      fixture.detectChanges();
     }
 
     function createWithFlag(enabled: boolean): void {
@@ -764,6 +777,7 @@ describe("ApprovalsTabComponent", () => {
 
     beforeEach(() => {
       viewportWidth = 1440;
+      mediaListeners = [];
       stubMatchMedia();
     });
 
@@ -920,6 +934,23 @@ describe("ApprovalsTabComponent", () => {
         (header) => text(header) === "pamColumnSubmitted",
       );
       expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
+    });
+
+    it("keeps the default sort when opened below lg and widened, as v1 does", () => {
+      viewportWidth = 800;
+      inbox.inboxRows$.next([
+        row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
+        row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
+      ]);
+
+      createWithFlag(true);
+      resizeTo(1440);
+
+      const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
+        (header) => text(header) === "pamColumnSubmitted",
+      );
+      expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
+      expect(pendingOrder()).toEqual(["oldest", "newest"]);
     });
 
     it("sorts on the same three columns as v1 in each section", () => {
