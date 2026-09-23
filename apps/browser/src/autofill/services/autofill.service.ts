@@ -1246,8 +1246,8 @@ export default class AutofillService implements AutofillServiceInterface {
         if (usernameVal != null) {
           AutofillService.fillByOpid(fillScript, focusedUsernameField, usernameVal);
         }
-        if (options.autoSubmitLogin && focusedUsernameField.form) {
-          fillScript.autosubmit = [focusedUsernameField.form];
+        if (options.autoSubmitLogin) {
+          fillScript.autosubmit = [focusedUsernameField.form ?? null];
         }
         return AutofillService.setFillScriptForFocus(
           { [focusedUsernameField.opid]: focusedUsernameField },
@@ -1386,6 +1386,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
+    let loginFieldFilled = false;
     const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
 
     usernamesToFill.forEach((u) => {
@@ -1398,6 +1399,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[uOpid] = u;
+      loginFieldFilled = true;
       const usernameVal = login.username;
       if (usernameVal != null) {
         AutofillService.fillByOpid(fillScript, u, usernameVal);
@@ -1418,6 +1420,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[pOpid] = p;
+      loginFieldFilled = true;
       if (login.password != null) {
         AutofillService.fillByOpid(fillScript, p, login.password);
       }
@@ -1426,8 +1429,8 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     });
 
-    if (options.autoSubmitLogin && formElementsSet.size) {
-      fillScript.autosubmit = Array.from(formElementsSet);
+    if (options.autoSubmitLogin && loginFieldFilled) {
+      fillScript.autosubmit = formElementsSet.size ? Array.from(formElementsSet) : [null];
     }
 
     if (typeof totpToFill === "string") {

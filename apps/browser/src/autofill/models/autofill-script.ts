@@ -23,7 +23,7 @@ export default class AutofillScript {
   script: FillScript[] = [];
   properties: AutofillScriptProperties = {};
   /** Non-null asserted. */
-  autosubmit!: string[] | null; // Appears to be unused, read but not written
+  autosubmit!: Array<string | null> | null; // `[null]` opts into formless auto submit
   /** Non-null asserted. */
   savedUrls!: string[];
   /** Non-null asserted. */
