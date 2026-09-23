@@ -6,5 +6,5 @@
   [attr.aria-label]="ariaLabel()"
   [attr.role]="ariaLabel() ? 'img' : null"
 >
-  <i [class]="iconClasses()" aria-hidden="true"></i>
+  <bit-icon [name]="icon()" [class]="iconSizeStyles()" />
 </div>

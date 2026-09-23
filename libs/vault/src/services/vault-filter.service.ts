@@ -45,13 +45,13 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
+import { VaultFilterService as VaultFilterServiceAbstraction } from "../abstractions/vault-filter.service";
 import {
-  VaultFilterServiceAbstraction,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "..";
+} from "../models/vault-filter.type";
 
 import { Vfo1TerminologyService } from "./vfo1-terminology.service";
 

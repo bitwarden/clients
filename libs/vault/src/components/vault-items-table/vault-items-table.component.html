@@ -6,6 +6,7 @@
   [filters]="initialFilterValues()"
   [loading]="loading()"
   [selection]="selection"
+  [trackBy]="trackByCipherId"
   [virtualRowHeight]="56"
   [queryParam]="filterNamespace"
   height="fill"
@@ -31,55 +32,58 @@
 
     <bit-filter-divider></bit-filter-divider>
 
-    <!--
-      The pointer-events override below overrides `BaseChipDirective`'s own
-      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
-    -->
     <bit-filter-toggle
       [key]="filterKeys.favorites"
       [label]="'favorites' | i18n"
       icon="bwi-star"
       iconActive="bwi-star-f"
       [disabled]="noFavorites()"
-      [bitTooltip]="favoritesDisabledTooltip()"
-      [style.pointer-events]="'auto'"
+      [disabledTooltip]="favoritesDisabledTooltip()"
     ></bit-filter-toggle>
 
     @if (showVaults()) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
-          <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
+          <bit-filter-option [value]="MY_VAULT" [iconTile]="myVaultFilterTile()">{{
+            "myVault" | i18n
+          }}</bit-filter-option>
         }
         @for (organization of sortedOrganizations(); track organization.id) {
-          <bit-filter-option [value]="organization.id">{{ organization.name }}</bit-filter-option>
+          <bit-filter-option
+            [value]="organization.id"
+            [iconTile]="organizationTiles().get(organization.id)"
+            >{{ organization.name }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }
 
-    <!--
-      The pointer-events override below overrides `BaseChipDirective`'s own
-      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
-    -->
+    @if (showMyItems()) {
+      <bit-filter-toggle
+        [key]="filterKeys.myItems"
+        [label]="'myItemsV2' | i18n"
+        icon="bwi-user"
+        [disabled]="noMyItems()"
+        [disabledTooltip]="myItemsDisabledTooltip()"
+      ></bit-filter-toggle>
+    }
+
     @if (showSharedFolders()) {
       <bit-filter-menu
         [key]="filterKeys.sharedFolder"
         [placeholderText]="'sharedFolders' | i18n"
         multiple
         [disabled]="noSharedFolderOptions()"
-        [bitTooltip]="sharedFolderDisabledTooltip()"
-        [style.pointer-events]="'auto'"
+        [disabledTooltip]="sharedFolderDisabledTooltip()"
+        [options]="groupSharedFolders() ? [] : nestedSharedFolders()"
       >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
-            <bit-filter-section [label]="group.name" collapsible>
-              @for (collection of group.collections; track collection.id) {
-                <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
-              }
-            </bit-filter-section>
-          }
-        } @else {
-          @for (collection of sortedCollections(); track collection.id) {
-            <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+            <bit-filter-section
+              [label]="group.name"
+              collapsible
+              [options]="group.collections"
+            ></bit-filter-section>
           }
         }
       </bit-filter-menu>
@@ -90,33 +94,25 @@
       [placeholderText]="'myFolders' | i18n"
       multiple
       [disabled]="noFolders()"
-      [bitTooltip]="foldersDisabledTooltip()"
-      [style.pointer-events]="'auto'"
-    >
-      <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
-      @for (folder of sortedFolders(); track folder.id) {
-        <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
-      }
-    </bit-filter-menu>
+      [disabledTooltip]="foldersDisabledTooltip()"
+      [options]="nestedFolders()"
+    ></bit-filter-menu>
   </bit-table-toolbar>
 
-  <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
-    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
-    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
-    <button
-      slot="button"
-      type="button"
-      bitButton
-      buttonType="secondary"
-      startIcon="bwi-clear"
-      [class.tw-hidden]="!hasActiveChipFilters(vaultTable)"
-      class="tw-mb-6"
-      (click)="clearChipFilters(vaultTable)"
-    >
-      {{ "clearAll" | i18n }}
-    </button>
-  </bit-status-lockup>
+  <vault-empty-vault
+    slot="empty"
+    [hasItems]="ciphers().length > 0"
+    [filterValues]="vaultTable.filterValues()"
+    [scope]="scope()"
+    [organizationName]="organizationName()"
+    [hasMultipleVaults]="hasMultipleVaults()"
+    [sharedFolderName]="sharedFolderName()"
+    [defaultCollectionId]="defaultCollectionId()"
+    (clearSearch)="clearSearch(vaultTable)"
+    (clearFilters)="clearChipFilters(vaultTable)"
+  >
+    <ng-content slot="empty-add-item" select="[slot=empty-add-item]"></ng-content>
+  </vault-empty-vault>
 
   <!-- Name -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
@@ -205,12 +201,18 @@
       [class.tw-cursor-pointer]="itemAction() != null"
       (click)="onCellActivate(row, $event)"
     >
-      <vault-items-table-chips-cell
-        [chips]="sharedFolderChips(row)"
-        icon="bwi-shared-folder"
-        [emptyLabel]="'noSharedFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
-      />
+      @let sharedFolders = sharedFolderChips(row);
+      @if (sharedFolders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="sharedFolders"
+          [accessibleName]="'sharedFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noSharedFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 
@@ -222,12 +224,18 @@
       [class.tw-cursor-pointer]="itemAction() != null"
       (click)="onCellActivate(row, $event)"
     >
-      <vault-items-table-chips-cell
-        [chips]="folderChips(row)"
-        icon="bwi-folder"
-        [emptyLabel]="'noneFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
-      />
+      @let folders = folderChips(row);
+      @if (folders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="folders"
+          [accessibleName]="'myFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noneFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 

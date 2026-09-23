@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -44,11 +43,9 @@ describe("legacyCompatKeyService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let masterPasswordService: FakeMasterPasswordService;
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId);
-    masterPasswordService = new FakeMasterPasswordService();
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -56,7 +53,6 @@ describe("legacyCompatKeyService", () => {
     });
 
     legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-      masterPasswordService,
       keyGenerationService,
       cryptoFunctionService,
       encryptService,
@@ -119,35 +115,21 @@ describe("legacyCompatKeyService", () => {
     });
   });
 
-  describe("getOrDeriveMasterKey", () => {
-    beforeEach(() => {
-      masterPasswordService.masterKeySubject.next(null);
-    });
-
+  describe("deriveMasterKeyForUser", () => {
     test.each([null as unknown as UserId, undefined as unknown as UserId])(
       "throws when the provided userId is %s",
       async (userId) => {
         await expect(
-          legacyCompatKeyService.getOrDeriveMasterKey("password", userId),
+          legacyCompatKeyService.deriveMasterKeyForUser("password", userId),
         ).rejects.toThrow("User ID is required.");
       },
     );
-
-    it("returns the master key if it is already available", async () => {
-      const masterKey = makeSymmetricCryptoKey(32) as MasterKey;
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      const result = await legacyCompatKeyService.getOrDeriveMasterKey("password", mockUserId);
-
-      expect(kdfConfigService.getKdfConfig$).not.toHaveBeenCalledWith(mockUserId);
-      expect(result).toEqual(masterKey);
-    });
 
     it("throws an error if user's email is not available", async () => {
       accountService.accounts$ = of({});
 
       await expect(
-        legacyCompatKeyService.getOrDeriveMasterKey("password", mockUserId),
+        legacyCompatKeyService.deriveMasterKeyForUser("password", mockUserId),
       ).rejects.toThrow("No email found for user " + mockUserId);
       expect(kdfConfigService.getKdfConfig$).not.toHaveBeenCalled();
     });
@@ -156,15 +138,15 @@ describe("legacyCompatKeyService", () => {
       kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
 
       await expect(
-        legacyCompatKeyService.getOrDeriveMasterKey("password", mockUserId),
+        legacyCompatKeyService.deriveMasterKeyForUser("password", mockUserId),
       ).rejects.toThrow("No kdf found for user");
     });
 
-    it("derives the master key if it is not available", async () => {
+    it("derives the master key from the password", async () => {
       keyGenerationService.deriveKeyFromPassword.mockReturnValue("mockMasterKey" as any);
       kdfConfigService.getKdfConfig$.mockReturnValue(of("mockKdfConfig" as any));
 
-      const result = await legacyCompatKeyService.getOrDeriveMasterKey("password", mockUserId);
+      const result = await legacyCompatKeyService.deriveMasterKeyForUser("password", mockUserId);
 
       expect(kdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
       expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
