@@ -1,7 +1,6 @@
 import { forkJoin, map, Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
 import { getTrimmedCipherUris } from "../../../../reports/risk-insights/helpers";
@@ -182,11 +181,9 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       report.memberCount = allMemberIds.size;
       report.atRiskMemberCount = atRiskMemberIds.size;
 
-      // Pre-compute icon metadata from first cipher for display efficiency
+      // Use first cipher for application to capture icon data (uri)
       if (cipherGroup.length > 0) {
-        const firstCipher = cipherGroup[0];
-        report.iconCipherId = firstCipher.id;
-        report.iconUri = CipherViewLikeUtils.uri(firstCipher) ?? undefined;
+        report.iconCipher = cipherGroup[0];
       }
 
       reports.push(report);

@@ -101,9 +101,6 @@ export class ApplicationsTabComponent {
     equal: () => false,
   });
   protected readonly loading = toSignal(this.accessIntelligenceService.loading$);
-  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
-    initialValue: [],
-  });
 
   protected readonly selectedUrls = signal(new Set<string>());
   protected readonly updatingCriticalApps = signal(false);
@@ -170,36 +167,32 @@ export class ApplicationsTabComponent {
    */
   private setupReportDataSubscription(): void {
     // Update data source when report changes
-    combineLatest([this.accessIntelligenceService.report$, this.accessIntelligenceService.ciphers$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([report, ciphers]) => {
-        if (!report) {
-          this.dataSource.data = [];
-          return;
-        }
+    this.accessIntelligenceService.report$.pipe(takeUntilDestroyed()).subscribe((report) => {
+      if (!report) {
+        this.dataSource.data = [];
+        return;
+      }
 
-        // Create a map of application metadata for quick lookup
-        const appMetadataMap = new Map(
-          report.applications.map((app) => [app.applicationName, app]),
-        );
+      // Create a map of application metadata for quick lookup
+      const appMetadataMap = new Map(report.applications.map((app) => [app.applicationName, app]));
 
-        // Join reports (health data) with applications (metadata) to create table rows
-        const tableData: ApplicationTableRowV2[] = report.reports.map((reportData) => {
-          const metadata = appMetadataMap.get(reportData.applicationName);
+      // Join reports (health data) with applications (metadata) to create table rows
+      const tableData: ApplicationTableRowV2[] = report.reports.map((reportData) => {
+        const metadata = appMetadataMap.get(reportData.applicationName);
 
-          return {
-            applicationName: reportData.applicationName,
-            atRiskPasswordCount: reportData.atRiskPasswordCount,
-            passwordCount: reportData.passwordCount,
-            atRiskMemberCount: reportData.atRiskMemberCount,
-            memberCount: reportData.memberCount,
-            isMarkedAsCritical: metadata?.isCritical ?? false,
-            iconCipher: reportData.iconCipher,
-          };
-        });
-
-        this.dataSource.data = tableData;
+        return {
+          applicationName: reportData.applicationName,
+          atRiskPasswordCount: reportData.atRiskPasswordCount,
+          passwordCount: reportData.passwordCount,
+          atRiskMemberCount: reportData.atRiskMemberCount,
+          memberCount: reportData.memberCount,
+          isMarkedAsCritical: metadata?.isCritical ?? false,
+          iconCipher: reportData.iconCipher,
+        };
       });
+
+      this.dataSource.data = tableData;
+    });
   }
 
   /**
