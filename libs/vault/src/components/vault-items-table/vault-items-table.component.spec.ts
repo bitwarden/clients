@@ -41,6 +41,11 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
+import {
+  ControlledAccessFilterOption,
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "../../tokens/vault-controlled-access-filter.token";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
@@ -134,6 +139,43 @@ class BareToolbarHostComponent {
 })
 class ControlledAccessBadgeStubComponent {
   readonly cipher = input<CipherViewLike | null>(null);
+}
+
+/**
+ * The Controlled access contribution the host under test provides. Read lazily by
+ * {@link ControlledAccessHostComponent}'s factory, so a test can set it before creating the host.
+ */
+let controlledAccessFilter: VaultControlledAccessFilter | undefined;
+
+/** A contribution offering `options`, admitting the cipher ids listed against each option id. */
+function controlledAccessDouble(
+  options: ControlledAccessFilterOption[],
+  admits: Record<string, string[]>,
+): VaultControlledAccessFilter {
+  return {
+    options$: of(options),
+    narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]) {
+      const admitted = admits[optionId];
+      // An id no longer offered yields the input unchanged, as the token's contract requires.
+      return of(
+        admitted == null ? ciphers : ciphers.filter((c) => admitted.includes(String(c.id))),
+      );
+    },
+  };
+}
+
+/** Hosts the table beneath a node injector carrying the optional Controlled access contribution. */
+@Component({
+  selector: "test-controlled-access-host",
+  template: `<vault-items-table [ciphers]="ciphers()"></vault-items-table>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent],
+  providers: [
+    { provide: VAULT_CONTROLLED_ACCESS_FILTER, useFactory: () => controlledAccessFilter },
+  ],
+})
+class ControlledAccessHostComponent {
+  readonly ciphers = signal<CipherViewLike[]>([]);
 }
 
 function batchBarDouble() {
@@ -2003,6 +2045,126 @@ describe("VaultItemsTableComponent", () => {
       fixture.destroy();
 
       expect(batchBar.source()).toBeUndefined();
+    });
+  });
+
+  describe("controlled access (VAULT_CONTROLLED_ACCESS_FILTER)", () => {
+    /** Mirrors the option set the licensed host offers: one per state group, already localized. */
+    const OPTIONS: ControlledAccessFilterOption[] = [
+      { id: "my-requests", name: "pamTabMyRequests", icon: "bwi-lock-encrypted" },
+      { id: "privileged", name: "pamAccessBadgePrivileged", icon: "bwi-key" },
+    ];
+
+    const ROWS = () => [
+      cipherView({ id: "a", name: "Amazon" }),
+      cipherView({ id: "b", name: "Bank" }),
+      cipherView({ id: "c", name: "Cloud" }),
+    ];
+
+    let hostFixture: ComponentFixture<ControlledAccessHostComponent>;
+
+    afterEach(() => {
+      controlledAccessFilter = undefined;
+    });
+
+    function hostTable(): BitTableV2Component<
+      CipherViewLike,
+      VaultItemsTableColumn,
+      VaultItemsTableFilters
+    > {
+      return hostFixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
+    }
+
+    function hostControl(key: string): FilterControl | undefined {
+      return hostTable()
+        .filterControls()
+        .find((c) => c.key() === key);
+    }
+
+    function hostNames(): string[] {
+      return hostTable()
+        .filtered()
+        .map((cipher) => cipher.name);
+    }
+
+    /** Renders the host with the contribution in place and the rows loaded. */
+    function renderHost(): void {
+      controlledAccessFilter = controlledAccessDouble(OPTIONS, {
+        privileged: ["a"],
+        "my-requests": ["b", "c"],
+      });
+      hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      hostFixture.detectChanges();
+      // The narrowing resolves through `toObservable`, which flushes on the pass after the first.
+      hostFixture.detectChanges();
+    }
+
+    it("offers no chip when nothing provides the filter", () => {
+      fixture.componentRef.setInput("ciphers", ROWS());
+      fixture.detectChanges();
+
+      expect(
+        bitTable()
+          .filterControls()
+          .map((c) => c.key()),
+      ).not.toContain("controlledAccess");
+      expect(fixture.nativeElement.textContent).not.toContain("controlledAccess");
+    });
+
+    it("leaves the rows alone when nothing provides the filter", () => {
+      fixture.componentRef.setInput("ciphers", ROWS());
+      fixture.detectChanges();
+
+      expect(filteredNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("renders a chip carrying the host's options once one is provided", () => {
+      renderHost();
+
+      expect(hostControl("controlledAccess")).toBeDefined();
+      expect(hostFixture.nativeElement.textContent).toContain("controlledAccess");
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("narrows the rows to the selected option", () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue("privileged");
+      hostFixture.detectChanges();
+
+      expect(hostNames()).toEqual(["Amazon"]);
+    });
+
+    it("counts each option against what the host admits for it, not just the selection", () => {
+      renderHost();
+
+      expect(hostTable().optionCount("controlledAccess", "privileged")).toBe(1);
+      expect(hostTable().optionCount("controlledAccess", "my-requests")).toBe(2);
+    });
+
+    it("keeps every row for an option the host no longer offers", () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue("retired");
+      hostFixture.detectChanges();
+
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("resets when Clear all is clicked", () => {
+      renderHost();
+      hostControl("controlledAccess")!.setValue("privileged");
+      hostFixture.detectChanges();
+      expect(hostNames()).toEqual(["Amazon"]);
+
+      hostFixture.nativeElement
+        .querySelector<HTMLButtonElement>("#bit-table-toolbar_button_clear-all")!
+        .click();
+      hostFixture.detectChanges();
+
+      expect(hostControl("controlledAccess")!.value()).toBeNull();
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
   });
 });
