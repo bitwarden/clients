@@ -1390,45 +1390,71 @@ describe("ApiService", () => {
       expect(tokenService.getAccessToken).not.toHaveBeenCalledWith(testActiveUser);
     });
 
-    it("uses the captured userId even if the active account switches between build and fetch", async () => {
-      // Regression guard for concurrent account-switch scenarios. This exercises the
-      // pre-fetch window (buildRequest → fetch), which is distinct from the existing
-      // post-401-retry coverage.
+    it("forwards a wrapper method's explicit userId through send() to the request auth", async () => {
+      // A different user is active. If a wrapper method forwarded `true` instead of
+      // `userId ?? true`, the request would carry the active user's token. This
+      // guards the invariant applied across every wrapper method in this PR.
+      accountService.activeAccount$ = of({
+        id: testInactiveUser,
+        ...mockAccountInfoWith({
+          email: "inactive@example.com",
+          name: "Inactive User",
+        }),
+      } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
+
       environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://active.example.com",
         } satisfies Partial<Environment> as Environment),
       );
 
-      tokenService.getAccessToken
-        .calledWith(testActiveUser)
-        .mockResolvedValue("captured_user_token");
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("target_user_token");
       tokenService.getAccessToken
         .calledWith(testInactiveUser)
-        .mockResolvedValue("swapped_in_token");
+        .mockResolvedValue("ACTIVE_USER_TOKEN_MUST_NOT_APPEAR");
       tokenService.tokenNeedsRefresh.mockResolvedValue(false);
 
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
-      nativeFetch.mockImplementation(() => {
-        // Simulate an account switch happening between when send() built the request
-        // and when the network call actually resolves.
-        accountService.activeAccount$ = of({
-          id: testInactiveUser,
-          ...mockAccountInfoWith({
-            email: "swapped@example.com",
-            name: "Swapped In",
-          }),
-        } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          json: () => Promise.resolve({}),
-          headers: new Headers({ "content-type": "application/json" }),
-        } satisfies Partial<Response> as Response);
-      });
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
       sut.nativeFetch = nativeFetch;
 
-      await sut.send("GET", "/anything", null, testActiveUser, true, null, null);
+      await sut.getProfile(testActiveUser);
+
+      const request = nativeFetch.mock.calls[0][0];
+      await expectRequestAuthedAs(request, tokenService, testActiveUser);
+      expect(request.headers.get("Authorization")).not.toContain(
+        "ACTIVE_USER_TOKEN_MUST_NOT_APPEAR",
+      );
+    });
+
+    it("falls back to the active user when a wrapper method is called with no userId", async () => {
+      // The `userId ?? true` fallback across every wrapper method must resolve to
+      // the currently-active user. Regression guard against a wrapper accidentally
+      // forwarding `undefined` verbatim.
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://active.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("active_user_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await sut.getProfile();
 
       const request = nativeFetch.mock.calls[0][0];
       await expectRequestAuthedAs(request, tokenService, testActiveUser);
