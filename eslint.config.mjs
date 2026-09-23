@@ -746,6 +746,16 @@ export default tseslint.config(
     },
   },
 
+  // Playwright fixtures
+  {
+    files: ["e2e/**/*.ts"],
+    rules: {
+      // Playwright requires a destructuring pattern as the first fixture argument, so a
+      // fixture that depends on nothing has to be declared as `async ({}, use)`.
+      "no-empty-pattern": "off",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
