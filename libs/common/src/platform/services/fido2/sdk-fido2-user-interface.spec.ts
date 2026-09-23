@@ -1,10 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
 
-import {
-  CipherRepromptType as SdkCipherRepromptType,
-  CipherView as SdkCipherView,
-} from "@bitwarden/sdk-internal";
+import { CipherRepromptType, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { mockAccountServiceWith } from "../../../../spec";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -31,11 +28,11 @@ const REQUIRED = { requirePresence: true, requireVerification: "required" } as c
 const DISCOURAGED = { requirePresence: true, requireVerification: "discouraged" } as const;
 
 function sdkCipherView(id: CipherId): SdkCipherView {
-  return repromptCipher(id, SdkCipherRepromptType.None);
+  return repromptCipher(id, CipherRepromptType.None);
 }
 
 /** `reprompt` is not optional on `SdkCipherView`, so every fixture supplies it. */
-function repromptCipher(id: CipherId, reprompt: SdkCipherRepromptType): SdkCipherView {
+function repromptCipher(id: CipherId, reprompt: CipherRepromptType): SdkCipherView {
   return { id, name: "a passkey", reprompt } as unknown as SdkCipherView;
 }
 
@@ -404,7 +401,7 @@ describe("SdkFido2UserInterface", () => {
 
     it("is false when no candidate requires a reprompt", async () => {
       await ui.pick_credential_for_authentication([
-        repromptCipher(CIPHER_ID, SdkCipherRepromptType.None),
+        repromptCipher(CIPHER_ID, CipherRepromptType.None),
       ]);
 
       expect(session.pickCredential).toHaveBeenCalledWith(
@@ -414,7 +411,7 @@ describe("SdkFido2UserInterface", () => {
 
     it("is true when a candidate requires a reprompt", async () => {
       await ui.pick_credential_for_authentication([
-        repromptCipher(CIPHER_ID, SdkCipherRepromptType.Password),
+        repromptCipher(CIPHER_ID, CipherRepromptType.Password),
       ]);
 
       expect(session.pickCredential).toHaveBeenCalledWith(
@@ -424,8 +421,8 @@ describe("SdkFido2UserInterface", () => {
 
     it("is true if any candidate requires one, matching the authenticator's `some`", async () => {
       await ui.pick_credential_for_authentication([
-        repromptCipher(CIPHER_ID, SdkCipherRepromptType.None),
-        repromptCipher(OTHER_CIPHER_ID, SdkCipherRepromptType.Password),
+        repromptCipher(CIPHER_ID, CipherRepromptType.None),
+        repromptCipher(OTHER_CIPHER_ID, CipherRepromptType.Password),
       ]);
 
       expect(session.pickCredential).toHaveBeenCalledWith(
@@ -435,7 +432,7 @@ describe("SdkFido2UserInterface", () => {
 
     it("is passed for a requestExistingCredential hint too", async () => {
       await ui.check_user(REQUIRED, {
-        requestExistingCredential: repromptCipher(CIPHER_ID, SdkCipherRepromptType.Password),
+        requestExistingCredential: repromptCipher(CIPHER_ID, CipherRepromptType.Password),
       });
 
       expect(session.pickCredential).toHaveBeenCalledWith(
@@ -445,7 +442,7 @@ describe("SdkFido2UserInterface", () => {
 
     it("is never left undefined, which desktop would read as 'no reprompt needed'", async () => {
       await ui.pick_credential_for_authentication([
-        repromptCipher(CIPHER_ID, SdkCipherRepromptType.Password),
+        repromptCipher(CIPHER_ID, CipherRepromptType.Password),
       ]);
 
       const params = session.pickCredential.mock.calls[0][0];

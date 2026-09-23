@@ -3,11 +3,11 @@ import { firstValueFrom, Observable, switchMap } from "rxjs";
 import {
   Fido2CredentialAutofillView,
   Fido2UserInterface,
-  Fido2Authenticator as SdkFido2Authenticator,
-  GetAssertionRequest as SdkGetAssertionRequest,
-  MakeCredentialRequest as SdkMakeCredentialRequest,
+  Fido2Authenticator,
+  GetAssertionRequest,
+  MakeCredentialRequest,
   PublicKeyCredentialDescriptor as SdkPublicKeyCredentialDescriptor,
-  UV as SdkUV,
+  UV,
 } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -26,7 +26,7 @@ import {
   Fido2AuthenticatorGetAssertionResult,
   Fido2AuthenticatorMakeCredentialResult,
   Fido2AuthenticatorMakeCredentialsParams,
-  Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
+  Fido2AuthenticatorService,
   PublicKeyCredentialDescriptor,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
@@ -53,13 +53,13 @@ const SYNC_THRESHOLD_MS = 1000 * 60 * 30;
  */
 export class SdkFido2AuthenticatorService<
   ParentWindowReference,
-> implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference> {
+> implements Fido2AuthenticatorService<ParentWindowReference> {
   private readonly sdkFido2Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.PM8313_Fido2OperationsToSdk,
   );
 
   constructor(
-    private fallback: Fido2AuthenticatorServiceAbstraction<ParentWindowReference>,
+    private fallback: Fido2AuthenticatorService<ParentWindowReference>,
     private credentialStore: SdkFido2CredentialStore,
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
@@ -260,7 +260,7 @@ export class SdkFido2AuthenticatorService<
    */
   private async withAuthenticator<T>(
     userInterface: Fido2UserInterface,
-    operation: (authenticator: SdkFido2Authenticator) => Promise<T>,
+    operation: (authenticator: Fido2Authenticator) => Promise<T>,
   ): Promise<T> {
     // No FIDO2 path awaits this today. In a freshly woken MV3 worker it is a real WASM init.
     await SdkLoadService.Ready;
@@ -348,7 +348,7 @@ export class SdkFido2AuthenticatorService<
  */
 function toMakeCredentialRequest(
   params: Fido2AuthenticatorMakeCredentialsParams,
-): SdkMakeCredentialRequest {
+): MakeCredentialRequest {
   const rpId = params.rpEntity.id;
   if (rpId === undefined) {
     // Unreachable today: the client layer defaults this from the origin
@@ -377,9 +377,7 @@ function toMakeCredentialRequest(
   };
 }
 
-function toGetAssertionRequest(
-  params: Fido2AuthenticatorGetAssertionParams,
-): SdkGetAssertionRequest {
+function toGetAssertionRequest(params: Fido2AuthenticatorGetAssertionParams): GetAssertionRequest {
   return {
     rpId: params.rpId,
     clientDataHash: Array.from(Fido2Utils.bufferSourceToUint8Array(params.hash)),
@@ -406,6 +404,6 @@ function toSdkDescriptor(
  * what the boolean means: the client layer already folded `"preferred"` and the WebAuthn default
  * into `true` (`fido2-client.service.ts:536-539`) before the authenticator sees it.
  */
-function toSdkUv(requireUserVerification: boolean): SdkUV {
+function toSdkUv(requireUserVerification: boolean): UV {
   return requireUserVerification ? "required" : "discouraged";
 }

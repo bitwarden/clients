@@ -2,7 +2,7 @@ import {
   CheckUserAndPickCredentialForCreationResult,
   CheckUserResult,
   Fido2UserInterface,
-  CipherView as SdkCipherView,
+  CipherView,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../abstractions/log.service";
@@ -28,7 +28,7 @@ export class NoopSdkFido2UserInterface implements Fido2UserInterface {
     return { userPresent: false, userVerified: false };
   }
 
-  async pick_credential_for_authentication(): Promise<SdkCipherView> {
+  async pick_credential_for_authentication(): Promise<CipherView> {
     throw new Error(this.warnInvoked("pick_credential_for_authentication"));
   }
 

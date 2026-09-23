@@ -3,7 +3,7 @@ import { firstValueFrom, map, switchMap } from "rxjs";
 import {
   CipherListView,
   CipherView as SdkCipherView,
-  EncryptionContext as SdkEncryptionContext,
+  EncryptionContext,
   Fido2CredentialStore,
 } from "@bitwarden/sdk-internal";
 
@@ -145,7 +145,7 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
    * registered passkey gets a `lastUsedDate` it would not have had — it was just used to register,
    * and the alternative is counter-bearing passkeys never refreshing theirs.
    */
-  async save_credential(cred: SdkEncryptionContext): Promise<void> {
+  async save_credential(cred: EncryptionContext): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const encrypted = Cipher.fromSdkCipher(cred.cipher);

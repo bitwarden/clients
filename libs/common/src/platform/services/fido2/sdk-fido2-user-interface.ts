@@ -4,11 +4,11 @@ import {
   CheckUserAndPickCredentialForCreationResult,
   CheckUserOptions,
   CheckUserResult,
-  CipherRepromptType as SdkCipherRepromptType,
+  CipherRepromptType,
   Fido2CredentialNewView,
   Fido2UiHint,
   Fido2UserInterface,
-  CipherView as SdkCipherView,
+  CipherView,
 } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -135,8 +135,8 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
    * passed here; the SDK asks for it separately via `check_user`.
    */
   async pick_credential_for_authentication(
-    available_credentials: SdkCipherView[],
-  ): Promise<SdkCipherView> {
+    available_credentials: CipherView[],
+  ): Promise<CipherView> {
     this.logService?.info(
       `[PM-8313 trace] SDK -> pick_credential_for_authentication(${available_credentials.length} candidate(s))`,
     );
@@ -211,8 +211,8 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
    * (`desktop-fido2-user-interface.service.ts:298-299`) and does *not* also require
    * `assumeUserPresence`, so omitting this would return a reprompt-protected credential unprompted.
    */
-  private requiresReprompt(ciphers: SdkCipherView[]): boolean {
-    return ciphers.some((cipher) => cipher.reprompt !== SdkCipherRepromptType.None);
+  private requiresReprompt(ciphers: CipherView[]): boolean {
+    return ciphers.some((cipher) => cipher.reprompt !== CipherRepromptType.None);
   }
 
   /**
