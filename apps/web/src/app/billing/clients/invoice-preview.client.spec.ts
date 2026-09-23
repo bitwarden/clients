@@ -73,9 +73,20 @@ describe("InvoicePreviewClient", () => {
 
     it("should POST organization purchase previews to the shared organizations route", async () => {
       const organizationPurchase: OrganizationPurchasePreviewRequest = {
-        planTier: "teams",
-        cadence: "monthly",
-        passwordManager: { seats: 5, additionalStorage: 0, sponsored: false },
+        purchase: {
+          tier: "teams",
+          cadence: "monthly",
+          passwordManager: { seats: 5, additionalStorage: 0, sponsored: false },
+        },
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          line1: null,
+          line2: null,
+          city: null,
+          state: null,
+          taxId: null,
+        },
       };
 
       await sut.previewOrganizationPurchase(organizationPurchase);

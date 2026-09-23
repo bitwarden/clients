@@ -10,6 +10,8 @@ import type { PlanTier } from "@bitwarden/pricing";
 
 import type { BillingAddress } from "../payment/types";
 
+import type { OrganizationSubscriptionPurchase } from "./preview-invoice.client";
+
 /**
  * Request shapes are owned by the per-screen tickets that consume each route. They are kept
  * minimal and narrowly typed here rather than `any`, and will be filled out as those land.
@@ -24,20 +26,9 @@ export type PremiumOrgUpgradePreviewRequest = {
   billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
-// TODO(PM-40222 / PM-40231): finalize the shared organization purchase request shape.
 export type OrganizationPurchasePreviewRequest = {
-  planTier: PlanTier;
-  cadence: string;
-  passwordManager: {
-    seats: number;
-    additionalStorage: number;
-    sponsored: boolean;
-  };
-  secretsManager?: {
-    seats: number;
-    additionalServiceAccounts: number;
-    standalone: boolean;
-  };
+  purchase: OrganizationSubscriptionPurchase & { coupons?: string[] };
+  billingAddress: BillingAddress;
 };
 
 // TODO(PM-40224): finalize the organization plan change request shape.

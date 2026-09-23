@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -11,8 +12,19 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { catchError, firstValueFrom, merge, of, Subject, takeUntil } from "rxjs";
-import { debounceTime, filter, map, switchMap } from "rxjs/operators";
+import {
+  catchError,
+  combineLatest,
+  defer,
+  firstValueFrom,
+  from,
+  merge,
+  Observable,
+  of,
+  Subject,
+  takeUntil,
+} from "rxjs";
+import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -48,6 +60,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -81,6 +94,8 @@ import { OrganizationCreateModule } from "../../admin-console/organizations/crea
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
+
+import { OrganizationCheckoutPreviewService } from "./services/organization-checkout-preview.service";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -346,8 +361,24 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // Estimated tax for non-premium users
   protected readonly estimatedTax = signal(0);
 
+  private readonly previewDrivenCart$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
+    .pipe(distinctUntilChanged());
+
+  private readonly previewCart = signal<Cart | null>(null);
+
+  protected readonly previewFailed = signal(false);
+
+  private readonly usePreviewDrivenCart = (previewDrivenCart: boolean) =>
+    previewDrivenCart && this.createOrganization() && !this.hasProvider();
+
   // Cart for CartSummary component
   protected readonly cart = computed<Cart>(() => {
+    const previewCart = this.previewCart();
+    if (previewCart) {
+      return previewCart;
+    }
+
     const formValues = this.formValues();
     const previewInvoice = this.previewInvoice();
     const estimatedTax = this.estimatedTax();
@@ -491,6 +522,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   });
 
   // Private properties
+  private readonly logService = inject(LogService);
+  private readonly organizationCheckoutPreviewService = inject(OrganizationCheckoutPreviewService);
+
   private _familyPlan: PlanType | null = null; // Used to track which Families plan to show when product tier is Families
   private readonly destroy$ = new Subject<void>();
 
@@ -596,15 +630,25 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    merge(
-      this.formGroup.valueChanges,
-      this.billingFormGroup.valueChanges,
-      this.secretsManagerForm.valueChanges,
-      this.eligibleDiscounts$,
-    )
+    combineLatest([
+      merge(
+        this.formGroup.valueChanges,
+        this.billingFormGroup.valueChanges,
+        this.secretsManagerForm.valueChanges,
+        this.eligibleDiscounts$,
+      ),
+      this.previewDrivenCart$,
+    ])
       .pipe(
         debounceTime(1000),
-        switchMap(async () => await this.refreshSalesTax()),
+        switchMap(([, previewDrivenCart]) => {
+          if (!this.usePreviewDrivenCart(previewDrivenCart)) {
+            this.previewCart.set(null);
+            this.previewFailed.set(false);
+            return from(this.refreshSalesTax());
+          }
+          return this.refreshPreviewCart();
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -932,6 +976,54 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           }
         : undefined,
     };
+  }
+
+  private refreshPreviewCart(): Observable<void> {
+    const selectedPlan = this.selectedPlan();
+    if (
+      this.billingFormGroup.controls.billingAddress.invalid ||
+      !selectedPlan ||
+      selectedPlan.type === PlanType.Free ||
+      selectedPlan.productTier === ProductTierType.TeamsStarter
+    ) {
+      this.previewCart.set(null);
+      this.previewFailed.set(false);
+      return of(undefined);
+    }
+
+    return defer(() => {
+      const billingAddress = getBillingAddressFromForm(
+        this.billingFormGroup.controls.billingAddress,
+      );
+      return from(
+        this.canUpgradeFromPremium()
+          ? this.organizationCheckoutPreviewService.previewPremiumUpgradeCart(
+              selectedPlan.productTier,
+              billingAddress,
+              selectedPlan.name,
+            )
+          : this.organizationCheckoutPreviewService.previewCheckoutCart(
+              this.buildTaxPreviewRequest(
+                this.formGroup.value.additionalStorage ?? 0,
+                this.acceptingSponsorship(),
+              ),
+              billingAddress,
+              this.eligibleCouponIds(),
+            ),
+      );
+    }).pipe(
+      tap((cart) => {
+        this.previewCart.set(cart);
+        this.previewFailed.set(false);
+      }),
+      map((): void => undefined),
+      catchError((error: unknown) => {
+        this.logService.error("Invoice preview failed:", error);
+        this.previewCart.set(null);
+        this.previewFailed.set(true);
+        return of(undefined);
+      }),
+    );
   }
 
   private async refreshSalesTax(): Promise<void> {

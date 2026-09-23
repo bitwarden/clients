@@ -422,7 +422,16 @@
         >
         </app-enter-billing-address>
         <div id="price" class="tw-my-4">
-          <billing-cart-summary [cart]="cart()" [showDiscountBadges]="true" />
+          @if (previewFailed()) {
+            <bit-callout type="danger" data-testid="invoice-preview-error">
+              {{ "invoicePreviewErrorMessage" | i18n }}
+            </bit-callout>
+          }
+          <billing-cart-summary
+            [cart]="cart()"
+            [showDiscountBadges]="true"
+            [class.tw-hidden]="previewFailed()"
+          />
         </div>
       </bit-section>
     }
