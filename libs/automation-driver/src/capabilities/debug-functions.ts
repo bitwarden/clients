@@ -14,8 +14,7 @@ import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-manage
 import { AutomationCapability } from "../automation-capability";
 
 /**
- * Invokes key management operations directly, bypassing the UI, for the active user.
- * Validation normally done by the UI (e.g. KDF minimums) is skipped.
+ * Invokes debug functions directly
  */
 export class DebugFunctionsCapability extends AutomationCapability {
   readonly automationName = "debugFunctions";
