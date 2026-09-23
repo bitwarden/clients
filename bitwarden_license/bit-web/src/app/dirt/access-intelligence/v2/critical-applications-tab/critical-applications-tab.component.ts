@@ -142,22 +142,15 @@ export class CriticalApplicationsTabComponent {
             const metadata = appMetadataMap.get(reportData.applicationName);
             return metadata?.isCritical ?? false;
           })
-          .map((reportData) => {
-            const iconCipherId = reportData.getIconCipherId();
-            const iconCipher = iconCipherId
-              ? ciphers.find((c) => c.id === iconCipherId)
-              : undefined;
-
-            return {
-              applicationName: reportData.applicationName,
-              passwordCount: reportData.passwordCount,
-              atRiskPasswordCount: reportData.atRiskPasswordCount,
-              memberCount: reportData.memberCount,
-              atRiskMemberCount: reportData.atRiskMemberCount,
-              isMarkedAsCritical: true,
-              iconCipher,
-            };
-          });
+          .map((reportData) => ({
+            applicationName: reportData.applicationName,
+            passwordCount: reportData.passwordCount,
+            atRiskPasswordCount: reportData.atRiskPasswordCount,
+            memberCount: reportData.memberCount,
+            atRiskMemberCount: reportData.atRiskMemberCount,
+            isMarkedAsCritical: true,
+            iconCipher: reportData.iconCipher,
+          }));
 
         this.dataSource.data = tableData;
       });

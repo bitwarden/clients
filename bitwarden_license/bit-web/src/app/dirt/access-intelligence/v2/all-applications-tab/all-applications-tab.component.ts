@@ -102,8 +102,6 @@ export class AllApplicationsTabComponent {
 
         const tableData: ApplicationTableRowV2[] = report.reports.map((reportData) => {
           const metadata = appMetadataMap.get(reportData.applicationName);
-          const iconCipherId = reportData.getIconCipherId();
-          const iconCipher = iconCipherId ? ciphers.find((c) => c.id === iconCipherId) : undefined;
 
           return {
             applicationName: reportData.applicationName,
@@ -112,7 +110,7 @@ export class AllApplicationsTabComponent {
             memberCount: reportData.memberCount,
             atRiskMemberCount: reportData.atRiskMemberCount,
             isMarkedAsCritical: metadata?.isCritical ?? false,
-            iconCipher,
+            iconCipher: reportData.iconCipher,
           };
         });
 

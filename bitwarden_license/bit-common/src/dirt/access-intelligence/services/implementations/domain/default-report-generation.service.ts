@@ -186,7 +186,7 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       if (cipherGroup.length > 0) {
         const firstCipher = cipherGroup[0];
         report.iconCipherId = firstCipher.id;
-        report.iconUri = CipherViewLikeUtils.uri(firstCipher) ?? applicationName;
+        report.iconUri = CipherViewLikeUtils.uri(firstCipher) ?? undefined;
       }
 
       reports.push(report);

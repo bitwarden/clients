@@ -354,8 +354,8 @@ export class AccessReportView implements View {
           data.cipherRefs = { ...r.cipherRefs };
           data.memberCount = r.memberCount;
           data.atRiskMemberCount = r.atRiskMemberCount;
-          data.iconUri = r.iconUri;
-          data.iconCipherId = r.iconCipherId;
+          data.iconUri = r.iconCipher?.login.uris[0]?.uri ?? "";
+          data.iconCipherId = r.iconCipher?.id ?? "";
           return data;
         }),
         memberRegistry: Object.fromEntries(

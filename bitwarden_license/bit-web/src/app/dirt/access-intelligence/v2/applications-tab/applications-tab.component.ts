@@ -187,10 +187,6 @@ export class ApplicationsTabComponent {
         const tableData: ApplicationTableRowV2[] = report.reports.map((reportData) => {
           const metadata = appMetadataMap.get(reportData.applicationName);
 
-          // Use pre-computed icon cipher ID from report (set during generation)
-          const iconCipherId = reportData.getIconCipherId();
-          const iconCipher = iconCipherId ? ciphers.find((c) => c.id === iconCipherId) : undefined;
-
           return {
             applicationName: reportData.applicationName,
             atRiskPasswordCount: reportData.atRiskPasswordCount,
@@ -198,7 +194,7 @@ export class ApplicationsTabComponent {
             atRiskMemberCount: reportData.atRiskMemberCount,
             memberCount: reportData.memberCount,
             isMarkedAsCritical: metadata?.isCritical ?? false,
-            iconCipher,
+            iconCipher: reportData.iconCipher,
           };
         });
 
