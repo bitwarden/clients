@@ -34,7 +34,6 @@ import { MaskedPaymentMethod } from "../types";
   `,
   standalone: true,
   imports: [SharedModule],
-  providers: [SubscriberBillingClient],
 })
 export class VerifyBankAccountComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

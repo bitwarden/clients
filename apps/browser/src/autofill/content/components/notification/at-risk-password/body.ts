@@ -4,7 +4,6 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { spacing, themes } from "../../constants/styles";
-import { Warning } from "../../illustrations";
 
 import { AtRiskNotificationMessage } from "./message";
 
@@ -22,23 +21,18 @@ export type AtRiskNotificationBodyProps = {
 export function AtRiskNotificationBody({ riskMessage, theme }: AtRiskNotificationBodyProps) {
   return html`
     <div class=${atRiskNotificationBodyStyles({ theme })}>
-      <div class=${iconContainerStyles}>${Warning()}</div>
-      ${riskMessage
-        ? AtRiskNotificationMessage({
-            message: riskMessage,
-            theme,
-          })
-        : nothing}
+      ${
+        riskMessage
+          ? AtRiskNotificationMessage({
+              message: riskMessage,
+              theme,
+            })
+          : nothing
+      }
     </div>
   `;
 }
 
-const iconContainerStyles = css`
-  > svg {
-    width: 50px;
-    height: auto;
-  }
-`;
 const atRiskNotificationBodyStyles = ({ theme }: { theme: Theme }) => css`
   gap: ${spacing[4]};
   display: flex;

@@ -1,7 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, inject } from "@angular/core";
-import { map, shareReplay } from "rxjs";
+import { combineLatest, map, shareReplay } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
@@ -19,6 +22,7 @@ export class TypeFilterComponent {
   private restrictedItemTypesService: RestrictedItemTypesService = inject(
     RestrictedItemTypesService,
   );
+  private configService: ConfigService = inject(ConfigService);
 
   protected readonly cipherTypes = input.required<TreeNode<CipherTypeFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
@@ -40,17 +44,22 @@ export class TypeFilterComponent {
     }
   }
 
-  protected typeFilters$ = this.restrictedItemTypesService.restricted$.pipe(
-    map((restrictedItemTypes) =>
-      // Filter out restricted item types from the typeFilters array
-      this.cipherTypes().children.filter(
-        (type) =>
-          !restrictedItemTypes.some(
-            (restrictedType) =>
-              restrictedType.allowViewOrgIds.length === 0 &&
-              restrictedType.cipherType === type.node.type,
-          ),
-      ),
+  protected typeFilters$ = combineLatest([
+    this.restrictedItemTypesService.restricted$,
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+  ]).pipe(
+    map(([restrictedItemTypes, canCreateBankAccount]) =>
+      // Filter out restricted item types and feature-flagged types from the typeFilters array
+      this.cipherTypes().children.filter((type) => {
+        if (!canCreateBankAccount && type.node.type === CipherType.BankAccount) {
+          return false;
+        }
+        return !restrictedItemTypes.some(
+          (restrictedType) =>
+            restrictedType.allowViewOrgIds.length === 0 &&
+            restrictedType.cipherType === type.node.type,
+        );
+      }),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );

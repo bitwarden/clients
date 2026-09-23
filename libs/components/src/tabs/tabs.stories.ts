@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { ButtonModule } from "../button";
 import { FormFieldModule } from "../form-field";
+import { IconModule } from "../icon";
 import { I18nMockService } from "../utils";
 
 import { TabGroupComponent } from "./tab-group/tab-group.component";
@@ -63,6 +64,7 @@ export default {
         ButtonModule,
         FormFieldModule,
         RouterModule,
+        IconModule,
         ActiveDummyComponent,
         ItemTwoDummyComponent,
         ItemThreeDummyComponent,
@@ -72,7 +74,7 @@ export default {
       providers: [
         {
           provide: I18nService,
-          useValue: new I18nMockService({ loading: "Loading" }),
+          useValue: new I18nMockService({ loading: "Loading", more: "More" }),
         },
       ],
     }),
@@ -109,15 +111,16 @@ export const ContentTabs: Story = {
     props: args,
     template: `
       <bit-tab-group label="Main Content Tabs" class="tw-text-main">
-        <bit-tab label="First Tab">First Tab Content</bit-tab>
-        <bit-tab label="Second Tab">Second Tab Content</bit-tab>
-        <bit-tab>
-          <ng-template bitTabLabel>
-            <i class="bwi bwi-search tw-pe-1"></i> Template Label
-          </ng-template>
-          Template Label Content
+        <bit-tab label="First Tab">
+          First Tab Content
         </bit-tab>
-        <bit-tab [disabled]="true" label="Disabled">
+        <bit-tab label="Second Tab">
+          Second Tab Content
+        </bit-tab>
+        <bit-tab label="Third Tab" startIcon="bwi-check-circle">
+          Third Tab Content
+        </bit-tab>
+        <bit-tab [disabled]="true" label="Disabled Tab">
           Disabled Content
         </bit-tab>
       </bit-tab-group>
@@ -130,16 +133,33 @@ export const NavigationTabs: Story = {
     props: args,
     template: `
       <bit-tab-nav-bar label="Main">
-        <bit-tab-link [route]="['active']">Active</bit-tab-link>
+        <bit-tab-link [route]="['active']" [berryValue]="3" [endIcon]="'bwi-check-circle'">Active</bit-tab-link>
         <bit-tab-link [route]="['item-2']">Item 2</bit-tab-link>
         <bit-tab-link [route]="['item-3']">Item 3</bit-tab-link>
         <bit-tab-link [route]="['item-with-child-counter']">
           Item With Counter
-          <div slot="end" class="tw-ps-2 tw-text-muted">
-            42
-          </div>
+          <div slot="end" class="tw-ps-2 tw-text-muted">42</div>
         </bit-tab-link>
         <bit-tab-link [route]="['disable']" [disabled]="true">Disabled</bit-tab-link>
+      </bit-tab-nav-bar>
+      <div class="tw-bg-transparent tw-text-semibold tw-text-center tw-text-main tw-py-10">
+        <router-outlet></router-outlet>
+      </div>
+    `,
+  }),
+};
+
+export const OverflowNavigationTabs: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-tab-nav-bar label="Main">
+        <bit-tab-link [route]="['active']" label="Active Long Named Tab" startIcon="bwi-check-circle" [berryValue]="3" [endIcon]="'bwi-check-circle'">
+        </bit-tab-link>
+        <bit-tab-link [route]="['item-2']">Item 2 Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Item 3 Long Named Tab" [route]="['item-3']">Item 3 Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Item With Counter Long Named Tab" startIcon="bwi-check-circle" [berryValue]="3" endIcon="bwi-check-circle" [route]="['item-with-child-counter']">Item With Counter Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Disabled Long Named Tab" [route]="['disable']" [disabled]="true">Disabled Long Named Tab</bit-tab-link>
       </bit-tab-nav-bar>
       <div class="tw-bg-transparent tw-text-semibold tw-text-center tw-text-main tw-py-10">
         <router-outlet></router-outlet>
@@ -194,6 +214,50 @@ export const KeyboardNavigation: Story = {
         </bit-tab>
       </bit-tab-group>
       <button type="button" bitButton buttonType="primary" class="tw-mt-5">External Button</button>
+    `,
+  }),
+};
+
+export const TabsWithIcons: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: `
+      <bit-tab-group label="Tabs With Icons" class="tw-text-main">
+        <bit-tab startIcon="bwi-check-circle" label="First Tab Content">
+          First Tab Content
+        </bit-tab>
+        <bit-tab label="Second Tab" [berryValue]="2" [endIcon]="'bwi-check-circle'">
+          Second Tab Content
+        </bit-tab>
+        <bit-tab startIcon="bwi-check-circle" label="Third Tab Content" [berryValue]="3" [endIcon]="'bwi-check-circle'">
+          Third Tab Content
+        </bit-tab>
+      </bit-tab-group>
+    `,
+  }),
+};
+
+export const OverflowTabs: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: `
+      <bit-tab-group label="Overflow Tabs" class="tw-text-main">
+        <bit-tab label="First Long Named Tab" [endIcon]="'bwi-check-circle'">
+          First Tab Content
+        </bit-tab>
+        <bit-tab label="Second Long Named Tab" [endIcon]="'bwi-check-circle'">
+          Second Tab Content
+        </bit-tab>
+        <bit-tab label="Third Long Named Tab" [endIcon]="'bwi-check-circle'">
+          Third Tab Content
+        </bit-tab>
+        <bit-tab label="Fourth Long Named Tab" [endIcon]="'bwi-check-circle'">
+          Fourth Tab Content
+        </bit-tab>
+        <bit-tab label="Another Even Longer Named Tab" [startIcon]="'bwi-check-circle'" [endIcon]="'bwi-check-circle'">
+          Another Even Longer Tab Content
+        </bit-tab>
+      </bit-tab-group>
     `,
   }),
 };

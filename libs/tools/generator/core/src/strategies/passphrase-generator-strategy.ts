@@ -13,7 +13,12 @@ import { observe$PerUserId, optionsToEffWordListRequest, sharedStateByUserId } f
 
 import { PASSPHRASE_SETTINGS } from "./storage";
 
-/** Generates passphrases composed of random words */
+/**
+ * Generates passphrases composed of random words.
+ *
+ * @deprecated Legacy TS strategy. Generate passphrases through the SDK-backed
+ * {@link CredentialGeneratorService.generate$} instead.
+ */
 export class PassphraseGeneratorStrategy implements GeneratorStrategy<
   PassphraseGenerationOptions,
   PassphraseGeneratorPolicy

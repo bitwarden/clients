@@ -1,0 +1,15 @@
+<ng-content select="[slot=start]"></ng-content>
+
+@if (startIcon()) {
+  <bit-icon [name]="startIcon()" class="tw-text-base/5" />
+}
+
+<span class="tw-text-start tw-truncate tw-leading-5 tw-min-w-0 tw-flex-1">
+  <ng-content></ng-content>
+</span>
+
+@if (endIcon()) {
+  <bit-icon [name]="endIcon()" class="tw-text-base/5" />
+}
+
+<ng-content select="[slot=end]"></ng-content>

@@ -12,6 +12,7 @@ import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -46,6 +47,7 @@ describe("SettingsV2Component", () => {
   let mockAutoConfirmService: {
     canManageAutoConfirm$: jest.Mock;
   };
+  let mockAutofillSettingsService: Partial<AutofillSettingsServiceAbstraction>;
   let dialogService: MockProxy<DialogService>;
   let openSpy: jest.SpyInstance;
 
@@ -74,6 +76,10 @@ describe("SettingsV2Component", () => {
       canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
     };
 
+    mockAutofillSettingsService = {
+      showClipboardSettingUpdateNotification$: of(false),
+    };
+
     jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue("Chrome");
 
     const cfg = TestBed.configureTestingModule({
@@ -84,6 +90,7 @@ describe("SettingsV2Component", () => {
         { provide: NudgesService, useValue: mockNudges },
         { provide: AutofillBrowserSettingsService, useValue: mockAutofillSettings },
         { provide: AutomaticUserConfirmationService, useValue: mockAutoConfirmService },
+        { provide: AutofillSettingsServiceAbstraction, useValue: mockAutofillSettingsService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: jest.fn((key: string) => key) } },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
@@ -117,7 +124,7 @@ describe("SettingsV2Component", () => {
     return acct;
   }
 
-  it("shows the premium spotlight when user does NOT have premium", async () => {
+  it("shows the premium callout when user does NOT have premium", async () => {
     mockBillingState.hasPremiumFromAnySource$.mockReturnValue(of(false));
     pushActiveAccount();
 
@@ -127,10 +134,10 @@ describe("SettingsV2Component", () => {
 
     const el: HTMLElement = fixture.nativeElement;
 
-    expect(el.querySelector("bit-spotlight")).toBeTruthy();
+    expect(el.querySelector("bit-callout")).toBeTruthy();
   });
 
-  it("hides the premium spotlight when user HAS premium", async () => {
+  it("hides the premium callout when user HAS premium", async () => {
     mockBillingState.hasPremiumFromAnySource$.mockReturnValue(of(true));
     pushActiveAccount();
 
@@ -139,7 +146,7 @@ describe("SettingsV2Component", () => {
     await fixture.whenStable();
 
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector("bit-spotlight")).toBeFalsy();
+    expect(el.querySelector("bit-callout")).toBeFalsy();
   });
 
   it("openUpgradeDialog calls PremiumUpgradeDialogComponent.open with the DialogService", async () => {
@@ -171,6 +178,36 @@ describe("SettingsV2Component", () => {
 
     const value = await firstValueFrom(component.showAutofillBadge$);
     expect(value).toBe(true);
+  });
+
+  it("showAutofillBadge$ emits true when clipboard notification should show", async () => {
+    pushActiveAccount();
+
+    mockNudges.showNudgeBadge$.mockReturnValue(of(false));
+    mockAutofillSettingsService.showClipboardSettingUpdateNotification$ = of(true);
+
+    const fixture = TestBed.createComponent(SettingsV2Component);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const value = await firstValueFrom(component.showAutofillBadge$);
+    expect(value).toBe(true);
+  });
+
+  it("showAutofillBadge$ emits false when neither nudge nor clipboard notification should show", async () => {
+    pushActiveAccount();
+
+    mockNudges.showNudgeBadge$.mockReturnValue(of(false));
+    mockAutofillSettingsService.showClipboardSettingUpdateNotification$ = of(false);
+
+    const fixture = TestBed.createComponent(SettingsV2Component);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const value = await firstValueFrom(component.showAutofillBadge$);
+    expect(value).toBe(false);
   });
 
   it("dismissBadge dismisses when showVaultBadge$ emits true", async () => {

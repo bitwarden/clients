@@ -1,5 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { Utils } from "../../misc/utils";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
 
 export class BitwardenFileUploadService {
   async upload(
@@ -10,7 +12,9 @@ export class BitwardenFileUploadService {
     const fd = new FormData();
 
     if (Utils.isBrowser) {
-      const blob = new Blob([encryptedFileData.buffer], { type: "application/octet-stream" });
+      const blob = new Blob([encryptedFileData.buffer as BlobPart], {
+        type: "application/octet-stream",
+      });
       fd.append("data", blob, encryptedFileName);
     } else if (Utils.isNode) {
       fd.append(

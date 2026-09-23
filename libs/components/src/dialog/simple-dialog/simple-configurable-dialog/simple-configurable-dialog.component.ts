@@ -8,7 +8,11 @@ import { SimpleDialogOptions, SimpleDialogType, Translation } from "../..";
 import { BitSubmitDirective } from "../../../async-actions/bit-submit.directive";
 import { BitFormButtonDirective } from "../../../async-actions/form-button.directive";
 import { ButtonComponent } from "../../../button/button.component";
-import { SimpleDialogComponent, IconDirective } from "../simple-dialog.component";
+import {
+  SimpleDialogComponent,
+  IconDirective,
+  DialogFooterDirective,
+} from "../simple-dialog.component";
 
 const DEFAULT_ICON: Record<SimpleDialogType, string> = {
   primary: "bwi-business",
@@ -35,6 +39,7 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
     BitSubmitDirective,
     SimpleDialogComponent,
     IconDirective,
+    DialogFooterDirective,
     ButtonComponent,
     BitFormButtonDirective,
   ],

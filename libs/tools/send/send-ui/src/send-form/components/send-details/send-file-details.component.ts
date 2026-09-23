@@ -1,81 +1,88 @@
-import { CommonModule } from "@angular/common";
-import { Component, input, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject, input, OnInit } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MAX_SDK_FILE_SEND_SIZE_BYTES } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import {
-  ButtonModule,
+  FileUploadComponent,
   FormFieldModule,
   SectionComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
   imports: [
-    ButtonModule,
-    CommonModule,
-    JslibModule,
-    ReactiveFormsModule,
+    FileUploadComponent,
     FormFieldModule,
+    I18nPipe,
+    ReactiveFormsModule,
     SectionComponent,
-    FormsModule,
     TypographyModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendFileDetailsComponent implements OnInit {
-  readonly config = input.required<SendFormConfig>();
-  readonly originalSendView = input<SendView>();
+  protected readonly sendFormService = inject(SendFormService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
 
-  sendFileDetailsForm = this.formBuilder.group({
-    file: this.formBuilder.control<SendFileView | null>(null, Validators.required),
+  protected readonly editing = input<boolean>();
+
+  readonly sendFileDetailsForm = this.formBuilder.group({
+    file: this.formBuilder.control<File | null>(null, Validators.required),
   });
 
-  FileSendType = SendType.File;
-  fileName = "";
+  // The size limit only applies to the SDK's create_file_send path (see MAX_SDK_FILE_SEND_SIZE_BYTES's
+  // doc comment); the legacy path has no equivalent memory concern, so this guard must not apply
+  // when the flag is off.
+  private readonly useSdkSendsApi = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pm30110SdkSendsApi),
+    { initialValue: false },
+  );
 
-  constructor(
-    private formBuilder: FormBuilder,
-    protected sendFormContainer: SendFormContainer,
-  ) {
-    this.sendFormContainer.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
+  constructor() {
+    this.sendFormService.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
 
     this.sendFileDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
-        return Object.assign(send, {
-          file: value.file,
+      const file = value.file;
+      if (!file) {
+        return;
+      }
+      // Reject oversized files here instead of only in SendSdkApiService.createFileSend: that
+      // service-level guard is the backstop (and unreachable for legacy-routed sends, which have
+      // no equivalent memory concern), but without this check the user only finds out after
+      // waiting through a file read and a submit, and would see the guard's raw, unlocalized
+      // error message (see PR #22321 review discussion).
+      if (this.useSdkSendsApi() && file.size > MAX_SDK_FILE_SEND_SIZE_BYTES) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("maxFileSize"),
         });
-      });
+        this.sendFileDetailsForm.controls.file.setValue(null, { emitEvent: false });
+        return;
+      }
+      this.sendFormService.setFile(file);
     });
   }
 
-  onFileSelected = (event: Event): void => {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) {
-      return;
-    }
-    this.fileName = file.name;
-    this.sendFormContainer.onFileSelected(file);
-  };
-
   ngOnInit() {
-    if (this.originalSendView()) {
-      this.sendFileDetailsForm.patchValue({
-        file: this.originalSendView()?.file,
-      });
+    // Edit mode hides the file input; disable so the required validator doesn't block save.
+    if (this.sendFormService.sendFormConfig?.mode === "edit") {
+      this.sendFileDetailsForm.controls.file.disable();
     }
 
-    if (!this.config().areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {
       this.sendFileDetailsForm.disable();
     }
   }

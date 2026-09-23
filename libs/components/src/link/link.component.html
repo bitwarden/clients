@@ -2,7 +2,7 @@
   @if (startIcon()) {
     <i [class]="['bwi', startIcon()]" aria-hidden="true"></i>
   }
-  <span>
+  <span class="empty:tw-hidden">
     <ng-content></ng-content>
   </span>
   @if (endIcon()) {

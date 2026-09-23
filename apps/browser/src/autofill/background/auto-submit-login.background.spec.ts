@@ -130,9 +130,12 @@ describe("AutoSubmitLoginBackground", () => {
           url: validAutoSubmitUrl,
           tabId: webRequestDetails.tabId,
         });
-        expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(expect.any(Function), {
-          url: [{ hostEquals: validAutoSubmitHost }],
-        });
+        expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
+          expect.any(Function),
+          {
+            url: [{ hostEquals: validAutoSubmitHost }],
+          },
+        );
       });
 
       it("sets up the auto-submit workflow when the web request occurs in a sub frame and the initiator of the request is a valid auto-submit host", async () => {
@@ -145,9 +148,12 @@ describe("AutoSubmitLoginBackground", () => {
 
         triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
 
-        expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(expect.any(Function), {
-          url: [{ hostEquals: subFrameHost }],
-        });
+        expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
+          expect.any(Function),
+          {
+            url: [{ hostEquals: subFrameHost }],
+          },
+        );
       });
 
       describe("injecting the auto-submit login content script", () => {
@@ -182,7 +188,7 @@ describe("AutoSubmitLoginBackground", () => {
           triggerWebNavigationOnCompletedEvent(webNavigationDetails);
           await flushPromises();
 
-          expect(scriptInjectorService.inject).toBeCalledWith({
+          expect(scriptInjectorService.inject).toHaveBeenCalledWith({
             tabId: webRequestDetails.tabId,
             injectDetails: {
               file: "content/auto-submit-login.js",
@@ -265,6 +271,90 @@ describe("AutoSubmitLoginBackground", () => {
       });
     });
 
+    describe("promoting hosts from redirect chains", () => {
+      const attackerHost = "attacker.com";
+      const attackerUrl = `https://${attackerHost}/redirect`;
+      const targetUrl = `https://${validAutoSubmitHost}/login#autosubmit=1`;
+
+      beforeEach(async () => {
+        await autoSubmitLoginBackground.init();
+      });
+
+      it("promotes the target host when the redirecting URL is a policy-configured IdP", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: validIpdUrl1,
+            redirectUrl: targetUrl,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          true,
+        );
+      });
+
+      it("does not promote any host when the redirecting URL is untrusted", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: attackerUrl,
+            redirectUrl: targetUrl,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(attackerHost)).toBe(false);
+      });
+
+      it("allows a chained redirect from an already-promoted auto-submit host to continue", () => {
+        const intermediateHost = "intermediate.example.com";
+        autoSubmitLoginBackground["validAutoSubmitHosts"].add(intermediateHost);
+
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: `https://${intermediateHost}/next`,
+            redirectUrl: targetUrl,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          true,
+        );
+      });
+
+      it("does not promote when the redirectUrl does not carry the autosubmit fragment", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: validIpdUrl1,
+            redirectUrl: `https://${validAutoSubmitHost}/login`,
+            type: "main_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+      });
+
+      it("does not promote when the redirect occurs in a sub-frame", () => {
+        triggerWebRequestOnBeforeRedirectEvent(
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
+            url: validIpdUrl1,
+            redirectUrl: targetUrl,
+            type: "sub_frame",
+          }),
+        );
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+      });
+    });
+
     describe("when the extension is running on a Safari browser", () => {
       const tabId = 1;
       const tab = mock<chrome.tabs.Tab>({ id: tabId, url: validIpdUrl1 });
@@ -320,7 +410,7 @@ describe("AutoSubmitLoginBackground", () => {
 
           triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
 
-          expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(
+          expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
             autoSubmitLoginBackground["handleAutoSubmitHostNavigationCompleted"],
             { url: [{ hostEquals: validAutoSubmitHost }] },
           );
@@ -440,9 +530,12 @@ describe("AutoSubmitLoginBackground", () => {
           }),
         );
 
-        expect(chrome.webNavigation.onCompleted.addListener).toBeCalledWith(expect.any(Function), {
-          url: [{ hostEquals: validAutoSubmitHost }],
-        });
+        expect(chrome.webNavigation.onCompleted.addListener).toHaveBeenCalledWith(
+          expect.any(Function),
+          {
+            url: [{ hostEquals: validAutoSubmitHost }],
+          },
+        );
       });
     });
 
@@ -491,7 +584,7 @@ describe("AutoSubmitLoginBackground", () => {
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
-          expect(autofillService.doAutoFillOnTab).toBeCalledWith(
+          expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith(
             [
               {
                 frameId: sender.frameId,

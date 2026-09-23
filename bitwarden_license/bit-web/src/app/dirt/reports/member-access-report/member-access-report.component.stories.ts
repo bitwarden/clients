@@ -14,6 +14,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -25,12 +26,11 @@ import {
 } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -39,8 +39,19 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, ScrollLayoutHostDirective, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutComponent,
+  ScrollLayoutHostDirective,
+  StorybookGlobalStateProvider,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
+import { LockService } from "@bitwarden/unlock";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { MemberAccessReportComponent } from "./member-access-report.component";
@@ -65,6 +76,7 @@ function createMockMember(index: number): MemberAccessReportView {
     groupsCount: ((index * 2) % 5) + 1, // Deterministic: 1-5
     itemsCount: ((index * 17) % 200) + 1, // Deterministic: 1-200
     usesKeyConnector: index % 2 === 0, // Deterministic: alternating true/false
+    userIdFromOrgUser: `userIdFromOrgUser${index}`,
   };
 }
 
@@ -87,10 +99,12 @@ export default {
   decorators: [
     componentWrapperDecorator(
       (story) =>
-        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-p-6 tw-overflow-auto">${story}</div>`,
+        `<bit-layout>
+          <div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-p-6 tw-overflow-auto">${story}</div>
+        </bit-layout>`,
     ),
     moduleMetadata({
-      imports: [ScrollLayoutHostDirective],
+      imports: [ScrollLayoutHostDirective, LayoutComponent],
       providers: [],
     }),
     applicationConfig({
@@ -103,10 +117,6 @@ export default {
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
         { provide: LogService, useValue: { error: () => {}, warning: () => {}, info: () => {} } },
         { provide: MessagingService, useValue: { send: () => {} } },
-        {
-          provide: ConfigService,
-          useValue: { getFeatureFlag$: () => of(false), serverConfig$: of({}) },
-        },
 
         // Member Access Report Services
         {
@@ -180,8 +190,13 @@ export default {
           },
         },
         { provide: AvatarService, useValue: { avatarColor$: of("#175ddc") } },
+        { provide: LockService, useValue: { lock: () => Promise.resolve() } },
+        { provide: LogoutService, useValue: { logout: () => Promise.resolve() } },
         { provide: SyncService, useValue: { getLastSync: () => Promise.resolve(new Date()) } },
-
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
         // Router
         {
           provide: ActivatedRoute,
@@ -211,7 +226,9 @@ export default {
 
 type Story = StoryObj<MemberAccessReportComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
 
 export const Loading: Story = {
   decorators: [

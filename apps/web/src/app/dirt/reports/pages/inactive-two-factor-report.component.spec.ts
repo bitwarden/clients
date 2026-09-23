@@ -1,10 +1,14 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -12,7 +16,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -22,6 +26,8 @@ import { InactiveTwoFactorReportComponent } from "./inactive-two-factor-report.c
 import { cipherData } from "./reports-ciphers.mock";
 
 describe("InactiveTwoFactorReportComponent", () => {
+  const configService = mock<ConfigService>();
+
   let component: InactiveTwoFactorReportComponent;
   let fixture: ComponentFixture<InactiveTwoFactorReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
@@ -36,10 +42,20 @@ describe("InactiveTwoFactorReportComponent", () => {
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       declarations: [InactiveTwoFactorReportComponent],
-      imports: [I18nPipe],
+      imports: [I18nPipe, BreadcrumbsModule, IconModule],
       providers: [
+        provideRouter([
+          {
+            path: "reports",
+            children: [
+              { path: "inactive-two-factor-report", component: InactiveTwoFactorReportComponent },
+            ],
+          },
+        ]),
         {
           provide: CipherService,
           useValue: mock<CipherService>(),
@@ -73,6 +89,10 @@ describe("InactiveTwoFactorReportComponent", () => {
           useValue: mock<I18nService>(),
         },
         {
+          provide: ConfigService,
+          useValue: configService,
+        },
+        {
           provide: CipherFormConfigService,
           useValue: cipherFormConfigServiceMock,
         },
@@ -95,7 +115,26 @@ describe("InactiveTwoFactorReportComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should get ciphers with domains in the 2fa directory regardless of edit access", async () => {
+  it("should render a header breadcrumb that navigates back to the reports home page", async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(
+      "/reports/inactive-two-factor-report",
+      InactiveTwoFactorReportComponent,
+    );
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+    expect(links[0].nativeElement.getAttribute("href")).toBe("/reports");
+  });
+
+  it('should get only ciphers with domains in the 2fa directory that they have "Can Edit" access to', async () => {
+    const expectedIdOne: any = "cbea34a8-bde4-46ad-9d19-b05001228xy4";
+    const expectedIdTwo: any = "cbea34a8-bde4-46ad-9d19-b05001227nm5";
     component.services.set(
       "101domain.com",
       "https://help.101domain.com/account-management/account-security/enabling-disabling-two-factor-verification",
@@ -108,10 +147,11 @@ describe("InactiveTwoFactorReportComponent", () => {
     jest.spyOn(component as any, "getAllCiphers").mockReturnValue(Promise.resolve<any>(cipherData));
     await component.setCiphers();
 
-    const cipherIds = component.ciphers.map((c) => c.id);
-    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001228xy4");
-    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001227nm5");
     expect(component.ciphers.length).toEqual(2);
+    expect(component.ciphers[0].id).toEqual(expectedIdOne);
+    expect(component.ciphers[0].edit).toEqual(true);
+    expect(component.ciphers[1].id).toEqual(expectedIdTwo);
+    expect(component.ciphers[1].edit).toEqual(true);
   });
 
   it("should call fullSync method of syncService", () => {
@@ -194,7 +234,7 @@ describe("InactiveTwoFactorReportComponent", () => {
       expect(doc).toBe("");
     });
 
-    it("should return true for cipher without edit access", () => {
+    it("should return false if cipher does not have edit access and no organization", () => {
       component.organization = null;
       const cipher = createCipherView({
         edit: false,
@@ -203,11 +243,11 @@ describe("InactiveTwoFactorReportComponent", () => {
         },
       });
       const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
-      expect(isInactive).toBe(true);
-      expect(doc).toBe("https://example.com/2fa-doc");
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
     });
 
-    it("should return true for cipher without viewPassword", () => {
+    it("should return false if cipher does not have viewPassword", () => {
       const cipher = createCipherView({
         viewPassword: false,
         login: {
@@ -215,8 +255,8 @@ describe("InactiveTwoFactorReportComponent", () => {
         },
       });
       const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
-      expect(isInactive).toBe(true);
-      expect(doc).toBe("https://example.com/2fa-doc");
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
     });
 
     it("should check all uris and return true if any matches domain or host", () => {
@@ -265,5 +305,24 @@ describe("InactiveTwoFactorReportComponent", () => {
         viewPassword,
       };
     }
+  });
+
+  it("should render the current page breadcrumb when the VFO1 feature flag is enabled", async () => {
+    configService.getFeatureFlag$.mockReturnValue(of(true));
+    const i18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
+    i18nService.t.mockImplementation((key) => key);
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(
+      "/reports/inactive-two-factor-report",
+      InactiveTwoFactorReportComponent,
+    );
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
+    expect(crumbs).toHaveLength(2);
+    expect(crumbs[1].nativeElement.textContent.trim()).toBe("inactive2faReport");
   });
 });

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -15,10 +15,13 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import {
+  PasswordPreloginData,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -35,17 +38,18 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
@@ -119,9 +123,11 @@ describe("LoginStrategy", () => {
   let cache: PasswordLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let unlockService: MockProxy<UnlockService>;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
+  let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -129,7 +135,6 @@ describe("LoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
@@ -147,9 +152,11 @@ describe("LoginStrategy", () => {
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -157,7 +164,6 @@ describe("LoginStrategy", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     kdfConfigService = mock<KdfConfigService>();
@@ -173,12 +179,19 @@ describe("LoginStrategy", () => {
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
+    passwordPreloginService.getPreloginData$.mockReturnValue(
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
+    );
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
+
     // The base class is abstract so we test it via PasswordLoginStrategy
     passwordLoginStrategy = new PasswordLoginStrategy(
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
+      passwordPreloginService,
+      unlockService,
+      legacyCompatKeyService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -189,7 +202,6 @@ describe("LoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
@@ -302,7 +314,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
     });
 
@@ -317,11 +328,47 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
 
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
+      );
+    });
+
+    it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+      const accountKeysData = {
+        publicKeyEncryptionKeyPair: {
+          publicKey: "testPublicKey",
+          wrappedPrivateKey: "testPrivateKey",
+        },
+      };
+
+      const tokenResponse = identityTokenResponseFactory();
+      tokenResponse.key = makeEncString("mockEncryptedUserKey");
+      // Add accountKeysResponseModel to the response
+      (tokenResponse as any).accountKeysResponseModel = {
+        publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+        toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        }),
+      };
+
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        {
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        },
         userId,
       );
     });
@@ -460,7 +507,9 @@ describe("LoginStrategy", () => {
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -471,7 +520,6 @@ describe("LoginStrategy", () => {
         platformUtilsService,
         messagingService,
         logService,
-        stateService,
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
@@ -522,7 +570,9 @@ describe("LoginStrategy", () => {
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -533,7 +583,6 @@ describe("LoginStrategy", () => {
         platformUtilsService,
         messagingService,
         logService,
-        stateService,
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,

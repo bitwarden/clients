@@ -1,11 +1,10 @@
 import { mock } from "jest-mock-extended";
-import { lastValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { ListResponse } from "../../../models/response/list.response";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { OrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { OrganizationDomainResponse } from "../../abstractions/organization-domain/responses/organization-domain.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 
@@ -56,6 +55,23 @@ const mockedGetAllByOrgIdResponse: any = {
   object: "list",
 };
 
+const mockedGetAllMiniByOrgIdResponse: any = {
+  data: [
+    {
+      domainName: "test.com",
+      verifiedDate: null as any,
+      object: "organizationDomainMini",
+    },
+    {
+      domainName: "test2.com",
+      verifiedDate: "2022-12-17T09:37:10.9566667Z",
+      object: "organizationDomainMini",
+    },
+  ],
+  continuationToken: null as any,
+  object: "list",
+};
+
 const mockedOrgDomainServerResponse = {
   id: "ca01a674-7f2f-45f2-8245-af6d016416b7",
   organizationId: "cb903acf-2361-4072-ae32-af6c014943b6",
@@ -70,18 +86,6 @@ const mockedOrgDomainServerResponse = {
 };
 
 const mockedOrgDomainResponse = new OrganizationDomainResponse(mockedOrgDomainServerResponse);
-
-const mockedOrganizationDomainSsoDetailsServerResponse = {
-  id: "fake-guid",
-  organizationIdentifier: "fake-org-identifier",
-  ssoAvailable: true,
-  domainName: "fake-domain-name",
-  verifiedDate: "2022-12-16T21:36:28.68Z",
-};
-
-const mockedOrganizationDomainSsoDetailsResponse = new OrganizationDomainSsoDetailsResponse(
-  mockedOrganizationDomainSsoDetailsServerResponse,
-);
 
 const mockedVerifiedOrganizationDomain = {
   organizationIdentifier: "fake-org-identifier",
@@ -138,6 +142,29 @@ describe("Org Domain API Service", () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         expect(lastValueFrom(orgDomainService.orgDomains$)).resolves.toHaveLength(3);
       });
+  });
+
+  it("getAllMiniByOrgId retrieves slim org domains and leaves orgDomainSvc state untouched", async () => {
+    apiService.send.mockResolvedValue(mockedGetAllMiniByOrgIdResponse);
+
+    const orgDomainSvcReplaceSpy = jest.spyOn(orgDomainService, "replace");
+
+    const orgDomains = await orgDomainApiService.getAllMiniByOrgId("fakeOrgId");
+
+    expect(apiService.send).toHaveBeenCalledWith(
+      "GET",
+      "/organizations/fakeOrgId/domain/mini",
+      null,
+      true,
+      true,
+    );
+    expect(orgDomains.map((orgDomain) => orgDomain.domainName)).toEqual(["test.com", "test2.com"]);
+    expect(orgDomains[0].verifiedDate).toBeNull();
+    expect(orgDomains[1].verifiedDate).toBe("2022-12-17T09:37:10.9566667Z");
+
+    // The slim responses must not overwrite the full domains the domain verification page reads.
+    expect(orgDomainSvcReplaceSpy).not.toHaveBeenCalled();
+    await expect(firstValueFrom(orgDomainService.orgDomains$)).resolves.toHaveLength(0);
   });
 
   it("getByOrgIdAndOrgDomainId retrieves single org domain and calls orgDomainSvc upsert", () => {
@@ -226,23 +253,6 @@ describe("Org Domain API Service", () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       expect(lastValueFrom(orgDomainService.orgDomains$)).resolves.toHaveLength(0);
     });
-  });
-
-  it("getClaimedOrgDomainByEmail should call ApiService.send with correct parameters and return response", async () => {
-    const email = "test@example.com";
-    apiService.send.mockResolvedValue(mockedOrganizationDomainSsoDetailsServerResponse);
-
-    const result = await orgDomainApiService.getClaimedOrgDomainByEmail(email);
-
-    expect(apiService.send).toHaveBeenCalledWith(
-      "POST",
-      "/organizations/domain/sso/details",
-      new OrganizationDomainSsoDetailsRequest(email),
-      false, //anonymous
-      true,
-    );
-
-    expect(result).toEqual(mockedOrganizationDomainSsoDetailsResponse);
   });
 
   it("getVerifiedOrgDomainsByEmail should call ApiService.send with correct parameters and return response", async () => {

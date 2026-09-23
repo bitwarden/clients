@@ -15,7 +15,6 @@ import { BadgeModule } from "../badge";
 import { ButtonModule } from "../button";
 import { InputModule } from "../input/input.module";
 import { MultiSelectComponent } from "../multi-select/multi-select.component";
-import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { FormFieldModule } from "./form-field.module";
@@ -34,7 +33,6 @@ export default {
         InputModule,
         ReactiveFormsModule,
         BadgeModule,
-        SharedModule,
       ],
       providers: [
         {
@@ -47,6 +45,8 @@ export default {
               multiSelectClearAll: "Clear all",
               required: "required",
               inputRequired: "Input is required.",
+              loading: "loading",
+              removeItem: "remove item",
             });
           },
         },
@@ -158,6 +158,55 @@ export const Groups: Story = {
       { id: "5", listName: "Group 5", labelName: "Group 5", icon: "bwi-family" },
       { id: "6", listName: "Group 6", labelName: "Group 6", icon: "bwi-family" },
       { id: "7", listName: "Group 7", labelName: "Group 7", icon: "bwi-family" },
+    ],
+  },
+};
+
+/**
+ * `iconTile` renders a `bit-icon-tile` in place of `icon` in the list. Selected items are rendered as
+ * chips, which have no slot for a tile, so they continue to use `icon`.
+ */
+export const IconTiles: Story = {
+  ...Loading,
+  args: {
+    name: "Select item types",
+    hint: "Item types will be included in the export",
+    baseItems: [
+      {
+        id: "1",
+        listName: "Login",
+        labelName: "Login",
+        icon: "bwi-globe",
+        iconTile: { icon: "bwi-globe", variant: "brand" },
+      },
+      {
+        id: "2",
+        listName: "Card",
+        labelName: "Card",
+        icon: "bwi-credit-card",
+        iconTile: { icon: "bwi-credit-card", variant: "teal" },
+      },
+      {
+        id: "3",
+        listName: "Identity",
+        labelName: "Identity",
+        icon: "bwi-id-card",
+        iconTile: { icon: "bwi-id-card", variant: "purple", emphasis: "bold" },
+      },
+      {
+        id: "4",
+        listName: "Note with a custom color",
+        labelName: "Note",
+        icon: "bwi-sticky-note",
+        iconTile: { icon: "bwi-sticky-note", color: "#f8e71c" },
+      },
+      {
+        id: "5",
+        listName: "SSH key",
+        labelName: "SSH key",
+        icon: "bwi-key",
+        iconTile: { icon: "bwi-key", variant: "green" },
+      },
     ],
   },
 };

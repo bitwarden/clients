@@ -1,13 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormArray, FormBuilder, FormControl, FormGroup } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UpdateDomainsRequest } from "@bitwarden/common/models/request/update-domains.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BreadcrumbsModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../layouts/header/header.module";
 import { SharedModule } from "../shared";
@@ -17,9 +21,17 @@ import { SharedModule } from "../shared";
 @Component({
   selector: "app-domain-rules",
   templateUrl: "domain-rules.component.html",
-  imports: [SharedModule, HeaderModule],
+  imports: [SharedModule, HeaderModule, BreadcrumbsModule],
 })
 export class DomainRulesComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+  );
   loading = true;
   custom: string[] = [];
   global: any[] = [];

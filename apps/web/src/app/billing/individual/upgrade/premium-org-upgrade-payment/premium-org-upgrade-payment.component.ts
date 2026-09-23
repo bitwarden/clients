@@ -19,6 +19,7 @@ import {
   combineLatest,
   startWith,
   debounceTime,
+  distinctUntilChanged,
   switchMap,
   Observable,
   from,
@@ -36,11 +37,14 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
@@ -48,6 +52,7 @@ import {
   EnterBillingAddressComponent,
   getBillingAddressFromForm,
   DisplayPaymentMethodInlineComponent,
+  EnterPaymentMethodComponent,
 } from "../../../payment/components";
 import { MaskedPaymentMethod } from "../../../payment/types";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
@@ -82,8 +87,8 @@ export type PremiumOrgUpgradePaymentResult = {
     ButtonModule,
     EnterBillingAddressComponent,
     DisplayPaymentMethodInlineComponent,
+    Vfo1I18nPipe,
   ],
-  providers: [PremiumOrgUpgradeService],
   templateUrl: "./premium-org-upgrade-payment.component.html",
 })
 export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit {
@@ -110,13 +115,17 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId
   >();
   protected readonly account = input.required<Account>();
-  protected goBack = output<void>();
-  protected complete = output<PremiumOrgUpgradePaymentResult>();
 
-  readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
+  protected readonly goBack = output<void>();
+  protected readonly complete = output<PremiumOrgUpgradePaymentResult>();
 
-  protected formGroup = new FormGroup({
+  readonly cartSummaryComponent = viewChild.required<CartSummaryComponent>("cartSummaryComponent");
+  readonly paymentMethodComponent =
+    viewChild.required<DisplayPaymentMethodInlineComponent>("paymentMethodComponent");
+
+  protected readonly formGroup = new FormGroup({
     organizationName: new FormControl<string>("", [Validators.required]),
+    paymentMethodForm: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
@@ -127,28 +136,13 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   // Signals for payment method
   protected readonly paymentMethod = signal<MaskedPaymentMethod | null>(null);
   protected readonly subscriber = signal<BitwardenSubscriber | null>(null);
-  /**
-   * Indicates whether the payment method is currently being changed.
-   * This is used to disable the submit button while a payment method change is in progress.
-   * or to hide other UI elements as needed.
-   */
-  protected readonly isChangingPaymentMethod = signal(false);
 
   protected readonly planMembershipMessage = computed<string>(
     () => this.PLAN_MEMBERSHIP_MESSAGES[this.selectedPlanId()] ?? "",
   );
 
-  // Use defer to lazily create the observable when subscribed to
-  protected estimatedInvoice$ = defer(() =>
-    combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
-      debounceTime(1000),
-      switchMap(() => this.refreshInvoicePreview$()),
-    ),
-  );
-
-  protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
-    initialValue: this.getEmptyInvoicePreview(),
+  protected readonly showTaxIdField = computed<boolean>(() => {
+    return this.selectedPlanId() !== PersonalSubscriptionPricingTierIds.Families;
   });
 
   private readonly i18nService = inject(I18nService);
@@ -159,10 +153,53 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private readonly premiumOrgUpgradeService = inject(PremiumOrgUpgradeService);
   private readonly subscriberBillingClient = inject(SubscriberBillingClient);
   private readonly accountService = inject(AccountService);
+  private readonly configService = inject(ConfigService);
+
+  // Deduped: getFeatureFlag$ re-emits on every server-config refresh, and only a real flip should refetch.
+  private readonly previewDrivenCart$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
+    .pipe(distinctUntilChanged());
+
+  /** Server cart on the flag-on path; null when the flag is off, the address is incomplete, or the preview failed. */
+  private readonly previewCart = signal<Cart | null>(null);
+
+  /** Flag-on preview failed; the summary is replaced by an error callout rather than the local estimate. */
+  protected readonly previewFailed = signal(false);
+
+  // Use defer to lazily create the observable when subscribed to
+  protected readonly estimatedInvoice$ = defer(() =>
+    combineLatest([
+      this.formGroup.controls.billingAddress.valueChanges.pipe(
+        startWith(this.formGroup.controls.billingAddress.value),
+      ),
+      this.previewDrivenCart$,
+    ]).pipe(
+      debounceTime(1000),
+      switchMap(([, previewDrivenCart]) => {
+        if (!previewDrivenCart) {
+          // A runtime flip to off must drop the server cart, or the kill switch leaves it pinned.
+          this.previewCart.set(null);
+          this.previewFailed.set(false);
+          return this.refreshInvoicePreview$();
+        }
+        return this.refreshPreviewCart$();
+      }),
+    ),
+  );
+
+  protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
+    initialValue: this.getEmptyInvoicePreview(),
+  });
 
   constructor() {}
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
+    // Flag on and a preview has resolved: render the server's cart verbatim.
+    const previewCart = this.previewCart();
+    if (previewCart) {
+      return previewCart;
+    }
+
     if (!this.selectedPlan()) {
       return {
         hidePricingTerm: true,
@@ -252,14 +289,13 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
             map((paymentMethod) => ({ subscriber, paymentMethod })),
           ),
         ),
-        tap(({ subscriber, paymentMethod }) => {
-          this.subscriber.set(subscriber);
-          this.paymentMethod.set(paymentMethod);
-          this.loading.set(false);
-        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe();
+      .subscribe(({ subscriber, paymentMethod }) => {
+        this.subscriber.set(subscriber);
+        this.paymentMethod.set(paymentMethod);
+        this.loading.set(false);
+      });
   }
 
   ngAfterViewInit(): void {
@@ -267,25 +303,24 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     cartSummaryComponent.isExpanded.set(false);
   }
 
-  /**
-   * Updates the payment method when changed through the DisplayPaymentMethodComponent.
-   * @param newPaymentMethod The updated payment method details
-   */
-  handlePaymentMethodUpdate(newPaymentMethod: MaskedPaymentMethod) {
-    this.paymentMethod.set(newPaymentMethod);
-  }
-
-  /**
-   * Handles changes to the payment method changing state.
-   * @param isChanging Whether the payment method is currently being changed
-   */
-  handlePaymentMethodChangingStateChange(isChanging: boolean) {
-    this.isChangingPaymentMethod.set(isChanging);
-  }
-
-  protected submit = async (): Promise<void> => {
-    if (!this.formGroup.valid) {
+  protected readonly submit = async (): Promise<void> => {
+    if (!this.isFormValid()) {
       this.formGroup.markAllAsTouched();
+      return;
+    }
+
+    const paymentMethodComponent = this.paymentMethodComponent();
+    const isChangingPayment = paymentMethodComponent?.isChangingPayment();
+    const paymentMethod = this.paymentMethod();
+
+    if (
+      !isChangingPayment &&
+      this.premiumOrgUpgradeService.isUnverifiedBankAccount(paymentMethod)
+    ) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+      });
       return;
     }
 
@@ -293,8 +328,26 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       throw new Error("No plan selected");
     }
 
+    const organizationName = this.formGroup.value?.organizationName;
+    if (!organizationName) {
+      throw new Error("Organization name is required");
+    }
+
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+    if (!billingAddress.country || !billingAddress.postalCode) {
+      throw new Error("Billing address is incomplete");
+    }
+
+    if (isChangingPayment) {
+      await this.updatePaymentMethod(billingAddress);
+    } else {
+      if (!paymentMethod) {
+        throw new Error("Payment method is required");
+      }
+    }
+
     try {
-      const result = await this.processUpgrade();
+      const result = await this.processUpgrade(organizationName, billingAddress);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("plansUpdated", this.selectedPlan()?.details.name),
@@ -302,6 +355,13 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       this.complete.emit(result);
     } catch (error: unknown) {
       this.logService.error("Upgrade failed:", error);
+      if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+        });
+        return;
+      }
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("upgradeErrorMessage"),
@@ -309,22 +369,14 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
   };
 
-  private async processUpgrade(): Promise<PremiumOrgUpgradePaymentResult> {
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-    const organizationName = this.formGroup.value?.organizationName;
-
-    if (!billingAddress.country || !billingAddress.postalCode) {
-      throw new Error("Billing address is incomplete");
-    }
-
-    if (!organizationName) {
-      throw new Error("Organization name is required");
-    }
-
+  private async processUpgrade(
+    organizationName: string,
+    billingAddress: ReturnType<typeof getBillingAddressFromForm>,
+  ): Promise<PremiumOrgUpgradePaymentResult> {
     const organizationId = await this.premiumOrgUpgradeService.upgradeToOrganization(
-      this.account(),
+      this.account()!,
       organizationName,
-      this.selectedPlan()!,
+      this.selectedPlan()!.tier,
       billingAddress,
     );
 
@@ -336,6 +388,21 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
   private getUpgradeStatus(planId: string): PremiumOrgUpgradePaymentStatus {
     return this.UPGRADE_STATUS_MAP[planId] ?? PremiumOrgUpgradePaymentStatus.Closed;
+  }
+
+  /**
+   * Updates the payment method with the new tokenized payment from the payment method component.
+   */
+  private async updatePaymentMethod(
+    billingAddress: ReturnType<typeof getBillingAddressFromForm>,
+  ): Promise<void> {
+    const paymentMethodComponent = this.paymentMethodComponent();
+    const newPaymentMethod = await paymentMethodComponent.getTokenizedPaymentMethod();
+    await this.subscriberBillingClient.updatePaymentMethod(
+      this.subscriber()!,
+      newPaymentMethod,
+      billingAddress,
+    );
   }
 
   /**
@@ -441,10 +508,61 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
+   * Checks if the form is valid.
+   */
+  protected isFormValid(): boolean {
+    const isParentFormValid =
+      this.formGroup.controls.organizationName.valid &&
+      this.formGroup.controls.billingAddress.valid;
+
+    const paymentMethodComponent = this.paymentMethodComponent();
+    const isChangingPayment = paymentMethodComponent?.isChangingPayment();
+    if (paymentMethodComponent && isChangingPayment) {
+      return isParentFormValid && paymentMethodComponent.isFormValid();
+    }
+
+    return isParentFormValid;
+  }
+
+  /**
+   * Flag-on counterpart of {@link refreshInvoicePreview$}: stores the server cart in
+   * {@link previewCart} and emits an empty legacy preview so both branches share one stream.
+   */
+  private refreshPreviewCart$(): Observable<InvoicePreview> {
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+
+    if (!this.isFormValid() || !billingAddress.country || !billingAddress.postalCode) {
+      this.previewCart.set(null);
+      this.previewFailed.set(false);
+      return of(this.getEmptyInvoicePreview());
+    }
+
+    return from(
+      this.premiumOrgUpgradeService.previewInvoiceCart(this.selectedPlan()!, billingAddress),
+    ).pipe(
+      tap((cart) => {
+        this.previewCart.set(cart);
+        this.previewFailed.set(false);
+      }),
+      map(() => this.getEmptyInvoicePreview()),
+      catchError((error: unknown) => {
+        this.logService.error("Invoice preview failed:", error);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("invoicePreviewErrorMessage"),
+        });
+        this.previewCart.set(null);
+        this.previewFailed.set(true);
+        return of(this.getEmptyInvoicePreview());
+      }),
+    );
+  }
+
+  /**
    * Refreshes the invoice preview based on the current form state.
    */
   private refreshInvoicePreview$(): Observable<InvoicePreview> {
-    if (this.formGroup.invalid || !this.selectedPlan()) {
+    if (!this.isFormValid()) {
       return of(this.getEmptyInvoicePreview());
     }
 

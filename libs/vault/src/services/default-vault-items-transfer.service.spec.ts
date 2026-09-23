@@ -3,16 +3,13 @@ import { firstValueFrom, of, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -42,7 +39,6 @@ describe("DefaultVaultItemsTransferService", () => {
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockEventCollectionService: MockProxy<EventCollectionService>;
-  let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationUserApiService: MockProxy<OrganizationUserApiService>;
   let mockSyncService: MockProxy<SyncService>;
 
@@ -79,7 +75,6 @@ describe("DefaultVaultItemsTransferService", () => {
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockEventCollectionService = mock<EventCollectionService>();
-    mockConfigService = mock<ConfigService>();
     mockOrganizationUserApiService = mock<OrganizationUserApiService>();
     mockSyncService = mock<SyncService>();
 
@@ -96,7 +91,6 @@ describe("DefaultVaultItemsTransferService", () => {
       mockDialogService,
       mockToastService,
       mockEventCollectionService,
-      mockConfigService,
       mockOrganizationUserApiService,
       mockSyncService,
     );
@@ -141,14 +135,72 @@ describe("DefaultVaultItemsTransferService", () => {
       });
     });
 
-    describe("when policy exists", () => {
+    describe("when policy exists with enableIndividualItemsTransfer: false", () => {
+      beforeEach(() => {
+        setupMocksForMigrationScenario({
+          policies: [
+            {
+              organizationId: organizationId,
+              revisionDate: new Date("2024-01-01"),
+              data: { enableIndividualItemsTransfer: false },
+            } as Policy,
+          ],
+          organizations: [
+            {
+              id: organizationId,
+              name: "Test Org",
+              status: OrganizationUserStatusType.Confirmed,
+            } as Organization,
+          ],
+          ciphers: [{ id: "cipher-1" } as CipherView],
+        });
+      });
+
+      it("returns requiresMigration: false", async () => {
+        const result = await firstValueFrom(service.userMigrationInfo$(userId));
+
+        expect(result).toEqual({ requiresMigration: false });
+      });
+    });
+
+    describe("when policy exists without enableIndividualItemsTransfer set", () => {
+      beforeEach(() => {
+        setupMocksForMigrationScenario({
+          policies: [
+            {
+              organizationId: organizationId,
+              revisionDate: new Date("2024-01-01"),
+              data: {},
+            } as Policy,
+          ],
+          organizations: [
+            {
+              id: organizationId,
+              name: "Test Org",
+              status: OrganizationUserStatusType.Confirmed,
+            } as Organization,
+          ],
+          ciphers: [{ id: "cipher-1" } as CipherView],
+        });
+      });
+
+      it("returns requiresMigration: false", async () => {
+        const result = await firstValueFrom(service.userMigrationInfo$(userId));
+
+        expect(result).toEqual({ requiresMigration: false });
+      });
+    });
+
+    describe("when policy exists with enableIndividualItemsTransfer: true", () => {
       const policy = {
         organizationId: organizationId,
         revisionDate: new Date("2024-01-01"),
+        data: { enableIndividualItemsTransfer: true },
       } as Policy;
       const organization = {
         id: organizationId,
         name: "Test Org",
+        status: OrganizationUserStatusType.Confirmed,
       } as Organization;
 
       beforeEach(() => {
@@ -228,33 +280,77 @@ describe("DefaultVaultItemsTransferService", () => {
       });
     });
 
+    describe("when user is not in confirmed status", () => {
+      const policy = {
+        organizationId: organizationId,
+        revisionDate: new Date("2024-01-01"),
+        data: { enableIndividualItemsTransfer: true },
+      } as Policy;
+
+      it.each([
+        OrganizationUserStatusType.Accepted,
+        OrganizationUserStatusType.Invited,
+        OrganizationUserStatusType.Revoked,
+      ])("returns requiresMigration: false when user status is %s", async (status) => {
+        const organization = {
+          id: organizationId,
+          name: "Test Org",
+          status,
+        } as Organization;
+
+        setupMocksForMigrationScenario({
+          policies: [policy],
+          organizations: [organization],
+          ciphers: [{ id: "cipher-1" } as CipherView],
+        });
+
+        const result = await firstValueFrom(service.userMigrationInfo$(userId));
+
+        expect(result).toEqual({ requiresMigration: false });
+      });
+    });
+
     describe("when multiple policies exist", () => {
+      const oldestPolicy = {
+        organizationId: "oldest-org-id" as OrganizationId,
+        revisionDate: new Date("2023-09-13"),
+        data: { enableIndividualItemsTransfer: false },
+      } as Policy;
       const olderPolicy = {
         organizationId: "older-org-id" as OrganizationId,
         revisionDate: new Date("2024-01-01"),
+        data: { enableIndividualItemsTransfer: true },
       } as Policy;
       const newerPolicy = {
         organizationId: organizationId,
         revisionDate: new Date("2024-06-01"),
+        data: { enableIndividualItemsTransfer: true },
       } as Policy;
+      const oldestOrganization = {
+        id: "oldest-org-id" as OrganizationId,
+        name: "Oldest Org",
+        status: OrganizationUserStatusType.Confirmed,
+      } as Organization;
       const olderOrganization = {
         id: "older-org-id" as OrganizationId,
         name: "Older Org",
+        status: OrganizationUserStatusType.Confirmed,
       } as Organization;
       const newerOrganization = {
         id: organizationId,
         name: "Newer Org",
+        status: OrganizationUserStatusType.Confirmed,
       } as Organization;
 
       beforeEach(() => {
         setupMocksForMigrationScenario({
-          policies: [newerPolicy, olderPolicy],
-          organizations: [olderOrganization, newerOrganization],
+          policies: [newerPolicy, olderPolicy, oldestPolicy],
+          organizations: [oldestOrganization, olderOrganization, newerOrganization],
           ciphers: [{ id: "cipher-1" } as CipherView],
         });
       });
 
-      it("uses the oldest policy when selecting enforcing organization", async () => {
+      it("uses the oldest enforced policy when selecting enforcing organization", async () => {
         const result = await firstValueFrom(service.userMigrationInfo$(userId));
 
         expect(result).toEqual({
@@ -543,20 +639,20 @@ describe("DefaultVaultItemsTransferService", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
+      data: { enableIndividualItemsTransfer: true },
     } as Policy;
     const organization = {
       id: organizationId,
       name: "Test Org",
+      status: OrganizationUserStatusType.Confirmed,
     } as Organization;
 
     function setupMocksForEnforcementScenario(options: {
-      featureEnabled?: boolean;
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
       defaultCollection?: CollectionView;
     }): void {
-      mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
@@ -564,28 +660,6 @@ describe("DefaultVaultItemsTransferService", () => {
       mockSyncService.fullSync.mockResolvedValue(true);
       mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
     }
-
-    it("does nothing when feature flag is disabled", async () => {
-      setupMocksForEnforcementScenario({
-        featureEnabled: false,
-        policies: [policy],
-        organizations: [organization],
-        ciphers: [{ id: "cipher-1" } as CipherView],
-        defaultCollection: {
-          id: collectionId,
-          organizationId: organizationId,
-          isDefaultCollection: true,
-        } as CollectionView,
-      });
-
-      await service.enforceOrganizationDataOwnership(userId);
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.MigrateMyVaultToMyItems,
-      );
-      expect(mockDialogService.open).not.toHaveBeenCalled();
-      expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
-    });
 
     it("does nothing when no migration is required", async () => {
       setupMocksForEnforcementScenario({ policies: [] });
@@ -825,7 +899,7 @@ describe("DefaultVaultItemsTransferService", () => {
         );
       });
 
-      it("logs declined event when user rejects transfer", async () => {
+      it("does not log an event when user rejects transfer", async () => {
         const personalCiphers = [{ id: "cipher-1" } as CipherView];
         setupMocksForEnforcementScenario({
           policies: [policy],
@@ -844,12 +918,7 @@ describe("DefaultVaultItemsTransferService", () => {
 
         await service.enforceOrganizationDataOwnership(userId);
 
-        expect(mockEventCollectionService.collect).toHaveBeenCalledWith(
-          EventType.Organization_ItemOrganization_Declined,
-          undefined,
-          undefined,
-          organizationId,
-        );
+        expect(mockEventCollectionService.collect).not.toHaveBeenCalled();
       });
     });
   });
@@ -858,20 +927,20 @@ describe("DefaultVaultItemsTransferService", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
+      data: { enableIndividualItemsTransfer: true },
     } as Policy;
     const organization = {
       id: organizationId,
       name: "Test Org",
+      status: OrganizationUserStatusType.Confirmed,
     } as Organization;
 
     function setupMocksForTransferScenario(options: {
-      featureEnabled?: boolean;
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
       defaultCollection?: CollectionView;
     }): void {
-      mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
@@ -943,10 +1012,12 @@ describe("DefaultVaultItemsTransferService", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
+      data: { enableIndividualItemsTransfer: true },
     } as Policy;
     const organization = {
       id: organizationId,
       name: "Test Org",
+      status: OrganizationUserStatusType.Confirmed,
     } as Organization;
     const personalCiphers = [{ id: "cipher-1" } as CipherView];
     const defaultCollection = {
@@ -956,7 +1027,6 @@ describe("DefaultVaultItemsTransferService", () => {
     } as CollectionView;
 
     beforeEach(() => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([policy]));
       mockOrganizationService.organizations$.mockReturnValue(of([organization]));
       mockCipherService.cipherViews$.mockReturnValue(of(personalCiphers));

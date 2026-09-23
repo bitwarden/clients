@@ -2,7 +2,6 @@ import { firstValueFrom, map } from "rxjs";
 
 import { OrganizationUserApiService, CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionData,
@@ -12,7 +11,7 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -145,12 +144,8 @@ export class ListCommand {
     }
 
     if (options.search != null && options.search.trim() !== "") {
-      ciphers = this.searchService.searchCiphersBasic(
-        ciphers,
-        options.search,
-        options.trash,
-        options.archived,
-      );
+      ciphers = ciphers.filter((c) => this.matchesStateOptions(c, options));
+      ciphers = this.searchService.searchCiphersBasic(ciphers, options.search);
     }
 
     ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
@@ -270,16 +265,17 @@ export class ListCommand {
     try {
       const response = await this.organizationUserApiService.getAllUsers(options.organizationId);
       const res = new ListResponse(
-        response.data.map((r) => {
-          const u = new OrganizationUserResponse();
-          u.email = r.email;
-          u.name = r.name;
-          u.id = r.id;
-          u.status = r.status;
-          u.type = r.type;
-          u.twoFactorEnabled = r.twoFactorEnabled;
-          return u;
-        }),
+        response.data.map(
+          (r) =>
+            new OrganizationUserResponse({
+              id: r.id,
+              email: r.email,
+              name: r.name,
+              status: r.status,
+              type: r.type,
+              twoFactorEnabled: r.twoFactorEnabled,
+            }),
+        ),
       );
       return Response.success(res);
     } catch (e) {

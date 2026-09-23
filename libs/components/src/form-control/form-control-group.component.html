@@ -1,0 +1,33 @@
+@if (label()) {
+  <fieldset class="tw-border-none tw-m-0 tw-p-0">
+    <legend class="tw-flex tw-gap-0.5 tw-items-center tw-mb-2 tw-text-sm/5 tw-font-medium">
+      <ng-content select="bit-label"></ng-content>
+      @if (required()) {
+        <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]" aria-hidden="true"
+          >*</sup
+        >
+        <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
+      }
+    </legend>
+    <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+  </fieldset>
+}
+
+@if (!label()) {
+  <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+}
+
+<ng-template #contentTemplate>
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <div [class]="containerClass()">
+      <ng-content></ng-content>
+    </div>
+    @if (hasError()) {
+      <div [id]="errorId" class="tw-text-fg-danger tw-text-xs tw-ms-0.5">
+        <bit-icon name="bwi-error"></bit-icon> {{ displayError() }}
+      </div>
+    } @else {
+      <ng-content select="bit-hint"></ng-content>
+    }
+  </div>
+</ng-template>

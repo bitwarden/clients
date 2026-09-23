@@ -46,9 +46,7 @@ const routes: Routes = [
             path: "scim",
             component: ScimComponent,
             canActivate: [organizationPermissionsGuard((org) => org.canManageScim)],
-            data: {
-              titleId: "scim",
-            },
+            data: { titleId: "scimV2" },
           },
           {
             path: "device-approvals",
@@ -95,6 +93,10 @@ const routes: Routes = [
           import("../../dirt/organization-integrations/organization-integrations.module").then(
             (m) => m.OrganizationIntegrationsModule,
           ),
+      },
+      {
+        path: "pam",
+        loadChildren: () => import("../../pam/pam-routing.module").then((m) => m.PamRoutingModule),
       },
     ],
   },

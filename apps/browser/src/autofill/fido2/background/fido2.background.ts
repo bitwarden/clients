@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, startWith, Subscription } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
@@ -30,13 +28,16 @@ import {
   SharedFido2ScriptInjectionDetails,
   SharedFido2ScriptRegistrationOptions,
 } from "./abstractions/fido2.background";
+import { PermissionsPolicyBackground } from "./permissions-policy/permissions-policy.background";
+import { WebAuthnPermissionsPolicyFeature } from "./permissions-policy/types";
 
 export class Fido2Background implements Fido2BackgroundInterface {
-  private currentAuthStatus$: Subscription;
+  private currentAuthStatus$: Subscription = Subscription.EMPTY;
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
   private activeCredentialRequests = new Set<number>();
-  private registeredContentScripts: browser.contentScripts.RegisteredContentScript;
+  private registeredContentScripts: browser.contentScripts.RegisteredContentScript | undefined =
+    undefined;
   private readonly sharedInjectionDetails: SharedFido2ScriptInjectionDetails = {
     runAt: "document_start",
   };
@@ -60,6 +61,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
+    private permissionsPolicy: PermissionsPolicyBackground,
   ) {}
 
   /**
@@ -68,8 +70,24 @@ export class Fido2Background implements Fido2BackgroundInterface {
    *
    * @param tabId - The tab id to check.
    */
-  isCredentialRequestInProgress(tabId: number): boolean {
+  private isCredentialRequestInProgress(tabId: number): boolean {
     return this.activeCredentialRequests.has(tabId);
+  }
+
+  /**
+   * Returns true when vault notifications should defer for visible FIDO2 UI.
+   */
+  shouldDeferVaultNotificationsForPasskeyUi(tabId: number): boolean {
+    if (!this.isCredentialRequestInProgress(tabId)) {
+      return false;
+    }
+
+    const activeRequest = this.fido2ActiveRequestManager.getActiveRequest(tabId);
+    if (activeRequest == null) {
+      return true;
+    }
+
+    return activeRequest.credentials.length > 0;
   }
 
   /**
@@ -78,6 +96,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * handle passkey enable/disable events.
    */
   init() {
+    this.permissionsPolicy.init();
     BrowserApi.messageListener("fido2.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     this.vaultSettingsService.enablePasskeys$
@@ -85,7 +104,11 @@ export class Fido2Background implements Fido2BackgroundInterface {
       .subscribe(([previous, current]) => this.handleEnablePasskeysUpdate(previous, current));
     this.currentAuthStatus$ = this.authService.activeAccountStatus$
       .pipe(startWith(undefined), pairwise())
-      .subscribe(([_previous, current]) => this.handleAuthStatusUpdate(current));
+      .subscribe(([_previous, current]) => {
+        if (current !== undefined) {
+          void this.handleAuthStatusUpdate(current);
+        }
+      });
   }
 
   /**
@@ -113,8 +136,12 @@ export class Fido2Background implements Fido2BackgroundInterface {
 
     for (let index = 0; index < tabs.length; index++) {
       const tab = tabs[index];
-
-      if (tab.url?.startsWith("https")) {
+      const url = tab.url ?? "";
+      if (
+        url.startsWith("https://") ||
+        url.startsWith("http://localhost/") ||
+        url.startsWith("http://localhost:")
+      ) {
         void this.injectFido2ContentScripts(tab);
       }
     }
@@ -137,14 +164,14 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * @param enablePasskeys - The new value of the enablePasskeys setting.
    */
   private async handleEnablePasskeysUpdate(
-    previousEnablePasskeysSetting: boolean,
-    enablePasskeys: boolean,
+    previousEnablePasskeysSetting: boolean | undefined,
+    enablePasskeys: boolean | undefined,
   ) {
     if ((await this.getAuthStatus()) === AuthenticationStatus.LoggedOut) {
       return;
     }
 
-    if (previousEnablePasskeysSetting === undefined) {
+    if (previousEnablePasskeysSetting === undefined || enablePasskeys === undefined) {
       return;
     }
 
@@ -178,7 +205,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   private async updateMv2ContentScriptsRegistration() {
     if (!(await this.isPasskeySettingEnabled())) {
       await this.registeredContentScripts?.unregister();
-
+      this.registeredContentScripts = undefined;
       return;
     }
 
@@ -225,8 +252,12 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * @param tab - The current tab to inject the scripts into.
    */
   private async injectFido2ContentScripts(tab: chrome.tabs.Tab): Promise<void> {
+    const tabId = tab.id;
+    if (tabId == null) {
+      return;
+    }
     void this.scriptInjectorService.inject({
-      tabId: tab.id,
+      tabId,
       injectDetails: { frame: "all_frames", ...this.sharedInjectionDetails },
       mv2Details: { file: await this.getFido2PageScriptAppendFileName() },
       mv3Details: {
@@ -236,7 +267,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     });
 
     void this.scriptInjectorService.inject({
-      tabId: tab.id,
+      tabId,
       injectDetails: {
         file: Fido2ContentScript.ContentScript,
         frame: "all_frames",
@@ -250,10 +281,10 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * and disconnects them, destroying the content scripts.
    */
   private destroyLoadedFido2ContentScripts() {
-    this.fido2ContentScriptPortsSet.forEach((port) => {
+    for (const port of this.fido2ContentScriptPortsSet) {
       port.disconnect();
-      this.fido2ContentScriptPortsSet.delete(port);
-    });
+    }
+    this.fido2ContentScriptPortsSet.clear();
   }
 
   /**
@@ -262,7 +293,9 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * @param message - The FIDO2 extension message containing the requestId to abort.
    */
   private abortRequest(message: Fido2ExtensionMessage) {
-    this.abortManager.abort(message.abortedRequestId);
+    if (message.abortedRequestId != null) {
+      this.abortManager.abort(message.abortedRequestId);
+    }
   }
 
   /**
@@ -275,10 +308,16 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<CreateCredentialResult> {
+    await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Create);
     return await this.handleCredentialRequest<CreateCredentialResult>(
       message,
-      sender.tab,
-      this.fido2ClientService.createCredential.bind(this.fido2ClientService),
+      sender.tab!,
+      (data, tabParam, abortController) =>
+        this.fido2ClientService.createCredential(
+          data as CreateCredentialParams,
+          tabParam,
+          abortController,
+        ),
     );
   }
 
@@ -292,11 +331,50 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<AssertCredentialResult> {
+    await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Get);
     return await this.handleCredentialRequest<AssertCredentialResult>(
       message,
-      sender.tab,
-      this.fido2ClientService.assertCredential.bind(this.fido2ClientService),
+      sender.tab!,
+      (data, tabParam, abortController) =>
+        this.fido2ClientService.assertCredential(
+          data as AssertCredentialParams,
+          tabParam,
+          abortController,
+        ),
     );
+  }
+
+  /**
+   * Consults the Permissions Policy gate before starting a ceremony. Throws
+   * a `NotAllowedError`-named Error when the gate denies, matching the error
+   * the native browser API would throw. The page-script side rehydrates the
+   * error into a real `DOMException` so callers that check `instanceof
+   * DOMException` see what they'd see with the native API.
+   *
+   * Fails open when sender metadata is missing — the in-content-script gate
+   * still provides defense-in-depth.
+   */
+  private async enforcePermissionsPolicyGate(
+    sender: chrome.runtime.MessageSender,
+    feature: WebAuthnPermissionsPolicyFeature,
+  ): Promise<void> {
+    const tabId = sender.tab?.id;
+    if (tabId == null) {
+      return;
+    }
+    const frameId = sender.frameId ?? 0;
+
+    const allowed = await this.permissionsPolicy.isFeatureAllowedForFrame(tabId, frameId, feature);
+    if (allowed) {
+      return;
+    }
+
+    const error = new Error(
+      `The '${feature}' feature is not enabled in this document. ` +
+        "Permissions Policy may be used to delegate Web Authentication capabilities to cross-origin child frames.",
+    );
+    error.name = "NotAllowedError";
+    throw error;
   }
 
   /**
@@ -309,27 +387,37 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * @param tab - The tab associated with the request.
    * @param callback - The callback to call with the request data, tab, and abort controller.
    */
-  private handleCredentialRequest = async <T>(
-    { requestId, data }: Fido2ExtensionMessage,
+  private handleCredentialRequest = async <CredentialResult>(
+    message: Fido2ExtensionMessage,
     tab: chrome.tabs.Tab,
     callback: (
       data: AssertCredentialParams | CreateCredentialParams,
       tab: chrome.tabs.Tab,
       abortController: AbortController,
-    ) => Promise<T>,
-  ) => {
-    this.activeCredentialRequests.add(tab.id);
+    ) => Promise<CredentialResult>,
+  ): Promise<CredentialResult> => {
+    const { requestId, data } = message;
+    const tabId = tab.id;
+    if (tabId != null) {
+      this.activeCredentialRequests.add(tabId);
+    }
     try {
-      return await this.abortManager.runWithAbortController(requestId, async (abortController) => {
+      return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
         try {
-          return await callback(data, tab, abortController);
+          return await callback(data!, tab, abortController);
         } finally {
-          await BrowserApi.focusTab(tab.id);
-          await BrowserApi.focusWindow(tab.windowId);
+          if (tab.id != null) {
+            await BrowserApi.focusTab(tab.id);
+          }
+          if (tab.windowId != null) {
+            await BrowserApi.focusWindow(tab.windowId);
+          }
         }
       });
     } finally {
-      this.activeCredentialRequests.delete(tab.id);
+      if (tabId != null) {
+        this.activeCredentialRequests.delete(tabId);
+      }
     }
   };
 
@@ -352,15 +440,26 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
-  ) => {
+  ): boolean | void => {
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
     if (!handler) {
-      return null;
+      return;
+    }
+
+    const isCredentialCommand =
+      message?.command === "fido2RegisterCredentialRequest" ||
+      message?.command === "fido2GetCredentialRequest";
+    if (
+      isCredentialCommand &&
+      (sender.tab == null || message.requestId == null || message.data == null)
+    ) {
+      sendResponse(undefined);
+      return true;
     }
 
     const messageResponse = handler({ message, sender });
     if (typeof messageResponse === "undefined") {
-      return null;
+      return;
     }
 
     Promise.resolve(messageResponse)

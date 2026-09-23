@@ -4,7 +4,6 @@ import { BehaviorSubject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -12,6 +11,8 @@ import {
   PasswordGenerationServiceAbstraction,
   PasswordGeneratorOptions,
 } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { LinkSsoService } from "./link-sso.service";
 
@@ -66,8 +67,8 @@ describe("LinkSsoService", () => {
       mockPlatformUtilsService,
     );
 
-    // Mock Utils.fromBufferToUrlB64
-    jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue("mockCodeChallenge");
+    // Mock Utils.fromArrayToUrlB64
+    jest.spyOn(Utils, "fromArrayToUrlB64").mockReturnValue("mockCodeChallenge");
 
     // Mock window.location
     Object.defineProperty(window, "location", {

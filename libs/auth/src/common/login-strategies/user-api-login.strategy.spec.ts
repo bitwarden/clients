@@ -6,8 +6,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
@@ -22,14 +20,13 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
@@ -50,10 +47,9 @@ describe("UserApiLoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
-  let keyConnectorService: MockProxy<KeyConnectorService>;
+  let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
@@ -74,20 +70,23 @@ describe("UserApiLoginStrategy", () => {
   const apiClientSecret = "API_CLIENT_SECRET";
 
   beforeEach(async () => {
+    cache = new UserApiLoginStrategyData();
+
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
     keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
+
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
     appIdService = mock<AppIdService>();
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
-    keyConnectorService = mock<KeyConnectorService>();
+    unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
@@ -103,7 +102,7 @@ describe("UserApiLoginStrategy", () => {
 
     apiLogInStrategy = new UserApiLoginStrategy(
       cache,
-      keyConnectorService,
+      unlockService,
       accountService,
       masterPasswordService,
       keyService,
@@ -114,7 +113,6 @@ describe("UserApiLoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
@@ -184,18 +182,17 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      userId,
-    );
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
       { V1: { private_key: tokenResponse.privateKey } },
       userId,
     );
   });
 
-  it("gets and sets the master key if Key Connector is enabled", async () => {
-    const tokenResponse = identityTokenResponseFactory();
+  it("unlocks an enrolled Key Connector user with the unlock service", async () => {
+    const tokenResponse = identityTokenResponseFactory(undefined, {
+      HasMasterPassword: false,
+      KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
+    });
     tokenResponse.apiUseKeyConnector = true;
 
     const env = mock<Environment>();
@@ -206,32 +203,10 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-  });
-
-  it("decrypts and sets the user key if Key Connector is enabled", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
-
-    const tokenResponse = identityTokenResponseFactory();
-    tokenResponse.apiUseKeyConnector = true;
-
-    const env = mock<Environment>();
-    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
-    environmentService.environment$ = new BehaviorSubject(env);
-
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-    await apiLogInStrategy.logIn(credentials);
-
-    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-      masterKey,
-      userId,
-      undefined,
-    );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+    expect(unlockService.unlockWithKeyConnector).toHaveBeenCalledWith(userId, {
+      url: keyConnectorUrl,
+      keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
+    });
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

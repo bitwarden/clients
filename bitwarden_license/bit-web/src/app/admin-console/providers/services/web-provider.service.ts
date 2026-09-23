@@ -9,22 +9,27 @@ import { CreateProviderOrganizationRequest } from "@bitwarden/common/admin-conso
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { PlanType } from "@bitwarden/common/billing/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 @Injectable()
 export class WebProviderService {
   constructor(
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private syncService: SyncService,
     private apiService: ApiService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
     private providerApiService: ProviderApiServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async addOrganizationToProvider(
@@ -60,12 +65,14 @@ export class WebProviderService {
     seats: number,
     activeUserId: UserId,
   ): Promise<void> {
-    const organizationKey = (await this.keyService.makeOrgKey<OrgKey>(activeUserId))[1];
+    const organizationKey = (await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId))[1];
 
-    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(organizationKey);
+    const [publicKey, encryptedPrivateKey] =
+      await this.legacyCompatKeyService.makeKeyPair(organizationKey);
 
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const encryptedCollectionName = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       organizationKey,
     );
 
@@ -81,15 +88,15 @@ export class WebProviderService {
       providerKey,
     );
 
-    const request = new CreateProviderOrganizationRequest();
-    request.name = name;
-    request.ownerEmail = ownerEmail;
-    request.planType = planType;
-    request.seats = seats;
-
-    request.key = encryptedProviderKey.encryptedString;
-    request.keyPair = new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString);
-    request.collectionName = encryptedCollectionName.encryptedString;
+    const request = new CreateProviderOrganizationRequest(
+      name,
+      ownerEmail,
+      planType,
+      seats,
+      encryptedProviderKey.encryptedString,
+      new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString),
+      encryptedCollectionName.encryptedString,
+    );
 
     await this.providerApiService.createProviderOrganization(providerId, request);
 

@@ -1,7 +1,8 @@
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
-import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { SendType } from "../../types/send-type";
+import { Send } from "../domain/send";
 import { SendText } from "../domain/send-text";
 
 import { SendRequest } from "./send.request";

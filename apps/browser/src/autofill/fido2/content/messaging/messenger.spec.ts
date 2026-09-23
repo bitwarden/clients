@@ -74,6 +74,85 @@ describe("Messenger", () => {
     expect(received[0].abortController?.signal.aborted).toBe(true);
   });
 
+  describe("Messenger message validation", () => {
+    let listener!: (e: MessageEvent<MessageWithMetadata>) => void;
+
+    const send = (
+      overrides: Partial<Omit<MessageEvent<MessageWithMetadata>, "data">> & { data?: any } = {},
+    ) => {
+      const { data: dataOverrides, ...eventOverrides } = overrides;
+      const port = new MessageChannel().port2;
+      listener({
+        isTrusted: true,
+        origin: "https://bitwarden.com",
+        data: {
+          ...createRequest(),
+          SENDER: "bitwarden-webauthn",
+          senderId: "other",
+          ...(dataOverrides ?? {}),
+        },
+        ports: [port],
+        ...eventOverrides,
+      } as unknown as MessageEvent<MessageWithMetadata>);
+    };
+
+    beforeEach(() => {
+      const channel: Channel = {
+        addEventListener: (l) => (listener = l),
+        removeEventListener: () => {},
+        postMessage: () => {},
+      };
+      messengerB = new Messenger(channel);
+      messengerB.handler = handlerB.handler;
+    });
+
+    it('should return early when window.origin is "null"', () => {
+      const prev = (window as any).origin;
+      try {
+        (window as any).origin = "null";
+        send();
+        expect(handlerB.receive()).toHaveLength(0);
+      } finally {
+        (window as any).origin = prev;
+      }
+    });
+
+    it("should reject cross-origin messages", () => {
+      send({ origin: "https://attacker.com" });
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+
+    it("should reject self messages (senderId === messengerId)", () => {
+      send({ data: { senderId: (messengerB as any).messengerId } });
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+
+    it("should reject messages with no transferred port", () => {
+      send({ ports: [] as any });
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+
+    it("should ignore messages when event.isTrusted is false", () => {
+      let listener!: (e: MessageEvent<MessageWithMetadata>) => void;
+      const channel: Channel = {
+        addEventListener: (l) => (listener = l),
+        removeEventListener: () => {},
+        postMessage: () => {},
+      };
+      messengerB = new Messenger(channel);
+      messengerB.handler = handlerB.handler;
+
+      const event = new MessageEvent<MessageWithMetadata>("message", {
+        data: { ...createRequest(), SENDER: "bitwarden-webauthn", senderId: "other" },
+        origin: "https://bitwarden.com",
+        ports: [],
+      });
+      listener(event);
+
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+  });
+
   describe("destroy", () => {
     beforeEach(() => {
       /**
@@ -203,17 +282,17 @@ class MockMessageChannel<T> {
 }
 
 class MockMessagePort<T> {
-  onmessage: ((ev: MessageEvent<T>) => any) | null;
-  remotePort: MockMessagePort<T>;
+  onmessage: ((ev: MessageEvent<T>) => any) | null = null;
+  remotePort!: MockMessagePort<T>;
 
   postMessage(message: T, port?: MessagePort) {
-    this.remotePort.onmessage?.(
-      new MessageEvent("message", {
-        data: message,
-        ports: port ? [port] : [],
-        origin: "https://bitwarden.com",
-      }),
-    );
+    const event = {
+      isTrusted: true,
+      origin: "https://bitwarden.com",
+      data: message,
+      ports: port ? [port] : [],
+    };
+    this.remotePort.onmessage?.(event as unknown as MessageEvent<T>);
   }
 
   close() {

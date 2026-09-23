@@ -30,6 +30,8 @@ export default {
               weak: "Weak",
               good: "Good",
               strong: "Strong",
+              close: "Close",
+              callout: "Callout",
             });
           },
         },

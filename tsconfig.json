@@ -10,7 +10,8 @@
     "libs/dirt/card/src/**/*",
     "bitwarden_license/bit-desktop/src/**/*",
     "bitwarden_license/bit-web/src/**/*",
-    "bitwarden_license/bit-common/src/**/*"
+    "bitwarden_license/bit-common/src/**/*",
+    "bitwarden_license/bit-browser/src/**/*"
   ],
   "exclude": [
     "apps/browser/src/**/*.spec.ts",

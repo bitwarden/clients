@@ -7,28 +7,33 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
+  Injector,
   input,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
+import { of } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
+import { SIDE_NAV_WIDTH_BOUNDS } from "../navigation/side-nav-width.service";
 import { SideNavService } from "../navigation/side-nav.service";
-import { getRootFontSizePx, SharedModule } from "../shared";
+import { getRootFontSizePx, remToPx, SIDERAIL_WIDTH_REM } from "../shared";
 
+import { LayoutFooterService } from "./layout-footer.service";
+import { MAIN_CONTENT_MIN_WIDTH_REM } from "./layout-metrics";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
-
-/** Matches tw-min-w-96 on <main>. */
-const MAIN_MIN_WIDTH_REM = 24;
-
-/** Approximate rendered width of the closed nav (siderail / icon strip).
- *  Derived from tw-w-[3.75rem] + tw-mx-0.5 margins in side-nav.component.html. */
-const SIDERAIL_WIDTH_REM = 4;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -37,7 +42,7 @@ const SIDERAIL_WIDTH_REM = 4;
   templateUrl: "layout.component.html",
   imports: [
     CommonModule,
-    SharedModule,
+    I18nPipe,
     LinkModule,
     RouterModule,
     PortalModule,
@@ -54,6 +59,18 @@ export class LayoutComponent {
   protected sideNavService = inject(SideNavService);
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
+  protected footerPortal = inject(LayoutFooterService).portal;
+  private readonly configService = inject(ConfigService, { optional: true });
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
+
+  /** Bound in the template, so the constants remain the single source of truth for these widths. */
+  protected readonly siderailWidthRem = SIDERAIL_WIDTH_REM;
+  protected readonly mainContentMinWidthRem = MAIN_CONTENT_MIN_WIDTH_REM;
 
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");
@@ -69,6 +86,7 @@ export class LayoutComponent {
   private readonly drawerIsActive = computed(() => this.drawerPortal() != null);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly container = viewChild.required<ElementRef<HTMLElement>>("container");
   private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
   private readonly drawerContainer = viewChild.required<ElementRef<HTMLElement>>("drawerContainer");
@@ -88,6 +106,15 @@ export class LayoutComponent {
   protected readonly siderailIsPushMode = signal(false);
 
   /**
+   * Whether column 1 gets a non-zero track — i.e. a side nav is projected and either the
+   * full nav or the siderail fits.  When false the nav column collapses to 0px and <main>
+   * sits flush against the container edge.
+   */
+  private readonly navOccupiesColumn = computed(
+    () => this.hasSideNav() && (this.sideNavService.isPushMode() || this.siderailIsPushMode()),
+  );
+
+  /**
    * The CSS grid-template-columns value for the three-panel layout.
    *
    * Column 1 (nav):    navWidthRem when nav is push+open
@@ -105,16 +132,15 @@ export class LayoutComponent {
   protected readonly gridTemplateColumns = computed(() => {
     const navOpen = this.sideNavService.open();
     const navPush = this.sideNavService.isPushMode();
-    const siderailPush = this.siderailIsPushMode();
 
     // --- Drawer push/shrink/overlay ---
     const drawerActive = this.drawerIsActive();
     const declaredDrawerWidth = this.drawerService.pushWidthPx();
     const containerWidth = this.containerWidthPx();
     const rootFontSizePx = getRootFontSizePx();
-    const siderailWidthPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
-    const drawerMinWidthPx = drawerSizeToWidthRem.small * rootFontSizePx;
-    const mainMinWidthPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
+    const siderailWidthPx = remToPx(SIDERAIL_WIDTH_REM, rootFontSizePx);
+    const drawerMinWidthPx = remToPx(drawerSizeToWidthRem.small, rootFontSizePx);
+    const mainMinWidthPx = remToPx(MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
 
     // Push vs overlay: switch to overlay only when the minimum push width won't fit.
     // The shrink zone between the declared max-width and the minimum is handled
@@ -140,14 +166,13 @@ export class LayoutComponent {
     // flow.  A dummy placeholder div in the template keeps the col 1 auto track
     // stable without needing an explicit px value here.
     let col1: string;
-    if (!this.hasSideNav()) {
-      col1 = "0px"; // no side nav projected — collapse the column entirely
+    if (!this.navOccupiesColumn()) {
+      // no side nav projected, or the viewport is too narrow even for the siderail
+      col1 = "0px";
     } else if (navOpen && navPush) {
-      col1 = `${this.sideNavService.widthRem()}rem`; // full nav, push+open
-    } else if (navPush || siderailPush) {
-      col1 = "auto"; // siderail in flow, size naturally
+      col1 = `${this.sideNavService.dragDisplayWidth() ?? this.sideNavService.widthRem()}rem`;
     } else {
-      col1 = "0px"; // viewport too narrow even for siderail
+      col1 = "auto"; // siderail in flow, size naturally
     }
 
     // col3: minmax(0px, declaredMax) instead of "auto" so the track is sized by its
@@ -171,19 +196,33 @@ export class LayoutComponent {
   });
 
   constructor() {
+    // navAloneCanPush asked early: the first render needs a layout before the ResizeObserver
+    // fires, so estimate from the viewport and let update() correct it once it can measure.
+    // The layout is rendered per route area, so this also runs when the user navigates between
+    // them — by which point they may have collapsed the nav. Deferring to that choice is the same
+    // rule the reopen branch in update() applies.
+    const rootFontSizePx = getRootFontSizePx();
+    const estimatedPushMode =
+      window.innerWidth - remToPx(SIDE_NAV_WIDTH_BOUNDS.default, rootFontSizePx) >=
+      remToPx(MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+    if (estimatedPushMode && this.sideNavService.userCollapsePreference() !== "closed") {
+      this.sideNavService.open.set(true);
+    }
+
     afterNextRender(() => {
       const container = this.container().nativeElement;
       const drawerContainer = this.drawerContainer().nativeElement;
 
+      let hasReconciled = false;
+      let lastDrawerWidthPx = -1;
+      let widthHasHydrated = false;
       const update = () => {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
-        const siderailPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
-        const mainMinPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
-        const navWidthPx = this.sideNavService.widthRem() * rootFontSizePx;
-        const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
-
-        this.containerWidthPx.set(containerWidth);
+        const siderailPx = remToPx(SIDERAIL_WIDTH_REM, rootFontSizePx);
+        const mainMinPx = remToPx(MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+        const navWidthPx = remToPx(this.sideNavService.widthRem(), rootFontSizePx);
+        const drawerMinPx = remToPx(drawerSizeToWidthRem.small, rootFontSizePx);
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
@@ -191,6 +230,12 @@ export class LayoutComponent {
         // component (e.g. app-vault-item), which fills the full 1fr column in overlay
         // mode — making its offsetWidth useless for push-vs-overlay decisions.
         const drawerWidthPx = this.drawerService.pushWidthPx();
+
+        // Did the space around the nav change, or only the nav's own width? Read before the set.
+        const constraintsChanged =
+          containerWidth !== this.containerWidthPx() || drawerWidthPx !== lastDrawerWidthPx;
+
+        this.containerWidthPx.set(containerWidth);
 
         // Can the full nav push alongside main (ignoring the drawer)?
         const navAloneCanPush = containerWidth - navWidthPx >= mainMinPx;
@@ -237,9 +282,23 @@ export class LayoutComponent {
 
         const wasInPushMode = this.sideNavService.isPushMode();
 
-        // Transitioning out of push mode → close the nav.
-        // (If already in overlay and open, leave it — it's intentionally overlaying content.)
-        if (!navPush && this.sideNavService.open() && wasInPushMode) {
+        // Startup ends when the persisted width lands — or sooner, if the user takes the width over.
+        const settled =
+          hasReconciled && (widthHasHydrated || this.sideNavService.widthResizedByUser());
+
+        // Lost push mode → close, but only because the space around the nav shrank. Widening the
+        // nav past what push affords is a request for overlay, not a collapse mid-gesture.
+        const lostPushRoom = !navPush && this.sideNavService.open() && wasInPushMode;
+
+        // Until then the open estimate may be wrong: it uses the default width, but the persisted
+        // width arrives later and may be too wide for push mode at this viewport.
+        const estimateWasWrong =
+          !settled &&
+          !navPush &&
+          this.sideNavService.open() &&
+          this.sideNavService.userCollapsePreference() !== "open";
+
+        if ((constraintsChanged && lostPushRoom) || estimateWasWrong) {
           this.sideNavService.open.set(false);
         }
 
@@ -255,12 +314,30 @@ export class LayoutComponent {
         this.sideNavService.isPushMode.set(navPush);
         this.siderailIsPushMode.set(siderailCanPush);
         this.drawerService.isPushMode.set(drawerPush);
+        this.sideNavService.armTransitionsAfterFirstPaint();
+        hasReconciled = true;
+        lastDrawerWidthPx = drawerWidthPx;
+        widthHasHydrated = this.sideNavService.widthHydrated();
       };
 
       const resizeObserver = new ResizeObserver(update);
       resizeObserver.observe(container);
       resizeObserver.observe(drawerContainer);
       this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+
+      // Changing the nav width resizes neither observed element, so push/overlay would
+      // otherwise stay stale after a drag or once the persisted width resolves. Hydration is a
+      // dependency in its own right because the persisted width may equal the default, which
+      // leaves widthRem untouched. untracked() keeps update()'s own reads and writes out of
+      // this effect's dependencies.
+      effect(
+        () => {
+          this.sideNavService.widthRem();
+          this.sideNavService.widthHydrated();
+          untracked(update);
+        },
+        { injector: this.injector },
+      );
     });
   }
 
@@ -268,6 +345,13 @@ export class LayoutComponent {
    * Rounded top left corner for the main content area
    */
   readonly rounded = input(false, { transform: booleanAttribute });
+
+  /**
+   * The corner is only drawn when the nav column has width.  Once col 1 collapses to 0px
+   * <main> is flush with the container edge, and rounding it would just carve a sliver of
+   * the backdrop out against the window edge instead of tucking into the nav.
+   */
+  protected readonly showRoundedCorner = computed(() => this.rounded() && this.navOccupiesColumn());
 
   protected focusMainContent() {
     this.mainContent().nativeElement.focus();
@@ -280,7 +364,7 @@ export class LayoutComponent {
    * @see https://github.com/angular/components/issues/10247#issuecomment-384060265
    **/
   private readonly skipLink = viewChild.required<LinkComponent>("skipLink");
-  handleKeydown(ev: KeyboardEvent) {
+  handleKeydown(ev: Event) {
     if (isNothingFocused()) {
       ev.preventDefault();
       this.skipLink().el.nativeElement.focus();

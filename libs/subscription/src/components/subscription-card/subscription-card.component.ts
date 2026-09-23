@@ -11,10 +11,12 @@ import {
   TypographyModule,
   CalloutTypes,
   ButtonType,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
-import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BitwardenSubscription, SubscriptionPreview, SubscriptionStatuses } from "../..";
 
 export const SubscriptionCardActions = {
   ContactSupport: "contact-support",
@@ -33,12 +35,13 @@ type Badge = { text: string; variant: BadgeVariant };
 type Callout = Maybe<{
   title: string;
   type: CalloutTypes;
-  icon?: string;
+  icon?: BitwardenIcon;
   description: string;
   callsToAction?: {
     text: string;
     buttonType: ButtonType;
     action: SubscriptionCardAction;
+    endIcon?: BitwardenIcon;
   }[];
 }>;
 
@@ -58,14 +61,14 @@ type Callout = Maybe<{
   ],
 })
 export class SubscriptionCardComponent {
-  private datePipe = inject(DatePipe);
-  private i18nService = inject(I18nService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly i18nService = inject(I18nService);
 
-  protected readonly dateFormat = "MMM. d, y";
+  protected readonly dateFormat = "MMMM d, y";
 
   readonly title = input.required<string>();
 
-  readonly subscription = input.required<BitwardenSubscription>();
+  readonly subscription = input.required<BitwardenSubscription | SubscriptionPreview>();
 
   readonly showUpgradeButton = input<boolean>(false);
 
@@ -168,16 +171,16 @@ export class SubscriptionCardComponent {
       case SubscriptionStatuses.Trialing:
       case SubscriptionStatuses.Active: {
         if (subscription.cancelAt) {
-          const cancelAt = this.datePipe.transform(subscription.cancelAt, this.dateFormat);
           return {
             title: this.i18nService.t("pendingCancellation"),
             type: "warning",
-            description: this.i18nService.t("yourSubscriptionIsScheduledToCancel", cancelAt!),
+            description: this.i18nService.t("subscriptionPendingCanceled"),
             callsToAction: [
               {
-                text: this.i18nService.t("reinstateSubscription"),
+                text: this.i18nService.t("keepSubscription"),
                 buttonType: "unstyled",
                 action: SubscriptionCardActions.ReinstateSubscription,
+                endIcon: "bwi-arrow-right",
               },
             ],
           };
@@ -188,7 +191,7 @@ export class SubscriptionCardComponent {
         return {
           title: this.i18nService.t("upgradeYourPlan"),
           type: "info",
-          icon: "bwi-gem",
+          icon: "bwi-diamond",
           description: this.i18nService.t("premiumShareEvenMore"),
           callsToAction: [
             {
@@ -201,13 +204,17 @@ export class SubscriptionCardComponent {
       }
       case SubscriptionStatuses.PastDue: {
         const suspension = this.datePipe.transform(subscription.suspension, this.dateFormat);
+        // past_due may omit suspension/gracePeriod; render no callout when absent.
+        if (subscription.gracePeriod == null || suspension == null) {
+          return null;
+        }
         return {
           title: this.i18nService.t("pastDue"),
           type: "warning",
           description: this.i18nService.t(
             "youHaveAGracePeriod",
             subscription.gracePeriod,
-            suspension!,
+            suspension,
           ),
           callsToAction: [
             {

@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { WebAuthnLoginPrfKeyService } from "./webauthn-login-prf-key.service";
 
@@ -19,7 +20,7 @@ describe("WebAuthnLoginPrfKeyService", () => {
         Promise.resolve(randomBytes(length)),
       );
 
-      const result = await service.createSymmetricKeyFromPrf(randomBytes(32));
+      const result = await service.createSymmetricKeyFromPrf(randomBytes(32).buffer);
 
       expect(result.toEncoded().length).toBe(64);
     });
@@ -27,6 +28,6 @@ describe("WebAuthnLoginPrfKeyService", () => {
 });
 
 /** This is a fake function that always returns the same byte sequence */
-function randomBytes(length: number) {
+function randomBytes(length: number): Uint8Array<ArrayBuffer> {
   return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
 }

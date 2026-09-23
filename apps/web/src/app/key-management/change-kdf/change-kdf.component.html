@@ -1,4 +1,4 @@
-<h2 bitTypography="h2" class="tw-mt-6">
+<h2 bitTypography="h2">
   {{ "encKeySettings" | i18n }}
 </h2>
 @if (!(noLogoutOnKdfChangeFeatureFlag$ | async)) {
@@ -22,21 +22,18 @@
             [bitPopoverTriggerFor]="algorithmPopover"
             appA11yTitle="{{ 'encryptionKeySettingsAlgorithmPopoverTitle' | i18n }}"
             bitLink
-          >
-            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </bit-label>
         <bit-select formControlName="kdf">
-          <bit-option
-            *ngFor="let option of kdfOptions"
-            [value]="option.value"
-            [label]="option.name"
-          ></bit-option>
+          @for (option of kdfOptions(); track option.value) {
+            <bit-option [value]="option.value" [label]="option.name"></bit-option>
+          }
         </bit-select>
       </bit-form-field>
     </div>
     <div class="tw-col-span-6">
-      @if (isPBKDF2(kdfConfig)) {
+      @if (isPBKDF2()) {
         <bit-form-field formGroupName="kdfConfig">
           <bit-label>
             {{ "kdfIterations" | i18n }}
@@ -50,7 +47,7 @@
           />
           <bit-hint>{{ "kdfIterationRecommends" | i18n }}</bit-hint>
         </bit-form-field>
-      } @else if (isArgon2(kdfConfig)) {
+      } @else if (isArgon2()) {
         <bit-form-field formGroupName="kdfConfig">
           <bit-label>{{ "kdfMemory" | i18n }}</bit-label>
           <input
@@ -63,7 +60,7 @@
         </bit-form-field>
       }
     </div>
-    @if (isArgon2(kdfConfig)) {
+    @if (isArgon2()) {
       <div class="tw-col-span-6">
         <bit-form-field formGroupName="kdfConfig">
           <bit-label>
@@ -109,7 +106,9 @@
 <bit-popover [title]="'encryptionKeySettingsAlgorithmPopoverTitle' | i18n" #algorithmPopover>
   <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
     <li class="tw-mb-2">{{ "encryptionKeySettingsAlgorithmPopoverPBKDF2" | i18n }}</li>
-    <li>{{ "encryptionKeySettingsAlgorithmPopoverArgon2Id" | i18n }}</li>
+    @if (argon2Available()) {
+      <li>{{ "encryptionKeySettingsAlgorithmPopoverArgon2Id" | i18n }}</li>
+    }
   </ul>
   <div class="tw-mt-4 tw-mb-1">
     <a
@@ -118,9 +117,9 @@
       target="_blank"
       rel="noreferrer"
       appA11yTitle="{{ 'learnMoreAboutEncryptionAlgorithms' | i18n }}"
+      endIcon="bwi-external-link"
     >
       {{ "learnMore" | i18n }}
-      <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
     </a>
   </div>
 </bit-popover>

@@ -1,10 +1,15 @@
+import { ActivatedRoute } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { ClientType } from "@bitwarden/common/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ButtonModule } from "../button";
+import { I18nMockService } from "../utils";
 
+import { LandingFooterComponent } from "./landing-footer.component";
+import { LandingHeaderComponent } from "./landing-header.component";
 import { LandingLayoutComponent } from "./landing-layout.component";
 
 class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
@@ -22,11 +27,22 @@ export default {
   component: LandingLayoutComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule],
+      imports: [ButtonModule, LandingFooterComponent, LandingHeaderComponent],
       providers: [
         {
           provide: PlatformUtilsService,
           useClass: MockPlatformUtilsService,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: () => {},
+        },
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              appLogoLabel: "logo label",
+            }),
         },
       ],
     }),

@@ -1,9 +1,20 @@
 <app-header>
+  @if (showBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb [route]="['/settings']" icon="bwi-cog">{{
+        "settings" | i18n
+      }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
+        "subscription" | i18n
+      }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  }
   @if (!selfHosted) {
     <bit-tab-nav-bar slot="tabs">
-      <bit-tab-link [route]="(hasPremium$ | async) ? 'user-subscription' : 'premium'">{{
-        "subscription" | i18n
-      }}</bit-tab-link>
+      <bit-tab-link
+        [route]="(showSubscriptionPageLink$ | async) ? 'user-subscription' : 'premium'"
+        >{{ "subscription" | i18n }}</bit-tab-link
+      >
       <bit-tab-link route="payment-details">{{ "paymentDetails" | i18n }}</bit-tab-link>
       <bit-tab-link route="billing-history">{{ "billingHistory" | i18n }}</bit-tab-link>
     </bit-tab-nav-bar>

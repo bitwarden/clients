@@ -1,9 +1,7 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
 
 import { GeneratedPasswordHistory } from "./generated-password-history";
 
@@ -11,26 +9,26 @@ import { GeneratedPasswordHistory } from "./generated-password-history";
 export class LegacyPasswordHistoryDecryptor {
   constructor(
     private userId: UserId,
-    private keyService: KeyService,
-    private encryptService: EncryptService,
+    private sdkService: SdkService,
   ) {}
 
   /** Decrypts a password history. */
   async decrypt(history: GeneratedPasswordHistory[]): Promise<GeneratedPasswordHistory[]> {
-    const key = await firstValueFrom(this.keyService.userKey$(this.userId));
-
-    if (key == undefined) {
-      throw new Error("No user key found for decryption");
-    }
-
     const promises = (history ?? []).map(async (item) => {
-      const encrypted = new EncString(item.password);
-      const decrypted = await this.encryptService.decryptString(encrypted, key);
+      const decrypted = await firstValueFrom(
+        this.sdkService.userClient$(this.userId).pipe(
+          map((sdk) => {
+            if (!sdk) {
+              throw new Error("SDK not available");
+            }
+            using ref = sdk.take();
+            return ref.value.crypto().decrypt_with_local_user_data_key(item.password);
+          }),
+        ),
+      );
       return new GeneratedPasswordHistory(decrypted, item.date);
     });
 
-    const decrypted = await Promise.all(promises);
-
-    return decrypted;
+    return Promise.all(promises);
   }
 }

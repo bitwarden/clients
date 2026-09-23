@@ -12,6 +12,7 @@ import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { registerContentScriptsPolyfill } from "./browser-api.register-content-scripts-polyfill";
+import { ExtensionInstallType } from "./extension-install-type";
 
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
@@ -19,6 +20,7 @@ export class BrowserApi {
   static isChromeApi: boolean = !BrowserApi.isSafariApi && typeof chrome !== "undefined";
   static isFirefoxOnAndroid: boolean =
     navigator.userAgent.indexOf("Firefox/") !== -1 && navigator.userAgent.indexOf("Android") !== -1;
+  static isFirefox: boolean = navigator.userAgent.indexOf("Firefox/") !== -1;
 
   static get manifestVersion() {
     return chrome.runtime.getManifest().manifest_version;
@@ -31,6 +33,30 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Returns how this extension was installed on the current browser. Use
+   * {@link ExtensionInstallType.Admin} to detect enterprise-policy installs and
+   * {@link ExtensionInstallType.Sideload} to detect extensions installed by other software
+   * on the machine.
+   *
+   * `management.getSelf()` is the only `chrome.management` method that does
+   * not require the "management" manifest permission.
+   */
+  static async getInstallType(): Promise<ExtensionInstallType> {
+    try {
+      if (BrowserApi.isWebExtensionsApi) {
+        const info = await browser.management.getSelf();
+        return (info?.installType as ExtensionInstallType) ?? ExtensionInstallType.Unknown;
+      } else if (BrowserApi.isChromeApi) {
+        const info = await chrome.management.getSelf();
+        return (info?.installType as ExtensionInstallType) ?? ExtensionInstallType.Unknown;
+      }
+    } catch {
+      // management API not available on this browser (e.g. older Safari)
+    }
+    return ExtensionInstallType.Unknown;
   }
 
   /**
@@ -196,8 +222,13 @@ export class BrowserApi {
     const device = BrowserPlatformUtilsService.getDevice(clientWindow);
 
     switch (device) {
+      // DuckDuckGoExtension implies the Windows (WebView2) build, since detection relies on
+      // userAgentData, which only Chromium exposes. That build uses the Chrome Web Store and
+      // Chromium's settings URIs. DuckDuckGoBrowser is deliberately absent: it spans both the
+      // Windows Chromium build and the WebKit-based macOS build, so it cannot be mapped here.
       case DeviceType.ChromeExtension:
       case DeviceType.ChromeBrowser:
+      case DeviceType.DuckDuckGoExtension:
         return BrowserClientVendors.Chrome;
       case DeviceType.OperaExtension:
       case DeviceType.OperaBrowser:
@@ -208,6 +239,9 @@ export class BrowserApi {
       case DeviceType.VivaldiExtension:
       case DeviceType.VivaldiBrowser:
         return BrowserClientVendors.Vivaldi;
+      case DeviceType.FirefoxExtension:
+      case DeviceType.FirefoxBrowser:
+        return BrowserClientVendors.Firefox;
       default:
         return BrowserClientVendors.Unknown;
     }
@@ -465,11 +499,101 @@ export class BrowserApi {
   }
 
   /**
-   * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * Returns true if the vault popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some((context) => context.contextType === "POPUP");
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    return BrowserApi.getExtensionViews({ type: "popup" }).length > 0;
+  }
+
+  /**
+   * Returns true if the toolbar popup or any popout window is currently open.
+   *
+   * Used to gate `chrome.runtime.reload()` so it doesn't fire while a popout is mid-teardown.
+   * Popouts are classified as `TAB` contexts (not `POPUP`) by `chrome.runtime.getContexts`,
+   * so they're identified by `uilocation=popout` in their documentUrl.
+   */
+  static async isAnyPopupOrPopoutOpen(): Promise<boolean> {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some(
+        (context) =>
+          context.contextType === "POPUP" ||
+          (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")),
+      );
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+    return BrowserApi.getExtensionViews({ type: "tab" }).some((v) =>
+      v.location.href.includes("uilocation=popout"),
+    );
+  }
+
+  /**
+   * Returns true if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Sidebar: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused.
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
+   *
+   * NOTE: The `getContexts` path is restricted to MV3. Firefox MV2's persistent
+   * background page is classified as a "POPUP" context by `runtime.getContexts()`,
+   * which would cause `isAnyViewFocused` to permanently return true and block vault
+   * timeout. The `getExtensionViews` path only returns actually-visible views.
+   */
+  static async isAnyViewFocused(): Promise<boolean> {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+
+      if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {
+        return true;
+      }
+
+      const tabs = contexts.filter(
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+
+    return BrowserApi.getExtensionViews({ type: "tab" }).some(
+      (v) =>
+        v.location.href.includes("uilocation=sidebar") ||
+        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+    );
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
@@ -590,6 +714,38 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Whether the Chrome Side Panel API is available (Chrome 114+).
+   */
+  static get isSidePanelApiSupported(): boolean {
+    return typeof chrome !== "undefined" && typeof chrome.sidePanel !== "undefined";
+  }
+
+  /**
+   * Opens the extension's side panel for a specific tab.
+   * Must be called in response to a user gesture (context menu click qualifies).
+   */
+  static async openSidePanel(options: { tabId: number }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.open({ tabId: options.tabId });
+  }
+
+  /**
+   * Sets the side panel options (path, enabled state), optionally scoped to a tab.
+   */
+  static async setSidePanelOptions(options: {
+    path?: string;
+    enabled?: boolean;
+    tabId?: number;
+  }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.setOptions(options);
+  }
+
   static sendMessage(subscriber: string, arg: any = {}) {
     const message = Object.assign({}, { command: subscriber }, arg);
     return chrome.runtime.sendMessage(message);
@@ -689,6 +845,35 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Every value the host operating system's Unified Endpoint Management (UEM/MDM) channel exposes
+   * to this extension, or `undefined` where the browser has no managed storage area at all
+   * (Safari). An empty object means the area exists but an administrator has set no policy.
+   *
+   * Only keys declared in `managed_schema.json` are surfaced. These are administrator
+   * configuration rather than vault data, but they must not be logged: a value can disclose an
+   * organization's self-hosted infrastructure.
+   *
+   * Rejects with `chrome.runtime.lastError` when the area exists but the read fails, notably on
+   * Firefox where no native managed manifest is installed. Callers decide whether that is
+   * exceptional; on most installations it is the normal case.
+   */
+  static getManagedStorage(): Promise<Record<string, unknown> | undefined> {
+    if (chrome.storage?.managed == null) {
+      return Promise.resolve(undefined);
+    }
+
+    return new Promise((resolve, reject) => {
+      chrome.storage.managed.get(null, (items) => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+
+        resolve(items);
+      });
+    });
+  }
+
   static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {
     if (BrowserApi.isWebExtensionsApi) {
       return browser.runtime.getPlatformInfo();
@@ -768,6 +953,30 @@ export class BrowserApi {
   }
 
   /**
+   * Executes a self-contained function in the given tab and returns its result from the top frame.
+   * The function is serialized for injection, so it must not close over outer-scope variables.
+   *
+   * @param tabId - The id of the tab to execute the function in.
+   * @param func - The function to inject.
+   */
+  static async executeFunctionInTab<R>(tabId: number, func: () => R): Promise<R | undefined> {
+    if (BrowserApi.isManifestVersion(3)) {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId },
+        func,
+      });
+      return results?.[0]?.result as R | undefined;
+    }
+
+    // MV2 has no `func` parameter, so serialize the function source and inject it as code.
+    return new Promise((resolve) => {
+      chrome.tabs.executeScript(tabId, { code: `(${func.toString()})()` }, (results) =>
+        resolve(results?.[0] as R | undefined),
+      );
+    });
+  }
+
+  /**
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
@@ -777,6 +986,16 @@ export class BrowserApi {
 
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
+
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    if (BrowserApi.isFirefox) {
+      return passwordSavingOverridden;
+    }
 
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
@@ -790,12 +1009,6 @@ export class BrowserApi {
       ),
     );
 
-    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
-      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
-        resolve(checkOverrideStatus(details)),
-      ),
-    );
-
     return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
   }
 
@@ -805,6 +1018,16 @@ export class BrowserApi {
    * @param value - Determines whether to enable or disable the autofill settings.
    */
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    if (BrowserApi.isFirefox) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.privacy?.services?.passwordSavingEnabled?.set({ value });
+      } else {
+        await chrome.privacy.services.passwordSavingEnabled.set({ value });
+      }
+
+      return;
+    }
+
     await chrome.privacy.services.autofillAddressEnabled.set({ value });
     await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
     await chrome.privacy.services.passwordSavingEnabled.set({ value });

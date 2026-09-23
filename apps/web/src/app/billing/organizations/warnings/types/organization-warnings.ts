@@ -3,8 +3,9 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { TaxIdWarningResponse } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 export type OrganizationFreeTrialWarning = {
-  organization: Pick<Organization, "id" & "name">;
+  organization: Pick<Organization, "id" | "name">;
   message: string;
+  isSalesAssisted: boolean;
 };
 
 export type OrganizationResellerRenewalWarning = {
@@ -12,10 +13,17 @@ export type OrganizationResellerRenewalWarning = {
   message: string;
 };
 
+export type OrganizationScheduledPriceIncreaseWarning = {
+  seatPrice: number;
+  effectiveDate: Date;
+  cadence: "monthly" | "annually";
+};
+
 export class OrganizationWarningsResponse extends BaseResponse {
   freeTrial?: FreeTrialWarningResponse;
   inactiveSubscription?: InactiveSubscriptionWarningResponse;
   resellerRenewal?: ResellerRenewalWarningResponse;
+  scheduledPriceIncrease?: ScheduledPriceIncreaseWarningResponse;
   taxId?: TaxIdWarningResponse;
 
   constructor(response: any) {
@@ -34,6 +42,12 @@ export class OrganizationWarningsResponse extends BaseResponse {
     if (resellerWarning) {
       this.resellerRenewal = new ResellerRenewalWarningResponse(resellerWarning);
     }
+    const scheduledPriceIncreaseWarning = this.getResponseProperty("ScheduledPriceIncrease");
+    if (scheduledPriceIncreaseWarning) {
+      this.scheduledPriceIncrease = new ScheduledPriceIncreaseWarningResponse(
+        scheduledPriceIncreaseWarning,
+      );
+    }
     const taxIdWarning = this.getResponseProperty("TaxId");
     if (taxIdWarning) {
       this.taxId = new TaxIdWarningResponse(taxIdWarning);
@@ -43,10 +57,13 @@ export class OrganizationWarningsResponse extends BaseResponse {
 
 class FreeTrialWarningResponse extends BaseResponse {
   remainingTrialDays: number;
+  isSalesAssisted: boolean;
 
   constructor(response: any) {
     super(response);
     this.remainingTrialDays = this.getResponseProperty("RemainingTrialDays");
+    // Omitted by servers that predate PM-38574; false is the safe default (payment prompt shown).
+    this.isSalesAssisted = this.getResponseProperty("IsSalesAssisted") ?? false;
   }
 }
 
@@ -110,5 +127,18 @@ class PastDueRenewal extends BaseResponse {
   constructor(response: any) {
     super(response);
     this.suspensionDate = new Date(this.getResponseProperty("SuspensionDate"));
+  }
+}
+
+class ScheduledPriceIncreaseWarningResponse extends BaseResponse {
+  seatPrice: number;
+  effectiveDate: Date;
+  cadence: "monthly" | "annually";
+
+  constructor(response: any) {
+    super(response);
+    this.seatPrice = this.getResponseProperty("SeatPrice");
+    this.effectiveDate = new Date(this.getResponseProperty("EffectiveDate"));
+    this.cadence = this.getResponseProperty("Cadence");
   }
 }

@@ -19,6 +19,11 @@ import { filter, fromEvent, Observable, switchMap } from "rxjs";
 export class ScrollLayoutService {
   readonly scrollableRef = signal<ElementRef<HTMLElement> | null>(null);
   scrollableRef$ = toObservable(this.scrollableRef);
+
+  /**
+   * Whether the page is restoring a scroll position, so the collapsing regions start collapsed.
+   */
+  readonly restoredScrolled = signal(false);
 }
 
 /**
@@ -28,7 +33,6 @@ export class ScrollLayoutService {
  **/
 @Directive({
   selector: "[bitScrollLayoutHost]",
-  standalone: true,
   host: {
     class: "cdk-virtual-scrollable",
   },
@@ -36,13 +40,17 @@ export class ScrollLayoutService {
 export class ScrollLayoutHostDirective implements OnDestroy {
   private ref = inject(ElementRef);
   private service = inject(ScrollLayoutService);
+  private previousRef = this.service.scrollableRef();
 
   constructor() {
     this.service.scrollableRef.set(this.ref as ElementRef<HTMLElement>);
   }
 
   ngOnDestroy(): void {
-    this.service.scrollableRef.set(null);
+    // Only restore if this host is still the active one; out-of-order destruction must not clobber a live host.
+    if (this.service.scrollableRef() === this.ref) {
+      this.service.scrollableRef.set(this.previousRef);
+    }
   }
 }
 
@@ -55,7 +63,6 @@ export class ScrollLayoutHostDirective implements OnDestroy {
  */
 @Directive({
   selector: "[bitScrollLayout]",
-  standalone: true,
   providers: [{ provide: VIRTUAL_SCROLLABLE, useExisting: ScrollLayoutDirective }],
 })
 export class ScrollLayoutDirective extends CdkVirtualScrollable implements OnInit {

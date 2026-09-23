@@ -11,19 +11,15 @@
 bit-layout {
   #main-content {
     padding: 0 0 0 0;
-  }
-}
-/**
- * Send list panel styling for send-v2 component
- * Temporary during migration - width handled by tw-w-2/5
- **/
-.vault > .send-items-panel {
-  order: 2;
-  min-width: 200px;
-  border-right: 1px solid;
 
-  @include themify($themes) {
-    background-color: themed("backgroundColor");
-    border-right-color: themed("borderColor");
+    /**
+     * bit-banner bleeds to the edges of the content area by cancelling the padding removed
+     * above with negative margins. With that padding already gone, the offsets have nothing
+     * to cancel and push the banner past both sides of the content area, where it is clipped.
+     **/
+    bit-banner {
+      margin: 0;
+      padding-bottom: 0;
+    }
   }
 }

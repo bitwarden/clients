@@ -20,12 +20,12 @@ describe("PasswordRepromptService", () => {
 
   describe("enabled()", () => {
     it("returns false if a user does not have a master password", async () => {
-      userVerificationService.hasMasterPasswordAndMasterKeyHash.mockResolvedValue(false);
+      userVerificationService.hasMasterPassword.mockResolvedValue(false);
 
       expect(await passwordRepromptService.enabled()).toBe(false);
     });
     it("returns true if the user has a master password", async () => {
-      userVerificationService.hasMasterPasswordAndMasterKeyHash.mockResolvedValue(true);
+      userVerificationService.hasMasterPassword.mockResolvedValue(true);
 
       expect(await passwordRepromptService.enabled()).toBe(true);
     });

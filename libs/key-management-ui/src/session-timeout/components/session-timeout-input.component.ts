@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -241,8 +243,12 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     // Empty
   }
 
-  setDisabledState?(_isDisabled: boolean): void {
-    // Empty
+  setDisabledState?(isDisabled: boolean): void {
+    if (isDisabled) {
+      this.form.disable({ emitEvent: false });
+    } else {
+      this.form.enable({ emitEvent: false });
+    }
   }
 
   validate(_: AbstractControl): ValidationErrors | null {

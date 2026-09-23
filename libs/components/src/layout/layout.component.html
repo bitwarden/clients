@@ -1,16 +1,25 @@
 @let mainContentId = "main-content";
+<!-- data-nav-version mirrors the attribute bit-side-nav puts on its own <nav>.  The
+     `[data-nav-version="default"]` block in tw-theme.css remaps the shared nav tokens back to
+     the pre-vfo1 palette, and it is scoped to the element carrying the attribute — so without
+     this the tw-bg-bg-nav wedge behind main's rounded corner would resolve to the vfo1 brand
+     color while the nav beside it renders the default palette. -->
 <div
   #container
   class="tw-grid tw-relative tw-size-full tw-overflow-hidden tw-grid-rows-[minmax(0,1fr)]"
   [style.grid-template-columns]="gridTemplateColumns()"
-  [class.tw-bg-background-alt3]="rounded()"
+  [class.tw-bg-bg-nav]="rounded()"
+  [attr.data-nav-version]="rounded() ? sideNavService.version() : null"
   cdkTrapFocus
 >
   <!-- Skip-to-content link -->
   <div
     class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
   >
-    <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
+    <nav
+      class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2"
+      [attr.aria-label]="'skipLink' | i18n"
+    >
       <a
         #skipLink
         bitLink
@@ -19,8 +28,9 @@
         [routerLink]="[]"
         (click)="focusMainContent()"
         linkType="light"
-        >{{ "skipToContent" | i18n }}</a
       >
+        {{ "skipToContent" | i18n }}
+      </a>
     </nav>
   </div>
 
@@ -34,7 +44,8 @@
   @if (sideNavService.isOverlay() && siderailIsPushMode()) {
     <div
       aria-hidden="true"
-      class="tw-pointer-events-none tw-w-[3.75rem] tw-mx-0.5 tw-col-start-1 tw-row-start-1"
+      [style.width.rem]="siderailWidthRem"
+      class="tw-pointer-events-none tw-col-start-1 tw-row-start-1"
     ></div>
   }
 
@@ -44,12 +55,24 @@
     [id]="mainContentId"
     tabindex="-1"
     bitScrollLayoutHost
-    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
-    [class.tw-rounded-tl-2xl]="rounded()"
+    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-bg-background tw-pt-6 tw-@container has-[bit-page]:tw-p-0"
+    [style.min-width.rem]="mainContentMinWidthRem"
+    [class.tw-rounded-tl-2xl]="showRoundedCorner()"
+    [class]="vfo1Enabled() ? ['tw-p-10', 'has-[bit-header]:tw-pt-0'] : ['tw-p-8']"
   >
     <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
     <ng-content></ng-content>
   </main>
+
+  <!-- Footer region (always col 2): overlaps <main> but is a sibling of it — outside the
+       `cdk-virtual-scrollable` scroll container — so pinned content (e.g. a bulk-actions bar)
+       stays fixed to the viewport while <main> scrolls. `tw-contain-layout` makes this the
+       containing block for `position: fixed` content; unlike <main> this element never scrolls,
+       so it doesn't re-introduce scroll-with-content. Grid keeps it aligned to the main column,
+       and `pointer-events-none` lets clicks through to <main> (projected content opts back in). -->
+  <div class="tw-col-start-2 tw-row-start-1 tw-z-50 tw-contain-layout tw-pointer-events-none">
+    <ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>
+  </div>
 
   <!-- Overlay backdrop for side-nav (fixed, z-40 — below nav overlay z-50) -->
   <div

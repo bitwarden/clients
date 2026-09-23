@@ -1,14 +1,13 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { StateProvider } from "@bitwarden/common/platform/state";
-import { NotificationId, UserId } from "@bitwarden/common/types/guid";
-
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { ServerNotificationsService } from "../../../platform/server-notifications";
+import { StateProvider } from "../../../platform/state";
+import { NotificationId, UserId } from "../../../types/guid";
 import { NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";
 

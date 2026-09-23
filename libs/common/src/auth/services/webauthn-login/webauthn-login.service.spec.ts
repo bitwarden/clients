@@ -3,10 +3,11 @@ import { mock } from "jest-mock-extended";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LoginStrategyServiceAbstraction, WebAuthnLoginCredentials } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PrfKey } from "../../../types/key";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
@@ -136,7 +137,7 @@ describe("WebAuthnLoginService", () => {
 
       // Mock webAuthnUtils functions
       const expectedSaltHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
-      const saltArrayBuffer = Utils.hexStringToArrayBuffer(expectedSaltHex);
+      const saltArrayBuffer = Utils.fromHexToArray(expectedSaltHex);
 
       const publicKeyCredential = new MockPublicKeyCredential();
       const prfResult: ArrayBuffer =
@@ -263,7 +264,7 @@ describe("WebAuthnLoginService", () => {
 });
 
 // Test helpers
-function randomBytes(length: number): Uint8Array {
+function randomBytes(length: number): Uint8Array<ArrayBuffer> {
   return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
 }
 

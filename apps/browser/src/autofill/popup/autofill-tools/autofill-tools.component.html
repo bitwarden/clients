@@ -1,0 +1,34 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'Autofill Tools'" [showBackButton]="false" />
+
+  <div class="tw-mb-3 tw-flex tw-gap-2">
+    <button
+      id="autofill-tools_button_triage"
+      type="button"
+      bitButton
+      [buttonType]="view() === 'triage' ? 'primary' : 'secondary'"
+      size="small"
+      (click)="select('triage')"
+    >
+      Triage
+    </button>
+    <button
+      id="autofill-tools_button_webmapper"
+      type="button"
+      bitButton
+      [buttonType]="view() === 'webmapper' ? 'primary' : 'secondary'"
+      size="small"
+      (click)="select('webmapper')"
+    >
+      Webmapper
+    </button>
+  </div>
+
+  <!-- Both views stay mounted; visibility toggles so neither loses its state. -->
+  <div [hidden]="view() !== 'triage'">
+    <app-autofill-triage />
+  </div>
+  <div [hidden]="view() !== 'webmapper'">
+    <app-webmapper />
+  </div>
+</popup-page>

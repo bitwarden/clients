@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
@@ -34,7 +36,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
-  BadgeModule,
   ButtonModule,
   CompactModeService,
   DisclosureComponent,
@@ -46,6 +47,8 @@ import {
   SectionHeaderComponent,
   TypographyModule,
   ScrollLayoutDirective,
+  ChipActionComponent,
+  IconComponent,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -69,7 +72,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     CommonModule,
     ItemModule,
     ButtonModule,
-    BadgeModule,
     IconButtonModule,
     SectionComponent,
     TypographyModule,
@@ -82,6 +84,8 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     DisclosureComponent,
     DisclosureTriggerForDirective,
     ScrollLayoutDirective,
+    ChipActionComponent,
+    IconComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
@@ -131,12 +135,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * to estimate how many items can be displayed at once and how large the virtual container should be.
    * Needs to be updated if the item height or spacing changes.
    *
-   * Default: 52px + 1px border + 6px bottom margin = 59px
+   * Default: 52px + 2px border + 6px bottom margin = 60px
    *
    * Compact mode: 52px + 1px border = 53px
    */
   protected readonly itemHeight$ = this.compactModeService.enabled$.pipe(
-    map((enabled) => (enabled ? 53 : 59)),
+    map((enabled) => (enabled ? 53 : 60)),
   );
 
   /**
@@ -367,7 +371,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
 
   constructor(
-    private i18nService: I18nService,
+    protected i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private passwordRepromptService: PasswordRepromptService,
     private cipherService: CipherService,
@@ -383,7 +387,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     if (autofillShortcut === "") {
       this.autofillShortcutTooltip.set(undefined);
     } else {
-      const autofillTitle = this.i18nService.t("autoFill");
+      const autofillTitle = this.i18nService.t("autofillVerb");
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
@@ -426,8 +430,13 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
     // When only the `CipherListView` is available, fetch the full cipher details
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id!), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id!) as CipherId),
+    );
+
+    if (!cipherView) {
+      return;
+    }
 
     await this.vaultPopupAutofillService.doAutofill(cipherView);
   }

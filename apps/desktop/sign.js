@@ -3,7 +3,15 @@ const child_process = require("child_process");
 
 exports.default = async function (configuration) {
   const ext = configuration.path.split(".").at(-1);
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe"].includes(ext)) {
+  // An Appx embeds its publisher in the manifest, and signing fails unless that
+  // publisher matches the certificate subject. Store packages are published unsigned
+  // under the Microsoft-assigned publisher, so Appx signing is opt-in per build rather
+  // than always on.
+  const signExts = ["exe", "dll", "node"];
+  if (parseInt(process.env.ELECTRON_BUILDER_SIGN_APPX) === 1) {
+    signExts.push("appx");
+  }
+  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && signExts.includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
     child_process.execFileSync(
       "azuresigntool",
@@ -25,7 +33,10 @@ exports.default = async function (configuration) {
         stdio: "inherit",
       },
     );
-  } else if (process.env.ELECTRON_BUILDER_SIGN_CERT && ["exe", "appx"].includes(ext)) {
+  } else if (
+    process.env.ELECTRON_BUILDER_SIGN_CERT &&
+    ["exe", "dll", "node", "appx"].includes(ext)
+  ) {
     console.log(`[*] Signing file: ${configuration.path}`);
     if (process.platform !== "win32") {
       console.warn(

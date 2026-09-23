@@ -1,7 +1,10 @@
-import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, defer, switchMap, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
@@ -14,7 +17,6 @@ import {
   WebAuthnPrfUnlockService,
 } from "@bitwarden/key-management-ui";
 
-import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -29,20 +31,12 @@ export class ExtensionLockComponentService implements LockComponentService {
     private readonly biometricStateService: BiometricStateService,
     private readonly routerService: BrowserRouterService,
     private readonly webAuthnPrfUnlockService: WebAuthnPrfUnlockService,
+    private readonly sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private readonly configService: ConfigService,
   ) {}
 
   getPreviousUrl(): string | null {
     return this.routerService.getPreviousUrl() ?? null;
-  }
-
-  getBiometricsError(error: any): string | null {
-    const biometricsError = BiometricErrors[error?.message as BiometricErrorTypes];
-
-    if (!biometricsError) {
-      return null;
-    }
-
-    return biometricsError.description;
   }
 
   async popOutBrowserExtension(): Promise<void> {
@@ -67,22 +61,26 @@ export class ExtensionLockComponentService implements LockComponentService {
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
-      // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
-      defer(async () => {
-        if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId)))) {
-          return BiometricsStatus.NotEnabledLocally;
-        } else {
-          // TODO remove after 2025.3
-          // remove after backward compatibility code for old biometrics ipc protocol is removed
-          const result: BiometricsStatus = (await Promise.race([
-            this.biometricsService.getBiometricsStatusForUser(userId),
-            new Promise((resolve) =>
-              setTimeout(() => resolve(BiometricsStatus.DesktopDisconnected), 1000),
-            ),
-          ])) as BiometricsStatus;
-          return result;
-        }
-      }),
+      combineLatest([
+        this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
+        this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
+        // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
+        this.biometricStateService.biometricUnlockEnabled$(userId),
+      ]).pipe(
+        switchMap(
+          async ([
+            sharedUnlockFeatureEnabled,
+            allowSharingWithDesktop,
+            unlockSharingDisabled,
+            biometricUnlockEnabled,
+          ]) =>
+            biometricUnlockEnabled ||
+            (sharedUnlockFeatureEnabled && allowSharingWithDesktop && !unlockSharingDisabled)
+              ? await this.biometricsService.getBiometricsStatusForUser(userId)
+              : BiometricsStatus.NotEnabledLocally,
+        ),
+      ),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
       defer(async () => {

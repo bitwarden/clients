@@ -1,6 +1,7 @@
 use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
 
 use anyhow::{anyhow, Result};
+use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use tokio::{
     io::{self, AsyncReadExt, AsyncWriteExt},
     net::windows::named_pipe::{NamedPipeServer, ServerOptions},
@@ -17,6 +18,34 @@ use windows::{
 use super::abe_config;
 
 const WAIT_FOR_ADMIN_MESSAGE_TIMEOUT_SECS: u64 = 30;
+
+// app_bound_encrypted_key from Local State is a base64 of (APPB-prefixed) DPAPI
+// blobs — typically a few hundred bytes. Cap at 4 KiB to keep the ShellExecuteW
+// command line well under the ~32 KiB Windows limit and to bound the work done by
+// the base64 validator for untrusted input.
+const MAX_ENCRYPTED_LEN: usize = 4 * 1024;
+
+/// Returns true only if `input` is canonical standard Base64 under the size cap.
+///
+/// SECURITY: This function is the input-validation boundary that prevents command
+/// injection into the elevated helper process. `encrypted` is embedded verbatim into
+/// the command line passed to `ShellExecuteW` with the `runas` verb, so any
+/// character outside the Base64 alphabet (in particular `"`, `\`, space, `&`, `|`,
+/// `;`, `<`, `>`, `^`) must be rejected here. `BASE64_STANDARD` from base64 v0.22
+/// enforces a canonical alphabet and rejects whitespace and non-alphabet bytes; do
+/// not swap in a tolerant engine (e.g. `STANDARD_NO_PAD`, `GeneralPurpose` with
+/// `decode_allow_trailing_bits`) without re-evaluating this invariant.
+fn is_base64(input: &str) -> bool {
+    input.len() <= MAX_ENCRYPTED_LEN && BASE64_STANDARD.decode(input).is_ok()
+}
+
+struct AbortOnDrop(JoinHandle<Result<(), io::Error>>);
+
+impl Drop for AbortOnDrop {
+    fn drop(&mut self) {
+        self.0.abort();
+    }
+}
 
 fn start_tokio_named_pipe_server<F>(
     pipe_name: &'static str,
@@ -113,6 +142,10 @@ where
 }
 
 pub(crate) async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> Result<String> {
+    if !is_base64(encrypted) {
+        return Err(anyhow!("Encrypted value is not base64 encoded"));
+    }
+
     let (tx, mut rx) = channel::<String>(1);
 
     debug!(
@@ -120,19 +153,16 @@ pub(crate) async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> 
         abe_config::ADMIN_TO_USER_PIPE_NAME
     );
 
-    let server = match start_tokio_named_pipe_server(
-        abe_config::ADMIN_TO_USER_PIPE_NAME,
-        move |message: &str| {
+    let _server_guard = AbortOnDrop(
+        start_tokio_named_pipe_server(abe_config::ADMIN_TO_USER_PIPE_NAME, move |message: &str| {
             let _ = tx.try_send(message.to_string());
             "ok".to_string()
-        },
-    ) {
-        Ok(server) => server,
-        Err(e) => return Err(anyhow!("Failed to start named pipe server: {}", e)),
-    };
+        })
+        .map_err(|e| anyhow!("Failed to start named pipe server: {}", e))?,
+    );
 
     debug!("Launching '{}' as ADMINISTRATOR...", admin_exe);
-    decrypt_with_admin_exe_internal(admin_exe, encrypted);
+    decrypt_with_admin_exe_internal(admin_exe, encrypted)?;
 
     debug!("Waiting for message from {}...", admin_exe);
     let message = match timeout(
@@ -146,13 +176,10 @@ pub(crate) async fn decrypt_with_admin_exe(admin_exe: &str, encrypted: &str) -> 
         Err(_) => return Err(anyhow!("Timeout waiting for message from {}", admin_exe)),
     };
 
-    debug!("Shutting down the pipe server...");
-    server.abort();
-
     Ok(message)
 }
 
-fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) {
+fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) -> Result<()> {
     // Convert strings to wide strings for Windows API
     let exe_wide = OsStr::new(admin_exe)
         .encode_wide()
@@ -167,7 +194,7 @@ fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) {
         .chain(std::iter::once(0))
         .collect::<Vec<u16>>();
 
-    unsafe {
+    let hinstance = unsafe {
         ShellExecuteW(
             None,
             PCWSTR(runas_wide.as_ptr()),
@@ -175,6 +202,50 @@ fn decrypt_with_admin_exe_internal(admin_exe: &str, encrypted: &str) {
             PCWSTR(parameters.as_ptr()),
             None,
             SW_HIDE,
-        );
+        )
+    };
+    if hinstance.0 as usize <= 32 {
+        return Err(anyhow!(
+            "ShellExecuteW failed to launch {}: code {}",
+            admin_exe,
+            hinstance.0 as usize
+        ));
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn accepts_canonical_base64() {
+        assert!(is_base64("QVBQQgEAAADQjJ3fARXREYx6AMBPwpfr"));
+        assert!(is_base64(""));
+    }
+
+    #[test]
+    fn rejects_shell_metacharacters() {
+        for bad in [
+            r#"abc"def"#,
+            r"abc\def",
+            "abc def",
+            "abc&def",
+            "abc|def",
+            "abc;def",
+            "abc<def",
+            "abc>def",
+            "abc^def",
+            "abc\ndef",
+            "abc\tdef",
+        ] {
+            assert!(!is_base64(bad), "expected rejection of: {bad:?}");
+        }
+    }
+
+    #[test]
+    fn rejects_oversized_input() {
+        let oversized = "A".repeat(MAX_ENCRYPTED_LEN + 1);
+        assert!(!is_base64(&oversized));
     }
 }

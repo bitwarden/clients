@@ -3,14 +3,12 @@ import { of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { Argon2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
-import { HashPurpose } from "../../../platform/enums";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { MasterKey, UserKey } from "../../../types/key";
+import { UserKey } from "../../../types/key";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -24,7 +22,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
   let sut: DefaultMasterPasswordUnlockService;
 
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
-  let keyService: MockProxy<KeyService>;
   let logService: MockProxy<LogService>;
 
   const mockMasterPassword = "testExample";
@@ -37,25 +34,16 @@ describe("DefaultMasterPasswordUnlockService", () => {
     "encryptedMasterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
   );
 
-  //Legacy data for tests
-  const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
-  const mockKeyHash = "localKeyHash";
-
   beforeEach(() => {
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
-    keyService = mock<KeyService>();
     logService = mock<LogService>();
 
-    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService, logService);
+    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, logService);
 
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of(mockMasterPasswordUnlockData),
     );
     masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockResolvedValue(mockUserKey);
-
-    // Legacy state mocking
-    keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-    keyService.hashMasterKey.mockResolvedValue(mockKeyHash);
   });
 
   afterEach(() => {
@@ -108,7 +96,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
       );
     });
 
-    it("sets legacy state on success", async () => {
+    it("unwraps the user key from the persisted unlock data", async () => {
       const result = await sut.unlockWithMasterPassword(mockMasterPassword, mockUserId);
 
       expect(result).toEqual(mockUserKey);
@@ -117,42 +105,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPassword,
         mockMasterPasswordUnlockData,
       );
-
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData.salt,
-        mockMasterPasswordUnlockData.kdf,
-      );
-      expect(keyService.hashMasterKey).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterKey,
-        HashPurpose.LocalAuthorization,
-      );
-      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(mockKeyHash, mockUserId);
-      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
-    });
-
-    it("throws an error if masterKey construction fails", async () => {
-      keyService.makeMasterKey.mockResolvedValue(null as unknown as MasterKey);
-
-      await expect(sut.unlockWithMasterPassword(mockMasterPassword, mockUserId)).rejects.toThrow(
-        "Master key could not be created to set legacy master password state.",
-      );
-
-      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
-      expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData,
-      );
-
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterPasswordUnlockData.salt,
-        mockMasterPasswordUnlockData.kdf,
-      );
-      expect(keyService.hashMasterKey).not.toHaveBeenCalled();
-      expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalled();
-      expect(masterPasswordService.setMasterKey).not.toHaveBeenCalled();
     });
   });
 

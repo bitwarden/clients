@@ -1,0 +1,29 @@
+{
+  "skill_name": "figma-to-angular",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to implement a dropzone upload component from this figma spec https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=33308-25180&m=dev - it should go in libs/components and use existing components where relevant like bit-label",
+      "expected_output": "Creates dropzone component files (component.ts, component.html, index.ts, stories.ts), adds i18n keys, updates barrel exports, uses bit-label and bitButton, verifies in Storybook",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Build a progress bar component from this design https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=33308-25400&m=dev - put it in libs/components/src/progress",
+      "expected_output": "Creates or updates progress component files following codebase conventions, maps Figma colors to semantic tokens, creates stories with multiple variants, uses I18nPipe for any text, verifies in Storybook",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Here's the Figma for a toast notification component https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=33308-26000&m=dev - create it as an Angular component in the component library with stories",
+      "expected_output": "Explores existing toast component patterns, creates/updates component matching Figma, uses semantic design tokens, all strings localized via I18nPipe, stories cover success/error/warning/info variants, Storybook verification via Playwright",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "bit-rating-stars https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=33308-25600&m=dev",
+      "expected_output": "Infers component name from 'bit-rating-stars', fetches the Figma design, explores codebase conventions, creates component files with stories, uses I18nPipe for text, verifies in Storybook — all without needing explicit instructions beyond the name and link",
+      "files": []
+    }
+  ]
+}

@@ -35,6 +35,9 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      targetFolderIncluded: false,
+      targetCollectionIncluded: false,
+      errors: [],
       ciphers: [],
       success: false,
       errorMessage: "",
@@ -49,6 +52,9 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      targetFolderIncluded: false,
+      targetCollectionIncluded: false,
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -70,6 +76,9 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      targetFolderIncluded: false,
+      targetCollectionIncluded: false,
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -94,6 +103,9 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      targetFolderIncluded: false,
+      targetCollectionIncluded: false,
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -128,6 +140,9 @@ describe("processFolder method", () => {
       ],
       collections: [],
       collectionRelationships: [],
+      targetFolderIncluded: false,
+      targetCollectionIncluded: false,
+      errors: [],
       ciphers: [
         { name: "cipher1", id: "cipher1" } as CipherView,
         { name: "cipher2", id: "cipher2" } as CipherView,
@@ -173,6 +188,13 @@ describe("processFolder method", () => {
     ]);
   });
 
+  it("should trim leading slashes from folder names to prevent unnecessary creations", () => {
+    importer.processFolder(result, "\\Parent\\Child");
+
+    expect(result.folders).toHaveLength(2);
+    expect(result.folders.map((f) => f.name)).toEqual(["Parent/Child", "Parent"]);
+  });
+
   it("should handle empty or null folder names gracefully", () => {
     importer.processFolder(result, null);
     importer.processFolder(result, "");
@@ -198,7 +220,7 @@ describe("BaseImporter class", () => {
       ["5/21", "5", "2021"],
       ["10/2100", "10", "2100"],
     ])(
-      "sets ciper card expYear & expMonth and returns true",
+      "sets cipher card expYear & expMonth and returns true",
       (expiration, expectedMonth, expectedYear) => {
         const result = importer.setCardExpiration(cipher, expiration);
         expect(cipher.card.expMonth).toBe(expectedMonth);

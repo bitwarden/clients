@@ -1,9 +1,10 @@
 import { map, Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SignedSecurityState } from "@bitwarden/legacy-crypto";
 
+import { UserId } from "../../../types/guid";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
-import { SignedSecurityState } from "../../types";
 import { SecurityStateService } from "../abstractions/security-state.service";
 
 export class DefaultSecurityStateService implements SecurityStateService {

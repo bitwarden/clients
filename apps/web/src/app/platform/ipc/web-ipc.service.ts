@@ -3,12 +3,7 @@ import { inject } from "@angular/core";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import {
-  IpcMessage,
-  IpcService,
-  isIpcMessage,
-  IpcSessionRepository,
-} from "@bitwarden/common/platform/ipc";
+import { IpcMessage, IpcService, isIpcMessage } from "@bitwarden/common/platform/ipc";
 import {
   IncomingMessage,
   IpcClient,
@@ -20,7 +15,6 @@ import {
 export class WebIpcService extends IpcService {
   private logService = inject(LogService);
   private platformUtilsService = inject(PlatformUtilsService);
-  private sessionRepository = inject(IpcSessionRepository);
   private communicationBackend?: IpcCommunicationBackend;
 
   override async init() {
@@ -30,7 +24,10 @@ export class WebIpcService extends IpcService {
 
       this.communicationBackend = new IpcCommunicationBackend({
         async send(message: OutgoingMessage): Promise<void> {
-          if (message.destination === "BrowserBackground") {
+          if (
+            typeof message.destination === "object" &&
+            "BrowserBackground" in message.destination
+          ) {
             window.postMessage(
               {
                 type: "bitwarden-ipc-message",
@@ -45,7 +42,7 @@ export class WebIpcService extends IpcService {
             return;
           }
 
-          throw new Error(`Destination not supported: ${message.destination}`);
+          throw new Error(`Destination not supported: ${JSON.stringify(message.destination)}`);
         },
       });
 
@@ -61,7 +58,7 @@ export class WebIpcService extends IpcService {
 
         if (
           typeof message.message.destination !== "object" ||
-          message.message.destination.Web == undefined
+          !("Web" in message.message.destination)
         ) {
           return;
         }
@@ -70,21 +67,17 @@ export class WebIpcService extends IpcService {
           new IncomingMessage(
             new Uint8Array(message.message.payload),
             message.message.destination,
-            "BrowserBackground",
+            { BrowserBackground: { id: "Own" } },
             message.message.topic,
           ),
         );
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
-      if (this.platformUtilsService.isDev()) {
-        await ipcRegisterDiscoverHandler(this.client, {
-          version: await this.platformUtilsService.getApplicationVersion(),
-        });
-      }
+      await ipcRegisterDiscoverHandler(this.client, {
+        version: await this.platformUtilsService.getApplicationVersion(),
+      });
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

@@ -19,6 +19,8 @@ export abstract class GeneratorHistoryService {
    *  @param credential stored by the history service.
    *  @param date when the credential was generated. If this is omitted, then the generator
    *    uses the date the credential was added to the store instead.
+   *  @param algorithm the string id of the algorithm used to generate the credential.
+   *    Disambiguates sub-types within a `CredentialType` (e.g. `password` vs `passphrase`).
    *  @returns a promise that completes with the added credential. If the credential
    *    wasn't added, then the promise completes with `null`.
    *  @remarks this service is not suitable for use with vault items/ciphers. It models only
@@ -31,6 +33,7 @@ export abstract class GeneratorHistoryService {
     credential: string,
     category: CredentialType,
     date?: Date,
+    algorithm?: string,
   ) => Promise<GeneratedCredential | null>;
 
   /** Removes a matching credential from the history service.

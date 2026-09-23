@@ -1,11 +1,14 @@
 import { CommonModule, Location } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Component, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
+import {
+  LoginSuccessHandlerService,
+  LoginStrategySessionTimeoutService,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -57,6 +60,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     ],
   });
 
+  private readonly formGroupDirective = viewChild(FormGroupDirective);
+
   protected disableRequestOTP = false;
   private destroy$ = new Subject<void>();
   protected authenticationSessionTimeoutRoute = "/authentication-timeout";
@@ -74,19 +79,16 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private masterPasswordService: MasterPasswordServiceAbstraction,
     private newDeviceVerificationComponentService: NewDeviceVerificationComponentService,
     private location: Location,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {}
 
   async ngOnInit() {
     this.showBackButton = this.newDeviceVerificationComponentService.showBackButton();
 
     // Redirect to timeout route if session expires
-    this.loginStrategyService.authenticationSessionTimeout$
+    this.loginStrategySessionTimeoutService.loginSessionTimeout$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((expired) => {
-        if (!expired) {
-          return;
-        }
-
+      .subscribe(() => {
         try {
           void this.router.navigate([this.authenticationSessionTimeoutRoute]);
         } catch (err) {
@@ -184,6 +186,16 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       codeControl.markAsTouched();
     }
   };
+
+  onPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {
+      return;
+    }
+    event.preventDefault();
+    this.formGroup.get("code")?.setValue(pastedText);
+    this.formGroupDirective()?.onSubmit(new Event("submit"));
+  }
 
   protected goBack() {
     this.location.back();

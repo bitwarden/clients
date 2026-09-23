@@ -4,7 +4,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherType } from "@bitwarden/sdk-internal";
 
-import { isMac, isMacAppStore } from "../../utils";
+import { isMac, isMacAppStore } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { FirstMenu } from "./menu.first";
@@ -56,6 +56,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     isLocked: boolean,
     isLockable: boolean,
     private restrictedCipherTypes: CipherType[],
+    private pm32009NewItemTypes: boolean = false,
   ) {
     super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
@@ -118,7 +119,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       },
       {
         id: "typeSecureNote",
-        label: this.localize("typeNote"),
+        label: this.localize(this.pm32009NewItemTypes ? "typeSecureNote" : "typeNote"),
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },

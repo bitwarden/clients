@@ -25,11 +25,13 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { VaultFilterService } from "./vault-filter.service";
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
 
 jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
   sortDefaultCollections: jest.fn((): CollectionView[] => []),
@@ -50,8 +52,10 @@ describe("vault filter service", () => {
   let cipherViews: ReplaySubject<CipherView[]>;
   let organizationDataOwnershipPolicy: ReplaySubject<boolean>;
   let singleOrgPolicy: ReplaySubject<boolean>;
+  let autoConfirmPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
+  let vfo1TerminologyService: MockProxy<Vfo1TerminologyService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -68,6 +72,8 @@ describe("vault filter service", () => {
     i18nService.collator = new Intl.Collator("en-US");
     collectionService = mock<CollectionService>();
     configService = mock<ConfigService>();
+    vfo1TerminologyService = mock<Vfo1TerminologyService>();
+    vfo1TerminologyService.iconClass.mockImplementation((icon) => icon);
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
@@ -75,6 +81,7 @@ describe("vault filter service", () => {
     cipherViews = new ReplaySubject<CipherView[]>(1);
     organizationDataOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
+    autoConfirmPolicy = new ReplaySubject<boolean>(1);
 
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.memberOrganizations$.mockReturnValue(organizations);
@@ -86,6 +93,9 @@ describe("vault filter service", () => {
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.AutomaticUserConfirmation, mockUserId)
+      .mockReturnValue(autoConfirmPolicy);
     cipherService.cipherListViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
@@ -97,9 +107,27 @@ describe("vault filter service", () => {
       stateProvider,
       collectionService,
       accountService,
+      configService,
+      vfo1TerminologyService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
+  });
+
+  describe("shared-folder terminology filter heads", () => {
+    it("uses collection/folder head names when the flag is off", () => {
+      vfo1TerminologyService.enabled.mockReturnValue(false);
+
+      expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("collections");
+      expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("folders");
+    });
+
+    it("uses shared-folder/my-folder head names when the flag is on", () => {
+      vfo1TerminologyService.enabled.mockReturnValue(true);
+
+      expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("sharedFolders");
+      expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("myFolders");
+    });
   });
 
   describe("collapsed filter nodes", () => {
@@ -134,6 +162,7 @@ describe("vault filter service", () => {
       organizations.next(storedOrgs);
       organizationDataOwnershipPolicy.next(false);
       singleOrgPolicy.next(false);
+      autoConfirmPolicy.next(false);
     });
 
     it("returns a nested tree", async () => {
@@ -356,6 +385,89 @@ describe("vault filter service", () => {
           storedOrgs,
           i18nService.collator,
         );
+      });
+    });
+  });
+
+  describe("cipherTypeFilters$", () => {
+    describe("when PM32009NewItemTypes flag is disabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+        vaultFilterService = new VaultFilterService(
+          organizationService,
+          folderService,
+          cipherService,
+          policyService,
+          i18nService,
+          stateProvider,
+          collectionService,
+          accountService,
+          configService,
+          vfo1TerminologyService,
+        );
+      });
+
+      it("omits new item types", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.map((f) => f.id)).not.toContain("bankAccount");
+        expect(filters.map((f) => f.id)).not.toContain("driversLicense");
+      });
+
+      it("uses bwi-globe for login", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Login)?.icon).toBe("bwi-globe");
+      });
+
+      it("uses bwi-id-card for identity", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Identity)?.icon).toBe("bwi-id-card");
+      });
+    });
+
+    describe("when PM32009NewItemTypes flag is enabled", () => {
+      it("emits filters in the correct order", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.map((f) => f.id)).toEqual([
+          "favorites",
+          "login",
+          "card",
+          "bankAccount",
+          "identity",
+          "driversLicense",
+          "passport",
+          "note",
+          "sshKey",
+        ]);
+      });
+
+      it("includes bankAccount as the 4th filter", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters[3].id).toBe("bankAccount");
+        expect(filters[3].type).toBe(CipherType.BankAccount);
+      });
+
+      it("includes driversLicense as the 6th filter", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters[5].id).toBe("driversLicense");
+        expect(filters[5].type).toBe(CipherType.DriversLicense);
+      });
+
+      it("uses bwi-lock for login", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Login)?.icon).toBe("bwi-lock");
+      });
+
+      it("uses bwi-user for identity", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Identity)?.icon).toBe("bwi-user");
       });
     });
   });

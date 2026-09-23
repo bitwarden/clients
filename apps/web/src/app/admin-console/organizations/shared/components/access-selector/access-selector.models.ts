@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
@@ -81,6 +79,26 @@ export type AccessItemValue = {
 export type Permission = {
   perm: CollectionPermission;
   labelId: string;
+  /**
+   * VFO1 terminology feature flag variant of `labelId`. Falls back to `labelId` when not set.
+   */
+  vfo1LabelId?: string;
+};
+
+/**
+ * Resolves the i18n label id to display for `permission`, honoring the VFO1 terminology
+ * feature flag. Falls back to the legacy `labelId` when the permission has no `vfo1LabelId`
+ * or `vfo1Enabled` is false. All consumers of `getPermissionList()` should render labels
+ * through this helper so they stay consistent with each other.
+ */
+export const permissionLabelId = (
+  permission: Permission | undefined,
+  vfo1Enabled: boolean,
+): string | undefined => {
+  if (permission == null) {
+    return undefined;
+  }
+  return vfo1Enabled ? (permission.vfo1LabelId ?? permission.labelId) : permission.labelId;
 };
 
 export const getPermissionList = (): Permission[] => {
@@ -89,7 +107,9 @@ export const getPermissionList = (): Permission[] => {
     { perm: CollectionPermission.View, labelId: "viewItems" },
     { perm: CollectionPermission.EditExceptPass, labelId: "editItemsHidePass" },
     { perm: CollectionPermission.Edit, labelId: "editItems" },
-    { perm: CollectionPermission.Manage, labelId: "manageCollection" },
+    // "manageCollection" is shortened to "manage" rather than following the usual
+    // collection -> shared folder renaming pattern.
+    { perm: CollectionPermission.Manage, labelId: "manageCollection", vfo1LabelId: "manage" },
   ];
 
   return permissions;
@@ -129,10 +149,11 @@ export const convertToSelectionView = (value: AccessItemValue) => {
   });
 };
 
-const readOnly = (perm: CollectionPermission) =>
-  [CollectionPermission.View, CollectionPermission.ViewExceptPass].includes(perm);
+const readOnly = (perm: CollectionPermission | undefined) =>
+  perm != null && [CollectionPermission.View, CollectionPermission.ViewExceptPass].includes(perm);
 
-const hidePassword = (perm: CollectionPermission) =>
+const hidePassword = (perm: CollectionPermission | undefined) =>
+  perm != null &&
   [CollectionPermission.ViewExceptPass, CollectionPermission.EditExceptPass].includes(perm);
 
 export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
@@ -151,7 +172,8 @@ export function mapUserToAccessItemView(user: OrganizationUserUserDetailsRespons
     type: AccessItemType.Member,
     email: user.email,
     role: user.type,
-    listName: user.name?.length > 0 ? `${user.name} (${user.email})` : user.email,
+    listName:
+      user.name != null && user.name.length > 0 ? `${user.name} (${user.email})` : user.email,
     labelName: user.name ?? user.email,
     status: user.status,
   };

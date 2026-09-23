@@ -33,10 +33,11 @@
   "parallel": 4,
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["production", "^production"],
       "outputs": ["{options.outputPath}"],
       "cache": true
     }
-  }
+  },
+  "analytics": false
 }

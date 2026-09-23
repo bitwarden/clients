@@ -147,7 +147,7 @@ describe("DesktopLockComponentService", () => {
 
     it("throws an error for an unsupported platform", () => {
       platformUtilsService.getDevice.mockReturnValue("unsupported" as any);
-      expect(() => service.getBiometricsUnlockBtnText()).toThrowError("Unsupported platform");
+      expect(() => service.getBiometricsUnlockBtnText()).toThrow("Unsupported platform");
     });
   });
 

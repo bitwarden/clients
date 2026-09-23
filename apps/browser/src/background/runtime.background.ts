@@ -2,21 +2,23 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import {
+  IntraprocessMessageSender,
+  MessageListener,
+  isExternalMessage,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -25,12 +27,26 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
-import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "../autofill/background/abstractions/notification.background";
+import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
+import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
+import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
+import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../platform/browser/browser-api";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { getWebExtSender } from "../platform/utils/web-ext-sender";
 
 import MainBackground from "./main.background";
 
@@ -45,7 +61,6 @@ export default class RuntimeBackground {
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -55,11 +70,27 @@ export default class RuntimeBackground {
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private browserInitialInstallService: BrowserInitialInstallService,
+    private autofillLifecycleService: AutofillLifecycleService,
+    private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
+    private autofillOrchestrator: AutofillOrchestrator,
+    private intraprocessMessageSender: IntraprocessMessageSender,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
       this.onInstalledReason = details.reason;
     });
+
+    const onPrivacyPermissionAdded = (
+      permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+    ) => {
+      void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+    };
+
+    if (BrowserApi.isWebExtensionsApi && browser?.permissions?.onAdded) {
+      browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    } else if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    }
   }
 
   async init() {
@@ -68,6 +99,7 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
+
     const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
@@ -80,6 +112,8 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
+        "getUrlAutofillTargetingRules",
+        "getBitwardenAutofillAttributeSettings",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -124,58 +158,41 @@ export default class RuntimeBackground {
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
         break;
+      case AutofillMessageCommand.pageTransitionDetected:
+        // A page-lifecycle monitor reports a transition as a fact. The service
+        // buffers it against monitoring state and `AutofillOrchestrator` decides whether
+        // it warrants a collection.
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, sender.url);
+        break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
-          case "autofiller":
-          case ExtensionCommand.AutofillCommand: {
-            const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-            );
-            await this.accountService.setAccountActivity(activeUserId, new Date());
-            const totpCode = await this.autofillService.doAutoFillActiveTab(
-              [
-                {
-                  frameId: sender.frameId,
-                  tab: msg.tab,
-                  details: msg.details,
-                },
-              ],
-              msg.sender === ExtensionCommand.AutofillCommand,
-            );
-            if (totpCode != null) {
-              this.platformUtilsService.copyToClipboard(totpCode);
-            }
-            await this.main.updateOverlayCiphers();
+          case ExtensionCommand.AutofillCommand:
+            this.autofillOrchestrator.autofillActiveTabFromCommand({
+              frameId: sender.frameId,
+              tab: msg.tab,
+              details: msg.details,
+            });
             break;
-          }
-          case ExtensionCommand.AutofillCard: {
-            await this.autofillService.doAutoFillActiveTab(
-              [
-                {
-                  frameId: sender.frameId,
-                  tab: msg.tab,
-                  details: msg.details,
-                },
-              ],
-              msg.sender === ExtensionCommand.AutofillCard,
+          case ExtensionCommand.AutofillCard:
+            this.autofillOrchestrator.autofillActiveTabForCipherType(
+              {
+                frameId: sender.frameId,
+                tab: msg.tab,
+                details: msg.details,
+              },
               CipherType.Card,
             );
             break;
-          }
-          case ExtensionCommand.AutofillIdentity: {
-            await this.autofillService.doAutoFillActiveTab(
-              [
-                {
-                  frameId: sender.frameId,
-                  tab: msg.tab,
-                  details: msg.details,
-                },
-              ],
-              msg.sender === ExtensionCommand.AutofillIdentity,
+          case ExtensionCommand.AutofillIdentity:
+            this.autofillOrchestrator.autofillActiveTabForCipherType(
+              {
+                frameId: sender.frameId,
+                tab: msg.tab,
+                details: msg.details,
+              },
               CipherType.Identity,
             );
             break;
-          }
           case "contextMenu":
             clearTimeout(this.autofillTimeout);
             this.pageDetailsToAutoFill.push({
@@ -213,6 +230,92 @@ export default class RuntimeBackground {
         );
         return result;
       }
+      case "getUrlAutofillTargetingRules": {
+        const senderURL = await this.resolveSenderFrameUrl(sender);
+        const targetingRulesForUrl =
+          await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
+
+        return targetingRulesForUrl;
+      }
+      case "getBitwardenAutofillAttributeSettings": {
+        const [honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute] = await Promise.all([
+          firstValueFrom(this.autofillSettingsService.honorBitwardenIgnoreAttribute$),
+          firstValueFrom(this.autofillSettingsService.honorBitwardenAutofillAttribute$),
+        ]);
+
+        return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
+      }
+      case "authResult": {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
+        }
+
+        if (sender.tab?.id) {
+          await BrowserApi.closeTab(sender.tab.id).catch((error) => {
+            this.logService.error("Unable to close SSO tab", error);
+          });
+        }
+        break;
+      }
+    }
+  }
+
+  /** Resolves the URL currently loaded in the frame a message came from. */
+  private async resolveSenderFrameUrl(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<string | undefined> {
+    const tabId = sender.tab?.id;
+    const frameId = sender.frameId;
+
+    if (tabId != null && frameId != null) {
+      // `frame.url` takes precedence over `tab.url` to minimize selector
+      // collisions between frames with similar in-frame markup. `frame.url`
+      // takes precedence over `sender.url` because the sender's value is pinned
+      // to the frame URI when the port was opened.
+      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+        .then((frame) => frame?.url)
+        .catch((): undefined => undefined);
+
+      if (frameUrl) {
+        return frameUrl;
+      }
+    }
+
+    if (frameId === 0 && sender.tab?.url) {
+      return sender.tab.url;
+    }
+
+    return sender.url ?? sender.tab?.url;
+  }
+
+  private async handleSetBitwardenAsDefaultPasswordManager(
+    permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+  ) {
+    if (!(permissions.permissions as string[] | undefined)?.includes("privacy")) {
+      return;
+    }
+
+    if (!(await isDefaultPasswordManagerPromptFeatureEnabled(this.configService))) {
+      return;
+    }
+
+    try {
+      await completePendingDefaultPasswordManagerApply();
+    } catch (error) {
+      this.logService.error(error);
     }
   }
 
@@ -233,44 +336,61 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadService.cancelProcessReload();
-
         if (item) {
-          await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
-          await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
-          await BrowserApi.tabSendMessageData(
-            item.commandToRetry.sender.tab,
-            "unlockCompleted",
-            item,
-          );
+          const senderTab = item.commandToRetry?.[RETRY_SENDER]?.tab;
+          // No tab means nothing to focus
+          if (senderTab) {
+            await BrowserApi.focusWindow(senderTab.windowId);
+            await BrowserApi.focusTab(senderTab.id);
+          }
+
+          // Dispatched intraprocess, so the retained command reaches the background consumers
+          // without being serialized out to the sender tab and read back.
+          //
+          // The intraprocess subject does not replay, so every consumer must already be
+          // subscribed when this runs. The `awaits` on the `loggedIn` command ensure these
+          // subscriptions are active when `RETRY_WHEN_UNLOCK_COMPLETED` is sent.
+          //
+          // FIXME: That precondition is non-local — nothing here enforces the bootstrap order it
+          // depends on. Awaiting `initOverlayAndTabsBackground()` unconditionally in this branch
+          // would make the construction unconditional rather than conventional, but it would
+          // also build the overlay on unlock in states where today it stays unbuilt (the call
+          // early-returns when logged out), so it was left out of a security-only change.
+          this.intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data: item });
         }
 
-        // @TODO these need to happen last to avoid blocking `tabSendMessageData` above
-        // The underlying cause exists within `cipherService.getAllDecrypted` via
-        // `getAllDecryptedForUrl` and is anticipated to be refactored
+        // @TODO The underlying cause exists within `cipherService.getAllDecrypted` via
+        // `getAllDecryptedForUrl` and is anticipated to be refactored.
         await this.main.refreshMenu(false);
 
         await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         break;
       }
-      case "addToLockedVaultPendingNotifications":
-        this.lockedVaultPendingNotifications.push(msg.data);
+      case ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command:
+        // The payload names the tab that will receive the retried autofill, so it is only
+        // honoured when the background authored it. A copy that arrived over
+        // `chrome.runtime.onMessage` is tagged external at ingest and dropped here.
+        if (!isExternalMessage(msg)) {
+          this.lockedVaultPendingNotifications.push(msg.data);
+        }
         break;
       case "abandonAutofillPendingNotifications":
+        // Deliberately ungated, unlike the enqueue above: discarding the queue grants nothing,
+        // so the worst an external copy can do is drop a retry the user would have to redo.
         this.lockedVaultPendingNotifications = [];
         break;
       case "lockVault":
-        await this.lockService.lock(msg.userId);
+        await this.lockService.lock(msg.userId, LockSource.Manual);
         break;
       case "lockAll":
         {
-          await this.lockService.lockAll();
+          await this.lockService.lockAll(msg.source);
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
         }
         break;
       case "lockUser":
         {
-          await this.lockService.lock(msg.userId);
+          await this.lockService.lock(msg.userId, msg.source);
           this.messagingService.send("lockUserFinished", {
             requestId: msg.requestId,
           });
@@ -289,6 +409,9 @@ export default class RuntimeBackground {
 
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
+        break;
+      case FORCE_TARGETING_RULES_UPDATE_COMMAND:
+        this.main.targetingRulesDataService.forceUpdate();
         break;
       case "openPopup":
         await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
@@ -317,25 +440,6 @@ export default class RuntimeBackground {
         break;
       case "bgReseedStorage": {
         await this.main.reseedStorage();
-        break;
-      }
-      case "authResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
-          return;
-        }
-
-        if (msg.lastpass) {
-          this.messagingService.send("importCallbackLastPass", {
-            code: msg.code,
-            state: msg.state,
-          });
-        } else {
-          try {
-            await openSsoAuthResultPopout(msg);
-          } catch {
-            this.logService.error("Unable to open sso popout tab");
-          }
-        }
         break;
       }
       case "webAuthnResult": {
@@ -371,6 +475,16 @@ export default class RuntimeBackground {
         await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
         break;
       }
+      case "reloadExtension": {
+        // Close any open popups first so the runtime reload doesn't strand them with an
+        // invalidated context. The popup closes itself upon receiving this message; poll to
+        // confirm before reloading. Unlike process reload (which is skipped while the vault is
+        // unlocked), this reload must always run — e.g. to register the native messaging host
+        // after the nativeMessaging permission is granted from the unlocked settings page.
+        await BrowserPopupUtils.waitForAllPopupsClose();
+        BrowserApi.reloadExtension();
+        break;
+      }
     }
   }
 
@@ -381,9 +495,7 @@ export default class RuntimeBackground {
    * @returns true if message fails validation
    */
   private async executeMessageActionOrOpenPopup(
-    message: {
-      webExtSender: chrome.runtime.MessageSender;
-    },
+    message: Record<PropertyKey, unknown>,
     messageAction: () => Promise<void>,
   ): Promise<boolean> {
     const hasAccounts = await firstValueFrom(
@@ -397,7 +509,7 @@ export default class RuntimeBackground {
     }
 
     const isValidVaultReferrer = await this.isValidVaultReferrer(
-      Utils.getHostname(message?.webExtSender?.origin),
+      Utils.getHostname(getWebExtSender(message)?.origin),
     );
 
     // When the referrer is not a known vault and the message is external, reject the message
@@ -432,7 +544,7 @@ export default class RuntimeBackground {
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
-    const totpCode = await this.autofillService.doAutoFill({
+    const result = await this.autofillService.doAutoFill({
       tab: tabToAutoFill,
       cipher: this.main.loginToAutoFill,
       pageDetails: this.pageDetailsToAutoFill,
@@ -440,8 +552,8 @@ export default class RuntimeBackground {
       allowTotpAutofill: true,
     });
 
-    if (totpCode != null) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    if (result.didAutofill && result.totp != null) {
+      this.platformUtilsService.copyToClipboard(result.totp);
     }
 
     // reset
@@ -454,22 +566,23 @@ export default class RuntimeBackground {
       void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
-        if (
-          this.onInstalledReason === "install" &&
-          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
-        ) {
-          if (!devFlagEnabled("skipWelcomeOnInstall")) {
-            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+        if (this.onInstalledReason === "install") {
+          if (await isDefaultPasswordManagerPromptFeatureEnabled(this.configService)) {
+            await this.defaultPasswordManagerPromptStateAccessor.markFreshInstallEligible();
           }
 
-          await this.autofillSettingsService.setInlineMenuVisibility(
-            AutofillOverlayVisibility.OnFieldFocus,
-          );
+          if (!(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))) {
+            await this.browserInitialInstallService.displayWelcomePage();
 
-          if (await this.environmentService.hasManagedEnvironment()) {
-            await this.environmentService.setUrlsToManagedEnvironment();
+            await this.autofillSettingsService.setInlineMenuVisibility(
+              AutofillOverlayVisibility.OnFieldFocus,
+            );
+
+            if (await this.environmentService.hasManagedEnvironment()) {
+              await this.environmentService.setUrlsToManagedEnvironment();
+            }
+            await this.browserInitialInstallService.setExtensionInstalled(true);
           }
-          await this.browserInitialInstallService.setExtensionInstalled(true);
         }
 
         this.onInstalledReason = null;
@@ -517,21 +630,26 @@ export default class RuntimeBackground {
   /** Sends a message to each tab that the popup was opened */
   private announcePopupOpen() {
     const announceToAllTabs = async () => {
-      const isOpen = await this.platformUtilsService.isPopupOpen();
       const tabs = await this.getBwTabs();
-
-      if (isOpen && tabs.length > 0) {
-        // Send message to all vault tabs that the extension has opened
-        for (const tab of tabs) {
-          await BrowserApi.executeScriptInTab(tab.id, {
-            file: "content/send-popup-open-message.js",
-            runAt: "document_end",
-          });
-        }
+      for (const tab of tabs) {
+        await BrowserApi.executeScriptInTab(tab.id, {
+          file: "content/send-popup-open-message.js",
+          runAt: "document_end",
+        });
       }
     };
 
-    // Give the popup a buffer to complete opening
-    setTimeout(announceToAllTabs, 100);
+    // Poll every 200ms (up to 1s) until the popup is open, to handle browser timing differences
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const isOpen = await this.platformUtilsService.isPopupOpen();
+      if (isOpen) {
+        clearInterval(interval);
+        await announceToAllTabs();
+      } else if (attempts >= 5) {
+        clearInterval(interval);
+      }
+    }, 200);
   }
 }

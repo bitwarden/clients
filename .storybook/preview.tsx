@@ -1,7 +1,15 @@
+import { provideZoneChangeDetection } from "@angular/core";
 import { setCompodocJson } from "@storybook/addon-docs/angular";
 import { withThemeByClassName } from "@storybook/addon-themes";
-import { componentWrapperDecorator } from "@storybook/angular";
+import { applicationConfig, componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
+
+import {
+  featureFlagDecorator,
+  FEATURE_FLAG_CATALOG,
+  FEATURE_FLAGS_GLOBAL,
+  FEATURE_FLAGS_PARAM,
+} from "@bitwarden/storybook";
 
 import docJson from "../documentation.json";
 
@@ -9,7 +17,7 @@ setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
   return /*html*/ `
-    <div class="tw-bg-background tw-px-5 tw-py-10 tw-@container">
+    <div class="tw-bg-bg-primary tw-px-5 tw-py-10 tw-@container">
       ${story}
     </div>
   `;
@@ -17,6 +25,10 @@ const wrapperDecorator = componentWrapperDecorator((story) => {
 
 const preview: Preview = {
   decorators: [
+    applicationConfig({
+      providers: [provideZoneChangeDetection()],
+    }),
+    featureFlagDecorator,
     withThemeByClassName({
       themes: {
         light: "theme_light",
@@ -28,7 +40,10 @@ const preview: Preview = {
   ],
   parameters: {
     a11y: {
-      context: "#storybook-root",
+      context: {
+        include: ["#storybook-root", ".cdk-overlay-container"],
+        exclude: [".cdk-visually-hidden"],
+      },
     },
     controls: {
       matchers: {
@@ -51,6 +66,14 @@ const preview: Preview = {
     backgrounds: {
       disabled: true,
     },
+    // Published here (the preview can read the enum) so the manager's Feature
+    // Flags panel can render the catalog without importing `@bitwarden/*`.
+    // A parameter rather than a global: parameters are never diffed or written
+    // to the URL, so this array survives the boundary intact.
+    [FEATURE_FLAGS_PARAM]: { catalog: FEATURE_FLAG_CATALOG },
+  },
+  initialGlobals: {
+    [FEATURE_FLAGS_GLOBAL]: [],
   },
   tags: ["autodocs"],
 };

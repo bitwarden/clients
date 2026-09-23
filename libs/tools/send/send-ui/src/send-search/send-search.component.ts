@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { debounceTime, filter } from "rxjs";
 
-import { SearchModule } from "@bitwarden/components";
+import { SearchModule, AutofocusDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendItemsService } from "../services/send-items.service";
@@ -19,11 +19,11 @@ const SearchTextDebounceInterval = 200;
 @Component({
   selector: "tools-send-search",
   templateUrl: "send-search.component.html",
-  imports: [FormsModule, I18nPipe, SearchModule],
+  imports: [FormsModule, I18nPipe, SearchModule, AutofocusDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendSearchComponent {
-  private sendListItemService = inject(SendItemsService);
+  private readonly sendListItemService = inject(SendItemsService);
 
   /** The current search text entered by the user. */
   protected readonly searchText = model("");

@@ -8,4 +8,5 @@ export class ProjectView {
   revisionDate: string;
   read: boolean;
   write: boolean;
+  decryptionError: boolean = false;
 }

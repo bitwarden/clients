@@ -7,6 +7,11 @@
 
   <bit-item-group>
     <bit-item>
+      <button type="button" bit-item-content (click)="troubleshoot()">
+        {{ "troubleshooting" | i18n }}
+      </button>
+    </bit-item>
+    <bit-item>
       <button type="button" bit-item-content (click)="about()">
         {{ "aboutBitwarden" | i18n }}
       </button>

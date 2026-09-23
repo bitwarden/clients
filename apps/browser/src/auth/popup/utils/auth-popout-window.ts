@@ -19,9 +19,12 @@ const extensionUnlockUrls = new Set([
 /**
  * Opens a window that facilitates unlocking / logging into the extension.
  *
- * @param senderTab - Used to determine the windowId of the sender.
+ * @param senderTab - Positions the popout, and receives the `bgUnlockPopoutOpened` message.
+ * @param onOpened - Runs once the popout exists and before the sender tab is notified. Its
+ *   result is discarded, so it must be synchronous. Use this callback for sending messages that
+ *   may be purged by tab removal events.
  */
-async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
+async function openUnlockPopout(senderTab: chrome.tabs.Tab, onOpened?: () => void) {
   const existingPopoutWindowTabs = await BrowserApi.tabsQuery({ windowType: "popup" });
   existingPopoutWindowTabs.forEach((tab) => {
     if (extensionUnlockUrls.has(tab.url)) {
@@ -35,6 +38,13 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
+
+  // After the popout, because opening one can remove another, and
+  // `NotificationBackground.handleUnlockPopoutClosed` answers `chrome.tabs.onRemoved` by
+  // abandoning the retry queue. That purge is not sequenced against this call, so running here
+  // reduces the exposure rather than removing it.
+  onOpened?.();
+
   await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", {});
 }
 

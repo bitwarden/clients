@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, map } from "rxjs";
+import { map, of } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserKeyEncryptor } from "@bitwarden/common/tools/cryptography/user-key-encryptor";
 import {
@@ -38,15 +38,14 @@ export class ForwarderGeneratorStrategy<
   Options extends Settings & IntegrationRequest = Settings & IntegrationRequest,
 > extends GeneratorStrategy<Options, NoPolicy> {
   /** Initializes the generator strategy
-   *  @param encryptService protects sensitive forwarder options
-   *  @param keyService looks up the user key when protecting data.
+   *  @param sdkService provides SDK crypto client for encryption.
    *  @param stateProvider creates the durable state for options storage
    */
   constructor(
     private readonly configuration: ForwarderConfiguration<Settings>,
     private client: RestClient,
     private i18nService: I18nService,
-    private readonly encryptService: EncryptService,
+    private readonly sdkService: SdkService,
     private readonly keyService: KeyService,
     private stateProvider: StateProvider,
   ) {
@@ -86,10 +85,7 @@ export class ForwarderGeneratorStrategy<
   private getUserSecrets(userId: UserId): SingleUserState<Options> {
     // construct the encryptor
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    const encryptor$ = this.keyService.userKey$(userId).pipe(
-      map((key) => (key ? new UserKeyEncryptor(userId, this.encryptService, key, packer) : null)),
-      filter((encryptor) => !!encryptor),
-    );
+    const encryptor$ = of(new UserKeyEncryptor(userId, this.sdkService, packer));
 
     // always exclude request properties
     const classifier = new OptionsClassifier<Settings, Options>();

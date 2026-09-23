@@ -9,10 +9,7 @@ import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherViewLike) => boolean;
 
-export function createFilterFunction(
-  filter: RoutedVaultFilterModel,
-  archiveEnabled?: boolean,
-): FilterFunction {
+export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
   return (cipher) => {
     const type = CipherViewLikeUtils.getType(cipher);
     const isDeleted = CipherViewLikeUtils.isDeleted(cipher);
@@ -21,6 +18,9 @@ export function createFilterFunction(
       return false;
     }
     if (filter.type === "card" && type !== CipherType.Card) {
+      return false;
+    }
+    if (filter.type === "driversLicense" && type !== CipherType.DriversLicense) {
       return false;
     }
     if (filter.type === "identity" && type !== CipherType.Identity) {
@@ -35,6 +35,12 @@ export function createFilterFunction(
     if (filter.type === "sshKey" && type !== CipherType.SshKey) {
       return false;
     }
+    if (filter.type === "bankAccount" && type !== CipherType.BankAccount) {
+      return false;
+    }
+    if (filter.type === "passport" && type !== CipherType.Passport) {
+      return false;
+    }
     if (filter.type === "trash" && !isDeleted) {
       return false;
     }
@@ -42,18 +48,15 @@ export function createFilterFunction(
     if (filter.type !== "trash" && isDeleted) {
       return false;
     }
-    // Archive filter logic is only applied if the feature flag is enabled
-    if (archiveEnabled) {
-      if (filter.type === "archive" && !CipherViewLikeUtils.isArchived(cipher)) {
-        return false;
-      }
-      if (
-        filter.type !== "archive" &&
-        filter.type !== "trash" &&
-        CipherViewLikeUtils.isArchived(cipher)
-      ) {
-        return false;
-      }
+    if (filter.type === "archive" && !CipherViewLikeUtils.isArchived(cipher)) {
+      return false;
+    }
+    if (
+      filter.type !== "archive" &&
+      filter.type !== "trash" &&
+      CipherViewLikeUtils.isArchived(cipher)
+    ) {
+      return false;
     }
     const isNoFolderFilter = filter.folderId === Unassigned || filter.folderId === "";
     const cipherHasFolder = cipher.folderId != null && cipher.folderId !== "";

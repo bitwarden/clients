@@ -24,6 +24,7 @@ export abstract class PlatformUtilsService {
   abstract isChromium(): boolean;
   abstract isMacAppStore(): boolean;
   abstract isPopupOpen(): Promise<boolean>;
+  abstract isAnyViewFocused(): Promise<boolean>;
   abstract launchUri(uri: string, options?: any): void;
   abstract getApplicationVersion(): Promise<string>;
   abstract getApplicationVersionNumber(): Promise<string>;

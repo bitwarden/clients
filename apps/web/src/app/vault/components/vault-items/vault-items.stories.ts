@@ -19,18 +19,23 @@ import {
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -39,9 +44,12 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { LayoutComponent, StorybookGlobalStateProvider } from "@bitwarden/components";
+import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { RoutedVaultFilterService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -121,7 +129,7 @@ export default {
           useValue: {
             getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
-              return false;
+              return of(false);
             },
           },
         },
@@ -147,12 +155,6 @@ export default {
           },
         },
         {
-          provide: CipherArchiveService,
-          useValue: {
-            hasArchiveFlagEnabled$: of(true),
-          },
-        },
-        {
           provide: RoutedVaultFilterService,
           useValue: {
             filter$: of({
@@ -163,6 +165,45 @@ export default {
             }),
           },
         },
+        {
+          provide: AccountService,
+          useValue: {
+            async getAccount() {
+              return { id: "account-id", profile: { name: "Foo" } };
+            },
+          } as Partial<AccountService>,
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            isDesktop() {
+              return false;
+            },
+          } as Partial<PlatformUtilsService>,
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: () => {},
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: () => new BehaviorSubject(false),
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              name: "User 1",
+            }),
+          } as Partial<AccountService>,
+        },
+        {
+          provide: CipherService,
+          useValue: () => {},
+        },
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
       ],
     }),
     applicationConfig({
@@ -172,6 +213,38 @@ export default {
         {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: () => {},
+        },
+        {
+          provide: ToastService,
+          useValue: () => {},
+        },
+        {
+          provide: EventCollectionService,
+          useValue: () => {},
+        },
+        {
+          provide: PasswordRepromptService,
+          useValue: () => {},
+        },
+        {
+          provide: TotpService,
+          useValue: () => {},
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: () => {},
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              name: "User 1",
+            }),
+          } as Partial<AccountService>,
         },
       ],
     }),
@@ -376,11 +449,11 @@ function createCollectionView(i: number): CollectionAdminView {
 
 function createGroupView(i: number): GroupView {
   const organization = organizations[i % organizations.length];
-  const view = new GroupView();
-  view.id = `group-${i}`;
-  view.name = `Group ${i}`;
-  view.organizationId = organization.id;
-  return view;
+  return new GroupView({
+    id: `group-${i}`,
+    name: `Group ${i}`,
+    organizationId: organization.id,
+  });
 }
 
 function createOrganization(i: number): Organization {

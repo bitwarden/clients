@@ -180,7 +180,6 @@ Here are those steps in more detail:
      tokenRequest: PasswordTokenRequest;
 
      userEnteredEmail: string;
-     localMasterKeyHash: string;
      masterKey: MasterKey;
      forcePasswordResetReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
    }

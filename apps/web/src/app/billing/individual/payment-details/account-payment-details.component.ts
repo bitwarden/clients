@@ -30,7 +30,6 @@ type View = {
     HeaderModule,
     SharedModule,
   ],
-  providers: [SubscriberBillingClient],
 })
 export class AccountPaymentDetailsComponent {
   private viewState$ = new BehaviorSubject<View | null>(null);

@@ -1,8 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { EMPTY, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -16,11 +19,7 @@ import {
   DialogModule,
   DialogService,
 } from "@bitwarden/components";
-import {
-  ChangeLoginPasswordService,
-  CipherViewComponent,
-  DefaultChangeLoginPasswordService,
-} from "@bitwarden/vault";
+import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
@@ -30,6 +29,7 @@ export interface EmergencyViewDialogParams {
 
 /** Stubbed class, premium upgrade is not applicable for emergency viewing */
 class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
+  readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
   async promptForPremium() {
     return Promise.resolve();
   }
@@ -44,7 +44,6 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class EmergencyViewDialogComponent {
@@ -58,8 +57,16 @@ export class EmergencyViewDialogComponent {
     @Inject(DIALOG_DATA) protected params: EmergencyViewDialogParams,
     private dialogRef: DialogRef,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     this.updateTitle();
+
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PM32009NewItemTypes)
+      .pipe(takeUntilDestroyed())
+      .subscribe((newItemTypesEnabled) => {
+        this.updateTitle(newItemTypesEnabled);
+      });
   }
 
   get cipher(): CipherView {
@@ -71,10 +78,10 @@ export class EmergencyViewDialogComponent {
   }
 
   cancel = () => {
-    this.dialogRef.close();
+    void this.dialogRef.close();
   };
 
-  private updateTitle() {
+  private updateTitle(newItemTypesEnabled?: boolean) {
     const type = this.cipher.type;
 
     switch (type) {
@@ -88,10 +95,21 @@ export class EmergencyViewDialogComponent {
         this.title = this.i18nService.t("viewItemHeaderIdentity");
         break;
       case CipherType.SecureNote:
-        this.title = this.i18nService.t("viewItemHeaderNote");
+        this.title = this.i18nService.t(
+          newItemTypesEnabled ? "viewItemHeaderSecureNote" : "viewItemHeaderNote",
+        );
         break;
       case CipherType.SshKey:
         this.title = this.i18nService.t("viewItemHeaderSshKey");
+        break;
+      case CipherType.BankAccount:
+        this.title = this.i18nService.t("viewItemHeaderBankAccount");
+        break;
+      case CipherType.Passport:
+        this.title = this.i18nService.t("viewItemHeaderPassport");
+        break;
+      case CipherType.DriversLicense:
+        this.title = this.i18nService.t("viewItemHeaderLicense");
         break;
     }
   }

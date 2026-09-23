@@ -104,7 +104,7 @@ export class PricingSummaryService {
       return 0;
     }
     const baseServiceAccount = plan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = sub?.smServiceAccounts || 0;
+    const usedServiceAccounts = (sub?.smServiceAccounts || 0) - (sub?.smServiceAccountsGrace || 0);
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
     return additionalServiceAccounts <= 0 ? Math.abs(additionalServiceAccounts) : 0;
   }

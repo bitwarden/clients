@@ -1,16 +1,18 @@
 <ng-container>
   <hr />
-  <p *ngIf="fingerprint">
-    {{ fingerprintLabel }}:
-    <a
-      href="https://bitwarden.com/help/fingerprint-phrase/"
-      target="_blank"
-      rel="noreferrer"
-      appA11yTitle="{{ 'learnMoreAboutYourAccountFingerprintPhrase' | i18n }}"
-    >
-      <bit-icon name="bwi-question-circle"></bit-icon
-    ></a>
-    <br />
-    <code class="tw-text-code">{{ fingerprint }}</code>
-  </p>
+  @if (fingerprint(); as fingerprint) {
+    <p>
+      {{ fingerprintLabel() }}:
+      <a
+        href="https://bitwarden.com/help/fingerprint-phrase/"
+        target="_blank"
+        rel="noreferrer"
+        appA11yTitle="{{ 'learnMoreAboutYourAccountFingerprintPhrase' | i18n }}"
+      >
+        <bit-icon name="bwi-question-circle"></bit-icon
+      ></a>
+      <br />
+      <code class="tw-text-code">{{ fingerprint }}</code>
+    </p>
+  }
 </ng-container>

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { MasterPasswordPolicyResponse } from "../../../auth/models/response/master-password-policy.response";
 import Domain from "../../../platform/models/domain/domain-base";
 
@@ -18,9 +16,11 @@ export class MasterPasswordPolicyOptions extends Domain {
    */
   enforceOnLogin = false;
 
-  static fromResponse(policy: MasterPasswordPolicyResponse): MasterPasswordPolicyOptions {
+  static fromResponse(
+    policy: MasterPasswordPolicyResponse,
+  ): MasterPasswordPolicyOptions | undefined {
     if (policy == null) {
-      return null;
+      return;
     }
     const options = new MasterPasswordPolicyOptions();
     options.minComplexity = policy.minComplexity;

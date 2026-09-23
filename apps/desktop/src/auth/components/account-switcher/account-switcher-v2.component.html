@@ -1,0 +1,123 @@
+<ng-container *ngIf="view$ | async as view">
+  @if (view.showSwitcher) {
+    @if (view.activeAccount?.email != null) {
+      @if (expanded()) {
+        <span class="tw-flex tw-w-full tw-justify-start tw-overflow-hidden tw-gap-2 tw-pl-1">
+          <button
+            type="button"
+            [bitMenuTriggerFor]="switcherMenu"
+            [menuPosition]="menuPosition()"
+            [disabled]="disabled"
+            class="tw-border-0 tw-bg-transparent tw-px-0 tw-py-3"
+          >
+            <bit-avatar
+              [text]="view.activeAccount.name ?? view.activeAccount.email"
+              [id]="view.activeAccount.id"
+              [color]="view.activeAccount.avatarColor"
+              [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+            ></bit-avatar>
+          </button>
+          <span class="tw-flex tw-justify-center tw-flex-col tw-overflow-hidden">
+            <span class="tw-truncate">{{
+              view.activeAccount.name ?? view.activeAccount.email
+            }}</span>
+            <small class="tw-truncate tw-text-fg-body-subtle">{{ view.activeAccount.email }}</small>
+          </span>
+        </span>
+      } @else {
+        <span class="tw-flex tw-w-full tw-justify-center tw-overflow-hidden tw-gap-2">
+          <button
+            type="button"
+            [bitMenuTriggerFor]="switcherMenu"
+            [menuPosition]="menuPosition()"
+            [disabled]="disabled"
+            class="tw-border-0 tw-bg-transparent tw-px-0 tw-py-3"
+          >
+            <bit-avatar
+              [text]="view.activeAccount.name ?? view.activeAccount.email"
+              [id]="view.activeAccount.id"
+              [color]="view.activeAccount.avatarColor"
+              [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+            ></bit-avatar>
+          </button>
+        </span>
+      }
+    } @else {
+      <div class="tw-flex tw-w-full tw-justify-center tw-py-3">
+        <div class="tw-rounded-full tw-bg-bg-brand">
+          <button
+            class="!tw-rounded-full"
+            type="button"
+            buttonType="contrast"
+            bitIconButton="bwi-ellipsis-h"
+            [label]="'switchAccount' | i18n"
+            [bitMenuTriggerFor]="switcherMenu"
+            [menuPosition]="menuPosition()"
+            [disabled]="disabled"
+          ></button>
+        </div>
+      </div>
+    }
+
+    <bit-menu #switcherMenu>
+      <div class="tw-flex tw-min-w-52 tw-max-w-72 tw-flex-col">
+        @if (view.numberOfAccounts > 0) {
+          @for (account of view.inactiveAccounts | keyvalue; track account.key) {
+            <button bitMenuItem type="button" (click)="switch(account.key)">
+              <span class="tw-flex tw-gap-2">
+                @if (account.value.email != null) {
+                  <span class="tw-pt-1">
+                    <bit-avatar
+                      slot="start"
+                      [text]="account.value.name ?? account.value.email"
+                      [id]="account.value.id"
+                      [color]="account.value.avatarColor"
+                      aria-hidden="true"
+                    ></bit-avatar>
+                  </span>
+                }
+                <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
+                <span class="tw-flex tw-min-w-0 tw-flex-col tw-overflow-hidden tw-text-start">
+                  <span class="tw-w-full tw-truncate">{{ account.value.email }}</span>
+                  <small class="tw-w-full tw-truncate tw-text-fg-nav-heading">
+                    <span class="sr-only"> / </span>{{ account.value.server }}
+                  </small>
+                </span>
+                @if (account.value.authenticationStatus === authStatus.Unlocked) {
+                  <bit-badge variant="secondary" class="tw-flex tw-justify-center">
+                    <bit-icon name="bwi-unlock" slot="end" class="text-muted" aria-hidden="true">
+                    </bit-icon>
+                    <span>{{ "unlocked" | i18n }}</span>
+                  </bit-badge>
+                } @else {
+                  <bit-badge variant="secondary">
+                    <bit-icon
+                      name="bwi-lock"
+                      slot="end"
+                      class="text-muted"
+                      aria-hidden="true"
+                    ></bit-icon>
+                    <span>{{ "locked" | i18n }}</span>
+                  </bit-badge>
+                }
+              </span>
+            </button>
+          }
+        }
+        @if (view.activeAccount) {
+          <bit-menu-divider></bit-menu-divider>
+          @if (view.numberOfAccounts < 4) {
+            <button bitMenuItem type="button" (click)="addAccount()">
+              <bit-icon name="bwi-plus" aria-hidden="true"></bit-icon>
+              {{ "addAccount" | i18n }}
+            </button>
+          } @else {
+            <span class="tw-block tw-px-4 tw-py-1 tw-text-muted">{{
+              "accountSwitcherLimitReached" | i18n
+            }}</span>
+          }
+        }
+      </div>
+    </bit-menu>
+  }
+</ng-container>

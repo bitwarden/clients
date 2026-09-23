@@ -195,7 +195,7 @@ const handler = (opts?: MockOpts): ProxyHandler<any> => ({
       if (GLOBAL_CONFIG.ignoreProps?.includes(property)) {
         return undefined;
       }
-      // Jest's internal equality checking does some wierd stuff to check for iterable equality
+      // Jest's internal equality checking does some weird stuff to check for iterable equality
       if (property === Symbol.iterator) {
         return obj[property];
       }

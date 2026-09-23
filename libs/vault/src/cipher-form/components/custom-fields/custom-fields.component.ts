@@ -21,8 +21,7 @@ import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from "@angul
 import { Subject, zip } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -164,6 +163,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     );
   }
 
+  dragDisabled(type: FieldType): boolean {
+    return !this.canEdit(type) || this.fields.length <= 1;
+  }
+
   ngOnInit() {
     const linkedFieldsOptionsForCipher = this.getLinkedFieldsOptionsForCipher();
     const optionsArray = Array.from(linkedFieldsOptionsForCipher?.entries() ?? []);
@@ -264,18 +267,18 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Updates label for an individual field */
   updateLabel(index: number, label: string) {
     this.fields.at(index).patchValue({ name: label });
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   /** Removes an individual field at a specific index */
   removeField(index: number) {
     this.fields.removeAt(index);
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   /** Adds a new field to the form */
   addField(type: FieldType, label: string) {
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
 
     let value = null;
     let linkedId = null;

@@ -3,6 +3,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { getByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { ButtonComponent } from "../button";
 import { BitIconButtonComponent } from "../icon-button";
@@ -11,8 +12,6 @@ import { I18nMockService } from "../utils";
 import { TooltipPosition, TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TOOLTIP_DATA, TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";
-
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Tooltip",

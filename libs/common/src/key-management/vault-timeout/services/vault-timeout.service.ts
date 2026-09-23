@@ -4,7 +4,8 @@ import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -56,8 +57,8 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   }
 
   async checkVaultTimeout(): Promise<void> {
-    // Get whether or not the view is open a single time so it can be compared for each user
-    const isViewOpen = await this.platformUtilsService.isPopupOpen();
+    // Get whether or not any view is focused a single time so it can be compared for each user
+    const isViewFocused = await this.platformUtilsService.isAnyViewFocused();
 
     await firstValueFrom(
       combineLatest([
@@ -70,7 +71,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
             const userId = userIdString as UserId;
             if (
               userId != null &&
-              (await this.shouldLock(userId, accountActivity[userId], activeUserId, isViewOpen))
+              (await this.shouldLock(userId, accountActivity[userId], activeUserId, isViewFocused))
             ) {
               await this.executeTimeoutAction(userId);
             }
@@ -84,12 +85,17 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     userId: string,
     lastActive: Date,
     activeUserId: string,
-    isViewOpen: boolean,
+    isViewFocused: boolean,
   ): Promise<boolean> {
-    if (isViewOpen && userId === activeUserId) {
-      // We know a view is open and this is the currently active user
+    if (isViewFocused && userId === activeUserId) {
+      // We know a view is focused and this is the currently active user
       // which means they are likely looking at their vault
       // and they should not lock.
+      return false;
+    }
+
+    // Check if vault timeout is suppressed by shared unlock
+    if (await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)) {
       return false;
     }
 
@@ -124,6 +130,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
     timeoutAction === VaultTimeoutAction.LogOut
       ? await this.logoutService.logout(userId, "vaultTimeout")
-      : await this.lockService.lock(userId);
+      : await this.lockService.lock(userId, LockSource.VaultTimeout);
   }
 }

@@ -1,5 +1,8 @@
+@import "../../../../../../../../libs/components/src/theme.css";
+
 html,
 body {
   overflow: hidden;
   pointer-events: none;
+  font-family: var(--font-sans) !important;
 }

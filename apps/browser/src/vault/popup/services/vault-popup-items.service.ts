@@ -1,9 +1,9 @@
 import { inject, Injectable, NgZone } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
+  debounceTime,
   distinctUntilChanged,
-  distinctUntilKeyChanged,
   filter,
   map,
   merge,
@@ -11,6 +11,7 @@ import {
   Observable,
   of,
   shareReplay,
+  skip,
   startWith,
   Subject,
   switchMap,
@@ -22,10 +23,10 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -43,6 +44,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 
 /**
  * Service for managing the various item lists on the new Vault tab in the browser popup.
@@ -98,6 +100,7 @@ export class VaultPopupItemsService {
         ...(showIdentities ? [CipherType.Identity] : []),
       ];
     }),
+    distinctUntilChanged((a, b) => a.length === b.length && a.every((v, i) => v === b[i])),
   );
 
   /**
@@ -110,6 +113,7 @@ export class VaultPopupItemsService {
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
         merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+          debounceTime(0),
           runInsideAngular(this.ngZone),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
@@ -136,20 +140,12 @@ export class VaultPopupItemsService {
 
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([
-        this.organizations$,
-        this.decryptedCollections$,
-        this.cipherArchiveService.hasArchiveFlagEnabled$,
-      ]).pipe(
-        map(([organizations, collections, archiveFlag]) => {
+      combineLatest([this.organizations$, this.decryptedCollections$]).pipe(
+        map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter(
-              (c) =>
-                !CipherViewLikeUtils.isDeleted(c) &&
-                (!archiveFlag || !CipherViewLikeUtils.isArchived(c)),
-            )
+            .filter((c) => !CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isArchived(c))
 
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
@@ -162,37 +158,46 @@ export class VaultPopupItemsService {
         }),
       ),
     ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * Observable that emits the search text when it's searchable, or an empty string when it's not.
+   * This prevents unnecessary re-renders when typing non-searchable text (e.g., single characters).
+   * @private
+   */
+  private _effectiveSearchText$ = this.searchText$.pipe(
+    switchMap(async (searchText) => {
+      const isSearchable = await this.searchService.isSearchable(searchText);
+      return isSearchable ? searchText : "";
+    }),
+    distinctUntilChanged(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText = combineLatest([
-    this.searchText$,
-    getUserId(this.accountService.activeAccount$),
-  ]).pipe(
-    switchMap(([searchText, userId]) => {
-      return this.searchService.isSearchable(userId, searchText);
-    }),
-  );
+  private _hasSearchText = this._effectiveSearchText$.pipe(map((text) => text !== ""));
 
   private _filteredCipherList$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._activeCipherList$,
-    this.searchText$,
+    this._effectiveSearchText$,
     this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(
     map(
-      ([ciphers, searchText, filterFunction, userId]): [PopupCipherViewLike[], string, UserId] => [
-        filterFunction(ciphers),
-        searchText,
-        userId,
-      ],
+      ([ciphers, searchText, filterFunction, userId, vfo1Enabled]): [
+        PopupCipherViewLike[],
+        string,
+        UserId,
+      ] => [vfo1Enabled ? ciphers : filterFunction(ciphers), searchText, userId],
     ),
     switchMap(
       ([ciphers, searchText, userId]) =>
-        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
+        this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
     ),
@@ -262,9 +267,14 @@ export class VaultPopupItemsService {
   hasFilterApplied$ = combineLatest([
     this._hasSearchText,
     this.vaultPopupListFiltersService.filters$,
+    this.vaultPopupListTableFiltersService.hasFilterApplied$,
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(
-    map(([hasSearchText, filters]) => {
-      return hasSearchText || Object.values(filters).some((filter) => filter !== null);
+    map(([hasSearchText, filters, tableFilterApplied, vfo1Enabled]) => {
+      const filterApplied = vfo1Enabled
+        ? tableFilterApplied
+        : Object.values(filters).some((f) => f !== null);
+      return hasSearchText || filterApplied;
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -282,23 +292,39 @@ export class VaultPopupItemsService {
   cipherCount$: Observable<number> = this._activeCipherList$.pipe(map((ciphers) => ciphers.length));
 
   /**
+   * Every active cipher, before the search and chips narrow it — the chip options describe what
+   * the vault holds, not what the search matches.
+   */
+  activeCiphers$: Observable<PopupCipherViewLike[]> = this._activeCipherList$;
+
+  /**
    * Observable that indicates whether there are no ciphers to show with the current filter.
    */
   noFilteredResults$: Observable<boolean> = this._filteredCipherList$.pipe(
     map((ciphers) => !ciphers.length),
   );
 
-  /** Observable that indicates when the user should see the deactivated org state */
+  /**
+   * Observable that indicates when the user should see the deactivated org state, i.e. when the
+   * selected organization filter is suspended.
+   */
   showDeactivatedOrg$: Observable<boolean> = combineLatest([
-    this.vaultPopupListFiltersService.filters$.pipe(distinctUntilKeyChanged("organization")),
+    this.vaultPopupListFiltersService.filters$.pipe(
+      distinctUntilChanged(
+        (previous, current) => previous.organization?.id === current.organization?.id,
+      ),
+    ),
     this.organizations$,
   ]).pipe(
     map(([filters, orgs]) => {
-      if (!filters.organization || filters.organization.id === MY_VAULT_ID) {
+      const selectedOrg = filters.organization;
+
+      // "My vault" is not an organization and can never be suspended.
+      if (!selectedOrg || selectedOrg.id === MY_VAULT_ID) {
         return false;
       }
 
-      const org = orgs.find((o) => o.id === filters?.organization?.id);
+      const org = orgs.find((o) => o.id === selectedOrg.id);
       return org ? !org.enabled : false;
     }),
   );
@@ -343,8 +369,20 @@ export class VaultPopupItemsService {
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
-    private cipherArchiveService: CipherArchiveService,
-  ) {}
+    private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
+  ) {
+    // VFO1 intentionally persists search text across navigating.
+    // But switching the active account must always clear the search text.
+    // This service is `providedIn: "root"` and lives through the switch, manual clearing is necessary.
+    this.activeUserId$
+      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
+      .subscribe(() => this.clearSearchText());
+  }
+
+  /** Clears the persisted search text. Called when the active account changes. */
+  private clearSearchText(): void {
+    this.cachedSearchText.set("");
+  }
 
   applyFilter(newSearchText: string) {
     this.cachedSearchText.set(newSearchText);

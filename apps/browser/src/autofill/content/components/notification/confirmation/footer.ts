@@ -27,6 +27,7 @@ export function NotificationConfirmationFooter({
         handleClick: handleButtonClick,
         buttonText: AdditionalTasksButtonContent({ buttonText: primaryButtonText, theme }),
         theme,
+        title: primaryButtonText,
       })}
     </div>
   `;

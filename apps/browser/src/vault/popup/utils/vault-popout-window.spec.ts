@@ -92,11 +92,11 @@ describe("VaultPopoutWindow", () => {
   describe("openAddEditVaultItemPopout", () => {
     it("opens a popout window that facilitates adding a vault item", async () => {
       await openAddEditVaultItemPopout(
-        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
+        mock<chrome.tabs.Tab>({ id: 2, windowId: 1, url: "https://jest-testing-website.com" }),
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-cipher?uri=https://jest-testing-website.com",
+        "popup/index.html#/edit-cipher?uri=https://jest-testing-website.com&senderTabId=2",
         {
           singleActionKey: VaultPopoutType.addEditVaultItem,
           senderWindowId: 1,
@@ -106,14 +106,14 @@ describe("VaultPopoutWindow", () => {
 
     it("opens a popout window that facilitates adding a specific type of vault item", async () => {
       await openAddEditVaultItemPopout(
-        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
+        mock<chrome.tabs.Tab>({ id: 2, windowId: 1, url: "https://jest-testing-website.com" }),
         {
           cipherType: CipherType.Identity,
         },
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        `popup/index.html#/edit-cipher?type=${CipherType.Identity}&uri=https://jest-testing-website.com`,
+        `popup/index.html#/edit-cipher?type=${CipherType.Identity}&uri=https://jest-testing-website.com&senderTabId=2`,
         {
           singleActionKey: `${VaultPopoutType.addEditVaultItem}_${CipherType.Identity}`,
           senderWindowId: 1,
@@ -123,14 +123,14 @@ describe("VaultPopoutWindow", () => {
 
     it("opens a popout window that facilitates editing a vault item", async () => {
       await openAddEditVaultItemPopout(
-        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
+        mock<chrome.tabs.Tab>({ id: 2, windowId: 1, url: "https://jest-testing-website.com" }),
         {
           cipherId: "cipherId",
         },
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-cipher?cipherId=cipherId&uri=https://jest-testing-website.com",
+        "popup/index.html#/edit-cipher?cipherId=cipherId&uri=https://jest-testing-website.com&senderTabId=2",
         {
           singleActionKey: `${VaultPopoutType.addEditVaultItem}_cipherId`,
           senderWindowId: 1,
@@ -170,15 +170,6 @@ describe("VaultPopoutWindow", () => {
       await closeAddEditVaultItemPopout();
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(VaultPopoutType.addEditVaultItem, 0);
-    });
-
-    it("closes the add/edit vault item popout window after a delay", async () => {
-      await closeAddEditVaultItemPopout(1000);
-
-      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
-        VaultPopoutType.addEditVaultItem,
-        1000,
-      );
     });
   });
 

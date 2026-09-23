@@ -1,0 +1,32 @@
+<div class="tw-flex tw-flex-col">
+  <div [id]="labelId" class="!tw-mb-0 has-[[slot='label']]:!tw-mb-1" bitTypography="h5">
+    <ng-content select="[slot='label']">
+      <span class="tw-sr-only">{{ accessibleNameComputed() }}</span>
+    </ng-content>
+  </div>
+  <div class="tw-overflow-hidden tw-rounded tw-bg-secondary-100 tw-h-2 tw-my-1">
+    <div
+      [id]="progressBarId()"
+      [class]="innerBarStyles()"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="clampedValue()"
+      [attr.aria-valuetext]="ariaValueText()"
+      [attr.aria-labelledby]="labelId"
+      [style.width]="clampedValue() + '%'"
+    ></div>
+  </div>
+  <div class="tw-flex tw-text-fg-body" bitTypography="body2">
+    @if (!hideStartHint()) {
+      <div class="tw-me-auto">
+        <ng-content select="[slot='start']">
+          <bit-hint>{{ defaultStartText() }}</bit-hint>
+        </ng-content>
+      </div>
+    }
+    <div class="tw-ms-auto">
+      <ng-content select="[slot='end']" />
+    </div>
+  </div>
+</div>

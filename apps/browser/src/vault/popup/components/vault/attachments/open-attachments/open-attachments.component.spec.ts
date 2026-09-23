@@ -38,16 +38,14 @@ describe("OpenAttachmentsComponent", () => {
     },
   } as CipherView;
 
-  const cipherDomain = {
-    decrypt: () => cipherView,
-  };
-
   const org = {
     name: "Test Org",
     productTierType: ProductTierType.Enterprise,
   } as Organization;
 
-  const getCipher = jest.fn().mockResolvedValue(cipherDomain);
+  const mockCipherService = {
+    cipherView$: jest.fn().mockReturnValue(of(cipherView)),
+  };
   const organizations$ = jest.fn().mockReturnValue(of([org]));
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -63,7 +61,7 @@ describe("OpenAttachmentsComponent", () => {
   const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
-    getCipher.mockClear();
+    mockCipherService.cipherView$.mockClear();
     showToast.mockClear();
     organizations$.mockClear();
     hasPremiumFromAnySource$.next(true);
@@ -76,11 +74,7 @@ describe("OpenAttachmentsComponent", () => {
         { provide: BillingAccountProfileStateService, useValue: { hasPremiumFromAnySource$ } },
         {
           provide: CipherService,
-          useValue: {
-            get: getCipher,
-            getKeyForCipherKeyDecryption: () => Promise.resolve(null),
-            decrypt: jest.fn().mockResolvedValue(cipherView),
-          },
+          useValue: mockCipherService,
         },
         {
           provide: CipherFormContainer,

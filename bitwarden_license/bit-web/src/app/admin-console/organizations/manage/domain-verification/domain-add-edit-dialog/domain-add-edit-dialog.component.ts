@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
@@ -9,7 +10,9 @@ import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
 import { OrganizationDomainRequest } from "@bitwarden/common/admin-console/services/organization-domain/requests/organization-domain.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
@@ -29,9 +32,15 @@ export interface DomainAddEditDialogData {
   standalone: false,
 })
 export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   private componentDestroyed$: Subject<void> = new Subject();
 
   domainForm: FormGroup;
+  protected domainNameReadonly = false;
 
   get domainNameCtrl(): FormControl {
     return this.domainForm.controls.domainName as FormControl;
@@ -54,24 +63,31 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   // Angular Method Implementations
 
   async ngOnInit(): Promise<void> {
+    const domainNameValidators = [
+      Validators.required,
+      domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
+    ];
+
+    // Only check uniqueness when creating — when editing, the domain name is readonly
+    // and is already present in existingDomainNames, so the validator would always fail.
+    if (!this.data.orgDomain) {
+      domainNameValidators.push(
+        uniqueInArrayValidator(
+          this.data.existingDomainNames,
+          this.i18nService.t("duplicateDomainError"),
+        ),
+      );
+    }
+
     this.domainForm = this.formBuilder.group({
-      domainName: [
-        "",
-        [
-          Validators.required,
-          domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
-          uniqueInArrayValidator(
-            this.data.existingDomainNames,
-            this.i18nService.t("duplicateDomainError"),
-          ),
-        ],
-      ],
-      txt: [{ value: null, disabled: true }],
+      domainName: ["", domainNameValidators],
+      txt: [null],
     });
     // If we have data.orgDomain, then editing, otherwise creating new domain
     await this.populateForm();
@@ -90,7 +106,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     if (this.data.orgDomain) {
       // Edit
       this.domainForm.patchValue(this.data.orgDomain);
-      this.domainForm.disable();
+      this.domainNameReadonly = true;
     }
 
     this.setupFormListeners();
@@ -127,7 +143,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.domainNameCtrl.disable();
+    this.domainNameReadonly = true;
 
     const request: OrganizationDomainRequest = new OrganizationDomainRequest(
       this.domainNameCtrl.value,
@@ -173,7 +189,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
             this.domainNameCtrl.updateValueAndValidity();
 
             // Give them another chance to enter a new domain name:
-            this.domainForm.enable();
+            this.domainNameReadonly = false;
           } else {
             this.validationService.showError(errorResponse);
           }
@@ -212,7 +228,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
           title: null,
           message: this.i18nService.t("domainClaimed"),
         });
-        this.dialogRef.close();
+        await this.dialogRef.close();
       } else {
         this.domainNameCtrl.setErrors({
           errorPassthrough: {
@@ -279,7 +295,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("domainRemoved"),
     });
 
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   // End Async Form Actions

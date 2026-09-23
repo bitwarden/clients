@@ -1,0 +1,109 @@
+<!--
+  Two rows: the search and any `slot=end` dev controls share the top row; the
+  filter chips get their own row beneath. The filter row is the unit that collapses
+  into a single trigger + dialog on small screens (responsive view).
+-->
+<div class="tw-relative tw-flex tw-flex-col">
+  <div [class]="searchRowClasses()">
+    <div [class]="searchClasses()">
+      <ng-content select="bit-search"></ng-content>
+    </div>
+    <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
+    @if (collapsed() && hasFilters()) {
+      <div class="tw-relative tw-flex-none">
+        <button
+          type="button"
+          bitIconButton="bwi-sliders"
+          [label]="'filters' | i18n"
+          (click)="openFilterDialog()"
+        ></button>
+        @if (appliedCount()) {
+          <bit-berry
+            class="tw-pointer-events-none tw-absolute tw-end-0 tw-top-0"
+            [value]="appliedCount()"
+          ></bit-berry>
+        }
+      </div>
+    }
+    <div [class]="endSlotClasses()">
+      <ng-content select="[slot=end]"></ng-content>
+    </div>
+  </div>
+  <!--
+    Wide-viewport filter row: the projected chips and the item count. Hidden (not
+    removed) below md so the chips stay instantiated to back the dialog and the
+    small-screen active-filter chips below.
+  -->
+  <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
+    <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
+    <!--
+      Gated on `hasFilters`, then hidden by class rather than `@if`: entering the DOM on
+      selection would change the overflow list's item set, which drops its cached widths
+      and flashes the row fully expanded before the next measurement lands. `tw-hidden`
+      survives the directive's measurement reveal (it only clears inline `display`), so
+      this measures 0px and the item set holds. The outer `@if` keeps a search-only
+      toolbar's row free of element children, so `empty:tw-hidden` still collapses it.
+    -->
+    @if (hasFilters()) {
+      <button
+        bitOverflowItem
+        [class.tw-hidden]="!appliedCount()"
+        id="bit-table-toolbar_button_clear-all"
+        bitButton
+        buttonType="subtleGhost"
+        size="small"
+        type="button"
+        startIcon="bwi-clear"
+        (click)="clearAll()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
+    @if (table && hasFilters()) {
+      <!-- Not an overflow item: its width is reserved, so the row collapses before it is crowded out. -->
+      <span
+        bitOverflowTrigger
+        alwaysShow
+        class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-tabular-nums tw-text-fg-body-subtle"
+      >
+        {{ "itemCount" | i18n: itemCount() }}
+      </span>
+    }
+  </div>
+  <!--
+    Below md, a second row of just the active filters — dismissible chips that clear
+    on click. Rendered only when there's at least one (no empty row, no item count).
+  -->
+  @if (collapsed() && activeFilters().length) {
+    <div [class]="activeFilterRowClasses()">
+      @for (filter of activeFilters(); track filter.key()) {
+        @if (filter.multiple() && filter.selections().length) {
+          <!--
+            A multi-select draws one chip per selected option, so each can be removed on its
+            own. The chips show only the option's name — the filter's icon identifies it
+            visually, and each chip's accessible name spells it out for screen readers. No
+            wrapper element, so every chip is a flex item of the row and wraps on its own.
+          -->
+          @for (selection of filter.selections(); track selection.value) {
+            @let name = accessibleLabel(filter, selection);
+            <bit-chip
+              [label]="selection.label"
+              [accessibleName]="name"
+              [startIcon]="filter.icon()"
+              [bitTooltip]="name"
+              (click)="filter.deselect(selection.value)"
+              (dismissed)="filter.deselect(selection.value)"
+            ></bit-chip>
+          }
+        } @else {
+          <bit-chip
+            [label]="appliedLabel(filter)"
+            [bitTooltip]="appliedLabel(filter)"
+            (click)="filter.clear()"
+            (dismissed)="filter.clear()"
+          ></bit-chip>
+        }
+      }
+    </div>
+  }
+</div>

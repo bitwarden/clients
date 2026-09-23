@@ -63,7 +63,13 @@ describe("SendCreatedComponent", () => {
 
     Object.defineProperty(environmentService, "environment$", {
       configurable: true,
-      get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
+      get: () =>
+        of(
+          new SelfHostedEnvironment({
+            webVault: "https://example.com",
+            base: "https://example.com",
+          }),
+        ),
     });
 
     activatedRoute.snapshot = {
@@ -138,13 +144,6 @@ describe("SendCreatedComponent", () => {
     expect(component["send"]).toBe(sendView);
     expect(component["daysAvailable"]).toBe(7);
     expect(component["hoursAvailable"]).toBe(168);
-  });
-
-  it("should navigate back to the edit send form on close", async () => {
-    await component.goToEditSend();
-    expect(router.navigate).toHaveBeenCalledWith(["/edit-send"], {
-      queryParams: { sendId: "test-send-id", type: SendType.Text },
-    });
   });
 
   describe("getHoursAvailable", () => {

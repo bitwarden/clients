@@ -1,0 +1,29 @@
+@if (showBanner()) {
+  @if (notificationData(); as data) {
+    @if (data.header; as header) {
+      @if (data.buttonText; as buttonText) {
+        <bit-banner [title]="header">
+          {{ data.description }}
+          <ng-container slot="actions">
+            <button
+              bitButton
+              type="button"
+              buttonType="primary"
+              (click)="actionButtonClick(data.organizationId)"
+            >
+              {{ buttonText }}
+            </button>
+          </ng-container>
+        </bit-banner>
+      } @else {
+        <bit-banner [title]="header" (dismiss)="close()">
+          {{ data.description }}
+        </bit-banner>
+      }
+    } @else {
+      <bit-banner (dismiss)="close()">
+        {{ data.description }}
+      </bit-banner>
+    }
+  }
+}

@@ -195,9 +195,29 @@ export class IdentityView extends ItemView implements SdkIdentityView {
 
   /**
    * Converts the IdentityView to an SDK IdentityView.
-   * The view implements the SdkView so we can safely return `this`
+   * Empty strings are converted to undefined to prevent the SDK from encrypting
+   * them as non-null values, which would incorrectly populate copyableFields.
    */
   toSdkIdentityView(): SdkIdentityView {
-    return this;
+    return {
+      title: this.title || undefined,
+      firstName: this.firstName || undefined,
+      middleName: this.middleName || undefined,
+      lastName: this.lastName || undefined,
+      address1: this.address1 || undefined,
+      address2: this.address2 || undefined,
+      address3: this.address3 || undefined,
+      city: this.city || undefined,
+      state: this.state || undefined,
+      postalCode: this.postalCode || undefined,
+      country: this.country || undefined,
+      company: this.company || undefined,
+      email: this.email || undefined,
+      phone: this.phone || undefined,
+      ssn: this.ssn || undefined,
+      username: this.username || undefined,
+      passportNumber: this.passportNumber || undefined,
+      licenseNumber: this.licenseNumber || undefined,
+    };
   }
 }

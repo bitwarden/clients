@@ -1,12 +1,13 @@
 import { Observable } from "rxjs";
 
+import { UserId } from "@bitwarden/user-core";
+
 import {
   AUTH_REQUEST_DISK_LOCAL,
   GlobalState,
   KeyDefinition,
   StateProvider,
-} from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/user-core";
+} from "../../../platform/state";
 
 export type PendingAuthUserMarker = {
   userId: UserId;

@@ -1,9 +1,12 @@
+import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from "@angular/router";
 
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
 import { BrowserPlatformUtilsService } from "@bitwarden/browser/platform/services/platform-utils/browser-platform-utils.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 /**
@@ -24,8 +27,23 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
  */
 export function filePickerPopoutGuard(): CanActivateFn {
   return async (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    // Injections must happen synchronously, before any `await` — `inject()` only works within
+    // the guard's initial injection context.
+    const configService = inject(ConfigService);
+
     // Text Sends have no file picker — never require a popout regardless of browser
     if (isTextSendRoute(state.url)) {
+      return true;
+    }
+
+    // Angular runs every canActivate guard on a route concurrently, not sequentially — so
+    // importUpgradeRedirectGuard resolving to a redirect away from /import does not stop this
+    // guard from also running. Without this check, enabling the flag would open a popout AND
+    // close the popup AND redirect, on top of the tab importUpgradeRedirectGuard already opened.
+    if (
+      isImportRoute(state.url) &&
+      (await configService.getFeatureFlag(FeatureFlag.ImportUpgrade))
+    ) {
       return true;
     }
 
@@ -37,6 +55,13 @@ export function filePickerPopoutGuard(): CanActivateFn {
     const inSidebar = BrowserPopupUtils.inSidebar(window);
 
     let needsPopout = false;
+
+    // The import page can launch long-running browser flows like Keeper SSO.
+    // Keep it in a persistent extension context so opening an active tab does not
+    // close the normal popup and tear down listeners.
+    if (isImportRoute(state.url) && !inPopout && !inSidebar) {
+      needsPopout = true;
+    }
 
     // Firefox: needs sidebar OR popout to avoid crash with file picker
     if (deviceType === DeviceType.FirefoxExtension && !inPopout && !inSidebar) {
@@ -51,6 +76,8 @@ export function filePickerPopoutGuard(): CanActivateFn {
     // Chromium on Linux/Mac: needs sidebar OR popout for file picker access
     // All Chromium-based browsers (Chrome, Edge, Opera, Vivaldi)
     // Brave intentionally reports itself as Chrome for compatibility
+    // DuckDuckGo is deliberately absent: it is only Chromium (WebView2) on Windows, where
+    // no popout is required, and its macOS build is WebKit rather than Chromium.
     const isChromiumBased = [
       DeviceType.ChromeExtension,
       DeviceType.EdgeExtension,
@@ -93,4 +120,8 @@ function isTextSendRoute(url: string): boolean {
     return false;
   }
   return new URLSearchParams(url.substring(queryStart + 1)).get("type") === String(SendType.Text);
+}
+
+function isImportRoute(url: string): boolean {
+  return url === "/import" || url.startsWith("/import?");
 }

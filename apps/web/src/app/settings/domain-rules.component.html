@@ -1,4 +1,15 @@
-<app-header></app-header>
+<app-header>
+  @if (showBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb [route]="['/settings']" icon="bwi-cog">{{
+        "settings" | i18n
+      }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
+        "domainRules" | i18n
+      }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  }
+</app-header>
 
 <bit-container>
   <p bitTypography="body1">{{ "domainRulesDesc" | i18n }}</p>
@@ -30,13 +41,20 @@
         <button
           bitIconButton="bwi-minus-circle"
           type="button"
-          buttonType="danger"
+          buttonType="dangerGhost"
           (click)="remove(i)"
           label="{{ 'remove' | i18n }}"
         ></button>
       </div>
-      <button bitButton type="button" (click)="add()" buttonType="secondary" class="tw-mb-2">
-        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newCustomDomain" | i18n }}
+      <button
+        bitButton
+        type="button"
+        (click)="add()"
+        buttonType="secondary"
+        class="tw-mb-2"
+        [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
+      >
+        {{ (btnTextAddCreateFeatureFlag() ? "addCustomDomain" : "newCustomDomain") | i18n }}
       </button>
       <small class="tw-text-muted tw-block tw-mb-3">{{ "newCustomDomainDesc" | i18n }}</small>
     </ng-container>

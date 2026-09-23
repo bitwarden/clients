@@ -4,8 +4,9 @@
     "baseUrl": "./",
     "outDir": "dist",
     "target": "es6",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": false,
@@ -19,13 +20,17 @@
       "@bitwarden/auth/*": ["../../../libs/auth/src/*"],
       "@bitwarden/common/*": ["../../../libs/common/src/*"],
       "@bitwarden/key-management": ["../../../libs/key-management/src/"],
-      "@bitwarden/node/*": ["../../../libs/node/src/*"],
+      "@bitwarden/legacy-crypto": ["../../../libs/legacy-crypto/src/index.ts"],
+      "@bitwarden/legacy-crypto/node": ["../../../libs/legacy-crypto/src/node/index.ts"],
+      "@bitwarden/legacy-crypto/*": ["../../../libs/legacy-crypto/src/*"],
       "@bitwarden/state": ["../../../libs/state/src/index.ts"],
       "@bitwarden/state-internal": ["../../../libs/state-internal/src/index.ts"],
       "@bitwarden/client-type": ["../../../libs/client-type/src/index.ts"],
       "@bitwarden/messaging": ["../../../libs/messaging/src/index.ts"],
       "@bitwarden/guid": ["../../../libs/guid/src/index.ts"],
-      "@bitwarden/serialization": ["../../../libs/serialization/src/index.ts"]
+      "@bitwarden/serialization": ["../../../libs/serialization/src/index.ts"],
+      "@bitwarden/scheduling": ["../../../libs/scheduling/src/index.ts"],
+      "@bitwarden/unlock": ["../../../libs/unlock/src/index.ts"]
     },
     "plugins": [
       {

@@ -1,0 +1,82 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-action.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipActionComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+## Overview
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+For general information about chips, their types, and usage guidelines, see the
+[Chip overview](?path=/docs/component-library-chips--docs).
+
+## Basic Usage
+
+The chip action component can be applied to both `<button>` and `<a>` elements using the
+`bit-chip-action` directive.
+
+### As a Button
+
+Use `<button>` when the chip triggers an action on the current page.
+
+```html
+<button bit-chip-action label="Filter" startIcon="bwi-filter" (click)="applyFilter()"></button>
+```
+
+### As a Link
+
+Use `<a>` when the chip navigates to a new page.
+
+```html
+<a bit-chip-action label="View all" startIcon="bwi-arrow-right" [routerLink]="['/items']"> </a>
+```
+
+## Variants
+
+Action chips support four visual variants to provide different levels of emphasis and semantic
+meaning.
+
+- The primary variant uses brand colors for high emphasis actions.
+
+- The subtle variant uses muted colors for lower emphasis actions.
+- The accent primary variant uses accent brand colors.
+- The accent secondary variant uses secondary accent colors.
+
+<Canvas of={stories.AllVariants} />
+
+## Sizes
+
+Action chips are available in two sizes: small and large (default).
+
+<Canvas of={stories.AllSizes} />
+
+## Icons
+
+Action chips support start icons to provide visual context for the action.
+
+### Start Icon
+
+```html
+<button bit-chip-action label="Add" startIcon="bwi-plus"></button>
+```
+
+<Canvas of={stories.WithStartIcon} />
+
+## Inactive State
+
+Action chips can be inactive to prevent interaction.
+
+```html
+<button bit-chip-action label="Inactive" [disabled]="true" startIcon="bwi-filter"></button>
+```
+
+<Canvas of={stories.Inactive} />

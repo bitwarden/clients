@@ -1,8 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -10,8 +9,8 @@ import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
@@ -37,28 +36,32 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   constructor(
     private apiService: ApiService,
     private billingApiService: BillingApiServiceAbstraction,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
     private syncService: SyncService,
+    private configService: ConfigService,
   ) {}
 
   async purchaseSubscription(
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<OrganizationResponse> {
-    const request = new OrganizationCreateRequest();
-
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
 
-    this.setOrganizationKeys(request, organizationKeys);
+    const request = new OrganizationCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
 
     this.setPlanInformation(request, subscription.plan);
 
     this.setPaymentInformation(request, subscription.payment);
+
+    if (subscription.coupons?.length) {
+      request.coupons = subscription.coupons;
+    }
 
     const response = await this.organizationApiService.create(request);
 
@@ -72,16 +75,18 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   async purchaseSubscriptionNoPaymentMethod(
     subscription: SubscriptionInformation,
     activeUserId: UserId,
+    trialLength?: number,
   ): Promise<OrganizationResponse> {
-    const request = new OrganizationNoPaymentMethodCreateRequest();
-
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
 
-    this.setOrganizationKeys(request, organizationKeys);
+    const request = new OrganizationNoPaymentMethodCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
 
     this.setPlanInformation(request, subscription.plan);
+
+    request.trialLength = trialLength;
 
     const response = await this.organizationApiService.createWithoutPayment(request);
 
@@ -96,11 +101,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<OrganizationResponse> {
-    const request = new OrganizationCreateRequest();
-
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
 
-    this.setOrganizationKeys(request, organizationKeys);
+    const request = new OrganizationCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
 
@@ -116,10 +120,11 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   }
 
   private async makeOrganizationKeys(activeUserId: UserId): Promise<OrganizationKeys> {
-    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
-    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
+    const [encryptedKey, key] = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId);
+    const [publicKey, encryptedPrivateKey] = await this.legacyCompatKeyService.makeKeyPair(key);
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const encryptedCollectionName = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       key,
     );
     return {
@@ -154,16 +159,19 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request.initiationPath = information.initiationPath;
   }
 
-  private setOrganizationKeys(
-    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
-    keys: OrganizationKeys,
-  ): void {
-    request.key = keys.encryptedKey.encryptedString;
-    request.keys = new OrganizationKeysRequest(
-      keys.publicKey,
-      keys.encryptedPrivateKey.encryptedString,
-    );
-    request.collectionName = keys.encryptedCollectionName.encryptedString;
+  private makeOrganizationKeysRequest(keys: OrganizationKeys): {
+    key: string;
+    keysRequest: OrganizationKeysRequest;
+    collectionName: string;
+  } {
+    return {
+      key: keys.encryptedKey.encryptedString,
+      keysRequest: new OrganizationKeysRequest(
+        keys.publicKey,
+        keys.encryptedPrivateKey.encryptedString,
+      ),
+      collectionName: keys.encryptedCollectionName.encryptedString,
+    };
   }
 
   private setPaymentInformation(
@@ -174,6 +182,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request.paymentToken = paymentToken;
     request.paymentMethodType = paymentMethodType;
     request.skipTrial = information.skipTrial;
+    request.trialLength = information.trialLength;
 
     const billingInformation = information.billing;
     request.billingAddressPostalCode = billingInformation.postalCode;
@@ -219,9 +228,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<void> {
-    const request = new OrganizationCreateRequest();
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
-    this.setOrganizationKeys(request, organizationKeys);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
+
+    const request = new OrganizationCreateRequest(key, keysRequest, collectionName);
     this.setOrganizationInformation(request, subscription.organization);
     this.setPlanInformation(request, subscription.plan);
     this.setPaymentInformation(request, subscription.payment);

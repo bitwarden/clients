@@ -8,15 +8,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
-  AutoConfirmPolicyDialogComponent,
   AutoConfirmPolicy,
+  MultiStepPolicyEditModalComponent,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
@@ -29,9 +28,9 @@ export class WebVaultPromptService {
   private vaultItemTransferService = inject(VaultItemsTransferService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
+  private configService = inject(ConfigService);
   private autoConfirmService = inject(AutomaticUserConfirmationService);
   private organizationService = inject(OrganizationService);
-  private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private logService = inject(LogService);
   private webVaultExtensionPromptService = inject(WebVaultExtensionPromptService);
@@ -51,25 +50,32 @@ export class WebVaultPromptService {
   async conditionallyPromptUser() {
     const userId = await firstValueFrom(this.userId$);
 
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+
+    this.checkForAutoConfirm();
+
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return;
+    }
+
     if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
       return;
     }
 
-    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
-
     await this.welcomeDialogService.conditionallyShowWelcomeDialog();
 
     await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
-
-    this.checkForAutoConfirm();
   }
 
-  private async openAutoConfirmFeatureDialog(organization: Organization) {
-    AutoConfirmPolicyDialogComponent.open(this.dialogService, {
+  private openAutoConfirmFeatureDialog(organization: Organization) {
+    // Opened as a modal (not a drawer) - this is a proactive onboarding prompt shown on the
+    // vault page, not a policy being edited from the Admin Console policies page, so it should
+    // remain an attention-grabbing modal rather than a side drawer.
+    MultiStepPolicyEditModalComponent.open(this.dialogService, {
       data: {
-        policy: new AutoConfirmPolicy(),
-        organizationId: organization.id,
-        firstTimeDialog: true,
+        policy: new AutoConfirmPolicy(true),
+        organization: organization,
       },
     });
   }
@@ -78,8 +84,6 @@ export class WebVaultPromptService {
     // if the policy is enabled, then the user may only belong to one organization at most.
     const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
 
-    const featureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm);
-
     const autoConfirmState$ = this.userId$.pipe(
       switchMap((userId) => this.autoConfirmService.configuration$(userId)),
     );
@@ -87,7 +91,9 @@ export class WebVaultPromptService {
     const policyEnabled$ = combineLatest([
       this.userId$.pipe(
         switchMap((userId) => this.policyService.policies$(userId)),
-        map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm && p.enabled)),
+        map((policies) =>
+          policies.find((p) => p.type === PolicyType.AutomaticUserConfirmation && p.enabled),
+        ),
       ),
       organization$,
     ]).pipe(
@@ -96,19 +102,18 @@ export class WebVaultPromptService {
       ),
     );
 
-    zip([organization$, featureFlag$, autoConfirmState$, policyEnabled$, this.userId$])
+    zip([organization$, autoConfirmState$, policyEnabled$, this.userId$])
       .pipe(
         first(),
-        switchMap(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
+        switchMap(async ([organization, autoConfirmState, policyEnabled, userId]) => {
           const showDialog =
-            flagEnabled &&
             !policyEnabled &&
             autoConfirmState.showSetupDialog &&
             !!organization &&
             organization.canEnableAutoConfirmPolicy;
 
           if (showDialog) {
-            await this.openAutoConfirmFeatureDialog(organization);
+            this.openAutoConfirmFeatureDialog(organization);
 
             await this.autoConfirmService.upsert(userId, {
               ...autoConfirmState,

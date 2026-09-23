@@ -19,7 +19,6 @@ import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/respons
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   VaultTimeoutAction,
@@ -31,9 +30,10 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -80,7 +80,6 @@ export abstract class LoginStrategy {
     protected platformUtilsService: PlatformUtilsService,
     protected messagingService: MessagingService,
     protected logService: LogService,
-    protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -261,9 +260,8 @@ export abstract class LoginStrategy {
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
 
-    await this.setMasterKey(response, userId);
-    await this.setUserKey(response, userId);
     await this.setAccountCryptographicState(response, userId);
+    await this.unlock(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
@@ -276,15 +274,25 @@ export abstract class LoginStrategy {
     return result;
   }
 
-  // The keys comes from different sources depending on the login strategy
-  protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  /**
+   * Unlocks the SDK for the user using the implementation for the login strategy.
+   */
+  protected abstract unlock(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
-
-  protected abstract setAccountCryptographicState(
+  protected async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<void> {
+    // The accountKeysResponseModel is always present except for JIT SSO users
+    // which have just registered but not yet initialized the cryptographic state
+    // for their account.
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
+  }
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins

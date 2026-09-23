@@ -7,11 +7,11 @@ import { filter } from "rxjs/operators";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -30,10 +30,11 @@ import {
   ItemModule,
   MenuModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
+import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
 
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
 import {
@@ -54,6 +55,9 @@ import {
     JslibModule,
     RouterModule,
     PremiumBadgeComponent,
+    IconModule,
+    Vfo1I18nPipe,
+    ShareLinkMenuItemDirective,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
@@ -89,8 +93,6 @@ export class ItemMoreOptionsComponent {
   readonly showViewOption = input(false, { transform: booleanAttribute });
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
-
-  protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -128,8 +130,6 @@ export class ItemMoreOptionsComponent {
       );
     }),
   );
-
-  protected showArchive$: Observable<boolean> = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   protected canArchive$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -173,9 +173,9 @@ export class ItemMoreOptionsComponent {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
-      CipherViewLikeUtils.getType(this.cipher),
-    );
+    return (
+      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
+    ).includes(CipherViewLikeUtils.getType(this.cipher));
   }
 
   get isLogin() {
@@ -198,23 +198,9 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
-    const uris = cipher.login?.uris ?? [];
-    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-
-    const showExactMatchDialog =
-      uris.length === 0
-        ? uriMatchStrategy === UriMatchStrategy.Exact
-        : // all saved URIs are exact match
-          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
-
-    if (showExactMatchDialog) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
+    //for non login types that are still auto-fillable
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
       return;
     }
 
@@ -231,10 +217,15 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    if (await this._domainMatched(currentTab.url)) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });
@@ -251,6 +242,17 @@ export class ItemMoreOptionsComponent {
         await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
+  }
+
+  private async _domainMatched(url: string): Promise<boolean> {
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(url),
+    );
+    const defaultMatch = await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
+
+    return CipherViewLikeUtils.matchesUri(this.cipher, url, equivalentDomains, defaultMatch);
   }
 
   async onView() {

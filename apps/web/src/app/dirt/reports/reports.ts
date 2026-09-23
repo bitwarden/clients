@@ -1,9 +1,10 @@
 import {
+  TwoFactorAuthWebAuthnIcon,
   NoCredentialsIcon,
   ReportBreach,
   ReportExposedPasswords,
   ReportUnsecuredWebsites,
-  TwoFactorAuthSecurityKeyFailedIcon,
+  SecurityKeyWarningIcon,
   UnlockedIcon,
   UserLockIcon,
 } from "@bitwarden/assets/svg";
@@ -20,6 +21,7 @@ export enum ReportType {
   Inactive2fa = "inactive2fa",
   DataBreach = "dataBreach",
   MemberAccessReport = "memberAccessReport",
+  PasskeyLogin = "passkeyLogin",
 }
 
 type ReportWithoutVariant = Omit<ReportEntry, "variant">;
@@ -53,7 +55,7 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "inactive2faReport",
     description: "inactive2faReportDesc",
     route: "inactive-two-factor-report",
-    icon: TwoFactorAuthSecurityKeyFailedIcon,
+    icon: SecurityKeyWarningIcon,
   },
   [ReportType.DataBreach]: {
     title: "dataBreachReport",
@@ -66,5 +68,11 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     description: "memberAccessReportDesc",
     route: "member-access-report",
     icon: UserLockIcon,
+  },
+  [ReportType.PasskeyLogin]: {
+    title: "passkeyLoginReport",
+    description: "passkeyLoginReportMenuDesc",
+    route: "passkey-report",
+    icon: TwoFactorAuthWebAuthnIcon,
   },
 };

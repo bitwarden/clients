@@ -5,14 +5,20 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { PlanType } from "@bitwarden/common/billing/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey, ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebProviderService } from "./web-provider.service";
@@ -20,11 +26,13 @@ import { WebProviderService } from "./web-provider.service";
 describe("WebProviderService", () => {
   let sut: WebProviderService;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let syncService: MockProxy<SyncService>;
   let apiService: MockProxy<ApiService>;
   let i18nService: MockProxy<I18nService>;
   let encryptService: MockProxy<EncryptService>;
   let providerApiService: MockProxy<ProviderApiServiceAbstraction>;
+  let configService: MockProxy<ConfigService>;
 
   const activeUserId = newGuid() as UserId;
   const providerId = "provider-123";
@@ -36,19 +44,23 @@ describe("WebProviderService", () => {
 
   beforeEach(() => {
     keyService = mock();
+    legacyCompatKeyService = mock();
     syncService = mock();
     apiService = mock();
     i18nService = mock();
     encryptService = mock();
     providerApiService = mock();
+    configService = mock();
 
     sut = new WebProviderService(
       keyService,
+      legacyCompatKeyService,
       syncService,
       apiService,
       i18nService,
       encryptService,
       providerApiService,
+      configService,
     );
   });
 
@@ -122,8 +134,11 @@ describe("WebProviderService", () => {
     const defaultCollectionTranslation = "Default Collection";
 
     beforeEach(() => {
-      keyService.makeOrgKey.mockResolvedValue([new EncString("mockEncryptedKey"), mockOrgKey]);
-      keyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("mockEncryptedKey"),
+        mockOrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
       i18nService.t.mockReturnValue(defaultCollectionTranslation);
       encryptService.encryptString.mockResolvedValue(encryptedCollectionName);
       keyService.providerKeys$.mockReturnValue(of(mockProviderKeysById));
@@ -140,8 +155,8 @@ describe("WebProviderService", () => {
         activeUserId,
       );
 
-      expect(keyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
+      expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
       expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
       expect(encryptService.encryptString).toHaveBeenCalledWith(
         defaultCollectionTranslation,
@@ -165,6 +180,38 @@ describe("WebProviderService", () => {
 
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
+    });
+
+    it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await sut.createClientOrganization(
+        providerId,
+        name,
+        ownerEmail,
+        planType,
+        seats,
+        activeUserId,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
+    });
+
+    it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await sut.createClientOrganization(
+        providerId,
+        name,
+        ownerEmail,
+        planType,
+        seats,
+        activeUserId,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
     });
 
     it("throws an error if provider key is not found", async () => {

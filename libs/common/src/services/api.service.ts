@@ -8,14 +8,13 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import {
-  CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
-  CollectionResponse,
-} from "@bitwarden/common/admin-console/models/collections";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
+import {
+  CollectionAccessDetailsResponse,
+  CollectionResponse,
+} from "../admin-console/models/collections";
 import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -47,8 +46,6 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { EmailTokenRequest } from "../auth/models/request/email-token.request";
-import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -65,39 +62,38 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
+import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
+import { EventRequest, EventResponse } from "../dirt/event-logs";
+import { addEventParameters } from "../dirt/event-logs/services/event-query-params.util";
 import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { EventRequest } from "../models/request/event.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
-import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
-import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
+import { ProblemDetailsErrorResponse } from "../models/response/problem-details-error.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
@@ -124,6 +120,8 @@ export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
 };
 
+export const EventUploadBatchSize = 100;
+
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
  * api services. The `send` method is still allowed to be used within api services. For background
@@ -139,6 +137,12 @@ export class ApiService implements ApiServiceAbstraction {
    */
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
     "new device verification required";
+
+  /**
+   * Middlewares wrap the fetch call in a chain. Each middleware receives the request and a `next`
+   * function, and can modify requests, inspect/modify responses, retry, or short-circuit.
+   */
+  private middlewares: FetchMiddleware[] = [];
 
   constructor(
     private tokenService: TokenService,
@@ -161,10 +165,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postIdentityToken(
     request:
-      | UserApiTokenRequest
-      | PasswordTokenRequest
-      | SsoTokenRequest
-      | WebAuthnLoginTokenRequest,
+      UserApiTokenRequest | PasswordTokenRequest | SsoTokenRequest | WebAuthnLoginTokenRequest,
   ): Promise<
     | IdentityTokenResponse
     | IdentityTwoFactorResponse
@@ -287,27 +288,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ProfileResponse(r);
   }
 
-  async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const r = await this.send(
-      "POST",
-      "/accounts/prelogin",
-      request,
-      false,
-      true,
-      env.getIdentityUrl(),
-    );
-    return new PreloginResponse(r);
-  }
-
-  postEmailToken(request: EmailTokenRequest): Promise<any> {
-    return this.send("POST", "/accounts/email-token", request, true, false);
-  }
-
-  postEmail(request: EmailRequest): Promise<any> {
-    return this.send("POST", "/accounts/email", request, true, false);
-  }
-
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
@@ -327,16 +307,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postPremium(data: FormData): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/premium", data, true, true);
-    return new PaymentResponse(r);
-  }
-
-  // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
-  postReinstatePremium(): Promise<any> {
-    return this.send("POST", "/accounts/reinstate-premium", null, true, false);
-  }
-
-  async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
-    const r = await this.send("POST", "/accounts/storage", request, true, true);
     return new PaymentResponse(r);
   }
 
@@ -364,10 +334,6 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/delete-recover-token", request, false, false);
   }
 
-  postAccountKdf(request: KdfRequest): Promise<any> {
-    return this.send("POST", "/accounts/kdf", request, true, false);
-  }
-
   async deleteSsoUser(organizationId: string): Promise<void> {
     return this.send("DELETE", "/accounts/sso/" + organizationId, null, true, false);
   }
@@ -387,10 +353,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
     return new ApiKeyResponse(r);
-  }
-
-  postConvertToKeyConnector(): Promise<void> {
-    return this.send("POST", "/accounts/convert-to-key-connector", null, true, false);
   }
 
   // Account Billing APIs
@@ -648,7 +610,25 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  postAttachmentFile(id: string, attachmentId: string, data: FormData): Promise<any> {
+  async postAttachmentFile(
+    id: string,
+    attachmentId: string,
+    data: FormData,
+    options?: UploadOptions,
+  ): Promise<any> {
+    if (typeof XMLHttpRequest !== "undefined" && options?.onProgress) {
+      const userId = await this.getActiveUser();
+      const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+      const apiUrl = environment.getApiUrl();
+      const headers = await this.buildRequestHeaders();
+      const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
+        method: "POST",
+        body: data,
+        headers,
+      });
+      return this.nativeXMLHttpRequest(request, options.onProgress);
+    }
+
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
   }
 
@@ -714,7 +694,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
@@ -729,7 +709,7 @@ export class ApiService implements ApiServiceAbstraction {
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
@@ -1030,7 +1010,7 @@ export class ApiService implements ApiServiceAbstraction {
   async getEvents(start: string, end: string, token: string): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/events", start, end, token),
+      addEventParameters("/events", start, end, token),
       null,
       true,
       true,
@@ -1046,7 +1026,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/ciphers/" + id + "/events", start, end, token),
+      addEventParameters("/ciphers/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1063,7 +1043,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/secrets/" + id + "/events",
         start,
         end,
@@ -1085,7 +1065,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/service-account/" + id + "/events",
         start,
         end,
@@ -1107,7 +1087,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/projects/" + id + "/events",
         start,
         end,
@@ -1128,7 +1108,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/organizations/" + id + "/events", start, end, token),
+      addEventParameters("/organizations/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1145,7 +1125,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organizations/" + organizationId + "/users/" + id + "/events",
         start,
         end,
@@ -1166,7 +1146,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/providers/" + id + "/events", start, end, token),
+      addEventParameters("/providers/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1183,7 +1163,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/providers/" + providerId + "/users/" + id + "/events",
         start,
         end,
@@ -1196,7 +1176,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
-  async postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any> {
+  async postEventsCollect(requests: EventRequest[], userId?: UserId): Promise<EventRequest[]> {
     const authHeader = await this.tokenService.getAccessToken(userId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
@@ -1206,24 +1186,41 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-
     const env = await firstValueFrom(
       userId == null
         ? this.environmentService.environment$
         : this.environmentService.getEnvironment$(userId),
     );
-    const response = await this.fetch(
-      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
-        cache: "no-store",
-        credentials: await this.getCredentials(env),
-        method: "POST",
-        body: JSON.stringify(request),
-        headers: headers,
-      }),
-    );
-    if (response.status !== 200) {
-      return Promise.reject("Event post failed.");
+
+    // Break uploads into chunks of {EventUploadBatchSize} events
+    let bail = false;
+    const failedRequests: EventRequest[] = [];
+    for (const eventRequests of Utils.chunkArray(requests, EventUploadBatchSize)) {
+      // We only fail once per set of uploads
+      if (bail) {
+        failedRequests.push(...eventRequests);
+        continue;
+      }
+
+      try {
+        const response = await this.fetch(
+          this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
+            cache: "no-store",
+            credentials: await this.getCredentials(env),
+            method: "POST",
+            body: JSON.stringify(eventRequests),
+            headers: headers,
+          }),
+        );
+        if (response.status !== 200) {
+          throw new Error("Event post failed.");
+        }
+      } catch {
+        bail = true;
+        failedRequests.push(...eventRequests);
+      }
     }
+    return failedRequests;
   }
 
   // User APIs
@@ -1246,34 +1243,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Key Connector
-
-  async getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse> {
-    const activeUser = await this.getActiveUser();
-    if (activeUser == null) {
-      throw new Error("No active user, cannot get master key from key connector.");
-    }
-    const authHeader = await this.getActiveBearerToken(activeUser);
-
-    const response = await this.fetch(
-      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
-        cache: "no-store",
-        method: "GET",
-        headers: new Headers({
-          Accept: "application/json",
-          Authorization: "Bearer " + authHeader,
-        }),
-      }),
-    );
-
-    if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
-    }
-
-    return new KeyConnectorUserKeyResponse(await response.json());
-  }
 
   async postUserKeyToKeyConnector(
     keyConnectorUrl: string,
@@ -1330,6 +1299,10 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
+  addMiddleware(middleware: FetchMiddleware): void {
+    this.middlewares.push(middleware);
+  }
+
   async fetch(request: Request): Promise<Response> {
     if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
@@ -1339,21 +1312,66 @@ export class ApiService implements ApiServiceAbstraction {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
     }
-    request.headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
-    request.headers.set(
-      "Bitwarden-Client-Version",
-      await this.platformUtilsService.getApplicationVersionNumber(),
-    );
+    await this.applyPlatformHeaders(request.headers);
 
-    const packageType = await this.platformUtilsService.packageType();
-    if (packageType != null) {
-      request.headers.set("Bitwarden-Package-Type", packageType);
-    }
-    return this.nativeFetch(request);
+    const pipeline = buildFetchPipeline(this.middlewares, (req) => this.nativeFetch(req));
+    return pipeline(request);
   }
 
   nativeFetch(request: Request): Promise<Response> {
     return fetch(request);
+  }
+
+  nativeXMLHttpRequest(
+    request: Request,
+    onProgress: (percentage: number) => void,
+  ): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(request.method, request.url);
+      request.headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+      xhr.responseType = "arraybuffer";
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      };
+      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onerror = () => reject(new Error("Network error during upload"));
+      void request
+        .arrayBuffer()
+        .then((body) => xhr.send(body))
+        .catch(reject);
+    });
+  }
+
+  private async applyPlatformHeaders(headers: Headers): Promise<void> {
+    headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
+    headers.set(
+      "Bitwarden-Client-Version",
+      await this.platformUtilsService.getApplicationVersionNumber(),
+    );
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      headers.set("Bitwarden-Package-Type", packageType);
+    }
+  }
+
+  protected async buildRequestHeaders(): Promise<Headers> {
+    const userId = await this.getActiveUser();
+    const accessToken = await this.getActiveBearerToken(userId);
+    const headers = new Headers({
+      "Device-Type": this.deviceType,
+      Authorization: "Bearer " + accessToken,
+    });
+    if (this.customUserAgent != null) {
+      headers.set("User-Agent", this.customUserAgent);
+    }
+    if (flagEnabled("prereleaseBuild")) {
+      headers.set("Is-Prerelease", "1");
+    }
+    await this.applyPlatformHeaders(headers);
+    return headers;
   }
 
   async preValidateSso(identifier: string): Promise<SsoPreValidateResponse> {
@@ -1516,7 +1534,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status === 200) {
       const responseJson = await response.json();
-      const tokenResponse = new IdentityTokenResponse(responseJson);
+      const tokenResponse = new RefreshTokenResponse(responseJson);
 
       const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
         tokenResponse.accessToken,
@@ -1644,15 +1662,22 @@ export class ApiService implements ApiServiceAbstraction {
     const responseType = response.headers.get("content-type");
     const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
-    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+    const responseIsBlob =
+      responseType != null && responseType.indexOf("application/octet-stream") !== -1;
+    const responseIsSuccess =
+      response.status === HttpStatusCode.Ok || response.status === HttpStatusCode.Created;
+    if (hasResponse && responseIsSuccess && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
-    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+    } else if (hasResponse && responseIsSuccess && responseIsCsv) {
       return await response.text();
-    } else if (
-      response.status !== HttpStatusCode.Ok &&
-      response.status !== HttpStatusCode.NoContent
-    ) {
+    } else if (hasResponse && responseIsSuccess && responseIsBlob) {
+      const disposition = response.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const fileName = match ? match[1].replace(/['"]/g, "") : "download";
+      const blob = await response.blob();
+      return { blob, fileName };
+    } else if (!responseIsSuccess && response.status !== HttpStatusCode.NoContent) {
       const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
       return Promise.reject(error);
     }
@@ -1661,12 +1686,10 @@ export class ApiService implements ApiServiceAbstraction {
   private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
     const pathParts = path.split("?");
 
-    // Check for path traversal patterns from any URL.
+    // Supplementary heuristic: detect common traversal indicators before normalization.
     const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
-    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
-    if (isInvalidUrl) {
-      throw new Error("The request URL contains dangerous patterns.");
+    if (Utils.containsTraversalIndicators(fullUrlPath)) {
+      throw new Error("The request URL contains unexpected patterns.");
     }
 
     const requestUrl =
@@ -1789,6 +1812,10 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     const responseJson = await this.getJsonResponse(response);
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.indexOf("application/problem+json") > -1) {
+      return new ProblemDetailsErrorResponse(responseJson, response.status);
+    }
     return new ErrorResponse(responseJson, response.status);
   }
 
@@ -1840,24 +1867,13 @@ export class ApiService implements ApiServiceAbstraction {
     return undefined;
   }
 
-  private addEventParameters(base: string, start: string, end: string, token: string) {
-    if (start != null) {
-      base += "?start=" + start;
-    }
-    if (end != null) {
-      base += base.indexOf("?") > -1 ? "&" : "?";
-      base += "end=" + end;
-    }
-    if (token != null) {
-      base += base.indexOf("?") > -1 ? "&" : "?";
-      base += "continuationToken=" + token;
-    }
-    return base;
-  }
-
   private isJsonResponse(response: Response): boolean {
     const typeHeader = response.headers.get("content-type");
-    return typeHeader != null && typeHeader.indexOf("application/json") > -1;
+    return (
+      typeHeader != null &&
+      (typeHeader.indexOf("application/json") > -1 ||
+        typeHeader.indexOf("application/problem+json") > -1)
+    );
   }
 
   private isTextPlainResponse(response: Response): boolean {

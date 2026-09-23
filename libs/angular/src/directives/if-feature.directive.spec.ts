@@ -55,7 +55,8 @@ describe("IfFeatureDirective", () => {
     mockConfigService = mock<ConfigService>();
 
     await TestBed.configureTestingModule({
-      declarations: [IfFeatureDirective, TestComponent],
+      imports: [IfFeatureDirective],
+      declarations: [TestComponent],
       providers: [
         { provide: LogService, useValue: mock<LogService>() },
         {

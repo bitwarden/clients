@@ -40,7 +40,7 @@ export class LastPassDirectImportUIService implements Ui {
   }
 
   closeMFADialog() {
-    this.mfaDialogRef?.close();
+    void this.mfaDialogRef?.close();
   }
 
   async provideGoogleAuthPasscode() {

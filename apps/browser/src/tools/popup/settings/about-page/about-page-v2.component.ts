@@ -3,11 +3,12 @@ import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CenterPositionStrategy, DialogService, ItemModule } from "@bitwarden/components";
+import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -27,6 +28,8 @@ const RateUrls = {
   [DeviceType.VivaldiExtension]:
     "https://chromewebstore.google.com/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
   [DeviceType.SafariExtension]: "https://apps.apple.com/app/bitwarden/id1352778147",
+  [DeviceType.DuckDuckGoExtension]:
+    "https://chromewebstore.google.com/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -35,12 +38,12 @@ const RateUrls = {
   templateUrl: "about-page-v2.component.html",
   imports: [
     CommonModule,
-    JslibModule,
     RouterModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
+    I18nPipe,
   ],
 })
 export class AboutPageV2Component {
@@ -54,6 +57,10 @@ export class AboutPageV2Component {
     this.dialogService.open(AboutDialogComponent, {
       positionStrategy: new CenterPositionStrategy(),
     });
+  }
+
+  troubleshoot() {
+    TroubleshootingDialogComponent.open(this.dialogService);
   }
 
   async launchHelp() {

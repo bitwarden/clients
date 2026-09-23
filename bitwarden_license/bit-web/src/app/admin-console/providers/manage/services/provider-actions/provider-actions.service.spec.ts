@@ -4,11 +4,11 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { ProviderActionsService } from "./provider-actions.service";
@@ -67,7 +67,7 @@ describe("ProviderActionsService", () => {
       const result = await service.deleteProviderUser(providerId, mockProviderUser);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.success === false && result.error).toBeDefined();
     });
   });
 
@@ -86,7 +86,7 @@ describe("ProviderActionsService", () => {
       const result = await service.reinviteProvider(providerId, mockProviderUser);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.success === false && result.error).toBeDefined();
     });
   });
 
@@ -127,7 +127,7 @@ describe("ProviderActionsService", () => {
       const result = await service.confirmProvider(mockProviderUser, providerId, publicKey);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.success === false && result.error).toBeDefined();
     });
   });
 });

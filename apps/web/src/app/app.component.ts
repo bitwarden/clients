@@ -5,30 +5,27 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
-import { LockService } from "@bitwarden/auth/common";
-import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -55,13 +52,10 @@ export class AppComponent implements OnDestroy, OnInit {
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
-    private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
     private keyService: KeyService,
     private lockService: LockService,
-    private collectionService: CollectionService,
-    private searchService: SearchService,
     private serverNotificationsService: ServerNotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
@@ -121,11 +115,11 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           case "lockVault": {
             const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-            await this.lockService.lock(userId);
+            await this.lockService.lock(userId, LockSource.Manual);
             break;
           }
           case "locked":
-            await this.processReloadService.startProcessReload();
+            await this.router.navigate(["/"]);
             break;
           case "lockedUrl":
             break;
@@ -262,10 +256,9 @@ export class AppComponent implements OnDestroy, OnInit {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
-      await this.tokenService.clearAccessToken(userId);
+      await this.tokenService.clearTokens(userId);
       await this.accountService.clean(userId);
       await this.accountService.switchAccount(null);
 
@@ -275,11 +268,11 @@ export class AppComponent implements OnDestroy, OnInit {
         await this.router.navigate(["/"]);
       }
 
-      await this.processReloadService.startProcessReload();
-
+      // Wipe the current process to clear active secrets in memory.
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so
       // it handles it.
+      await this.processReloadService.reloadProcess();
     }, userId);
   }
 

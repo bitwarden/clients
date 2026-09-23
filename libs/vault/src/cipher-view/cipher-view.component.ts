@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -10,19 +10,23 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
   CipherRiskService,
   isPasswordAtRisk,
 } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
@@ -33,16 +37,17 @@ import {
   LinkComponent,
 } from "@bitwarden/components";
 
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
-
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
+import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
+import { DriversLicenseViewComponent } from "./drivers-license-sections/drivers-license-view.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
+import { PassportViewComponent } from "./passport-sections/passport-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
@@ -63,6 +68,9 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CustomFieldV2Component,
     CardDetailsComponent,
     SshKeyViewComponent,
+    BankAccountViewComponent,
+    DriversLicenseViewComponent,
+    PassportViewComponent,
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
@@ -97,7 +105,18 @@ export class CipherViewComponent {
    */
   readonly isAdminConsole = input<boolean>(false);
 
-  readonly activeUserId$ = getUserId(this.accountService.activeAccount$);
+  readonly activeUserId$ = getOptionalUserId(this.accountService.activeAccount$);
+
+  /**
+   * Optional input for manually specifying whether the user can be considered
+   * premium in anonymous environments where the userId is not available
+   */
+  readonly hasAnonymousPremium = input<boolean>(false);
+  /**
+   * Optional input for explicitly disabling the at-risk password link (used for
+   * situations where the cipher contents are not editable)
+   */
+  readonly hideChangePasswordLink = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,
@@ -111,6 +130,8 @@ export class CipherViewComponent {
     private logService: LogService,
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
+    private vaultSettingsService: VaultSettingsService,
+    private configService: ConfigService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -119,6 +140,10 @@ export class CipherViewComponent {
         // Use provided collections if available
         if (providedCollections && providedCollections.length > 0) {
           return of(providedCollections);
+        }
+        // If no userId is available, return undefined
+        if (!userId) {
+          return of(undefined);
         }
         // Otherwise, load collections based on cipher's collectionIds
         if (cipher.collectionIds && cipher.collectionIds.length > 0) {
@@ -159,8 +184,8 @@ export class CipherViewComponent {
   readonly hadPendingChangePasswordTask = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) => {
-        // Early exit if not a Login cipher owned by an organization
-        if (cipher?.type !== CipherType.Login || !cipher?.organizationId) {
+        // Early exit if not a Login cipher owned by an organization, or if userId is not available
+        if (cipher?.type !== CipherType.Login || !cipher?.organizationId || !userId) {
           return of(false);
         }
 
@@ -235,6 +260,32 @@ export class CipherViewComponent {
     return !!cipher?.sshKey?.privateKey;
   });
 
+  readonly hasBankAccount = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.bankAccount)).some((value) => Boolean(value));
+  });
+
+  readonly hasDriversLicense = computed(() => {
+    const cipher = this.cipher();
+
+    if (!cipher) {
+      return false;
+    }
+
+    return Array.from(Object.values(cipher.driversLicense)).some((value) => Boolean(value));
+  });
+
+  readonly hasPassport = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.passport ?? {})).some((value) => Boolean(value));
+  });
+
   readonly hasLoginUri = computed(() => {
     const cipher = this.cipher();
     return cipher?.login?.hasUris;
@@ -242,12 +293,19 @@ export class CipherViewComponent {
 
   /**
    * Whether the login password for the cipher is considered at risk.
-   * The password is only evaluated when the user is premium and has edit access to the cipher.
+   * The password is only evaluated when the user is premium (and not anonymous;
+   * the userId is required to make the check) and has edit access to the cipher.
    */
   readonly passwordIsAtRisk = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) => {
-        if (!cipher.hasLoginPassword || !cipher.edit || cipher.organizationId || cipher.isDeleted) {
+        if (
+          !cipher.hasLoginPassword ||
+          !cipher.edit ||
+          cipher.organizationId ||
+          cipher.isDeleted ||
+          !userId
+        ) {
           return of(false);
         }
         return this.switchPremium$(
@@ -264,7 +322,46 @@ export class CipherViewComponent {
   );
 
   readonly showChangePasswordLink = computed(() => {
-    return this.hasLoginUri() && (this.hadPendingChangePasswordTask() || this.passwordIsAtRisk());
+    return (
+      !this.hideChangePasswordLink() &&
+      this.hasLoginUri() &&
+      (this.hadPendingChangePasswordTask() ||
+        // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.
+        // `hasPendingChangePasswordTask` supersedes the `showAtRiskPasswordNotifications` setting because it comes from
+        // an organization marking the cipher as at-risk.
+        (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
+    );
+  });
+
+  readonly showAtRiskPasswordNotifications = toSignal(
+    this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
+
+  readonly removeAtRiskCallout = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32016RemoveAtRiskCallout),
+    { initialValue: false },
+  );
+
+  protected readonly changePasswordUrl = resource({
+    params: () => ({ cipher: this.cipher(), showPwLink: this.showChangePasswordLink() }),
+    loader: async ({ params }) => {
+      if (!params.showPwLink) {
+        return undefined;
+      }
+      try {
+        return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      } catch (e: any) {
+        this.logService.error(e.message);
+        return undefined;
+      }
+    },
+  });
+
+  readonly changePasswordLink = computed(() => {
+    if (this.changePasswordUrl.hasValue()) {
+      return this.changePasswordUrl.value();
+    }
+    return undefined;
   });
 
   launchChangePassword = async () => {
@@ -280,12 +377,16 @@ export class CipherViewComponent {
 
   /**
    * Switches between two observables based on whether the user has a premium from any source.
+   * If the userId is not available the `hasAnonymousPremium` input is used as a fallback
    */
   private switchPremium$<T>(
-    userId: UserId,
+    userId: UserId | null,
     ifPremium$: () => Observable<T>,
     ifNonPremium$: () => Observable<T>,
   ): Observable<T> {
+    if (!userId) {
+      return this.hasAnonymousPremium() ? ifPremium$() : ifNonPremium$();
+    }
     return this.billingAccountService
       .hasPremiumFromAnySource$(userId)
       .pipe(switchMap((isPremium) => (isPremium ? ifPremium$() : ifNonPremium$())));

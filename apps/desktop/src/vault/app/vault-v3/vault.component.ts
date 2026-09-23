@@ -5,108 +5,169 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
-  combineLatest,
   firstValueFrom,
   Subject,
   takeUntil,
   switchMap,
   lastValueFrom,
   Observable,
-  from,
+  BehaviorSubject,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  skip,
 } from "rxjs";
-import { filter, map, take } from "rxjs/operators";
+import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
-import { ItemTypes } from "@bitwarden/assets/svg";
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import {
+  NoResults,
+  DeactivatedOrg,
+  EmptyTrash,
+  FavoritesIcon,
+  ItemTypes,
+  BitSvg,
+} from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+} from "@bitwarden/common/admin-console/utils";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { getByIds } from "@bitwarden/common/platform/misc";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
-  BadgeModule,
-  ButtonModule,
+  DialogRef,
   DialogService,
-  ItemModule,
   ToastService,
-  CopyClickListener,
-  COPY_CLICK_LISTENER,
-  NoItemsModule,
+  SearchModule,
+  AutofocusDirective,
+  IconTileComponent,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { isGuid } from "@bitwarden/guid";
 import {
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-  ChangeLoginPasswordService,
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
+  CipherActionService,
   CipherFormConfig,
   CipherFormConfigService,
-  CipherFormGenerationService,
-  CipherFormMode,
-  CipherFormModule,
-  CipherViewComponent,
   CollectionAssignmentResult,
-  createFilterFunction,
   DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
+  DefaultVaultItemsTransferService,
   PasswordRepromptService,
-  CipherFormComponent,
-  ArchiveCipherUtilitiesService,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
+  createFilterFunction,
+  All,
   VaultItemsTransferService,
-  DefaultVaultItemsTransferService,
+  NewCipherMenuComponent,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
+  VaultBatchActionComponent,
+  VaultBatchBarService,
+  VaultOrganizationUserNotificationsComponent,
+  Vfo1TerminologyService,
+  ALL_ITEMS_SCOPE,
+  cipherInScope,
+  collectionInScope,
+  FilterFunction,
+  hasMultipleVaults,
+  MY_ITEMS_ROUTE,
+  organizationInScope,
+  organizationNameForScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
+  parseVaultScope,
+  resolveVaultScope,
+  scopeKey,
+  scopedCollectionSegment,
+  SharedFolderCardGridComponent,
+  VaultBreadcrumbsComponent,
+  VaultRemountOnDirective,
+  sharedFolderNameForScope,
+  VaultNavService,
+  vaultScopeCommands,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
+  VaultScopeType,
+  defaultUserCollectionId,
 } from "@bitwarden/vault";
 
-import { SearchBarService } from "../../../app/layout/search/search-bar.service";
-import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
-import { invokeMenu, RendererMenuItem } from "../../../utils";
+import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
+import { ImportDesktopComponent } from "../../../app/tools/import/import-desktop.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
-import { ItemFooterComponent } from "../vault/item-footer.component";
-import { VaultItemsV2Component } from "../vault/vault-items-v2.component";
+
+import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
+import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
+import { VaultItemEvent } from "./vault-items/vault-item-event";
+import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
+import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
+
+type EmptyStateType = "trash" | "favorites" | "archive";
+
+type EmptyStateItem = {
+  title: string;
+  description: string;
+  icon: BitSvg;
+};
+
+type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -114,71 +175,77 @@ const BroadcasterSubscriptionId = "VaultComponent";
   selector: "app-vault-v3",
   templateUrl: "vault.component.html",
   imports: [
-    BadgeModule,
     CommonModule,
-    CipherFormModule,
-    CipherViewComponent,
-    ItemFooterComponent,
-    I18nPipe,
-    ItemModule,
-    ButtonModule,
-    PremiumBadgeComponent,
-    VaultItemsV2Component,
-    NoItemsModule,
+    VaultListComponent,
+    VaultListTableComponent,
+    DesktopHeaderComponent,
+    NewCipherMenuComponent,
+    SearchModule,
+    FormsModule,
+    VaultBatchActionComponent,
+    VaultOrganizationUserNotificationsComponent,
+    AutofocusDirective,
+    SharedFolderCardGridComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
+    VaultRemountOnDirective,
   ],
   providers: [
-    {
-      provide: CipherFormConfigService,
-      useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
-    },
-    {
-      provide: ViewPasswordHistoryService,
-      useClass: VaultViewPasswordHistoryService,
-    },
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
-    { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
-    {
-      provide: COPY_CLICK_LISTENER,
-      useExisting: VaultComponent,
-    },
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
+    { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
+    VaultBatchBarService,
+    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsDesktopDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogDesktopAdapter },
   ],
 })
-export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(VaultItemsV2Component, { static: true })
-  vaultItemsComponent: VaultItemsV2Component<CipherView> | null = null;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(CipherFormComponent)
-  cipherFormComponent: CipherFormComponent | null = null;
+export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private i18nService = inject(I18nService);
+  private broadcasterService = inject(BroadcasterService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
+  private messagingService = inject(MessagingService);
+  private syncService = inject(SyncService);
+  private configService = inject(ConfigService);
+  private eventCollectionService = inject(EventCollectionService);
+  private searchService = inject(SearchService);
+  private searchPipe = inject(SearchPipe);
+  private passwordRepromptService = inject(PasswordRepromptService);
+  private dialogService = inject(DialogService);
+  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private toastService = inject(ToastService);
+  private accountService = inject(AccountService);
+  private cipherService = inject(CipherService);
+  private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+  private collectionService = inject(CollectionService);
+  private organizationService = inject(OrganizationService);
+  private restrictedItemTypesService = inject(RestrictedItemTypesService);
+  private cipherArchiveService = inject(CipherArchiveService);
+  private policyService = inject(PolicyService);
+  private cipherActionService = inject(CipherActionService);
+  private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
+  private vaultFilterService = inject(VaultFilterService);
+  private routedVaultFilterService = inject(RoutedVaultFilterService);
+  private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private totpService = inject(TotpService);
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private folderService = inject(FolderService);
+  private vaultNavService = inject(VaultNavService);
 
-  action: CipherFormMode | "view" | null = null;
-  cipherId: string | null = null;
-  favorites = false;
-  type: CipherType | null = null;
-  folderId: string | null | undefined = null;
-  collectionId: string | null = null;
-  organizationId: OrganizationId | null = null;
-  addType: CipherType | undefined = undefined;
-  addOrganizationId: string | null = null;
-  addCollectionIds: string[] | null = null;
-  showingModal = false;
-  deleted = false;
-  activeFilter: VaultFilter = new VaultFilter();
-  activeUserId: UserId | null = null;
-  cipherRepromptId: string | null = null;
-  readonly cipher = signal<CipherView | null>(null);
-  collections: CollectionView[] | null = null;
-  config: CipherFormConfig | null = null;
+  private destroyRef = inject(DestroyRef);
+  private cipherFormConfigService = inject(CipherFormConfigService);
+  private vaultBatchBarService = inject(VaultBatchBarService, { optional: true });
+  private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
+
+  protected readonly activeFilter = signal<VaultFilter>(new VaultFilter());
+  protected cipherRepromptId: string | null = null;
+  protected showingModal = false;
+
+  protected readonly cipher = signal<CipherView | null>(null);
+
+  private activeUserId: UserId | null = null;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
@@ -189,9 +256,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
   );
 
-  /** Tracks the disabled status of the edit cipher form */
-  protected formDisabled: boolean = false;
-
   readonly userHasPremium = toSignal(
     this.accountService.activeAccount$.pipe(
       filter((account): account is Account => !!account),
@@ -201,268 +265,648 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
     { initialValue: false },
   );
-  protected itemTypesIcon = ItemTypes;
+
+  protected readonly vaultBatchBarFeatureFlag = toSignal(
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
+    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
+    { initialValue: false },
+  );
+
+  protected readonly folders = toSignal(
+    this.accountService.activeAccount$.pipe(
+      map((a) => a?.id),
+      filterOutNullish(),
+      switchMap((userId) => this.folderService.folderViews$(userId)),
+      // Filter out "No folder" option, the table provides it by default.
+      map((folders) => folders.filter((f) => f.id)),
+    ),
+    { initialValue: [] },
+  );
+
+  private readonly vfo1Foundation$ = this.configService
+    .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+    .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+
+  protected readonly vfo1Foundation = toSignal(this.vfo1Foundation$, { initialValue: false });
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
-    switchMap((id) => this.organizationService.organizations$(id)),
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
-  protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived &&
-      !this.userHasPremium() &&
-      this.cipherArchiveService.hasArchiveFlagEnabled$
-      ? this.i18nService.t("unArchiveAndSave")
-      : this.i18nService.t("save");
-  });
+  /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
+  private readonly vaultNav$ = this.userId$.pipe(
+    switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
 
-  protected hasArchivedCiphers$ = this.userId$.pipe(
-    switchMap((userId) =>
-      this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
+  /**
+   * The vault the `:vaultId` segment scopes this page to, and the shared folder within it the
+   * route's collection segment has drilled into; always All items on the legacy nav.
+   */
+  private readonly vaultScope$ = this.vfo1Foundation$.pipe(
+    switchMap((vfo1Foundation) =>
+      vfo1Foundation
+        ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
+            map(
+              ([params, data, nav]) =>
+                resolveVaultScope(
+                  params.get("vaultId"),
+                  scopedCollectionSegment(params, data),
+                  nav,
+                ) ?? ALL_ITEMS_SCOPE,
+            ),
+          )
+        : of(ALL_ITEMS_SCOPE),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
+  protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  /**
+   * The scope key the vault table's filter state belongs to. Read from the route rather than from
+   * {@link vaultScope$}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = toSignal(
+    combineLatest([this.route.paramMap, this.route.data]).pipe(
+      map(([params, data]) =>
+        scopeKey(
+          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
+            ALL_ITEMS_SCOPE,
+        ),
+      ),
+    ),
+    { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
+  );
+
+  /** {@link vaultNav$} as a signal for use in computed properties. */
+  private readonly vaultNav = toSignal(this.vaultNav$);
+
+  /** The organization the page is pinned to, whichever nav the user is on. */
+  protected readonly selectedOrganization$ = combineLatest([
+    this.vfo1Foundation$,
+    this.vaultScope$,
+    this.routedVaultFilterService.filter$,
+    this.organizations$,
+  ]).pipe(
+    map(([vfo1Foundation, scope, filter, organizations]) => {
+      const organizationId =
+        vfo1Foundation && scope.type === VaultScopeType.Organization
+          ? scope.organizationId
+          : filter?.organizationId;
+      return organizations?.find((org) => org.id === organizationId);
+    }),
+  );
+
+  /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
+  protected readonly title = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
+      ),
     ),
   );
 
-  private componentIsDestroyed$ = new Subject<boolean>();
-  private allOrganizations: Organization[] = [];
-  private allCollections: CollectionView[] = [];
-  private filteredCollections: CollectionView[] = [];
+  /**
+   * Whether the scope is a vault an "empty vault" message makes sense for. Trash and Archive are
+   * not — an account with e.g. only one organization vault would otherwise show "No items in
+   * {org}" (and its Add item button) over an empty Trash or Archive, which is not a vault at all.
+   */
+  private readonly isVaultBrowsingScope$ = this.vaultScope$.pipe(
+    map((scope) => scope.type !== VaultScopeType.Trash && scope.type !== VaultScopeType.Archive),
+  );
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private i18nService: I18nService,
-    private broadcasterService: BroadcasterService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private ngZone: NgZone,
-    private syncService: SyncService,
-    private messagingService: MessagingService,
-    private platformUtilsService: PlatformUtilsService,
-    private eventCollectionService: EventCollectionService,
-    private totpService: TotpService,
-    private passwordRepromptService: PasswordRepromptService,
-    private searchBarService: SearchBarService,
-    private dialogService: DialogService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private toastService: ToastService,
-    private accountService: AccountService,
-    private cipherService: CipherService,
-    private formConfigService: CipherFormConfigService,
-    private premiumUpgradePromptService: PremiumUpgradePromptService,
-    private collectionService: CollectionService,
-    private organizationService: OrganizationService,
-    private folderService: FolderService,
-    private authRequestService: AuthRequestServiceAbstraction,
-    private cipherArchiveService: CipherArchiveService,
-    private policyService: PolicyService,
-    private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
-    private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
-    private routedVaultFilterService: RoutedVaultFilterService,
-    private vaultFilterService: VaultFilterService,
-    private vaultItemTransferService: VaultItemsTransferService,
-  ) {}
+  /**
+   * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
+   * through `app-vault-list-table` untouched. Only meaningful once `vfo1Foundation` is on — see
+   * {@link vaultScope$} — the legacy nav renders its own empty states instead.
+   *
+   * Gated by {@link isVaultBrowsingScope$}: Trash and Archive are not vaults an "Add item" message
+   * makes sense for, even for an account these facts would otherwise resolve non-empty for.
+   */
+  protected readonly emptyVaultOrganizationName = toSignal(
+    combineLatest([this.vaultScope$, this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([scope, nav, browsing]) =>
+        browsing ? organizationNameForScope(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  protected readonly headerTile = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeHeaderTile(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(
+        ([vfo1Foundation, scope, nav]) =>
+          vfo1Foundation &&
+          organizationVaultPage(scope, nav) === OrganizationVaultPage.SharedFolder,
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly hasMultipleVaults = toSignal(
+    combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([nav, browsing]) => browsing && hasMultipleVaults(nav)),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly defaultCollectionId = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return defaultUserCollectionId(scope.organizationId, this.vaultNav());
+  });
+
+  protected readonly showAddCipherBtn$ = combineLatest([
+    this.vfo1Foundation$,
+    this.vaultScope$,
+    this.routedVaultFilterService.filter$,
+    this.selectedOrganization$,
+  ]).pipe(
+    map(([vfo1Foundation, scope, filter, selectedOrganization]) => {
+      if (selectedOrganization && !selectedOrganization.enabled) {
+        return false;
+      }
+
+      if (vfo1Foundation) {
+        return scope.type !== VaultScopeType.Trash && scope.type !== VaultScopeType.Archive;
+      }
+
+      const emptyStateTypes: EmptyStateType[] = ["trash", "favorites", "archive"];
+      return !(filter?.type && emptyStateTypes.includes(filter.type as EmptyStateType));
+    }),
+  );
+
+  /**
+   * Whether a new cipher can be created in the currently selected organization.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected readonly canCreateCipher$ = this.selectedOrganization$.pipe(
+    map((selectedOrganization) => !selectedOrganization || selectedOrganization.enabled),
+  );
+
+  protected deactivatedOrgIcon = DeactivatedOrg;
+  protected emptyTrashIcon = EmptyTrash;
+  protected favoritesIcon = FavoritesIcon;
+  protected itemTypesIcon = ItemTypes;
+  protected noResultsIcon = NoResults;
+  protected performingInitialLoad = true;
+  protected refreshing = false;
+  protected allOrganizations: Organization[] = [];
+  protected allCollections: CollectionView[] = [];
+  protected scopedOrganizations: Organization[] = [];
+  protected scopedCollections: CollectionView[] = [];
+  protected collectionsToDisplay: CollectionView[] = [];
+
+  /**
+   * The shared folder the current vault scope has drilled into, by name — relayed through
+   * `app-vault-list-table` to {@link EmptyVaultComponent} untouched. `undefined` outside an
+   * organization vault's shared-folder route, or while `vfo1Foundation` is off.
+   */
+  protected emptySharedFolderName?: string;
+
+  protected readonly searchPlaceholderText = computed(() =>
+    this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
+  );
+  protected ciphers: C[] = [];
+  protected isEmpty: boolean;
+  protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
+    map((queryParams) => queryParams.search),
+  );
+  private searchText$ = new Subject<string>();
+  private refresh$ = new BehaviorSubject<void>(null);
+  private destroy$ = new Subject<void>();
+
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
+  protected enforceOrgDataOwnershipPolicy$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    ),
+  );
+
+  emptyState$ = combineLatest([
+    this.currentSearchText$,
+    this.routedVaultFilterService.filter$,
+    this.organizations$,
+  ]).pipe(
+    map(([searchText, filter, organizations]) => {
+      const selectedOrg = organizations?.find((org) => org.id === filter.organizationId);
+      const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
+
+      if (isOrgDisabled) {
+        return {
+          title: "organizationIsSuspended",
+          description: "organizationIsSuspendedDesc",
+          icon: this.deactivatedOrgIcon,
+        };
+      }
+
+      if (searchText) {
+        return {
+          title: "noSearchResults",
+          description: "clearFiltersOrTryAnother",
+          icon: this.noResultsIcon,
+        };
+      }
+
+      const emptyStateMap: EmptyStateMap = {
+        trash: {
+          title: "noItemsInTrash",
+          description: "noItemsInTrashDesc",
+          icon: this.emptyTrashIcon,
+        },
+        favorites: {
+          title: "emptyFavorites",
+          description: "emptyFavoritesDesc",
+          icon: this.favoritesIcon,
+        },
+        archive: {
+          title: "noItemsInArchive",
+          description: "noItemsInArchiveDesc",
+          icon: this.itemTypesIcon,
+        },
+      };
+
+      if (filter?.type && filter.type in emptyStateMap) {
+        return emptyStateMap[filter.type as EmptyStateType];
+      }
+
+      return {
+        title: "noItemsInVault",
+        description: "emptyVaultDescription",
+        icon: this.itemTypesIcon,
+      };
+    }),
+  );
 
   async ngOnInit() {
-    // Subscribe to filter changes from router params via the bridge service
-    // Use combineLatest to react to changes in both the filter and archive flag
-    combineLatest([
-      this.routedVaultFilterBridgeService.activeFilter$,
-      this.routedVaultFilterService.filter$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
-    ])
-      .pipe(
-        switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
-          from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
-        ),
-        takeUntil(this.componentIsDestroyed$),
-      )
-      .subscribe();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.activeUserId = activeUserId;
+
+    // Clear cipher selection on page load/reload to prevent flash of content
+    const currentParams = await firstValueFrom(this.route.queryParams);
+
+    const incomingAddType = toCipherType(currentParams.addType);
+    if (currentParams.action === "add" && incomingAddType) {
+      await this.addCipher(incomingAddType).catch(() => {});
+    }
+
+    // Clear cipher selection on page load/reload to prevent flash of content
+    if (currentParams.itemId || currentParams.cipherId) {
+      await this.router.navigate([], {
+        queryParams: { itemId: null, cipherId: null, action: null },
+        queryParamsHandling: "merge",
+        replaceUrl: true,
+      });
+    }
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      this.ngZone
-        .run(async () => {
-          let detectChanges = true;
-          try {
-            switch (message.command) {
-              case "newLogin":
-                await this.addCipher(CipherType.Login).catch(() => {});
-                break;
-              case "newCard":
-                await this.addCipher(CipherType.Card).catch(() => {});
-                break;
-              case "newIdentity":
-                await this.addCipher(CipherType.Identity).catch(() => {});
-                break;
-              case "newSecureNote":
-                await this.addCipher(CipherType.SecureNote).catch(() => {});
-                break;
-              case "newSshKey":
-                await this.addCipher(CipherType.SshKey).catch(() => {});
-                break;
-              case "focusSearch":
-                (document.querySelector("#search") as HTMLInputElement)?.select();
-                detectChanges = false;
-                break;
-              case "syncCompleted":
-                if (this.vaultItemsComponent) {
-                  await this.vaultItemsComponent.refresh().catch(() => {});
-                }
+      void this.ngZone.run(async () => {
+        let detectChanges = true;
+        try {
+          switch (message.command) {
+            case "newLogin":
+              await this.addCipher(CipherType.Login);
+              break;
+            case "newCard":
+              await this.addCipher(CipherType.Card);
+              break;
+            case "newIdentity":
+              await this.addCipher(CipherType.Identity);
+              break;
+            case "newSecureNote":
+              await this.addCipher(CipherType.SecureNote);
+              break;
+            case "newSshKey":
+              await this.addCipher(CipherType.SshKey);
+              break;
+            case "focusSearch":
+              (document.querySelector("bit-search input") as HTMLInputElement)?.select();
+              detectChanges = false;
+              break;
+            case "syncCompleted":
+              if (message.successfully) {
                 if (this.activeUserId) {
                   void this.vaultItemTransferService.enforceOrganizationDataOwnership(
                     this.activeUserId,
                   );
                 }
-                break;
-              case "modalShown":
-                this.showingModal = true;
-                break;
-              case "modalClosed":
-                this.showingModal = false;
-                break;
-              case "copyUsername": {
-                if (this.cipher()?.login?.username) {
-                  this.copyValue(
-                    this.cipher(),
-                    this.cipher()?.login?.username,
-                    "username",
-                    "Username",
-                  );
-                }
-                break;
+                this.refresh();
               }
-              case "copyPassword": {
-                if (this.cipher()?.login?.password && this.cipher().viewPassword) {
-                  this.copyValue(
-                    this.cipher(),
-                    this.cipher().login.password,
-                    "password",
-                    "Password",
-                  );
-                  await this.eventCollectionService
-                    .collect(EventType.Cipher_ClientCopiedPassword, this.cipher().id)
-                    .catch(() => {});
-                }
-                break;
+              break;
+            case "modalShown":
+              this.showingModal = true;
+              break;
+            case "modalClosed":
+              this.showingModal = false;
+              break;
+            case "copyUsername": {
+              const cipher = this.cipher();
+              if (cipher?.login?.username) {
+                this.copyValue(cipher, cipher.login.username, "username", "Username");
               }
-              case "copyTotp": {
-                if (
-                  this.cipher()?.login?.hasTotp &&
-                  (this.cipher().organizationUseTotp || this.userHasPremium())
-                ) {
-                  const value = await firstValueFrom(
-                    this.totpService.getCode$(this.cipher().login.totp),
-                  ).catch((): any => null);
-                  if (value) {
-                    this.copyValue(this.cipher(), value.code, "verificationCodeTotp", "TOTP");
-                  }
-                }
-                break;
-              }
-              default:
-                detectChanges = false;
-                break;
+              break;
             }
-          } catch {
-            // Ignore errors
+            case "copyPassword": {
+              const cipher = this.cipher();
+              if (cipher?.login?.password && cipher.viewPassword) {
+                this.copyValue(cipher, cipher.login.password, "password", "Password");
+                await this.eventCollectionService.collect(
+                  EventType.Cipher_ClientCopiedPassword,
+                  cipher.id,
+                );
+              }
+              break;
+            }
+            case "copyTotp": {
+              const cipher = this.cipher();
+              if (cipher?.login?.hasTotp && (cipher.organizationUseTotp || this.userHasPremium())) {
+                const value = await firstValueFrom(
+                  this.totpService.getCode$(cipher.login.totp),
+                ).catch((): any => null);
+                if (value) {
+                  this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+                }
+              }
+              break;
+            }
+            default:
+              detectChanges = false;
+              break;
           }
-          if (detectChanges) {
-            this.changeDetectorRef.detectChanges();
-          }
-        })
-        .catch(() => {});
+        } catch {
+          // Ignore errors
+        }
+        if (detectChanges) {
+          this.changeDetectorRef.detectChanges();
+        }
+      });
     });
 
-    if (!this.syncService.syncInProgress) {
-      await this.load().catch(() => {});
-    }
+    this.routedVaultFilterBridgeService.activeFilter$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((activeFilter) => {
+        this.activeFilter.set(activeFilter);
+      });
 
-    this.searchBarService.setEnabled(true);
-    this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
+    const filter$ = this.routedVaultFilterService.filter$;
 
-    const authRequests = await firstValueFrom(
-      this.authRequestService.getLatestPendingAuthRequest$()!,
+    /** Whether the current view is Trash, from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const inTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]) =>
+        vfo1Foundation ? scope.type === VaultScopeType.Trash : filter.type === "trash",
+      ),
     );
-    if (authRequests != null) {
-      this.messagingService.send("openLoginApproval", {
-        notificationId: authRequests.id,
-      });
-    }
 
-    this.activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getUserId),
-    ).catch((): any => null);
+    /** Rows come from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const rowFilter$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]): FilterFunction =>
+        vfo1Foundation ? (cipher) => cipherInScope(cipher, scope) : createFilterFunction(filter),
+      ),
+    );
 
-    if (this.activeUserId) {
-      this.cipherService
-        .failedToDecryptCiphers$(this.activeUserId)
-        .pipe(
-          map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
-          filter((ciphers) => ciphers.length > 0),
-          take(1),
-          takeUntil(this.componentIsDestroyed$),
-        )
-        .subscribe((ciphers) => {
-          DecryptionFailureDialogComponent.open(this.dialogService, {
-            cipherIds: ciphers.map((c) => c.id as CipherId),
-          });
-        });
-    }
+    const allCollections$ = this.collectionService.decryptedCollections$(activeUserId);
+    const nestedCollections$ = allCollections$.pipe(
+      map((collections) => getNestedCollectionTree(collections)),
+    );
 
-    this.organizations$.pipe(takeUntil(this.componentIsDestroyed$)).subscribe((orgs) => {
-      this.allOrganizations = orgs;
-    });
+    this.searchText$
+      .pipe(
+        debounceTime(SearchTextDebounceInterval),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((searchText) =>
+        this.router.navigate([], {
+          queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+          state: {
+            focusMainAfterNav: false,
+          },
+        }),
+      );
 
-    if (!this.activeUserId) {
-      throw new Error("No user found.");
-    }
+    const _ciphers = this.cipherService
+      .cipherListViews$(activeUserId)
+      .pipe(filter((c) => c !== null));
 
-    this.collectionService
-      .decryptedCollections$(this.activeUserId)
-      .pipe(takeUntil(this.componentIsDestroyed$))
-      .subscribe((collections) => {
-        this.allCollections = collections;
-      });
+    /**
+     * This observable filters the ciphers based on the active user ID and the restricted item types.
+     */
+    const allowedCiphers$ = combineLatest([
+      _ciphers,
+      this.restrictedItemTypesService.restricted$,
+    ]).pipe(
+      map(([ciphers, restrictedTypes]) =>
+        ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
+        ),
+      ),
+    );
 
-    this.vaultFilterService.filteredCollections$
-      .pipe(takeUntil(this.componentIsDestroyed$))
-      .subscribe((collections) => {
-        this.filteredCollections = collections;
-      });
+    const ciphers$ = combineLatest([allowedCiphers$, rowFilter$, this.currentSearchText$]).pipe(
+      filter(([ciphers, filterFunction]) => ciphers != undefined && filterFunction != undefined),
+      concatMap(async ([ciphers, filterFunction, searchText]) => {
+        const failedCiphers =
+          (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
+        // Append any failed to decrypt ciphers to the top of the cipher list
+        const allCiphers = [...failedCiphers, ...ciphers];
+
+        if (await this.searchService.isSearchable(searchText)) {
+          const result = await this.searchService.searchCiphers<C>(
+            activeUserId,
+            null,
+            searchText,
+            allCiphers as C[],
+          );
+          return result.filter(filterFunction);
+        }
+
+        return allCiphers.filter(filterFunction) as C[];
+      }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
+      filter(([collections, filter]) => collections != undefined && filter != undefined),
+      concatMap(async ([collections, filter, searchText]) => {
+        if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
+          return [];
+        }
+        let searchableCollectionNodes: TreeNode<CollectionView>[] = [];
+        if (filter.organizationId !== undefined && filter.collectionId === All) {
+          searchableCollectionNodes = collections.filter(
+            (c) => c.node.organizationId === filter.organizationId,
+          );
+        } else if (filter.collectionId === All) {
+          searchableCollectionNodes = collections;
+        } else {
+          const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
+            collections,
+            filter.collectionId,
+          );
+          searchableCollectionNodes = selectedCollection?.children ?? [];
+        }
+
+        if (await this.searchService.isSearchable(searchText)) {
+          // Flatten the tree for searching through all levels
+          const flatCollectionTree: CollectionView[] =
+            getFlatCollectionTree(searchableCollectionNodes);
+
+          return this.searchPipe.transform(
+            flatCollectionTree,
+            searchText,
+            (collection) => collection.name,
+            (collection) => collection.id,
+          );
+        }
+
+        return searchableCollectionNodes.map((treeNode: TreeNode<CollectionView>) => treeNode.node);
+      }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    this.refresh$
+      .pipe(
+        tap(() => (this.refreshing = true)),
+        switchMap(() =>
+          combineLatest([
+            allCollections$,
+            this.organizations$,
+            ciphers$,
+            collections$,
+            this.vfo1Foundation$,
+            this.vaultScope$,
+          ]),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(
+        ([allCollections, allOrganizations, ciphers, collections, vfo1Foundation, scope]) => {
+          this.allCollections = allCollections;
+          this.allOrganizations = allOrganizations;
+          this.scopedCollections = vfo1Foundation
+            ? allCollections.filter((collection) => collectionInScope(collection, scope))
+            : allCollections;
+          this.emptySharedFolderName = vfo1Foundation
+            ? sharedFolderNameForScope(scope, this.scopedCollections)
+            : undefined;
+          this.scopedOrganizations = vfo1Foundation
+            ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
+            : allOrganizations;
+          this.ciphers = ciphers;
+          this.collectionsToDisplay = collections;
+          this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          this.performingInitialLoad = false;
+          this.refreshing = false;
+
+          // WS server notifications emit outside the Angular zone; force change detection so the list updates.
+          this.changeDetectorRef.detectChanges();
+        },
+      );
+
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([allCollections, hasCiphers, inTrash]) =>
+        this.vaultBatchBarService?.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          inTrash,
+        }),
+      );
+
+    this.vaultScope$
+      .pipe(
+        map((scope) => vaultScopeCommands(scope).join("/")),
+        distinctUntilChanged(),
+        skip(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.vaultBatchBarService?.clearSelection());
+
+    this.vaultBatchBarService?.completed$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+
+    this.cipherActionService.cipherModified$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
 
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
-    this.searchBarService.setEnabled(false);
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    this.componentIsDestroyed$.next(true);
-    this.componentIsDestroyed$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.vaultFilterService.clearOrganizationFilter();
+    void this.activeDrawerRef?.close();
   }
 
-  async load() {
-    const params = await firstValueFrom(this.route.queryParams).catch();
-    const paramCipherAddType = toCipherType(params.addType);
-    if (params.cipherId) {
-      const cipherView = new CipherView();
-      cipherView.id = params.cipherId;
-      if (params.action === "clone") {
-        await this.cloneCipher(cipherView).catch(() => {});
-      } else if (params.action === "edit") {
-        await this.editCipher(cipherView).catch(() => {});
-      } else {
-        await this.viewCipher(cipherView).catch(() => {});
+  async onVaultItemsEvent(event: VaultItemEvent<C>) {
+    switch (event.type) {
+      case "viewCipher":
+        await this.viewCipher(event.item);
+        break;
+      case "viewAttachments":
+        await this.cipherActionService.viewAttachments(event.item);
+        break;
+      case "restore":
+        await this.cipherActionService.restore(event.items[0]);
+        break;
+      case "delete":
+        if (event.items[0].cipher) {
+          await this.cipherActionService.delete(event.items[0].cipher);
+        }
+        break;
+      case "archive":
+        await this.cipherActionService.archive(event.items[0]);
+        break;
+      case "unarchive":
+        await this.cipherActionService.unarchive(event.items[0]);
+        break;
+      case "toggleFavorite":
+        await this.cipherActionService.toggleFavorite(event.item);
+        break;
+      case "clone": {
+        const cipher = await this.cipherService.getFullCipherView(event.item);
+        await this.cloneCipher(cipher);
+        break;
       }
-    } else if (params.action === "add" && paramCipherAddType) {
-      this.addType = paramCipherAddType;
-      await this.addCipher(this.addType).catch(() => {});
+      case "assignToCollections":
+        if (event.items.length === 1) {
+          const cipher = await this.cipherService.getFullCipherView(event.items[0]);
+          await this.shareCipher(cipher);
+        }
+        break;
+      case "editCipher": {
+        const fullCipher = await this.cipherService.getFullCipherView(event.item);
+        await this.editCipher(fullCipher);
+        break;
+      }
     }
-  }
-
-  /**
-   * Handler for Vault level CopyClickDirectives to send the minimizeOnCopy message
-   */
-  onCopy() {
-    this.messagingService.send("minimizeOnCopy");
   }
 
   async viewCipher(c: CipherViewLike) {
@@ -473,265 +917,49 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       return;
     }
     const cipher = await this.cipherService.getFullCipherView(c);
-    if (await this.shouldReprompt(cipher, "view")) {
+    if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    this.collections =
-      this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
-    this.action = "view";
-
-    await this.go().catch(() => {});
-    await this.eventCollectionService.collect(
-      EventType.Cipher_ClientViewed,
-      cipher.id,
-      false,
-      cipher.organizationId,
+    const formConfig = await this.cipherFormConfigService.buildConfig(
+      cipher.edit ? "edit" : "partial-edit",
+      cipher.id as CipherId,
+      cipher.type,
     );
-  }
-
-  formStatusChanged(status: "disabled" | "enabled") {
-    this.formDisabled = status === "disabled";
-  }
-
-  async openAttachmentsDialog() {
-    if (!this.userHasPremium()) {
-      return;
-    }
-    const dialogRef = AttachmentsV2Component.open(this.dialogService, {
-      cipherId: this.cipherId as CipherId,
-    });
-    const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
-    if (
-      result?.action === AttachmentDialogResult.Removed ||
-      result?.action === AttachmentDialogResult.Uploaded
-    ) {
-      await this.vaultItemsComponent?.refresh().catch(() => {});
-
-      if (this.cipherFormComponent == null) {
-        return;
-      }
-
-      // The encrypted state of ciphers is updated when an attachment is added,
-      // but the cache is also cleared. Depending on timing, `cipherService.get` can return the
-      // old cipher. Retrieve the updated cipher from `cipherViews$`,
-      // which refreshes after the cached is cleared.
-      const updatedCipherView = await firstValueFrom(
-        this.cipherService.cipherViews$(this.activeUserId!).pipe(
-          filter((c) => !!c),
-          map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
-        ),
-      );
-
-      // `find` can return undefined but that shouldn't happen as
-      // this would mean that the cipher was deleted.
-      // To make TypeScript happy, exit early if it isn't found.
-      if (!updatedCipherView) {
-        return;
-      }
-
-      this.cipherFormComponent.patchCipher((currentCipher) => {
-        currentCipher.attachments = updatedCipherView.attachments;
-        currentCipher.revisionDate = updatedCipherView.revisionDate;
-
-        return currentCipher;
-      });
+    if (await this.openDialog("view", formConfig)) {
+      this.cipher.set(cipher);
     }
   }
 
-  async viewCipherMenu(c: CipherViewLike) {
-    const cipher = await this.cipherService.getFullCipherView(c);
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userCanArchive = await firstValueFrom(this.cipherArchiveService.userCanArchive$(userId));
-    const orgOwnershipPolicy = await firstValueFrom(
-      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
-    );
-
-    const menu: RendererMenuItem[] = [
-      {
-        label: this.i18nService.t("view"),
-        click: () => {
-          this.functionWithChangeDetection(() => {
-            this.viewCipher(cipher).catch(() => {});
-          });
-        },
-      },
-    ];
-
-    if (cipher.decryptionFailure) {
-      invokeMenu(menu);
-    }
-
-    if (!cipher.isDeleted) {
-      menu.push({
-        label: this.i18nService.t("edit"),
-        click: () => {
-          this.functionWithChangeDetection(() => {
-            this.editCipher(cipher).catch(() => {});
-          });
-        },
-      });
-
-      const archivedWithOrgOwnership = cipher.isArchived && orgOwnershipPolicy;
-      const canCloneArchived = !cipher.isArchived || userCanArchive;
-
-      if (!cipher.organizationId && !archivedWithOrgOwnership && canCloneArchived) {
-        menu.push({
-          label: this.i18nService.t("clone"),
-          click: () => {
-            this.functionWithChangeDetection(() => {
-              this.cloneCipher(cipher).catch(() => {});
-            });
-          },
-        });
-      }
-
-      const hasEditableCollections = this.allCollections.some((collection) => !collection.readOnly);
-
-      if (cipher.canAssignToCollections && hasEditableCollections) {
-        menu.push({
-          label: this.i18nService.t("assignToCollections"),
-          click: () =>
-            this.functionWithChangeDetection(async () => {
-              await this.shareCipher(cipher);
-            }),
-        });
-      }
-    }
-
-    if (userCanArchive && !cipher.isDeleted && !cipher.isArchived) {
-      menu.push({
-        label: this.i18nService.t("archiveVerb"),
-        click: async () => {
-          if (!userCanArchive) {
-            await this.premiumUpgradePromptService.promptForPremium();
-            return;
-          }
-
-          await this.archiveCipherUtilitiesService.archiveCipher(cipher);
-          await this.refreshCurrentCipher();
-        },
-      });
-    }
-
-    if (cipher.isArchived && !cipher.isDeleted) {
-      menu.push({
-        label: this.i18nService.t("unArchive"),
-        click: async () => {
-          await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
-          await this.refreshCurrentCipher();
-        },
-      });
-    }
-
-    switch (cipher.type) {
-      case CipherType.Login:
-        if (
-          cipher.login.canLaunch ||
-          cipher.login.username != null ||
-          cipher.login.password != null
-        ) {
-          menu.push({ type: "separator" });
-        }
-        if (cipher.login.canLaunch) {
-          menu.push({
-            label: this.i18nService.t("launch"),
-            click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
-          });
-        }
-        if (cipher.login.username != null) {
-          menu.push({
-            label: this.i18nService.t("copyUsername"),
-            click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
-          });
-        }
-        if (cipher.login.password != null && cipher.viewPassword) {
-          menu.push({
-            label: this.i18nService.t("copyPassword"),
-            click: () => {
-              this.copyValue(cipher, cipher.login.password, "password", "Password");
-              this.eventCollectionService
-                .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
-                .catch(() => {});
-            },
-          });
-        }
-        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremium())) {
-          menu.push({
-            label: this.i18nService.t("copyVerificationCodeTotp"),
-            click: async () => {
-              const value = await firstValueFrom(
-                this.totpService.getCode$(cipher.login.totp),
-              ).catch((): any => null);
-              if (value) {
-                this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
-              }
-            },
-          });
-        }
-        break;
-      case CipherType.Card:
-        if (cipher.card.number != null || cipher.card.code != null) {
-          menu.push({ type: "separator" });
-        }
-        if (cipher.card.number != null) {
-          menu.push({
-            label: this.i18nService.t("copyNumber"),
-            click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
-          });
-        }
-        if (cipher.card.code != null) {
-          menu.push({
-            label: this.i18nService.t("copySecurityCode"),
-            click: () => {
-              this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
-              this.eventCollectionService
-                .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
-                .catch(() => {});
-            },
-          });
-        }
-        break;
-      default:
-        break;
-    }
-    invokeMenu(menu);
-  }
-
-  async shouldReprompt(cipher: CipherView, action: "edit" | "clone" | "view"): Promise<boolean> {
-    return !(await this.canNavigateAway(action, cipher)) || !(await this.passwordReprompt(cipher));
-  }
-
-  async buildFormConfig(action: CipherFormMode) {
-    this.config = await this.formConfigService
-      .buildConfig(action, this.cipherId as CipherId, this.addType)
-      .catch((): any => null);
+  async shouldReprompt(cipher: CipherView): Promise<boolean> {
+    return !(await this.passwordReprompt(cipher));
   }
 
   async editCipher(cipher: CipherView) {
-    if (await this.shouldReprompt(cipher, "edit")) {
+    if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    await this.buildFormConfig("edit");
-    if (!cipher.edit && this.config) {
-      this.config.mode = "partial-edit";
+    const formConfig = await this.cipherFormConfigService.buildConfig(
+      cipher.edit ? "edit" : "partial-edit",
+      cipher.id as CipherId,
+      cipher.type,
+    );
+    if (await this.openDialog("form", formConfig)) {
+      this.cipher.set(cipher);
     }
-    this.action = "edit";
-    await this.go().catch(() => {});
   }
 
   async cloneCipher(cipher: CipherView) {
-    if (await this.shouldReprompt(cipher, "clone")) {
+    if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    await this.buildFormConfig("clone");
-    this.action = "clone";
-    await this.go().catch(() => {});
+    const formConfig = await this.cipherFormConfigService.buildConfig(
+      "clone",
+      cipher.id as CipherId,
+      cipher.type,
+    );
+    if (await this.openDialog("form", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async shareCipher(cipher: CipherView) {
@@ -760,29 +988,57 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === CollectionAssignmentResult.Saved) {
-      const updatedCipher = await firstValueFrom(
-        // Fetch the updated cipher from the service
-        this.cipherService.cipherViews$(this.activeUserId as UserId).pipe(
-          filter((ciphers) => ciphers != null),
-          map((ciphers) => ciphers!.find((c) => c.id === cipher.id)),
-          filter((foundCipher) => foundCipher != null),
-        ),
-      );
-      await this.savedCipher(updatedCipher);
+      this.refresh();
     }
   }
 
-  async addCipher(type: CipherType) {
-    if (this.action === "add") {
+  async addCipher(type?: CipherType) {
+    const activeFilter = this.activeFilter();
+    const cipherType = type ?? activeFilter.cipherType;
+
+    let organizationId: OrganizationId | null = null;
+    let collectionIds: CollectionId[] = [];
+    let folderId: string | undefined;
+
+    if (this.vfo1Foundation()) {
+      // VFO1 routes can scope to an organization and optionally to a collection within it —
+      // see `vaultScope$`.
+      const scope = this.vaultScope();
+      if (scope.type === VaultScopeType.Organization) {
+        organizationId = scope.organizationId;
+        if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
+          collectionIds = [scope.collectionId];
+        }
+      }
+    } else if (activeFilter.collectionId != null) {
+      const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
+      if (collection) {
+        organizationId = collection.organizationId as OrganizationId;
+        collectionIds = [activeFilter.collectionId as CollectionId];
+      }
+    } else if (activeFilter.organizationId && activeFilter.organizationId !== "MyVault") {
+      organizationId = activeFilter.organizationId as OrganizationId;
+    }
+
+    if (activeFilter.folderId && activeFilter.selectedFolderNode) {
+      folderId = activeFilter.folderId;
+    }
+
+    const organization = organizationId
+      ? this.allOrganizations?.find((o) => o.id === organizationId)
+      : undefined;
+    if (organization && !organization.enabled) {
+      // The organization is suspended and cannot have new items saved to it.
       return;
     }
-    this.addType = type || this.activeFilter.cipherType;
-    this.cipher.set(new CipherView());
-    this.cipherId = null;
-    await this.buildFormConfig("add");
-    this.action = "add";
-    this.prefillCipherFromFilter();
-    await this.go().catch(() => {});
+
+    const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
+    formConfig.initialValues = {
+      folderId,
+      organizationId: organizationId ?? undefined,
+      collectionIds,
+    };
+    await this.openDialog("form", formConfig);
 
     if (type === CipherType.SshKey) {
       this.toastService.showToast({
@@ -793,63 +1049,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     }
   }
 
-  async savedCipher(cipher: CipherView) {
-    this.cipherId = null;
-    this.action = "view";
-    await this.vaultItemsComponent?.refresh().catch(() => {});
-
-    if (!this.activeUserId) {
-      throw new Error("No userId provided.");
-    }
-
-    this.collections = await firstValueFrom(
-      this.collectionService
-        .decryptedCollections$(this.activeUserId)
-        .pipe(getByIds(cipher.collectionIds)),
-    );
-
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    await this.go().catch(() => {});
-    await this.vaultItemsComponent?.refresh().catch(() => {});
-  }
-
-  async deleteCipher() {
-    this.cipherId = null;
-    this.cipher.set(null);
-    this.action = null;
-    await this.go().catch(() => {});
-    await this.vaultItemsComponent?.refresh().catch(() => {});
-  }
-
-  async restoreCipher() {
-    this.cipherId = null;
-    this.action = null;
-    await this.go().catch(() => {});
-    await this.vaultItemsComponent?.refresh().catch(() => {});
-  }
-
-  async cancelCipher(cipher: CipherView) {
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    this.action = this.cipherId ? "view" : null;
-    await this.go().catch(() => {});
-  }
-
-  async applyVaultFilter(
-    vaultFilter: VaultFilter,
-    routedFilter: Parameters<typeof createFilterFunction>[0],
-    archiveEnabled: boolean,
-  ) {
-    this.searchBarService.setPlaceholderText(
-      this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
-    );
-    this.activeFilter = vaultFilter;
-
-    const filterFn = createFilterFunction(routedFilter, archiveEnabled);
-
-    await this.vaultItemsComponent?.reload(filterFn, vaultFilter.isDeleted, vaultFilter.isArchived);
-  }
+  restore = async (c: CipherViewLike) => {
+    await this.cipherActionService.restore(c);
+  };
 
   private getAvailableCollections(cipher: CipherView): CollectionView[] {
     const orgId = cipher.organizationId;
@@ -865,20 +1067,48 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     if (vaultFilter.isFavorites) {
       return "searchFavorites";
     }
+    if (vaultFilter.isArchived) {
+      return "searchArchive";
+    }
     if (vaultFilter.isDeleted) {
       return "searchTrash";
     }
     if (vaultFilter.cipherType != null) {
+      if (vaultFilter.cipherType === CipherType.Login) {
+        return "searchLogin";
+      }
+      if (vaultFilter.cipherType === CipherType.Card) {
+        return "searchCard";
+      }
+      if (vaultFilter.cipherType === CipherType.Identity) {
+        return "searchIdentity";
+      }
+      if (vaultFilter.cipherType === CipherType.SecureNote) {
+        return "searchSecureNote";
+      }
+      if (vaultFilter.cipherType === CipherType.SshKey) {
+        return "searchSshKey";
+      }
+      if (vaultFilter.cipherType === CipherType.Passport) {
+        return "searchPassport";
+      }
+      if (vaultFilter.cipherType === CipherType.BankAccount) {
+        return "searchBankAccount";
+      }
       return "searchType";
     }
     if (vaultFilter.folderId != null && vaultFilter.folderId !== "none") {
-      return "searchFolder";
+      return this.vfo1TerminologyService.enabled() ? "searchMyFolder" : "searchFolder";
     }
     if (vaultFilter.collectionId != null) {
-      return "searchCollection";
+      return this.vfo1TerminologyService.enabled() ? "searchSharedFolder" : "searchCollection";
     }
     if (vaultFilter.organizationId != null) {
-      return "searchOrganization";
+      if (vaultFilter.isMyVaultSelected) {
+        return "searchMyVault";
+      } else {
+        return "searchOrganization";
+      }
     }
     if (vaultFilter.isMyVaultSelected) {
       return "searchMyVault";
@@ -887,71 +1117,117 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async addFolder() {
-    this.messagingService.send("newFolder");
-  }
-
-  async editFolder(folderId: string) {
-    if (!this.activeUserId) {
-      return;
-    }
-    const folderView = await firstValueFrom(
-      this.folderService.getDecrypted$(folderId, this.activeUserId),
-    );
-
-    if (!folderView) {
-      return;
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const folderResult = await firstValueFrom(folderRef.closed);
+      if (folderResult === AddEditFolderDialogResult.Created) {
+        await this.syncService.fullSync(false);
+      }
+    } else {
+      this.messagingService.send("newFolder");
     }
   }
 
-  /** Refresh the current cipher object */
-  protected async refreshCurrentCipher() {
-    if (!this.cipher()) {
+  protected async openAddItemDialog(): Promise<void> {
+    const canCreateCipher = await firstValueFrom(this.canCreateCipher$);
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher,
+      canCreateFolder: true,
+      canCreateCollection: false,
+      canCreateSshKey: true,
+    });
+
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (result == null) {
       return;
     }
 
-    this.cipher.set(
-      await firstValueFrom(
-        this.cipherService.cipherViews$(this.activeUserId!).pipe(
-          filter((c) => !!c),
-          map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
-        ),
-      ),
-    );
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      await this.addFolder();
+    }
+  }
+
+  protected openImport(): void {
+    let defaultOrganizationId;
+    let defaultCollectionId;
+
+    const vfo1Enabled = this.vfo1Foundation();
+    const scope = this.vaultScope();
+    if (vfo1Enabled) {
+      defaultOrganizationId =
+        scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
+      defaultCollectionId =
+        scope.type === VaultScopeType.Organization &&
+        scope.collectionId &&
+        isGuid(scope.collectionId)
+          ? scope.collectionId
+          : undefined;
+    }
+
+    this.dialogService.open(ImportDesktopComponent, {
+      data: { defaultOrganizationId, defaultCollectionId },
+    });
+  }
+
+  filterSearchText(searchText: string) {
+    this.searchText$.next(searchText);
+  }
+
+  /** Trigger a refresh of the vault data */
+  private refresh() {
+    this.refresh$.next();
   }
 
   private dirtyInput(): boolean {
-    return (
-      (this.action === "add" || this.action === "edit" || this.action === "clone") &&
-      document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0
-    );
+    return document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0;
   }
 
   private async wantsToSaveChanges(): Promise<boolean> {
-    const confirmed = await this.dialogService
-      .openSimpleDialog({
-        title: { key: "unsavedChangesTitle" },
-        content: { key: "unsavedChangesConfirmation" },
-        type: "warning",
-      })
-      .catch(() => false);
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "unsavedChangesTitle" },
+      content: { key: "unsavedChangesConfirmation" },
+      type: "warning",
+    });
     return !confirmed;
   }
 
-  private async go(queryParams: any = null) {
-    if (queryParams == null) {
-      queryParams = {
-        action: this.action,
-        cipherId: this.cipherId,
-      };
+  private async openDialog(
+    mode: VaultItemDialogMode,
+    formConfig: CipherFormConfig,
+  ): Promise<boolean> {
+    if (this.activeDrawerRef != null && this.dirtyInput()) {
+      const keepChanges = await this.wantsToSaveChanges();
+      if (keepChanges) {
+        return false;
+      }
+      await this.activeDrawerRef.close();
     }
-    this.router
-      .navigate([], {
-        relativeTo: this.route,
-        queryParams: queryParams,
+    const drawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
+      mode,
+      formConfig,
+      restore: this.restore,
+    });
+    this.activeDrawerRef = drawerRef;
+    drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      // Opening a new drawer closes the previous one, which emits `closed` after the new
+      // drawer is already active. Only clear state if this drawer is still the active one,
+      // so switching items doesn't wipe the newly-selected cipher used by copy shortcuts.
+      if (this.activeDrawerRef === drawerRef) {
+        this.activeDrawerRef = undefined;
+        this.cipher.set(null);
+      }
+      void this.router.navigate([], {
+        queryParams: { action: null, itemId: null },
         queryParamsHandling: "merge",
         replaceUrl: true,
-      })
-      .catch(() => {});
+      });
+      if (result === VaultItemDialogResult.Saved || result === VaultItemDialogResult.Deleted) {
+        this.refresh();
+      }
+    });
+    return drawerRef != null;
   }
 
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
@@ -982,46 +1258,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     });
   }
 
-  private prefillCipherFromFilter() {
-    if (this.activeFilter.collectionId != null) {
-      const collections = this.filteredCollections?.filter(
-        (c) => c.id === this.activeFilter.collectionId,
-      );
-      if (collections?.length > 0) {
-        this.addOrganizationId = collections[0].organizationId;
-        this.addCollectionIds = [this.activeFilter.collectionId];
-      }
-    } else if (this.activeFilter.organizationId && this.activeFilter.organizationId !== "MyVault") {
-      this.addOrganizationId = this.activeFilter.organizationId;
-    } else {
-      // clear out organizationId when the user switches to a personal vault filter
-      this.addOrganizationId = null;
-    }
-    if (this.activeFilter.folderId && this.activeFilter.selectedFolderNode) {
-      this.folderId = this.activeFilter.folderId;
-    }
-
-    if (this.config == null) {
-      return;
-    }
-
-    this.config.initialValues = {
-      ...this.config.initialValues,
-      folderId: this.folderId,
-      organizationId: this.addOrganizationId as OrganizationId,
-      collectionIds: this.addCollectionIds as CollectionId[],
-    };
-  }
-
-  private async canNavigateAway(action: string, cipher?: CipherView) {
-    if (this.action === action && (!cipher || this.cipherId === cipher.id)) {
-      return false;
-    } else if (this.dirtyInput() && (await this.wantsToSaveChanges())) {
-      return false;
-    }
-    return true;
-  }
-
+  /** Prompts the user for their master password if the cipher has reprompt enabled. */
   private async passwordReprompt(cipher: CipherView) {
     if (cipher.reprompt === CipherRepromptType.None) {
       this.cipherRepromptId = null;

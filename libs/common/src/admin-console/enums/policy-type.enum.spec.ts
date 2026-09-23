@@ -1,4 +1,4 @@
-import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
+import { PolicyType } from "./policy-type.enum";
 
 describe("PolicyType", () => {
   it("RemoveUnlockWithPin should be 14", () => {

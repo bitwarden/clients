@@ -79,7 +79,7 @@ export class SendItemsService {
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
     switchMap(([searchText, filters, activeAcctId]) => {
-      return from(this.searchService.isSearchable(activeAcctId, searchText)).pipe(
+      return from(this.searchService.isSearchable(searchText)).pipe(
         map(
           (isSearchable) =>
             isSearchable || Object.values(filters).some((filter) => filter !== null),

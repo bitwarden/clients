@@ -57,15 +57,15 @@ export class SessionClosedError extends Error {
 
 export type BrowserFido2Message = { sessionId: string } & (
   | /**
-   * This message is used by popouts to announce that they are ready
-   * to receive messages.
-   **/ {
+     * This message is used by popouts to announce that they are ready
+     * to receive messages.
+     **/ {
       type: typeof BrowserFido2MessageTypes.ConnectResponse;
     }
-  /**
-   * This message is used to announce the creation of a new session.
-   * It is used by popouts to know when to close.
-   **/
+    /**
+     * This message is used to announce the creation of a new session.
+     * It is used by popouts to know when to close.
+     **/
   | {
       type: typeof BrowserFido2MessageTypes.NewSessionCreatedRequest;
     }

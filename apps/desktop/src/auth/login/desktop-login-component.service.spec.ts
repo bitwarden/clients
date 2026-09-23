@@ -6,7 +6,6 @@ import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   Environment,
   EnvironmentService,
@@ -16,6 +15,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 
@@ -127,7 +128,7 @@ describe("DesktopLoginComponentService", () => {
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
         passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-        jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+        jest.spyOn(Utils, "fromArrayToUrlB64").mockReturnValue(codeChallenge);
 
         await service.redirectToSsoLogin(email);
 

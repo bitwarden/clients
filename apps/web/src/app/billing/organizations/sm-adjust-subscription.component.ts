@@ -17,6 +17,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
+import { SharedModule } from "../../shared";
+
 export interface SecretsManagerSubscriptionOptions {
   interval: "year" | "month";
 
@@ -27,8 +29,9 @@ export interface SecretsManagerSubscriptionOptions {
 
   /**
    * Optional auto-scaling limit for the number of seats the organization can subscribe to.
+   * Undefined when the organization has no autoscale limit; consumers check for null.
    */
-  maxAutoscaleSeats: number;
+  maxAutoscaleSeats: number | undefined;
 
   /**
    * The price per seat for the subscription.
@@ -41,14 +44,21 @@ export interface SecretsManagerSubscriptionOptions {
   baseServiceAccountCount: number;
 
   /**
+   * The number of permanent service accounts retained from a pricing migration.
+   * These are free and excluded from the billable additional count.
+   */
+  graceServiceAccounts: number;
+
+  /**
    * The current number of additional service accounts the organization subscribes to.
    */
   additionalServiceAccounts: number;
 
   /**
    * Optional auto-scaling limit for the number of additional service accounts the organization can subscribe to.
+   * Undefined when there is no limit; consumers check for null.
    */
-  maxAutoscaleServiceAccounts: number;
+  maxAutoscaleServiceAccounts: number | undefined;
 
   /**
    * The price per additional service account for the subscription.
@@ -61,7 +71,7 @@ export interface SecretsManagerSubscriptionOptions {
 @Component({
   selector: "app-sm-adjust-subscription",
   templateUrl: "sm-adjust-subscription.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

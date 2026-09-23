@@ -7,7 +7,8 @@ module.exports = {
   // Workaround for a memory leak that crashes tests in CI:
   // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
   // Also anecdotally improves performance when run locally
-  maxWorkers: 3,
+  maxWorkers: 8,
+  workerIdleMemoryLimit: "1500MiB",
 
   setupFiles: ["<rootDir>/../../libs/shared/polyfill-node-globals.ts"],
 

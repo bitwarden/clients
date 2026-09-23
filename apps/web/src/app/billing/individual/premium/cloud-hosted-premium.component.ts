@@ -3,6 +3,7 @@ import { Component, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
+  catchError,
   combineLatest,
   firstValueFrom,
   from,
@@ -32,6 +33,7 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
 import {
@@ -67,7 +69,7 @@ const RouteParamValues = {
 export class CloudHostedPremiumComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
-  protected shouldShowNewDesign$: Observable<boolean>;
+  protected hasSubscription$: Observable<boolean>;
   protected shouldShowUpgradeDialogOnInit$: Observable<boolean>;
   protected personalPricingTiers$: Observable<PersonalSubscriptionPricingTier[]>;
   protected premiumCardData$: Observable<{
@@ -84,6 +86,7 @@ export class CloudHostedPremiumComponent {
   private destroyRef = inject(DestroyRef);
 
   constructor(
+    private accountBillingClient: AccountBillingClient,
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
@@ -109,27 +112,32 @@ export class CloudHostedPremiumComponent {
       ),
     );
 
+    this.hasSubscription$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? from(this.accountBillingClient.getSubscription()).pipe(
+              map((subscription) => !!subscription),
+              catchError(() => of(false)),
+            )
+          : of(false),
+      ),
+    );
+
     this.accountService.activeAccount$
       .pipe(mapAccountToSubscriber, takeUntilDestroyed(this.destroyRef))
       .subscribe((subscriber) => {
         this.subscriber = subscriber;
       });
 
-    this.shouldShowNewDesign$ = combineLatest([
-      this.hasPremiumFromAnyOrganization$,
-      this.hasPremiumPersonally$,
-    ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
-
-    // redirect to user subscription page if they already have premium personally
-    // redirect to individual vault if they already have premium from an org
-    combineLatest([this.hasPremiumFromAnyOrganization$, this.hasPremiumPersonally$])
+    combineLatest([this.hasSubscription$, this.hasPremiumFromAnyOrganization$])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap(([hasPremiumFromOrg, hasPremiumPersonally]) => {
-          if (hasPremiumPersonally) {
+        take(1),
+        switchMap(([hasSubscription, hasPremiumFromAnyOrganization]) => {
+          if (hasSubscription) {
             return from(this.navigateToSubscriptionPage());
           }
-          if (hasPremiumFromOrg) {
+          if (hasPremiumFromAnyOrganization) {
             return from(this.navigateToIndividualVault());
           }
           return of(true);

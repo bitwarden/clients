@@ -19,10 +19,12 @@ import {
   ButtonModule,
   DialogService,
   IconButtonModule,
+  IconComponent,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -40,6 +42,8 @@ import {
     JslibModule,
     SectionHeaderComponent,
     RouterLink,
+    IconComponent,
+    TooltipDirective,
   ],
   selector: "app-send-list-items-container",
   templateUrl: "send-list-items-container.component.html",

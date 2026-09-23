@@ -1,0 +1,52 @@
+@if (showBatchBar()) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-w-10">
+    <input
+      type="checkbox"
+      bitCheckbox
+      [checked]="selected()"
+      (change)="checkboxChange.emit()"
+      [attr.aria-label]="collection().name"
+    />
+  </td>
+}
+<td bitCell [ngClass]="RowHeightClass">
+  <div class="tw-flex tw-gap-3">
+    <div aria-hidden="true">
+      <bit-icon
+        fixedWidth
+        class="bwi-lg"
+        [name]="
+          (collection().type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+            | vfo1Icon
+        "
+      />
+    </div>
+    <button
+      bitLink
+      [disabled]="disabled()"
+      type="button"
+      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      linkType="secondary"
+      title="{{
+        'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection().name
+      }}"
+      [routerLink]="[]"
+      [queryParams]="{ collectionId: collection().id }"
+      queryParamsHandling="merge"
+    >
+      <span class="tw-truncate tw-mr-1">{{ collection().name }}</span>
+    </button>
+  </div>
+</td>
+@if (showOwner()) {
+  <!-- Breakpoint must match the Owner header cell in vault-list.component.html. -->
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @xl:tw-table-cell">
+    <app-org-badge
+      [disabled]="disabled()"
+      [organizationId]="collection().organizationId"
+      [organizationName]="collection().organizationId | orgNameFromId: organizations()"
+    >
+    </app-org-badge>
+  </td>
+}
+<td bitCell [ngClass]="RowHeightClass" class="tw-text-right"></td>

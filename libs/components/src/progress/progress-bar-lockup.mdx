@@ -1,0 +1,31 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./progress-bar-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ProgressBarLockupComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Content Guidelines
+
+- Leading illustration is optional.
+  - Illustration `svg` component can be supplied using the `illustration` slot.
+- Title and Description are optional.
+  - If using a Title, the copy should be written verb first: “Loading” or “Loading [object]”,
+    “Uploading [object]”
+  - If using a description, it should be as succinct as possible, telling the user what is
+    happening, how long it will take, why it is happening, or any actions they should consider in
+    the meantime.
+- A `bit-progress-bar` component must be provided.
+
+## Without Illustration
+
+<Canvas of={stories.WithoutIllustration} />

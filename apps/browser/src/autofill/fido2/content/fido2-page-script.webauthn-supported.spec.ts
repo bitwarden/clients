@@ -42,6 +42,9 @@ jest.mock("./messaging/messenger", () => {
   };
 });
 jest.mock("../utils/webauthn-utils");
+jest.mock("../../../autofill/utils", () => ({
+  currentlyInSandboxedIframe: jest.fn(() => false),
+}));
 
 describe("Fido2 page script with native WebAuthn support", () => {
   (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
@@ -143,6 +146,54 @@ describe("Fido2 page script with native WebAuthn support", () => {
     });
   });
 
+  describe("DOMException rehydration across the messenger boundary", () => {
+    // Earlier tests mutate `mockCredentialRequestOptions.mediation`; the conditional
+    // mediation path swallows rejections, so reset to a non-conditional value here.
+    beforeEach(() => {
+      mockCredentialRequestOptions.mediation = "optional";
+      mockCredentialRequestOptions.signal = undefined;
+    });
+
+    it("rehydrates a serialized NotAllowedError rejection into a real DOMException on create", async () => {
+      // The messenger reconstructs cross-world errors as plain Error instances
+      // populated via Object.assign — `instanceof DOMException` is lost. The page
+      // script should restore it so RPs see what the native API would throw.
+      const serializedRejection = Object.assign(new Error(), {
+        name: "NotAllowedError",
+        message: "The 'publickey-credentials-create' feature is not enabled in this document.",
+      });
+      messenger.request = jest.fn().mockRejectedValue(serializedRejection);
+
+      await expect(
+        navigator.credentials.create(mockCredentialCreationOptions),
+      ).rejects.toBeInstanceOf(DOMException);
+    });
+
+    it("rehydrates a serialized NotAllowedError rejection into a real DOMException on get", async () => {
+      const serializedRejection = Object.assign(new Error(), {
+        name: "NotAllowedError",
+        message: "The 'publickey-credentials-get' feature is not enabled in this document.",
+      });
+      messenger.request = jest.fn().mockRejectedValue(serializedRejection);
+
+      await expect(navigator.credentials.get(mockCredentialRequestOptions)).rejects.toBeInstanceOf(
+        DOMException,
+      );
+    });
+
+    it("does not touch rejections with other names", async () => {
+      const otherError = Object.assign(new Error(), {
+        name: "InvalidStateError",
+        message: "Something else went wrong.",
+      });
+      messenger.request = jest.fn().mockRejectedValue(otherError);
+
+      await expect(navigator.credentials.get(mockCredentialRequestOptions)).rejects.toBe(
+        otherError,
+      );
+    });
+  });
+
   describe("destroy", () => {
     it("should destroy the message listener when receiving a disconnect request", async () => {
       jest.spyOn(globalThis.top, "removeEventListener");
@@ -191,6 +242,18 @@ describe("Fido2 page script with native WebAuthn support", () => {
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("./fido2-content-script");
+
+      expect(Messenger.forDOMCommunication).not.toHaveBeenCalled();
+    });
+
+    it("skips initializing when running inside a sandboxed iframe (matches content-script bail)", () => {
+      jest.spyOn(Messenger, "forDOMCommunication");
+
+      const utils = jest.requireMock("../../../autofill/utils");
+      (utils.currentlyInSandboxedIframe as jest.Mock).mockReturnValueOnce(true);
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-page-script");
 
       expect(Messenger.forDOMCommunication).not.toHaveBeenCalled();
     });

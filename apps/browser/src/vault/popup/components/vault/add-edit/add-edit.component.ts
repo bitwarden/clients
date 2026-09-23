@@ -1,17 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule, Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -26,14 +28,13 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
 import {
   AsyncActionsModule,
   ButtonModule,
+  ChipActionComponent,
   SearchModule,
   IconButtonModule,
   DialogService,
   ToastService,
-  BadgeModule,
 } from "@bitwarden/components";
 import {
-  ArchiveCipherUtilitiesService,
   CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
@@ -55,8 +56,9 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
+import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   fido2PopoutSessionData$,
   Fido2SessionData,
@@ -86,12 +88,13 @@ class QueryParams {
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
-    this.collectionId = params.collectionId;
+    this.collectionIds = params.collectionIds;
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
     this.prefillNameAndURIFromTab = params.prefillNameAndURIFromTab;
     this.routeAfterDeletion = params.routeAfterDeletion ?? ROUTES_AFTER_EDIT_DELETION.tabsVault;
+    this.fillAfterSave = params.fillAfterSave === "true";
   }
 
   /**
@@ -120,9 +123,10 @@ class QueryParams {
   organizationId?: OrganizationId;
 
   /**
-   * Optional collectionId to pre-select.
+   * Optional collectionId(s) to pre-select.
+   * Can be a single collectionId or comma-separated list of collectionIds.
    */
-  collectionId?: CollectionId;
+  collectionIds?: string;
 
   /**
    * Optional URI to pre-fill for login ciphers.
@@ -150,6 +154,12 @@ class QueryParams {
    * @default "/tabs/vault"
    */
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
+
+  /**
+   * When true, the cipher should be autofilled into the originating tab after saving.
+   * Set when the add-edit form is opened from the inline menu context.
+   */
+  fillAfterSave?: boolean;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -177,17 +187,25 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     CipherFormModule,
     AsyncActionsModule,
+    ChipActionComponent,
     PopOutComponent,
     IconButtonModule,
-    BadgeModule,
   ],
 })
 export class AddEditComponent implements OnInit, OnDestroy {
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   readonly cipherFormComponent = viewChild(CipherFormComponent);
+
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
   routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION = "/tabs/vault";
+  protected saveAndFillEnabled = false;
+  private fillOnSuccessfulSave = false;
 
   get loading() {
     return this.config == null;
@@ -217,7 +235,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -233,9 +254,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
-    private location: Location,
     private archiveService: CipherArchiveService,
-    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
+    private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private configService: ConfigService,
+    private vaultPopupAutofillService: VaultPopupAutofillService,
   ) {
     this.subscribeToParams();
   }
@@ -341,7 +363,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     if (this.inSingleActionPopout) {
-      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      if (this.fillOnSuccessfulSave) {
+        await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
+      }
+      if (this.saveAndFillEnabled) {
+        await this.showLoginSavedNotification(cipher);
+        await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
+      } else {
+        await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      }
       return;
     }
 
@@ -362,6 +392,28 @@ export class AddEditComponent implements OnInit, OnDestroy {
     await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
+  private async showLoginSavedNotification(cipher: CipherView): Promise<void> {
+    const senderTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+    if (!senderTab) {
+      return;
+    }
+
+    await BrowserApi.sendMessage("showLoginSavedNotification", {
+      cipherId: cipher.id,
+      itemName: cipher.name,
+      senderTabId: senderTab.id,
+    });
+  }
+
+  submitAndFill = async () => {
+    this.fillOnSuccessfulSave = true;
+    try {
+      await this.cipherFormComponent()?.submit();
+    } finally {
+      this.fillOnSuccessfulSave = false;
+    }
+  };
+
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
@@ -374,6 +426,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
           } else {
             mode = params.clone ? "clone" : "edit";
           }
+
+          if (params.fillAfterSave) {
+            this.saveAndFillEnabled = await this.configService.getFeatureFlag(
+              FeatureFlag.PM29968_FillAfterSave,
+            );
+          }
+
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
             params.cipherId,
@@ -440,8 +499,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (params.organizationId) {
       initialValues.organizationId = params.organizationId;
     }
-    if (params.collectionId) {
-      initialValues.collectionIds = [params.collectionId];
+    if (params.collectionIds) {
+      const collectionIds = (params.collectionIds ?? "")?.split(",");
+      initialValues.collectionIds = collectionIds as CollectionId[];
     }
     if (params.uri) {
       initialValues.loginUri = params.uri;
@@ -465,12 +525,62 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   setHeader(mode: CipherFormMode, type: CipherType) {
     const isEditMode = mode === "edit" || mode === "partial-edit";
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
-      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
-      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
-      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
-      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
-      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+      [CipherType.Login]: isEditMode
+        ? this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderLoginSentenceCase"
+          : "editItemHeaderLogin"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderLogin"
+          : "newItemHeaderLogin",
+      [CipherType.Card]: isEditMode
+        ? this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderCardSentenceCase"
+          : "editItemHeaderCard"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderCard"
+          : "newItemHeaderCard",
+      [CipherType.Identity]: isEditMode
+        ? this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderIdentitySentenceCase"
+          : "editItemHeaderIdentity"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderIdentity"
+          : "newItemHeaderIdentity",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? isEditMode
+          ? "editItemHeaderSecureNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderSecureNote"
+            : "newItemHeaderSecureNote"
+        : isEditMode
+          ? this.btnTextAddCreateFeatureFlag()
+            ? "editItemHeaderNoteSentenceCase"
+            : "editItemHeaderNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderNote"
+            : "newItemHeaderNote",
+      [CipherType.SshKey]: isEditMode
+        ? "editItemHeaderSshKey"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderSshKey"
+          : "newItemHeaderSshKey",
+      [CipherType.BankAccount]: isEditMode
+        ? "editItemHeaderBankAccount"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderBankAccount"
+          : "newItemHeaderBankAccount",
+      [CipherType.DriversLicense]: isEditMode
+        ? "editItemHeaderLicense"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderDriversLicense"
+          : "newItemHeaderDriversLicense",
+      [CipherType.Passport]: isEditMode
+        ? "editItemHeaderPassport"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderPassport"
+          : "newItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }
@@ -496,21 +606,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.routeAfterDeletion !== ROUTES_AFTER_EDIT_DELETION.tabsVault) {
-      const history = await firstValueFrom(this.popupRouterCacheService.history$());
-      const targetIndex = history.map((h) => h.url).lastIndexOf(this.routeAfterDeletion);
-
-      if (targetIndex !== -1) {
-        const stepsBack = targetIndex - (history.length - 1);
-        // Use historyGo to navigate back to the target route in history
-        // This allows downstream calls to `back()` to continue working as expected
-        await this.location.historyGo(stepsBack);
-      } else {
-        await this.router.navigate([this.routeAfterDeletion]);
-      }
-    } else {
-      await this.router.navigate([this.routeAfterDeletion]);
-    }
+    await this.afterDeletionNavigationService.navigateAfterDeletion(this.routeAfterDeletion);
 
     this.toastService.showToast({
       variant: "success",

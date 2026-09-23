@@ -11,9 +11,9 @@ import { AtLeastOne, Zero } from "./constraints";
 import { DynamicPasswordPolicyConstraints } from "./dynamic-password-policy-constraints";
 
 // non-null assertions used because these are always-defined constants
-const accoutSettings = BuiltIn.password.profiles[Profile.account]!
+const accountSettings = BuiltIn.password.profiles[Profile.account]!
   .storage as ObjectKey<PasswordGeneratorSettings>;
-const defaultOptions = accoutSettings.initial!;
+const defaultOptions = accountSettings.initial!;
 const disabledPolicy = {
   minLength: 0,
   useUppercase: false,
@@ -274,6 +274,32 @@ describe("DynamicPasswordPolicyConstraints", () => {
       const calibrated = dynamic.calibrate(state);
 
       expect(calibrated.constraints.minSpecial).toEqual(Zero);
+    });
+
+    it("preserves the minSpecial constraint when the policy sets specialCount and the state's special flag is false", () => {
+      const policy = { ...disabledPolicy, specialCount: 3 };
+      const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
+      const state = {
+        ...defaultOptions,
+        special: false,
+      };
+
+      const calibrated = dynamic.calibrate(state);
+
+      expect(calibrated.constraints.minSpecial).toEqual({ min: 3, max: 9 });
+    });
+
+    it("preserves the minNumber constraint when the policy sets numberCount and the state's number flag is false", () => {
+      const policy = { ...disabledPolicy, numberCount: 3 };
+      const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
+      const state = {
+        ...defaultOptions,
+        number: false,
+      };
+
+      const calibrated = dynamic.calibrate(state);
+
+      expect(calibrated.constraints.minNumber).toEqual({ min: 3, max: 9 });
     });
   });
 });

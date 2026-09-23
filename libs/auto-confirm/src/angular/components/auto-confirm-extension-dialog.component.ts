@@ -25,7 +25,10 @@ import {
               {{ "autoConfirmSetup" | i18n }}
             </strong>
           </h3>
-          <span class="tw-overflow-y-auto tw-text-start tw-break-words tw-hyphens-auto tw-text-sm">
+          <span
+            class="tw-overflow-y-auto tw-text-start tw-break-words tw-hyphens-auto tw-text-sm"
+            tabindex="0"
+          >
             {{ "autoConfirmSetupDesc" | i18n }}
           </span>
         </div>
@@ -68,7 +71,7 @@ import {
   imports: [ButtonModule, DialogModule, CommonModule, JslibModule, BadgeComponent],
 })
 export class AutoConfirmExtensionSetupDialogComponent {
-  constructor(public dialogRef: DialogRef<boolean>) {}
+  constructor(readonly dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
     return dialogService.open<boolean>(AutoConfirmExtensionSetupDialogComponent, {

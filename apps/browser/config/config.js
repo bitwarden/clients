@@ -1,20 +1,24 @@
-function load(envName) {
+function load(envName, channelName) {
   const base = loadConfig("base");
   const env = loadConfig(envName);
+  const channel = channelName ? loadConfig(channelName) : {};
   const local = loadConfig("local");
 
   return {
     ...base,
     ...env,
+    ...channel,
     ...local,
     flags: {
       ...base.flags,
       ...env.flags,
+      ...channel.flags,
       ...local.flags,
     },
     devFlags: {
       ...base.devFlags,
       ...env.devFlags,
+      ...channel.devFlags,
       ...local.devFlags,
     },
   };

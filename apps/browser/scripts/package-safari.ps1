@@ -19,7 +19,7 @@ if (-not (Test-Path $distDir)) {
     New-Item -ItemType Directory -Path $distDir
 }
 
-$subBuildPaths = @("mas", "masdev", "dmg")
+$subBuildPaths = @("mas", "dmg")
 $safariSrc = Join-Path $PSScriptRoot "../src/safari"
 $safariDistPath = Join-Path -Path $distDir -ChildPath "Safari"
 
@@ -47,16 +47,6 @@ foreach ($subBuildPath in $subBuildPaths) {
                 $entitlementsPath
             )
         }
-        "masdev" {
-            $codesignArgs = @(
-                "--verbose",
-                "--force",
-                "--sign",
-                "A579B6AE496B360642D05B8AB1B650C1B143B770",
-                "--entitlements",
-                $entitlementsPath
-            )
-        }
         "dmg" {
             $codesignArgs = @(
                 "--verbose",
@@ -64,7 +54,7 @@ foreach ($subBuildPath in $subBuildPaths) {
                 "-o",
                 "runtime",
                 "--sign",
-                '"Developer ID Application: 8bit Solutions LLC"',
+                '"Developer ID Application: Bitwarden Inc"',
                 "--entitlements",
                 $entitlementsPath
             )
@@ -99,14 +89,31 @@ foreach ($subBuildPath in $subBuildPaths) {
     )
     $proc = Start-Process "xcodebuild" -ArgumentList $xcodeBuildArgs -NoNewWindow -PassThru
     $proc.WaitForExit()
+    if ($proc.ExitCode -ne 0) {
+        throw "xcodebuild failed for '$subBuildPath' with exit code $($proc.ExitCode)"
+    }
+
+    # Verify the appex actually contains its executable. A compile/link failure can leave a bundle
+    # with the Info.plist and resources but no Mach-O binary, which only surfaces much later as a
+    # "Bad CFBundleExecutable" error during App Store validation.
+    $appexExecutablePath = Join-Path -Path $builtAppexPath -ChildPath "Contents/MacOS/safari"
+    if (-not (Test-Path $appexExecutablePath)) {
+        throw "Built appex for '$subBuildPath' is missing its executable at $appexExecutablePath"
+    }
 
     # Codesign
     $libs = Get-ChildItem -Path $builtAppexFrameworkPath -Filter "*.dylib"
     foreach ($lib in $libs) {
         $proc = Start-Process "codesign" -ArgumentList ($codesignArgs + $lib.FullName) -NoNewWindow -PassThru
         $proc.WaitForExit()
+        if ($proc.ExitCode -ne 0) {
+            throw "codesign failed for '$($lib.FullName)' with exit code $($proc.ExitCode)"
+        }
     }
 
     $proc = Start-Process "codesign" -ArgumentList ($codesignArgs + $builtAppexPath) -NoNewWindow -PassThru
     $proc.WaitForExit()
+    if ($proc.ExitCode -ne 0) {
+        throw "codesign failed for '$builtAppexPath' with exit code $($proc.ExitCode)"
+    }
 }

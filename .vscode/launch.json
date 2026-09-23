@@ -26,6 +26,85 @@
       "windows": {
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
+    },
+    {
+      "type": "lldb",
+      "request": "attach",
+      "program": "${workspaceFolder}/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron",
+      "name": "Desktop: Main desktop-native rust debugger (attach)"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Desktop: Main (attach)",
+      "port": 5858,
+      "restart": false,
+      "continueOnAttach": true,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/apps/desktop/build/**/*.js"],
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": { "hidden": true }
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Desktop: Renderer (attach)",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/apps/desktop",
+      "sourceMaps": true,
+      "timeout": 60000,
+      "presentation": { "hidden": true }
+    },
+    {
+      // Attaches to the Chrome instance launched by `npm run debug:browser`. The target tree
+      // covers every extension context: popup, tab pages, and the background service worker.
+      "type": "chrome",
+      "request": "attach",
+      "name": "Browser: Extension (attach)",
+      "port": 9200,
+      "webRoot": "${workspaceFolder}/apps/browser",
+      "sourceMaps": true,
+      "timeout": 60000,
+      "presentation": { "hidden": true }
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Web: Renderer (attach)",
+      "port": 9200,
+      "webRoot": "${workspaceFolder}/apps/web",
+      "sourceMaps": true,
+      "timeout": 60000
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Desktop: Attach Debugger (main + renderer)",
+      "configurations": [
+        "Desktop: Main (attach)",
+        "Desktop: Renderer (attach)",
+        "Desktop: Main desktop-native rust debugger (attach)"
+      ]
+    },
+    {
+      "name": "Desktop: Start and debug",
+      "preLaunchTask": "desktop: debug start",
+      "configurations": [
+        "Desktop: Main (attach)",
+        "Desktop: Renderer (attach)",
+        "Desktop: Main desktop-native rust debugger (attach)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Browser: Attach Debugger (extension)",
+      "configurations": ["Browser: Extension (attach)"]
+    },
+    {
+      "name": "Browser: Start and debug",
+      "preLaunchTask": "browser: debug start",
+      "configurations": ["Browser: Extension (attach)"],
+      "stopAll": true
     }
   ]
 }

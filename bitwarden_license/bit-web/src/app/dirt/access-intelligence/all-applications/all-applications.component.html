@@ -98,8 +98,8 @@
         [disabled]="!selectedUrls().size"
         [loading]="markingAsCritical()"
         (click)="markAppsAsCritical()"
+        [startIcon]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"
       >
-        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
         {{ "markAppAsCritical" | i18n }}
       </button>
     </div>

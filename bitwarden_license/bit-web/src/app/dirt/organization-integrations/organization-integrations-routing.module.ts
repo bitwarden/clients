@@ -7,7 +7,6 @@ import { DeviceManagementComponent } from "./device-management/device-management
 import { EventManagementComponent } from "./event-management/event-management.component";
 import { AdminConsoleIntegrationsComponent } from "./integrations.component";
 import { OrganizationIntegrationsResolver } from "./organization-integrations.resolver";
-import { OrganizationIntegrationsState } from "./organization-integrations.state";
 import { SingleSignOnComponent } from "./single-sign-on/single-sign-on.component";
 import { UserProvisioningComponent } from "./user-provisioning/user-provisioning.component";
 
@@ -19,7 +18,7 @@ const routes: Routes = [
       titleId: "integrations",
     },
     component: AdminConsoleIntegrationsComponent,
-    providers: [OrganizationIntegrationsState, OrganizationIntegrationsResolver],
+    providers: [OrganizationIntegrationsResolver],
     resolve: { integrations: OrganizationIntegrationsResolver },
     children: [
       { path: "", redirectTo: "single-sign-on", pathMatch: "full" },

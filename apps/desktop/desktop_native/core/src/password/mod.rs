@@ -1,3 +1,6 @@
+//! Secure password storage and retrieval using platform keychains.
+
+/// Error message returned when a password is not found in the system keychain.
 pub const PASSWORD_NOT_FOUND: &str = "Password not found.";
 
 #[allow(clippy::module_inception)]

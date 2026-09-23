@@ -6,12 +6,17 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { VaultFilterService as BaseVaultFilterService, CollectionFilter } from "@bitwarden/vault";
+import {
+  VaultFilterService as BaseVaultFilterService,
+  CollectionFilter,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 @Injectable()
 export class VaultFilterService extends BaseVaultFilterService implements OnDestroy {
@@ -33,6 +38,8 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
     stateProvider: StateProvider,
     collectionService: CollectionService,
     accountService: AccountService,
+    configService: ConfigService,
+    vfo1TerminologyService: Vfo1TerminologyService,
   ) {
     super(
       organizationService,
@@ -43,6 +50,8 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
       stateProvider,
       collectionService,
       accountService,
+      configService,
+      vfo1TerminologyService,
     );
   }
 

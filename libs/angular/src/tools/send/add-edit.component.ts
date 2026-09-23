@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   Subject,
@@ -9,13 +9,11 @@ import {
   takeUntil,
   map,
   BehaviorSubject,
-  concatMap,
   switchMap,
   tap,
+  combineLatest,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -26,16 +24,19 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 // Value = hours
 // FIXME: update to use a const object instead of a typescript enum
@@ -108,6 +109,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   private sendLinkBaseUrl: string;
   private destroy$ = new Subject<void>();
+  private sendPolicyService = inject(SendPolicyService);
 
   protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
@@ -137,7 +139,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected datePipe: DatePipe,
     protected sendService: SendService,
     protected messagingService: MessagingService,
-    protected policyService: PolicyService,
     protected logService: LogService,
     protected stateService: StateService,
     protected sendApiService: SendApiService,
@@ -147,6 +148,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected accountService: AccountService,
     protected toastService: ToastService,
     protected premiumUpgradePromptService: PremiumUpgradePromptService,
+    protected sendDecryptionService: SendDecryptionService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -162,14 +164,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -177,13 +173,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableHideEmail$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         if (
           (this.disableHideEmail = policyAppliesToActiveUser) &&
@@ -278,20 +269,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.accountService.activeAccount$
+        combineLatest([
+          this.accountService.activeAccount$.pipe(getUserId),
+          this.sendService.get$(this.sendId),
+        ])
           .pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.sendService
-                .get$(this.sendId)
-                .pipe(
-                  concatMap((s) =>
-                    s instanceof Send
-                      ? s.decrypt(userId)
-                      : Promise.reject(new Error("Failed to load send.")),
-                  ),
-                ),
-            ),
+            switchMap(([userId, send]) => {
+              if (send instanceof Send) {
+                return this.sendDecryptionService.decryptSend(send, userId);
+              }
+              return Promise.reject(new Error("Failed to load send."));
+            }),
             takeUntil(this.destroy$),
           )
           .subscribe(send);
@@ -368,8 +356,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.send.password = null;
     }
 
+    // Capture the plaintext password before encryptSend consumes it. `this.send` is a SendView
+    // whose `password` holds the plaintext typed into the form (null when preserving an existing
+    // password). Forward it so the SDK path can derive the send password over the key it
+    // generates; the legacy path ignores it.
+    const plaintextPassword = this.send.password;
+
     this.formPromise = this.encryptSend(file).then(async (encSend) => {
-      const uploadPromise = this.sendApiService.save(encSend);
+      const uploadPromise = this.sendApiService.save(encSend, plaintextPassword);
       await uploadPromise;
       if (this.send.id == null) {
         this.send.id = encSend[0].id;

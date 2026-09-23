@@ -3,8 +3,8 @@
 import {
   CollectionView,
   Collection as CollectionDomain,
-} from "@bitwarden/common/admin-console/models/collections";
-import { CollectionId } from "@bitwarden/common/types/guid";
+} from "../../admin-console/models/collections";
+import { CollectionId } from "../../types/guid";
 
 import { CollectionExport } from "./collection.export";
 

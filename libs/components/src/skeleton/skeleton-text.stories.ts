@@ -1,19 +1,12 @@
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
-import { SharedModule } from "../shared/shared.module";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { SkeletonTextComponent } from "./skeleton-text.component";
-
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Skeleton/Skeleton Text",
   component: SkeletonTextComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [SharedModule],
-    }),
-  ],
   args: {
     lines: 1,
   },

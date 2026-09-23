@@ -4,7 +4,7 @@ import { CanActivateFn, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -31,16 +31,22 @@ describe("canAccessFeature", () => {
 
     // Mock the correct getter based on the type of flagValue; also mock default values if one is not provided
     if (typeof flagValue === "boolean") {
-      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = false) =>
-        flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue),
+      mockConfigService.getFeatureFlag.mockImplementation(<Flag extends FeatureFlag>(flag: Flag) =>
+        Promise.resolve(
+          (flag === testFlag ? flagValue : false) as unknown as FeatureFlagValueType<Flag>,
+        ),
       );
     } else if (typeof flagValue === "string") {
-      mockConfigService.getFeatureFlag.mockImplementation((flag) =>
-        flag == testFlag ? Promise.resolve(flagValue as any) : Promise.resolve(""),
+      mockConfigService.getFeatureFlag.mockImplementation(<Flag extends FeatureFlag>(flag: Flag) =>
+        Promise.resolve(
+          (flag === testFlag ? flagValue : "") as unknown as FeatureFlagValueType<Flag>,
+        ),
       );
     } else if (typeof flagValue === "number") {
-      mockConfigService.getFeatureFlag.mockImplementation((flag) =>
-        flag == testFlag ? Promise.resolve(flagValue as any) : Promise.resolve(0),
+      mockConfigService.getFeatureFlag.mockImplementation(<Flag extends FeatureFlag>(flag: Flag) =>
+        Promise.resolve(
+          (flag === testFlag ? flagValue : 0) as unknown as FeatureFlagValueType<Flag>,
+        ),
       );
     }
 

@@ -1,6 +1,8 @@
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 export class WebBiometricsService extends BiometricsService {
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -28,4 +30,13 @@ export class WebBiometricsService extends BiometricsService {
   async canEnableBiometricUnlock(): Promise<boolean> {
     return false;
   }
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {}
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
+  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {}
 }

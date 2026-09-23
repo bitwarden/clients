@@ -13,6 +13,7 @@ import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -20,6 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -60,6 +62,7 @@ describe("ItemMoreOptionsComponent", () => {
 
   const domainSettingsService = {
     resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
+    getUrlEquivalentDomains: jest.fn().mockReturnValue(of(new Set<string>())),
   };
 
   const baseCipher = {
@@ -102,7 +105,7 @@ describe("ItemMoreOptionsComponent", () => {
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
         {
           provide: CipherArchiveService,
-          useValue: { userCanArchive$: () => of(true), hasArchiveFlagEnabled$: of(true) },
+          useValue: { userCanArchive$: () => of(true) },
         },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
@@ -114,6 +117,14 @@ describe("ItemMoreOptionsComponent", () => {
         {
           provide: VaultPopupItemsService,
           useValue: mock<VaultPopupItemsService>({}),
+        },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => of(false) },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: { cipherCanBeShared$: () => of(false) },
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -137,6 +148,10 @@ describe("ItemMoreOptionsComponent", () => {
   }
 
   describe("doAutofill", () => {
+    beforeEach(() => {
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+    });
+
     it("calls the passwordService to passwordRepromptCheck", async () => {
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
       mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
@@ -162,6 +177,22 @@ describe("ItemMoreOptionsComponent", () => {
       beforeEach(() => {
         uriMatchStrategy$.next(UriMatchStrategy.Domain);
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
+        jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      });
+
+      it("autofills directly without showing confirmation dialog when domain matches", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://one.example.com" });
+        jest.spyOn(component as any, "_domainMatched").mockResolvedValue(true);
+        const openSpy = jest.spyOn(AutofillConfirmationDialogComponent, "open");
+
+        await component.doAutofill();
+
+        expect(openSpy).not.toHaveBeenCalled();
+        expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "cipher-1" }),
+          true,
+          true,
+        );
       });
 
       it("calls the passwordService to passwordRepromptCheck", async () => {
@@ -182,9 +213,9 @@ describe("ItemMoreOptionsComponent", () => {
         expect(openSpy).toHaveBeenCalledTimes(1);
         const args = openSpy.mock.calls[0][1];
         expect(args.data?.currentUrl).toBe("https://page.example.com/path");
-        expect(args.data?.savedUrls).toEqual([
-          "https://one.example.com",
-          "https://two.example.com/a",
+        expect(args.data?.savedUris).toEqual([
+          { uri: "https://one.example.com" },
+          { uri: "https://two.example.com/a" },
         ]);
       });
 
@@ -242,7 +273,8 @@ describe("ItemMoreOptionsComponent", () => {
             uriMatchStrategy$.next(UriMatchStrategy.Exact);
           });
 
-          it("shows the exact match dialog when the cipher has no saved URIs", async () => {
+          it("shows the confirmation dialog when the cipher has no saved URIs", async () => {
+            mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
             autofillSvc.currentAutofillTab$.next({ url: "https://no-match.example.com" });
             cipherService.getFullCipherView.mockImplementation(async (c) => ({
               ...baseCipher,
@@ -255,39 +287,13 @@ describe("ItemMoreOptionsComponent", () => {
 
             await component.doAutofill();
 
-            expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
-            expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-              expect.objectContaining({
-                title: expect.objectContaining({ key: "cannotAutofill" }),
-                content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
-                type: "info",
-              }),
-            );
+            expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
             expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
             expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
           });
 
-          it("does not show the exact match dialog when the cipher has at least one non-exact match uri", async () => {
+          it("shows the confirmation dialog when all URIs have exact match strategy", async () => {
             mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
-            cipherService.getFullCipherView.mockImplementation(async (c) => ({
-              ...baseCipher,
-              ...c,
-              login: {
-                ...baseCipher.login,
-                uris: [
-                  { uri: "https://one.example.com", match: UriMatchStrategy.Exact },
-                  { uri: "https://two.example.com", match: UriMatchStrategy.Domain },
-                ],
-              },
-            }));
-
-            autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
-            await component.doAutofill();
-
-            expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-          });
-
-          it("shows the exact match dialog when the cipher uris all have a match strategy of Exact", async () => {
             cipherService.getFullCipherView.mockImplementation(async (c) => ({
               ...baseCipher,
               ...c,
@@ -303,15 +309,8 @@ describe("ItemMoreOptionsComponent", () => {
             autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
             await component.doAutofill();
 
-            expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-              expect.objectContaining({
-                title: expect.objectContaining({ key: "cannotAutofill" }),
-                content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
-                type: "info",
-              }),
-            );
-            expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-            expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+            expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+            expect(autofillSvc.doAutofill).toHaveBeenCalled();
           });
         });
 
@@ -321,7 +320,7 @@ describe("ItemMoreOptionsComponent", () => {
             uriMatchStrategy$.next(UriMatchStrategy.Domain);
           });
 
-          it("does not show the exact match dialog when the cipher has no saved URIs", async () => {
+          it("shows the confirmation dialog when the cipher has no saved URIs", async () => {
             autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
 
             await component.doAutofill();
@@ -329,7 +328,8 @@ describe("ItemMoreOptionsComponent", () => {
             expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
           });
 
-          it("shows the exact match dialog when the cipher has only exact match saved URIs", async () => {
+          it("shows the confirmation dialog when the cipher has only exact match saved URIs", async () => {
+            mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
             cipherService.getFullCipherView.mockImplementation(async (c) => ({
               ...baseCipher,
               ...c,
@@ -346,15 +346,8 @@ describe("ItemMoreOptionsComponent", () => {
 
             await component.doAutofill();
 
-            expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-              expect.objectContaining({
-                title: expect.objectContaining({ key: "cannotAutofill" }),
-                content: expect.objectContaining({ key: "cannotAutofillExactMatch" }),
-                type: "info",
-              }),
-            );
-            expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
-            expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+            expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+            expect(autofillSvc.doAutofill).toHaveBeenCalled();
           });
 
           it("does not show the exact match dialog when the cipher has at least one uri without a match strategy of Exact", async () => {

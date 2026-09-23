@@ -7,20 +7,35 @@ import * as dialogStories from "../dialog/dialog/dialog.stories";
 
 # Tabs
 
-The tab navigation and content tabs share the same styling. The tab navigation uses links to
-navigate between pages, whereas the tab list uses `<buttons>` to toggle content on a single page.
-
-Tabs should be displayed on the `background-alt` color, with their content area set to background
-and 1rem of padding on the left and right.
+The tabs component is used to organize related content into distinct, selectable sections, allowing
+users to switch between views without leaving the page.
 
 <Primary />
 <Controls />
+
+## Usage
+
+Use the tabs component to separate content that belongs to the same context but does not need to be
+viewed simultaneously. Tabs work well for switching between different categories, views, or settings
+within a single page or panel. Avoid using tabs for content that users need to compare side by side
+— in those cases, consider a layout that keeps both sections visible at once.
+
+Tabs support between 2 and 8 items. If more than 8 tabs are needed, consider an alternative
+navigation pattern such as a sidebar or dropdown.
+
+- Use horizontal tabs as the default orientation for most layouts. They are well suited for
+  page-level navigation and content switching within a main content area.
+- Use vertical tabs in space-constrained contexts where horizontal real estate is limited, or when
+  the tab list is part of a side panel.
 
 ## Content Tabs
 
 <Canvas of={stories.ContentTabs} />
 
 ## Navigation Tabs
+
+The tab navigation and content tabs share the same styling. The tab navigation uses links to
+navigate between pages, whereas the tab list uses `<buttons>` to toggle content on a single page.
 
 <Canvas of={stories.NavigationTabs} />
 
@@ -30,12 +45,53 @@ Tabs can be used in dialogs to separate related content.
 
 <Canvas of={dialogStories.TabContent} />
 
+## Leading and Trailing Icons in Tabs
+
+Tabs can have a leading and trailing icon as well as a berry count:
+
+- A leading icon can be added using the `[startIcon]` input.
+- A trailing icon can be added using the `[endIcon]` input.
+- A berry count can be added using the `[berryValue]` input.
+
+<Canvas of={stories.TabsWithIcons} />
+
+## Overflow Tabs
+
+Tabs respond to available space by prioritizing visibility of as many tabs as possible. Tab labels
+will never be truncated unless there is insufficient room while only the first tab is displayed.
+
+When there is insufficient room to display all tabs left-to-right, any tabs that do not fit move
+into a More tab at the end of the tab group. The More tab opens a dropdown menu containing the
+overflowed tabs and displays a notification badge indicating how many tabs are hidden.
+
+If a tab is selected from the overflow menu, that tab is displayed before the More tab while the
+rightmost tabs are measured and moved into the dropdown menu accordingly.
+
+<Canvas of={stories.OverflowTabs} />
+
+## Preserve Content Tabs
+
+Set `[preserveContent]="true"` to keep the content of offscreen tabs in the DOM. Useful for keeping
+audio or video elements from re-initializing after navigating between tabs.
+
+<Canvas of={stories.PreserveContentTabs} />
+
+## Keyboard Navigation
+
+<Canvas of={stories.KeyboardNavigation} />
+
+## Guidelines
+
+- Tab labels should be short and scannable — aim for 1–2 words.
+- Labels should clearly describe the content of the panel they reveal.
+- Use sentence case for tab labels.
+- Avoid using icons alone as tab labels unless the meaning is universally understood — pair them
+  with a text label for clarity.
+
 ## Accessibility
 
-**Navigation tabs** are implemented using the `<nav>` element and `<a>` for each tab.
+- **Navigation tabs** are implemented using the `<nav>` element and `<a>` for each tab.
 
-**Content tabs** should be implemented with the `tablist` role and:
+- **Content tabs** use `<button>` for each tab.
 
-- Use `<button>` for the tab elements
-- Set `aria-selected` for each tab; “true” for selected and “false” for unselected
 - See WCAG for more: https://www.w3.org/TR/wai-aria-practices/examples/tabs/tabs-1/tabs.html

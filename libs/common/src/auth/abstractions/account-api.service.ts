@@ -44,9 +44,9 @@ export abstract class AccountApiService {
   /**
    * Completes the registration process.
    *
-   * @param request - The request object containing the user's email verification token,
-   * the email, hashed MP, newly created user key, and new asymmetric user key pair along
-   * with the KDF information used during the process.
+   * @param request - The user's email verification token, the email, newly created user key, and new
+   * asymmetric user key pair along with the KDF information, hashed MP and salt (in the form of the
+   * MasterPasswordAuthenticationData and MasterPasswordUnlockData) used during the process.
    * @returns A promise that resolves when the registration process is successfully completed.
    */
   abstract registerFinish(request: RegisterFinishRequest): Promise<void>;

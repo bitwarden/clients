@@ -1,8 +1,20 @@
 @if (showNewItemSpotlight$ | async) {
-  <bit-spotlight
-    [title]="nudgeTitle"
-    [subtitle]="nudgeBody"
-    (onDismiss)="dismissNewItemSpotlight()"
-  >
-  </bit-spotlight>
+  <bit-callout [title]="nudgeTitle" [icon]="null" (dismiss)="dismissNewItemSpotlight()">
+    {{ nudgeBody }}
+    @if (nudgeBodyBold) {
+      <strong>{{ nudgeBodyBold }}</strong>
+    }
+    @if (nudgeBodySuffix) {
+      {{ nudgeBodySuffix }}
+    }
+    @if (nudgeBodyLinkUrl) {
+      <a
+        [href]="nudgeBodyLinkUrl"
+        class="tw-text-primary-600 tw-font-medium"
+        target="_blank"
+        rel="noopener noreferrer"
+        >{{ nudgeBodyLinkText }}</a
+      >
+    }
+  </bit-callout>
 }

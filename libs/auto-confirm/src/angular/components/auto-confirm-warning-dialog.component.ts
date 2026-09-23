@@ -7,16 +7,17 @@ import {
   CenterPositionStrategy,
   DialogModule,
   DialogService,
+  LinkModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./auto-confirm-warning-dialog.component.html",
-  imports: [ButtonModule, DialogModule, CommonModule, I18nPipe],
+  imports: [ButtonModule, DialogModule, CommonModule, I18nPipe, LinkModule],
 })
 export class AutoConfirmWarningDialogComponent {
-  constructor(public dialogRef: DialogRef<boolean>) {}
+  constructor(readonly dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
     return dialogService.open<boolean>(AutoConfirmWarningDialogComponent, {

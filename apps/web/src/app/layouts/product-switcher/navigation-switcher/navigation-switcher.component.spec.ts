@@ -1,11 +1,10 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { IconButtonModule, NavigationModule, SideNavService } from "@bitwarden/components";
@@ -13,17 +12,18 @@ import { IconButtonModule, NavigationModule, SideNavService } from "@bitwarden/c
 // eslint-disable-next-line no-restricted-imports
 import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.component";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { UpgradeNavButtonComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component";
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-nav-button",
   template: "<div>Upgrade Nav Button</div>",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockUpgradeNavButtonComponent {}
 
@@ -64,8 +64,13 @@ describe("NavigationProductSwitcherComponent", () => {
     const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
     await TestBed.configureTestingModule({
-      imports: [RouterModule, NavigationModule, IconButtonModule, MockUpgradeNavButtonComponent],
-      declarations: [NavigationProductSwitcherComponent, I18nPipe],
+      imports: [
+        RouterModule,
+        NavigationModule,
+        IconButtonModule,
+        I18nPipe,
+        NavigationProductSwitcherComponent,
+      ],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
         {
@@ -81,7 +86,12 @@ describe("NavigationProductSwitcherComponent", () => {
           useValue: fakeGlobalStateProvider,
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(NavigationProductSwitcherComponent, {
+        remove: { imports: [UpgradeNavButtonComponent] },
+        add: { imports: [MockUpgradeNavButtonComponent] },
+      })
+      .compileComponents();
   });
 
   beforeEach(() => {

@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { ChangeDetectionStrategy, Component, importProvidersFrom, inject } from "@angular/core";
+import { Router, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
 import { I18nMockService } from "../utils";
@@ -12,30 +14,36 @@ import { I18nMockService } from "../utils";
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 
-interface Breadcrumb {
-  icon?: string;
-  name: string;
-  route: string;
-}
-
 @Component({
-  template: "",
+  template: /*html*/ ` <div class="tw-mt-5">Some really cool content for {{ currentUrl }}</div> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class EmptyComponent {}
+class ContentComponent {
+  readonly router = inject(Router);
+
+  readonly currentUrl = this.router.url;
+}
 
 export default {
   title: "Component Library/Breadcrumbs",
   component: BreadcrumbsComponent,
   decorators: [
     moduleMetadata({
-      imports: [LinkModule, MenuModule, IconButtonModule, RouterModule, BreadcrumbComponent],
+      imports: [
+        LinkModule,
+        MenuModule,
+        IconButtonModule,
+        RouterModule,
+        BreadcrumbComponent,
+        IconTileComponent,
+      ],
       providers: [
         {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
               moreBreadcrumbs: "More breadcrumbs",
+              breadcrumbs: "Breadcrumbs",
               loading: "Loading",
             });
           },
@@ -45,7 +53,24 @@ export default {
     applicationConfig({
       providers: [
         importProvidersFrom(
-          RouterModule.forRoot([{ path: "**", component: EmptyComponent }], { useHash: true }),
+          RouterModule.forRoot(
+            [
+              {
+                path: "",
+                children: [
+                  { path: "", redirectTo: "vault", pathMatch: "full" },
+                  { path: "vault", component: ContentComponent },
+                  { path: "acme-corp", component: ContentComponent },
+                  { path: "groups", component: ContentComponent },
+                  { path: "members", component: ContentComponent },
+                  { path: "items", component: ContentComponent },
+                  { path: "sends", component: ContentComponent },
+                  { path: "settings", component: ContentComponent },
+                ],
+              },
+            ],
+            { useHash: true },
+          ),
         ),
       ],
     }),
@@ -57,65 +82,170 @@ export default {
     },
   },
   args: {
-    items: [],
-    show: 3,
+    size: "base",
+    showTrailingArrow: false,
   },
   argTypes: {
     breadcrumbs: {
       table: { disable: true },
     },
-    click: { action: "clicked" },
+    size: {
+      table: { defaultValue: { summary: "base" } },
+      control: { type: "radio", options: ["small", "base"] },
+    },
+    showTrailingArrow: {
+      control: { type: "boolean" },
+    },
   },
 } as Meta;
 
-type Story = StoryObj<BreadcrumbsComponent & { items: Breadcrumb[] }>;
+type Story = StoryObj<BreadcrumbsComponent>;
 
-export const TopLevel: Story = {
+export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
-      <h3 class="tw-text-main">Router links</h3>
-      <p>
-        <bit-breadcrumbs [show]="show">
-          <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" [route]="[item.route]">{{item.name}}</bit-breadcrumb>
-        </bit-breadcrumbs>
-      </p>
-  
-      <h3 class="tw-text-main">Click emit</h3>
-      <p>
-        <bit-breadcrumbs [show]="show">
-          <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" (click)="click($event)">{{item.name}}</bit-breadcrumb>
-        </bit-breadcrumbs>
-      </p>
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb icon="bwi-vault" route="/vault">Vault</bit-breadcrumb>
+      <bit-breadcrumb route="/acme-corp">ACME Corp</bit-breadcrumb>
+      <bit-breadcrumb route="/groups">Groups</bit-breadcrumb>
+      <bit-breadcrumb route="/members">Members</bit-breadcrumb>
+    </bit-breadcrumbs>
+    <router-outlet />
     `,
   }),
+};
 
+export const Small: Story = {
+  ...Default,
   args: {
-    items: [{ icon: "bwi-star", name: "Top Level" }] as Breadcrumb[],
+    size: "small",
   },
 };
 
-export const SecondLevel: Story = {
-  ...TopLevel,
+export const WithStartSlot: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb route="/vault">
+        <bit-icon-tile slot="start" icon="bwi-vault" />
+        Vault
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/acme-corp">
+        <bit-icon-tile slot="start" icon="bwi-business" variant="success" />
+        ACME Corp
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/groups">
+        <bit-icon-tile slot="start" icon="bwi-users" variant="warning" />
+        Groups
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/members">
+        <bit-icon-tile slot="start" icon="bwi-user" variant="danger" />
+        Members
+      </bit-breadcrumb>
+    </bit-breadcrumbs>
+    <router-outlet />
+    `,
+  }),
+};
+
+export const WithStartSlotSmall: Story = {
+  ...WithStartSlot,
   args: {
-    items: [
-      { name: "Acme Vault", route: "/" },
-      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
-    ] as Breadcrumb[],
+    size: "small",
   },
 };
 
-export const Overflow: Story = {
-  ...TopLevel,
+export const DefaultAsButtons: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      // eslint-disable-next-line
+      clickHandler: () => console.log("clicked!"),
+    },
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb icon="bwi-vault" (click)="clickHandler()">Vault</bit-breadcrumb>
+      <bit-breadcrumb (click)="clickHandler()">ACME Corp</bit-breadcrumb>
+      <bit-breadcrumb (click)="clickHandler()">Groups</bit-breadcrumb>
+      <bit-breadcrumb (click)="clickHandler()">Members</bit-breadcrumb>
+    </bit-breadcrumbs>
+    `,
+  }),
+};
+
+export const OverflowLinks: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+        <bit-breadcrumb route="/vault">Vault</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/acme-corp">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/groups">Groups</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/members">Members</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/items">Items</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/sends">Sends</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" route="/settings">Settings</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <router-outlet/>
+    `,
+  }),
+};
+
+export const OverflowButtons: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      // eslint-disable-next-line
+      clickHandler: () => console.log("clicked!"),
+    },
+    template: /*html*/ `
+      <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+        <bit-breadcrumb (click)="clickHandler()">Vault</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Groups</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Members</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Items</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Sends</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Settings</bit-breadcrumb>
+      </bit-breadcrumbs>
+    `,
+  }),
+};
+
+export const WithTrailingArrow: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb icon="bwi-vault" route="/unknown-route">Breadcrumb</bit-breadcrumb>
+      <bit-breadcrumb route="/unknown-route-2">Breadcrumb 2</bit-breadcrumb>
+      <bit-breadcrumb route="/unknown-route-3">Breadcrumb 3</bit-breadcrumb>
+      <bit-breadcrumb route="/unknown-route-4">Breadcrumb 4</bit-breadcrumb>
+    </bit-breadcrumbs>
+    `,
+  }),
   args: {
-    items: [
-      { name: "Acme Vault", route: "" },
-      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 1", route: "middle-collection-1" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 2", route: "middle-collection-2" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 3", route: "middle-collection-3" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 4", route: "middle-collection-4" },
-      { icon: "bwi-collection-shared", name: "End Collection", route: "end-collection" },
-    ] as Breadcrumb[],
+    showTrailingArrow: true,
   },
+};
+
+export const ResponsiveOverflow: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-resize-x tw-overflow-auto tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-3" style="width: 600px; max-width: 100%;">
+        <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+          <bit-breadcrumb route="/vault">Single sign-on</bit-breadcrumb>
+          <bit-breadcrumb route="/acme-corp">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/groups">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/members">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/items">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/settings">Configure single sign-on for your enterprise organization</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </div>
+      <router-outlet/>
+    `,
+  }),
 };

@@ -27,7 +27,13 @@
       </bit-select>
     </bit-form-field>
     <div *ngIf="showNewOrganization">
-      <app-organization-plans></app-organization-plans>
+      <app-organization-plans
+        [initialPlan]="familyPlan"
+        [initialProductTier]="familyProductTier"
+        [acceptingSponsorship]="true"
+        [planSponsorshipType]="planSponsorshipType"
+        (onSuccess)="onOrganizationCreateSuccess($event)"
+      ></app-organization-plans>
     </div>
     <div class="tw-w-1/2" *ngIf="!showNewOrganization">
       <button bitButton buttonType="primary" bitFormButton type="submit">

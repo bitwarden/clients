@@ -5,8 +5,6 @@ import { Router } from "@koa/router";
 import * as koa from "koa";
 import { firstValueFrom, map } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
 import { LockCommand } from "./auth/commands/lock.command";
@@ -64,6 +62,7 @@ export class OssServeConfigurator {
       this.serviceContainer.totpService,
       this.serviceContainer.auditService,
       this.serviceContainer.keyService,
+      this.serviceContainer.legacyCompatKeyService,
       this.serviceContainer.encryptService,
       this.serviceContainer.searchService,
       this.serviceContainer.apiService,
@@ -72,6 +71,7 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.configService,
     );
     this.listCommand = new ListCommand(
       this.serviceContainer.cipherService,
@@ -98,6 +98,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.configService,
     );
     this.editCommand = new EditCommand(
       this.serviceContainer.cipherService,
@@ -110,6 +111,7 @@ export class OssServeConfigurator {
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.policyService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.cipherAuthorizationService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -122,7 +124,8 @@ export class OssServeConfigurator {
       this.serviceContainer.syncService,
       this.serviceContainer.accountService,
       this.serviceContainer.authService,
-      this.serviceContainer.userAutoUnlockKeyService,
+      this.serviceContainer.unlockService,
+      this.serviceContainer.logService,
     );
     this.deleteCommand = new DeleteCommand(
       this.serviceContainer.cipherService,
@@ -137,7 +140,6 @@ export class OssServeConfigurator {
     this.archiveCommand = new ArchiveCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
-      this.serviceContainer.configService,
       this.serviceContainer.cipherArchiveService,
       this.serviceContainer.billingAccountProfileStateService,
     );
@@ -154,11 +156,12 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
       this.serviceContainer.cipherArchiveService,
-      this.serviceContainer.configService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
+      this.serviceContainer.collectionService,
+      this.serviceContainer.organizationService,
     );
     this.lockCommand = new LockCommand(
       serviceContainer.lockService,
@@ -166,8 +169,6 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.keyService,
-      this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
@@ -175,7 +176,8 @@ export class OssServeConfigurator {
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
-      this.serviceContainer.masterPasswordUnlockService,
+      this.serviceContainer.unlockService,
+      this.serviceContainer.biometricsService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -184,6 +186,9 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -196,6 +201,7 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.apiService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
@@ -203,6 +209,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,
@@ -215,6 +222,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.environmentService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sendDecryptionService,
     );
   }
 
@@ -421,22 +429,16 @@ export class OssServeConfigurator {
       await next();
     });
 
-    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
-    if (isArchivedEnabled) {
-      router.post("/archive/:object/:id", async (ctx, next) => {
-        if (await this.errorIfLocked(ctx.response)) {
-          await next();
-          return;
-        }
-        let response: Response = null;
-        response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
-        this.processResponse(ctx.response, response);
+    router.post("/archive/:object/:id", async (ctx, next) => {
+      if (await this.errorIfLocked(ctx.response)) {
         await next();
-      });
-    }
+        return;
+      }
+      let response: Response = null;
+      response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
+      this.processResponse(ctx.response, response);
+      await next();
+    });
   }
 
   protected processResponse(res: koa.Response, commandResponse: Response) {

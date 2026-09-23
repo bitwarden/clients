@@ -1,0 +1,92 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+## Overview
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+For general information about chips, their types, and usage guidelines, see the
+[Chip overview](?path=/docs/component-library-chips--docs).
+
+## Basic Usage
+
+The chip component displays a label with an optional start icon and a dismiss button.
+
+```html
+<bit-chip label="Tag name" startIcon="bwi-tag" (dismissed)="handleRemove()"> </bit-chip>
+```
+
+```ts
+@Component({
+  selector: "app-my-component",
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
+      @for (tag of tags; track tag.id) {
+        <bit-chip [label]="tag.name" startIcon="bwi-tag" (dismissed)="removeTag(tag)"> </bit-chip>
+      }
+    </div>
+  `,
+})
+class MyComponent {
+  protected tags = [
+    { id: 1, name: "Work" },
+    { id: 2, name: "Personal" },
+    { id: 3, name: "Important" },
+  ];
+
+  protected removeTag(tag: Tag) {
+    this.tags = this.tags.filter((t) => t.id !== tag.id);
+  }
+}
+```
+
+## Dismissing Chips
+
+The chip component includes a built-in dismiss button (X icon) that emits a `dismissed` event when
+clicked. Handle this event to remove the chip from your collection.
+
+```html
+<bit-chip label="Removable tag" (dismissed)="handleDismiss()"> </bit-chip>
+```
+
+## Sizes
+
+Chips are available in two sizes: small and large (default).
+
+```html
+<!-- Small size -->
+<bit-chip label="Small" size="small"></bit-chip>
+```
+
+<Canvas of={stories.Small} />
+
+## Inactive State
+
+Chips can be inactive to prevent interaction.
+
+```html
+<bit-chip label="Inactive chip" [disabled]="true"> </bit-chip>
+```
+
+<Canvas of={stories.Inactive} />
+
+## With Icons
+
+Add a start icon to provide additional visual context.
+
+```html
+<bit-chip label="User" startIcon="bwi-user"> </bit-chip>
+
+<bit-chip label="Folder" startIcon="bwi-folder"> </bit-chip>
+```

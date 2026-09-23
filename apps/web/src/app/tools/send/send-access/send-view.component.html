@@ -24,10 +24,12 @@
   }
   @if (send()) {
     <div>
-      <p class="tw-text-center">
-        <b>{{ send().name }}</b>
-      </p>
-      <hr />
+      @if (send().type !== sendType.Item) {
+        <p class="tw-text-center">
+          <b>{{ send().name }}</b>
+        </p>
+        <hr />
+      }
       @switch (send().type) {
         @case (sendType.Text) {
           <app-send-access-text [send]="send()"></app-send-access-text>
@@ -36,9 +38,11 @@
           <app-send-access-file
             [send]="send()"
             [decKey]="decKey"
-            [accessRequest]="accessRequest()"
             [accessToken]="accessToken()"
           ></app-send-access-file>
+        }
+        @case (sendType.Item) {
+          <app-send-access-item [send]="send()"></app-send-access-item>
         }
       }
       @if (expirationDate()) {

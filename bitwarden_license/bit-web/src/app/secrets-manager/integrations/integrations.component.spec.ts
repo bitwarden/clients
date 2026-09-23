@@ -1,37 +1,40 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
-
-import {} from "@bitwarden/web-vault/app/shared";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
+import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
-import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { TabsModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { IntegrationCardComponent } from "../../dirt/organization-integrations/integration-card/integration-card.component";
-import { IntegrationGridComponent } from "../../dirt/organization-integrations/integration-grid/integration-grid.component";
-
 import { IntegrationsComponent } from "./integrations.component";
+import { SecretsIntegrationsState } from "./secrets-integrations.state";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+// JSDOM does not implement ResizeObserver — provide a no-op stub so bit-tab-nav-bar
+// can construct without throwing.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-header",
-  template: "<div></div>",
+  template: "<ng-content></ng-content>",
   standalone: false,
 })
 class MockHeaderComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "sm-new-menu",
   template: "<div></div>",
   standalone: false,
@@ -39,52 +42,76 @@ class MockHeaderComponent {}
 class MockNewMenuComponent {}
 
 describe("IntegrationsComponent", () => {
+  let component: IntegrationsComponent;
   let fixture: ComponentFixture<IntegrationsComponent>;
-  const orgIntegrationSvc = mock<OrganizationIntegrationService>();
+  let integrationStateService: IntegrationStateService;
 
   const activatedRouteMock = {
     snapshot: { paramMap: { get: jest.fn() } },
   };
-  const mockI18nService = mock<I18nService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [IntegrationsComponent, MockHeaderComponent, MockNewMenuComponent],
-      imports: [JslibModule, IntegrationGridComponent, IntegrationCardComponent],
+      imports: [JslibModule, TabsModule, RouterModule.forRoot([]), I18nPipe],
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: ThemeStateService, useValue: mock<ThemeStateService>() },
-        { provide: SYSTEM_THEME_OBSERVABLE, useValue: of(ThemeType.Light) },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
-        { provide: I18nPipe, useValue: mock<I18nPipe>() },
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: OrganizationIntegrationService, useValue: orgIntegrationSvc },
+        {
+          provide: OrganizationIntegrationService,
+          useValue: mock<OrganizationIntegrationService>(),
+        },
+        { provide: IntegrationStateService, useClass: SecretsIntegrationsState },
       ],
     }).compileComponents();
+
     fixture = TestBed.createComponent(IntegrationsComponent);
+    component = fixture.componentInstance;
+    integrationStateService = TestBed.inject(IntegrationStateService);
     fixture.detectChanges();
   });
 
-  it("divides Integrations & SDKS", () => {
-    const [integrationList, sdkList] = fixture.debugElement.queryAll(
-      By.directive(IntegrationGridComponent),
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
+
+  it("should initialize integrations in state on construction", () => {
+    const integrations = integrationStateService.integrations();
+
+    expect(integrations.length).toBeGreaterThan(0);
+    expect(integrations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "GitHub Actions", type: IntegrationType.Integration }),
+        expect.objectContaining({ name: "Rust", type: IntegrationType.SDK }),
+      ]),
     );
+  });
 
-    // Validate only expected names, as the data is constant
-    expect(
-      (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
-        (i) => i.name,
-      ),
-    ).toEqual([
-      "GitHub Actions",
-      "GitLab CI/CD",
-      "Ansible",
-      "Kubernetes Operator",
-      "Terraform Provider",
-    ]);
+  it("should render a tab link for each integration category", () => {
+    const tabs = fixture.debugElement.queryAll(By.css("bit-tab-link"));
 
-    expect(
-      (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),
-    ).toEqual(["Rust", "C#", "C++", "Go", "Java", "JS WebAssembly", "php", "Python", "Ruby"]);
+    expect(tabs.length).toBe(2);
+  });
+
+  describe("integration data validation", () => {
+    it("should include required properties for all integrations", () => {
+      const integrations = integrationStateService.integrations();
+
+      integrations.forEach((integration: Integration) => {
+        expect(integration.name).toBeDefined();
+        expect(integration.linkURL).toBeDefined();
+        expect(integration.image).toBeDefined();
+        expect(integration.type).toBeDefined();
+        expect([IntegrationType.Integration, IntegrationType.SDK]).toContain(integration.type);
+      });
+    });
+
+    it("should have valid link URLs for all integrations", () => {
+      const integrations = integrationStateService.integrations();
+
+      integrations.forEach((integration: Integration) => {
+        expect(integration.linkURL).toMatch(/^https?:\/\//);
+      });
+    });
   });
 });

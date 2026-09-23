@@ -3,11 +3,10 @@ import { Component } from "@angular/core";
 import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { TypographyModule } from "@bitwarden/components";
+import { TypographyModule, CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -15,7 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "nudge-generator-spotlight",
   templateUrl: "nudge-generator-spotlight.component.html",
-  imports: [I18nPipe, SpotlightComponent, AsyncPipe, CommonModule, TypographyModule],
+  imports: [I18nPipe, CalloutModule, AsyncPipe, CommonModule, TypographyModule],
 })
 export class NudgeGeneratorSpotlightComponent {
   protected readonly NudgeType = NudgeType;

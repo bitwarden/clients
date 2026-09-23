@@ -2,8 +2,6 @@ import { inject, Injectable } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
 
@@ -23,7 +21,6 @@ const THIRTY_DAY_MS = 1000 * 60 * 60 * 24 * 30;
 @Injectable({ providedIn: "root" })
 export class WelcomeDialogService {
   private accountService = inject(AccountService);
-  private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private stateProvider = inject(StateProvider);
 
@@ -35,11 +32,6 @@ export class WelcomeDialogService {
   async conditionallyShowWelcomeDialog() {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
-      return;
-    }
-
-    const enabled = await this.configService.getFeatureFlag(FeatureFlag.PM29437_WelcomeDialog);
-    if (!enabled) {
       return;
     }
 

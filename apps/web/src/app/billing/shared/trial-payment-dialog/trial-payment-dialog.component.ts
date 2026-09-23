@@ -38,6 +38,7 @@ import {
   SubscriberBillingClient,
   PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -76,7 +77,6 @@ interface OnSuccessArgs {
   selector: "app-trial-payment-dialog",
   templateUrl: "./trial-payment-dialog.component.html",
   standalone: false,
-  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -132,7 +132,10 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
       this.dialogParams.subscription ??
       (await this.organizationApiService.getSubscription(this.dialogParams.organizationId));
     this.organizationId = this.dialogParams.organizationId;
-    this.currentPlan = this.sub?.plan;
+    if (this.sub?.plan == null) {
+      throw new Error("Subscription plan is required");
+    }
+    this.currentPlan = this.sub.plan;
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
       throw new Error("User ID is required");
@@ -361,7 +364,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
       });
 
       this.onSuccess.emit({ organizationId: this.organizationId });
-      this.dialogRef.close(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED);
+      await this.dialogRef.close(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED);
     } catch (error) {
       const msg =
         typeof error === "object" && error !== null && "message" in error
@@ -373,6 +376,17 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
         message: this.i18nService.t(msg) || msg,
       });
     }
+  }
+
+  get trialLength(): number {
+    const { trialStartDate, trialEndDate } = this.sub?.subscription ?? {};
+    if (!trialStartDate || !trialEndDate) {
+      return DEFAULT_TRIAL_LENGTH_DAYS;
+    }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    return Math.round(
+      (new Date(trialEndDate).getTime() - new Date(trialStartDate).getTime()) / msPerDay,
+    );
   }
 
   resolvePlanName(productTier: ProductTierType): string {

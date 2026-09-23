@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -33,11 +33,13 @@ describe("PasswordHistoryComponent", () => {
   } as unknown as Cipher;
 
   const back = jest.fn().mockResolvedValue(undefined);
-  const getCipher = jest.fn().mockResolvedValue(mockCipher);
+  const cipherView$ = jest
+    .fn()
+    .mockReturnValue(new BehaviorSubject<Cipher | undefined>(mockCipher));
 
   beforeEach(async () => {
     back.mockClear();
-    getCipher.mockClear();
+    cipherView$.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [PasswordHistoryComponent],
@@ -45,7 +47,12 @@ describe("PasswordHistoryComponent", () => {
         { provide: WINDOW, useValue: window },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: CipherService, useValue: mock<CipherService>({ get: getCipher }) },
+        {
+          provide: CipherService,
+          useValue: mock<CipherService>({
+            cipherView$,
+          }),
+        },
         {
           provide: AccountService,
           useValue: mockAccountServiceWith(mockUserId),
@@ -65,13 +72,13 @@ describe("PasswordHistoryComponent", () => {
 
     tick(100);
 
-    expect(getCipher).toHaveBeenCalledWith(mockCipherView.id, mockUserId);
+    expect(cipherView$).toHaveBeenCalledWith(mockUserId, mockCipherView.id);
   }));
 
   it("navigates back when a cipherId is not in the params", () => {
     params$.next({});
 
     expect(back).toHaveBeenCalledTimes(1);
-    expect(getCipher).not.toHaveBeenCalled();
+    expect(cipherView$).not.toHaveBeenCalled();
   });
 });

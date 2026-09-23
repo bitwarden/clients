@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { EMPTY, Subject, firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -16,13 +16,11 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -44,6 +42,9 @@ import {
   KeyService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { UnlockEvent, UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
   LockComponentService,
@@ -63,7 +64,6 @@ describe("LockComponent", () => {
 
   // Mock services
   const mockAccountService = mockAccountServiceWith(userId);
-  const mockPinService = mock<PinServiceAbstraction>();
   const mockUserVerificationService = mock<UserVerificationService>();
   const mockKeyService = mock<KeyService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
@@ -85,6 +85,7 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockUnlockService = mock<UnlockService>();
   const mockWebAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
   const mockEncryptedMigrator = mock<EncryptedMigrator>();
   const mockActivatedRoute = {
@@ -104,10 +105,11 @@ describe("LockComponent", () => {
     mockI18nService.t.mockImplementation((key: string) => key);
 
     // Mock observables that cause timeouts
-    mockBiometricStateService.promptAutomatically$ = of(false);
-    mockBiometricStateService.promptCancelled$ = of(false);
+    mockBiometricStateService.promptAutomatically$.mockReturnValue(of(false));
+    mockBiometricStateService.promptCancelled$.mockReturnValue(of(false));
     mockBiometricStateService.resetUserPromptCancelled.mockResolvedValue();
     mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(null));
+    mockUnlockService.unlocked$ = EMPTY;
     mockSyncService.fullSync.mockResolvedValue(true);
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
@@ -126,7 +128,6 @@ describe("LockComponent", () => {
       providers: [
         FormBuilder,
         { provide: AccountService, useValue: mockAccountService },
-        { provide: PinServiceAbstraction, useValue: mockPinService },
         { provide: UserVerificationService, useValue: mockUserVerificationService },
         { provide: KeyService, useValue: mockKeyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
@@ -151,6 +152,7 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: UnlockService, useValue: mockUnlockService },
         { provide: WebAuthnPrfUnlockService, useValue: mockWebAuthnPrfUnlockService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: EncryptedMigrator, useValue: mockEncryptedMigrator },
@@ -161,6 +163,63 @@ describe("LockComponent", () => {
 
     fixture = TestBed.createComponent(LockComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("unlocked$", () => {
+    const unlockOptions = {
+      masterPassword: { enabled: true },
+      pin: { enabled: false },
+      biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+      prf: { enabled: false },
+    };
+    let unlocked: Subject<UnlockEvent>;
+    let continueAfterSettingUserKey: jest.SpyInstance;
+
+    beforeEach(async () => {
+      unlocked = new Subject<UnlockEvent>();
+      mockUnlockService.unlocked$ = unlocked;
+      mockKeyService.hasUserKey.mockResolvedValue(false);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(unlockOptions));
+      continueAfterSettingUserKey = jest
+        .spyOn(component as any, "continueAfterSettingUserKey")
+        .mockResolvedValue(undefined);
+
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      await (component as any).handleActiveAccountChange(component.activeAccount);
+    });
+
+    it.each([
+      UnlockMethod.Pin,
+      UnlockMethod.Biometrics,
+      UnlockMethod.Prf,
+      UnlockMethod.KeyConnector,
+      UnlockMethod.DecryptedUserKey,
+      UnlockMethod.SharedUnlock,
+      UnlockMethod.AutoKey,
+    ])("continues the unlock flow for an unlock by %s", (method) => {
+      unlocked.next({ userId, method });
+
+      expect(continueAfterSettingUserKey).toHaveBeenCalledTimes(1);
+    });
+
+    it("leaves a master password unlock to successfulMasterPasswordUnlock", () => {
+      unlocked.next({ userId, method: UnlockMethod.MasterPassword });
+
+      expect(continueAfterSettingUserKey).not.toHaveBeenCalled();
+    });
+
+    it("continues only once", () => {
+      unlocked.next({ userId, method: UnlockMethod.Pin });
+      unlocked.next({ userId, method: UnlockMethod.SharedUnlock });
+
+      expect(continueAfterSettingUserKey).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores an unlock of another user", () => {
+      unlocked.next({ userId: "other-user-id" as UserId, method: UnlockMethod.Pin });
+
+      expect(continueAfterSettingUserKey).not.toHaveBeenCalled();
+    });
   });
 
   describe("successfulMasterPasswordUnlock", () => {
@@ -187,7 +246,8 @@ describe("LockComponent", () => {
         expect(mockLogService.error).toHaveBeenCalledWith(
           "[LockComponent] successfulMasterPasswordUnlock called with invalid data.",
         );
-        expect(mockKeyService.setUserKey).not.toHaveBeenCalled();
+        expect(mockDeviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("unlocked");
       },
     );
 
@@ -268,7 +328,7 @@ describe("LockComponent", () => {
         mockLockComponentService.getPreviousUrl.mockReturnValue(null);
 
         jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
-          await mockBiometricStateService.resetUserPromptCancelled();
+          await mockBiometricStateService.resetUserPromptCancelled(userId);
           mockMessagingService.send("unlocked");
           await mockSyncService.fullSync(false);
           await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
@@ -287,7 +347,7 @@ describe("LockComponent", () => {
       mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
 
       jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
-        await mockBiometricStateService.resetUserPromptCancelled();
+        await mockBiometricStateService.resetUserPromptCancelled(userId);
         mockMessagingService.send("unlocked");
         await mockSyncService.fullSync(false);
         await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
@@ -303,11 +363,37 @@ describe("LockComponent", () => {
     });
 
     function assertUnlocked(): void {
-      expect(mockKeyService.setUserKey).toHaveBeenCalledWith(
-        mockUserKey,
+      expect(mockDeviceTrustService.trustDeviceIfRequired).toHaveBeenCalledWith(
         component.activeAccount!.id,
       );
     }
+  });
+
+  describe("onPrfUnlockSuccess", () => {
+    const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+
+    beforeEach(async () => {
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+    });
+
+    it("unlocks with the decrypted user key via the unlock service", async () => {
+      await component.onPrfUnlockSuccess(mockUserKey);
+
+      expect(mockUnlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+        userId,
+        mockUserKey,
+        UnlockMethod.Prf,
+      );
+      // The continuation is driven by UnlockService.unlocked$, not by this method.
+      expect(mockDeviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+    });
+
+    it("throws when there is no active account", async () => {
+      component.activeAccount = null;
+
+      await expect(component.onPrfUnlockSuccess(mockUserKey)).rejects.toThrow("No active user.");
+      expect(mockUnlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+    });
   });
 
   describe("logOut", () => {
@@ -357,6 +443,89 @@ describe("LockComponent", () => {
       });
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("swapUnlockOption", () => {
+    it("switches to biometrics and immediately attempts biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Biometrics);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
+      expect(unlockViaBiometricsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("switches to pin without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Pin);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+
+    it("switches to master password without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.MasterPassword);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlockViaBiometrics", () => {
+    beforeEach(async () => {
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      component.unlockOptions = {
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        pin: { enabled: false },
+        masterPassword: { enabled: true },
+        prf: { enabled: false },
+      };
+    });
+
+    it("ignores concurrent unlock attempts while one biometric unlock is in progress", async () => {
+      let resolvePendingUnlock: (() => void) | undefined;
+      const pendingUnlock = new Promise<void>((resolve) => {
+        resolvePendingUnlock = resolve;
+      });
+      mockUnlockService.unlockWithBiometrics.mockReturnValue(pendingUnlock);
+
+      const firstAttempt = component.unlockViaBiometrics();
+      await component.unlockViaBiometrics();
+      resolvePendingUnlock?.();
+      await firstAttempt;
+
+      expect(mockUnlockService.unlockWithBiometrics).toHaveBeenCalledTimes(1);
+    });
+
+    it("unlocks via the unlock service and leaves the continuation to unlocked$", async () => {
+      mockUnlockService.unlockWithBiometrics.mockResolvedValue();
+
+      await component.unlockViaBiometrics();
+
+      expect(mockUnlockService.unlockWithBiometrics).toHaveBeenCalledWith(userId);
+      expect(mockDeviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+    });
+
+    it("does not continue the unlock flow when the unlock service throws", async () => {
+      mockUnlockService.unlockWithBiometrics.mockRejectedValue(new Error("cancelled"));
+
+      await component.unlockViaBiometrics();
+
+      expect(mockDeviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+      expect(mockLogService.info).toHaveBeenCalledWith(
+        "[LockComponent] Failed to unlock via biometrics.",
+        expect.any(Error),
+      );
     });
   });
 

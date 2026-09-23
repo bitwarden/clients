@@ -12,7 +12,7 @@
       "options": {
         "outputPath": "dist/apps/browser",
         "webpackConfig": "apps/browser/webpack.config.js",
-        "tsConfig": "apps/browser/tsconfig.json",
+        "tsConfig": "apps/browser/tsconfig.build.json",
         "main": "apps/browser/src/popup/main.ts",
         "target": "web",
         "compiler": "tsc"

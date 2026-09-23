@@ -2,7 +2,6 @@ import { DestroyRef, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -23,6 +22,12 @@ export type BrowserPromptState = UnionOfValues<typeof BrowserPromptState>;
 
 type PromptErrorStates = typeof BrowserPromptState.Error | typeof BrowserPromptState.ManualOpen;
 
+/**
+ * Amount of time to wait for the extension to open before showing an error.
+ * The amount of time it takes to open the extension can vary across browsers.
+ */
+const OPEN_EXTENSION_TIMEOUT_MS = 1500;
+
 @Injectable({
   providedIn: "root",
 })
@@ -38,22 +43,12 @@ export class BrowserExtensionPromptService {
   constructor(
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private destroyRef: DestroyRef,
-    private platformUtilsService: PlatformUtilsService,
     private webBrowserInteractionService: WebBrowserInteractionService,
   ) {}
 
   start(): void {
     if (Utils.isMobileBrowser) {
       this.setMobileState();
-      return;
-    }
-
-    // Firefox does not support automatically opening the extension,
-    // it currently requires a user gesture within the context of the extension to open.
-    // Show message to direct the user to manually open the extension.
-    // Mozilla Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1799344
-    if (this.platformUtilsService.isFirefox()) {
-      this.setErrorState(BrowserPromptState.ManualOpen);
       return;
     }
   }
@@ -76,7 +71,7 @@ export class BrowserExtensionPromptService {
 
       this.extensionCheckTimeout = window.setTimeout(() => {
         this.setErrorState(BrowserPromptState.ManualOpen);
-      }, 750);
+      }, OPEN_EXTENSION_TIMEOUT_MS);
     }
   }
 

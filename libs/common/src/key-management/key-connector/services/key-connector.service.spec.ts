@@ -1,37 +1,48 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of, timeout, TimeoutError } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
-import { SetKeyConnectorKeyRequest } from "@bitwarden/common/key-management/key-connector/models/set-key-connector-key.request";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  UserDecryptionOptions,
+} from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import {
+  Argon2KdfConfig,
+  EncString,
+  KdfType,
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserType } from "../../../admin-console/enums";
 import { OrganizationData } from "../../../admin-console/models/data/organization.data";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
 import { KeyConnectorUserKeyResponse } from "../../../auth/models/response/key-connector-user-key.response";
 import { TokenService } from "../../../auth/services/token.service";
+import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Rc } from "../../../platform/misc/reference-counting/rc";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "../../crypto";
-import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
-import { SecurityStateService } from "../../security-state/abstractions/security-state.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
+import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
 
 import {
   KeyConnectorService,
@@ -42,17 +53,18 @@ import {
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
 
-  const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const apiService = mock<ApiService>();
   const tokenService = mock<TokenService>();
   const logService = mock<LogService>();
   const organizationService = mock<OrganizationService>();
-  const keyGenerationService = mock<KeyGenerationService>();
   const logoutCallback = jest.fn();
   const configService = mock<ConfigService>();
   const registerSdkService = mock<RegisterSdkService>();
-  const securityStateService = mock<SecurityStateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
+  const sdkService = mock<SdkService>();
+  const unlockService = mock<UnlockService>();
 
   let stateProvider: FakeStateProvider;
 
@@ -85,18 +97,19 @@ describe("KeyConnectorService", () => {
     keyConnectorService = new KeyConnectorService(
       accountService,
       masterPasswordService,
-      keyService,
+      legacyCompatKeyService,
       apiService,
       tokenService,
       logService,
       organizationService,
-      keyGenerationService,
       logoutCallback,
       stateProvider,
       configService,
       registerSdkService,
-      securityStateService,
       accountCryptographicStateService,
+      sdkService,
+      userDecryptionOptionsService,
+      unlockService,
     );
   });
 
@@ -218,88 +231,71 @@ describe("KeyConnectorService", () => {
     });
   });
 
-  describe("setMasterKeyFromUrl", () => {
-    it("should set the master key from the provided URL", async () => {
-      // Arrange
-      const url = keyConnectorUrl;
-
-      apiService.getMasterKeyFromKeyConnector.mockResolvedValue(mockMasterKeyResponse);
-
-      // Hard to mock these, but we can generate the same keys
-      const keyArr = Utils.fromB64ToArray(mockMasterKeyResponse.key);
-      const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
-
-      // Act
-      await keyConnectorService.setMasterKeyFromUrl(url, mockUserId);
-
-      // Assert
-      expect(apiService.getMasterKeyFromKeyConnector).toHaveBeenCalledWith(url);
-      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(masterKey, mockUserId);
-    });
-
-    it("should handle errors thrown during the process", async () => {
-      // Arrange
-      const url = keyConnectorUrl;
-
-      const error = new Error("Failed to get master key");
-      apiService.getMasterKeyFromKeyConnector.mockRejectedValue(error);
-      jest.spyOn(logService, "error");
-
-      try {
-        // Act
-        await keyConnectorService.setMasterKeyFromUrl(url, mockUserId);
-      } catch {
-        // Assert
-        expect(logService.error).toHaveBeenCalledWith(error);
-        expect(apiService.getMasterKeyFromKeyConnector).toHaveBeenCalledWith(url);
-      }
-    });
-  });
-
   describe("migrateUser", () => {
-    it("should migrate the user to the key connector", async () => {
-      // Arrange
-      const masterKey = getMockMasterKey();
-      masterPasswordService.masterKeySubject.next(masterKey);
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+    const mockUserDecryptionOptions = {
+      hasMasterPassword: true,
+      keyConnectorOption: undefined,
+    } as UserDecryptionOptions;
+
+    let migrateToKeyConnector: jest.Mock;
+
+    beforeEach(() => {
+      migrateToKeyConnector = jest.fn().mockResolvedValue(undefined);
+
+      const mockSdkRef = {
+        value: {
+          user_crypto_management: jest.fn().mockReturnValue({
+            migrate_to_key_connector: migrateToKeyConnector,
+          }),
+        },
+        [Symbol.dispose]: jest.fn(),
+      } as any;
+
+      sdkService.userClient$.mockReturnValue(of({ take: () => mockSdkRef } as any));
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of(mockUserDecryptionOptions),
       );
+    });
 
-      jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
-
+    it("should migrate the user to the key connector", async () => {
       // Act
       await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
 
       // Assert
-      expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-        keyConnectorUrl,
-        keyConnectorRequest,
+      expect(sdkService.userClient$).toHaveBeenCalledWith(mockUserId);
+      expect(migrateToKeyConnector).toHaveBeenCalledWith(keyConnectorUrl);
+      expect(masterPasswordService.mock.clearMasterPasswordUnlockData).toHaveBeenCalledWith(
+        mockUserId,
       );
-      expect(apiService.postConvertToKeyConnector).toHaveBeenCalled();
+      expect(userDecryptionOptionsService.userDecryptionOptionsById$).toHaveBeenCalledWith(
+        mockUserId,
+      );
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          hasMasterPassword: false,
+          keyConnectorOption: {
+            keyConnectorUrl,
+          },
+        },
+      );
     });
 
     it("should handle errors thrown during migration", async () => {
       // Arrange
-      const masterKey = getMockMasterKey();
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
-      );
-      masterPasswordService.masterKeySubject.next(masterKey);
-      const error = new Error("Failed to post user key to key connector");
-      jest.spyOn(apiService, "postUserKeyToKeyConnector").mockRejectedValue(error);
-      jest.spyOn(logService, "error");
+      const error = new Error("Failed to migrate to key connector");
+      migrateToKeyConnector.mockRejectedValue(error);
 
-      try {
-        // Act
-        await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
-      } catch {
-        // Assert
-        expect(logService.error).toHaveBeenCalledWith(error);
-        expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-          keyConnectorUrl,
-          keyConnectorRequest,
-        );
-      }
+      // Act
+      await expect(keyConnectorService.migrateUser(keyConnectorUrl, mockUserId)).rejects.toThrow(
+        "Key Connector error",
+      );
+
+      // Assert
+      expect(logService.error).toHaveBeenCalledWith(error);
+      // Verify state clearing operations were not called due to error
+      expect(masterPasswordService.mock.clearMasterPasswordUnlockData).not.toHaveBeenCalled();
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).not.toHaveBeenCalled();
     });
   });
 
@@ -495,24 +491,8 @@ describe("KeyConnectorService", () => {
         const mockRegistration = mockSdkRef.value
           .auth()
           .registration().post_keys_for_key_connector_registration;
-        expect(mockRegistration).toHaveBeenCalledWith(
-          keyConnectorUrl,
-          mockSsoOrgIdentifier,
-          mockUserId,
-        );
+        expect(mockRegistration).toHaveBeenCalledWith(keyConnectorUrl, mockSsoOrgIdentifier);
 
-        expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
-          expect.any(SymmetricCryptoKey),
-          mockUserId,
-        );
-        expect(keyService.setUserKey).toHaveBeenCalledWith(
-          expect.any(SymmetricCryptoKey),
-          mockUserId,
-        );
-        expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-          expect.any(EncString),
-          mockUserId,
-        );
         expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
           {
             V2: {
@@ -523,6 +503,10 @@ describe("KeyConnectorService", () => {
             },
           },
           mockUserId,
+        );
+        expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+          mockUserId,
+          expect.any(SymmetricCryptoKey),
         );
         expect(await firstValueFrom(conversionState.state$)).toBeNull();
       });
@@ -543,9 +527,7 @@ describe("KeyConnectorService", () => {
         ).rejects.toThrow("SDK not available");
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
-        expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
-        expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
         ).not.toHaveBeenCalled();
@@ -577,9 +559,7 @@ describe("KeyConnectorService", () => {
         ).rejects.toThrow("Unexpected account cryptographic state version");
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
-        expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
-        expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
         ).not.toHaveBeenCalled();
@@ -603,9 +583,7 @@ describe("KeyConnectorService", () => {
         ).rejects.toThrow("Key Connector registration failed");
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
-        expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
-        expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
         ).not.toHaveBeenCalled();
@@ -628,10 +606,15 @@ describe("KeyConnectorService", () => {
         const encString = new EncString("mockEncryptedString");
         mockMakeUserKeyResult = [mockUserKey, encString] as [UserKey, EncString];
 
-        keyGenerationService.createKey.mockResolvedValue(passwordKey);
-        keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.makeUserKey.mockResolvedValue(mockMakeUserKeyResult);
-        keyService.makeKeyPair.mockResolvedValue(mockKeyPair);
+        Object.defineProperty(SdkLoadService, "Ready", {
+          value: Promise.resolve(),
+          configurable: true,
+        });
+        jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+        jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(passwordKey);
+        legacyCompatKeyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.makeUserKey.mockResolvedValue(mockMakeUserKeyResult);
+        legacyCompatKeyService.makeKeyPair.mockResolvedValue(mockKeyPair);
         tokenService.getEmail.mockResolvedValue(mockEmail);
         configService.getFeatureFlag$.mockReturnValue(of(false));
       });
@@ -660,23 +643,24 @@ describe("KeyConnectorService", () => {
 
           await keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId);
 
-          expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
-          expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+          expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
+          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             passwordKey.keyB64,
             mockEmail,
             expectedKdfConfig,
           );
-          expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
-            mockMasterKey,
+          expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
+          expect(
+            accountCryptographicStateService.setAccountCryptographicState,
+          ).toHaveBeenCalledWith(
+            { V1: { private_key: mockKeyPair[1].encryptedString } },
             mockUserId,
           );
-          expect(keyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
-          expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
-          expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-            mockMakeUserKeyResult[1],
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             mockUserId,
+            mockUserKey,
           );
-          expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
+          expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
           expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
             keyConnectorUrl,
             new KeyConnectorUserKeyRequest(
@@ -710,23 +694,19 @@ describe("KeyConnectorService", () => {
           keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId),
         ).rejects.toThrow(new Error("Key Connector error"));
 
-        expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
-        expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+        expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
           passwordKey.keyB64,
           mockEmail,
           new PBKDF2KdfConfig(600_000),
         );
-        expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
-          mockMasterKey,
-          mockUserId,
-        );
-        expect(keyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
-        expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
-        expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-          mockMakeUserKeyResult[1],
-          mockUserId,
-        );
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
+        expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
+        // The conversion failed, so the user is left locked with no local key pair.
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
         expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
           keyConnectorUrl,
           new KeyConnectorUserKeyRequest(
@@ -751,8 +731,8 @@ describe("KeyConnectorService", () => {
         ).rejects.toThrow(new Error("Key Connector conversion not found"));
 
         // Verify that no key generation or API calls were made
-        expect(keyGenerationService.createKey).not.toHaveBeenCalled();
-        expect(keyService.makeMasterKey).not.toHaveBeenCalled();
+        expect(PureCrypto.make_aes256_cbc_hmac_key).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
         expect(apiService.postUserKeyToKeyConnector).not.toHaveBeenCalled();
         expect(apiService.postSetKeyConnectorKey).not.toHaveBeenCalled();
       });

@@ -10,9 +10,12 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
-import { VaultItemDialogResult } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";

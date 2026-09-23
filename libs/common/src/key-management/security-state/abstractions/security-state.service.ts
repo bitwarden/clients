@@ -1,8 +1,9 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SignedSecurityState } from "@bitwarden/legacy-crypto";
 
-import { SignedSecurityState } from "../../types";
+import { UserId } from "../../../types/guid";
 
 export abstract class SecurityStateService {
   /**

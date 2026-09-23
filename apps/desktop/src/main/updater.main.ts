@@ -1,14 +1,15 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { dialog, shell, Notification } from "electron";
+import { dialog, IpcMainEvent, ipcMain, Notification } from "electron";
 import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
 
-import { isAppImage, isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "../utils";
+import { SafeShell } from "../platform/main/safe-shell.main";
+import { isDev } from "../utils";
 
+import { isMacAppStore, isWindowsPortable, isWindowsStore } from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 const UpdaterCheckInitialDelay = 5 * 1000; // 5 seconds
@@ -20,8 +21,8 @@ export class UpdaterMain {
   private doingUpdateCheck = false;
   private doingUpdateCheckWithFeedback = false;
   private canUpdate = false;
-  private updateDownloaded: UpdateDownloadedEvent = null;
-  private originalRolloutFunction: VerifyUpdateSupport = null;
+  private updateDownloaded: UpdateDownloadedEvent | null = null;
+  private originalRolloutFunction: VerifyUpdateSupport | null = null;
 
   // This needs to be tracked to avoid the Notification being garbage collected,
   // which would break the click handler.
@@ -37,12 +38,16 @@ export class UpdaterMain {
     private i18nService: I18nService,
     private logService: LogService,
     private windowMain: WindowMain,
+    private shell: SafeShell,
   ) {
     autoUpdater.logger = log;
 
     this.originalRolloutFunction = autoUpdater.isUserWithinRollout;
 
-    const linuxCanUpdate = process.platform === "linux" && isAppImage();
+    // AppImage auto update was recently disabled. There is some infra work
+    // we need to do to properly support this. Due to capacity, we decided to
+    // temporarily disable AppImage auto updates. See PM-41518.
+    const linuxCanUpdate = false;
     const windowsCanUpdate =
       process.platform === "win32" && !isWindowsStore() && !isWindowsPortable();
     const macCanUpdate = process.platform === "darwin" && !isMacAppStore();
@@ -136,7 +141,10 @@ export class UpdaterMain {
 
     if (!this.canUpdate) {
       if (withFeedback) {
-        void shell.openExternal("https://github.com/bitwarden/clients/releases");
+        void this.shell.openExternal(
+          "https://github.com/bitwarden/clients/releases",
+          UrlType.WebUrl,
+        );
       }
 
       return;
@@ -157,7 +165,9 @@ export class UpdaterMain {
   private reset() {
     autoUpdater.autoDownload = true;
     // Reset the rollout check to the default behavior
-    autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
+    if (this.originalRolloutFunction != null) {
+      autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
+    }
     this.doingUpdateCheck = false;
     this.updateDownloaded = null;
   }
@@ -218,10 +228,42 @@ export class UpdaterMain {
     });
 
     if (result.response === 0) {
+      if (!(await this.confirmUpdateRestart())) {
+        this.reset();
+        return;
+      }
+
       // Quit and install have a different window logic, setting `isQuitting` just to be safe.
       this.windowMain.isQuitting = true;
       autoUpdater.quitAndInstall(true, true);
+    } else {
+      this.reset();
     }
+  }
+
+  /**
+   * Asks the renderer to check for unsaved changes and prompt the user if needed.
+   * Returns true if safe to restart, false if the user chose to stay.
+   */
+  private confirmUpdateRestart(): Promise<boolean> {
+    if (this.windowMain.win == null) {
+      return Promise.resolve(true);
+    }
+
+    return new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => {
+        ipcMain.removeListener("confirmUpdateRestart", handler);
+        resolve(true);
+      }, 30_000);
+
+      const handler = (_: IpcMainEvent, canRestart: boolean) => {
+        clearTimeout(timer);
+        resolve(canRestart);
+      };
+
+      ipcMain.once("confirmUpdateRestart", handler);
+      this.windowMain.win.webContents.send("confirmUpdateRestart");
+    });
   }
 
   private userDisabledUpdates(): boolean {
@@ -229,7 +271,10 @@ export class UpdaterMain {
       if (arg != null && arg.toUpperCase().indexOf("--ELECTRON_NO_UPDATER=1") > -1) {
         return true;
       }
+      if (arg != null && arg.toUpperCase().indexOf("--BITWARDEN_NO_UPDATER=1") > -1) {
+        return true;
+      }
     }
-    return process.env.ELECTRON_NO_UPDATER === "1";
+    return process.env.ELECTRON_NO_UPDATER === "1" || process.env.BITWARDEN_NO_UPDATER === "1";
   }
 }

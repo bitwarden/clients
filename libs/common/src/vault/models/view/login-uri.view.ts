@@ -2,9 +2,10 @@ import { Jsonify } from "type-fest";
 
 import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
 
+import { punycodeToUnicode } from "../../../autofill/utils/punycode";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { View } from "../../../models/view/view";
-import { SafeUrls } from "../../../platform/misc/safe-urls";
+import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
 
@@ -95,7 +96,7 @@ export class LoginUriView implements View {
       return this._canLaunch;
     }
     if (this.uri != null && this.match !== UriMatchStrategy.RegularExpression) {
-      this._canLaunch = SafeUrls.canLaunch(this.launchUri);
+      this._canLaunch = SafeUrls.canLaunch(this.launchUri, UrlType.CipherUri);
     } else {
       this._canLaunch = false;
     }
@@ -193,8 +194,24 @@ export class LoginUriView implements View {
   }
 
   private matchesDomain(targetUri: string, matchDomains: Set<string>) {
-    if (targetUri == null || this.domain == null || !matchDomains.has(this.domain)) {
+    if (targetUri == null || this.domain == null) {
       return false;
+    }
+
+    // Fast path: an exact match covers the common all-ASCII case without any
+    // punycode work. Fall back to normalized comparison only on a miss.
+    if (!matchDomains.has(this.domain)) {
+      // A saved URI and the target URI may express the same registrable domain in
+      // different forms; unicode ("测试.com") vs punycode ("xn--0zwm56d.com").
+      // Collapse both sides to their unicode form before comparing.
+      const normalizedDomain = punycodeToUnicode(this.domain);
+      const domainMatches = Array.from(matchDomains).some(
+        (matchDomain) => matchDomain != null && punycodeToUnicode(matchDomain) === normalizedDomain,
+      );
+
+      if (!domainMatches) {
+        return false;
+      }
     }
 
     if (Utils.DomainMatchBlacklist.has(this.domain)) {

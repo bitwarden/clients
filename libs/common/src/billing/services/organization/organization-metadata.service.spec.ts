@@ -1,12 +1,12 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { newGuid } from "@bitwarden/guid";
 
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { OrganizationId } from "../../../types/guid";
+import { BillingApiServiceAbstraction } from "../../abstractions";
+import { OrganizationBillingMetadataResponse } from "../../models/response/organization-billing-metadata.response";
 
 import { DefaultOrganizationMetadataService } from "./organization-metadata.service";
 

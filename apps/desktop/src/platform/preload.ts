@@ -1,27 +1,35 @@
-import { ipcRenderer } from "electron";
+import { ipcRenderer, IpcRendererEvent } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
+import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
+import { Message as PlatformMessage } from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsPortable,
+  isWindowsStore,
+  EnvAccessTokenLocation,
+  accessTokenLocation,
+} from "../main/platform-utils.main";
 import {
   EncryptedMessageResponse,
   LegacyMessageWrapper,
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import {
-  allowBrowserintegrationOverride,
-  isAppImage,
-  isDev,
-  isFlatpak,
-  isMacAppStore,
-  isSnapStore,
-  isWindowsPortable,
-  isWindowsStore,
-} from "../utils";
+import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
+
+type MessagingServiceMessage = PlatformMessage<Record<string, unknown>>;
+type MessagingServiceCallback = (message: MessagingServiceMessage) => void;
 
 const storage = {
   get: <T>(key: string): Promise<T> => ipcRenderer.invoke("storageService", { action: "get", key }),
@@ -47,26 +55,6 @@ const passwords = {
 const clipboard = {
   read: (): Promise<string> => ipcRenderer.invoke("clipboard.read"),
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
-};
-
-const sshAgent = {
-  init: async () => {
-    await ipcRenderer.invoke("sshagent.init");
-  },
-  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
-    ipcRenderer.invoke("sshagent.setkeys", keys),
-  signRequestResponse: async (requestId: number, accepted: boolean) => {
-    await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
-  },
-  lock: async () => {
-    return await ipcRenderer.invoke("sshagent.lock");
-  },
-  clearKeys: async () => {
-    return await ipcRenderer.invoke("sshagent.clearkeys");
-  },
-  isLoaded(): Promise<boolean> {
-    return ipcRenderer.invoke("sshagent.isloaded");
-  },
 };
 
 const powermonitor = {
@@ -96,6 +84,18 @@ const nativeMessaging = {
       ipcRenderer.invoke("nativeMessaging.manifests", { create }),
     generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
       ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
+  },
+};
+
+const ipcService = {
+  onMessage: (callback: (message: ForwardedIpcMessage) => void) => {
+    ipcRenderer.on("ipc.onMessage", (_event, message: ForwardedIpcMessage) => {
+      callback(message);
+    });
+  },
+
+  send: (message: IpcMessage) => {
+    ipcRenderer.send("ipc.send", message);
   },
 };
 
@@ -135,26 +135,29 @@ export default {
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   isWindowsPortable: isWindowsPortable(),
+  forceDiskAccessTokenStorage: accessTokenLocation() === EnvAccessTokenLocation.Disk,
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  registerUpdateRestartHandler: (provide: (resolve: (canRestart: boolean) => void) => void) => {
+    const resolve = (canRestart: boolean) => ipcRenderer.send("confirmUpdateRestart", canRestart);
+
+    ipcRenderer.on("confirmUpdateRestart", () => {
+      provide(resolve);
+    });
+  },
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
-  openContextMenu: (
-    menu: {
-      label?: string;
-      type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-    }[],
-  ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
-
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
-  onSystemThemeUpdated: (callback: (theme: ThemeType) => void) => {
-    ipcRenderer.on("systemThemeUpdated", (_event, theme: ThemeType) => callback(theme));
+  onSystemThemeUpdated: (callback: (theme: ThemeType) => void): (() => void) => {
+    const wrapper = (_event: IpcRendererEvent, theme: ThemeType) => callback(theme);
+    ipcRenderer.on("systemThemeUpdated", wrapper);
+    return () => ipcRenderer.removeListener("systemThemeUpdated", wrapper);
   },
 
   isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
@@ -162,22 +165,16 @@ export default {
   getLanguageFile: (formattedLocale: string): Promise<object> =>
     ipcRenderer.invoke("getLanguageFile", formattedLocale),
 
-  sendMessage: (message: { command: string } & any) =>
-    ipcRenderer.send("messagingService", message),
+  sendMessage: (message: MessagingServiceMessage) => ipcRenderer.send("messagingService", message),
   onMessage: {
-    addListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.addListener("messagingService", (_event, message: any) => {
+    addListener: (callback: MessagingServiceCallback): (() => void) => {
+      const wrapper = (_event: IpcRendererEvent, message: MessagingServiceMessage) => {
         if (message.command) {
           callback(message);
         }
-      });
-    },
-    removeListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
-        if (message.command) {
-          callback(message);
-        }
-      });
+      };
+      ipcRenderer.addListener("messagingService", wrapper);
+      return () => ipcRenderer.removeListener("messagingService", wrapper);
     },
   },
 
@@ -186,12 +183,12 @@ export default {
   storage,
   passwords,
   clipboard,
-  sshAgent,
   powermonitor,
   nativeMessaging,
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  ipcService,
 };
 
 function deviceType(): DeviceType {

@@ -2,37 +2,54 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent, getAllByRole, getByRole, fireEvent, getAllByLabelText } from "storybook/test";
+import {
+  userEvent,
+  getByRole,
+  queryByRole,
+  fireEvent,
+  getAllByLabelText,
+  findByTestId,
+} from "storybook/test";
 
-import { PasswordManagerLogo } from "@bitwarden/assets/svg";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
-import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
+import { KitchenSinkAppComponent } from "./components/kitchen-sink-app.component";
+import { KitchenSinkEmptyComponent } from "./components/kitchen-sink-empty.component";
 import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
-import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
+import {
+  KitchenSinkDialogWithAutofocusComponent,
+  KitchenSinkMainComponent,
+} from "./components/kitchen-sink-main.component";
 import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
+import { KitchenSinkVaultComponent } from "./components/kitchen-sink-vault.component";
 import { KitchenSinkSharedModule } from "./kitchen-sink-shared.module";
 
 export default {
   title: "Documentation / Kitchen Sink",
-  component: LayoutComponent,
+  component: KitchenSinkAppComponent,
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
+        KitchenSinkAppComponent,
+        KitchenSinkDialogWithAutofocusComponent,
+        KitchenSinkEmptyComponent,
         KitchenSinkFormComponent,
         KitchenSinkMainComponent,
         KitchenSinkTableComponent,
         KitchenSinkToggleListComponent,
+        KitchenSinkVaultComponent,
       ],
     }),
     applicationConfig({
@@ -41,9 +58,16 @@ export default {
         importProvidersFrom(
           RouterModule.forRoot(
             [
-              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
-              { path: "bitwarden", component: KitchenSinkMainComponent },
-              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+              {
+                path: "",
+                component: KitchenSinkMainComponent,
+                children: [
+                  { path: "", redirectTo: "bitwarden", pathMatch: "full" },
+                  { path: "bitwarden", component: KitchenSinkVaultComponent },
+                  { path: "empty", component: KitchenSinkEmptyComponent },
+                  { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+                ],
+              },
             ],
             { useHash: true },
           ),
@@ -54,6 +78,7 @@ export default {
             return new I18nMockService({
               close: "Close",
               search: "Search",
+              selectPlaceholder: "-- Select --",
               skipToContent: "Skip to content",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
@@ -62,6 +87,13 @@ export default {
               no: "No",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              moreBreadcrumbs: "More breadcrumbs",
+              breadcrumbs: "Breadcrumbs",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
+              more: "More",
+              showMore: "Show more",
+              showMoreCount: "Show 5 more",
             });
           },
         },
@@ -81,7 +113,7 @@ export default {
   ],
 } as Meta;
 
-type Story = StoryObj<LayoutComponent>;
+type Story = StoryObj<KitchenSinkAppComponent>;
 
 type KitchenSinkRoute = "/bitwarden" | "/virtual-scroll";
 
@@ -100,34 +132,6 @@ async function openSideNav(canvas: HTMLElement) {
 }
 
 export const Default: Story = {
-  render: (args) => {
-    return {
-      props: {
-        ...args,
-        logo: PasswordManagerLogo,
-      },
-      template: /* HTML */ `<bit-layout>
-        <bit-side-nav>
-          <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
-          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
-            <bit-nav-item text="Child B" route="b"></bit-nav-item>
-            <bit-nav-item
-              text="Virtual Scroll"
-              route="virtual-scroll"
-              icon="bwi-filter"
-            ></bit-nav-item>
-          </bit-nav-group>
-          <bit-nav-group text="Favorites" icon="bwi-filter">
-            <bit-nav-item text="Favorites Child A" icon="bwi-filter"></bit-nav-item>
-            <bit-nav-item text="Favorites Child B"></bit-nav-item>
-            <bit-nav-item text="Favorites Child C" icon="bwi-filter"></bit-nav-item>
-          </bit-nav-group>
-        </bit-side-nav>
-        <router-outlet></router-outlet>
-      </bit-layout>`,
-    };
-  },
   parameters: {
     chromatic: {
       viewports: [640, 1280],
@@ -135,14 +139,46 @@ export const Default: Story = {
   },
 };
 
+export const DefaultVfo1: Story = {
+  ...Default,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const DefaultNoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
+export const DefaultVfo1NoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
 export const MenuOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
     const table = getByRole(canvas, "table");
-
-    const menuButton = getAllByRole(table, "button")[0];
+    const menuButton = getAllByLabelText(table, "Options")[0];
     await userEvent.click(menuButton);
   },
   parameters: {
@@ -151,7 +187,6 @@ export const MenuOpen: Story = {
 };
 
 export const DialogOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
@@ -165,7 +200,6 @@ export const DialogOpen: Story = {
 };
 
 export const DrawerOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
@@ -179,7 +213,6 @@ export const DrawerOpen: Story = {
 };
 
 export const PopoverOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
@@ -192,7 +225,6 @@ export const PopoverOpen: Story = {
 };
 
 export const SimpleDialogOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
@@ -206,17 +238,25 @@ export const SimpleDialogOpen: Story = {
 };
 
 export const EmptyTab: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
-    const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
-    await userEvent.click(emptyTab);
+    await new Promise((resolve) => setTimeout(resolve, 200)); // wait for ResizeObserver to settle
+
+    const emptyTab = queryByRole(canvas, "link", { name: "Empty" });
+    if (emptyTab) {
+      await userEvent.click(emptyTab);
+    } else {
+      // Empty tab is in the overflow "More" menu at this viewport width
+      const moreButton = getByRole(canvas, "button", { name: "More" });
+      await userEvent.click(moreButton);
+      const emptyMenuItem = getByRole(canvas.ownerDocument.body, "menuitem", { name: "Empty" });
+      await userEvent.click(emptyMenuItem);
+    }
   },
 };
 
 export const VirtualScrollBlockingDialog: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/virtual-scroll");
@@ -258,10 +298,26 @@ export const DrawerOpenBeforeSideNavOpen: Story = {
 };
 
 export const ResponsiveSidebar: Story = {
-  render: Default.render,
   parameters: {
     chromatic: {
       viewports: [640, 1024, 1280, 1440],
     },
+  },
+};
+
+export const GuidedTour: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+
+    const tourButton = getByRole(canvas, "button", {
+      name: "Start Tour",
+    });
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(tourButton);
+  },
+  parameters: {
+    chromatic: { disableSnapshot: true },
   },
 };

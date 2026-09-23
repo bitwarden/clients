@@ -1,4 +1,13 @@
+/**
+ * The `icons.scss` file is used to generate `icons.css`. Do not modify the CSS file directly.
+ * Instead, make changes to the SCSS file and regenerate the CSS.
+ *
+ * npx sass ./libs/angular/src/scss/icons.scss ./libs/angular/src/scss/icons.css --no-source-map 2>&1
+ */
+
+$dark-icon-themes: "theme_dark" !default;
 $card-icons-base: "~@bitwarden/angular/src/billing/images/cards/" !default;
+
 $card-icons: (
   "visa": $card-icons-base + "visa-light.png",
   "amex": $card-icons-base + "amex-light.png",
