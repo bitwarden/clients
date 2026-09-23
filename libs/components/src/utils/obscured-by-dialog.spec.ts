@@ -2,6 +2,7 @@ import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
+import { dialogOver, dialogWith } from "./dialog-mock";
 import { injectObscuredByDialog } from "./obscured-by-dialog";
 
 @Component({
@@ -12,11 +13,6 @@ class HostComponent {
   readonly obscured = injectObscuredByDialog();
 }
 
-// Only `overlayRef.overlayElement` is read, and `mock<DialogRef>()` cannot supply it: its
-// DeepPartial argument recurses into the DOM types and fails to typecheck.
-const dialogOver = (overlayElement: HTMLElement) =>
-  ({ overlayRef: { overlayElement } }) as unknown as DialogRef;
-
 describe("injectObscuredByDialog", () => {
   let openDialogs: DialogRef[];
   let fixture: ComponentFixture<HostComponent>;
@@ -26,7 +22,7 @@ describe("injectObscuredByDialog", () => {
 
     TestBed.configureTestingModule({
       imports: [HostComponent],
-      providers: [{ provide: Dialog, useValue: { openDialogs } as unknown as Dialog }],
+      providers: [{ provide: Dialog, useValue: dialogWith(openDialogs) }],
     });
 
     fixture = TestBed.createComponent(HostComponent);

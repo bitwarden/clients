@@ -6,6 +6,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { MenuModule, MenuTriggerForDirective } from "../menu";
+import { dialogOver, dialogWith } from "../utils/dialog-mock";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SearchComponent } from "./search.component";
@@ -19,11 +20,6 @@ class HostComponent {
   readonly useKeyShortcuts = signal(true);
   readonly disabled = signal(false);
 }
-
-// Only `overlayRef.overlayElement` is read, and `mock<DialogRef>()` cannot supply it: its
-// DeepPartial argument recurses into the DOM types and fails to typecheck.
-const dialogOver = (overlayElement: HTMLElement) =>
-  ({ overlayRef: { overlayElement } }) as unknown as DialogRef;
 
 const i18nMock = () =>
   new I18nMockService({
@@ -67,7 +63,7 @@ describe("SearchComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith(openDialogs) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -311,7 +307,7 @@ describe("SearchComponent inside a dialog-role menu", () => {
     await TestBed.configureTestingModule({
       imports: [MenuHostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs: [] } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith([]) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -383,7 +379,7 @@ describe("SearchComponent arbitration", () => {
     await TestBed.configureTestingModule({
       imports: [TwoSearchHostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs: [] } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith([]) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();

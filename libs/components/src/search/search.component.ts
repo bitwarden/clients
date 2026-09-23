@@ -92,13 +92,13 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
     injectKeyboardShortcut({
       key: "f",
       code: "KeyF",
-      enabled: () => !!this.useKeyShortcuts() && !this.disabled(),
-      // Select as well as focus, matching desktop's native accelerator, so a second press
-      // replaces the term rather than appending to it.
+      enabled: () => this.useKeyShortcuts() && !this.disabled(),
+      // Focus and select, matching desktop's native accelerator, so a second press replaces the
+      // term. `select()` is not specified to focus, so both calls are needed.
       handler: () => {
-        const input = this.input()?.nativeElement;
-        input?.focus();
-        input?.select();
+        const el = this.input()?.nativeElement;
+        el?.focus();
+        el?.select();
       },
     });
   }

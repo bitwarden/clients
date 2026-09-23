@@ -2,12 +2,8 @@ import { Dialog, DialogRef } from "@angular/cdk/dialog";
 import { NgZone } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
+import { dialogOver, dialogWith } from "./dialog-mock";
 import { KeyboardShortcut, KeyboardShortcutService } from "./keyboard-shortcut";
-
-// Only `overlayRef.overlayElement` is read, and `mock<DialogRef>()` cannot supply it: its
-// DeepPartial argument recurses into the DOM types and fails to typecheck.
-const dialogOver = (overlayElement: HTMLElement) =>
-  ({ overlayRef: { overlayElement } }) as unknown as DialogRef;
 
 describe("KeyboardShortcutService", () => {
   let service: KeyboardShortcutService;
@@ -52,7 +48,7 @@ describe("KeyboardShortcutService", () => {
     hosts = [];
 
     TestBed.configureTestingModule({
-      providers: [{ provide: Dialog, useValue: { openDialogs } as unknown as Dialog }],
+      providers: [{ provide: Dialog, useValue: dialogWith(openDialogs) }],
     });
     service = TestBed.inject(KeyboardShortcutService);
   });
@@ -290,38 +286,6 @@ describe("KeyboardShortcutService", () => {
     });
   });
 
-  describe("the document listener", () => {
-    const keydownCalls = (spy: jest.SpyInstance) =>
-      spy.mock.calls.filter(([type]) => type === "keydown").length;
-
-    it("installs exactly one listener regardless of how many owners register", () => {
-      TestBed.resetTestingModule();
-      const added = jest.spyOn(document, "addEventListener");
-      TestBed.configureTestingModule({
-        providers: [{ provide: Dialog, useValue: { openDialogs: [] } as unknown as Dialog }],
-      });
-
-      const fresh = TestBed.inject(KeyboardShortcutService);
-      expect(keydownCalls(added)).toBe(1);
-
-      const shortcut = { key: "f", code: "KeyF", enabled: () => true, handler: () => {} };
-      fresh.register(shortcut, attach(makeHost()));
-      fresh.register(shortcut, attach(makeHost()));
-
-      expect(keydownCalls(added)).toBe(1);
-      added.mockRestore();
-    });
-
-    it("removes its listener when the injector is destroyed", () => {
-      const removed = jest.spyOn(document, "removeEventListener");
-
-      TestBed.resetTestingModule();
-
-      expect(removed).toHaveBeenCalledWith("keydown", expect.any(Function), true);
-      removed.mockRestore();
-    });
-  });
-
   // The handler moves focus and writes signals, so it has to land inside the zone even though the
   // listener itself is installed outside it.
   it("runs the winning handler inside the Angular zone", () => {
@@ -331,5 +295,56 @@ describe("KeyboardShortcutService", () => {
     press();
 
     expect(inZone).toBe(true);
+  });
+});
+
+// Separate from the suite above: these assert on construction and teardown, so they cannot share a
+// `beforeEach` that has already instantiated the service.
+describe("KeyboardShortcutService listener lifecycle", () => {
+  const hosts: HTMLElement[] = [];
+  let added: jest.SpyInstance;
+  let removed: jest.SpyInstance;
+
+  const keydownCalls = (spy: jest.SpyInstance) =>
+    spy.mock.calls.filter(([type]) => type === "keydown").length;
+
+  const host = () => {
+    const el = document.body.appendChild(document.createElement("div"));
+    hosts.push(el);
+    return el;
+  };
+
+  beforeEach(() => {
+    added = jest.spyOn(document, "addEventListener");
+    removed = jest.spyOn(document, "removeEventListener");
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: Dialog, useValue: dialogWith([]) }],
+    });
+  });
+
+  afterEach(() => {
+    added.mockRestore();
+    removed.mockRestore();
+    hosts.splice(0).forEach((el) => el.remove());
+  });
+
+  it("installs exactly one listener regardless of how many owners register", () => {
+    const service = TestBed.inject(KeyboardShortcutService);
+    expect(keydownCalls(added)).toBe(1);
+
+    const shortcut = { key: "f", code: "KeyF", enabled: () => true, handler: () => {} };
+    service.register(shortcut, host());
+    service.register(shortcut, host());
+
+    expect(keydownCalls(added)).toBe(1);
+  });
+
+  it("removes its listener when the injector is destroyed", () => {
+    TestBed.inject(KeyboardShortcutService);
+
+    TestBed.resetTestingModule();
+
+    expect(removed).toHaveBeenCalledWith("keydown", expect.any(Function), true);
   });
 });

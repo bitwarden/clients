@@ -5,16 +5,12 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { dialogOver, dialogWith } from "../utils/dialog-mock";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BulkActionComponent } from "./bulk-action.component";
 import { BulkActionsBarComponent } from "./bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "./bulk-additional-action.component";
-
-// Only `overlayRef.overlayElement` is read, and `mock<DialogRef>()` cannot supply it: its
-// DeepPartial argument recurses into the DOM types and fails to typecheck.
-const dialogOver = (overlayElement: HTMLElement) =>
-  ({ overlayRef: { overlayElement } }) as unknown as DialogRef;
 
 // JSDOM does not implement ResizeObserver. This stub records which element each
 // observer watches so a test can dispatch a resize for a specific element via
@@ -103,7 +99,7 @@ describe("BulkActionsBarComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith(openDialogs) },
         {
           provide: I18nService,
           useFactory: () =>
