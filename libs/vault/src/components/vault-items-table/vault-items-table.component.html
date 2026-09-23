@@ -12,7 +12,11 @@
   (selectedChange)="selectedChange.emit($event)"
 >
   <bit-table-toolbar>
-    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
+    <bit-search
+      class="tw-flex-1"
+      [placeholder]="'search' | i18n"
+      [useKeyShortcuts]="true"
+    ></bit-search>
 
     <!-- Page-level controls (Import, Add, ...) are the host's concern, not the table's. -->
     <ng-content select="[slot=toolbar]" slot="end"></ng-content>
