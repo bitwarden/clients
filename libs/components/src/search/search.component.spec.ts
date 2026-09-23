@@ -201,6 +201,45 @@ describe("SearchComponent", () => {
       expect(reachedDocument).toHaveBeenCalled();
     });
   });
+
+  describe("shortcut hints", () => {
+    // One entry per `bit-kbd`, each listing the keys it renders.
+    const hints = () =>
+      Array.from((fixture.nativeElement as HTMLElement).querySelectorAll("bit-kbd")).map((badge) =>
+        Array.from(badge.querySelectorAll("kbd")).map((key) => key.textContent?.trim()),
+      );
+
+    it("hints ⌘/Ctrl+F while the field is empty", () => {
+      expect(hints()).toEqual([["Ctrl", "F"]]);
+    });
+
+    it("hints Esc once the field has text", async () => {
+      await setText("secrets");
+
+      expect(hints()).toEqual([["Esc"]]);
+    });
+
+    it("renders no hint without the opt-in", () => {
+      host.useKeyShortcuts.set(false);
+      fixture.detectChanges();
+
+      expect(hints()).toEqual([]);
+    });
+
+    it("advertises the shortcut when opted in", () => {
+      expect(input().getAttribute("aria-keyshortcuts")).toBe("Control+f Meta+f");
+    });
+
+    it.each([
+      ["without the opt-in", () => host.useKeyShortcuts.set(false)],
+      ["while disabled", () => host.disabled.set(true)],
+    ])("omits aria-keyshortcuts %s", (_, arrange) => {
+      arrange();
+      fixture.detectChanges();
+
+      expect(input().getAttribute("aria-keyshortcuts")).toBeNull();
+    });
+  });
 });
 
 // `bit-menu` with a dialog role closes on Escape (menu-trigger-for.directive.ts), so a search
