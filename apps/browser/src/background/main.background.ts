@@ -1504,17 +1504,23 @@ export default class MainBackground {
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
-    // Behind PM8313_Fido2OperationsToSdk. With the flag off every operation delegates to the
-    // TypeScript authenticator below.
+    const legacyFido2AuthenticatorService = new Fido2AuthenticatorService(
+      this.cipherService,
+      this.fido2UserInterfaceService,
+      this.syncService,
+      this.accountService,
+      this.logService,
+    );
+    const sdkFido2CredentialStore = new SdkFido2CredentialStore(
+      this.cipherService,
+      this.accountService,
+      this.sdkService,
+    );
+    // Behind PM8313_Fido2OperationsToSdk. With the flag off every operation delegates to
+    // `legacyFido2AuthenticatorService`.
     this.fido2AuthenticatorService = new SdkFido2AuthenticatorService(
-      new Fido2AuthenticatorService(
-        this.cipherService,
-        this.fido2UserInterfaceService,
-        this.syncService,
-        this.accountService,
-        this.logService,
-      ),
-      new SdkFido2CredentialStore(this.cipherService, this.accountService, this.sdkService),
+      legacyFido2AuthenticatorService,
+      sdkFido2CredentialStore,
       this.cipherService,
       this.fido2UserInterfaceService,
       this.syncService,
