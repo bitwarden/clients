@@ -175,8 +175,7 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
   }
 
   private hasAnyCredentialId(cipher: CipherView, ids: Uint8Array<ArrayBuffer>[]): boolean {
-    // `parseCredentialId` returns `undefined` for an unparseable id despite its return type, and
-    // `compareCredentialIds` would dereference it. One bad stored id must not fail the whole lookup.
+    // One bad stored id must not fail the whole lookup.
     const credentialId = parseCredentialId(cipher.login.fido2Credentials[0].credentialId);
     if (credentialId === undefined) {
       return false;

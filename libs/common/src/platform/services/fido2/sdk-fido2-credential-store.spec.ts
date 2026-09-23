@@ -165,7 +165,7 @@ describe("SdkFido2CredentialStore", () => {
     it("matches a credential id supplied as number[]", async () => {
       vaultHolds([makePasskeyCipher({ id: ID.match, credentialId: CREDENTIAL_ID })]);
 
-      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID))];
+      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID)!)];
 
       expect(await findIds(ids)).toEqual([ID.match]);
     });
@@ -173,7 +173,7 @@ describe("SdkFido2CredentialStore", () => {
     it("excludes credentials whose id was not asked for", async () => {
       vaultHolds([makePasskeyCipher({ id: ID.other, credentialId: OTHER_CREDENTIAL_ID })]);
 
-      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID))];
+      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID)!)];
 
       expect(await findIds(ids)).toEqual([]);
     });
@@ -181,7 +181,7 @@ describe("SdkFido2CredentialStore", () => {
     it("does not require discoverable, unlike the by-relying-party path", async () => {
       vaultHolds([makePasskeyCipher({ id: ID.match, discoverable: false })]);
 
-      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID))];
+      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID)!)];
 
       expect(await findIds(ids)).toEqual([ID.match]);
     });
@@ -192,7 +192,7 @@ describe("SdkFido2CredentialStore", () => {
         makePasskeyCipher({ id: ID.match, credentialId: CREDENTIAL_ID }),
       ]);
 
-      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID))];
+      const ids = [Array.from(parseCredentialId(CREDENTIAL_ID)!)];
 
       expect(await findIds(ids)).toEqual([ID.match]);
     });

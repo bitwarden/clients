@@ -16,16 +16,19 @@ export async function getCredentialsForAutofill(
       (cipher) =>
         !cipher.isDeleted && cipher.type === CipherType.Login && cipher.login.hasFido2Credentials,
     )
-    .map((cipher) => {
+    .flatMap((cipher) => {
       const credential = cipher.login.fido2Credentials[0];
 
       // Credentials are stored as a GUID or b64 string with `b64.` prepended,
       // but we need to return them as a URL-safe base64 string
-      const credId = Utils.fromArrayToUrlB64(parseCredentialId(credential.credentialId));
+      const credId = parseCredentialId(credential.credentialId);
+      if (credId === undefined) {
+        return [];
+      }
 
       return {
         cipherId: cipher.id,
-        credentialId: credId,
+        credentialId: Utils.fromArrayToUrlB64(credId),
         rpId: credential.rpId,
         userHandle: credential.userHandle!,
         userName:

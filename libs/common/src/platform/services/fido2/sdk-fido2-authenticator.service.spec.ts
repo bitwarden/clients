@@ -125,7 +125,7 @@ function cipherWithCounter(counter: number): CipherView {
 /** What the SDK hands back: raw credential id bytes and a branded cipher id. */
 function discovered(cipherId: string, credentialId: string): Fido2CredentialAutofillView {
   return {
-    credentialId: Array.from(parseCredentialId(credentialId)),
+    credentialId: Array.from(parseCredentialId(credentialId)!),
     cipherId,
     rpId: RP_ID,
     userNameForUi: "user@example.com",
