@@ -36,6 +36,7 @@ import { Importer } from "../importers/importer";
 import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
 import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
+import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
@@ -157,6 +158,7 @@ describe("ImportService", () => {
     it("empty importTarget does nothing", async () => {
       await importService["setImportTarget"](importResult, null, null);
       expect(importResult.folders.length).toBe(0);
+      expect(importResult.targetFolderIncluded).toBe(false);
     });
 
     const mockImportTargetFolder = new FolderView();
@@ -167,6 +169,7 @@ describe("ImportService", () => {
       await importService["setImportTarget"](importResult, null, mockImportTargetFolder);
       expect(importResult.folders.length).toBe(1);
       expect(importResult.folders[0]).toBe(mockImportTargetFolder);
+      expect(importResult.targetFolderIncluded).toBe(true);
     });
 
     const mockFolder1 = new FolderView();
@@ -224,6 +227,7 @@ describe("ImportService", () => {
       );
       expect(importResult.collections.length).toBe(1);
       expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+      expect(importResult.targetCollectionIncluded).toBe(true);
     });
 
     it("passing importTarget sets it as new root for all existing collections", async () => {
@@ -315,6 +319,7 @@ describe("ImportService", () => {
       );
       expect(importResult.collections.length).toBe(1);
       expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+      expect(importResult.targetCollectionIncluded).toBe(true);
 
       expect(importResult.collectionRelationships.length).toEqual(3);
       expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
@@ -388,6 +393,8 @@ describe("ImportService", () => {
       expect(importResult.folders.length).toEqual(2);
       expect(importResult.folders[0].name).toEqual(mockCollection1.name);
       expect(importResult.folders[1].name).toEqual(mockCollection2.name);
+      expect(importResult.targetCollectionIncluded).toBe(true);
+      expect(importResult.targetFolderIncluded).toBe(false);
     });
   });
 
@@ -510,7 +517,11 @@ describe("ImportService", () => {
       expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
         organization_id: organizationId,
         target_folder: undefined,
-        target_collection: { id: target.id, name: "Shared" },
+        target_collection: {
+          id: target.id,
+          name: "Shared",
+          type: toSdkCollectionType(target.type),
+        },
         restricted_types: [],
       });
     });

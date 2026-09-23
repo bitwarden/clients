@@ -28,6 +28,7 @@ behavior across Bitwarden applications.
   - [With Account Credit](#with-account-credit)
   - [All Proration Invoice](#all-proration-invoice)
   - [Recurring Items With Proration](#recurring-items-with-proration)
+  - [With Applied Account Balance](#with-applied-account-balance)
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
   - [With Item-Level Discount](#with-item-level-discount)
@@ -105,8 +106,9 @@ export type Cart = {
   cadence: "annually" | "monthly"; // Billing period for entire cart
   hidePricingTerm?: boolean; // Optional set if term should be removed
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
-  credit?: Credit; // Optional account credit
+  credit?: Credit; // Optional pre-tax credit (e.g. prorated subscription credit)
   estimatedTax: number; // Tax amount
+  accountCredit?: Credit; // Optional account balance applied to the taxed total; rendered between tax and total
   total?: number; // Optional authoritative total; when absent the component computes it
 };
 
@@ -432,6 +434,42 @@ Show a renewal with a mid-cycle change: recurring seat and storage lines alongsi
 proration charge rows, with the billing term retained:
 
 <Canvas of={CartSummaryStories.RecurringWithProration} />
+
+### With Applied Account Balance
+
+Show a cart where Stripe applied part of the customer's account balance to the invoice. The balance
+is rendered as its own row between Estimated tax and Total so the rows still sum to the
+authoritative total (the invoice's amount due):
+
+<Canvas of={CartSummaryStories.WithAppliedAccountBalance} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 1,
+        translationKey: 'familiesMembership',
+        cost: 40.00,
+        hideBreakdown: true
+      }
+    },
+    cadence: 'annually',
+    credit: {
+      translationKey: 'premiumSubscriptionCredit',
+      value: 6.67
+    },
+    estimatedTax: 2.00,
+    accountCredit: {
+      translationKey: 'accountCredit',
+      value: 10.00
+    },
+    total: 25.33
+  }"
+  [hidePricingTerm]="true"
+>
+</billing-cart-summary>
+```
 
 ### With Percent Discount
 
