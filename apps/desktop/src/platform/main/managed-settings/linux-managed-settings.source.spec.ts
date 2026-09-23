@@ -1,9 +1,9 @@
-import { constants, watch } from "node:fs";
+import { constants, existsSync, readFileSync, watch } from "node:fs";
 import { open } from "node:fs/promises";
 
 import { mock } from "jest-mock-extended";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { LogService } from "@bitwarden/logging";
 
 import { LinuxManagedSettingsSource } from "./linux-managed-settings.source";
 
@@ -13,11 +13,20 @@ jest.mock("node:fs/promises", () => ({
 
 jest.mock("node:fs", () => ({
   ...jest.requireActual("node:fs"),
+  existsSync: jest.fn(),
+  readFileSync: jest.fn(),
   watch: jest.fn(),
 }));
 
 const openMock = open as jest.Mock;
 const watchMock = watch as unknown as jest.Mock;
+const existsSyncMock = existsSync as unknown as jest.Mock;
+const readFileSyncMock = readFileSync as unknown as jest.Mock;
+
+const OVERFLOW_UID = 65534;
+
+/** Paths `existsSync` reports as present. */
+let existing: Set<string>;
 
 /** Stands in for the FSWatcher `fs.watch` returns, capturing its listeners for the test to fire. */
 function fakeWatcher() {
@@ -60,12 +69,16 @@ describe("LinuxManagedSettingsSource", () => {
   let source: LinuxManagedSettingsSource;
 
   beforeEach(() => {
+    existing = new Set(["/etc/bitwarden", "/run/host/etc/bitwarden", "/etc", "/run/host/etc"]);
+    existsSyncMock.mockImplementation((p: string) => existing.has(p));
+    readFileSyncMock.mockReturnValue(`${OVERFLOW_UID}\n`);
     logService = mock<LogService>();
     source = new LinuxManagedSettingsSource(logService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("reads a regular, root-owned, non-group/other-writable file", async () => {
@@ -202,6 +215,37 @@ describe("LinuxManagedSettingsSource", () => {
     expect(logService.warning).toHaveBeenCalledWith(expect.stringContaining("EACCES"));
   });
 
+  describe("inside Flatpak", () => {
+    beforeEach(() => {
+      existing.add("/.flatpak-info");
+      source = new LinuxManagedSettingsSource(logService);
+    });
+
+    it("accepts a candidate owned by the overflow uid", async () => {
+      openMock.mockResolvedValueOnce(fakeHandle({ uid: OVERFLOW_UID }, "contents"));
+
+      expect(await source.read()).toBe("contents");
+    });
+
+    it("rejects a candidate owned by the process's own uid", async () => {
+      jest.spyOn(process, "getuid").mockReturnValue(OVERFLOW_UID);
+      source = new LinuxManagedSettingsSource(logService);
+      openMock.mockResolvedValueOnce(fakeHandle({ uid: OVERFLOW_UID }));
+      openMock.mockRejectedValueOnce(errnoError("ENOENT"));
+
+      expect(await source.read()).toBeUndefined();
+      expect(logService.warning).toHaveBeenCalledWith(expect.stringContaining("not owned by root"));
+    });
+  });
+
+  it("rejects a candidate owned by the overflow uid outside Flatpak", async () => {
+    openMock.mockResolvedValueOnce(fakeHandle({ uid: OVERFLOW_UID }));
+    openMock.mockRejectedValueOnce(errnoError("ENOENT"));
+
+    expect(await source.read()).toBeUndefined();
+    expect(logService.warning).toHaveBeenCalledWith(expect.stringContaining("not owned by root"));
+  });
+
   describe("watch", () => {
     it("watches each candidate's containing directory rather than the file", async () => {
       watchMock.mockReturnValue(fakeWatcher());
@@ -233,14 +277,102 @@ describe("LinuxManagedSettingsSource", () => {
       expect(onChanged).not.toHaveBeenCalled();
     });
 
-    it("carries on when a candidate's directory cannot be watched", async () => {
+    it("carries on when neither a candidate's directory nor its parent can be watched", async () => {
+      existing = new Set(["/etc/bitwarden"]);
+      watchMock.mockReturnValueOnce(fakeWatcher());
       watchMock.mockImplementationOnce(() => {
         throw errnoError("ENOENT");
       });
-      watchMock.mockReturnValueOnce(fakeWatcher());
 
       await expect(source.watch(() => undefined)).resolves.toBeUndefined();
       expect(watchMock).toHaveBeenCalledTimes(2);
+      expect(logService.info).toHaveBeenCalledWith(
+        expect.stringContaining("/run/host/etc"),
+        expect.anything(),
+      );
+    });
+
+    it("watches the parent while the bitwarden directory is missing", async () => {
+      existing.delete("/etc/bitwarden");
+      watchMock.mockReturnValue(fakeWatcher());
+
+      await source.watch(() => undefined);
+
+      expect(watchMock).toHaveBeenCalledWith("/etc", expect.any(Function));
+      expect(watchMock).not.toHaveBeenCalledWith("/etc/bitwarden", expect.any(Function));
+    });
+
+    it("moves the watch to the bitwarden directory once it is created, and signals a change", async () => {
+      existing.delete("/etc/bitwarden");
+      const parentWatcher = fakeWatcher();
+      watchMock.mockReturnValue(fakeWatcher());
+      watchMock.mockReturnValueOnce(parentWatcher);
+      const onChanged = jest.fn();
+
+      await source.watch(onChanged);
+      existing.add("/etc/bitwarden");
+      watchMock.mock.calls[0][1]("rename", "bitwarden");
+
+      expect(parentWatcher.close).toHaveBeenCalled();
+      expect(watchMock).toHaveBeenCalledWith("/etc/bitwarden", expect.any(Function));
+      expect(onChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores unrelated changes in the parent while the bitwarden directory is missing", async () => {
+      existing.delete("/etc/bitwarden");
+      watchMock.mockReturnValue(fakeWatcher());
+      const onChanged = jest.fn();
+
+      await source.watch(onChanged);
+      watchMock.mock.calls[0][1]("change", "hosts");
+
+      expect(onChanged).not.toHaveBeenCalled();
+    });
+
+    it("moves the watch back to the parent when the bitwarden directory is removed", async () => {
+      const dirWatcher = fakeWatcher();
+      watchMock.mockReturnValue(fakeWatcher());
+      watchMock.mockReturnValueOnce(dirWatcher);
+      const onChanged = jest.fn();
+
+      await source.watch(onChanged);
+      existing.delete("/etc/bitwarden");
+      watchMock.mock.calls[0][1]("rename", "bitwarden");
+
+      expect(dirWatcher.close).toHaveBeenCalled();
+      expect(watchMock).toHaveBeenCalledWith("/etc", expect.any(Function));
+      expect(onChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-resolves when the bitwarden directory is removed between the existence check and the watch", async () => {
+      watchMock.mockImplementationOnce(() => {
+        existing.delete("/etc/bitwarden");
+        throw errnoError("ENOENT");
+      });
+      watchMock.mockReturnValue(fakeWatcher());
+      const onChanged = jest.fn();
+
+      await source.watch(onChanged);
+
+      expect(watchMock).toHaveBeenNthCalledWith(2, "/etc", expect.any(Function));
+      expect(onChanged).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-resolves when the bitwarden directory is created between the existence check and the watch", async () => {
+      existing.delete("/etc/bitwarden");
+      const parentWatcher = fakeWatcher();
+      watchMock.mockReturnValue(fakeWatcher());
+      watchMock.mockImplementationOnce(() => {
+        existing.add("/etc/bitwarden");
+        return parentWatcher;
+      });
+      const onChanged = jest.fn();
+
+      await source.watch(onChanged);
+
+      expect(parentWatcher.close).toHaveBeenCalled();
+      expect(watchMock).toHaveBeenNthCalledWith(2, "/etc/bitwarden", expect.any(Function));
+      expect(onChanged).toHaveBeenCalledTimes(1);
     });
 
     it("logs and closes the watcher on an error event rather than letting it throw", async () => {

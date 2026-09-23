@@ -1,6 +1,6 @@
 import { systemPreferences } from "electron";
 
-import { MacosManagedSettingsSource } from "./macos-managed-settings.source";
+import { MacOsManagedSettingsSource } from "./macos-managed-settings.source";
 import { CONTAINER_VALUE } from "./managed-settings-source";
 
 jest.mock("electron", () => ({
@@ -10,11 +10,11 @@ jest.mock("electron", () => ({
   },
 }));
 
-describe("MacosManagedSettingsSource", () => {
-  let source: MacosManagedSettingsSource;
+describe("MacOsManagedSettingsSource", () => {
+  let source: MacOsManagedSettingsSource;
 
   beforeEach(() => {
-    source = new MacosManagedSettingsSource();
+    source = new MacOsManagedSettingsSource();
   });
 
   afterEach(() => {

@@ -6,6 +6,7 @@ import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc"
 import { Message as PlatformMessage } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
+import type { ManagementProfile } from "@bitwarden/sdk-internal";
 
 import {
   allowBrowserintegrationOverride,

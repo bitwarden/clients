@@ -1,11 +1,12 @@
 import { managed_settings } from "@bitwarden/desktop-napi";
 
-import { ManagedSettingsSource } from "./managed-settings-source";
+import { CONTAINER_VALUE, ManagedSettingsSource } from "./managed-settings-source";
 
 export class WindowsManagedSettingsSource extends ManagedSettingsSource {
+  readonly location = String.raw`HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Bitwarden\Desktop ${CONTAINER_VALUE}`;
+
   async read(): Promise<string | undefined> {
-    const value = await managed_settings.read();
-    return value ?? undefined;
+    return (await managed_settings.read()) ?? undefined;
   }
 
   async watch(onChanged: () => void): Promise<void> {

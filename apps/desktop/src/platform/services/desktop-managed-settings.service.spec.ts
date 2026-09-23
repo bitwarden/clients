@@ -1,9 +1,16 @@
-import { ManagementProfile } from "@bitwarden/common/platform/managed-settings";
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/logging";
+import { ManagementProfile } from "@bitwarden/sdk-internal";
 
 import { DesktopManagedSettingsService } from "./desktop-managed-settings.service";
 
 function profile(settings: [string, string][]): ManagementProfile {
   return { version: 1, updatedAt: 0, settings: new Map(settings) };
+}
+
+function createSut(): DesktopManagedSettingsService {
+  return new DesktopManagedSettingsService(new Promise(() => {}), mock<LogService>());
 }
 
 describe("DesktopManagedSettingsService", () => {
@@ -35,7 +42,7 @@ describe("DesktopManagedSettingsService", () => {
   it("reflects a profile already active in the main process when current resolves", async () => {
     currentMock.mockResolvedValue(profile([["a", "1"]]));
 
-    const service = new DesktopManagedSettingsService();
+    const service = createSut();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -46,7 +53,7 @@ describe("DesktopManagedSettingsService", () => {
   it("reflects a profile pushed via onUpdated after construction", async () => {
     currentMock.mockResolvedValue(undefined);
 
-    const service = new DesktopManagedSettingsService();
+    const service = createSut();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -58,7 +65,7 @@ describe("DesktopManagedSettingsService", () => {
   it("re-emits to a get$ subscriber when a profile is pushed via onUpdated", async () => {
     currentMock.mockResolvedValue(undefined);
 
-    const service = new DesktopManagedSettingsService();
+    const service = createSut();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -73,7 +80,7 @@ describe("DesktopManagedSettingsService", () => {
   it("clears a previously present key when undefined is pushed via onUpdated", async () => {
     currentMock.mockResolvedValue(undefined);
 
-    const service = new DesktopManagedSettingsService();
+    const service = createSut();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -96,7 +103,7 @@ describe("DesktopManagedSettingsService", () => {
       return Promise.resolve(undefined);
     });
 
-    new DesktopManagedSettingsService();
+    createSut();
 
     expect(order).toEqual(["onUpdated", "current"]);
   });
@@ -109,7 +116,7 @@ describe("DesktopManagedSettingsService", () => {
       }),
     );
 
-    const service = new DesktopManagedSettingsService();
+    const service = createSut();
 
     onUpdatedCallback!(profile([["a", "1"]]));
     expect(service.get("a")).toBe("1");

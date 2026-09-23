@@ -109,10 +109,6 @@ import { StateService as StateServiceAbstraction } from "@bitwarden/common/platf
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import {
-  ManagedSettingsService,
-  DevManagedSettingsService,
-} from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -153,6 +149,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { DevManagedSettingsService, ManagedSettingsService } from "@bitwarden/managed-settings";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   SHARE_ITEM_PRESENTER,
@@ -193,7 +190,7 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
-import { devFlagEnabled, flagEnabled } from "../../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../../platform/flags";
 import { DesktopManagedSettingsService } from "../../platform/services/desktop-managed-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
@@ -445,14 +442,18 @@ const safeProviders: SafeProvider[] = [
     provide: DesktopSettingsService,
     deps: [StateProvider],
   }),
-  // JslibServicesModule does not yet register ManagedSettingsService (that lands with PM-27720),
-  // so this is desktop's own registration rather than an override.
+  // Overrides the JslibServicesModule registration, whose non-dev branch has no host source.
   safeProvider({
     provide: ManagedSettingsService,
-    useClass: devFlagEnabled("managedSettingsDevSource")
-      ? DevManagedSettingsService
-      : DesktopManagedSettingsService,
-    deps: [],
+    useFactory: (logService: LogService) => {
+      if (!devFlagEnabled("managedSettingsDevSource")) {
+        return new DesktopManagedSettingsService(SdkLoadService.Ready, logService);
+      }
+      const service = new DevManagedSettingsService(SdkLoadService.Ready);
+      service.pushExplicit(devFlagValue("managedSettingsDevSource") as Record<string, unknown>);
+      return service;
+    },
+    deps: [LogService],
   }),
   safeProvider({
     provide: SharedUnlockSettingsService,

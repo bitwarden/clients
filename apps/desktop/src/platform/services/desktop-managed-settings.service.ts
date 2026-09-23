@@ -1,4 +1,5 @@
-import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
+import { LogService } from "@bitwarden/logging";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
 
 /**
  * Renderer-side {@link ManagedSettingsService} for the desktop client. Acquisition happens in the
@@ -6,14 +7,17 @@ import { DefaultManagedSettingsService } from "@bitwarden/common/platform/manage
  * this service applies the profile the main process replicates to it and never reads the host.
  */
 export class DesktopManagedSettingsService extends DefaultManagedSettingsService {
-  constructor() {
-    super();
+  constructor(sdkReady: Promise<void>, logService: LogService) {
+    super(sdkReady);
 
-    // Subscribe before pulling. A push that lands between the two would otherwise be lost.
-    ipc.platform.managedSettings.onUpdated((profile) => this.updateProfile(profile));
+    // Subscribe before pulling, so a push that lands between the two is not lost.
+    ipc.platform.managedSettings.onUpdated((profile) => {
+      logService.info("Managed settings: applied a profile pushed from the main process.");
+      this.updateProfile(profile);
+    });
     void ipc.platform.managedSettings.current().then((profile) => {
-      // undefined here means the main process has not resolved a profile yet, not that it
-      // resolved to none. Applying it would clear a profile a push had already delivered.
+      // `undefined` here may mean main has not finished its first read. Applying it would clear a
+      // profile a push already delivered.
       if (profile != null) {
         this.updateProfile(profile);
       }

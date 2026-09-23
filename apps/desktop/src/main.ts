@@ -18,11 +18,6 @@ import {
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import {
-  DefaultManagedSettingsService,
-  DevManagedSettingsService,
-  ManagedSettingsService,
-} from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -34,6 +29,11 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -63,7 +63,7 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { devFlagEnabled, flagEnabled } from "./platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
@@ -236,12 +236,13 @@ export class Main {
       () => this.trayMain.restoreFromTray(),
     );
 
-    this.managedSettingsService = devFlagEnabled("managedSettingsDevSource")
-      ? new DevManagedSettingsService()
-      : new DefaultManagedSettingsService();
-
-    // Only the production service has a host to read from. The dev service is fed by pushExplicit.
-    if (!devFlagEnabled("managedSettingsDevSource")) {
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev service is fed only by pushExplicit, so host acquisition does not start.
+      const dev = new DevManagedSettingsService(SdkLoadService.Ready);
+      dev.pushExplicit(devFlagValue("managedSettingsDevSource") as Record<string, unknown>);
+      this.managedSettingsService = dev;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
       this.managedSettingsMain = new ManagedSettingsMain(
         managedSettingsSourceFor(process.platform, this.logService),
         this.managedSettingsService,

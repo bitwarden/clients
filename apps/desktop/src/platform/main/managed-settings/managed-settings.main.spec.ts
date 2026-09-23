@@ -1,11 +1,8 @@
 import { ipcMain } from "electron";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  flattenSettings,
-  ManagedSettingsService,
-} from "@bitwarden/common/platform/managed-settings";
+import { LogService } from "@bitwarden/logging";
+import { createManagementProfile, ManagedSettingsService } from "@bitwarden/managed-settings";
 
 import { WindowMain } from "../../../main/window.main";
 
@@ -17,6 +14,8 @@ jest.mock("electron", () => ({
     handle: jest.fn(),
   },
 }));
+
+const LOCATION = "test location";
 
 describe("ManagedSettingsMain", () => {
   let source: MockProxy<ManagedSettingsSource>;
@@ -36,7 +35,7 @@ describe("ManagedSettingsMain", () => {
       },
     );
 
-    source = mock<ManagedSettingsSource>();
+    source = mock<ManagedSettingsSource>({ location: LOCATION });
     managedSettingsService = mock<ManagedSettingsService>();
     logService = mock<LogService>();
     sendMock = jest.fn();
@@ -47,24 +46,79 @@ describe("ManagedSettingsMain", () => {
     return new ManagedSettingsMain(source, managedSettingsService, windowMain, logService);
   }
 
-  it("applies a container value read at startup as a ManagementProfile derived from flattenSettings", async () => {
+  it("applies a container value read at startup as a ManagementProfile whose settings match createManagementProfile", async () => {
     const raw = { general: { theme: "dark" } };
     source.read.mockResolvedValue(JSON.stringify(raw));
 
     await createSut().init();
 
     expect(managedSettingsService.updateProfile).toHaveBeenCalledWith(
-      expect.objectContaining({ settings: flattenSettings(raw) }),
+      expect.objectContaining({ settings: createManagementProfile(raw).settings }),
     );
   });
 
-  it("clears the profile and logs an error when the read rejects", async () => {
+  it("keeps the last known profile and logs the location when a read rejects", async () => {
+    source.read
+      .mockResolvedValueOnce(JSON.stringify({ a: 1 }))
+      .mockRejectedValueOnce(new Error("boom"));
+    let onChanged: () => void = () => {};
+    source.watch.mockImplementation(async (cb) => {
+      onChanged = cb;
+    });
+    const sut = createSut();
+    await sut.init();
+    const profile = sut.current();
+
+    onChanged();
+    await flush();
+
+    expect(managedSettingsService.updateProfile).toHaveBeenCalledTimes(1);
+    expect(sut.current()).toBe(profile);
+    expect(logService.warning).toHaveBeenCalledWith(
+      expect.stringContaining(LOCATION),
+      expect.any(Error),
+    );
+  });
+
+  it("makes no updateProfile call when the startup read rejects", async () => {
     source.read.mockRejectedValue(new Error("boom"));
 
     await createSut().init();
 
+    expect(managedSettingsService.updateProfile).not.toHaveBeenCalled();
+  });
+
+  it("does not republish when a re-read returns the same container string", async () => {
+    source.read.mockResolvedValue(JSON.stringify({ a: 1 }));
+    let onChanged: () => void = () => {};
+    source.watch.mockImplementation(async (cb) => {
+      onChanged = cb;
+    });
+
+    await createSut().init();
+    onChanged();
+    await flush();
+
+    expect(managedSettingsService.updateProfile).toHaveBeenCalledTimes(1);
+    expect(sendMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears the profile when the container value is an empty object", async () => {
+    source.read.mockResolvedValue("{}");
+
+    await createSut().init();
+
     expect(managedSettingsService.updateProfile).toHaveBeenCalledWith(undefined);
-    expect(logService.error).toHaveBeenCalled();
+  });
+
+  it("logs that the platform has no source and publishes nothing when the source is undefined", async () => {
+    const sut = new ManagedSettingsMain(undefined, managedSettingsService, windowMain, logService);
+
+    await sut.init();
+
+    expect(logService.info).toHaveBeenCalledWith(expect.stringContaining("no source"));
+    expect(managedSettingsService.updateProfile).not.toHaveBeenCalled();
+    expect(ipcHandlers.get("managedSettings.current")!()).toBeUndefined();
   });
 
   it("clears the profile when the host declares no managed configuration", async () => {
@@ -113,12 +167,11 @@ describe("ManagedSettingsMain", () => {
     expect(managedSettingsService.updateProfile).toHaveBeenCalledTimes(1);
 
     onChanged();
-    await Promise.resolve();
-    await Promise.resolve();
+    await flush();
 
     expect(managedSettingsService.updateProfile).toHaveBeenCalledTimes(2);
     expect(managedSettingsService.updateProfile).toHaveBeenLastCalledWith(
-      expect.objectContaining({ settings: flattenSettings({ a: 2 }) }),
+      expect.objectContaining({ settings: createManagementProfile({ a: 2 }).settings }),
     );
   });
 
@@ -157,13 +210,16 @@ describe("ManagedSettingsMain", () => {
 
     expect(logService.error).toHaveBeenCalled();
     expect(managedSettingsService.updateProfile).toHaveBeenCalledWith(
-      expect.objectContaining({ settings: flattenSettings({ a: 1 }) }),
+      expect.objectContaining({ settings: createManagementProfile({ a: 1 }).settings }),
     );
   });
 
-  it("never logs the container value itself", async () => {
+  it.each([
+    ["a valid container value", (secret: string) => JSON.stringify({ apiKey: secret })],
+    ["an invalid container value", (secret: string) => `{ apiKey: ${secret}`],
+  ])("never logs %s itself", async (_name, containerFor) => {
     const secret = "sk_live_super_secret_value_12345";
-    source.read.mockResolvedValue(JSON.stringify({ apiKey: secret }));
+    source.read.mockResolvedValue(containerFor(secret));
     source.watch.mockRejectedValue(new Error("watch failed: " + "unrelated reason"));
 
     await createSut().init();
@@ -180,3 +236,7 @@ describe("ManagedSettingsMain", () => {
     }
   });
 });
+
+async function flush(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}

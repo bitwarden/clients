@@ -2,11 +2,9 @@ import { ipcMain } from "electron";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  DefaultManagedSettingsService,
-  ManagementProfile,
-} from "@bitwarden/common/platform/managed-settings";
+import { LogService } from "@bitwarden/logging";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
+import { ManagementProfile } from "@bitwarden/sdk-internal";
 
 import { WindowMain } from "../../../main/window.main";
 import { DesktopManagedSettingsService } from "../../services/desktop-managed-settings.service";
@@ -17,6 +15,9 @@ import { ManagedSettingsMain } from "./managed-settings.main";
 jest.mock("electron", () => ({
   ipcMain: { handle: jest.fn() },
 }));
+
+// Reads resolve against the JavaScript copy of the profile, so the SDK never needs to load.
+const sdkNeverReady = new Promise<void>(() => {});
 
 const CONTAINER = JSON.stringify({
   environment: { base: "https://vault.example.com" },
@@ -30,7 +31,7 @@ const CONTAINER = JSON.stringify({
  * one container value resolves to the same dotted keys in both processes.
  */
 describe("managed settings replication from the main process to the renderer", () => {
-  let source: { read: jest.Mock; watch: jest.Mock };
+  let source: { location: string; read: jest.Mock; watch: jest.Mock };
   let onHostChanged: () => void;
   let mainService: DefaultManagedSettingsService;
   let rendererService: DesktopManagedSettingsService;
@@ -42,6 +43,7 @@ describe("managed settings replication from the main process to the renderer", (
     rendererListeners.length = 0;
 
     source = {
+      location: "test location",
       read: jest.fn().mockResolvedValue(CONTAINER),
       watch: jest.fn().mockImplementation((onChanged: () => void) => {
         onHostChanged = onChanged;
@@ -58,7 +60,7 @@ describe("managed settings replication from the main process to the renderer", (
       },
     } as unknown as WindowMain;
 
-    mainService = new DefaultManagedSettingsService();
+    mainService = new DefaultManagedSettingsService(sdkNeverReady);
     const main = new ManagedSettingsMain(
       source as unknown as ManagedSettingsSource,
       mainService,
@@ -77,7 +79,7 @@ describe("managed settings replication from the main process to the renderer", (
       },
     };
 
-    rendererService = new DesktopManagedSettingsService();
+    rendererService = new DesktopManagedSettingsService(sdkNeverReady, mock<LogService>());
     // Let the renderer's `current` pull settle before any assertion.
     await Promise.resolve();
   });

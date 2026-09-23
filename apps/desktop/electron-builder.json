@@ -302,7 +302,13 @@
         }
       },
       "u2f-devices",
-      "hardware-observe"
+      "hardware-observe",
+      {
+        "managed-settings": {
+          "interface": "system-files",
+          "read": ["/etc/bitwarden"]
+        }
+      }
     ],
     "stagePackages": ["default"],
     "allowNativeWayland": true
