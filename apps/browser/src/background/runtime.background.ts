@@ -578,9 +578,6 @@ export default class RuntimeBackground {
               AutofillOverlayVisibility.OnFieldFocus,
             );
 
-            if (await this.environmentService.hasManagedEnvironment()) {
-              await this.environmentService.setUrlsToManagedEnvironment();
-            }
             await this.browserInitialInstallService.setExtensionInstalled(true);
           }
         }

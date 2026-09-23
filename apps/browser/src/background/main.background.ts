@@ -397,6 +397,7 @@ import { BrowserEnvironmentService } from "../platform/services/browser-environm
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import { BrowserManagedConfigReader } from "../platform/services/browser-managed-config-reader";
+import { BrowserManagedEnvironmentApplier } from "../platform/services/browser-managed-environment-applier";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
@@ -561,6 +562,7 @@ export default class MainBackground {
   sdkLoadService: SdkLoadService;
   managedSettingsService: ManagedSettingsService;
   private managedConfigReader?: BrowserManagedConfigReader;
+  private managedEnvironmentApplier: BrowserManagedEnvironmentApplier;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -771,11 +773,16 @@ export default class MainBackground {
     }
 
     this.environmentService = new BrowserEnvironmentService(
-      this.logService,
       this.stateProvider,
       this.accountService,
       this.managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
+    );
+
+    this.managedEnvironmentApplier = new BrowserManagedEnvironmentApplier(
+      this.environmentService,
+      this.stateProvider,
+      this.logService,
     );
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
 
@@ -1851,6 +1858,10 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
+
+    // Started after the reader, so the first emission carries the acquired profile rather than an
+    // empty one, and after the migrations, which own the shape of the environment state it writes.
+    this.managedEnvironmentApplier.init();
 
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
