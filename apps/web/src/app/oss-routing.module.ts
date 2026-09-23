@@ -1,4 +1,4 @@
-import { NgModule, inject } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
@@ -20,9 +20,9 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
-  TwoFactorTimeoutIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  ExpiredIcon,
+  EmailCodeSentIcon,
+  SecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
@@ -162,7 +162,7 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
           titleId: "logInWithPasskey",
           pageTitle: {
             key: "logInWithPasskey",
@@ -223,10 +223,8 @@ const routes: Routes = [
         // Open organization invite link landing. The component handles both
         // authenticated and unauthenticated users so no unauthGuardFn here.
         // `deepLinkGuard` persists the URL so SSO + JIT flows can replay it after auth.
-        // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop
-        // `canAccessFeature(FeatureFlag.GenerateInviteLink)` from `canActivate`.
         path: "join/:organizationId/:inviteLinkCode",
-        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), deepLinkGuard()],
+        canActivate: [deepLinkGuard()],
         component: AcceptOrgOpenInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
@@ -235,12 +233,9 @@ const routes: Routes = [
         // when the server returns 404. Reached via `router.navigate` from
         // `LoginComponent` / `RegistrationStartComponent`; component reads
         // `orgName` + `returnTo` query params to configure the anon-layout title
-        // and the CTA. Feature-flag guarded so a stale link cannot land here after
-        // the feature is disabled.
-        // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop
-        // `canAccessFeature(FeatureFlag.GenerateInviteLink)` from `canActivate`.
+        // and the CTA.
         path: "organization-invite-link-invalid",
-        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         component: OpenOrgInviteLinkInvalidComponent,
       },
       {
@@ -376,7 +371,7 @@ const routes: Routes = [
         path: AuthWebRoute.SignUpLinkExpired,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "expiredLink",
           },
@@ -471,7 +466,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "authenticationTimeout",
           },
@@ -510,7 +505,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailCodeSentIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },
@@ -815,6 +810,23 @@ const routes: Routes = [
         canActivate: [authGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },
+          {
+            path: "import",
+            canMatch: [
+              () =>
+                inject(ConfigService)
+                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+                  .pipe(map((flagValue) => flagValue === true)),
+            ],
+            // Lazy load vendor icon set
+            loadComponent: () =>
+              import("./tools/import/import-source-select-web.component").then(
+                (mod) => mod.ImportSourceSelectWebComponent,
+              ),
+            data: {
+              titleId: "importNoun",
+            } satisfies RouteDataProperties,
+          },
           {
             path: "import",
             loadComponent: () =>

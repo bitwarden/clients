@@ -193,6 +193,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCollections(response.collections, response.profile.id);
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
+      await this.retryPendingSendDeletions(response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
@@ -242,11 +243,6 @@ export class DefaultSyncService extends CoreSyncService {
       }
 
       throw new Error("Stamp has changed");
-    }
-
-    // This is for key-connector users
-    if (response?.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
     }
 
     await this.keyService.setProviderKeys(response.providers, response.id);
@@ -458,5 +454,24 @@ export class DefaultSyncService extends CoreSyncService {
         accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
       }),
     );
+  }
+
+  /**
+   * Retries any file Send deletes that were durably queued after a failed create rollback.
+   *
+   * Best-effort cleanup: failures are logged and swallowed so they never block or fail the sync.
+   */
+  private async retryPendingSendDeletions(userId: UserId) {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
+      return;
+    }
+
+    try {
+      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+        sdk.sends().retry_pending_deletions(),
+      );
+    } catch (e) {
+      this.logService.error("Sync: Failed to retry pending Send deletions.", e);
+    }
   }
 }

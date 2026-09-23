@@ -52,6 +52,7 @@ import {
   StatusLockupComponent,
   SearchModule,
   SectionComponent,
+  ScrollCollapseSourceDirective,
   ScrollLayoutDirective,
   SvgComponent,
   IconTileComponent,
@@ -457,7 +458,7 @@ class MockVaultSubpageFloatingActionComponent {}
 
 // --- Table V2 list-presentation exploration -------------------------------------
 // Duplicated from libs/components Table V2 "Filterable" story so we can iterate on
-// the responsive table/list presentation inside the real extension popup chrome.
+// the responsive table/list presentation inside the real extension popup layout.
 
 type TableVaultRow = {
   id: number;
@@ -802,14 +803,15 @@ class MockVaultTablePageComponent {
 class MockSendPageV2Component {}
 
 /**
- * The two-bar header over enough content to overflow the popup, so the title bar's collapse-on-scroll
- * behavior is actually reachable.
+ * The two-bar header over enough content to overflow the popup, so the collapse-on-scroll behavior is
+ * actually reachable. The title bar and the `above-scroll-area` search collapse together, against the
+ * region marked `bitScrollCollapseSource`.
  */
 @Component({
   selector: "mock-scrolling-page-v2",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <popup-page>
+    <popup-page [collapseAboveScrollArea]="true">
       <popup-header slot="header" pageTitle="Vault">
         <ng-container slot="end">
           <mock-popout-button></mock-popout-button>
@@ -819,7 +821,9 @@ class MockSendPageV2Component {}
         <span slot="title-end" bitTypography="body2" class="tw-text-muted">20 items</span>
       </popup-header>
       <mock-search slot="above-scroll-area"></mock-search>
-      <vault-placeholder></vault-placeholder>
+      <div bitScrollCollapseSource class="tw-h-full tw-overflow-y-auto">
+        <vault-placeholder></vault-placeholder>
+      </div>
     </popup-page>
   `,
   imports: [
@@ -828,6 +832,7 @@ class MockSendPageV2Component {}
     MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     MockSearchComponent,
+    ScrollCollapseSourceDirective,
     IconTileComponent,
     TypographyModule,
     VaultComponent,
@@ -937,7 +942,12 @@ const popupLayoutI18nProvider = {
       filter: "Filter",
       filters: "Filters",
       done: "Done",
+      clear: "Clear",
       clearAll: "Clear all",
+      clearSearch: "Clear search",
+      noFiltersMatchTerm: (term) => `No filters match “${term}”`,
+      oneFilterResult: "1 result",
+      filterResults: (count) => `${count} results`,
       filtersSelected: (count) => `${count} selected`,
     }),
 };
@@ -1118,7 +1128,7 @@ export const PopupPage: Story = {
 };
 
 /**
- * Table V2 in `list` presentation inside the real popup chrome. Duplicated from the
+ * Table V2 in `list` presentation inside the real popup layout. Duplicated from the
  * libs/components "Filterable" story; toggle `presentation` to compare table vs list.
  * The table uses `fill`, so its toolbar/header stay pinned while the rows scroll.
  */

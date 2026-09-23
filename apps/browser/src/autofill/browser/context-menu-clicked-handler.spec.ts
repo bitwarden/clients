@@ -15,6 +15,7 @@ import {
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -91,6 +92,7 @@ describe("ContextMenuClickedHandler", () => {
   let userVerificationService: MockProxy<UserVerificationService>;
   let triageService: MockProxy<AutofillTriageService>;
   let webmapperDrafts: MockProxy<WebmapperDraftService>;
+  let intraprocessMessageSender: MockProxy<IntraprocessMessageSender>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -106,6 +108,7 @@ describe("ContextMenuClickedHandler", () => {
     userVerificationService = mock();
     triageService = mock();
     webmapperDrafts = mock();
+    intraprocessMessageSender = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
@@ -119,6 +122,7 @@ describe("ContextMenuClickedHandler", () => {
       accountService,
       triageService,
       webmapperDrafts,
+      intraprocessMessageSender,
     );
   });
 
