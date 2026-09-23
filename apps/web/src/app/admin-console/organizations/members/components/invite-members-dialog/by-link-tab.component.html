@@ -40,6 +40,7 @@
     data-testid="saveDomains"
     [bitPopoverAnchorFor]="tourStep1"
     [popoverOpen]="tourStep() === 1"
+    (popoverOpenChange)="$event || tourStep.set(0)"
     [spotlight]="false"
     [position]="'right-center'"
     [closeOnBackdropClick]="false"
@@ -77,6 +78,7 @@
     type="info"
     [bitPopoverAnchorFor]="tourStep2"
     [popoverOpen]="tourStep() === 2"
+    (popoverOpenChange)="$event || tourStep.set(0)"
     [spotlight]="false"
     [position]="'right-start'"
     [closeOnBackdropClick]="false"
@@ -84,6 +86,7 @@
     <strong
       [bitPopoverAnchorFor]="tourStep3"
       [popoverOpen]="tourStep() === 3"
+      (popoverOpenChange)="$event || tourStep.set(0)"
       [spotlight]="false"
       [closeOnBackdropClick]="false"
     >
@@ -96,6 +99,7 @@
     <bit-form-field
       [bitPopoverAnchorFor]="tourStep2"
       [popoverOpen]="tourStep() === 2"
+      (popoverOpenChange)="$event || tourStep.set(0)"
       [spotlight]="false"
       [position]="'right-start'"
       [closeOnBackdropClick]="false"
@@ -126,6 +130,7 @@
         [disabled]="domainsEmpty() || form.dirty"
         [bitPopoverAnchorFor]="tourStep3"
         [popoverOpen]="tourStep() === 3"
+        (popoverOpenChange)="$event || tourStep.set(0)"
         [spotlight]="false"
         [position]="'right-start'"
         [closeOnBackdropClick]="false"
