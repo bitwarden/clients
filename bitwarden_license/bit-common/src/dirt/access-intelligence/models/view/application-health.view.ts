@@ -150,13 +150,15 @@ export class ApplicationHealthView implements View {
     view.atRiskMemberCount = data.atRiskMemberCount;
 
     // create minimal cipher for icon display purposes
-    view.iconCipher = new CipherView();
-    view.iconCipher.id = data.iconCipherId ?? "";
-    view.iconCipher.login.uris = [];
+    if (data.iconUri) {
+      view.iconCipher = new CipherView();
+      view.iconCipher.id = "icon-display-cipher";
+      view.iconCipher.login.uris = [];
 
-    const uri = new LoginUriView();
-    uri.uri = data.iconUri ?? "";
-    view.iconCipher.login.uris.push(uri);
+      const uri = new LoginUriView();
+      uri.uri = data.iconUri;
+      view.iconCipher.login.uris.push(uri);
+    }
 
     return view;
   }
