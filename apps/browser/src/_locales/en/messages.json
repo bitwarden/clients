@@ -664,6 +664,18 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "keyEscape": {
+    "message": "Esc",
+    "description": "Keyboard key label shown in a shortcut hint. The abbreviation printed on the Escape key of a local keyboard, e.g. \u00c9chap on French keyboards. Keep it short \u2014 it renders inside a small key-shaped badge."
+  },
+  "keyControl": {
+    "message": "Ctrl",
+    "description": "Keyboard key label shown in a shortcut hint and read aloud by screen readers. The abbreviation printed on the Control key of a local keyboard, e.g. Strg on German keyboards. Keep it short \u2014 it renders inside a small key-shaped badge."
+  },
+  "keyCommand": {
+    "message": "Command",
+    "description": "Name of the macOS Command key, read aloud by screen readers. The key itself is shown as the locale-independent glyph \u2318, so this string is spoken rather than displayed."
+  },
   "clearSearchTooltip": {
     "message": "Clear by clicking here or pressing Esc.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."

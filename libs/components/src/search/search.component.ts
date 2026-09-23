@@ -26,7 +26,7 @@ import { IconComponent } from "../icon";
 import { BitIconButtonComponent } from "../icon-button";
 import { BitKbdComponent } from "../kbd";
 import { FocusableElement } from "../shared/focusable-element";
-import { injectObscuredByDialog } from "../utils/obscured-by-dialog";
+import { injectKeyboardShortcut } from "../utils/keyboard-shortcut";
 
 let nextId = 0;
 
@@ -37,9 +37,6 @@ let nextId = 0;
   selector: "bit-search",
   templateUrl: "./search.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    "(document:keydown)": "handleDocumentShortcut($event)",
-  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -66,7 +63,6 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private readonly notifyOnTouch = signal<(() => void) | undefined>(undefined);
 
   private readonly input = viewChild<ElementRef<HTMLInputElement>>("input");
-  private readonly obscuredByDialog = injectObscuredByDialog();
 
   protected readonly id = `search-id-${nextId++}`;
   protected readonly searchText = signal<string | undefined>(undefined);
@@ -82,10 +78,30 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly size = input<FieldContainerSize>("base");
 
   /**
-   * When true, enables ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field regardless.
-   * The shortcut is suppressed while a dialog is open, unless this search is inside that dialog.
+   * When true, enables the ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field
+   * regardless. The shortcut is suppressed while a dialog is open, unless this search is inside
+   * that dialog.
+   *
+   * Do not set this on desktop: it ships a native `CmdOrCtrl+F` menu accelerator
+   * (`apps/desktop/src/main/menu/menu.view.ts`) that already focuses the vault search, and opting in
+   * would install a second handler for the same chord.
    */
   readonly useKeyShortcuts = input<boolean>(false);
+
+  constructor() {
+    injectKeyboardShortcut({
+      key: "f",
+      code: "KeyF",
+      enabled: () => this.useKeyShortcuts() && !this.disabled(),
+      // Focus and select, matching desktop's native accelerator, so a second press replaces the
+      // term. `select()` is not specified to focus, so both calls are needed.
+      handler: () => {
+        const el = this.input()?.nativeElement;
+        el?.focus();
+        el?.select();
+      },
+    });
+  }
 
   getFocusTarget() {
     return this.input()?.nativeElement;
@@ -94,20 +110,6 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   onChange(searchText: string) {
     this.searchText.set(searchText);
     this.notifyOnChange()?.(searchText);
-  }
-
-  protected handleDocumentShortcut(event: KeyboardEvent): void {
-    if (!this.useKeyShortcuts() || this.disabled() || this.obscuredByDialog()) {
-      return;
-    }
-
-    // Cmd+F (Mac) or Ctrl+F (Win/Linux) — exactly one of metaKey/ctrlKey
-    if (event.key.toLowerCase() !== "f" || event.metaKey === event.ctrlKey) {
-      return;
-    }
-
-    event.preventDefault();
-    this.input()?.nativeElement.focus();
   }
 
   // Safari uses type="text", losing the native clear. Stopping propagation keeps Escape one

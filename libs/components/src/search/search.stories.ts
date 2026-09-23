@@ -12,6 +12,7 @@ import { ButtonModule } from "../button";
 import { DialogModule, DialogService } from "../dialog";
 import { InputModule } from "../input/input.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { KeyboardShortcutService } from "../utils/keyboard-shortcut";
 
 import { SearchComponent } from "./search.component";
 
@@ -30,6 +31,9 @@ export default {
               resetSearch: "Reset search",
               clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               close: "Close",
+              keyEscape: "Esc",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
             });
           },
         },
@@ -66,19 +70,27 @@ export const WithShortcutHints: Story = {
   },
 };
 
+// Only the platform is faked; listeners are forwarded to the real document so the shortcut still
+// fires. `KeyboardShortcutService` is re-provided per story component because the root instance
+// would resolve the real DOCUMENT and ignore the override.
 const makeDoc = (platform: string) =>
   ({
     defaultView: { navigator: { platform } },
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    addEventListener: document.addEventListener.bind(document),
+    removeEventListener: document.removeEventListener.bind(document),
   }) as unknown as Document;
+
+const platformProviders = (platform: string) => [
+  { provide: DOCUMENT, useValue: makeDoc(platform) },
+  KeyboardShortcutService,
+];
 
 @Component({
   selector: "bw-windows-search-story",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SearchComponent],
   template: `<bit-search [useKeyShortcuts]="true"></bit-search>`,
-  providers: [{ provide: DOCUMENT, useValue: makeDoc("Win32") }],
+  providers: platformProviders("Win32"),
 })
 class WindowsSearchStoryComponent {}
 
@@ -87,7 +99,7 @@ class WindowsSearchStoryComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SearchComponent],
   template: `<bit-search [useKeyShortcuts]="true"></bit-search>`,
-  providers: [{ provide: DOCUMENT, useValue: makeDoc("MacIntel") }],
+  providers: platformProviders("MacIntel"),
 })
 class MacSearchStoryComponent {}
 

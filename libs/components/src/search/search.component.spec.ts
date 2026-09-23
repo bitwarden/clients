@@ -6,6 +6,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { MenuModule, MenuTriggerForDirective } from "../menu";
+import { dialogOver, dialogWith } from "../utils/dialog-mock";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SearchComponent } from "./search.component";
@@ -20,16 +21,14 @@ class HostComponent {
   readonly disabled = signal(false);
 }
 
-// Only `overlayRef.overlayElement` is read, and `mock<DialogRef>()` cannot supply it: its
-// DeepPartial argument recurses into the DOM types and fails to typecheck.
-const dialogOver = (overlayElement: HTMLElement) =>
-  ({ overlayRef: { overlayElement } }) as unknown as DialogRef;
-
 const i18nMock = () =>
   new I18nMockService({
     search: "Search",
     resetSearch: "Reset search",
     clearSearchTooltip: "Clear search",
+    keyEscape: "Esc",
+    keyControl: "Ctrl",
+    keyCommand: "Command",
   });
 
 describe("SearchComponent", () => {
@@ -64,7 +63,7 @@ describe("SearchComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith(openDialogs) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -135,6 +134,16 @@ describe("SearchComponent", () => {
       const event = keydown({ key: "f", metaKey: true, ctrlKey: true });
 
       expectIgnored(event);
+    });
+
+    it("selects the existing term, so a second press replaces rather than appends", async () => {
+      await setText("secrets");
+      input().setSelectionRange(7, 7);
+
+      keydown({ key: "f", metaKey: true });
+
+      expect(input().selectionStart).toBe(0);
+      expect(input().selectionEnd).toBe(7);
     });
   });
 
@@ -249,8 +258,11 @@ describe("SearchComponent inside a dialog-role menu", () => {
     imports: [MenuModule, SearchComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
+      <bit-search [useKeyShortcuts]="true" placeholder="page" />
       <button type="button" [bitMenuTriggerFor]="menu">Filter</button>
-      <bit-menu #menu ariaRole="dialog"><bit-search /></bit-menu>
+      <bit-menu #menu ariaRole="dialog">
+        <bit-search [useKeyShortcuts]="true" placeholder="menu" />
+      </bit-menu>
     `,
   })
   class MenuHostComponent {}
@@ -295,7 +307,7 @@ describe("SearchComponent inside a dialog-role menu", () => {
     await TestBed.configureTestingModule({
       imports: [MenuHostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs: [] } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith([]) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -327,5 +339,72 @@ describe("SearchComponent inside a dialog-role menu", () => {
     await escape();
 
     expect(panel()).toBeFalsy();
+  });
+
+  it("gives \u2318/Ctrl+F to the search inside the menu, not the page-level one", () => {
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "f", metaKey: true }));
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(input());
+  });
+});
+
+describe("SearchComponent arbitration", () => {
+  @Component({
+    imports: [SearchComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
+      <bit-search [useKeyShortcuts]="true" placeholder="first" />
+      @if (showSecond()) {
+        <bit-search [useKeyShortcuts]="true" placeholder="second" />
+      }
+    `,
+  })
+  class TwoSearchHostComponent {
+    readonly showSecond = signal(true);
+  }
+
+  let fixture: ComponentFixture<TwoSearchHostComponent>;
+  let host: TwoSearchHostComponent;
+
+  const inputs = () =>
+    Array.from(fixture.nativeElement.querySelectorAll("input")) as HTMLInputElement[];
+
+  const press = () => {
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "f", metaKey: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TwoSearchHostComponent],
+      providers: [
+        { provide: Dialog, useValue: dialogWith([]) },
+        { provide: I18nService, useFactory: i18nMock },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TwoSearchHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("focuses exactly one input when two shortcut-enabled searches share a page", () => {
+    press();
+
+    const focused = inputs().filter((input) => input === document.activeElement);
+    expect(focused).toHaveLength(1);
+  });
+
+  it("releases the shortcut when its owner is destroyed", () => {
+    press();
+    const second = inputs()[1];
+    expect(document.activeElement).toBe(second);
+
+    host.showSecond.set(false);
+    fixture.detectChanges();
+    press();
+
+    expect(document.activeElement).toBe(inputs()[0]);
   });
 });
