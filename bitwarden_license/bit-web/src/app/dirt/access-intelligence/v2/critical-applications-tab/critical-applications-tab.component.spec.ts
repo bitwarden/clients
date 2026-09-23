@@ -12,7 +12,6 @@ import {
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   createApplication,
-  createCipher,
   createReport,
   createRiskInsights,
   createRiskInsightsSummary,
@@ -336,52 +335,6 @@ describe("CriticalApplicationsTabComponent", () => {
           isMarkedAsCritical: true,
         }),
       );
-    });
-
-    it("should resolve the icon cipher from the ciphers stream", () => {
-      const iconCipher = createCipher("c-1", ["https://github.com"]);
-      mockDataService.ciphers$.next([iconCipher]);
-
-      mockDataService.report$.next(
-        createRiskInsights({
-          reports: [createReport("github.com", {}, { "c-1": true })],
-          applications: [createApplication("github.com", true)],
-        }),
-      );
-
-      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
-
-      expect(rows[0].iconCipher).toBe(iconCipher);
-    });
-
-    it("should leave iconCipher undefined when the cipher is not in the ciphers stream", () => {
-      mockDataService.ciphers$.next([createCipher("some-other-cipher")]);
-
-      mockDataService.report$.next(
-        createRiskInsights({
-          reports: [createReport("github.com", {}, { "c-1": true })],
-          applications: [createApplication("github.com", true)],
-        }),
-      );
-
-      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
-
-      expect(rows[0].iconCipher).toBeUndefined();
-    });
-
-    it("should re-resolve icon ciphers when the ciphers stream emits after the report", () => {
-      mockDataService.report$.next(
-        createRiskInsights({
-          reports: [createReport("github.com", {}, { "c-1": true })],
-          applications: [createApplication("github.com", true)],
-        }),
-      );
-      expect(testAccess(component).dataSource.data[0].iconCipher).toBeUndefined();
-
-      const iconCipher = createCipher("c-1", ["https://github.com"]);
-      mockDataService.ciphers$.next([iconCipher]);
-
-      expect(testAccess(component).dataSource.data[0].iconCipher).toBe(iconCipher);
     });
 
     it("should clear the dataSource when the report becomes null", () => {

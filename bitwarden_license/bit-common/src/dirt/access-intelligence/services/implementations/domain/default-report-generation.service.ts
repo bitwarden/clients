@@ -183,7 +183,8 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
       // Use first cipher for application to capture icon data (uri)
       if (cipherGroup.length > 0) {
-        report.iconCipher = cipherGroup[0];
+        report.iconCipher = new CipherView();
+        report.iconCipher.login.uris[0].uri = cipherGroup[0].login.uris[0].uri;
       }
 
       reports.push(report);

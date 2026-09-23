@@ -25,7 +25,7 @@ export class ApplicationHealthView implements View {
   atRiskPasswordCount: number = 0;
 
   /**
-   * Minimal cipher view for icon display purposes. Contains only a cipher ID and login URI from one cipher for the application.
+   * Minimal cipher view for icon display purposes. Contains the login URI from one cipher for the application.
    */
   iconCipher?: CipherView;
 
@@ -152,7 +152,6 @@ export class ApplicationHealthView implements View {
     // create minimal cipher for icon display purposes
     if (data.iconUri) {
       view.iconCipher = new CipherView();
-      view.iconCipher.id = "icon-display-cipher";
       view.iconCipher.login.uris = [];
 
       const uri = new LoginUriView();
