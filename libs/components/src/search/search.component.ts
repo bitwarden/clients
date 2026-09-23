@@ -78,8 +78,13 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly size = input<FieldContainerSize>("base");
 
   /**
-   * When true, enables ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field regardless.
-   * The shortcut is suppressed while a dialog is open, unless this search is inside that dialog.
+   * When true, enables the ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field
+   * regardless. The shortcut is suppressed while a dialog is open, unless this search is inside
+   * that dialog.
+   *
+   * Do not set this on desktop: it ships a native `CmdOrCtrl+F` menu accelerator
+   * (`apps/desktop/src/main/menu/menu.view.ts`) that already focuses the vault search, and opting in
+   * would install a second handler for the same chord.
    */
   readonly useKeyShortcuts = input<boolean>(false);
 
