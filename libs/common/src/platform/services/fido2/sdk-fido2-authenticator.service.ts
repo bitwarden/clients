@@ -1,12 +1,9 @@
 import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import {
-  CheckUserAndPickCredentialForCreationResult,
-  CheckUserResult,
   Fido2CredentialAutofillView,
   Fido2UserInterface,
   Fido2Authenticator as SdkFido2Authenticator,
-  CipherView as SdkCipherView,
   GetAssertionRequest as SdkGetAssertionRequest,
   MakeCredentialRequest as SdkMakeCredentialRequest,
   PublicKeyCredentialDescriptor as SdkPublicKeyCredentialDescriptor,
@@ -39,6 +36,7 @@ import { SdkService, uuidAsString } from "../../abstractions/sdk/sdk.service";
 
 import { compareCredentialIds, parseCredentialId } from "./credential-id-utils";
 import { Fido2Utils } from "./fido2-utils";
+import { NoopSdkFido2UserInterface } from "./noop-sdk-fido2-user-interface";
 import { SdkFido2CredentialStore } from "./sdk-fido2-credential-store";
 import { SdkFido2UserInterface } from "./sdk-fido2-user-interface";
 
@@ -47,38 +45,6 @@ import { SdkFido2UserInterface } from "./sdk-fido2-user-interface";
  * `excludeCredentials` check is made against an up-to-date vault.
  */
 const SYNC_THRESHOLD_MS = 1000 * 60 * 30;
-
-/**
- * A {@link Fido2UserInterface} that refuses every prompt.
- *
- * `silently_discover_credentials` must never reach the user, so this interface should never be
- * called. It rejects rather than declines: a decline would make a future SDK change that starts
- * prompting here look like "the user said no", i.e. an empty inline menu rather than a bug.
- */
-export class RefusingFido2UserInterface implements Fido2UserInterface {
-  // Unused on the silent path; `true` is the value that does not downgrade verification.
-  readonly is_verification_enabled = true;
-
-  check_user(): Promise<CheckUserResult> {
-    return Promise.reject(new Error(RefusingFido2UserInterface.message("check_user")));
-  }
-
-  pick_credential_for_authentication(): Promise<SdkCipherView> {
-    return Promise.reject(
-      new Error(RefusingFido2UserInterface.message("pick_credential_for_authentication")),
-    );
-  }
-
-  check_user_and_pick_credential_for_creation(): Promise<CheckUserAndPickCredentialForCreationResult> {
-    return Promise.reject(
-      new Error(RefusingFido2UserInterface.message("check_user_and_pick_credential_for_creation")),
-    );
-  }
-
-  private static message(callback: string): string {
-    return `[RefusingFido2UserInterface] ${callback} was called on a silent FIDO2 operation, which must not prompt the user.`;
-  }
-}
 
 /**
  * Routes FIDO2 authenticator operations through the SDK, one operation at a time, behind
@@ -281,7 +247,7 @@ export class SdkFido2AuthenticatorService<
 
   private async silentCredentialDiscoveryUsingSdk(rpId: string): Promise<Fido2CredentialView[]> {
     const discovered = await this.withAuthenticator(
-      new RefusingFido2UserInterface(),
+      new NoopSdkFido2UserInterface(this.logService),
       // No user handle: the request carries none. Note this argument is a `Uint8Array` while the
       // same bytes come back from the callbacks as `number[]`; both boundaries are correct.
       (authenticator) => authenticator.silently_discover_credentials(rpId, undefined),

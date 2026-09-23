@@ -35,10 +35,8 @@ import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 
 import { parseCredentialId } from "./credential-id-utils";
-import {
-  RefusingFido2UserInterface,
-  SdkFido2AuthenticatorService,
-} from "./sdk-fido2-authenticator.service";
+import { NoopSdkFido2UserInterface } from "./noop-sdk-fido2-user-interface";
+import { SdkFido2AuthenticatorService } from "./sdk-fido2-authenticator.service";
 import { SdkFido2CredentialStore } from "./sdk-fido2-credential-store";
 
 const USER_ID = "00000000-0000-0000-0000-000000000000" as UserId;
@@ -236,11 +234,11 @@ describe("SdkFido2AuthenticatorService", () => {
       expect(fallback.silentCredentialDiscovery).not.toHaveBeenCalled();
     });
 
-    it("builds the authenticator with the credential store and a refusing user interface", async () => {
+    it("builds the authenticator with the credential store and a no-op user interface", async () => {
       await createService(true).silentCredentialDiscovery(RP_ID);
 
       const [userInterface, store] = buildAuthenticator.mock.calls[0];
-      expect(userInterface).toBeInstanceOf(RefusingFido2UserInterface);
+      expect(userInterface).toBeInstanceOf(NoopSdkFido2UserInterface);
       expect(store).toBe(credentialStore);
     });
 
@@ -510,7 +508,7 @@ describe("SdkFido2AuthenticatorService", () => {
       await createService(true).makeCredential(makeCredentialParams(), window);
 
       const [userInterface, store] = buildAuthenticator.mock.calls[0];
-      expect(userInterface).not.toBeInstanceOf(RefusingFido2UserInterface);
+      expect(userInterface).not.toBeInstanceOf(NoopSdkFido2UserInterface);
       expect(store).toBe(credentialStore);
     });
 
@@ -717,27 +715,5 @@ describe("SdkFido2AuthenticatorService", () => {
         expect(credentialStore.findCredentialCiphers).toHaveBeenCalledWith(undefined, RP_ID);
       });
     });
-  });
-});
-
-describe("RefusingFido2UserInterface", () => {
-  const userInterface = new RefusingFido2UserInterface();
-
-  it("reports verification as enabled, matching the prompting adapter", () => {
-    expect(userInterface.is_verification_enabled).toBe(true);
-  });
-
-  it.each([
-    ["check_user", () => userInterface.check_user()],
-    [
-      "pick_credential_for_authentication",
-      () => userInterface.pick_credential_for_authentication(),
-    ],
-    [
-      "check_user_and_pick_credential_for_creation",
-      () => userInterface.check_user_and_pick_credential_for_creation(),
-    ],
-  ])("rejects %s rather than reporting a decline", async (name, call) => {
-    await expect(call()).rejects.toThrow(new RegExp(`${name} was called`));
   });
 });
