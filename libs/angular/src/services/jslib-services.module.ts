@@ -63,6 +63,7 @@ import {
 import {
   AutomationCapability,
   AutomationDriver,
+  DebugFunctionsCapability,
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
@@ -1679,6 +1680,28 @@ const safeProviders: SafeProvider[] = [
     provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (
+      accountService: AccountServiceAbstraction,
+      sdkService: SdkService,
+      masterPasswordService: InternalMasterPasswordServiceAbstraction,
+      userKeyRotationService: UserKeyRotationServiceAbstraction,
+    ) =>
+      new DebugFunctionsCapability(
+        accountService,
+        sdkService,
+        masterPasswordService,
+        userKeyRotationService,
+      ),
+    deps: [
+      AccountServiceAbstraction,
+      SdkService,
+      InternalMasterPasswordServiceAbstraction,
+      UserKeyRotationServiceAbstraction,
+    ],
     multi: true,
   }),
   safeProvider({

@@ -1,4 +1,5 @@
 export * from "./biometrics";
+export * from "./debug-functions";
 export * from "./desktop-navigation";
 export * from "./feature-flags";
 export * from "./lock";
