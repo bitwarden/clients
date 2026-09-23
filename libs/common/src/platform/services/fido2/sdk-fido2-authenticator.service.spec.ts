@@ -334,28 +334,37 @@ describe("SdkFido2AuthenticatorService", () => {
       expect(client.free).toHaveBeenCalledTimes(1);
     });
 
-    it("throws when the SDK client is unavailable", async () => {
+    it("logs and falls back to TypeScript when the SDK client is unavailable", async () => {
       sdkService.userClient$.mockReturnValue(of(undefined) as never);
+      const fromTypeScript = [new Fido2CredentialView()];
+      fallback.silentCredentialDiscovery.mockResolvedValue(fromTypeScript);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).rejects.toThrow(
-        /SDK client is unavailable/,
+      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toBe(
+        fromTypeScript,
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ message: expect.stringMatching(/SDK client is unavailable/) }),
       );
     });
 
-    it("propagates an SDK failure instead of quietly falling back to TypeScript", async () => {
-      silentlyDiscover.mockRejectedValue(new Error("discovery exploded"));
+    it("logs and falls back to TypeScript when discovery fails", async () => {
+      const failure = new Error("discovery exploded");
+      silentlyDiscover.mockRejectedValue(failure);
+      const fromTypeScript = [new Fido2CredentialView()];
+      fallback.silentCredentialDiscovery.mockResolvedValue(fromTypeScript);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).rejects.toThrow(
-        /discovery exploded/,
+      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toBe(
+        fromTypeScript,
       );
-      // A fallback here would render as "this site has no passkeys" and hide the breakage.
-      expect(fallback.silentCredentialDiscovery).not.toHaveBeenCalled();
+      expect(logService.error).toHaveBeenCalledWith(expect.any(String), failure);
+      expect(fallback.silentCredentialDiscovery).toHaveBeenCalledWith(RP_ID);
     });
 
     it("releases its reference even when discovery throws", async () => {
       silentlyDiscover.mockRejectedValue(new Error("discovery exploded"));
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).rejects.toThrow();
+      await createService(true).silentCredentialDiscovery(RP_ID);
 
       rc.markForDisposal();
       expect(client.free).toHaveBeenCalledTimes(1);

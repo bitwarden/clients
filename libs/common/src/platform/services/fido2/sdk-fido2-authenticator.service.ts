@@ -57,8 +57,10 @@ const FLAG_OFF_MESSAGE = `${FeatureFlag.PM8313_Fido2OperationsToSdk} disabled. T
  * Its operations follow the authenticator API in the CTAP2 specification
  * (`authenticatorMakeCredential`, `authenticatorGetAssertion`), which defines their behavior.
  *
- * With the flag on, SDK errors are thrown, not retried with the TypeScript implementation. A retry
- * could ask the user to approve the same request twice, and would hide SDK failures during rollout.
+ * With the flag on, `makeCredential` and `getAssertion` throw SDK errors rather than retrying with
+ * the TypeScript implementation, since a retry could ask the user to approve the same request twice.
+ * `silentCredentialDiscovery` never prompts, so it logs the error and falls back instead: throwing
+ * would also cancel the browser's own passkey suggestions on the page.
  */
 export class SdkFido2AuthenticatorService<
   ParentWindowReference,
@@ -228,7 +230,12 @@ export class SdkFido2AuthenticatorService<
       return this.fallback.silentCredentialDiscovery(rpId);
     }
 
-    return await this.silentCredentialDiscoveryUsingSdk(rpId);
+    try {
+      return await this.silentCredentialDiscoveryUsingSdk(rpId);
+    } catch (error) {
+      this.logService.error("SDK silent credential discovery failed, using TypeScript.", error);
+      return await this.fallback.silentCredentialDiscovery(rpId);
+    }
   }
 
   private async silentCredentialDiscoveryUsingSdk(rpId: string): Promise<Fido2CredentialView[]> {
