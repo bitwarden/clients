@@ -11,6 +11,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
+  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   StagedStatus = "pm-34423-staged-status",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
@@ -145,6 +146,7 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
+  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,

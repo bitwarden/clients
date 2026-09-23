@@ -448,6 +448,77 @@ describe("ItemDetailsSectionComponent", () => {
       expect(collectionSelect).not.toBeNull();
     }));
 
+    it("should label collections whose names failed to decrypt with the shared error text", fakeAsync(() => {
+      i18nService.t.calledWith("errorCannotDecrypt").mockReturnValue("Error: Cannot decrypt");
+
+      // CollectionView.fromFailedDecryption gives every failed collection the same unusable
+      // placeholder name (DECRYPT_ERROR, which lives in the restricted @bitwarden/legacy-crypto
+      // module). The label is driven by `decryptionFailure`, not by this value.
+      const placeholderName = "[error: cannot decrypt]";
+
+      const failed1 = createMockCollection(
+        "aaaaaaaa-1111-1111-1111-111111111111",
+        placeholderName,
+        "org1",
+        false,
+        true,
+        CollectionTypes.SharedCollection,
+      );
+      failed1.decryptionFailure = true;
+
+      const failed2 = createMockCollection(
+        "bbbbbbbb-2222-2222-2222-222222222222",
+        placeholderName,
+        "org1",
+        false,
+        true,
+        CollectionTypes.SharedCollection,
+      );
+      failed2.decryptionFailure = true;
+
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.collections = [failed1, failed2];
+
+      fixture.detectChanges();
+      tick();
+
+      component.itemDetailsForm.controls.organizationId.setValue("org1");
+
+      tick();
+      fixture.detectChanges();
+
+      // Both entries are still offered so an already-assigned cipher is not silently unassigned,
+      // and neither leaks the raw placeholder.
+      expect(component["collectionOptions"].map((c) => c.labelName)).toEqual([
+        "Error: Cannot decrypt",
+        "Error: Cannot decrypt",
+      ]);
+    }));
+
+    it("should leave names untouched for collections that decrypted successfully", fakeAsync(() => {
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.collections = [
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
+        createMockCollection("col2", "Collection 2", "org1") as CollectionView,
+      ];
+
+      fixture.detectChanges();
+      tick();
+
+      component.itemDetailsForm.controls.organizationId.setValue("org1");
+
+      tick();
+      fixture.detectChanges();
+
+      expect(component["collectionOptions"].map((c) => c.labelName)).toEqual([
+        "Collection 1",
+        "Collection 2",
+      ]);
+      expect(i18nService.t).not.toHaveBeenCalledWith("errorCannotDecrypt");
+    }));
+
     it("should set collectionIds to originalCipher collections on first load", async () => {
       component.config.mode = "clone";
       getInitialCipherView.mockReturnValueOnce({
