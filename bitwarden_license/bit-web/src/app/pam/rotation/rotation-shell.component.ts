@@ -28,8 +28,9 @@ import { TargetSystemsService } from "./target-systems/target-systems.service";
  * Target systems / Managed credentials); page-scoped services stay shared across tab
  * navigation since the shell stays mounted.
  *
- * The header hosts the active tab's primary create action, driven by the active child route, so
- * each tab renders only its list.
+ * Off the VFO1 flag the header hosts the active tab's primary create action, driven by the active
+ * child route, so each tab renders only its list. On it, each tab hosts its own action in its
+ * table toolbar.
  *
  * The Managed credentials tab label shows a warning berry when configs await a manual rotation
  * confirmation.
