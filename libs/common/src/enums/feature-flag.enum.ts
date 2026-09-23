@@ -67,8 +67,6 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
-  SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
@@ -77,6 +75,7 @@ export enum FeatureFlag {
   /* Tools */
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
+  ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
   /* DIRT */
@@ -93,6 +92,7 @@ export enum FeatureFlag {
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -120,9 +120,6 @@ export enum FeatureFlag {
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
-
-  /* Innovation */
-  ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
@@ -171,6 +168,7 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
+  [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
   /* DIRT */
@@ -187,6 +185,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -241,8 +240,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
-  [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
@@ -252,9 +249,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
-
-  /* Innovation */
-  [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
