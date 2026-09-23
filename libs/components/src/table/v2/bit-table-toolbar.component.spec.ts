@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -11,7 +11,13 @@ import { SearchComponent } from "../../search/search.component";
 import { TooltipDirective } from "../../tooltip";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
+import { BitCellDefDirective } from "./bit-cell-def.directive";
+import { BitCellComponent } from "./bit-cell.component";
+import { BitColumnComponent } from "./bit-column.component";
+import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
+import { defineTable } from "./table-def";
+import { BitTableV2Component } from "./table-v2.component";
 
 @Component({
   imports: [BitTableToolbarComponent, FilterToggleComponent, SearchComponent],
@@ -45,6 +51,42 @@ class HostComponent {
 })
 class SearchOnlyHostComponent {}
 
+type CountRow = { id: number; name: string };
+
+/** A toolbar inside a real table, so the item count on the filter row has a count to render. */
+@Component({
+  imports: [
+    BitTableToolbarComponent,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitCellDefDirective,
+    FilterToggleComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-v2 [tableDef]="table">
+      <bit-table-toolbar [countLabel]="countLabel()">
+        <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+      </bit-table-toolbar>
+      <bit-column>
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class CountHostComponent {
+  readonly rows = signal<CountRow[]>([
+    { id: 1, name: "one" },
+    { id: 2, name: "two" },
+    { id: 3, name: "three" },
+  ]);
+  protected readonly table = defineTable<CountRow>(this.rows);
+  readonly countLabel = signal<((count: number) => string) | undefined>(undefined);
+}
+
 describe("BitTableToolbarComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
@@ -63,7 +105,7 @@ describe("BitTableToolbarComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent, SearchOnlyHostComponent],
+      imports: [HostComponent, SearchOnlyHostComponent, CountHostComponent],
       providers: [
         {
           provide: I18nService,
@@ -74,6 +116,8 @@ describe("BitTableToolbarComponent", () => {
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
+              itemCount: (count?: string) => `${count} items`,
+              filterResults: (count?: string) => `${count} results`,
             }),
         },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -129,5 +173,42 @@ describe("BitTableToolbarComponent", () => {
     const filterRow = searchOnly.nativeElement.querySelector("[bitOverflowList]") as HTMLElement;
     expect(filterRow).not.toBeNull();
     expect(filterRow.childElementCount).toBe(0);
+  });
+
+  describe("item count", () => {
+    let counted: ComponentFixture<CountHostComponent>;
+
+    const countText = () =>
+      (
+        counted.nativeElement.querySelector("[bitOverflowTrigger]") as HTMLElement | null
+      )?.textContent
+        ?.replace(/\s+/g, " ")
+        .trim();
+
+    beforeEach(() => {
+      counted = TestBed.createComponent(CountHostComponent);
+      counted.detectChanges();
+    });
+
+    afterEach(() => counted.destroy());
+
+    it("counts the rows as items when no label is given", () => {
+      expect(countText()).toBe("3 items");
+    });
+
+    it("renders a host-supplied label instead", () => {
+      counted.componentInstance.countLabel.set((count) => `${count} results`);
+      counted.detectChanges();
+
+      expect(countText()).toBe("3 results");
+    });
+
+    it("keeps a host-supplied label in step with the row count", () => {
+      counted.componentInstance.countLabel.set((count) => `${count} results`);
+      counted.componentInstance.rows.update((rows) => rows.slice(0, 2));
+      counted.detectChanges();
+
+      expect(countText()).toBe("2 results");
+    });
   });
 });

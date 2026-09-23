@@ -1457,6 +1457,40 @@ describe("HistoryTabComponent", () => {
         );
       });
     });
+
+    describe("toolbar count", () => {
+      /** The toolbar's row count, which only renders alongside a filter chip. */
+      function countText(): string {
+        return text(query("bit-table-toolbar [bitOverflowTrigger]")!);
+      }
+
+      it("counts the listed requests as results, not as items", () => {
+        populateApprover();
+
+        createWithFlag(true);
+
+        expect(countText()).toBe("filterResults 5");
+      });
+
+      it("counts what the search left on screen", () => {
+        canApprove$.next(true);
+        myRows$.next([
+          historyRow({ id: "mine-db", cipherName: "Prod database" }),
+          historyRow({
+            id: "mine-cache",
+            cipherName: "Staging cache",
+            resolvedAt: "2026-08-17T11:00:00.000Z",
+          }),
+        ]);
+        createWithFlag(true);
+
+        expect(countText()).toBe("filterResults 2");
+
+        searchFor("staging");
+
+        expect(countText()).toBe("filterResults 1");
+      });
+    });
   });
 
   // Spans both sources, so it can't borrow either side's empty-state wording.

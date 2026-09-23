@@ -361,6 +361,12 @@ export class HistoryTabComponent {
   };
 
   /**
+   * The toolbar's count label. These rows are access requests, not items, so the default
+   * "N items" would name them wrongly.
+   */
+  protected readonly resultsLabel = (count: number) => this.i18nService.t("filterResults", count);
+
+  /**
    * The Resolved column's sort, which is what actually orders the rendered table. Sorting on
    * `resolvedAt` alone would send a row that was never decided to the end of the descending sort
    * rather than to its submitted-at place. Ascending: `bitSortable` applies the direction itself.
