@@ -133,16 +133,10 @@ jobs:
           _EXIT=$?
           set -e
 
-          # test-types.js drives 49 legs through concurrently without awaiting it, so a type error and
-          # an OOM-killed tsc both exit non-zero through an unhandled rejection. Requiring a diagnostic
-          # separates the break this workflow exists to find from a log that proves nothing.
-          if [ "$_EXIT" -ne 0 ] && ! grep -q 'error TS' "$_LOG"; then
-            echo "::error::The baseline type check exited $_EXIT with no TS diagnostic, so its log cannot be read as evidence of anything."
-            tail -50 "$_LOG"
-            exit 1
-          fi
-
+          # test-types.js exits non-zero the same way for a type error and a crashed tsc, so the agent
+          # gets the exit code alongside the log and decides which one it is looking at.
           echo "log=$_LOG" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$_EXIT" >> "$GITHUB_OUTPUT"
 
       - name: Run Claude Code
         id: claude
@@ -167,7 +161,7 @@ jobs:
           prompt: |
             PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK to ${{ steps.gate.outputs.version }}. Evaluate it yourself using the `evaluating-sdk-internal-updates` skill's Identify steps (1-8).
 
-            `bitwarden/sdk-internal` is already cloned as a sibling directory at `${{ github.workspace }}/../sdk-internal`; use it directly, do not re-clone. `npm ci` has already run. A baseline type check has already been run for you and its output is at `${{ steps.baseline.outputs.log }}`; read it rather than running your own baseline.
+            `bitwarden/sdk-internal` is already cloned as a sibling directory at `${{ github.workspace }}/../sdk-internal`; use it directly, do not re-clone. `npm ci` has already run. A baseline type check has already been run for you and its output is at `${{ steps.baseline.outputs.log }}`; read it rather than running your own baseline. It exited with code ${{ steps.baseline.outputs.exit_code }}. If that code is non-zero and the log contains no TypeScript diagnostics, the type check failed without reporting any break, so the log says nothing about this bump: replace the sticky PR comment with that finding and the tail of the log, and stop without evaluating further.
 
             If step 8 turns up anything to resolve, dispatch a single subagent on the `bitwarden-software-engineer` agent to invoke `Skill(evaluating-sdk-internal-updates)` itself and carry out its Resolve steps (9-10) for every finding in one pass — decide the fix, implement it, and commit on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message. Hand the subagent all the findings (commit, symbol, call sites for each) so it doesn't redo the investigation, dispatching it once for every finding rather than once per finding. Do not push; the workflow pushes separately. Have it report back the commit SHA and each finding's disposition. Skip the subagent entirely if step 8 finds nothing to resolve.
 
