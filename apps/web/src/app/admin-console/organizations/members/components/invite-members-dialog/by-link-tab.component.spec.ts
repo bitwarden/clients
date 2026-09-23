@@ -61,6 +61,7 @@ async function createComponent(
     autoConfirmEnabled?: boolean;
     domains?: OrganizationDomainMiniResponse[];
     domainsError?: unknown;
+    showCoachMarks?: boolean;
   } = {},
 ): Promise<Harness> {
   const { initialLink, autoConfirmEnabled = true } = options;
@@ -115,6 +116,9 @@ async function createComponent(
 
   const fixture = TestBed.createComponent(ByLinkTabComponent);
   fixture.componentRef.setInput("organizationId", ORG_ID);
+  if (options.showCoachMarks != null) {
+    fixture.componentRef.setInput("showCoachMarks", options.showCoachMarks);
+  }
   fixture.detectChanges();
   await fixture.whenStable();
 
@@ -314,6 +318,46 @@ describe("ByLinkTabComponent", () => {
       await new Promise(process.nextTick);
 
       expect(component.form.dirty).toBe(false);
+    });
+  });
+
+  describe("guided tour", () => {
+    // The tour's opening step is delayed via setTimeout so the popover doesn't anchor to a
+    // stale rect; wait it out with real timers rather than faking them, since fake timers
+    // deadlock the component's `await fixture.whenStable()` setup above.
+    const waitForTourStart = () => new Promise((resolve) => setTimeout(resolve, 300));
+
+    it("starts the tour when the org has no invite link yet", async () => {
+      const { component } = await createComponent({
+        showCoachMarks: true,
+      });
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(1);
+    });
+
+    it("does not start the tour when showCoachMarks is false", async () => {
+      const { component } = await createComponent({});
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(0);
+    });
+
+    // The callout that offers the tour is only shown to orgs without a link configured yet
+    // (see InviteLinkCalloutService.showIfEligible), so showCoachMarks=true alongside an
+    // existing link shouldn't happen in practice — but the tour must not start in that case,
+    // since its first step targets state that only exists pre-link.
+    it("does not start the tour when the org already has an invite link configured", async () => {
+      const { component } = await createComponent({
+        initialLink: makeInviteLink(true),
+        showCoachMarks: true,
+      });
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(0);
     });
   });
 

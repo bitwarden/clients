@@ -17,6 +17,10 @@ import {
 } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import {
+  OrganizationInviteLink,
+  OrganizationInviteLinkService,
+} from "@bitwarden/organization-invite-link";
 
 import { MemberDialogResult } from "../../components/member-dialog/member-dialog.types";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
@@ -35,6 +39,7 @@ describe("InviteLinkCalloutService", () => {
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
   let organizationMembersService: MockProxy<OrganizationMembersService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
+  let organizationInviteLinkService: MockProxy<OrganizationInviteLinkService>;
   let dialogService: MockProxy<DialogService>;
   let router: MockProxy<Router>;
   let service: InviteLinkCalloutService;
@@ -67,6 +72,8 @@ describe("InviteLinkCalloutService", () => {
     organizationMembersService.loadUsers.mockResolvedValue([]);
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     organizationMetadataService.getOrganizationMetadata$.mockReturnValue(of(mockBillingMetadata));
+    organizationInviteLinkService = mock<OrganizationInviteLinkService>();
+    organizationInviteLinkService.inviteLink$.mockReturnValue(of(undefined));
     dialogService = mock<DialogService>();
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
@@ -80,6 +87,7 @@ describe("InviteLinkCalloutService", () => {
         { provide: MemberDialogManagerService, useValue: memberDialogManager },
         { provide: OrganizationMembersService, useValue: organizationMembersService },
         { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
+        { provide: OrganizationInviteLinkService, useValue: organizationInviteLinkService },
         { provide: DialogService, useValue: dialogService },
         { provide: Router, useValue: router },
       ],
@@ -154,6 +162,29 @@ describe("InviteLinkCalloutService", () => {
     const dismissed = await firstValueFrom(service.isDismissed$(organization.id as OrganizationId));
     expect(dismissed).toBe(true);
     expect(memberDialogManager.openInviteDialog).not.toHaveBeenCalled();
+  });
+
+  it("showIfEligible() returns early without opening a dialog when the org already has an invite link configured", async () => {
+    const organization = createOrganization();
+    organizationInviteLinkService.inviteLink$.mockReturnValue(
+      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+    );
+
+    await service.showIfEligible(organization);
+
+    expect(dialogService.open).not.toHaveBeenCalled();
+  });
+
+  it("showIfEligible() dismisses the callout for good when the org already has an invite link configured", async () => {
+    const organization = createOrganization();
+    organizationInviteLinkService.inviteLink$.mockReturnValue(
+      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+    );
+
+    await service.showIfEligible(organization);
+    const dismissed = await firstValueFrom(service.isDismissed$(organization.id as OrganizationId));
+
+    expect(dismissed).toBe(true);
   });
 
   it("showIfEligible() opens the dialog, calls dismiss(), fetches metadata + users, and calls openInviteDialog({ showCoachMarks: true }) when the user clicks Try it", async () => {
