@@ -4,7 +4,7 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
   openCollectionDialog: jest.fn(),
 }));
 
-import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -21,7 +21,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -100,12 +100,16 @@ describe("VaultNextComponent", () => {
   let showQuickCopyActions$: BehaviorSubject<boolean>;
   let showSubscriptionEndedMessaging$: Subject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
+  let queryParamMap$: BehaviorSubject<ParamMap>;
+  let itemDialogOpen: WritableSignal<boolean>;
   let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
 
+  const cipherId = "cccc1111-dddd-4eee-8fff-000011112222" as CipherId;
+
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
     const cipher = new CipherView();
-    cipher.id = "cipher-1";
+    cipher.id = cipherId;
     cipher.name = "Item";
     cipher.type = CipherType.Login;
     cipher.edit = true;
@@ -198,6 +202,7 @@ describe("VaultNextComponent", () => {
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
     showSubscriptionEndedMessaging$ = new Subject<boolean>();
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+    queryParamMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
     routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.
     vaultNav$ = new BehaviorSubject<VaultsNavViewModel>({
@@ -210,6 +215,9 @@ describe("VaultNextComponent", () => {
     });
 
     itemActions = mock<WebVaultItemActionsService>();
+    itemDialogOpen = signal(false);
+    // `itemDialogOpen` is a readonly signal on the service, so it can't be assigned onto the mock.
+    Object.defineProperty(itemActions, "itemDialogOpen", { value: itemDialogOpen });
     batchBarService = {
       setConfig: jest.fn(),
       clearSelection: jest.fn(),
@@ -292,7 +300,10 @@ describe("VaultNextComponent", () => {
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
-        { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: paramMap$, data: routeData$, queryParamMap: queryParamMap$ },
+        },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CoachmarkService, useValue: coachmarkService },
@@ -1321,6 +1332,107 @@ describe("VaultNextComponent", () => {
 
       const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
       expect(config.allCollections).toEqual(component().collections());
+    });
+  });
+  describe("item deep links", () => {
+    /** Clears the `loading` gate the deep-link dispatch waits on. */
+    const loadItems = () => {
+      ciphers$.next([buildCipher()]);
+      fixture.detectChanges();
+    };
+
+    const linkTo = (params: Record<string, string>) => {
+      queryParamMap$.next(convertToParamMap(params));
+      fixture.detectChanges();
+    };
+
+    it("waits for the items to decrypt, which an item that exists needs to be found", () => {
+      linkTo({ itemId: cipherId });
+
+      expect(itemActions.viewById).not.toHaveBeenCalled();
+
+      loadItems();
+
+      expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
+    });
+
+    describe("once the items load", () => {
+      beforeEach(() => {
+        loadItems();
+      });
+
+      it("opens the item read-only when the URL names one with no action", () => {
+        linkTo({ itemId: cipherId });
+
+        expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
+      });
+
+      it("honors the param's original cipherId name", () => {
+        linkTo({ cipherId: cipherId });
+
+        expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
+      });
+
+      it("opens the edit form", () => {
+        linkTo({ itemId: cipherId, action: "edit" });
+
+        expect(itemActions.editById).toHaveBeenCalledWith(cipherId);
+      });
+
+      it("opens the clone form", () => {
+        linkTo({ itemId: cipherId, action: "clone" });
+
+        expect(itemActions.cloneById).toHaveBeenCalledWith(cipherId);
+      });
+
+      it("reports a decryption failure", () => {
+        linkTo({ itemId: cipherId, action: "showFailedToDecrypt" });
+
+        expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith(cipherId);
+      });
+
+      it("reads an action it does not recognize as a view", () => {
+        linkTo({ itemId: cipherId, action: "somethingElse" });
+
+        expect(itemActions.viewById).toHaveBeenCalledWith(cipherId);
+      });
+
+      it("opens nothing when the URL names no item", () => {
+        linkTo({ action: "edit" });
+
+        expect(itemActions.viewById).not.toHaveBeenCalled();
+        expect(itemActions.editById).not.toHaveBeenCalled();
+      });
+
+      it("opens nothing when the item id is not a guid", () => {
+        linkTo({ itemId: "not-a-guid" });
+
+        expect(itemActions.viewById).not.toHaveBeenCalled();
+      });
+
+      it("dispatches a link once, so the params the dialog leaves behind do not reopen it", () => {
+        linkTo({ itemId: cipherId });
+        fixture.detectChanges();
+
+        expect(itemActions.viewById).toHaveBeenCalledTimes(1);
+      });
+
+      it("ignores the params the dialog writes while it is open", () => {
+        linkTo({ itemId: cipherId });
+        itemDialogOpen.set(true);
+
+        linkTo({ itemId: cipherId, action: "edit" });
+
+        expect(itemActions.editById).not.toHaveBeenCalled();
+      });
+
+      it("opens the item again on a second link to it", () => {
+        linkTo({ itemId: cipherId });
+        linkTo({});
+        linkTo({ itemId: cipherId });
+
+        expect(itemActions.viewById).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });
