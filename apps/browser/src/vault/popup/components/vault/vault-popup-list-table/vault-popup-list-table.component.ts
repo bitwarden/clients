@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { distinctUntilChanged, filter, map, skip, Subject, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -24,6 +24,8 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -75,6 +77,7 @@ import {
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
+import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -121,7 +124,6 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     CommonModule,
     FormsModule,
     JslibModule,
-    RouterLink,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -151,6 +153,9 @@ export class VaultPopupListTableComponent {
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
+  private readonly configService = inject(ConfigService);
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
+  private readonly router = inject(Router);
   protected readonly listTableService = inject(VaultPopupListTableService);
   private readonly vaultPopupItemsService = inject(VaultPopupItemsService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
@@ -618,6 +623,15 @@ export class VaultPopupListTableComponent {
         control.setValue(undefined);
       }
     }
+  }
+
+  async navigateToImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
+    await this.router.navigate(["/import"]);
   }
 
   /**

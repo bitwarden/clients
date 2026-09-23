@@ -3,6 +3,7 @@ import { signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
@@ -50,6 +51,7 @@ import {
   VaultsNavViewModel,
 } from "@bitwarden/vault";
 
+import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -86,6 +88,7 @@ const makeRow = (
 describe("VaultPopupListTableComponent", () => {
   let fixture: ComponentFixture<VaultPopupListTableComponent>;
   let component: VaultPopupListTableComponent;
+  let router: Router;
 
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   const autoFillCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
@@ -99,6 +102,13 @@ describe("VaultPopupListTableComponent", () => {
   const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const liveAnnouncer = mock<LiveAnnouncer>();
+
+  const configService = {
+    getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+    getFeatureFlag: jest.fn().mockResolvedValue(false),
+  };
+
+  const importUpgradeNavigationService = mock<ImportUpgradeNavigationService>();
 
   const vaultPopupAutofillService = {
     currentTabIsOnBlocklist$: currentTabIsOnBlocklist$.asObservable(),
@@ -202,6 +212,7 @@ describe("VaultPopupListTableComponent", () => {
     jest.clearAllMocks();
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
+    configService.getFeatureFlag.mockResolvedValue(false);
     currentTabIsOnBlocklist$.next(false);
     autoFillCiphers$.next([]);
     favoriteCiphers$.next([]);
@@ -227,7 +238,8 @@ describe("VaultPopupListTableComponent", () => {
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: WINDOW, useValue: window },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        { provide: ConfigService, useValue: configService },
+        { provide: ImportUpgradeNavigationService, useValue: importUpgradeNavigationService },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
         { provide: VaultPopupLoadingService, useValue: vaultPopupLoadingService },
@@ -287,6 +299,8 @@ describe("VaultPopupListTableComponent", () => {
     listTableSvc.setScope(null);
     fixture = TestBed.createComponent(VaultPopupListTableComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
   });
 
   describe("collapsible sections", () => {
@@ -1158,6 +1172,26 @@ describe("VaultPopupListTableComponent", () => {
 
       expect(viewCipher).toHaveBeenCalledWith(row.cipher);
       expect(doAutofill).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("navigateToImport", () => {
+    it("navigates to the internal import route when the import upgrade flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await component.navigateToImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(importUpgradeNavigationService.openImportSourceSelectTab).not.toHaveBeenCalled();
+    });
+
+    it("opens the import picker's own extension tab immediately, with no confirmation, when the import upgrade flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await component.navigateToImport();
+
+      expect(importUpgradeNavigationService.openImportSourceSelectTab).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalledWith(["/import"]);
     });
   });
 });
