@@ -31,6 +31,9 @@ export default {
               resetSearch: "Reset search",
               clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               close: "Close",
+              keyEscape: "Esc",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
             });
           },
         },

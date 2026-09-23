@@ -37,7 +37,7 @@ import {
   revealForMeasurement,
 } from "../overflow-list";
 import { BitTableV2Component } from "../table/v2/table-v2.component";
-import { injectKeyboardShortcut, injectModifierKey } from "../utils";
+import { injectKeyboardShortcut, injectModifierLabel } from "../utils";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
@@ -158,8 +158,8 @@ export class BulkActionsBarComponent {
 
   // Seeded from navigator so the first announcement (which can fire before any
   // keypress) has a sensible label; upgraded to ground truth as soon as a real
-  // Cmd/Ctrl-bearing keydown is observed.
-  private readonly modifierKey = injectModifierKey();
+  // Cmd/Ctrl-bearing keydown is observed. The spoken label, not the ⌘ glyph.
+  private readonly modifierLabel = injectModifierLabel();
 
   protected readonly announcement = computed(() => {
     if (this.effectiveCount() === 0) {
@@ -168,7 +168,7 @@ export class BulkActionsBarComponent {
     return this.i18nService.t(
       "bulkActionsBarAnnouncement",
       this.effectiveCount(),
-      `${this.modifierKey()}+B`,
+      `${this.modifierLabel()}+B`,
     );
   });
 

@@ -12,6 +12,8 @@ import {
   signal,
 } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { detectInitialModifier, isPrimaryModifier } from "./modifier-key";
 
 /** A chord an owner wants to claim. */
@@ -181,10 +183,23 @@ export function injectModifierKey(): Signal<"Command" | "Ctrl"> {
 }
 
 /**
- * Returns a readonly signal of the platform modifier key display glyph
- * ("⌘" on Mac, "Ctrl" elsewhere). Must be called in an injection context.
+ * Returns a readonly signal of the platform modifier key as it should be *displayed* — the
+ * locale-independent "⌘" on Mac, the localized Control abbreviation elsewhere (Strg on German
+ * keyboards, for instance). Must be called in an injection context.
  */
 export function injectModifierGlyph(): Signal<string> {
   const key = injectModifierKey();
-  return computed(() => (key() === "Command" ? "⌘" : "Ctrl"));
+  const i18nService = inject(I18nService);
+  return computed(() => (key() === "Command" ? "⌘" : i18nService.t("keyControl")));
+}
+
+/**
+ * Returns a readonly signal of the platform modifier key as it should be *spoken*. Use this rather
+ * than {@link injectModifierGlyph} in live-region text: "⌘" does not read aloud usefully.
+ * Must be called in an injection context.
+ */
+export function injectModifierLabel(): Signal<string> {
+  const key = injectModifierKey();
+  const i18nService = inject(I18nService);
+  return computed(() => i18nService.t(key() === "Command" ? "keyCommand" : "keyControl"));
 }
