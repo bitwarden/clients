@@ -246,7 +246,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   // Only refresh the latch when a fresh walk will consume it. Both arms are load-bearing; see
   // ShadowHostHydrationTracker.hasHostsAwaitingShadowRoot for why parked hosts don't count.
-  // Pass `force` for multi-step auto-submit (no mutation monitoring — warm cache would stick).
+  // Pass `force` for multi-step auto submit to avoid using the warm cache that will stick.
   prepareForExplicitCollection = (force = false) => {
     if (force || this.noFieldsFound || this.shadowTracker.hasHostsAwaitingShadowRoot()) {
       this.domQueryService.refreshShadowDomStateForUserRequest();
@@ -259,7 +259,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   };
 
-  /** Drops form/field maps and intersection observations so the next walk starts clean. */
+  /** Drops form and field maps and intersection observations so the next walk starts clean. */
   private clearCollectedFieldCaches() {
     this.intersectionObserver.disconnect();
     this._autofillFormElements.clear();

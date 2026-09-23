@@ -3356,6 +3356,64 @@ describe("AutofillService", () => {
           expect(value.autosubmit).toEqual(["form1"]);
         });
 
+        it("marks formless autosubmit when the focused username field has no enclosing form", async () => {
+          focusedField.form = null;
+          pageDetails.fields = [focusedField];
+          pageDetails.forms = {};
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toEqual([null]);
+        });
+
+        it("marks formless autosubmit when filled login fields are not inside a form", async () => {
+          passwordField.form = null;
+          pageDetails.fields = [passwordField];
+          pageDetails.forms = {};
+          options.focusedFieldOpid = undefined;
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toEqual([null]);
+        });
+
+        it("does not set autosubmit for a TOTP-only step", async () => {
+          pageDetails.fields = [
+            createAutofillFieldMock({
+              opid: "totp",
+              form: null,
+              autoCompleteType: "one-time-code",
+            }),
+          ];
+          pageDetails.forms = {};
+          options.focusedFieldOpid = undefined;
+          options.autoSubmitLogin = true;
+          options.allowTotpAutofill = true;
+          options.cipher.login.totp = "totp-seed";
+          totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toBeNull();
+        });
+
         it("will prioritize focused field and skip passwords in different forms", async () => {
           const otherUsername = createAutofillFieldMock({
             opid: "other-username",
