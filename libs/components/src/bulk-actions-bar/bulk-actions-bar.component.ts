@@ -37,7 +37,7 @@ import {
   revealForMeasurement,
 } from "../overflow-list";
 import { BitTableV2Component } from "../table/v2/table-v2.component";
-import { injectModifierKey } from "../utils";
+import { injectKeyboardShortcut, injectModifierKey } from "../utils";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
@@ -66,9 +66,6 @@ const COMPACT_THRESHOLD_BUFFER_PX = 48;
     OverflowTriggerDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    "(document:keydown)": "handleShortcut($event)",
-  },
 })
 export class BulkActionsBarComponent {
   private readonly document = inject(DOCUMENT);
@@ -193,6 +190,13 @@ export class BulkActionsBarComponent {
 
   constructor() {
     const injector = inject(Injector);
+
+    injectKeyboardShortcut({
+      key: "b",
+      code: "KeyB",
+      enabled: () => this.visible(),
+      handler: () => this.toggleBarFocus(),
+    });
 
     // Compact engages when the wrapper is narrower than the bar's intrinsic width.
     // `initialBarWidth` is read untracked: it's a snapshot threshold, and tracking it
@@ -380,17 +384,8 @@ export class BulkActionsBarComponent {
     this.compact.set(wrapperEl.clientWidth < barWidth + COMPACT_THRESHOLD_BUFFER_PX);
   }
 
-  protected handleShortcut(event: KeyboardEvent): void {
-    if (!this.visible()) {
-      return;
-    }
-
-    // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — exactly one of metaKey/ctrlKey.
-    if (event.key.toLowerCase() !== "b" || event.metaKey === event.ctrlKey) {
-      return;
-    }
-    event.preventDefault();
-
+  /** Focus enters the bar, or returns to wherever it came from if it is already inside. */
+  private toggleBarFocus(): void {
     const root = this.bar()?.nativeElement;
     const active = this.document.activeElement as HTMLElement | null;
 
