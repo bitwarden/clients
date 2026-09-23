@@ -22,6 +22,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use desktop_core::ipc::announcement::ClientAnnouncement;
 use futures::FutureExt;
 #[cfg(feature = "napi")]
 use napi_derive::napi;
@@ -304,15 +305,17 @@ impl AutofillProviderClient {
                 .expect("Can't create runtime");
 
             rt.spawn(
-                desktop_core::ipc::client::connect(path.clone(), from_server_send, to_server_recv)
-                    .map(move |r| {
-                        if let Err(err) = r {
-                            tracing::error!(
-                                ?path,
-                                "Failed to connect to autofill IPC server: {err}"
-                            );
-                        }
-                    }),
+                desktop_core::ipc::client::connect(
+                    path.clone(),
+                    ClientAnnouncement::new_autofill(),
+                    from_server_send,
+                    to_server_recv,
+                )
+                .map(move |r| {
+                    if let Err(err) = r {
+                        tracing::error!(?path, "Failed to connect to autofill IPC server: {err}");
+                    }
+                }),
             );
 
             rt.block_on(async move {
