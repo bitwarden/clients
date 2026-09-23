@@ -30,7 +30,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -81,7 +80,6 @@ export abstract class LoginStrategy {
     protected platformUtilsService: PlatformUtilsService,
     protected messagingService: MessagingService,
     protected logService: LogService,
-    protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -262,7 +260,6 @@ export abstract class LoginStrategy {
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
 
-    await this.setMasterKey(response, userId);
     await this.setAccountCryptographicState(response, userId);
     await this.unlock(response, userId);
 
@@ -276,12 +273,6 @@ export abstract class LoginStrategy {
 
     return result;
   }
-
-  /**
-   * The keys comes from different sources depending on the login strategy
-   * @deprecated This method will be removed with https://bitwarden.atlassian.net/browse/PM-33722
-   */
-  protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   /**
    * Unlocks the SDK for the user using the implementation for the login strategy.

@@ -60,19 +60,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     throw new Error("2FA not supported yet for WebAuthn Login.");
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
-
   protected override async unlock(idTokenResponse: IdentityTokenResponse, userId: UserId) {
-    const masterKeyEncryptedUserKey = idTokenResponse.key;
-
-    if (masterKeyEncryptedUserKey) {
-      // set the master key encrypted user key if it exists
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-        masterKeyEncryptedUserKey,
-        userId,
-      );
-    }
-
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions?.webAuthnPrfOption) {
