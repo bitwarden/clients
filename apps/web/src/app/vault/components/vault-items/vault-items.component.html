@@ -68,12 +68,7 @@
         <th
           bitCell
           class="tw-text-right"
-          [ngClass]="
-            optionsColumnWidthClass(
-              (showCopyAndLaunchActions$ | async) ?? false,
-              (showQuickCopyActions$ | async) ?? false
-            )
-          "
+          [ngClass]="optionsColumnWidthClass((showQuickCopyActions$ | async) ?? false)"
         >
           @if (!batchBarService?.enabled()) {
             @let menuDisabled = disableMenu$ | async;

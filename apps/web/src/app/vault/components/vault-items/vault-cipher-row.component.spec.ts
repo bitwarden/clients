@@ -1,4 +1,3 @@
-import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
@@ -18,7 +17,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
 import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
@@ -50,7 +48,6 @@ console.error = (...args) => {
 describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -105,124 +102,11 @@ describe("VaultCipherRowComponent", () => {
 
     fixture = TestBed.createComponent(VaultCipherRowComponent);
     component = fixture.componentInstance;
-    overlayContainer = TestBed.inject(OverlayContainer);
-  });
-
-  afterEach(() => {
-    overlayContainer?.ngOnDestroy();
   });
 
   afterAll(() => {
     // eslint-disable-next-line no-console
     console.error = originalError;
-  });
-
-  describe("copy password visibility", () => {
-    let loginCipher: CipherView;
-
-    beforeEach(() => {
-      loginCipher = new CipherView();
-      loginCipher.id = "cipher-1";
-      loginCipher.name = "Test Login";
-      loginCipher.type = CipherType.Login;
-      loginCipher.login = new LoginView();
-      loginCipher.login.password = "test-password";
-      loginCipher.organizationId = undefined;
-      loginCipher.deletedDate = null;
-      loginCipher.archivedDate = null;
-
-      component.cipher = loginCipher;
-      component.disabled = false;
-    });
-
-    const openMenuAndGetContent = (): string => {
-      fixture.detectChanges();
-
-      const menuTrigger = fixture.nativeElement.querySelector(
-        'button[biticonbutton="bwi-ellipsis-v"]',
-      ) as HTMLButtonElement;
-      expect(menuTrigger).toBeTruthy();
-
-      menuTrigger.click();
-      fixture.detectChanges();
-
-      return overlayContainer.getContainerElement().innerHTML;
-    };
-
-    it("renders copy password button in menu when viewPassword is true", () => {
-      component.cipher.viewPassword = true;
-
-      const overlayContent = openMenuAndGetContent();
-
-      expect(overlayContent).toContain('appcopyfield="password"');
-      expect(overlayContent).toContain("copyPassword");
-    });
-
-    it("does not render copy password button in menu when viewPassword is false", () => {
-      component.cipher.viewPassword = false;
-
-      const overlayContent = openMenuAndGetContent();
-
-      expect(overlayContent).not.toContain('appcopyfield="password"');
-    });
-
-    it("does not render copy password button in menu when viewPassword is undefined", () => {
-      component.cipher.viewPassword = undefined;
-
-      const overlayContent = openMenuAndGetContent();
-
-      expect(overlayContent).not.toContain('appcopyfield="password"');
-    });
-  });
-
-  describe("hasBankAccountOptions", () => {
-    let bankAccountCipher: CipherView;
-
-    beforeEach(() => {
-      bankAccountCipher = new CipherView();
-      bankAccountCipher.id = "cipher-1";
-      bankAccountCipher.name = "Test Bank Account";
-      bankAccountCipher.type = CipherType.BankAccount;
-      bankAccountCipher.deletedDate = null;
-
-      component.cipher = bankAccountCipher;
-      component.disabled = false;
-    });
-
-    it("returns true when accountNumber is populated", () => {
-      bankAccountCipher.bankAccount.accountNumber = "123456789";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns true when routingNumber is populated", () => {
-      bankAccountCipher.bankAccount.routingNumber = "987654321";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns true when pin is populated", () => {
-      bankAccountCipher.bankAccount.pin = "1234";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns true when iban is populated", () => {
-      bankAccountCipher.bankAccount.iban = "GB29NWBK60161331926819";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns false when no bank account fields are populated", () => {
-      expect(component["hasBankAccountOptions"]).toBe(false);
-    });
-
-    it("returns false when cipher is not a bank account type", () => {
-      bankAccountCipher.type = CipherType.Login;
-      expect(component["hasBankAccountOptions"]).toBe(false);
-    });
-
-    it("returns false when cipher is deleted", () => {
-      bankAccountCipher.bankAccount.accountNumber = "123456789";
-      bankAccountCipher.deletedDate = new Date();
-      expect(component["hasBankAccountOptions"]).toBe(false);
-    });
   });
 
   describe("showAssignToCollections", () => {
