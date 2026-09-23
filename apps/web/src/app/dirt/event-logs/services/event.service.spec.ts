@@ -453,3 +453,72 @@ describe("EventService shortcode escaping", () => {
     expect(info.message).not.toContain("<code><script></code>");
   });
 });
+
+describe("EventService ServiceAccount people events", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation(
+    (id: string, p1?: string, p2?: string) => `${id}${p1 ?? ""}${p2 ?? ""}`,
+  );
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  const grantedMemberId = "org-user-1234-5678";
+  // Distinct from grantedMemberId so a regression to reading ev.userId (the pre-fix column) is
+  // caught by asserting on this value's absence, not just the presence of the correct one.
+  const actingUserId = "acting-user-0000-1111";
+
+  const cases: [EventType, string][] = [
+    [EventType.ServiceAccount_UserAdded, "addedUserToServiceAccountWithId"],
+    [EventType.ServiceAccount_UserRemoved, "removedUserToServiceAccountWithId"],
+  ];
+
+  it.each(cases)(
+    "renders %s using OrganizationUserId, never legacy UserId",
+    async (type, i18nKey) => {
+      // The server (EventLegacyFieldResolver) reclaims the granted member's id into
+      // OrganizationUserId for both new and pre-fix rows, and nulls UserId once reclaimed. Setting
+      // UserId here to a different id catches any client-side regression back to formatUserId.
+      const info = await sut.getEventInfo({
+        type,
+        organizationUserId: grantedMemberId,
+        userId: actingUserId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse);
+
+      expect(info.message).toContain(i18nKey);
+      expect(info.message).toContain(grantedMemberId.substring(0, 8));
+      expect(info.message).not.toContain(actingUserId.substring(0, 8));
+      expect(info.message).toContain(`viewEvents=${grantedMemberId}`);
+    },
+  );
+
+  it.each(cases)("renders %s as plain text when links are disabled", async (type) => {
+    const options = new EventOptions();
+    options.disableLink = true;
+
+    const info = await sut.getEventInfo(
+      {
+        type,
+        organizationUserId: grantedMemberId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse,
+      options,
+    );
+
+    expect(info.message).not.toContain("<a ");
+    expect(info.message).toContain(grantedMemberId.substring(0, 8));
+  });
+});
