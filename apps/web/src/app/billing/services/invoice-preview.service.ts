@@ -47,8 +47,10 @@ export class InvoicePreviewService {
     );
   };
 
+  /** @param planName display name of the target plan, used for the prorated seat label. */
   previewPremiumOrgUpgradeCart = async (
     request: PremiumOrgUpgradePreviewRequest,
+    planName: string,
   ): Promise<Cart> => {
     const preview = await this.invoicePreviewClient.previewPremiumOrgUpgrade(request);
 
@@ -56,6 +58,7 @@ export class InvoicePreviewService {
       preview,
       InvoicePreviewFlowContext.PremiumOrgUpgrade,
       this.logService,
+      { planName },
     );
   };
 

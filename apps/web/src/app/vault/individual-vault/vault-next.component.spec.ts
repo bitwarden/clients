@@ -58,6 +58,7 @@ import {
   CollectionDialogResult,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
@@ -1325,6 +1326,38 @@ describe("VaultNextComponent", () => {
       await component().addCollection();
 
       expect(collectionService.upsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("openImportDialog", () => {
+    let importDialogOpen: jest.SpyInstance;
+
+    beforeEach(() => {
+      importDialogOpen = jest
+        .spyOn(ImportDialogComponent, "open")
+        .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+    });
+
+    afterEach(() => {
+      importDialogOpen.mockRestore();
+    });
+
+    it("passes the scoped organization ID when viewing an org vault", () => {
+      scopeTo(organizationId);
+
+      component().openImportDialog();
+
+      expect(importDialogOpen).toHaveBeenCalledTimes(1);
+      expect(importDialogOpen.mock.calls[0][1]).toBe(organizationId);
+    });
+
+    it("passes undefined when viewing the personal vault", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      component().openImportDialog();
+
+      expect(importDialogOpen).toHaveBeenCalledTimes(1);
+      expect(importDialogOpen.mock.calls[0][1]).toBeUndefined();
     });
   });
 
