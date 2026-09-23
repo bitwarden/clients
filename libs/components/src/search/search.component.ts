@@ -1,3 +1,4 @@
+import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -109,12 +110,16 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
     this.input()?.nativeElement.focus();
   }
 
-  // Safari uses type="text" so Escape won't natively clear the field; handle it manually.
+  // Safari uses type="text", losing the native clear. Stopping propagation keeps Escape one
+  // action: an enclosing overlay only closes on a second press, once there's nothing left to clear.
   protected handleInputKeydown(event: KeyboardEvent): void {
-    if (event.key === "Escape" && this.searchText()) {
-      event.preventDefault();
-      this.clearSearch();
+    if (event.key !== "Escape" || hasModifierKey(event) || !this.searchText()) {
+      return;
     }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.clearSearch();
   }
 
   // Handle the reset button click
