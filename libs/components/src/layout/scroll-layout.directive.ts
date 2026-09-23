@@ -19,6 +19,11 @@ import { filter, fromEvent, Observable, switchMap } from "rxjs";
 export class ScrollLayoutService {
   readonly scrollableRef = signal<ElementRef<HTMLElement> | null>(null);
   scrollableRef$ = toObservable(this.scrollableRef);
+
+  /**
+   * Whether the page is restoring a scroll position, so the collapsing regions start collapsed.
+   */
+  readonly restoredScrolled = signal(false);
 }
 
 /**

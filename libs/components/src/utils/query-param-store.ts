@@ -97,6 +97,9 @@ export function encodeNamespace(namespace: string, state: ParamState): Params {
  * untouched, history stays flat. Each property of the value maps to one
  * `namespace.key` param; an empty value omits its param, so clearing a key removes it.
  *
+ * A write is scoped to the page the store read: once the URL's path moves on, a write
+ * queued by the outgoing page is dropped rather than merged into the new one.
+ *
  * `namespace` may be a `Signal` (e.g. a component input), so the store can be created
  * in a field initializer before the input resolves: seeding uses {@link linkedSignal},
  * which decodes the URL lazily the first time the value is read — by which point the
@@ -134,6 +137,11 @@ export function queryParamStore<T extends ParamState>(
   });
 
   if (router && route) {
+    // The page this store last agreed with the URL on, and the only page its state describes.
+    // `null` until that first agreement, so a store seeded with defaults the URL lacks can still
+    // write them.
+    let syncedPath: string | null = null;
+
     effect(() => {
       const ns = name();
       const value = state();
@@ -153,9 +161,19 @@ export function queryParamStore<T extends ParamState>(
         const wanted = Array.isArray(next) ? next : [next];
         return had.length !== wanted.length || wanted.some((v, i) => v !== had[i]);
       });
+      const path = pathOf(router.url);
       if (!changed) {
+        syncedPath = path;
         return;
       }
+      // This state describes the page it was read from, and `merge` would graft it onto a page
+      // that never stated it.
+      if (syncedPath != null && syncedPath !== path) {
+        return;
+      }
+      // Claimed on write too, so a store whose first flush already differs from the URL is
+      // page-scoped from then on.
+      syncedPath = path;
       void router.navigate([], {
         relativeTo: route,
         queryParams: patch,
@@ -167,6 +185,10 @@ export function queryParamStore<T extends ParamState>(
   }
 
   return state;
+}
+
+function pathOf(url: string): string {
+  return url.split(/[?#]/, 1)[0];
 }
 
 /** Read-only view of a {@link queryParamStore}. */

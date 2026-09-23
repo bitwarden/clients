@@ -1,10 +1,10 @@
-import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   computed,
   effect,
   inject,
@@ -12,6 +12,7 @@ import {
   linkedSignal,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
@@ -26,6 +27,7 @@ import {
   LinkModule,
   TypographyModule,
   AccordionComponent,
+  focusAfterRender,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -109,7 +111,7 @@ type SharedFolderCard = {
 })
 export class SharedFolderCardGridComponent {
   private readonly i18nService = inject(I18nService);
-  private readonly liveAnnouncer = inject(LiveAnnouncer);
+  private readonly injector = inject(Injector);
 
   /**
    * The collections of the vault in view, narrowed to it by the host — the grid can never surface
@@ -139,6 +141,13 @@ export class SharedFolderCardGridComponent {
 
   /** The list the cards render into. Absent whenever the grid renders nothing. */
   private readonly gridList = viewChild<ElementRef<HTMLElement>>("gridList");
+
+  /**
+   * The card anchors, in the order the grid renders them — the focus targets on an expand. Read as
+   * `ElementRef`s: `bit-item-content` is a component, so the reference would otherwise resolve to
+   * its instance rather than the anchor it sits on.
+   */
+  private readonly cardLinks = viewChildren("cardLink", { read: ElementRef<HTMLAnchorElement> });
 
   /**
    * The width of the grid itself, in px, kept current as the window resizes. 0 until first measured.
@@ -256,9 +265,10 @@ export class SharedFolderCardGridComponent {
    * The route a child folder's card links to: this vault, drilled into that folder. Following it
    * re-derives the scope and with it the grid's next set of children.
    *
-   * A folder's route names the vault it lives in rather than the path taken to it, so drilling
-   * deeper replaces the segment — see {@link vaultScopeCommands}. A scope that can hold no folder
-   * links to itself, which the grid never renders a card for anyway.
+   * A folder's route names the vault it lives in rather than the path taken through its ancestors,
+   * so drilling deeper replaces the `:collectionId` segment rather than adding to it — see
+   * {@link vaultScopeCommands}. A scope that can hold no folder links to itself, which the grid
+   * never renders a card for anyway.
    */
   private folderRoute(folder: CollectionView): string[] {
     const scope = this.scope();
@@ -297,6 +307,10 @@ export class SharedFolderCardGridComponent {
   );
 
   protected toggleExpanded() {
+    // Read before the toggle, while the cutoff still marks where the hidden cards start: the card
+    // at that index is the first the expand reveals.
+    const firstRevealedIndex = this.collapsedCardCount();
+
     this.expanded.update((expanded) => !expanded);
 
     if (!this.expanded()) {
@@ -304,14 +318,8 @@ export class SharedFolderCardGridComponent {
     }
 
     // The grid sits above its own trigger, so the cards that just appeared are behind the user's
-    // focus and would otherwise go unnoticed by a screen reader. Only the toggle announces: a grid
-    // the host renders expanded has revealed nothing, so there is nothing to point back at.
-    const overflowCardsCount = this.overflowCards().length;
-    const message =
-      overflowCardsCount === 1
-        ? this.i18nService.t("moreSharedFoldersShownAboveSingular")
-        : this.i18nService.t("moreSharedFoldersShownAbove", overflowCardsCount);
-
-    void this.liveAnnouncer.announce(message, "polite");
+    // focus and would otherwise go unnoticed. Only the toggle moves focus: a grid the host renders
+    // expanded has revealed nothing.
+    focusAfterRender(this.injector, () => this.cardLinks()[firstRevealedIndex]?.nativeElement);
   }
 }

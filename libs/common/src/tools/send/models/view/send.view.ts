@@ -5,14 +5,21 @@ import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SendId as SdkSendId, SendView as SdkSendView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../../models/view/view";
-import { asUuid } from "../../../../platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
-import { AUTH_TYPE_TO_SDK, Send, SEND_TYPE_TO_SDK } from "../domain/send";
+import {
+  AUTH_TYPE_FROM_SDK,
+  AUTH_TYPE_TO_SDK,
+  Send,
+  SEND_TYPE_FROM_SDK,
+  SEND_TYPE_TO_SDK,
+} from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendView implements View {
@@ -25,6 +32,7 @@ export class SendView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
+  data = new SendItemView();
   maxAccessCount?: number = null;
   accessCount = 0;
   revisionDate: Date = null;
@@ -124,8 +132,12 @@ export class SendView implements View {
               hidden: this.text?.hidden ?? false,
             }
           : undefined,
-      // Item-type sends are not yet modeled client-side; see PM-41095.
-      data: undefined,
+      data:
+        this.type === SendType.Item
+          ? {
+              data: this.data?.data?.toSdkCipherView() ?? undefined,
+            }
+          : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
@@ -148,9 +160,41 @@ export class SendView implements View {
       cryptoKey: SymmetricCryptoKey.fromJSON(json.cryptoKey),
       text: SendTextView.fromJSON(json.text),
       file: SendFileView.fromJSON(json.file),
+      data: SendItemView.fromJSON(json.data),
       revisionDate: json.revisionDate == null ? null : new Date(json.revisionDate),
       deletionDate: json.deletionDate == null ? null : new Date(json.deletionDate),
       expirationDate: json.expirationDate == null ? null : new Date(json.expirationDate),
     });
+  }
+
+  /** Maps an SDK `SendView` back to a domain `SendView`. */
+  static fromSdkSendView(obj?: SdkSendView): SendView {
+    if (obj == null) {
+      return null;
+    }
+    const send = new SendView();
+    send.id = obj.id ? uuidAsString(obj.id) : null;
+    send.accessId = obj.accessId ?? null;
+    send.name = obj.name;
+    send.notes = obj.notes;
+    send.key = obj.key ? Utils.fromUrlB64ToArray(obj.key) : null;
+    send.type = SEND_TYPE_FROM_SDK[obj.type];
+    send.maxAccessCount = obj.maxAccessCount ?? undefined;
+    send.accessCount = obj.accessCount;
+    send.disabled = obj.disabled;
+    send.hideEmail = obj.hideEmail;
+    send.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
+    send.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
+    send.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
+    // A decrypted SendView from the SDK never has the actual password, only a boolean indicating
+    // that the original Send has one. We use that boolean to set the password field to a truthy
+    // placeholder value so that callers can use it.
+    send.password = obj.hasPassword ? "************" : null;
+    send.emails = obj.emails ?? null;
+    send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
+    send.text = obj.text != null ? SendTextView.fromSdk(obj.text) : null;
+    send.file = obj.file != null ? SendFileView.fromSdk(obj.file) : null;
+    send.data = obj.data != null ? SendItemView.fromSdk(obj.data) : null;
+    return send;
   }
 }

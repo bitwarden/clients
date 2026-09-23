@@ -1,9 +1,24 @@
 import { inject, Injectable, signal, WritableSignal } from "@angular/core";
-import { lastValueFrom, firstValueFrom, take } from "rxjs";
+import {
+  catchError,
+  concatMap,
+  defer,
+  finalize,
+  firstValueFrom,
+  from,
+  lastValueFrom,
+  map,
+  MonoTypeOperatorFunction,
+  Observable,
+  of,
+  reduce,
+  switchMap,
+  take,
+  tap,
+} from "rxjs";
 
 import {
   OrganizationUserApiService,
-  OrganizationUserBulkResponse,
   OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
@@ -12,25 +27,46 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  asUuid,
+  SdkService,
+  uuidAsString,
+} from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
+import {
+  OrganizationId as SdkOrganizationId,
+  OrganizationUserBulkResponse as SdkOrganizationUserBulkResponse,
+  OrganizationUserId,
+  OrganizationUsersManagementClient,
+  OrganizationUserStatusType,
+} from "@bitwarden/sdk-internal";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
+import {
+  BulkActionResult,
+  MemberActionResult,
+  OrganizationUserBulkResult,
+  REQUESTS_PER_BATCH,
+} from "./member-actions.types";
 
-@Injectable()
+// Provided in root so that EditMemberDialogComponent can resolve it. DialogService parents a
+// dialog's injector to the environment injector DialogService itself was created in, so dialogs
+// opened via the root-provided MemberDialogManagerService resolve against root — a module-scoped
+// provider is never in that chain.
+@Injectable({ providedIn: "root" })
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
@@ -42,6 +78,8 @@ export class MemberActionsService {
   private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
   private userNamePipe = inject(UserNamePipe);
   private memberDialogManager = inject(MemberDialogManagerService);
+  private accountService = inject(AccountService);
+  private sdkService = inject(SdkService);
 
   readonly isProcessing = signal(false);
 
@@ -131,38 +169,28 @@ export class MemberActionsService {
     }
   }
 
-  async reinviteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
-    this.startProcessing();
-    try {
-      await this.organizationUserApiService.postOrganizationUserReinvite(organization.id, userId);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
-    } finally {
-      this.endProcessing();
-    }
+  reinviteUser(organization: Organization, userId: string): Observable<MemberActionResult> {
+    return this.withMembersClient$((client) =>
+      client.reinvite(
+        asUuid<SdkOrganizationId>(organization.id),
+        asUuid<OrganizationUserId>(userId),
+      ),
+    ).pipe(
+      map((): MemberActionResult => ({ success: true })),
+      catchError((error: unknown) =>
+        of<MemberActionResult>({ success: false, error: this.sdkErrorMessage(error) }),
+      ),
+      this.trackProcessing(),
+    );
   }
 
-  async sendInvite(organization: Organization, userId: string): Promise<MemberActionResult> {
-    this.startProcessing();
-    try {
-      const response = await this.organizationUserApiService.postOrganizationUserSendInvite(
-        organization.id,
-        [userId],
-      );
-
-      const failure = response.data.find((memberResult) => memberResult.error);
-      if (failure != null) {
-        return { success: false, error: failure.error };
-      }
-
-      this.organizationMetadataService.refreshMetadataCache();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
-    } finally {
-      this.endProcessing();
-    }
+  sendInvite(organization: Organization, userId: string): Observable<MemberActionResult> {
+    return this.bulkSendInvite(organization, [userId]).pipe(
+      map((result): MemberActionResult => {
+        const failure = result.failed[0];
+        return failure ? { success: false, error: failure.error } : { success: true };
+      }),
+    );
   }
 
   /**
@@ -170,40 +198,22 @@ export class MemberActionsService {
    * them per row, so a stale selection degrades to a partial send. A seat expansion failure still fails
    * the whole call, because seats are reserved once for the entire set.
    */
-  async bulkSendInvite(
-    organization: Organization,
-    users: OrganizationUserView[],
-  ): Promise<BulkActionResult> {
-    const result = new BulkActionResult();
-    this.startProcessing();
-
-    try {
-      const response = await this.organizationUserApiService.postOrganizationUserSendInvite(
-        organization.id,
-        users.map((user) => user.id),
-      );
-
-      for (const memberResult of response.data) {
-        if (memberResult.error) {
-          result.failed.push({ id: memberResult.id, error: memberResult.error });
-        } else {
-          result.successful.push(memberResult);
+  bulkSendInvite(organization: Organization, userIds: string[]): Observable<BulkActionResult> {
+    return this.withMembersClient$((client) =>
+      client.send_staged_invites(
+        asUuid<SdkOrganizationId>(organization.id),
+        userIds.map((id) => asUuid<OrganizationUserId>(id)),
+      ),
+    ).pipe(
+      map((rows) => partitionResults(rows.map(toBulkResult))),
+      tap((result) => {
+        if (result.successful.length > 0) {
+          this.organizationMetadataService.refreshMetadataCache();
         }
-      }
-
-      if (result.successful.length > 0) {
-        this.organizationMetadataService.refreshMetadataCache();
-      }
-    } catch (error) {
-      result.failed = users.map((user) => ({
-        id: user.id,
-        error: (error as Error).message ?? String(error),
-      }));
-    } finally {
-      this.endProcessing();
-    }
-
-    return result;
+      }),
+      catchError((error: unknown) => of(this.failAll(userIds, error))),
+      this.trackProcessing(),
+    );
   }
 
   async confirmUser(
@@ -224,40 +234,46 @@ export class MemberActionsService {
     }
   }
 
-  async bulkReinvite(
+  bulkReinvite(
     organization: Organization,
     users: OrganizationUserView[],
-  ): Promise<BulkActionResult> {
-    let result = new BulkActionResult();
-    this.startProcessing(users.length);
+  ): Observable<BulkActionResult> {
+    return this.processBatched$(users, REQUESTS_PER_BATCH, (userBatch) =>
+      this.withMembersClient$((client) =>
+        client.bulk_reinvite(
+          asUuid<SdkOrganizationId>(organization.id),
+          userBatch.map((u) => asUuid<OrganizationUserId>(u.id)),
+        ),
+      ).pipe(map((rows) => rows.map(toBulkResult))),
+    ).pipe(
+      concatMap((result) =>
+        result.failed.length > 0 ? this.offerResend(organization, users, result) : of(result),
+      ),
+      catchError((error: unknown) =>
+        of(
+          this.failAll(
+            users.map((user) => user.id),
+            error,
+          ),
+        ),
+      ),
+      this.trackProcessing(users.length),
+    );
+  }
 
-    try {
-      result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) => {
-        const userIds = userBatch.map((u) => u.id);
-        return this.organizationUserApiService.postManyOrganizationUserReinvite(
-          organization.id,
-          userIds,
-        );
-      });
-
-      if (result.failed.length > 0) {
-        const resendUsers = await firstValueFrom(
-          this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result),
-        );
-
-        if (resendUsers.length > 0) {
-          await this.bulkReinvite(organization, resendUsers);
-        }
-      }
-    } catch (error) {
-      result.failed = users.map((user) => ({
-        id: user.id,
-        error: (error as Error).message ?? String(error),
-      }));
-    } finally {
-      this.endProcessing();
-    }
-    return result;
+  /** Lets the admin retry the failed members. The original outcome is reported either way. */
+  private offerResend(
+    organization: Organization,
+    users: OrganizationUserView[],
+    result: BulkActionResult,
+  ): Observable<BulkActionResult> {
+    return this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result).pipe(
+      take(1),
+      concatMap((resendUsers) =>
+        resendUsers.length > 0 ? this.bulkReinvite(organization, resendUsers) : of(undefined),
+      ),
+      map(() => result),
+    );
   }
 
   allowResetPassword(
@@ -298,53 +314,101 @@ export class MemberActionsService {
   }
 
   /**
-   * Processes user IDs in sequential batches and aggregates results.
-   * @param users - Array of users to process
-   * @param batchSize - Number of IDs to process per batch
-   * @param processBatch - Async function that processes a single batch from the provided param `users` and returns the result.
+   * Processes users in sequential batches and aggregates the outcomes.
+   * @param users - Users to process
+   * @param batchSize - Number of users per batch
+   * @param processBatch - Processes a single batch and emits the outcome for each of its members
    * @returns Aggregated bulk action result
    */
-  private async processBatchedOperation(
+  private processBatched$(
     users: OrganizationUserView[],
     batchSize: number,
-    processBatch: (
-      batch: OrganizationUserView[],
-    ) => Promise<ListResponse<OrganizationUserBulkResponse>>,
-  ): Promise<BulkActionResult> {
-    const allSuccessful: OrganizationUserBulkResponse[] = [];
-    const allFailed: { id: string; error: string }[] = [];
+    processBatch: (batch: OrganizationUserView[]) => Observable<OrganizationUserBulkResult[]>,
+  ): Observable<BulkActionResult> {
+    const batches = Array.from({ length: Math.ceil(users.length / batchSize) }, (_, i) =>
+      users.slice(i * batchSize, (i + 1) * batchSize),
+    );
 
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
+    return from(batches).pipe(
+      concatMap((batch) =>
+        processBatch(batch).pipe(
+          take(1),
+          map((results) => partitionResults(results)),
+          catchError((error: unknown) =>
+            of(
+              this.failAll(
+                batch.map((user) => user.id),
+                error,
+              ),
+            ),
+          ),
+          tap(() => this.progressCount.update((value) => value + batch.length)),
+        ),
+      ),
+      reduce(
+        (all, batchResult) => ({
+          successful: [...all.successful, ...batchResult.successful],
+          failed: [...all.failed, ...batchResult.failed],
+        }),
+        new BulkActionResult(),
+      ),
+    );
+  }
 
-      try {
-        const result = await processBatch(batch);
+  /** Handles the progress dialog while the action is executing */
+  private trackProcessing<T>(length?: number): MonoTypeOperatorFunction<T> {
+    return (source) =>
+      defer(() => {
+        this.startProcessing(length);
+        return source;
+      }).pipe(finalize(() => this.endProcessing()));
+  }
 
-        if (result?.data) {
-          for (const response of result.data) {
-            if (response.error) {
-              allFailed.push({ id: response.id, error: response.error });
-            } else {
-              allSuccessful.push(response);
-            }
-          }
-        }
-      } catch (error) {
-        allFailed.push(
-          ...batch.map((user) => ({
-            id: user.id,
-            error: (error as Error).message ?? String(error),
-          })),
-        );
-      }
+  /** Marks every given member as failed with the message of a request that failed as a whole. */
+  private failAll(ids: string[], error: unknown): BulkActionResult {
+    const result = new BulkActionResult();
+    result.failed = ids.map((id) => ({ id, error: this.sdkErrorMessage(error) }));
+    return result;
+  }
 
-      this.progressCount.update((value) => value + batch.length);
+  /**
+   * Runs one operation against the member administration client of the active user. The account is
+   * pinned at call time so a mutation is never replayed against a different user, and the client is
+   * only valid inside the callback.
+   */
+  private withMembersClient$<T>(
+    operation: (client: OrganizationUsersManagementClient) => Promise<T>,
+  ): Observable<T> {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      take(1),
+      switchMap((userId) => this.sdkService.userClient$(userId)),
+      concatMap(async (sdk) => {
+        using ref = sdk.take();
+        return await operation(ref.value.organization_users_management());
+      }),
+    );
+  }
+
+  /**
+   * The SDK renders a rejected request as `error in response: status code <status>: <json body>`.
+   * The server's own message inside that body is the one worth showing; anything else passes through.
+   */
+  private sdkErrorMessage(error: unknown): string {
+    const message = (error as Error).message ?? String(error);
+    const bodyStart = message.indexOf("{");
+    if (bodyStart === -1) {
+      return message;
     }
 
-    return {
-      successful: allSuccessful,
-      failed: allFailed,
-    };
+    try {
+      const body = JSON.parse(message.slice(bodyStart, message.lastIndexOf("}") + 1)) as {
+        message?: unknown;
+      };
+      return typeof body.message === "string" ? body.message : message;
+    } catch {
+      return message;
+    }
   }
 
   /**
@@ -395,4 +459,21 @@ export class MemberActionsService {
       this.logService.error(`Handled exception: ${e}`);
     }
   }
+}
+
+function toBulkResult(result: SdkOrganizationUserBulkResponse): OrganizationUserBulkResult {
+  return { id: uuidAsString(result.id), error: result.error };
+}
+
+/** Splits per-member outcomes into the members that succeeded and the ones that reported an error. */
+function partitionResults(results: OrganizationUserBulkResult[]): BulkActionResult {
+  const partitioned = new BulkActionResult();
+  for (const result of results) {
+    if (result.error) {
+      partitioned.failed.push({ id: result.id, error: result.error });
+    } else {
+      partitioned.successful.push(result);
+    }
+  }
+  return partitioned;
 }
