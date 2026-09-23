@@ -66,6 +66,7 @@ import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import {
   ControlledAccessFilterOption,
   VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
 } from "../../tokens/vault-controlled-access-filter.token";
 import {
   idString,
@@ -854,9 +855,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * The optional host contribution behind the Controlled access chip. Unprovided — every client
    * but the one that supplies it — the chip is absent and the table is unchanged.
    */
-  private readonly controlledAccessFilter = inject(VAULT_CONTROLLED_ACCESS_FILTER, {
-    optional: true,
-  });
+  private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
+    { optional: true },
+  );
 
   /** The chip's options, already localized by the host. Empty hides the chip entirely. */
   protected readonly controlledAccessOptions = toSignal(
