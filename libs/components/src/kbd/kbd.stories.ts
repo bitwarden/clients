@@ -1,6 +1,9 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
+
+import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BitKbdComponent } from "./kbd.component";
 
@@ -10,6 +13,17 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [BitKbdComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              keyEscape: "Esc",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
+            }),
+        },
+      ],
     }),
   ],
   args: {

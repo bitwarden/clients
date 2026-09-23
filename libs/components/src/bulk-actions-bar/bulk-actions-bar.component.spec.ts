@@ -122,6 +122,8 @@ describe("BulkActionsBarComponent", () => {
               // so its `aria-label` and label content pipe through i18n even when
               // no additional actions are projected.
               additionalActions: "Additional actions",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
             }),
         },
       ],
@@ -733,6 +735,8 @@ describe("BulkActionsBarComponent — additional actions", () => {
               bulkActionsBar: "Bulk actions",
               bulkActionsBarAnnouncement: "__$1__ items selected. Press __$2__.",
               additionalActions: "Additional actions",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
             }),
         },
       ],

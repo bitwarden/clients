@@ -30,6 +30,9 @@ const i18nMock = () =>
     search: "Search",
     resetSearch: "Reset search",
     clearSearchTooltip: "Clear search",
+    keyEscape: "Esc",
+    keyControl: "Ctrl",
+    keyCommand: "Command",
   });
 
 describe("SearchComponent", () => {
