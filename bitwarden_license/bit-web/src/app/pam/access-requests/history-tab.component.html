@@ -109,9 +109,15 @@
     </div>
   }
 } @else if (vfo1Enabled()) {
-  <bit-table-v2 [tableDef]="historyTable">
-    @if (canSwitchScope()) {
-      <bit-table-toolbar>
+  <bit-table-v2 [tableDef]="historyTable" [filter]="matchesSearch">
+    <bit-table-toolbar>
+      <bit-search
+        id="pam-history-tab_input_search"
+        class="tw-flex-1"
+        [placeholder]="'search' | i18n"
+        [attr.aria-label]="'search' | i18n"
+      ></bit-search>
+      @if (canSwitchScope()) {
         <bit-filter-menu
           #historyScopeFilter
           key="historyScope"
@@ -126,10 +132,17 @@
             "pamHistoryScopeManaged" | i18n
           }}</bit-filter-option>
         </bit-filter-menu>
-      </bit-table-toolbar>
-    }
+      }
+    </bit-table-toolbar>
     <div slot="empty" class="tw-py-6 tw-text-center">
-      <ng-container *ngTemplateOutlet="historyEmptyState" />
+      @if (searchTerm()) {
+        <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-no-results">
+          <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+          <span slot="title">{{ "noMatchingItems" | i18n }}</span>
+        </bit-status-lockup>
+      } @else {
+        <ng-container *ngTemplateOutlet="historyEmptyState" />
+      }
     </div>
     <bit-column sortable width="minmax(240px, 2fr)">
       <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>

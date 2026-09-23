@@ -26,6 +26,7 @@ import { IconComponent } from "@bitwarden/angular/vault/components/icon.componen
 import { NoResults } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
@@ -41,6 +42,7 @@ import {
   ButtonModule,
   FILTER_CONTROL,
   FilterMenuModule,
+  SearchModule,
   StatusLockupComponent,
   SvgComponent,
   SkeletonComponent,
@@ -105,6 +107,7 @@ const announcementHoldMs = 2000;
     ButtonModule,
     FilterMenuModule,
     IconComponent,
+    SearchModule,
     StatusLockupComponent,
     SvgComponent,
     SkeletonComponent,
@@ -127,6 +130,7 @@ export class HistoryTabComponent {
   private readonly syncService = inject(SyncService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly configService = inject(ConfigService);
+  private readonly i18nService = inject(I18nService);
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
@@ -145,7 +149,7 @@ export class HistoryTabComponent {
    * through its `FILTER_CONTROL` contract rather than a form control. On the VFO1 path the chip
    * sits in the table's toolbar and so also registers with the table, but the scope picks which
    * list the table is handed rather than narrowing one, so this `viewChild` stays the plumbing on
-   * both paths and the table is given no `[filter]`.
+   * both paths and the scope is kept out of the table's `[filter]`.
    */
   private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
@@ -327,6 +331,34 @@ export class HistoryTabComponent {
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
   protected readonly historyTable = defineTable<MyAccessRequestRow, "actions">(this.historyRows);
+
+  /** The VFO1 table, for reading the term the toolbar's `bit-search` registered with it. */
+  private readonly tableRef = viewChild(BitTableV2Component<MyAccessRequestRow>);
+
+  /** The toolbar search's current term, trimmed and folded; empty when nothing is being searched. */
+  protected readonly searchTerm = computed(() =>
+    ((this.tableRef()?.filterValues() as { search?: string } | undefined)?.search ?? "")
+      .trim()
+      .toLowerCase(),
+  );
+
+  /**
+   * The toolbar search, over the text the table actually shows: the item, its collection, who
+   * resolved it and what they said. A resolver named only by an i18n key is matched on its
+   * rendered wording rather than the key, so what a reader sees is what they can search for.
+   */
+  protected readonly matchesSearch = (row: MyAccessRequestRow, values: { search?: string }) => {
+    const term = (values.search ?? "").trim().toLowerCase();
+    if (term === "") {
+      return true;
+    }
+    return [
+      row.cipherName ?? row.cipherId,
+      row.collectionName,
+      row.resolverLabelKey == null ? row.resolverName : this.i18nService.t(row.resolverLabelKey),
+      row.approverComment,
+    ].some((field) => field != null && field.toLowerCase().includes(term));
+  };
 
   /**
    * The Resolved column's sort, which is what actually orders the rendered table. Sorting on

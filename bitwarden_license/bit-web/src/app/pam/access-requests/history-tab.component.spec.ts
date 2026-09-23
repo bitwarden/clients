@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -105,6 +106,19 @@ describe("HistoryTabComponent", () => {
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
     selectScope("managed");
+  }
+
+  /**
+   * Types a term into the toolbar's search and re-renders. Driven through the component's own
+   * change handler rather than the DOM input: `ngModel` registers with its form over a microtask
+   * these synchronous, fake-timered tests never flush, so a raw `input` event reaches nothing.
+   */
+  function searchFor(term: string): void {
+    const search = fixture.debugElement.query(By.css("bit-search")).componentInstance as {
+      onChange: (term: string) => void;
+    };
+    search.onChange(term);
+    fixture.detectChanges();
   }
 
   /** Run past the skeleton's show delay and re-render. */
@@ -1259,13 +1273,17 @@ describe("HistoryTabComponent", () => {
       expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
+    // The toolbar now carries the search, which is offered to every viewer, so it outlives the
+    // scope chip rather than appearing with it.
     it("shows the scope's empty state inside the table when no scope chip is offered", () => {
       createWithFlag(true);
 
       const empty = query('[data-testid="my-access-history-empty"]')!;
       expect(empty.closest("bit-table-v2")).not.toBeNull();
       expect(text(empty)).toContain("pamHistoryEmpty");
-      expect(query("bit-table-toolbar")).toBeNull();
+      expect(query("bit-table-toolbar")).not.toBeNull();
+      expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).toBeNull();
+      expect(query("bit-table-toolbar bit-search")).not.toBeNull();
     });
 
     it("holds the scope when the chosen scope matches nothing", () => {
@@ -1327,6 +1345,117 @@ describe("HistoryTabComponent", () => {
       expect(
         query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
       ).not.toBeNull();
+    });
+
+    describe("toolbar search", () => {
+      const namedRows = [
+        historyRow({
+          id: "mine-db",
+          cipherName: "Prod database",
+          collectionName: "Production",
+          resolverName: "Ada",
+          approverComment: "Use the replica.",
+          resolvedAt: "2026-08-17T12:00:00.000Z",
+        }),
+        historyRow({
+          id: "mine-cache",
+          cipherName: "Staging cache",
+          collectionName: "Staging",
+          resolverName: "Grace",
+          approverComment: null,
+          resolvedAt: "2026-08-17T11:00:00.000Z",
+        }),
+      ];
+
+      // The toolbar's top row renders with a bottom border of its own as soon as there is a filter
+      // row under it, so with nothing projected into it the reader sees an empty bordered band.
+      it("fills the toolbar's top row with a search rather than leaving it empty", () => {
+        populateApprover();
+
+        createWithFlag(true);
+
+        const searchEl = query("bit-table-toolbar bit-search")!;
+        expect(searchEl).not.toBeNull();
+        expect(searchEl.closest("[bitOverflowList]")).toBeNull();
+      });
+
+      it("adds no search to the v1 path", () => {
+        populateApprover();
+
+        createWithFlag(false);
+
+        expect(query("bit-search")).toBeNull();
+      });
+
+      it("narrows the table to the rows whose item name matches", () => {
+        myRows$.next(namedRows);
+        createWithFlag(true);
+
+        searchFor("staging cache");
+
+        expect(rowIds()).toEqual(["mine-cache"]);
+      });
+
+      it("matches the resolver and the approver's comment as well as the item", () => {
+        myRows$.next(namedRows);
+        createWithFlag(true);
+
+        searchFor("grace");
+        expect(rowIds()).toEqual(["mine-cache"]);
+
+        searchFor("replica");
+        expect(rowIds()).toEqual(["mine-db"]);
+
+        searchFor("production");
+        expect(rowIds()).toEqual(["mine-db"]);
+      });
+
+      it("ignores case and surrounding whitespace", () => {
+        myRows$.next(namedRows);
+        createWithFlag(true);
+
+        searchFor("  PROD DATA  ");
+
+        expect(rowIds()).toEqual(["mine-db"]);
+      });
+
+      it("restores the full list when the term is cleared", () => {
+        myRows$.next(namedRows);
+        createWithFlag(true);
+
+        searchFor("grace");
+        expect(rowIds()).toEqual(["mine-cache"]);
+
+        searchFor("");
+        expect(rowIds()).toEqual(["mine-db", "mine-cache"]);
+      });
+
+      it("searches inside the chosen scope, not across it", () => {
+        populateApprover();
+        myRows$.next([namedRows[0]]);
+        managedRows$.next([namedRows[1]]);
+        createWithFlag(true);
+
+        selectScope("mine");
+        searchFor("staging");
+
+        expect(rowIds()).toEqual([]);
+      });
+
+      // The empty state asserts an absolute -- "you have resolved nothing" -- which is not what a
+      // search that matched nothing means.
+      it("says nothing matched rather than that the history is empty", () => {
+        myRows$.next(namedRows);
+        createWithFlag(true);
+
+        searchFor("no-such-thing");
+
+        expect(rowIds()).toEqual([]);
+        expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
+        expect(text(query('[data-testid="my-access-history-no-results"]')!)).toContain(
+          "noMatchingItems",
+        );
+      });
     });
   });
 
