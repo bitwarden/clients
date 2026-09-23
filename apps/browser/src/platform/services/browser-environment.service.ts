@@ -1,10 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Region, RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
@@ -22,49 +21,60 @@ const MANAGED_ENVIRONMENT_FIELDS: readonly (keyof GroupPolicyEnvironment)[] = [
   "events",
 ];
 
+/**
+ * Field-by-field equality over the managed environment fields.
+ *
+ * Compares the values as read from the profile rather than the urls they produce, so an
+ * administrator who forces an empty string stays distinguishable from one who does not force the
+ * field at all.
+ */
+export function sameManagedEnvironment(
+  a: GroupPolicyEnvironment | null,
+  b: GroupPolicyEnvironment | null,
+): boolean {
+  if (a == null || b == null) {
+    return a == b;
+  }
+
+  return MANAGED_ENVIRONMENT_FIELDS.every((field) => a[field] === b[field]);
+}
+
 export class BrowserEnvironmentService extends DefaultEnvironmentService {
   /**
-   * @param managedSettingsService - Source of the administrator's `environment.*` settings. Only
-   *   the background's instance is fed by `BrowserManagedConfigReader`, so the popup's instance is
-   *   always empty. That is harmless while the background is the only caller of
-   *   {@link getManagedEnvironment}, and needs a foreground proxy before it is not.
+   * {@link getManagedEnvironment}, re-read whenever a pushed profile changes it.
+   *
+   * `BrowserManagedEnvironmentApplier` subscribes in the background and writes the result to the
+   * global environment, so the popup observes an applied policy through {@link environment$}
+   * rather than through this stream.
+   */
+  readonly managedEnvironment$: Observable<GroupPolicyEnvironment | null>;
+
+  /**
+   * @param managedSettingsService - Source of the administrator's `environment.*` settings. In a
+   *   released build only the background's instance is fed, by `BrowserManagedConfigReader`, so
+   *   the popup's instance is empty and {@link managedEnvironment$} never emits anything but
+   *   `null` there. Under the `managedSettingsDevSource` dev flag the background skips the reader
+   *   and both contexts are seeded from the flag instead, so the popup's stream emits as well.
    */
   constructor(
-    private logService: LogService,
     stateProvider: StateProvider,
     accountService: AccountService,
     private managedSettingsService: ManagedSettingsService,
     additionalRegionConfigs: RegionConfig[] = [],
   ) {
     super(stateProvider, accountService, additionalRegionConfigs);
-  }
 
-  async hasManagedEnvironment(): Promise<boolean> {
-    try {
-      return (await this.getManagedEnvironment()) != null;
-    } catch (e) {
-      this.logService.error(e);
-      return false;
-    }
-  }
-
-  async settingsHaveChanged() {
-    if (!(await this.hasManagedEnvironment())) {
-      return false;
-    }
-
-    const managedEnv = await this.getManagedEnvironment();
-    const env = await firstValueFrom(this.environment$);
-    const urls = env.getUrls();
-
-    return (
-      managedEnv.base != urls.base ||
-      managedEnv.webVault != urls.webVault ||
-      managedEnv.api != urls.api ||
-      managedEnv.identity != urls.identity ||
-      managedEnv.icons != urls.icons ||
-      managedEnv.notifications != urls.notifications ||
-      managedEnv.events != urls.events
+    this.managedEnvironment$ = combineLatest(
+      MANAGED_ENVIRONMENT_FIELDS.map((field) =>
+        this.managedSettingsService.get$(`environment.${field}`),
+      ),
+    ).pipe(
+      // The emitted values are discarded on purpose. A profile push reaches the seven subscriptions
+      // one at a time, so `combineLatest` emits once per changed key and every emission but the
+      // last carries a half-updated tuple. Re-reading the profile instead yields the same, fully
+      // updated environment for each of them, which `distinctUntilChanged` then collapses to one.
+      map(() => this.getManagedEnvironment()),
+      distinctUntilChanged(sameManagedEnvironment),
     );
   }
 
@@ -72,12 +82,12 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
    * The administrator's environment, reconstructed from the `environment.*` leaves of the active
    * management profile, or `null` when none of them is managed.
    *
-   * Resolves synchronously against the in-memory profile. The signature stays a promise because
-   * acquisition used to be asynchronous and the callers still await it.
+   * The `managedEnvironment` dev flag overrides this, returning its value verbatim without reading
+   * the profile.
    */
-  getManagedEnvironment(): Promise<GroupPolicyEnvironment> {
+  getManagedEnvironment(): GroupPolicyEnvironment | null {
     if (devFlagEnabled("managedEnvironment")) {
-      return Promise.resolve(devFlagValue("managedEnvironment"));
+      return devFlagValue("managedEnvironment");
     }
 
     let managed = false;
@@ -96,19 +106,24 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
       environment[field] = JSON.parse(raw) as string;
     }
 
-    return Promise.resolve(managed ? environment : null);
+    return managed ? environment : null;
   }
 
-  async setUrlsToManagedEnvironment() {
-    const env = await this.getManagedEnvironment();
+  /**
+   * Apply an administrator's environment as the self-hosted environment.
+   *
+   * Takes the environment rather than re-reading it, so the caller applies the value it observed
+   * and decided on and a profile arriving in between cannot substitute a different one.
+   */
+  async setUrlsToManagedEnvironment(environment: GroupPolicyEnvironment) {
     await this.setEnvironment(Region.SelfHosted, {
-      base: env.base,
-      webVault: env.webVault,
-      api: env.api,
-      identity: env.identity,
-      icons: env.icons,
-      notifications: env.notifications,
-      events: env.events,
+      base: environment.base,
+      webVault: environment.webVault,
+      api: environment.api,
+      identity: environment.identity,
+      icons: environment.icons,
+      notifications: environment.notifications,
+      events: environment.events,
     });
   }
 }

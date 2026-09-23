@@ -314,7 +314,6 @@ const safeProviders: SafeProvider[] = [
     provide: BrowserEnvironmentService,
     useClass: BrowserEnvironmentService,
     deps: [
-      LogService,
       StateProvider,
       AccountServiceAbstraction,
       ManagedSettingsService,
