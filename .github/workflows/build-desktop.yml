@@ -12,6 +12,7 @@ on:
       - 'cf-pages'
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-common/**'
       - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
@@ -25,6 +26,7 @@ on:
       - 'hotfix-rc-desktop'
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-common/**'
       - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
