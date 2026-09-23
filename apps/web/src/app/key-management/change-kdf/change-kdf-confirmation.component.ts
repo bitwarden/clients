@@ -5,10 +5,6 @@ import { firstValueFrom, Observable } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import {
-  InternalMasterPasswordServiceAbstraction,
-  syncLegacyMasterKeyState,
-} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,7 +39,6 @@ export class ChangeKdfConfirmationComponent {
     private accountService: AccountService,
     private toastService: ToastService,
     private sdkService: SdkService,
-    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private dialogRef: DialogRef<ChangeKdfConfirmationComponent>,
     configService: ConfigService,
   ) {
@@ -87,6 +82,5 @@ export class ChangeKdfConfirmationComponent {
     await withPasswordManagerSdk(activeAccountId, this.sdkService, async (sdk) => {
       await sdk.user_crypto_management().change_kdf(masterPassword, this.kdfConfig.toSdkConfig());
     });
-    await syncLegacyMasterKeyState(activeAccountId, masterPassword, this.masterPasswordService);
   }
 }
