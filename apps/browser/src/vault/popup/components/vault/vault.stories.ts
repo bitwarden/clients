@@ -44,7 +44,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -582,7 +581,6 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: VaultCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
     { provide: CompactModeService, useValue: { enabled$: of(false) } },
-    { provide: VaultSettingsService, useValue: { clickItemsToAutofillVaultView$: of(true) } },
     {
       provide: PolicyService,
       useValue: { policiesByType$: () => of(buildNotificationPolicies(args)) },
@@ -647,7 +645,6 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: PlatformUtilsService,
       useValue: {
-        getAutofillKeyboardShortcut: () => Promise.resolve("Ctrl+Shift+L"),
         isSafari: () => false,
         isChrome: () => true,
         isFirefox: () => false,

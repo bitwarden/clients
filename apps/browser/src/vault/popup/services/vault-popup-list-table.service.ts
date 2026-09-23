@@ -18,12 +18,9 @@ import {
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
@@ -59,15 +56,13 @@ export type VaultSection = "autofill" | "favorites" | "allItems";
 /**
  * The resolved action affordances for a single row — which click action it takes and which
  * buttons/menu entries it exposes. Precomputed here so the template stays declarative and the
- * feature-flag/blocklist branching lives in one testable place.
+ * blocklist branching lives in one testable place.
  */
 export interface VaultRowActions {
   /** Whether clicking the row autofills (vs. navigating to view). */
   primaryAutofill: boolean;
-  /** Reveal the "Fill" text on hover — simplified (flag-on) design only. */
+  /** Reveal the "Fill" text on hover. */
   showFillOnHover: boolean;
-  /** Show the standalone primary "Fill" chip — legacy (flag-off) design only. */
-  showAutofillBadge: boolean;
   /** Show the launch-in-new-tab button (still gated on the cipher being launchable). */
   showLaunch: boolean;
   /** Offer "Autofill" in the more-options menu. */
@@ -85,11 +80,9 @@ export type VaultTableRow = {
   actions: VaultRowActions;
 };
 
-/** Feature-flag, blocklist, and click-setting inputs that decide a row's action affordances. */
+/** Inputs that decide a row's action affordances. */
 interface RowActionContext {
-  simplifiedItemActionEnabled: boolean;
   currentUriIsBlocked: boolean;
-  clickItemsToAutofillVaultView: boolean;
 }
 
 /**
@@ -110,9 +103,7 @@ export class VaultPopupListTableService {
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
-  private readonly configService = inject(ConfigService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
-  private readonly vaultSettingsService = inject(VaultSettingsService);
 
   /**
    * The vault the page's `:vaultId` route segment narrows to.
@@ -171,23 +162,15 @@ export class VaultPopupListTableService {
   );
 
   /**
-   * The inputs that decide each row's action affordances. `startWith` defaults keep {@link rows$}
-   * emitting promptly: the feature flag and blocklist streams resolve asynchronously, so without a
-   * seed the whole list would wait on them before first render.
+   * The inputs that decide each row's action affordances. The `startWith` default keeps
+   * {@link rows$} emitting promptly: the blocklist stream resolves asynchronously, so without a
+   * seed the whole list would wait on it before first render.
    */
-  private readonly rowActionContext$: Observable<RowActionContext> = combineLatest([
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension)
-      .pipe(startWith(false)),
-    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(startWith(false)),
-    this.vaultSettingsService.clickItemsToAutofillVaultView$.pipe(startWith(true)),
-  ]).pipe(
-    map(([simplifiedItemActionEnabled, currentUriIsBlocked, clickItemsToAutofillVaultView]) => ({
-      simplifiedItemActionEnabled,
-      currentUriIsBlocked,
-      clickItemsToAutofillVaultView: clickItemsToAutofillVaultView ?? true,
-    })),
-  );
+  private readonly rowActionContext$: Observable<RowActionContext> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(
+      startWith(false),
+      map((currentUriIsBlocked) => ({ currentUriIsBlocked })),
+    );
 
   /**
    * The rows to render, in display order. When a search is active the list collapses to a single
@@ -299,44 +282,26 @@ export class VaultPopupListTableService {
 
   /**
    * Resolves a row's action affordances from its section and the current context. Pure so the
-   * feature-flag/blocklist branching can be exercised directly. The `simplifiedItemActionEnabled`
-   * (flag-off) branch mirrors the pre-flag `vault-list-items-container` behavior and can be removed
-   * once {@link FeatureFlag.PM31039ItemActionInExtension} is fully rolled out.
+   * blocklist branching can be exercised directly.
    */
   private resolveActions(
     cipher: PopupCipherViewLike,
     section: VaultSection,
-    {
-      simplifiedItemActionEnabled,
-      currentUriIsBlocked,
-      clickItemsToAutofillVaultView,
-    }: RowActionContext,
+    { currentUriIsBlocked }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
 
-    // Whether clicking the row autofills. Simplified: the autofill section fills unless the URI is
-    // blocked. Legacy: the autofill section fills only when the user's click-to-autofill setting is
-    // on, and never when the URI is blocked.
-    const primaryAutofill = simplifiedItemActionEnabled
-      ? isAutofill && !currentUriIsBlocked
-      : !currentUriIsBlocked && isAutofill && clickItemsToAutofillVaultView;
+    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
+    const primaryAutofill = isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
 
     return {
       primaryAutofill,
-      showFillOnHover: simplifiedItemActionEnabled && primaryAutofill,
-      // Legacy standalone chip: shown on autofill rows when click-to-autofill is off and not blocked.
-      showAutofillBadge:
-        !simplifiedItemActionEnabled &&
-        isAutofill &&
-        !currentUriIsBlocked &&
-        !clickItemsToAutofillVaultView,
+      showFillOnHover: primaryAutofill,
       showLaunch: !isAutofill,
-      showAutofillInMenu: simplifiedItemActionEnabled
-        ? !primaryAutofill
-        : !currentUriIsBlocked && !isAutofill,
+      showAutofillInMenu: !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,

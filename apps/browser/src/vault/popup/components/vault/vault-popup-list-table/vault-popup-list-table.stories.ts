@@ -22,7 +22,6 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -233,10 +232,6 @@ type StoryArgs = {
   currentUriIsBlocked?: boolean;
   /** When true, render as if in the sidebar so the autofill section shows the refresh control. */
   inSidebar?: boolean;
-  /** PM31039ItemActionInExtension flag. Defaults to on (the simplified item-action design). */
-  simplifiedItemActionEnabled?: boolean;
-  /** Legacy (flag-off) setting: whether clicking an autofill suggestion fills it. Defaults to on. */
-  clickItemsToAutofillVaultView?: boolean;
   /** Filters to restore into the chips on story load — ids, matching what `restoreFilters$` emits. */
   appliedFilters?: {
     cipherType?: CipherType | null;
@@ -452,19 +447,12 @@ const buildProviders = (args: StoryArgs) => {
       provide: ConfigService,
       useValue: {
         getFeatureFlag$: (flag: FeatureFlag) => {
-          if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-            return of(args.simplifiedItemActionEnabled ?? true);
-          }
           if (flag === FeatureFlag.VFO1Foundation) {
             return of(args.vfo1Enabled ?? false);
           }
           return of(false);
         },
       },
-    },
-    {
-      provide: VaultSettingsService,
-      useValue: { clickItemsToAutofillVaultView$: of(args.clickItemsToAutofillVaultView ?? true) },
     },
     {
       provide: I18nService,
@@ -621,7 +609,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(false) } },
     {
       provide: PlatformUtilsService,
-      useValue: { getAutofillKeyboardShortcut: async () => "Ctrl+Shift+L" },
+      useValue: {},
     },
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
@@ -820,27 +808,6 @@ export const SidebarRefresh: Story = {
         filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
         loading: false,
         inSidebar: true,
-      }),
-    }),
-  ],
-  render: () => ({
-    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
-  }),
-};
-
-// Legacy (PM31039ItemActionInExtension off) affordance: autofill suggestions show a primary "Fill"
-// chip (with a keyboard-shortcut tooltip) instead of fill-on-click. `clickItemsToAutofillVaultView`
-// is off so the chip is shown rather than the click itself autofilling.
-export const LegacyAutofillButton: Story = {
-  decorators: [
-    applicationConfig({
-      providers: buildProviders({
-        autoFillCiphers: AUTOFILL_CIPHERS,
-        favoriteCiphers: FAVORITE_CIPHERS,
-        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
-        loading: false,
-        simplifiedItemActionEnabled: false,
-        clickItemsToAutofillVaultView: false,
       }),
     }),
   ],
