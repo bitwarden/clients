@@ -1325,5 +1325,25 @@ describe("VaultNextComponent", () => {
       expect(router.navigate).toHaveBeenCalledWith(["/tools/import"]);
       expect(legacyOpen).not.toHaveBeenCalled();
     });
+
+    it("passes the scoped organization ID to the legacy dialog when viewing an org vault", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      scopeTo(organizationId);
+
+      await component().openImport();
+
+      expect(legacyOpen).toHaveBeenCalledTimes(1);
+      expect(legacyOpen.mock.calls[0][1]).toBe(organizationId);
+    });
+
+    it("passes undefined to the legacy dialog when viewing the personal vault", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      scopeTo(MY_VAULT_ROUTE);
+
+      await component().openImport();
+
+      expect(legacyOpen).toHaveBeenCalledTimes(1);
+      expect(legacyOpen.mock.calls[0][1]).toBeUndefined();
+    });
   });
 });

@@ -11,7 +11,6 @@ import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
@@ -147,23 +146,7 @@ export class Main {
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
 
     const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
-    const cachedBackend = new CachedBackend(electronStoreBackend);
-
-    // Main doesn't have access to ConfigService or the feature flags easily at this
-    // early stage, so instead we try to read the raw feature flag value directly
-    // from the storage to determine whether to use the cached backend or not.
-    let isCacheEnabled = false;
-    try {
-      isCacheEnabled = Object.values(
-        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
-      ).some((s: any) => s?.featureStates?.[FeatureFlag.ElectronStorageCache] === true);
-    } catch {
-      // Ignore errors
-    }
-    this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
-    this.storageService = new ElectronStorageService(
-      isCacheEnabled ? cachedBackend : electronStoreBackend,
-    );
+    this.storageService = new ElectronStorageService(new CachedBackend(electronStoreBackend));
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(

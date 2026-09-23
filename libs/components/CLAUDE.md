@@ -1,0 +1,3 @@
+# libs/components
+
+@./CONTRIBUTING.md

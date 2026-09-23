@@ -399,10 +399,6 @@ describe("DefaultSetInitialPasswordService", () => {
             ForceSetPasswordReason.None,
             userId,
           );
-          expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-            masterKeyEncryptedUserKey[1],
-            userId,
-          );
         });
 
         it("should update account decryption properties", async () => {
@@ -419,10 +415,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
           expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             userId,
             masterKeyEncryptedUserKey[0],
@@ -656,14 +648,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
-          expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-            masterKeyEncryptedUserKey[1],
-            userId,
-          );
           expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             userId,
             masterKeyEncryptedUserKey[0],
@@ -1040,17 +1024,6 @@ describe("DefaultSetInitialPasswordService", () => {
         userId,
         fromSdkKdfConfig(sdkRegistrationResult.master_password_unlock.kdf),
       );
-
-      expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString(sdkRegistrationResult.master_password_unlock.masterKeyWrappedUserKey),
-        userId,
-      );
-
-      expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-        credentials.newPassword,
-        MasterPasswordUnlockData.fromSdk(sdkRegistrationResult.master_password_unlock),
-        userId,
-      );
     });
 
     describe("input validation", () => {
@@ -1330,15 +1303,6 @@ describe("DefaultSetInitialPasswordService", () => {
           expect.objectContaining({ hasMasterPassword: true }),
         );
         expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-        expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-          new EncString(unlockData.masterKeyWrappedUserKey),
-          userId,
-        );
-        expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-          credentials.newPassword,
-          unlockData,
-          userId,
-        );
       });
 
       describe("given resetPasswordAutoEnroll is false", () => {

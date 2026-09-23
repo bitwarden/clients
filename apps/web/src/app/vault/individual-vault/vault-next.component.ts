@@ -581,6 +581,11 @@ export class VaultNextComponent implements OnInit {
       await this.router.navigate(["/tools/import"]);
       return;
     }
-    ImportDialogComponent.open(this.dialogService);
+
+    ImportDialogComponent.open(
+      this.dialogService,
+      this.scopedOrganizationId(),
+      this.scopedCollectionId(),
+    );
   }
 }

@@ -27,6 +27,27 @@ describe("commaSeparatedEmails", () => {
     expect(errors).toBe(null);
   });
 
+  it("should return no error when input has a trailing comma", () => {
+    const input = createControl("user@bitwarden.com, user1@bitwarden.com,");
+    const errors = commaSeparatedEmails(input);
+
+    expect(errors).toBe(null);
+  });
+
+  it("should return no error when input has extra commas between emails", () => {
+    const input = createControl("user@bitwarden.com,, user1@bitwarden.com");
+    const errors = commaSeparatedEmails(input);
+
+    expect(errors).toBe(null);
+  });
+
+  it("should return error when input only contains commas", () => {
+    const input = createControl(",,");
+    const errors = commaSeparatedEmails(input);
+
+    expect(errors).not.toBe(null);
+  });
+
   it("should return error when input is invalid", () => {
     const input = createControl("lksjflks");
 
