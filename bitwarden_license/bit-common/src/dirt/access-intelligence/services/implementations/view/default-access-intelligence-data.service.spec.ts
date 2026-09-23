@@ -5,9 +5,11 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
@@ -29,6 +31,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
   let reportGenerationService: jest.Mocked<ReportGenerationService>;
   let reportPersistenceService: jest.Mocked<ReportPersistenceService>;
   let logService: jest.Mocked<LogService>;
+  let configService: jest.Mocked<ConfigService>;
 
   const orgId = "org-123" as OrganizationId;
   const testReport = createRiskInsights({
@@ -64,6 +67,12 @@ describe("DefaultAccessIntelligenceDataService", () => {
       debug: jest.fn(),
       error: jest.fn(),
       info: jest.fn(),
+      measure: jest.fn(),
+      mark: jest.fn(),
+    } as any;
+
+    configService = {
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
     } as any;
 
     service = new DefaultAccessIntelligenceDataService(
@@ -73,6 +82,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportGenerationService,
       reportPersistenceService,
       logService,
+      configService,
     );
   });
 
@@ -118,6 +128,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
       const report = await firstValueFrom(service.report$);
       expect(report).toBe(legacyReport);
       expect(report?.id).toBe(newId);
+    });
+
+    it("requests member items so ciphers in a member's My Items collection are loaded", async () => {
+      reportPersistenceService.loadLastReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+
+      await firstValueFrom(service.initializeForOrganization$(orgId));
+
+      // Without the second argument the server omits ciphers whose only
+      // collection is a member's default "My Items" collection.
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+      expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
     });
 
     it("should handle load errors gracefully", async () => {
@@ -180,7 +204,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(report?.id).toBe("report-id-123" as OrganizationReportId);
       expect(report?.organizationId).toBe(orgId);
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
         includeGroups: true,
       });
@@ -217,6 +241,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const ciphers = await firstValueFrom(service.ciphers$);
       expect(ciphers).toEqual(testCiphers);
+    });
+
+    it("requests member items so ciphers in a member's My Items collection are reported on", async () => {
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      // Without the second argument the server omits ciphers whose only
+      // collection is a member's default "My Items" collection.
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+    });
+
+    it("requests member items when refreshing an existing report", async () => {
+      await firstValueFrom(service.refreshReport$(orgId));
+
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
     });
 
     it("should handle generation errors and keep previous report", async () => {

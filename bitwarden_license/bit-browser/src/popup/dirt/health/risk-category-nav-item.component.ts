@@ -52,6 +52,8 @@ export class RiskCategoryNavItemComponent {
   readonly icon = input.required<BitwardenIcon>();
   /** Icon tile theme while the category has items. */
   readonly variant = input<IconTileVariant>("primary");
+  /** Whether Health details are locked behind Premium. */
+  readonly locked = input(false);
   /** Router path for this category's Risk Category Detail. */
   readonly route = input.required<string>();
 

@@ -1,5 +1,5 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -25,6 +25,11 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import {
+  IntraprocessMessageSender,
+  Message,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CloudEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
@@ -65,6 +70,7 @@ import {
   createPortSpyMock,
 } from "../spec/autofill-mocks";
 import {
+  crossContextBoundary,
   flushPromises,
   sendMockExtensionMessage,
   sendPortMessage,
@@ -75,6 +81,12 @@ import {
   triggerWebRequestOnCompletedEvent,
 } from "../spec/testing-utils";
 
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   FocusedFieldData,
@@ -120,6 +132,10 @@ describe("OverlayBackground", () => {
   let generatorService: MockProxy<CredentialGeneratorService>;
   let generatorHistoryService: MockProxy<GeneratorHistoryService>;
   let overlayBackground: OverlayBackground;
+  // A real channel rather than a mock: what is under test is that the class reads the
+  // channel's own messages, which no mocked listener would demonstrate.
+  let intraprocessMessageSender: IntraprocessMessageSender;
+  let externalMessages: Subject<Message<Record<string, unknown>>>;
   let portKeyForTabSpy: Record<number, string>;
   let pageDetailsForTabSpy: PageDetailsForTab;
   let subFrameOffsetsSpy: SubFrameOffsetsForTab;
@@ -159,6 +175,8 @@ describe("OverlayBackground", () => {
   }
 
   beforeEach(() => {
+    intraprocessMessageSender = new IntraprocessMessageSender();
+    externalMessages = new Subject<Message<Record<string, unknown>>>();
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(true));
     accountService = mockAccountServiceWith(mockUserId);
@@ -172,6 +190,10 @@ describe("OverlayBackground", () => {
 
     const authServiceForDomain = mock<AuthService>();
     authServiceForDomain.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
+    // fillAssistPolicy$ (feeding resolvedEnableFillAssist$) subscribes to
+    // policyService.policiesByType$; default the mock to an empty stream.
+    policyService.policiesByType$.mockReturnValue(of([]));
 
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
@@ -252,6 +274,10 @@ describe("OverlayBackground", () => {
       accountService,
       generatorHistoryService,
       generatorService,
+      configService,
+      intraprocessMessageSender,
+      // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
+      new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -423,6 +449,24 @@ describe("OverlayBackground", () => {
       expect(pageDetailsForTabSpy[tabId]).toBeUndefined();
       expect(portKeyForTabSpy[tabId]).toBeUndefined();
     });
+  });
+
+  describe("inline menu list port init message", () => {
+    it.each([true, false])(
+      "includes useLitComponents as %s when LitInlineMenuComponents is %s",
+      async (enabled) => {
+        overlayBackground.useLitInlineMenuComponents$ = of(enabled);
+
+        await initOverlayElementPorts({ initList: true, initButton: false });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            command: "initAutofillInlineMenuList",
+            useLitComponents: enabled,
+          }),
+        );
+      },
+    );
   });
 
   describe("when enableFillAssist is turned off", () => {
@@ -3040,7 +3084,7 @@ describe("OverlayBackground", () => {
       });
 
       it("updates the inline menu button auth status", async () => {
-        sendMockExtensionMessage({ command: "unlockCompleted" });
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data: undefined as any });
         await flushPromises();
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
@@ -3051,26 +3095,83 @@ describe("OverlayBackground", () => {
 
       it("updates the overlay ciphers", async () => {
         const updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
-        sendMockExtensionMessage({ command: "unlockCompleted" });
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data: undefined as any });
         await flushPromises();
 
         expect(updateInlineMenuCiphersSpy).toHaveBeenCalled();
       });
 
-      it("focuses the most recently focused field if a retry command is present in the message", async () => {
+      it("focuses the most recently focused field if the retained command is a retry", async () => {
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(createChromeTabMock({ id: 1 }));
-        sendMockExtensionMessage({
-          command: "unlockCompleted",
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, {
           data: {
-            commandToRetry: { message: { command: "openAutofillInlineMenu" } },
-          },
+            commandToRetry: {
+              message: { command: "openAutofillInlineMenu" },
+              [RETRY_SENDER]: { tab: createChromeTabMock({ id: 1 }) },
+            },
+          } as LockedVaultPendingNotificationsData,
         });
         await flushPromises();
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(expect.any(Object), {
           command: "focusMostRecentlyFocusedField",
         });
+      });
+
+      it("security: opens no inline menu when the sender did not survive leaving this context", async () => {
+        // The inline menu resolves its tab from the active window, so without a retained sender
+        // to focus first it would refocus a field on whichever tab happens to be active.
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(createChromeTabMock({ id: 1 }));
+        const data = crossContextBoundary({
+          commandToRetry: {
+            message: { command: "openAutofillInlineMenu" },
+            [RETRY_SENDER]: { tab: createChromeTabMock({ id: 1 }) },
+          },
+          target: "overlay.background",
+        });
+
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(expect.any(Object), {
+          command: "focusMostRecentlyFocusedField",
+        });
+      });
+
+      it("still refreshes when the sender did not survive leaving this context", async () => {
+        // The only consumer that acts on a retry it cannot target: the auth status and cipher
+        // list are stale either way.
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(createChromeTabMock({ id: 1 }));
+        const updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+        const data = crossContextBoundary({
+          commandToRetry: {
+            message: { command: "openAutofillInlineMenu" },
+            [RETRY_SENDER]: { tab: createChromeTabMock({ id: 1 }) },
+          },
+          target: "overlay.background",
+        });
+
+        intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
+        await flushPromises();
+
+        expect(updateInlineMenuCiphersSpy).toHaveBeenCalledWith(true, false);
+      });
+
+      it("security: ignores a retry that arrived from another context", async () => {
+        const updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+
+        externalMessages.next({
+          command: RETRY_WHEN_UNLOCK_COMPLETED.command,
+          data: {
+            commandToRetry: { message: { command: "openAutofillInlineMenu" } },
+          },
+        } as unknown as Message<Record<string, unknown>>);
+        await flushPromises();
+
+        expect(updateInlineMenuCiphersSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -3310,10 +3411,25 @@ describe("OverlayBackground", () => {
           { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
-        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
-          commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
-          target: "overlay.background",
-        });
+        // The retry is queued by the callback `openUnlockPopout` runs once the popout exists,
+        // so invoking it here is what proves the payload reaches the intraprocess channel.
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, expect.any(Function));
+        const queued: unknown[] = [];
+        intraprocessMessageSender.messages$().subscribe((published) => queued.push(published));
+        openUnlockPopoutSpy.mock.calls[0][1]();
+
+        expect(queued).toEqual([
+          {
+            command: ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS.command,
+            data: {
+              commandToRetry: {
+                message: { command: "openAutofillInlineMenu" },
+                [RETRY_SENDER]: sender,
+              },
+              target: "overlay.background",
+            },
+          },
+        ]);
       });
 
       it("opens the inline menu if the user auth status is unlocked", async () => {
@@ -3783,6 +3899,53 @@ describe("OverlayBackground", () => {
         expect(copyToClipboardSpy).toHaveBeenCalledWith("totp-code");
       });
 
+      it("copies the cipher's totp code via fallback when the fill produced no target", async () => {
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        const copyToClipboardSpy = jest
+          .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
+          .mockImplementation();
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+        autofillService.getTotpCopyCode.mockResolvedValue("fallback-totp");
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(autofillService.getTotpCopyCode).toHaveBeenCalledWith(cipher2);
+        expect(copyToClipboardSpy).toHaveBeenCalledWith("fallback-totp");
+      });
+
+      it("does not copy anything when the fill produced no target and the fallback helper declines to return a code", async () => {
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        const copyToClipboardSpy = jest
+          .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
+          .mockImplementation();
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+        autofillService.getTotpCopyCode.mockResolvedValue(undefined);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(copyToClipboardSpy).not.toHaveBeenCalled();
+      });
+
       describe("triggering passkey authentication", () => {
         let cipher1: CipherView;
 
@@ -3878,7 +4041,9 @@ describe("OverlayBackground", () => {
       });
 
       it("fills the current password fields exclusively when filling for a current password update", async () => {
-        globalThis.structuredClone = jest.fn((value) => value);
+        // JSON stands in for the real boundary because `structuredClone` is absent from this Jest environment.
+        // FIXME: Once the environment includes `structuredClone`, remove this assignment.
+        globalThis.structuredClone = jest.fn((value) => JSON.parse(JSON.stringify(value)));
         sendMockExtensionMessage(
           {
             command: "updateFocusedFieldData",

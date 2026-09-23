@@ -8,9 +8,10 @@ import {
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { DefaultKdfConfigService } from "./kdf-config.service";
-import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "./models/kdf-config";
 
 describe("KdfConfigService", () => {
   let sutKdfConfigService: DefaultKdfConfigService;

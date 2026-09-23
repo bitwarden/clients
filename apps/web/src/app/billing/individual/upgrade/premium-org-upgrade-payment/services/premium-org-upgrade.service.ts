@@ -12,15 +12,18 @@ import {
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { Cart } from "@bitwarden/pricing";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -33,6 +36,7 @@ import {
   MaskedPaymentMethod,
   TokenizablePaymentMethods,
 } from "../../../../payment/types";
+import { InvoicePreviewService } from "../../../../services/invoice-preview.service";
 
 export const UNVERIFIED_BANK_ACCOUNT_MESSAGE =
   "Unverified bank account payment method is not supported for this upgrade";
@@ -71,6 +75,7 @@ export class PremiumOrgUpgradeService {
     private encryptService: EncryptService,
     private syncService: SyncService,
     private configService: ConfigService,
+    private invoicePreviewService: InvoicePreviewService,
   ) {}
 
   async previewProratedInvoice(
@@ -89,6 +94,20 @@ export class PremiumOrgUpgradeService {
       newPlanProratedMonths: invoicePreviewResponse.newPlanProratedMonths,
       newPlanProratedAmount: invoicePreviewResponse.newPlanProratedAmount,
     };
+  }
+
+  /** Flag-on counterpart of {@link previewProratedInvoice}: returns the server-built cart for the upgrade. */
+  async previewInvoiceCart(
+    planDetails: PremiumOrgUpgradePlanDetails,
+    billingAddress: BillingAddress,
+  ): Promise<Cart> {
+    return this.invoicePreviewService.previewPremiumOrgUpgradeCart(
+      {
+        targetProductTierType: this.ProductTierTypeFromSubscriptionTierId(planDetails.tier),
+        billingAddress: { country: billingAddress.country, postalCode: billingAddress.postalCode },
+      },
+      planDetails.details.name,
+    );
   }
 
   async upgradeToOrganization(

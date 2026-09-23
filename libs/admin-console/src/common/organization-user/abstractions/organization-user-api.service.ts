@@ -232,6 +232,13 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
+   * Enable Privileged Controls for many users
+   * @param organizationId - Identifier for the organization the user belongs to
+   * @param ids - List of organization user identifiers to enable
+   */
+  abstract putOrganizationUserBulkEnablePam(organizationId: string, ids: string[]): Promise<void>;
+
+  /**
    * Remove an organization user
    * @param organizationId - Identifier for the organization the user belongs to
    * @param id - Organization user identifier

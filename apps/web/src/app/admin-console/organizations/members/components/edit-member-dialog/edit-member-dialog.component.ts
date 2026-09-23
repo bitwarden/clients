@@ -41,12 +41,14 @@ import {
   BadgeModule,
   ButtonModule,
   CheckboxModule,
+  CopyClickDirective,
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
   DialogRef,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
   IconComponent,
   LinkModule,
   MenuModule,
@@ -100,10 +102,12 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     BadgeModule,
     ButtonModule,
     CheckboxModule,
+    CopyClickDirective,
     DatePipe,
     DialogModule,
     FormFieldModule,
     I18nPipe,
+    IconButtonModule,
     IconComponent,
     LinkModule,
     MenuModule,
@@ -146,8 +150,9 @@ export class EditMemberDialogComponent {
   readonly isRevoked = signal(false);
   readonly showNoMasterPasswordWarning = signal(false);
   protected readonly tabIndex = signal<number>(this.params.initialTab);
-  protected readonly detailsTabEnabled = toSignal(
-    from(this.configService.getFeatureFlag(FeatureFlag.PM28365_ChangeMemberEmail)),
+
+  protected readonly privilegedControlsEnabled = toSignal(
+    from(this.configService.getFeatureFlag(FeatureFlag.Pam)),
   );
 
   protected readonly emailEditable = computed(
@@ -168,6 +173,7 @@ export class EditMemberDialogComponent {
     // set to readonly in the template
     ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
+    accessPam: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
   });
@@ -416,6 +422,7 @@ export class EditMemberDialogComponent {
       ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
+      accessPam: userDetails.accessPam,
       groups: groupAccessSelections,
     });
 
@@ -473,6 +480,7 @@ export class EditMemberDialogComponent {
       : this.formGroup.value.groups?.map((m) => m.id);
 
     const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? undefined;
+    const accessPam = this.formGroup.value.accessPam ?? undefined;
 
     const email = this.emailEditable()
       ? (this.formGroup.getRawValue().email ?? undefined)
@@ -486,6 +494,7 @@ export class EditMemberDialogComponent {
       groups,
       collections,
       accessSecretsManager,
+      accessPam,
       email,
       name,
     });
@@ -522,14 +531,10 @@ export class EditMemberDialogComponent {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
-      const detailsTab = this.detailsTabEnabled() ? MemberDialogTab.Details : MemberDialogTab.Role;
-      if (this.tabIndex() !== detailsTab) {
-        const tabName = this.detailsTabEnabled()
-          ? this.i18nService.t("details")
-          : this.i18nService.t("role");
+      if (this.tabIndex() !== MemberDialogTab.Details) {
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("fieldOnTabRequiresAttention", tabName),
+          message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("details")),
         });
       }
       return;

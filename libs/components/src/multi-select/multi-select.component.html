@@ -34,14 +34,25 @@
     ></bit-chip>
   </ng-template>
   <ng-template ng-option-tmp let-item="item">
-    <div class="tw-flex">
+    <div class="tw-flex tw-items-center">
       <div class="tw-w-7 tw-flex-none">
         @if (isSelected(item)) {
           <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
         }
       </div>
       <div class="tw-me-2 tw-flex-initial">
-        @if (item.icon != null) {
+        @if (item.iconTile) {
+          <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line
+               box's worth of descender space below the tile and push it above the row's center. -->
+          <bit-icon-tile
+            class="!tw-flex"
+            [icon]="item.iconTile.icon"
+            [variant]="item.iconTile.variant ?? 'primary'"
+            [color]="item.iconTile.color"
+            [emphasis]="item.iconTile.emphasis ?? 'subtle'"
+            size="xs"
+          />
+        } @else if (item.icon != null) {
           <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
         }
       </div>

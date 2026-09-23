@@ -2,6 +2,8 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
@@ -9,7 +11,6 @@ import { assertNonNullish } from "../../../auth/utils";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
-import { EncryptionType } from "../../../platform/enums";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
@@ -139,7 +140,7 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
       const organizationV1Memberships = await sdk
         .user_crypto_management()
-        .get_untrusted_organization_public_keys();
+        .get_untrusted_organization_public_keys("CreateIfNeeded");
       return organizationV1Memberships.length > 0;
     });
   }

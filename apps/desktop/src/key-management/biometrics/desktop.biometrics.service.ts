@@ -1,4 +1,3 @@
-import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService } from "@bitwarden/key-management";
 
 /**
@@ -6,6 +5,5 @@ import { BiometricsService } from "@bitwarden/key-management";
  * specifically for the main process.
  */
 export abstract class DesktopBiometricsService extends BiometricsService {
-  abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
   abstract setupBiometrics(): Promise<void>;
 }

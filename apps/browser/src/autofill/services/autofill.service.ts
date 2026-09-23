@@ -442,6 +442,34 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Resolves a cipher's TOTP code for clipboard copy when the caller can't rely on a successful
+   * fill to produce one (e.g., a hidden TOTP input that the fill script can't target). Applies
+   * the same premium/organization gate and auto-copy setting as {@link doAutoFill}.
+   */
+  async getTotpCopyCode(cipher: CipherView): Promise<string | undefined> {
+    if (cipher.type !== CipherType.Login || !cipher.login?.totp) {
+      return undefined;
+    }
+
+    if (!(await this.getShouldAutoCopyTotp())) {
+      return undefined;
+    }
+
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const canAccessPremium = activeAccount?.id
+      ? await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
+        )
+      : false;
+
+    if (!canAccessPremium && !cipher.organizationUseTotp) {
+      return undefined;
+    }
+
+    return (await firstValueFrom(this.totpService.getCode$(cipher.login.totp))).code ?? undefined;
+  }
+
+  /**
    * Autofill a given tab with a given login item
    * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
    * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
@@ -916,12 +944,19 @@ export default class AutofillService implements AutofillServiceInterface {
         ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
         .map((u) => u.uri!) ?? [];
 
-    // Note, targeted fields intentionally skip the untrusted iframe check. The
-    // presence of targeting rules represents explicit expectations of the target
+    const isLoginCipher = cipher.type === CipherType.Login;
+
+    // Targeting rules vet only the frame's hostname, so run the heuristic path's
+    // origin check. Skip only the transient cipher from `buildLoginCipherView`
+    // (no id, nothing stored at risk). Check `cipher.id`, not `inlineMenuFillType`:
+    // a saved cipher can reach here with `PasswordGeneration` set.
+    const isGeneratedPasswordCipher = isPasswordGeneration && !cipher.id;
+    if (isLoginCipher && !isGeneratedPasswordCipher) {
+      fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
+    }
 
     // For a Login cipher, `login.username` fills only the single highest-priority
     // identifier field present in an `account-login` form (see the priority list).
-    const isLoginCipher = cipher.type === CipherType.Login;
     const loginIdentifierQualifier = isLoginCipher
       ? this.resolveLoginIdentifierQualifier(pageDetails)
       : null;

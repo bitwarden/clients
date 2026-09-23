@@ -1,10 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { UploadOptions } from "../../abstractions/file-upload/file-upload.service";
 import { LogService } from "../../abstractions/log.service";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
 
 import { AzureFileUploadService } from "./azure-file-upload.service";
 

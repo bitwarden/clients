@@ -1,12 +1,17 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
-import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
+import {
+  collapsedSideNavDecorator,
+  positionFixedWrapperDecorator,
+} from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
@@ -147,4 +152,22 @@ export const ForceActiveStyles: Story = {
       <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
     `,
   }),
+};
+
+export const ForceActiveStylesVfo1: Story = {
+  ...ForceActiveStyles,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+/** Collapsed items hide their label, so `bitTooltip` names them on hover and keyboard focus. */
+export const CollapsedVfo1: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <bit-nav-item text="Vault" icon="bwi-lock" [route]="['']"></bit-nav-item>
+      <bit-nav-item text="Send" icon="bwi-send"></bit-nav-item>
+      <bit-nav-item text="Reports With A Very Long Name" icon="bwi-bar-chart"></bit-nav-item>
+    `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  decorators: [collapsedSideNavDecorator],
 };

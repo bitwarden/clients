@@ -1,5 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { assertNonNullish } from "../../../auth/utils";
@@ -8,10 +10,7 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
-import {
-  InternalMasterPasswordServiceAbstraction,
-  syncLegacyMasterKeyState,
-} from "../../master-password/abstractions/master-password.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { withPasswordManagerSdk } from "../../utils";
 
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
@@ -44,7 +43,6 @@ export class MinimumKdfMigration implements EncryptedMigration {
     await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
       await sdk.user_crypto_management().change_kdf(masterPassword!, kdf.toSdkConfig());
     });
-    await syncLegacyMasterKeyState(userId, masterPassword!, this.masterPasswordService);
   }
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {

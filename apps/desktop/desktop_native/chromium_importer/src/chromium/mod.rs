@@ -8,6 +8,7 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use dirs;
 use hex::decode;
+use itertools::Itertools;
 use rusqlite::{params, Connection};
 
 mod platform;
@@ -151,6 +152,8 @@ pub async fn import_logins(
     #[cfg(not(target_os = "macos"))]
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
+    validate_profile_id(&local_state, profile_id)?;
+
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
 
@@ -290,7 +293,22 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
             account_name: info.gaia_id.clone(),
             account_email: info.user_name.clone(),
         })
+        // info_cache is a HashMap with random iteration order, sort for a stable UI
+        .sorted_by(|a, b| {
+            a.name
+                .to_lowercase()
+                .cmp(&b.name.to_lowercase())
+                .then_with(|| a.folder.cmp(&b.folder))
+        })
         .collect()
+}
+
+fn validate_profile_id(local_state: &LocalState, profile_id: &str) -> Result<()> {
+    if local_state.profile.info_cache.contains_key(profile_id) {
+        Ok(())
+    } else {
+        Err(anyhow!("Unknown browser profile: {}", profile_id))
+    }
 }
 
 struct EncryptedLogin {
@@ -537,5 +555,50 @@ mod tests {
         assert_eq!(p3.name, "N3");
         assert_eq!(p3.account_name.as_deref(), Some("A3"));
         assert_eq!(p3.account_email, None);
+    }
+
+    #[test]
+    fn test_get_profile_info_sorted_by_name_then_folder() {
+        let local_state = make_local_state(vec![
+            ("Profile 2", "banana", None, None),
+            ("Profile 10", "Apple", None, None),
+            ("Profile 3", "apple", None, None),
+            ("Profile 1", "Cherry", None, None),
+        ]);
+        let infos = get_profile_info(&local_state);
+        let order = infos
+            .iter()
+            .map(|p| (p.name.as_str(), p.folder.as_str()))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            order,
+            vec![
+                ("Apple", "Profile 10"),
+                ("apple", "Profile 3"),
+                ("banana", "Profile 2"),
+                ("Cherry", "Profile 1"),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_validate_profile_id_accepts_known_profile() {
+        let local_state = make_local_state(vec![
+            ("Default", "User 1", None, None),
+            ("Profile 1", "User 2", None, None),
+        ]);
+        assert!(validate_profile_id(&local_state, "Default").is_ok());
+        assert!(validate_profile_id(&local_state, "Profile 1").is_ok());
+    }
+
+    #[test]
+    fn test_validate_profile_id_rejects_unknown_and_traversal() {
+        let local_state = make_local_state(vec![("Default", "User 1", None, None)]);
+        for profile_id in ["Profile 99", "..", "../../x", "/abs", "", "default"] {
+            assert!(
+                validate_profile_id(&local_state, profile_id).is_err(),
+                "expected rejection for {profile_id:?}"
+            );
+        }
     }
 }

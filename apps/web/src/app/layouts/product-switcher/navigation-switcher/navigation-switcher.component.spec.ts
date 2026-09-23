@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -14,16 +14,16 @@ import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.
 import { GlobalStateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { UpgradeNavButtonComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component";
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-upgrade-nav-button",
   template: "<div>Upgrade Nav Button</div>",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockUpgradeNavButtonComponent {}
 
@@ -68,10 +68,9 @@ describe("NavigationProductSwitcherComponent", () => {
         RouterModule,
         NavigationModule,
         IconButtonModule,
-        MockUpgradeNavButtonComponent,
         I18nPipe,
+        NavigationProductSwitcherComponent,
       ],
-      declarations: [NavigationProductSwitcherComponent],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
         {
@@ -87,7 +86,12 @@ describe("NavigationProductSwitcherComponent", () => {
           useValue: fakeGlobalStateProvider,
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(NavigationProductSwitcherComponent, {
+        remove: { imports: [UpgradeNavButtonComponent] },
+        add: { imports: [MockUpgradeNavButtonComponent] },
+      })
+      .compileComponents();
   });
 
   beforeEach(() => {

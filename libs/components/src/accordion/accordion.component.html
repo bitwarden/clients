@@ -9,7 +9,7 @@
   (click)="toggle()"
 >
   @if (startIcon()) {
-    <bit-icon-tile [icon]="startIcon()" [size]="iconTileSize()" variant="contrast"></bit-icon-tile>
+    <bit-icon-tile [icon]="startIcon()" [size]="iconTileSize()" variant="gray"></bit-icon-tile>
   }
   <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-gap-1 tw-items-start">
     <span [class]="headingClassList()">{{ title() }}</span>
@@ -32,7 +32,11 @@
   [attr.aria-hidden]="!open()"
   [attr.inert]="!open() ? '' : null"
 >
-  <div class="tw-min-h-0 tw-max-h-80 tw-overflow-y-auto tw-px-4">
+  <div
+    class="tw-min-h-0 tw-px-4"
+    [class.tw-max-h-80]="height() === 'constrained'"
+    [class.tw-overflow-y-auto]="height() === 'constrained'"
+  >
     <ng-content></ng-content>
   </div>
 </div>

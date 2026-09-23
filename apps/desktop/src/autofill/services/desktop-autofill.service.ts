@@ -58,7 +58,6 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private registrationRequest?: PasskeyRegistrationRequest;
   private featureFlag?:
     typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
   private isEnabled: boolean = false;
@@ -232,10 +231,6 @@ export class DesktopAutofillService implements OnDestroy {
     });
   }
 
-  get lastRegistrationRequest() {
-    return this.registrationRequest;
-  }
-
   async doCancelRequest(context: string): Promise<void> {
     const controller = this.inFlightRequests[context];
     if (controller) {
@@ -260,8 +255,6 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyRegistrationRequest,
     abortController: AbortController,
   ): Promise<PasskeyRegistrationResponse> {
-    this.registrationRequest = request;
-
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
       await this.nativeWindowObject(request),
@@ -319,6 +312,8 @@ export class DesktopAutofillService implements OnDestroy {
       appWindowHandle: await ipc.autofill.desktopAutofill.getAppWindowHandle(),
       rpId: request.rpId,
       requestContext: request.context,
+      // Discoverable credential requests don't contain a userHandle.
+      userHandle: "userHandle" in request ? request.userHandle : undefined,
     };
   }
 

@@ -15,7 +15,13 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -23,8 +29,6 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
@@ -37,8 +41,6 @@ import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { MessageSender } from "../../platform/messaging";
 import Domain from "../../platform/models/domain/domain-base";
-import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
@@ -825,20 +827,21 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async createWithServerLegacy(
-    { cipher, encryptedFor }: EncryptionContext,
+    context: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
+    const { cipher } = context;
     let response: CipherResponse;
     if (orgAdmin && cipher.organizationId != null) {
-      const request = new CipherCreateRequest({ cipher, encryptedFor });
+      const request = new CipherCreateRequest(context);
       response = await this.apiService.postCipherAdmin(request);
       const data = new CipherData(response, cipher.collectionIds);
       return new Cipher(data);
     } else if (cipher.collectionIds != null && cipher.collectionIds.length > 0) {
-      const request = new CipherCreateRequest({ cipher, encryptedFor });
+      const request = new CipherCreateRequest(context);
       response = await this.apiService.postCipherCreate(request);
     } else {
-      const request = new CipherRequest({ cipher, encryptedFor });
+      const request = new CipherRequest(context);
       response = await this.apiService.postCipher(request);
     }
 
@@ -889,18 +892,16 @@ export class CipherService implements CipherServiceAbstraction {
     return resultCipherView;
   }
 
-  async updateWithServerLegacy(
-    { cipher, encryptedFor }: EncryptionContext,
-    orgAdmin?: boolean,
-  ): Promise<Cipher> {
+  async updateWithServerLegacy(context: EncryptionContext, orgAdmin?: boolean): Promise<Cipher> {
+    const { cipher } = context;
     let response: CipherResponse;
     if (orgAdmin) {
-      const request = new CipherRequest({ cipher, encryptedFor });
+      const request = new CipherRequest(context);
       response = await this.apiService.putCipherAdmin(cipher.id, request);
       const data = new CipherData(response, cipher.collectionIds);
       return new Cipher(data, cipher.localData);
     } else if (cipher.edit) {
-      const request = new CipherRequest({ cipher, encryptedFor });
+      const request = new CipherRequest(context);
       response = await this.apiService.putCipher(cipher.id, request);
     } else {
       const request = new CipherPartialRequest(cipher);

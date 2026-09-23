@@ -2,30 +2,28 @@
 // @ts-strict-ignore
 import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { USER_DECRYPTION_OPTIONS } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  KdfConfig,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { assertNonNullish } from "../../../auth/utils";
 import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
-import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
-import {
-  MASTER_PASSWORD_DISK,
-  MASTER_PASSWORD_MEMORY,
-  StateProvider,
-  UserKeyDefinition,
-} from "../../../platform/state";
+import { MASTER_PASSWORD_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
@@ -36,22 +34,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "../types/master-password.types";
-
-/** Memory since master key shouldn't be available on lock */
-export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {
-  deserializer: (masterKey) => SymmetricCryptoKey.fromJSON(masterKey) as MasterKey,
-  clearOn: ["lock", "logout"],
-});
-
-/** Disk to persist through lock */
-export const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
-  MASTER_PASSWORD_DISK,
-  "masterKeyEncryptedUserKey",
-  {
-    deserializer: (key) => key,
-    clearOn: ["logout"],
-  },
-);
 
 /** Disk to persist through lock and account switches */
 export const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
@@ -67,22 +49,26 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
   constructor(
     private stateProvider: StateProvider,
     private keyGenerationService: KeyGenerationService,
-    private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
   ) {}
 
   async userHasMasterPassword(userId: UserId): Promise<boolean> {
     assertNonNullish(userId, "userId");
-    // A user has a master-password if they have a master-key encrypted user key *but* are not a key connector user
-    // Note: We can't use the key connector service as an abstraction here because it causes a run-time dependency injection cycle between KC service and MP service.
+    // A user has a master-password if they have master-password unlock data *but* are not a key
+    // connector user.
     const usesKeyConnector = await firstValueFrom(
       this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).state$,
     );
-    const usesMasterKey = await firstValueFrom(
-      this.stateProvider.getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY).state$,
+    const unlockData = await firstValueFrom(this.masterPasswordUnlockData$(userId));
+    return unlockData != null && !usesKeyConnector;
+  }
+
+  private async serverSaysUserHasMasterPassword(userId: UserId): Promise<boolean> {
+    const decryptionOptions = await firstValueFrom(
+      this.stateProvider.getUser(userId, USER_DECRYPTION_OPTIONS).state$,
     );
-    return usesMasterKey && !usesKeyConnector;
+    return decryptionOptions?.hasMasterPassword ?? false;
   }
 
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
@@ -103,8 +89,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
               }
               // No unlock data. Determine whether this is a hydration failure
               // or a user who legitimately has no master password yet
-              // (e.g., TDE offboarding).
-              return from(this.userHasMasterPassword(userId)).pipe(
+              // (e.g., TDE offboarding). This cannot use userHasMasterPassword, which answers
+              // from the very unlock data that is missing here.
+              return from(this.serverSaysUserHasMasterPassword(userId)).pipe(
                 switchMap((hasMp) => {
                   if (hasMp) {
                     throw new Error("Master password unlock data not found for user.");
@@ -130,13 +117,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     );
   }
 
-  masterKey$(userId: UserId): Observable<MasterKey> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    return this.stateProvider.getUser(userId, MASTER_KEY).state$;
-  }
-
   forceSetPasswordReason$(userId: UserId): Observable<ForceSetPasswordReason> {
     if (userId == null) {
       throw new Error("User ID is required.");
@@ -146,48 +126,8 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       .state$.pipe(map((reason) => reason ?? ForceSetPasswordReason.None));
   }
 
-  // TODO: Remove this method and decrypt directly in the service instead
-  async getMasterKeyEncryptedUserKey(userId: UserId): Promise<EncString> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    const key = await firstValueFrom(
-      this.stateProvider.getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY).state$,
-    );
-    return EncString.fromJSON(key);
-  }
-
   emailToSalt(email: string): MasterPasswordSalt {
     return email.toLowerCase().trim() as MasterPasswordSalt;
-  }
-
-  async setMasterKey(masterKey: MasterKey, userId: UserId): Promise<void> {
-    if (masterKey == null) {
-      throw new Error("Master key is required.");
-    }
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider.getUser(userId, MASTER_KEY).update((_) => masterKey);
-  }
-
-  async clearMasterKey(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider.getUser(userId, MASTER_KEY).update((_) => null);
-  }
-
-  async setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
-    if (encryptedKey == null || encryptedKey.encryptedString == null) {
-      throw new Error("Encrypted Key is required.");
-    }
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider
-      .getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY)
-      .update((_) => encryptedKey.toJSON() as EncryptedString);
   }
 
   async setForceSetPasswordReason(reason: ForceSetPasswordReason, userId: UserId): Promise<void> {
@@ -209,29 +149,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     }
 
     await this.stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).update((_) => reason);
-  }
-
-  async decryptUserKeyWithMasterKey(
-    masterKey: MasterKey,
-    userId: UserId,
-    userKey?: EncString,
-  ): Promise<UserKey | null> {
-    userKey ??= await this.getMasterKeyEncryptedUserKey(userId);
-    masterKey ??= await firstValueFrom(this.masterKey$(userId));
-
-    if (masterKey == null) {
-      throw new Error("No master key found.");
-    }
-
-    await SdkLoadService.Ready;
-    try {
-      return new SymmetricCryptoKey(
-        PureCrypto.decrypt_user_key_with_master_key(userKey.toSdk(), masterKey.toEncoded()),
-      ) as UserKey;
-    } catch {
-      this.logService.warning("Failed to decrypt user key with master key.");
-      return null;
-    }
   }
 
   async makeMasterPasswordAuthenticationData(
@@ -342,23 +259,5 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(userId, "userId");
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_DATA).state$;
-  }
-
-  async setLegacyMasterKeyFromUnlockData(
-    password: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void> {
-    assertNonNullish(password, "password");
-    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
-    assertNonNullish(userId, "userId");
-
-    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
-      password,
-      masterPasswordUnlockData.salt,
-      masterPasswordUnlockData.kdf,
-    )) as MasterKey;
-
-    await this.setMasterKey(masterKey, userId);
   }
 }

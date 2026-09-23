@@ -38,6 +38,9 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
+export const INVITE_LINK_CALLOUT_DISK = new StateDefinition("inviteLinkCallout", "disk", {
+  web: "disk-local",
+});
 export const SCIM_BANNER = new StateDefinition("scimBanner", "disk", {
   web: "disk-local",
 });
@@ -67,7 +70,6 @@ export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
 export const LOGIN_EMAIL_MEMORY = new StateDefinition("loginEmail", "memory");
 export const LOGIN_STRATEGY_MEMORY = new StateDefinition("loginStrategy", "memory");
 export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
-export const MASTER_PASSWORD_MEMORY = new StateDefinition("masterPassword", "memory");
 export const MASTER_PASSWORD_UNLOCK_DISK = new StateDefinition("masterPasswordUnlock", "disk");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
@@ -109,6 +111,7 @@ export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "d
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {
   web: "disk-local",
 });
+export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 

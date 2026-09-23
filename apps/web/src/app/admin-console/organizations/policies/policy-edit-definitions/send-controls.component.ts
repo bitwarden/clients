@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -19,7 +20,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { Observable } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -52,8 +53,10 @@ import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-polic
 import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
-  name = "manageSend";
-  description = "sendControlsPolicyDescV4";
+  name = "manageSendV2";
+  description = "sendControlsPolicyDescV5";
+  descriptionVfo1 = "sendControlsPolicyDescListVfo1";
+  drawerDescriptionVfo1 = "sendControlsPolicyDescV5";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
@@ -115,22 +118,38 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly allSendTypeOptions = signal<(SelectItemView & { value: SendType })[]>([
-    {
-      id: SendType.Text.toString(),
-      icon: "bwi-file-text",
-      listName: this.i18nService.t("sendTypeText"),
-      labelName: this.i18nService.t("sendTypeText"),
-      value: SendType.Text,
-    },
-    {
-      id: SendType.File.toString(),
-      icon: "bwi-file",
-      listName: this.i18nService.t("sendTypeFile"),
-      labelName: this.i18nService.t("sendTypeFile"),
-      value: SendType.File,
-    },
-  ]).asReadonly();
+  protected readonly temporaryItemSharingEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
+  );
+
+  protected readonly allSendTypeOptions = computed(() => {
+    const options: (SelectItemView & { value: SendType })[] = [
+      {
+        id: SendType.Text.toString(),
+        icon: "bwi-file-text",
+        listName: this.i18nService.t("sendTypeText"),
+        labelName: this.i18nService.t("sendTypeText"),
+        value: SendType.Text,
+      },
+      {
+        id: SendType.File.toString(),
+        icon: "bwi-file",
+        listName: this.i18nService.t("sendTypeFile"),
+        labelName: this.i18nService.t("sendTypeFile"),
+        value: SendType.File,
+      },
+    ];
+    if (this.temporaryItemSharingEnabled()) {
+      options.push({
+        id: SendType.Item.toString(),
+        icon: "bwi-lock",
+        listName: this.i18nService.t("vaultItems"),
+        labelName: this.i18nService.t("vaultItems"),
+        value: SendType.Item,
+      });
+    }
+    return options;
+  });
 
   protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
     { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
@@ -162,6 +181,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
     private readonly i18nService: I18nService,
+    private readonly configService: ConfigService,
   ) {
     super();
     this.deletionHoursOptions = [
@@ -173,6 +193,15 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       { label: this.i18nService.t("days", "14"), value: SendDeletionDatePreset.FourteenDays },
       { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
     ];
+    // The possible values for Send Type options depend on whether the temporary item sharing feature flag is enabled
+    // Therefore we use this effect to re-initialize the form whenever those options or the policy data from the server change
+    effect(() => {
+      const allSendTypeOptions = this.allSendTypeOptions();
+      const policyResponse = this.policyResponse();
+      if (allSendTypeOptions && policyResponse) {
+        this.loadData();
+      }
+    });
   }
 
   async ngOnInit() {
@@ -231,9 +260,12 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   protected override loadData(): void {
     const policyResponseData =
       (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
-    if (policyResponseData.allowedSendTypes == null) {
-      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
-    }
+    const allowedSendTypes = policyResponseData.allowedSendTypes ?? [
+      SendType.Text,
+      SendType.File,
+      ...(this.temporaryItemSharingEnabled() ? [SendType.Item] : []),
+    ];
+    policyResponseData.allowedSendTypes = allowedSendTypes;
     if (policyResponseData.whoCanAccess == null) {
       policyResponseData.whoCanAccess = WhoCanAccessType.Any;
     }
@@ -243,8 +275,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     // The two separate form controls (enabled toggle and Send Types multi-select) must be initialized separately
     this.enableSendControl.patchValue(!(policyResponseData.disableSend ?? false));
     this.allowedSendTypesMultiSelectControl.patchValue(
-      this.allSendTypeOptions().filter((asto) =>
-        policyResponseData.allowedSendTypes.some((st) => st.toString() === asto.id),
+      this.allSendTypeOptions().filter((sto) =>
+        policyResponseData.allowedSendTypes.includes(sto.value),
       ),
     );
   }
@@ -257,14 +289,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const orgId = this.policyResponse()?.organizationId;
     const hasExistingDomains = this.policyResponse()?.data?.allowedDomains != null;
     if (!orgId || hasExistingDomains) {
-      return;
-    }
-
-    // Claimed domains come from an SSO/domain-gated endpoint. A user without that permission
-    // (e.g. a custom role with only Manage policies) gets a 401, which ApiService turns into a
-    // forced logout before this method's catch can run.
-    const organization = await firstValueFrom(this.organization$);
-    if (!organization?.canManageDomainVerification) {
       return;
     }
 

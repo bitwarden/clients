@@ -24,11 +24,6 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -42,23 +37,26 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
+  EncryptedString,
+  EncryptService,
+  EncString,
   fromSdkKdfConfig,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import {
   AuthClient,
   BitwardenClient,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
@@ -85,6 +83,7 @@ describe("DefaultSetInitialPasswordService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let unlockService: MockProxy<UnlockService>;
   const registerSdkService = mock<RegisterSdkService>();
 
   let userId: UserId;
@@ -105,6 +104,7 @@ describe("DefaultSetInitialPasswordService", () => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    unlockService = mock<UnlockService>();
 
     userId = "userId" as UserId;
     userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -125,6 +125,7 @@ describe("DefaultSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   });
 
@@ -398,10 +399,6 @@ describe("DefaultSetInitialPasswordService", () => {
             ForceSetPasswordReason.None,
             userId,
           );
-          expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-            masterKeyEncryptedUserKey[1],
-            userId,
-          );
         });
 
         it("should update account decryption properties", async () => {
@@ -418,11 +415,10 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             userId,
+            masterKeyEncryptedUserKey[0],
           );
-          expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
         });
 
         it("should set the private key to state", async () => {
@@ -652,15 +648,10 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             userId,
+            masterKeyEncryptedUserKey[0],
           );
-          expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-            masterKeyEncryptedUserKey[1],
-            userId,
-          );
-          expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
         });
 
         it("should NOT set the private key to state", async () => {
@@ -788,7 +779,7 @@ describe("DefaultSetInitialPasswordService", () => {
         masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       } as MasterPasswordUnlockData;
 
-      request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+      request = new UpdateTdeOffboardingPasswordRequest(
         authenticationData,
         unlockData,
         credentials.newPasswordHint,
@@ -1017,9 +1008,9 @@ describe("DefaultSetInitialPasswordService", () => {
         userId,
       );
 
-      expect(keyService.setUserKey).toHaveBeenCalledWith(
-        SymmetricCryptoKey.fromString(sdkRegistrationResult.user_key) as UserKey,
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
         userId,
+        SymmetricCryptoKey.fromString(sdkRegistrationResult.user_key) as UserKey,
       );
 
       // Verify legacy state updates below
@@ -1032,17 +1023,6 @@ describe("DefaultSetInitialPasswordService", () => {
       expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(
         userId,
         fromSdkKdfConfig(sdkRegistrationResult.master_password_unlock.kdf),
-      );
-
-      expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString(sdkRegistrationResult.master_password_unlock.masterKeyWrappedUserKey),
-        userId,
-      );
-
-      expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-        credentials.newPassword,
-        MasterPasswordUnlockData.fromSdk(sdkRegistrationResult.master_password_unlock),
-        userId,
       );
     });
 
@@ -1323,15 +1303,6 @@ describe("DefaultSetInitialPasswordService", () => {
           expect.objectContaining({ hasMasterPassword: true }),
         );
         expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-        expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-          new EncString(unlockData.masterKeyWrappedUserKey),
-          userId,
-        );
-        expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-          credentials.newPassword,
-          unlockData,
-          userId,
-        );
       });
 
       describe("given resetPasswordAutoEnroll is false", () => {

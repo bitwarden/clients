@@ -31,7 +31,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2ActiveRequestEvents,
@@ -40,6 +42,11 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  IntraprocessMessageSender,
+  isExternalMessage,
+  MessageListener,
+} from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -91,6 +98,12 @@ import {
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
+import {
+  ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
+  LockedVaultPendingNotificationsData,
+  RETRY_SENDER,
+  RETRY_WHEN_UNLOCK_COMPLETED,
+} from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -217,7 +230,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.triggerDestroyInlineMenuListeners(tab, message.subFrameData?.frameId),
       ),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
-    unlockCompleted: ({ message }) => this.unlockCompleted(message),
     doFullSync: () => this.updateOverlayCiphers(),
     addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
@@ -272,9 +284,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private configService: ConfigService,
+    /** Publishes the retry queued for after the unlock. */
+    private intraprocessMessageSender: IntraprocessMessageSender,
+    private messageListener: MessageListener,
   ) {
     this.initOverlayEventObservables();
   }
+
+  useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuComponents,
+  );
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -375,7 +395,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
 
-    // Dump targeting rules' cached page details when Fill Assist becomes
+    // Dump targeting rules' cached page details when fill assist becomes
     // disabled, and signal content scripts to drop their own targeting-rules
     // caches so the next page-details collection re-evaluates which strategy
     // to use (targeted vs heuristic). Only act on a `true` -> `false`
@@ -1495,13 +1515,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
-    if (!result.didAutofill) {
-      return;
+    // A no-fill (or a fill with no TOTP target) doesn't imply no TOTP: some sites hide the TOTP
+    // input so the fill script can't target it. Still resolve + copy when the user explicitly
+    // chose a TOTP-bearing cipher.
+    const totpCode =
+      result.didAutofill && result.totp
+        ? result.totp
+        : await this.autofillService.getTotpCopyCode(cipher);
+    if (totpCode) {
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    if (result.totp) {
-      this.platformUtilsService.copyToClipboard(result.totp);
+    if (!result.didAutofill) {
+      return;
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -2574,10 +2600,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-    await this.openUnlockPopout(sender.tab, {
-      commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
-      target: "overlay.background",
-    });
+    await this.openUnlockPopout(sender.tab, () =>
+      this.intraprocessMessageSender.send(ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS, {
+        data: {
+          commandToRetry: {
+            message: { command: "openAutofillInlineMenu" },
+            [RETRY_SENDER]: sender,
+          },
+          target: "overlay.background",
+        },
+      }),
+    );
   }
 
   /**
@@ -2619,15 +2652,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Updates the authentication status for the user and opens the inline menu if
-   * a followup command is present in the message.
+   * a followup command is present in the retained command.
    *
-   * @param message - Extension message received from the `unlockCompleted` command
+   * Unlike the other consumers this one still refreshes on a retry it cannot act on, because the
+   * auth status and cipher list are stale either way. Only the inline menu is gated: it resolves
+   * its tab from {@link BrowserApi.getTabFromCurrentWindowId}, so without a retained
+   * {@link RETRY_SENDER} to focus first it would refocus a field on whichever tab happens to be
+   * active rather than the one the retry named.
+   *
+   * @param data - The command the background retained when it opened the unlock popout
+   * @see {@link RETRY_WHEN_UNLOCK_COMPLETED} for why this must not be read off `chrome.runtime`.
    */
-  private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
+  private async unlockCompleted(data: LockedVaultPendingNotificationsData) {
     await this.updateInlineMenuButtonAuthStatus();
 
+    const retryNamesATab = data?.commandToRetry?.[RETRY_SENDER]?.tab != null;
     const openInlineMenu =
-      message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu";
+      retryNamesATab && data.commandToRetry.message?.command === "openAutofillInlineMenu";
     await this.updateOverlayCiphers(true, openInlineMenu);
   }
 
@@ -3395,6 +3436,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     BrowserApi.messageListener("overlay.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.webNavigation.onCommitted, this.handleWebNavigationOnCommitted);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handlePortOnConnect);
+
+    this.messageListener
+      .messages$(RETRY_WHEN_UNLOCK_COMPLETED)
+      .pipe(filter((message) => !isExternalMessage(message)))
+      .subscribe(({ data }) => {
+        this.unlockCompleted(data).catch((error) => this.logService.error(error));
+      });
   }
 
   /**
@@ -3519,6 +3567,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
+      useLitComponents: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(

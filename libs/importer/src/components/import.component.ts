@@ -80,15 +80,17 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { Importer } from "../importers/importer";
 import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
 import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
-import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
+import { DataLoader, Loader } from "../metadata";
 import {
   CredentialKind,
+  HIDDEN_IMPORT_TYPE_IDS,
   ImportOption,
   ImportResult,
   ImportType,
   SdkImportCredentials,
 } from "../models";
 import {
+  ImporterCapabilities,
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
@@ -142,7 +144,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // `@bitwarden/vault` depends on `@bitwarden/importer`, creating a circular
   // module dependency at the webpack level. ConfigService is used directly instead.
   private readonly configService = inject(ConfigService);
-  private readonly vfo1Enabled = toSignal(
+  protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
@@ -200,6 +202,21 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.organization = organization;
       });
   }
+
+  /**
+   * Pre-selects an organization in the vault selector without locking it, allowing the user to
+   * change the destination.
+   *
+   * Contrast with {@link organizationId}, which locks the selector to a single org.
+   */
+  readonly defaultOrganizationId = input<string | undefined>(undefined);
+
+  /**
+   * Pre-selects a collection in the target selector when {@link defaultOrganizationId} is also
+   * provided. The collection is only applied if it belongs to the default organization and the
+   * active user has `manage` permission on it. The user may change the selection freely afterward.
+   */
+  readonly defaultCollectionId = input<string | undefined>(undefined);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -278,12 +295,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
-
-  /** emits `true` when the chromium instruction block should be visible. */
-  protected readonly showChromiumInstructions$ = this.importer$.pipe(
-    map((importer) => importer?.instructions === Instructions.chromium),
-  );
+  /** loaders available for the selected `format` on this client/machine. Everything else about
+   *  an importer (name, instructions, accepted file types, ...) is static — see
+   *  `selectedImportOption`, which reads directly from `importOptions`. */
+  protected readonly importer$ = new BehaviorSubject<ImporterCapabilities | undefined>(undefined);
 
   /** emits `true` when direct browser import is available. */
   // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
@@ -351,10 +366,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     let importer: Importer;
     switch (this.keeperMethod) {
       case "csv":
-        importer = new KeeperCsvImporter();
+        importer = new KeeperCsvImporter(this.configService);
         break;
       case "json":
-        importer = new KeeperJsonImporter();
+        importer = new KeeperJsonImporter(this.configService);
         break;
       default:
         throw new Error(`Unsupported Keeper method for file import: ${this.keeperMethod}`);
@@ -454,6 +469,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
+    const defaultCollectionId = this.defaultCollectionId();
+    const defaultOrgId = this.defaultOrganizationId();
+    let defaultCollectionApplied = false;
+
     // React to vault destination changes (personal vault vs organization selection)
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
@@ -480,11 +499,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
             );
+
+          // Pre-fill the default collection once when the default org is first selected.
+          // Reads from this.collections$ directly to avoid a second decryptedCollections$ call.
+          // firstValueFrom is used instead of a nested subscribe to satisfy rxjs/no-nested-subscribe.
+          // It resolves asynchronously even for synchronous observables, so setValue(null) above is
+          // guaranteed to have already run before the collection value is applied.
+          if (!defaultCollectionApplied && defaultCollectionId && value === defaultOrgId) {
+            defaultCollectionApplied = true;
+            firstValueFrom(
+              this.collections$.pipe(
+                map((collections) => collections.find((c) => c.id === defaultCollectionId)),
+              ),
+            )
+              .then((collection) => {
+                if (collection) {
+                  this.formGroup.controls.targetSelector.setValue(collection);
+                }
+              })
+              .catch(() => {
+                // Collection not found or not manageable; leave targetSelector at its default.
+              });
+          }
         }
       });
 
-    // Set initial vault selector to personal vault
-    this.formGroup.controls.vaultSelector.setValue("myVault");
+    // Pre-select defaultOrganizationId when provided; otherwise default to personal vault
+    this.formGroup.controls.vaultSelector.setValue(defaultOrgId ?? "myVault");
   }
 
   /**
@@ -572,7 +613,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async performImport() {
-    if (this.importService.isSdkImporter(this.format)) {
+    if (this.selectedImportOption?.sdk != null) {
       await this.performSdkImport();
       return;
     }
@@ -691,7 +732,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const credentials = await this.collectSdkCredentials(
-      this.importService.credentialKindFor(this.format),
+      this.selectedImportOption?.sdk?.credentialKind,
     );
     if (credentials == null) {
       // Credentials dialog dismissed.
@@ -765,23 +806,22 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return new Uint8Array(await file.arrayBuffer());
   }
 
-  /** File-picker `accept` hint for the selected SDK importer, if any. */
-  protected get acceptedFileTypes(): string | null {
-    return this.importService.sdkFileTypeHint(this.format) ?? null;
+  /** File-picker `accept` hint for the selected SDK importer, if any. Distinct from
+   *  `ImportOption.acceptedFileTypes` (the full per-vendor list); this is only the narrower
+   *  SDK-specific hint the native file input currently restricts on. */
+  protected get fileInputAcceptHint(): string | null {
+    const fileTypes = this.selectedImportOption?.sdk?.fileTypes;
+    return fileTypes ? fileTypes.map((type) => `.${type}`).join(",") : null;
+  }
+
+  /** The full metadata record for the selected `format`, or `undefined` before one is chosen. */
+  protected get selectedImportOption(): ImportOption | undefined {
+    return this.format == null ? undefined : this.importService.getImportOption(this.format);
   }
 
   getFormatInstructionTitle() {
-    if (this.format == null) {
-      return null;
-    }
-
-    const results = this.featuredImportOptions
-      .concat(this.importOptions)
-      .filter((o) => o.id === this.format);
-    if (results.length > 0) {
-      return this.i18nService.t("instructionsFor", results[0].name);
-    }
-    return null;
+    const option = this.selectedImportOption;
+    return option ? this.i18nService.t("instructionsFor", option.name) : null;
   }
 
   protected handleChromeImportError(error: string) {
@@ -793,13 +833,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected setImportOptions() {
-    this.featuredImportOptions = [...this.importService.featuredImportOptions];
+    this.featuredImportOptions = this.importService.importOptions.filter((o) => o.featuredImporter);
 
-    // The unified `keeper` entry covers csv/json via the Method dropdown,
-    // so hide the standalone variants from the UI. They remain in the option
-    // list for non-UI consumers (CLI) and for backward compatibility.
-    const visibleRegularOptions = this.importService.regularImportOptions.filter(
-      (o) => o.id !== "keepercsv" && o.id !== "keeperjson",
+    const visibleRegularOptions = this.importService.importOptions.filter(
+      (o) => !o.featuredImporter && !HIDDEN_IMPORT_TYPE_IDS.has(o.id),
     );
 
     this.importOptions = [...visibleRegularOptions].sort((a, b) => {

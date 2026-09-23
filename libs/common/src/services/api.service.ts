@@ -62,7 +62,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
@@ -120,6 +119,8 @@ import { InsecureUrlNotAllowedError } from "./api-errors";
 export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
 };
+
+export const EventUploadBatchSize = 100;
 
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
@@ -352,10 +353,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
     return new ApiKeyResponse(r);
-  }
-
-  postConvertToKeyConnector(): Promise<void> {
-    return this.send("POST", "/accounts/convert-to-key-connector", null, true, false);
   }
 
   // Account Billing APIs
@@ -1179,7 +1176,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
-  async postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any> {
+  async postEventsCollect(requests: EventRequest[], userId?: UserId): Promise<EventRequest[]> {
     const authHeader = await this.tokenService.getAccessToken(userId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
@@ -1189,24 +1186,41 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-
     const env = await firstValueFrom(
       userId == null
         ? this.environmentService.environment$
         : this.environmentService.getEnvironment$(userId),
     );
-    const response = await this.fetch(
-      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
-        cache: "no-store",
-        credentials: await this.getCredentials(env),
-        method: "POST",
-        body: JSON.stringify(request),
-        headers: headers,
-      }),
-    );
-    if (response.status !== 200) {
-      return Promise.reject("Event post failed.");
+
+    // Break uploads into chunks of {EventUploadBatchSize} events
+    let bail = false;
+    const failedRequests: EventRequest[] = [];
+    for (const eventRequests of Utils.chunkArray(requests, EventUploadBatchSize)) {
+      // We only fail once per set of uploads
+      if (bail) {
+        failedRequests.push(...eventRequests);
+        continue;
+      }
+
+      try {
+        const response = await this.fetch(
+          this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
+            cache: "no-store",
+            credentials: await this.getCredentials(env),
+            method: "POST",
+            body: JSON.stringify(eventRequests),
+            headers: headers,
+          }),
+        );
+        if (response.status !== 200) {
+          throw new Error("Event post failed.");
+        }
+      } catch {
+        bail = true;
+        failedRequests.push(...eventRequests);
+      }
     }
+    return failedRequests;
   }
 
   // User APIs
@@ -1229,34 +1243,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Key Connector
-
-  async getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse> {
-    const activeUser = await this.getActiveUser();
-    if (activeUser == null) {
-      throw new Error("No active user, cannot get master key from key connector.");
-    }
-    const authHeader = await this.getActiveBearerToken(activeUser);
-
-    const response = await this.fetch(
-      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
-        cache: "no-store",
-        method: "GET",
-        headers: new Headers({
-          Accept: "application/json",
-          Authorization: "Bearer " + authHeader,
-        }),
-      }),
-    );
-
-    if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
-    }
-
-    return new KeyConnectorUserKeyResponse(await response.json());
-  }
 
   async postUserKeyToKeyConnector(
     keyConnectorUrl: string,

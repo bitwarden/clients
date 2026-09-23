@@ -3,7 +3,7 @@ import { BrowserWindow, MenuItemConstructorOptions } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { isMac } from "../../utils";
+import { isMac } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { FirstMenu } from "./menu.first";

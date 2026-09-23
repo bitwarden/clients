@@ -8,18 +8,17 @@ import {
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AccountBillingClient } from "../../../../clients/account-billing.client";
 import { PreviewInvoiceClient } from "../../../../clients/preview-invoice.client";
 import { SubscriberBillingClient } from "../../../../clients/subscriber-billing.client";
 import { BillingAddress } from "../../../../payment/types";
+import { InvoicePreviewService } from "../../../../services/invoice-preview.service";
 
 import {
   UNVERIFIED_BANK_ACCOUNT_MESSAGE,
@@ -37,6 +36,7 @@ describe("PremiumOrgUpgradeService", () => {
   let encryptService: jest.Mocked<EncryptService>;
   let i18nService: jest.Mocked<I18nService>;
   let configService: jest.Mocked<ConfigService>;
+  let invoicePreviewService: any;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -97,6 +97,13 @@ describe("PremiumOrgUpgradeService", () => {
     configService = {
       getFeatureFlag: jest.fn().mockResolvedValue(false),
     } as any;
+    invoicePreviewService = {
+      previewPremiumOrgUpgradeCart: jest.fn().mockResolvedValue({
+        passwordManager: {
+          seats: { translationKey: "teamsMembership", cost: 26.67, quantity: 1 },
+        },
+      }),
+    } as any;
 
     TestBed.configureTestingModule({
       providers: [
@@ -110,6 +117,7 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: EncryptService, useValue: encryptService },
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
+        { provide: InvoicePreviewService, useValue: invoicePreviewService },
       ],
     });
 
@@ -421,6 +429,36 @@ describe("PremiumOrgUpgradeService", () => {
 
       expect(result).toBe("new-org-id");
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe("previewInvoiceCart", () => {
+    it("should map the tier, pass only country and postal code, and hand over the plan name", async () => {
+      const cart = await service.previewInvoiceCart(mockPlanDetails, mockBillingAddress);
+
+      expect(invoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith(
+        {
+          targetProductTierType: ProductTierType.Teams,
+          billingAddress: {
+            country: mockBillingAddress.country,
+            postalCode: mockBillingAddress.postalCode,
+          },
+        },
+        "Teams",
+      );
+      expect(cart.passwordManager.seats.translationKey).toBe("teamsMembership");
+    });
+
+    it("should reject an invalid target tier before calling the facade", async () => {
+      const premiumDetails = {
+        ...mockPlanDetails,
+        tier: PersonalSubscriptionPricingTierIds.Premium,
+      };
+
+      await expect(service.previewInvoiceCart(premiumDetails, mockBillingAddress)).rejects.toThrow(
+        "Invalid plan tier for organization upgrade",
+      );
+      expect(invoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
     });
   });
 

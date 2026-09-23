@@ -49,7 +49,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -159,7 +158,6 @@ export abstract class ApiService {
     id: string,
     request: SecretVerificationRequest,
   ): Promise<ApiKeyResponse>;
-  abstract postConvertToKeyConnector(): Promise<void>;
   //passwordless
   abstract getAuthRequest(id: string): Promise<AuthRequestResponse>;
   abstract putAuthRequest(
@@ -431,8 +429,9 @@ export abstract class ApiService {
    * Posts events for a user
    * @param request The array of events to upload
    * @param userId The optional user id the events belong to. If no user id is provided the active user id is used.
+   * @returns The list of events that failed to upload, or an empty array if all events were uploaded successfully.
    */
-  abstract postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any>;
+  abstract postEventsCollect(request: EventRequest[], userId?: UserId): Promise<EventRequest[]>;
 
   abstract deleteSsoUser(organizationId: string): Promise<void>;
   abstract getSsoUserIdentifier(): Promise<string>;
@@ -483,9 +482,6 @@ export abstract class ApiService {
     request: OrganizationSponsorshipRedeemRequest,
   ): Promise<void>;
 
-  abstract getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse>;
   abstract postUserKeyToKeyConnector(
     keyConnectorUrl: string,
     request: KeyConnectorUserKeyRequest,

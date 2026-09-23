@@ -17,7 +17,7 @@ import { BaseCardDirective } from "./base-card/base-card.directive";
   template: `<ng-content></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-flex tw-flex-col tw-divide-y tw-divide-solid tw-divide-border-base",
+    class: "tw-flex tw-flex-col tw-divide-y tw-divide-x-0 tw-divide-solid tw-divide-border-base",
   },
   hostDirectives: [BaseCardDirective],
 })

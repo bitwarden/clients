@@ -1,9 +1,11 @@
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { RotateableKeySet } from "../models/rotateable-key-set";
 
 import { RotateableKeySetService } from "./abstractions/rotateable-key-set.service";

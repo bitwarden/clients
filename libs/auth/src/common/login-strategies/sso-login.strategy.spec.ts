@@ -10,10 +10,7 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -28,13 +25,18 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { Argon2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  Argon2KdfConfig,
+  EncryptedString,
+  EncryptService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -59,7 +61,6 @@ describe("SsoLoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -98,7 +99,6 @@ describe("SsoLoginStrategy", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     keyConnectorService = mock<KeyConnectorService>();
@@ -157,7 +157,6 @@ describe("SsoLoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
@@ -201,25 +200,8 @@ describe("SsoLoginStrategy", () => {
 
     await ssoLoginStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(keyService.setUserKey).not.toHaveBeenCalled();
+    expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("sets master key encrypted user key for existing SSO users", async () => {
-    // Arrange
-    const tokenResponse = identityTokenResponseFactory();
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-    // Act
-    await ssoLoginStrategy.logIn(credentials);
-
-    // Assert
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      userId,
-    );
   });
 
   describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
@@ -300,16 +282,14 @@ describe("SsoLoginStrategy", () => {
       deviceTrustService.getDeviceKey.mockResolvedValue(mockDeviceKey);
       deviceTrustService.decryptUserKeyWithDeviceKey.mockResolvedValue(mockUserKey);
 
-      const cryptoSvcSetUserKeySpy = jest.spyOn(keyService, "setUserKey");
-
       // Act
       await ssoLoginStrategy.logIn(credentials);
 
       // Assert
       expect(deviceTrustService.getDeviceKey).toHaveBeenCalledTimes(1);
       expect(deviceTrustService.decryptUserKeyWithDeviceKey).toHaveBeenCalledTimes(1);
-      expect(cryptoSvcSetUserKeySpy).toHaveBeenCalledTimes(1);
-      expect(cryptoSvcSetUserKeySpy).toHaveBeenCalledWith(mockUserKey, userId);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledTimes(1);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(userId, mockUserKey);
     });
 
     it("does not set the user key when deviceKey is missing", async () => {
@@ -327,7 +307,7 @@ describe("SsoLoginStrategy", () => {
       await ssoLoginStrategy.logIn(credentials);
 
       // Assert
-      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     });
 
     describe.each([
@@ -348,7 +328,7 @@ describe("SsoLoginStrategy", () => {
         await ssoLoginStrategy.logIn(credentials);
 
         // Assert
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       });
     });
 
@@ -367,7 +347,7 @@ describe("SsoLoginStrategy", () => {
       await ssoLoginStrategy.logIn(credentials);
 
       // Assert
-      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     });
 
     it("logs when a device key is found but no decryption keys were received in token response", async () => {
@@ -490,22 +470,8 @@ describe("SsoLoginStrategy", () => {
       tokenResponse.apiUseKeyConnector = true;
     });
 
-    it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-
+    it("unlocks an enrolled user with the unlock service", async () => {
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-    });
-
-    it("uses unlock service when SDK key connector feature flag is enabled", async () => {
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.UnlockKeyConnectorWithSdk)
-        .mockResolvedValue(true);
 
       await ssoLoginStrategy.logIn(credentials);
 
@@ -513,7 +479,6 @@ describe("SsoLoginStrategy", () => {
         url: keyConnectorUrl,
         keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
       });
-      expect(keyConnectorService.setMasterKeyFromUrl).not.toHaveBeenCalled();
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {
@@ -534,22 +499,12 @@ describe("SsoLoginStrategy", () => {
       );
     });
 
-    it("decrypts and sets the user key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-
+    it("does not derive the user key from the master key for an enrolled user", async () => {
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
 
       await ssoLoginStrategy.logIn(credentials);
 
-      expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        masterKey,
-        userId,
-        undefined,
-      );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,10 +1,11 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
   EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { CollectionId, OrganizationId } from "../../../types/guid";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
