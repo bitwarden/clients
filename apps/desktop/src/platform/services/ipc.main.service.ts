@@ -5,6 +5,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import {
   ForwardedIpcMessage,
   IpcMessage,
+  DesktopIpcPeerClientType,
   IpcService,
   isIpcMessage,
 } from "@bitwarden/common/platform/ipc";
@@ -46,10 +47,8 @@ export class IpcMainService extends IpcService {
             );
           }
 
-          if (
-            typeof message.destination === "object" &&
-            "BrowserBackground" in message.destination
-          ) {
+          const nativeHost = nativeMessagingHost(message.destination);
+          if (nativeHost != null) {
             const ipcMessage = {
               type: "bitwarden-ipc-message",
               message: {
@@ -59,8 +58,7 @@ export class IpcMainService extends IpcService {
               },
             } satisfies IpcMessage;
 
-            const clientId = extractClientId(message.destination.BrowserBackground);
-            this.nativeMessaging.sendTo(clientId, ipcMessage);
+            this.nativeMessaging.sendTo(extractClientId(nativeHost), ipcMessage);
             return;
           }
 
@@ -103,9 +101,7 @@ export class IpcMainService extends IpcService {
             this.windowMain.win?.webContents.send("ipc.onMessage", {
               type: "forwarded-bitwarden-ipc-message",
               message: ipcMessage.message,
-              originalSource: {
-                BrowserBackground: { id: { Id: nativeMessage.clientId } },
-              } as Source,
+              originalSource: this.sourceFor(nativeMessage.clientId),
             } satisfies ForwardedIpcMessage);
             return;
           }
@@ -118,7 +114,7 @@ export class IpcMainService extends IpcService {
             new IncomingMessage(
               new Uint8Array(ipcMessage.message.payload),
               ipcMessage.message.destination,
-              { BrowserBackground: { id: { Id: nativeMessage.clientId } } } as Source,
+              this.sourceFor(nativeMessage.clientId),
               ipcMessage.message.topic,
             ),
           );
@@ -145,10 +141,8 @@ export class IpcMainService extends IpcService {
           }
 
           // Forward to native messaging
-          if (
-            typeof message.message.destination === "object" &&
-            "BrowserBackground" in message.message.destination
-          ) {
+          const nativeHost = nativeMessagingHost(message.message.destination);
+          if (nativeHost != null) {
             const forwardedMessage = {
               type: "forwarded-bitwarden-ipc-message",
               message: {
@@ -159,8 +153,7 @@ export class IpcMainService extends IpcService {
               originalSource: "DesktopRenderer" as Source,
             } satisfies ForwardedIpcMessage;
 
-            const clientId = extractClientId(message.message.destination.BrowserBackground);
-            this.nativeMessaging.sendTo(clientId, forwardedMessage);
+            this.nativeMessaging.sendTo(extractClientId(nativeHost), forwardedMessage);
           }
         } catch (e) {
           // The listener is async and ipcMain.on does not await it, so a throw here
@@ -179,15 +172,62 @@ export class IpcMainService extends IpcService {
       this.logService.error("[IPC] Initialization failed", e);
     }
   }
+
+  /**
+   * The source a native-messaging client's messages arrive from.
+   *
+   * Every client reaches the desktop app through an identically spawned `desktop_proxy`, so the
+   * socket alone does not say which one it is. A client that announced itself gets its own
+   * endpoint; one that did not is a browser background page, the only client that predates the
+   * announcement.
+   */
+  private sourceFor(clientId: number): Source {
+    if (this.nativeMessaging.clientTypeFor(clientId) === DesktopIpcPeerClientType.Cli) {
+      return cliSource(clientId);
+    }
+
+    return { BrowserBackground: { id: { Id: clientId } } } as Source;
+  }
+}
+
+type NativeMessagingHost = { id: string | { Id: number } };
+
+/**
+ * Addresses the CLI as its own endpoint.
+ * Note: Merge only after cli changes merged!!! 
+ */
+function cliSource(clientId: number): Source {
+  return { Cli: { id: { Id: clientId } } } as unknown as Source;
 }
 
 /**
- * Extract a numeric client ID from a BrowserBackground host ID.
+ * The host of a destination reached over native messaging, or `undefined` for one that is not.
+ */
+function nativeMessagingHost(
+  destination: OutgoingMessage["destination"],
+): NativeMessagingHost | undefined {
+  if (typeof destination !== "object") {
+    return undefined;
+  }
+
+  if ("BrowserBackground" in destination) {
+    return destination.BrowserBackground;
+  }
+
+  if ("Cli" in destination) {
+    return (destination as { Cli: NativeMessagingHost }).Cli;
+  }
+
+  return undefined;
+}
+
+/**
+ * Extract a numeric client ID from a native-messaging host ID.
  * Throws if the id is `"Own"`, which is not valid from the desktop's perspective.
  */
-function extractClientId(host: { id: string | { Id: number } }): number {
+function extractClientId(host: NativeMessagingHost): number {
   if (typeof host.id === "object" && "Id" in host.id) {
     return host.id.Id;
   }
-  throw new Error(`Cannot resolve BrowserBackground host ID: ${JSON.stringify(host.id)}`);
+  throw new Error(`Cannot resolve native messaging host ID: ${JSON.stringify(host.id)}`);
 }
