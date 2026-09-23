@@ -90,7 +90,6 @@ export enum FeatureFlag {
   PasskeyLoginReport = "inno-passkey-directory-report",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
-  AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
   AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
@@ -183,7 +182,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PasskeyLoginReport]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
-  [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
   [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
