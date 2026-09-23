@@ -598,17 +598,20 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
+  async getManyFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<CipherView[]> {
     const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
     if (useSdk) {
-      return this.getManyFromApiForOrganizationUsingSdk(organizationId);
+      return this.getManyFromApiForOrganizationUsingSdk(organizationId, userId);
     }
 
     const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/assigned?organizationId=" + organizationId,
       null,
-      true,
+      userId,
       true,
     );
     const response = new ListResponse(r, CipherResponse);
@@ -617,12 +620,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async getManyFromApiForOrganizationUsingSdk(
     organizationId: string,
+    userId: UserId,
   ): Promise<CipherView[]> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
-    if (!userId) {
-      throw new Error("User ID is required");
-    }
-
     try {
       const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
         organizationId,
@@ -1257,7 +1256,7 @@ export class CipherService implements CipherServiceAbstraction {
       removeCollections,
     );
 
-    await this.apiService.send("POST", "/ciphers/bulk-collections", request, true, false);
+    await this.apiService.send("POST", "/ciphers/bulk-collections", request, userId, false);
 
     // Update the local state
     const ciphers = await firstValueFrom(this.ciphers$(userId));

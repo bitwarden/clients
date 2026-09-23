@@ -201,7 +201,7 @@ describe("DefaultCipherArchiveService", () => {
         "PUT",
         "/ciphers/archive",
         expect.any(CipherBulkArchiveRequest),
-        true,
+        userId,
         true,
       );
       expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
@@ -227,7 +227,7 @@ describe("DefaultCipherArchiveService", () => {
         expect.objectContaining({
           ids: cipherIds,
         }),
-        true,
+        userId,
         true,
       );
     });
@@ -264,7 +264,7 @@ describe("DefaultCipherArchiveService", () => {
         "PUT",
         "/ciphers/unarchive",
         expect.any(CipherBulkUnarchiveRequest),
-        true,
+        userId,
         true,
       );
       expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
@@ -289,7 +289,7 @@ describe("DefaultCipherArchiveService", () => {
         expect.objectContaining({
           ids: cipherIds,
         }),
-        true,
+        userId,
         true,
       );
     });

@@ -17,6 +17,8 @@ import {
 } from "./default-end-user-notification.service";
 
 describe("End User Notification Center Service", () => {
+  const userId = "user-id" as UserId;
+
   let fakeStateProvider: FakeStateProvider;
   let mockApiService: jest.Mocked<ApiService>;
   let mockNotificationsService: jest.Mocked<ServerNotificationsService>;
@@ -25,7 +27,7 @@ describe("End User Notification Center Service", () => {
   let service: DefaultEndUserNotificationService;
 
   beforeEach(() => {
-    fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
+    fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     mockApiService = {
       send: jest.fn(),
     } as any;
@@ -79,7 +81,7 @@ describe("End User Notification Center Service", () => {
         "GET",
         `/notifications?pageSize=${DEFAULT_NOTIFICATION_PAGE_SIZE}`,
         null,
-        true,
+        userId,
         true,
       );
       expect(mockLogService.warning).not.toHaveBeenCalled();
@@ -102,7 +104,7 @@ describe("End User Notification Center Service", () => {
         "GET",
         `/notifications?pageSize=${DEFAULT_NOTIFICATION_PAGE_SIZE}`,
         null,
-        true,
+        userId,
         true,
       );
       expect(mockLogService.warning).toHaveBeenCalledWith(
@@ -150,7 +152,7 @@ describe("End User Notification Center Service", () => {
         "GET",
         `/notifications?pageSize=${DEFAULT_NOTIFICATION_PAGE_SIZE}`,
         null,
-        true,
+        userId,
         true,
       );
     });
@@ -201,7 +203,7 @@ describe("End User Notification Center Service", () => {
         "DELETE",
         "/notifications/notification-id/delete",
         null,
-        true,
+        userId,
         false,
       );
     });
@@ -214,7 +216,7 @@ describe("End User Notification Center Service", () => {
         "PATCH",
         "/notifications/notification-id/read",
         null,
-        true,
+        userId,
         false,
       );
     });

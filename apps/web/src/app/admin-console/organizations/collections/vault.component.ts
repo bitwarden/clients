@@ -269,8 +269,12 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.allCiphers$ = this.refresh$.pipe(
       startWith(undefined),
       switchMap(() =>
-        combineLatest([this.organization$, this.restrictedItemTypesService.restricted$]).pipe(
-          switchMap(async ([organization, restricted]) => {
+        combineLatest([
+          this.organization$,
+          this.restrictedItemTypesService.restricted$,
+          this.userId$,
+        ]).pipe(
+          switchMap(async ([organization, restricted, userId]) => {
             // Reset the add-access filter whenever ciphers reload (e.g. on org switch or refresh)
             this.collectionService.setAddAccessStatus(AddAccessStatusType.All);
             let ciphers;
@@ -290,7 +294,10 @@ export class VaultComponent implements OnInit, OnDestroy {
               });
             } else {
               // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
-              ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
+              ciphers = await this.cipherService.getManyFromApiForOrganization(
+                organization.id,
+                userId,
+              );
             }
 
             // Filter out restricted ciphers before indexing

@@ -60,7 +60,13 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
   });
 
   async markAsRead(notificationId: NotificationId, userId: UserId): Promise<void> {
-    await this.apiService.send("PATCH", `/notifications/${notificationId}/read`, null, true, false);
+    await this.apiService.send(
+      "PATCH",
+      `/notifications/${notificationId}/read`,
+      null,
+      userId,
+      false,
+    );
     await this.notificationState(userId).update((current) => {
       const notification = current?.find((n) => n.id === notificationId);
       if (notification) {
@@ -75,7 +81,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
       "DELETE",
       `/notifications/${notificationId}/delete`,
       null,
-      true,
+      userId,
       false,
     );
     await this.notificationState(userId).update((current) => {
@@ -144,7 +150,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
       "GET",
       `/notifications?pageSize=${DEFAULT_NOTIFICATION_PAGE_SIZE}`,
       null,
-      true,
+      userId,
       true,
     );
     const response = new ListResponse(res, NotificationViewResponse);

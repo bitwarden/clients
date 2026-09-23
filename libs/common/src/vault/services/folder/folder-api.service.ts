@@ -19,9 +19,9 @@ export class FolderApiService implements FolderApiServiceAbstraction {
 
     let response: FolderResponse;
     if (folder.id) {
-      response = await this.putFolder(folder.id, request);
+      response = await this.putFolder(folder.id, request, userId);
     } else {
-      response = await this.postFolder(request);
+      response = await this.postFolder(request, userId);
       folder.id = response.id;
     }
 
@@ -31,36 +31,42 @@ export class FolderApiService implements FolderApiServiceAbstraction {
   }
 
   async delete(id: string, userId: UserId): Promise<any> {
-    await this.deleteFolder(id);
+    await this.deleteFolder(id, userId);
     await this.folderService.delete(id, userId);
   }
 
   async deleteMany(ids: string[], userId: UserId): Promise<any> {
-    await this.apiService.send("DELETE", "/folders", new FolderBulkDeleteRequest(ids), true, false);
+    await this.apiService.send(
+      "DELETE",
+      "/folders",
+      new FolderBulkDeleteRequest(ids),
+      userId,
+      false,
+    );
     await this.folderService.delete(ids, userId);
   }
 
   async deleteAll(userId: UserId): Promise<void> {
-    await this.apiService.send("DELETE", "/folders/all", null, true, false);
+    await this.apiService.send("DELETE", "/folders/all", null, userId, false);
     await this.folderService.clear(userId);
   }
 
-  async get(id: string): Promise<FolderResponse> {
-    const r = await this.apiService.send("GET", "/folders/" + id, null, true, true);
+  async get(id: string, userId: UserId): Promise<FolderResponse> {
+    const r = await this.apiService.send("GET", "/folders/" + id, null, userId, true);
     return new FolderResponse(r);
   }
 
-  private async postFolder(request: FolderRequest): Promise<FolderResponse> {
-    const r = await this.apiService.send("POST", "/folders", request, true, true);
+  private async postFolder(request: FolderRequest, userId: UserId): Promise<FolderResponse> {
+    const r = await this.apiService.send("POST", "/folders", request, userId, true);
     return new FolderResponse(r);
   }
 
-  async putFolder(id: string, request: FolderRequest): Promise<FolderResponse> {
-    const r = await this.apiService.send("PUT", "/folders/" + id, request, true, true);
+  async putFolder(id: string, request: FolderRequest, userId: UserId): Promise<FolderResponse> {
+    const r = await this.apiService.send("PUT", "/folders/" + id, request, userId, true);
     return new FolderResponse(r);
   }
 
-  private deleteFolder(id: string): Promise<any> {
-    return this.apiService.send("DELETE", "/folders/" + id, null, true, false);
+  private deleteFolder(id: string, userId: UserId): Promise<any> {
+    return this.apiService.send("DELETE", "/folders/" + id, null, userId, false);
   }
 }

@@ -91,7 +91,7 @@ export class DefaultTaskService implements TaskService {
   }
 
   async markAsComplete(taskId: SecurityTaskId, userId: UserId): Promise<void> {
-    await this.apiService.send("PATCH", `/tasks/${taskId}/complete`, null, true, false);
+    await this.apiService.send("PATCH", `/tasks/${taskId}/complete`, null, userId, false);
     await this.refreshTasks(userId);
   }
 
@@ -101,7 +101,7 @@ export class DefaultTaskService implements TaskService {
    * @private
    */
   private async fetchTasksFromApi(userId: UserId): Promise<void> {
-    const r = await this.apiService.send("GET", "/tasks", null, true, true);
+    const r = await this.apiService.send("GET", "/tasks", null, userId, true);
     const response = new ListResponse(r, SecurityTaskResponse);
 
     const taskData = response.data.map((t) => new SecurityTaskData(t));
