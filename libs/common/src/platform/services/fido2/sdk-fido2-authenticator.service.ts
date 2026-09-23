@@ -47,13 +47,9 @@ import { SdkFido2UserInterface } from "./sdk-fido2-user-interface";
 const SYNC_THRESHOLD_MS = 1000 * 60 * 30;
 
 /**
- * Routes FIDO2 authenticator operations through the SDK, one operation at a time, behind
- * {@link FeatureFlag.PM8313_Fido2OperationsToSdk}. Every operation falls through to the wrapped
- * TypeScript {@link Fido2AuthenticatorService} with the flag off.
- *
- * The swap is at the CTAP level (`make_credential` / `get_assertion`), not the WebAuthn level.
- * `Fido2ClientService` keeps origin validation, the client-data JSON, the five page-visible error
- * names and the fallback sentinel; only the authenticator model moves.
+ * A FIDO2 authenticator backed by the SDK, used when
+ * {@link FeatureFlag.PM8313_Fido2OperationsToSdk} is on. With the flag off, every operation
+ * delegates to the wrapped TypeScript {@link Fido2AuthenticatorService}.
  */
 export class SdkFido2AuthenticatorService<
   ParentWindowReference,
