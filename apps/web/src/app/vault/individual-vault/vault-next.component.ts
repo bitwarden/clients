@@ -569,6 +569,11 @@ export class VaultNextComponent implements OnInit {
   });
 
   private async dispatchDeepLink(link: ItemDeepLink): Promise<void> {
+    if (this.failedCiphers().some((cipher) => cipher.id === link.cipherId)) {
+      await this.itemActions.showDecryptionFailure(link.cipherId);
+      return;
+    }
+
     switch (link.action) {
       case ItemDeepLinkAction.Edit:
         await this.itemActions.editById(link.cipherId);

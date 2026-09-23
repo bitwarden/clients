@@ -1520,6 +1520,20 @@ describe("VaultNextComponent", () => {
         expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith(cipherId);
       });
 
+      it.each(["view", "edit", "clone"])(
+        "reports a decryption failure for a %s link to an item that failed to decrypt",
+        (action) => {
+          failedCiphers$.next([buildCipher({ decryptionFailure: true })]);
+
+          linkTo({ itemId: cipherId, action });
+
+          expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith(cipherId);
+          expect(itemActions.viewById).not.toHaveBeenCalled();
+          expect(itemActions.editById).not.toHaveBeenCalled();
+          expect(itemActions.cloneById).not.toHaveBeenCalled();
+        },
+      );
+
       it("reads an action it does not recognize as a view", () => {
         linkTo({ itemId: cipherId, action: "somethingElse" });
 

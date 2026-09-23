@@ -59,7 +59,7 @@ export class WebVaultItemActionsService {
     }
 
     if (CipherViewLikeUtils.decryptionFailure(cipher)) {
-      DecryptionFailureDialogComponent.open(this.dialogService, { cipherIds: [id] });
+      await this.showDecryptionFailure(id);
       return;
     }
 
@@ -169,8 +169,8 @@ export class WebVaultItemActionsService {
   }
 
   /**
-   * Reports that an item could not be decrypted, for the `?action=showFailedToDecrypt` deep link.
-   * The item query params are cleared so a reload does not reopen the dialog.
+   * Reports that an item could not be decrypted, for {@link view} and for the item deep link. The
+   * item query params are cleared so a reload does not reopen the dialog.
    */
   async showDecryptionFailure(id: CipherId): Promise<void> {
     DecryptionFailureDialogComponent.open(this.dialogService, { cipherIds: [id] });
