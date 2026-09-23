@@ -151,7 +151,9 @@ export class VaultNextComponent {
    * Host-provided "Controlled access" badge seam. Unprovided, no privileged-access feature is
    * installed and the table's Controlled access column stays absent.
    */
-  private readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
+  private readonly leaseBadge: Type<unknown> | null = inject(VAULT_ROW_LEASE_BADGE, {
+    optional: true,
+  });
 
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,
