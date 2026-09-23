@@ -134,19 +134,28 @@ jobs:
 
       - name: Validate SDK version
         id: validate-version
+        timeout-minutes: 35
         env:
           CURRENT_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
         run: |
-          echo "🔍 Validating SDK version: $_SDK_VERSION"
-          if ! npm view @bitwarden/sdk-internal@$_SDK_VERSION version 2>/dev/null; then
-            echo "::error::SDK version $_SDK_VERSION not found in npm registry"
-            exit 1
-          fi
+          # npm can take several minutes after a publish before the version is visible
+          deadline=$((SECONDS + 1800))
+          wait_for_npm() {
+            local pkg=$1 delay=15
+            until npm view "$pkg@$_SDK_VERSION" version --prefer-online >/dev/null 2>&1; do
+              if (( SECONDS >= deadline )); then
+                echo "::error::$pkg@$_SDK_VERSION not found in npm registry after 30 minutes"
+                return 1
+              fi
+              echo "⏳ $pkg@$_SDK_VERSION not available yet; retrying in ${delay}s"
+              sleep "$delay"
+              delay=$(( delay < 60 ? delay * 2 : 60 ))
+            done
+          }
 
-          if ! npm view @bitwarden/commercial-sdk-internal@$_SDK_VERSION version 2>/dev/null; then
-            echo "::error::Commercial SDK version $_SDK_VERSION not found in npm registry"
-            exit 1
-          fi
+          echo "🔍 Validating SDK version: $_SDK_VERSION"
+          wait_for_npm @bitwarden/sdk-internal
+          wait_for_npm @bitwarden/commercial-sdk-internal
 
           echo "✅ SDK versions exist in npm registry"
 
@@ -407,19 +416,28 @@ jobs:
           npm --version
 
       - name: Validate SDK version exists
+        timeout-minutes: 35
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
         run: |
-          echo "🔍 Validating SDK version: $SDK_VERSION"
-          if ! npm view @bitwarden/sdk-internal@$SDK_VERSION version 2>/dev/null; then
-            echo "::error::SDK version $SDK_VERSION not found in npm registry"
-            exit 1
-          fi
+          # npm can take several minutes after a publish before the version is visible
+          deadline=$((SECONDS + 1800))
+          wait_for_npm() {
+            local pkg=$1 delay=15
+            until npm view "$pkg@$SDK_VERSION" version --prefer-online >/dev/null 2>&1; do
+              if (( SECONDS >= deadline )); then
+                echo "::error::$pkg@$SDK_VERSION not found in npm registry after 30 minutes"
+                return 1
+              fi
+              echo "⏳ $pkg@$SDK_VERSION not available yet; retrying in ${delay}s"
+              sleep "$delay"
+              delay=$(( delay < 60 ? delay * 2 : 60 ))
+            done
+          }
 
-          if ! npm view @bitwarden/commercial-sdk-internal@$SDK_VERSION version 2>/dev/null; then
-            echo "::error::Commercial SDK version $SDK_VERSION not found in npm registry"
-            exit 1
-          fi
+          echo "🔍 Validating SDK version: $SDK_VERSION"
+          wait_for_npm @bitwarden/sdk-internal
+          wait_for_npm @bitwarden/commercial-sdk-internal
 
           echo "✅ SDK versions exist in npm registry"
 
