@@ -109,15 +109,16 @@
       (clearSearch)="clearSearch()"
       (clearFilters)="clearFilters()"
     >
-      <a
+      <button
         slot="empty-add-item"
         bitButton
-        routerLink="/import"
+        type="button"
         buttonType="secondary"
         startIcon="bwi-external-link"
+        (click)="navigateToImport()"
       >
         {{ "importItems" | i18n }}
-      </a>
+      </button>
     </vault-empty-vault>
   }
 
