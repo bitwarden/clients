@@ -7,6 +7,8 @@ import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 import { SendAccessToken } from "../../../auth/send-access";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { Utils } from "../../../platform/misc/utils";
+import { UserId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
 import { SendAccessView } from "../models/view/send-access.view";
 import { SendView } from "../models/view/send.view";
@@ -18,6 +20,8 @@ import { SendApiService } from "./send-api.service";
 import { SendSdkApiService } from "./send-sdk-api.service";
 
 describe("SendApiServiceSelector", () => {
+  const mockUserId = Utils.newGuid() as UserId;
+
   let configService: MockProxy<ConfigService>;
   let legacy: MockProxy<SendApiService>;
   let sdk: MockProxy<SendSdkApiService>;
@@ -45,9 +49,9 @@ describe("SendApiServiceSelector", () => {
       send.type = SendType.File;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer]);
+      await selector.save([send, buffer], undefined, mockUserId);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined, mockUserId);
       expect(sdk.save).not.toHaveBeenCalled();
     });
 
@@ -59,9 +63,9 @@ describe("SendApiServiceSelector", () => {
       send.authType = AuthType.None;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer]);
+      await selector.save([send, buffer], undefined, mockUserId);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, mockUserId);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -73,9 +77,9 @@ describe("SendApiServiceSelector", () => {
       send.authType = AuthType.None;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer]);
+      await selector.save([send, buffer], undefined, mockUserId);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, mockUserId);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -87,9 +91,9 @@ describe("SendApiServiceSelector", () => {
       send.authType = AuthType.Password;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer]);
+      await selector.save([send, buffer], undefined, mockUserId);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, mockUserId);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -101,9 +105,9 @@ describe("SendApiServiceSelector", () => {
       send.authType = AuthType.Password;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer]);
+      await selector.save([send, buffer], undefined, mockUserId);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined, mockUserId);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -114,9 +118,9 @@ describe("SendApiServiceSelector", () => {
       send.type = SendType.Text;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer]);
+      await selector.save([send, buffer], undefined, mockUserId);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined, mockUserId);
       expect(sdk.save).not.toHaveBeenCalled();
     });
 
@@ -128,9 +132,9 @@ describe("SendApiServiceSelector", () => {
       send.authType = AuthType.Password;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer], "hunter2");
+      await selector.save([send, buffer], "hunter2", mockUserId);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer], "hunter2");
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], "hunter2", mockUserId);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -142,9 +146,9 @@ describe("SendApiServiceSelector", () => {
       send.authType = AuthType.Password;
       const buffer = mock<EncArrayBuffer>();
 
-      await selector.save([send, buffer], "hunter2");
+      await selector.save([send, buffer], "hunter2", mockUserId);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer], "hunter2");
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], "hunter2", mockUserId);
       expect(sdk.save).not.toHaveBeenCalled();
     });
   });
@@ -170,9 +174,9 @@ describe("SendApiServiceSelector", () => {
       const sendView = view(type, id);
       const file = new ArrayBuffer(4);
 
-      await selector.saveView(sendView, file, "hunter2");
+      await selector.saveView(sendView, file, "hunter2", undefined, mockUserId);
 
-      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", undefined);
+      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", undefined, mockUserId);
       expect(legacy.saveView).not.toHaveBeenCalled();
     });
 
@@ -182,9 +186,15 @@ describe("SendApiServiceSelector", () => {
       const file = new ArrayBuffer(4);
       const controller = new AbortController();
 
-      await selector.saveView(sendView, file, "hunter2", controller.signal);
+      await selector.saveView(sendView, file, "hunter2", controller.signal, mockUserId);
 
-      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", controller.signal);
+      expect(sdk.saveView).toHaveBeenCalledWith(
+        sendView,
+        file,
+        "hunter2",
+        controller.signal,
+        mockUserId,
+      );
     });
 
     it.each([
@@ -196,48 +206,62 @@ describe("SendApiServiceSelector", () => {
       const selector = buildSelector(false);
       const sendView = view(type, id);
 
-      await selector.saveView(sendView, null);
+      await selector.saveView(sendView, null, undefined, undefined, mockUserId);
 
-      expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined, undefined);
+      expect(legacy.saveView).toHaveBeenCalledWith(
+        sendView,
+        null,
+        undefined,
+        undefined,
+        mockUserId,
+      );
       expect(sdk.saveView).not.toHaveBeenCalled();
     });
   });
 
   describe.each([
-    ["delete", (s: SendApiServiceSelector) => s.delete("id")],
-    ["removePassword", (s: SendApiServiceSelector) => s.removePassword("id")],
-    ["deleteSend", (s: SendApiServiceSelector) => s.deleteSend("id")],
+    ["delete", (s: SendApiServiceSelector, u: UserId) => s.delete("id", u)],
+    ["removePassword", (s: SendApiServiceSelector, u: UserId) => s.removePassword("id", u)],
+    ["deleteSend", (s: SendApiServiceSelector, u: UserId) => s.deleteSend("id", u)],
   ])("%s — flag-controlled, no overrides", (methodName, invoke) => {
     it("routes to SDK when the flag is on", async () => {
       const selector = buildSelector(true);
 
-      await invoke(selector);
+      await invoke(selector, mockUserId);
 
-      expect((sdk as any)[methodName]).toHaveBeenCalledWith("id");
+      expect((sdk as any)[methodName]).toHaveBeenCalledWith("id", mockUserId);
       expect((legacy as any)[methodName]).not.toHaveBeenCalled();
     });
 
     it("routes to legacy when the flag is off", async () => {
       const selector = buildSelector(false);
 
-      await invoke(selector);
+      await invoke(selector, mockUserId);
 
-      expect((legacy as any)[methodName]).toHaveBeenCalledWith("id");
+      expect((legacy as any)[methodName]).toHaveBeenCalledWith("id", mockUserId);
       expect((sdk as any)[methodName]).not.toHaveBeenCalled();
     });
   });
 
   describe.each([
-    ["getSend", (s: SendApiServiceSelector) => s.getSend("id"), ["id"]],
-    ["getSends", (s: SendApiServiceSelector) => s.getSends(), []],
-    ["putSendRemovePassword", (s: SendApiServiceSelector) => s.putSendRemovePassword("id"), ["id"]],
-  ])("%s — always legacy", (methodName, invoke, expectedArgs) => {
+    [
+      "getSend",
+      (s: SendApiServiceSelector, u: UserId) => s.getSend("id", u),
+      (u: UserId) => ["id", u],
+    ],
+    ["getSends", (s: SendApiServiceSelector, u: UserId) => s.getSends(u), (u: UserId) => [u]],
+    [
+      "putSendRemovePassword",
+      (s: SendApiServiceSelector, u: UserId) => s.putSendRemovePassword("id", u),
+      (u: UserId) => ["id", u],
+    ],
+  ])("%s — always legacy", (methodName, invoke, buildExpectedArgs) => {
     it.each([true, false])("routes to legacy regardless of flag (flag=%s)", async (flagOn) => {
       const selector = buildSelector(flagOn);
 
-      await invoke(selector);
+      await invoke(selector, mockUserId);
 
-      expect((legacy as any)[methodName]).toHaveBeenCalledWith(...expectedArgs);
+      expect((legacy as any)[methodName]).toHaveBeenCalledWith(...buildExpectedArgs(mockUserId));
       expect((sdk as any)[methodName]).not.toHaveBeenCalled();
     });
   });
@@ -338,10 +362,10 @@ describe("SendApiServiceSelector", () => {
     it("subscribes to the feature flag once across many calls", async () => {
       const selector = buildSelector(true);
 
-      await selector.delete("a");
-      await selector.delete("b");
-      await selector.deleteSend("c");
-      await selector.removePassword("d");
+      await selector.delete("a", mockUserId);
+      await selector.delete("b", mockUserId);
+      await selector.deleteSend("c", mockUserId);
+      await selector.removePassword("d", mockUserId);
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledTimes(1);
     });
@@ -349,12 +373,12 @@ describe("SendApiServiceSelector", () => {
     it("picks up flag changes for subsequent calls", async () => {
       const selector = buildSelector(true);
 
-      await selector.delete("first");
+      await selector.delete("first", mockUserId);
       flag$.next(false);
-      await selector.delete("second");
+      await selector.delete("second", mockUserId);
 
-      expect(sdk.delete).toHaveBeenCalledWith("first");
-      expect(legacy.delete).toHaveBeenCalledWith("second");
+      expect(sdk.delete).toHaveBeenCalledWith("first", mockUserId);
+      expect(legacy.delete).toHaveBeenCalledWith("second", mockUserId);
     });
   });
 });

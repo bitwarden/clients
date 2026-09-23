@@ -7,6 +7,7 @@ import { SendAccessToken } from "../../../auth/send-access";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ListResponse } from "../../../models/response/list.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { UserId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
@@ -62,12 +63,16 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * legacy service ignores it; the SDK service uses it to derive the send password over the
    * key it generates. It is Protected Data — never logged here or downstream.
    */
-  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
+  async save(
+    sendData: [Send, EncArrayBuffer],
+    plaintextPassword: string | undefined,
+    userId: UserId,
+  ): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
-      return this.sendApiService.save(sendData, plaintextPassword);
+      return this.sendApiService.save(sendData, plaintextPassword, userId);
     }
-    return (await this.getService()).save(sendData, plaintextPassword);
+    return (await this.getService()).save(sendData, plaintextPassword, userId);
   }
 
   /**
@@ -81,26 +86,27 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   async saveView(
     view: SendView,
     file: File | ArrayBuffer | null,
-    plaintextPassword?: string,
-    signal?: AbortSignal,
+    plaintextPassword: string | undefined,
+    signal: AbortSignal | undefined,
+    userId: UserId,
   ): Promise<Send> {
-    return (await this.getService()).saveView(view, file, plaintextPassword, signal);
+    return (await this.getService()).saveView(view, file, plaintextPassword, signal, userId);
   }
 
-  async delete(id: string): Promise<any> {
-    return (await this.getService()).delete(id);
+  async delete(id: string, userId: UserId): Promise<any> {
+    return (await this.getService()).delete(id, userId);
   }
 
-  async removePassword(id: string): Promise<any> {
-    return (await this.getService()).removePassword(id);
+  async removePassword(id: string, userId: UserId): Promise<any> {
+    return (await this.getService()).removePassword(id, userId);
   }
 
   /**
    * Always routed to legacy. Returns a wire-encrypted `SendResponse`, which the SDK
    * cannot produce (the SDK only exposes plaintext views).
    */
-  async getSend(id: string): Promise<SendResponse> {
-    return this.sendApiService.getSend(id);
+  async getSend(id: string, userId: UserId): Promise<SendResponse> {
+    return this.sendApiService.getSend(id, userId);
   }
 
   /**
@@ -119,8 +125,8 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Always routed to legacy. Returns a wire-encrypted list of `SendResponse`, which the
    * SDK cannot produce; see {@link getSend}.
    */
-  async getSends(): Promise<ListResponse<SendResponse>> {
-    return this.sendApiService.getSends();
+  async getSends(userId: UserId): Promise<ListResponse<SendResponse>> {
+    return this.sendApiService.getSends(userId);
   }
 
   /**
@@ -128,12 +134,12 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * also refreshes local state; this lower-level method returns a wire-encrypted
    * `SendResponse` the SDK cannot produce.
    */
-  async putSendRemovePassword(id: string): Promise<SendResponse> {
-    return this.sendApiService.putSendRemovePassword(id);
+  async putSendRemovePassword(id: string, userId: UserId): Promise<SendResponse> {
+    return this.sendApiService.putSendRemovePassword(id, userId);
   }
 
-  async deleteSend(id: string): Promise<any> {
-    return (await this.getService()).deleteSend(id);
+  async deleteSend(id: string, userId: UserId): Promise<any> {
+    return (await this.getService()).deleteSend(id, userId);
   }
 
   /** See {@link postSendAccess} — cross-instance callers (those passing `apiUrl`) route to legacy. */

@@ -154,6 +154,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
           mock<DialogService>(),
           sendFormService,
           mock<SendPolicyService>(),
+          TestBed.inject(AccountService),
         ),
     );
   };
@@ -177,7 +178,13 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
     await flushMicrotasks();
 
     await expect(submitPromise).resolves.toBeUndefined();
-    expect(apiService.send).toHaveBeenCalledWith("DELETE", "/sends/server-id", null, true, false);
+    expect(apiService.send).toHaveBeenCalledWith(
+      "DELETE",
+      "/sends/server-id",
+      null,
+      "user-id",
+      false,
+    );
   });
 
   it("does not close, and does not abort, when the wired closePredicate vetoes the close", async () => {

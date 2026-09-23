@@ -53,8 +53,7 @@ export class DefaultSendFormService implements SendFormService {
   private file: File | null = null;
   private abortController: AbortController | null = null;
 
-  async decryptSend(send: Send): Promise<SendView> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async decryptSend(send: Send, userId: UserId): Promise<SendView> {
     return this.sendDecryptionService.decryptSend(send, userId);
   }
 
@@ -95,7 +94,8 @@ export class DefaultSendFormService implements SendFormService {
       if (!this.sendFormConfig.originalSend) {
         throw new Error("Original send is required for edit or clone mode");
       }
-      originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      originalSendView = await this.decryptSend(this.sendFormConfig.originalSend, userId);
       updatedSendView = Object.assign(updatedSendView, originalSendView);
     }
     this._originalSendView.set(originalSendView);
@@ -135,13 +135,15 @@ export class DefaultSendFormService implements SendFormService {
       // where this code never sees the key or the ciphertext-generation step.
       // Forward the plaintext password (null when preserving an existing password) so the SDK
       // path can derive the send password over that same key; the legacy path ignores it.
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const newSend = await this.sendApiService.saveView(
         this._updatedSendView(),
         this.file,
         plaintextPassword,
         abortController.signal,
+        userId,
       );
-      const sendView = await this.decryptSend(newSend);
+      const sendView = await this.decryptSend(newSend, userId);
       this._originalSendView.set(null);
       this._updatedSendView.set(null);
       this._submitting.set(false);
@@ -227,7 +229,8 @@ export class DefaultSendFormService implements SendFormService {
       return false;
     }
 
-    await this.sendApiService.removePassword(originalSendViewId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sendApiService.removePassword(originalSendViewId, userId);
 
     this.toastService.showToast({
       variant: "success",
@@ -236,7 +239,7 @@ export class DefaultSendFormService implements SendFormService {
     });
 
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
-    const updatedSendView = await this.decryptSend(updatedSend);
+    const updatedSendView = await this.decryptSend(updatedSend, userId);
     this._originalSendView.set(updatedSendView);
     return true;
   }

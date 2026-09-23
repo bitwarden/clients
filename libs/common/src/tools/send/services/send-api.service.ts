@@ -10,6 +10,7 @@ import {
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../../../platform/abstractions/log.service";
+import { UserId } from "../../../types/guid";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendRequest } from "../models/request/send.request";
@@ -32,8 +33,8 @@ export class SendApiService implements SendApiServiceAbstraction {
     private logService: LogService,
   ) {}
 
-  async getSend(id: string): Promise<SendResponse> {
-    const r = await this.apiService.send("GET", "/sends/" + id, null, true, true);
+  async getSend(id: string, userId: UserId): Promise<SendResponse> {
+    const r = await this.apiService.send("GET", "/sends/" + id, null, userId, true);
     return new SendResponse(r);
   }
 
@@ -73,24 +74,24 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(r);
   }
 
-  async getSends(): Promise<ListResponse<SendResponse>> {
-    const r = await this.apiService.send("GET", "/sends", null, true, true);
+  async getSends(userId: UserId): Promise<ListResponse<SendResponse>> {
+    const r = await this.apiService.send("GET", "/sends", null, userId, true);
     return new ListResponse(r, SendResponse);
   }
 
-  async putSendRemovePassword(id: string): Promise<SendResponse> {
+  async putSendRemovePassword(id: string, userId: UserId): Promise<SendResponse> {
     const r = await this.apiService.send(
       "PUT",
       "/sends/" + id + "/remove-password",
       null,
-      true,
+      userId,
       true,
     );
     return new SendResponse(r);
   }
 
-  deleteSend(id: string): Promise<any> {
-    return this.apiService.send("DELETE", "/sends/" + id, null, true, false);
+  deleteSend(id: string, userId: UserId): Promise<any> {
+    return this.apiService.send("DELETE", "/sends/" + id, null, userId, false);
   }
 
   // `plaintextPassword` is part of the shared `SendApiService` contract for the SDK path, which
@@ -99,10 +100,11 @@ export class SendApiService implements SendApiServiceAbstraction {
   // the plaintext here — behavior is unchanged.
   async save(
     sendData: [Send, EncArrayBuffer],
-    _plaintextPassword?: string,
+    _plaintextPassword: string | undefined,
+    userId: UserId,
     signal?: AbortSignal,
   ): Promise<Send> {
-    const response = await this.upload(sendData, signal);
+    const response = await this.upload(sendData, signal, userId);
 
     const data = new SendData(response);
     await this.sendService.upsert(data);
@@ -115,62 +117,79 @@ export class SendApiService implements SendApiServiceAbstraction {
   async saveView(
     view: SendView,
     file: File | ArrayBuffer | null,
-    plaintextPassword?: string,
-    signal?: AbortSignal,
+    plaintextPassword: string | undefined,
+    signal: AbortSignal | undefined,
+    userId: UserId,
   ): Promise<Send> {
     const sendData = await this.sendService.encrypt(view, file, plaintextPassword);
-    return await this.save(sendData, plaintextPassword, signal);
+    return await this.save(sendData, plaintextPassword, userId, signal);
   }
 
-  async delete(id: string): Promise<any> {
-    await this.deleteSend(id);
+  async delete(id: string, userId: UserId): Promise<any> {
+    await this.deleteSend(id, userId);
     await this.sendService.delete(id);
   }
 
-  async removePassword(id: string): Promise<any> {
-    const response = await this.putSendRemovePassword(id);
+  async removePassword(id: string, userId: UserId): Promise<any> {
+    const response = await this.putSendRemovePassword(id, userId);
     const data = new SendData(response);
     await this.sendService.upsert(data);
   }
 
   // Send File Upload methods
 
-  private async postSend(request: SendRequest): Promise<SendResponse> {
-    const r = await this.apiService.send("POST", "/sends", request, true, true);
+  private async postSend(request: SendRequest, userId: UserId): Promise<SendResponse> {
+    const r = await this.apiService.send("POST", "/sends", request, userId, true);
     return new SendResponse(r);
   }
 
-  private async postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse> {
-    const r = await this.apiService.send("POST", "/sends/file/v2", request, true, true);
+  private async postFileTypeSend(
+    request: SendRequest,
+    userId: UserId,
+  ): Promise<SendFileUploadDataResponse> {
+    const r = await this.apiService.send("POST", "/sends/file/v2", request, userId, true);
     return new SendFileUploadDataResponse(r);
   }
 
   private async renewSendFileUploadUrl(
     sendId: string,
     fileId: string,
+    userId: UserId,
   ): Promise<SendFileUploadDataResponse> {
     const r = await this.apiService.send(
       "GET",
       "/sends/" + sendId + "/file/" + fileId,
       null,
-      true,
+      userId,
       true,
     );
     return new SendFileUploadDataResponse(r);
   }
 
-  private postSendFile(sendId: string, fileId: string, data: FormData): Promise<any> {
-    return this.apiService.send("POST", "/sends/" + sendId + "/file/" + fileId, data, true, false);
+  private postSendFile(
+    sendId: string,
+    fileId: string,
+    data: FormData,
+    userId: UserId,
+  ): Promise<any> {
+    return this.apiService.send(
+      "POST",
+      "/sends/" + sendId + "/file/" + fileId,
+      data,
+      userId,
+      false,
+    );
   }
 
-  private async putSend(id: string, request: SendRequest): Promise<SendResponse> {
-    const r = await this.apiService.send("PUT", "/sends/" + id, request, true, true);
+  private async putSend(id: string, request: SendRequest, userId: UserId): Promise<SendResponse> {
+    const r = await this.apiService.send("PUT", "/sends/" + id, request, userId, true);
     return new SendResponse(r);
   }
 
   private async upload(
     sendData: [Send, EncArrayBuffer],
-    signal?: AbortSignal,
+    signal: AbortSignal | undefined,
+    userId: UserId,
   ): Promise<SendResponse> {
     // Bail before doing any network work if the caller already abandoned this submission —
     // otherwise a cancel that lands before this point still uploads the whole file only to
@@ -184,12 +203,12 @@ export class SendApiService implements SendApiServiceAbstraction {
     let response: SendResponse;
     if (sendData[0].id == null) {
       if (sendData[0].type === SendType.Text) {
-        response = await this.postSend(request);
+        response = await this.postSend(request, userId);
       } else {
         try {
-          const uploadDataResponse = await this.postFileTypeSend(request);
+          const uploadDataResponse = await this.postFileTypeSend(request, userId);
           response = uploadDataResponse.sendResponse;
-          const fileUploadMethods = this.generateMethods(uploadDataResponse, response);
+          const fileUploadMethods = this.generateMethods(uploadDataResponse, response, userId);
           await this.fileUploadService.upload(
             uploadDataResponse,
             sendData[0].file.fileName,
@@ -223,7 +242,7 @@ export class SendApiService implements SendApiServiceAbstraction {
       sendData[0].id = response.id;
       sendData[0].accessId = response.accessId;
     } else {
-      response = await this.putSend(sendData[0].id, request);
+      response = await this.putSend(sendData[0].id, request, userId);
     }
     return response;
   }
@@ -231,30 +250,35 @@ export class SendApiService implements SendApiServiceAbstraction {
   private generateMethods(
     uploadData: SendFileUploadDataResponse,
     response: SendResponse,
+    userId: UserId,
   ): FileUploadApiMethods {
     return {
-      postDirect: this.generatePostDirectCallback(response),
-      renewFileUploadUrl: this.generateRenewFileUploadUrlCallback(response.id, response.file.id),
-      rollback: this.generateRollbackCallback(response.id),
+      postDirect: this.generatePostDirectCallback(response, userId),
+      renewFileUploadUrl: this.generateRenewFileUploadUrlCallback(
+        response.id,
+        response.file.id,
+        userId,
+      ),
+      rollback: this.generateRollbackCallback(response.id, userId),
     };
   }
 
-  private generatePostDirectCallback(sendResponse: SendResponse) {
+  private generatePostDirectCallback(sendResponse: SendResponse, userId: UserId) {
     return (data: FormData) => {
-      return this.postSendFile(sendResponse.id, sendResponse.file.id, data);
+      return this.postSendFile(sendResponse.id, sendResponse.file.id, data, userId);
     };
   }
 
-  private generateRenewFileUploadUrlCallback(sendId: string, fileId: string) {
+  private generateRenewFileUploadUrlCallback(sendId: string, fileId: string, userId: UserId) {
     return async () => {
-      const renewResponse = await this.renewSendFileUploadUrl(sendId, fileId);
+      const renewResponse = await this.renewSendFileUploadUrl(sendId, fileId, userId);
       return renewResponse?.url;
     };
   }
 
-  private generateRollbackCallback(sendId: string) {
+  private generateRollbackCallback(sendId: string, userId: UserId) {
     return () => {
-      return this.deleteSend(sendId);
+      return this.deleteSend(sendId, userId);
     };
   }
 }

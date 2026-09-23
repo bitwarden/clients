@@ -5,6 +5,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -13,6 +14,7 @@ import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/defau
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   BadgeModule,
@@ -55,6 +57,10 @@ describe("SendListItemsContainerComponent", () => {
         TypographyModule,
       ],
       providers: [
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: "test-user-id" as UserId }) },
+        },
         { provide: EnvironmentService, useValue: environmentService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
@@ -103,7 +109,7 @@ describe("SendListItemsContainerComponent", () => {
     await component.deleteSend(send);
 
     expect(openSimpleDialog).toHaveBeenCalled();
-    expect(deleteFn).toHaveBeenCalledWith(send.id);
+    expect(deleteFn).toHaveBeenCalledWith(send.id, "test-user-id");
     expect(showToast).toHaveBeenCalledWith({
       variant: "success",
       title: null,

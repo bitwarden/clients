@@ -478,7 +478,7 @@ export class ImportService implements ImportServiceAbstraction {
 
     await this.addFolders(request, importResult, userKey);
 
-    return await this.importApiService.postImportCiphers(request);
+    return await this.importApiService.postImportCiphers(request, userId);
   }
 
   private async handleOrganizationalImport(
@@ -515,7 +515,11 @@ export class ImportService implements ImportServiceAbstraction {
         request.collectionRelationships.push(new KvpRequest(r[0], r[1])),
       );
     }
-    return await this.importApiService.postImportOrganizationCiphers(organizationId, request);
+    return await this.importApiService.postImportOrganizationCiphers(
+      organizationId,
+      request,
+      userId,
+    );
   }
 
   private async addFolders(
