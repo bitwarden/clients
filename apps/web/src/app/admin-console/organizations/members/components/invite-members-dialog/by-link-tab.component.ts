@@ -43,7 +43,6 @@ import {
   OrganizationInviteLink,
   OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
-import { ClaimedDomain } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
@@ -219,13 +218,13 @@ export class ByLinkTabComponent {
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
-    let claimedDomains: ClaimedDomain[];
+    let verifiedDomainNames: string[];
     try {
       // Goes through the SDK rather than the full domains endpoint, which requires Manage SSO:
       // calling that without the permission returns a 401 that the api service treats as an
       // invalid access token, logging the user out of the vault entirely.
       const userId = await firstValueFrom(this.userId$);
-      claimedDomains = await this.organizationDomainsService.claimedDomains(
+      verifiedDomainNames = await this.organizationDomainsService.verifiedDomains(
         userId,
         this.organizationId(),
       );
@@ -235,10 +234,6 @@ export class ByLinkTabComponent {
       this.logService.error("Failed to prefill invite link domains from org domains.", e);
       return;
     }
-
-    const verifiedDomainNames = claimedDomains
-      .filter((domain) => domain.verified)
-      .map((domain) => domain.domainName);
 
     if (verifiedDomainNames.length > 0) {
       this.form.controls.domains.setValue(verifiedDomainNames.join(", "));

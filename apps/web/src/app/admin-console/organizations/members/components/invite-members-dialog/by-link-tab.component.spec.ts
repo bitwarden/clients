@@ -19,7 +19,7 @@ import {
   OrganizationInviteLink,
   OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
-import { ClaimedDomain, Invite } from "@bitwarden/sdk-internal";
+import { Invite } from "@bitwarden/sdk-internal";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
 
@@ -38,10 +38,6 @@ function makeInviteLink(supportsConfirmation: boolean): OrganizationInviteLink {
   });
 }
 
-function buildDomain(domainName: string, verified: boolean): ClaimedDomain {
-  return { domainName, verified };
-}
-
 interface Harness {
   fixture: ComponentFixture<ByLinkTabComponent>;
   component: ByLinkTabComponent;
@@ -55,7 +51,7 @@ async function createComponent(
   options: {
     initialLink?: OrganizationInviteLink;
     autoConfirmEnabled?: boolean;
-    domains?: ClaimedDomain[];
+    domains?: string[];
     domainsError?: unknown;
   } = {},
 ): Promise<Harness> {
@@ -72,9 +68,9 @@ async function createComponent(
 
   const organizationDomainsService = mock<OrganizationDomainsService>();
   if (options.domainsError != null) {
-    organizationDomainsService.claimedDomains.mockRejectedValue(options.domainsError);
+    organizationDomainsService.verifiedDomains.mockRejectedValue(options.domainsError);
   } else {
-    organizationDomainsService.claimedDomains.mockResolvedValue(options.domains ?? []);
+    organizationDomainsService.verifiedDomains.mockResolvedValue(options.domains ?? []);
   }
 
   const configService = mock<ConfigService>();
@@ -137,18 +133,18 @@ describe("ByLinkTabComponent", () => {
     // Manage SSO: requesting that without the permission returns a 401, which logs the user out of
     // the vault entirely. This path also accepts Manage Users, so members who can only manage
     // users still get the prefill.
-    it("prefills verified domains and ignores unverified ones", async () => {
+    it("prefills verified domains", async () => {
       const { component, organizationDomainsService } = await createComponent({
-        domains: [buildDomain("example.com", true), buildDomain("unverified.com", false)],
+        domains: ["example.com", "other.com"],
       });
 
-      expect(organizationDomainsService.claimedDomains).toHaveBeenCalledWith(USER_ID, ORG_ID);
-      expect(component.form.controls.domains.value).toBe("example.com");
+      expect(organizationDomainsService.verifiedDomains).toHaveBeenCalledWith(USER_ID, ORG_ID);
+      expect(component.form.controls.domains.value).toBe("example.com, other.com");
     });
 
     it("leaves the field empty when the org has no verified domains", async () => {
       const { component } = await createComponent({
-        domains: [buildDomain("unverified.com", false)],
+        domains: [],
       });
 
       expect(component.form.controls.domains.value).toBe("");
@@ -169,7 +165,7 @@ describe("ByLinkTabComponent", () => {
         initialLink: makeInviteLink(true),
       });
 
-      expect(organizationDomainsService.claimedDomains).not.toHaveBeenCalled();
+      expect(organizationDomainsService.verifiedDomains).not.toHaveBeenCalled();
       expect(component.form.controls.domains.value).toBe("example.com");
     });
   });

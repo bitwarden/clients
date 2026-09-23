@@ -10,7 +10,7 @@ export abstract class OrgDomainApiServiceAbstraction {
    * permission; callers without either are rejected with a 401, which logs the user out.
    *
    * Callers that only need domain names should use
-   * {@link OrganizationDomainsService.claimedDomains}, which goes through the SDK and also accepts
+   * {@link OrganizationDomainsService.verifiedDomains}, which goes through the SDK and also accepts
    * the Manage Users permission.
    */
   abstract getAllByOrgId(orgId: string): Promise<Array<OrganizationDomainResponse>>;

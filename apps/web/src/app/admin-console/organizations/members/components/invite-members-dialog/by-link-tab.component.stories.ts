@@ -154,10 +154,7 @@ const makeRender =
           {
             provide: OrganizationDomainsService,
             useValue: {
-              claimedDomains: () =>
-                Promise.resolve(
-                  verifiedDomainNames.map((name) => ({ domainName: name, verified: true })),
-                ),
+              verifiedDomains: () => Promise.resolve(verifiedDomainNames),
             },
           },
           {
