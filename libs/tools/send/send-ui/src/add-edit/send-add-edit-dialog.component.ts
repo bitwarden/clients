@@ -178,6 +178,20 @@ export class SendAddEditDialogComponent {
     // since the makeCopy function works by replacing the config object and re-initializing
     this.config = this.params.formConfig;
     void this.init();
+
+    // Wrap whatever closePredicate the caller wired at open-time (e.g. promptForUnsavedEdits) so
+    // that every way of closing this dialog — the header X, Escape, and Cancel, not just the
+    // Cancel button — aborts an in-flight file send submission. Runs after the original predicate
+    // resolves `true` so a vetoed close (user chooses to keep editing) never aborts a submission
+    // the dialog is staying open for.
+    const originalClosePredicate = this.dialogRef.closePredicate;
+    this.dialogRef.closePredicate = async (result) => {
+      const canClose = originalClosePredicate ? await originalClosePredicate(result) : true;
+      if (canClose) {
+        this.sendFormService.abortPendingSubmission();
+      }
+      return canClose;
+    };
   }
 
   async init() {
@@ -336,9 +350,10 @@ export class SendAddEditDialogComponent {
   protected async cancelEditSend() {
     if (this.config.mode === "add") {
       // For "add" mode, just call close() — the closePredicate wired at open-time
-      // (promptForUnsavedEdits) will handle showing the discard dialog exactly once.
-      // Calling promptForUnsavedEdits manually here AND then close() would cause the
-      // discard dialog to appear twice (once here, once from the closePredicate).
+      // (promptForUnsavedEdits, wrapped in the constructor to also abort an in-flight
+      // submission) will handle showing the discard dialog exactly once. Calling
+      // promptForUnsavedEdits manually here AND then close() would cause the discard dialog
+      // to appear twice (once here, once from the closePredicate).
       void this.dialogRef.close();
     } else {
       // For "edit" mode we are not closing the dialog, just toggling back to view mode,

@@ -68,6 +68,7 @@ import {
   isDynamicSeatPlan,
   isSeatConstrainedEmailBatch,
 } from "../member-dialog/validators/input-email-limit.validator";
+import { parseCommaSeparatedEmails } from "../member-dialog/validators/parse-comma-separated-emails";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
@@ -77,6 +78,7 @@ export interface InviteMembersDialogParams {
   isOnSecretsManagerStandalone: boolean;
   occupiedSeatCount: number;
   allOrganizationUsers: OrganizationUserView[];
+  showCoachMarks?: boolean;
 }
 
 @Component({
@@ -125,7 +127,7 @@ export class InviteMembersDialogComponent {
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
-  protected readonly selectedTabIndex = signal(0);
+  protected readonly selectedTabIndex = signal(this.params.showCoachMarks ? 1 : 0);
   protected readonly moreSettingsOpen = signal(false);
 
   protected byLinkTabDirty(): boolean {
@@ -298,7 +300,7 @@ export class InviteMembersDialogComponent {
   }
 
   private async handleInviteUsers(organizationId: OrganizationId) {
-    const emails = [...new Set((this.formGroup.value.emails ?? "").trim().split(/\s*,\s*/))];
+    const emails = [...new Set(parseCommaSeparatedEmails(this.formGroup.value.emails))];
     const type = this.formGroup.value.type ?? OrganizationUserType.User;
     const groups = (this.formGroup.value.groups ?? []).map((m) => m.id);
     const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? false;
