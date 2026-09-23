@@ -633,6 +633,10 @@ export class VaultNextComponent implements OnInit {
   }
 
   protected openImportDialog(): void {
-    ImportDialogComponent.open(this.dialogService);
+    ImportDialogComponent.open(
+      this.dialogService,
+      this.scopedOrganizationId(),
+      this.scopedCollectionId(),
+    );
   }
 }
