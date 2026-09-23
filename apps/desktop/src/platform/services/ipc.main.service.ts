@@ -194,7 +194,7 @@ type NativeMessagingHost = { id: string | { Id: number } };
 
 /**
  * Addresses the CLI as its own endpoint.
- * Note: Merge only after cli changes merged!!! 
+ * Note: Merge only after cli changes merged!!!
  */
 function cliSource(clientId: number): Source {
   return { Cli: { id: { Id: clientId } } } as unknown as Source;
