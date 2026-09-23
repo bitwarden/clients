@@ -21,6 +21,7 @@ import {
 
 import { NativeMessagingMain } from "../../main/native-messaging.main";
 import { WindowMain } from "../../main/window.main";
+import { NativeMessagingHost, nativeMessagingHost } from "../utils/native-messaging-host";
 
 export class IpcMainService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
@@ -190,35 +191,12 @@ export class IpcMainService extends IpcService {
   }
 }
 
-type NativeMessagingHost = { id: string | { Id: number } };
-
 /**
  * Addresses the CLI as its own endpoint.
  * Note: Merge only after cli changes merged!!!
  */
 function cliSource(clientId: number): Source {
   return { Cli: { id: { Id: clientId } } } as unknown as Source;
-}
-
-/**
- * The host of a destination reached over native messaging, or `undefined` for one that is not.
- */
-function nativeMessagingHost(
-  destination: OutgoingMessage["destination"],
-): NativeMessagingHost | undefined {
-  if (typeof destination !== "object") {
-    return undefined;
-  }
-
-  if ("BrowserBackground" in destination) {
-    return destination.BrowserBackground;
-  }
-
-  if ("Cli" in destination) {
-    return (destination as { Cli: NativeMessagingHost }).Cli;
-  }
-
-  return undefined;
 }
 
 /**
