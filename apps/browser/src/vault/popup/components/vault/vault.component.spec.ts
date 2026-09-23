@@ -786,6 +786,7 @@ describe("VaultComponent", () => {
   });
 
   it("navigateToImport navigates to import route", fakeAsync(async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(false);
     const ngRouter = TestBed.inject(Router);
     jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
 
