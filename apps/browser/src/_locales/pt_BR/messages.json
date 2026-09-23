@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Selecione um conjunto"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se deseja importar o conteúdo do arquivo para um conjunto"
   },
   "importTargetHintFolder": {
     "message": "Selecione esta opção se deseja importar o conteúdo do arquivo para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "O arquivo contém itens não atribuídos."

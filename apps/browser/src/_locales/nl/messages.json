@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
   },
   "importTargetHintFolder": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."

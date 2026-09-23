@@ -28,6 +28,34 @@
           "endsPattern": ".*Debugger listening on ws.*"
         }
       }
+    },
+    {
+      // Backing task for the "Browser: Start and debug" compound: builds the extension and
+      // launches an isolated Chrome with it loaded, so the attach configuration has
+      // something to attach to.
+      "label": "browser: debug start",
+      "type": "npm",
+      "script": "debug:browser",
+      "path": "",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": {
+        "owner": "browser-debug",
+        // The pipeline's own output is already readable in the terminal; nothing here should
+        // land in the Problems panel, so the pattern is deliberately inert.
+        "pattern": [{ "regexp": "^$", "file": 1, "location": 2, "message": 3 }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Building extension.*",
+          // dev-chrome.mjs prints this once Chrome's remote debugging port is listening,
+          // which is exactly when the debugger can attach.
+          "endsPattern": ".*DevTools:\\s+http://localhost.*"
+        }
+      }
     }
   ]
 }

@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "选择一个集合"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
   "importTargetHintFolder": {
     "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"

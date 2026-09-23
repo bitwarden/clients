@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
   },
   "importTargetHintFolder": {
     "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."

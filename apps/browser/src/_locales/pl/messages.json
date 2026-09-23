@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Wybierz kolekcję"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Wybierz tę opcję, jeśli chcesz przenieść dane do kolekcji"
   },
   "importTargetHintFolder": {
     "message": "Wybierz tę opcję, jeśli chcesz przenieść dane do folderu"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Plik zawiera nieprzypisane elementy."

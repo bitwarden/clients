@@ -5141,11 +5141,17 @@
   "selectImportCollection": {
     "message": "انتخاب یک مجموعه"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "اگر می‌خواهید محتویات پرونده درون ریزی شده به یک مجموعه منتقل شود، این گزینه را انتخاب کنید"
   },
   "importTargetHintFolder": {
     "message": "اگر می‌خواهید محتویات پرونده درون ریزی شده به یک پوشه منتقل شود، این گزینه را انتخاب کنید"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "پرونده حاوی موارد اختصاص نیافته است."
