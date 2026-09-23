@@ -82,9 +82,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
    * report neither presence nor verification and the authenticator aborts.
    */
   async check_user(options: CheckUserOptions, hint: Fido2UiHint): Promise<CheckUserResult> {
-    this.logService?.info(
-      `[PM-8313 trace] SDK -> check_user(${typeof hint === "string" ? hint : Object.keys(hint)[0]})`,
-    );
+    this.logService?.mark("[SDK FIDO2] check_user");
 
     // The unit variant crosses as a bare string, not an object, so it has to be tested first.
     if (hint === "informNoCredentialsFound") {
@@ -137,9 +135,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
   async pick_credential_for_authentication(
     available_credentials: CipherView[],
   ): Promise<CipherView> {
-    this.logService?.info(
-      `[PM-8313 trace] SDK -> pick_credential_for_authentication(${available_credentials.length} candidate(s))`,
-    );
+    this.logService?.mark("[SDK FIDO2] pick_credential_for_authentication");
 
     const response = await this.session.pickCredential({
       cipherIds: available_credentials
@@ -168,7 +164,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
     options: CheckUserOptions,
     new_credential: Fido2CredentialNewView,
   ): Promise<CheckUserAndPickCredentialForCreationResult> {
-    this.logService?.info("[PM-8313 trace] SDK -> check_user_and_pick_credential_for_creation");
+    this.logService?.mark("[SDK FIDO2] check_user_and_pick_credential_for_creation");
 
     const response = await this.session.confirmNewCredential({
       credentialName: new_credential.rpName ?? new_credential.rpId,

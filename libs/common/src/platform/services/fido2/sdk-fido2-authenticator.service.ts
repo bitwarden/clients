@@ -46,6 +46,9 @@ import { SdkFido2UserInterface } from "./sdk-fido2-user-interface";
  */
 const SYNC_THRESHOLD_MS = 1000 * 60 * 30;
 
+const FLAG_ON_MESSAGE = `${FeatureFlag.PM8313_Fido2OperationsToSdk} enabled. SDK FIDO2 implementation active.`;
+const FLAG_OFF_MESSAGE = `${FeatureFlag.PM8313_Fido2OperationsToSdk} disabled. TypeScript FIDO2 implementation active.`;
+
 /**
  * A FIDO2 authenticator backed by the SDK, used when
  * {@link FeatureFlag.PM8313_Fido2OperationsToSdk} is on. With the flag off, every operation
@@ -77,10 +80,10 @@ export class SdkFido2AuthenticatorService<
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const useSdk = await firstValueFrom(this.sdkFido2Enabled$);
     if (!useSdk) {
-      this.logService.info("[PM-8313 trace] makeCredential -> TypeScript (flag off)");
+      this.logService.info(FLAG_OFF_MESSAGE);
       return await this.fallback.makeCredential(params, window, abortController);
     }
-    this.logService.info("[PM-8313 trace] makeCredential -> SDK");
+    this.logService.info(FLAG_ON_MESSAGE);
 
     // No fall-back-to-TypeScript catch: see `silentCredentialDiscovery`, and because a retry
     // after the SDK has prompted would ask the user to approve the same ceremony twice.
@@ -94,10 +97,10 @@ export class SdkFido2AuthenticatorService<
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const useSdk = await firstValueFrom(this.sdkFido2Enabled$);
     if (!useSdk) {
-      this.logService.info("[PM-8313 trace] getAssertion -> TypeScript (flag off)");
+      this.logService.info(FLAG_OFF_MESSAGE);
       return await this.fallback.getAssertion(params, window, abortController);
     }
-    this.logService.info("[PM-8313 trace] getAssertion -> SDK");
+    this.logService.info(FLAG_ON_MESSAGE);
 
     return await this.getAssertionUsingSdk(params, window, abortController);
   }
@@ -127,12 +130,6 @@ export class SdkFido2AuthenticatorService<
           this.logService,
         ),
         (authenticator) => authenticator.make_credential(toMakeCredentialRequest(params)),
-      );
-
-      this.logService.info(
-        `[PM-8313 trace] SDK make_credential returned: credentialId ${result.credentialId.length}B, ` +
-          `attestationObject ${result.attestationObject.length}B, publicKey ${result.publicKey.length}B, ` +
-          `alg ${result.publicKeyAlgorithm}`,
       );
 
       return {
@@ -173,11 +170,6 @@ export class SdkFido2AuthenticatorService<
         (authenticator) => authenticator.get_assertion(toGetAssertionRequest(params)),
       );
 
-      this.logService.info(
-        `[PM-8313 trace] SDK get_assertion returned: credentialId ${result.credentialId.length}B, ` +
-          `authenticatorData ${result.authenticatorData.length}B, signature ${result.signature.length}B`,
-      );
-
       return {
         selectedCredential: {
           id: new Uint8Array(result.credentialId),
@@ -196,9 +188,7 @@ export class SdkFido2AuthenticatorService<
     const threshold = new Date().getTime() - SYNC_THRESHOLD_MS;
 
     const stale = lastSync == null || lastSync.getTime() < threshold;
-    this.logService.info(
-      `[PM-8313 trace] creation sync: lastSync ${lastSync == null ? "never" : `${Math.round((Date.now() - lastSync.getTime()) / 60000)}m ago`} -> ${stale ? "syncing" : "skipping"}`,
-    );
+    this.logService.mark(`[SDK FIDO2] Creation sync ${stale ? "started" : "skipped"}`);
 
     if (stale) {
       await this.syncService.fullSync(false);
@@ -220,11 +210,10 @@ export class SdkFido2AuthenticatorService<
       cipher.login.fido2Credentials.some((credential) => credential.counter > 0),
     );
 
-    this.logService.info(
-      `[PM-8313 trace] assertion sync: ${found.length} local match(es), used before: ${stale} -> ${found.length === 0 || stale ? "syncing" : "skipping"}`,
-    );
+    const sync = found.length === 0 || stale;
+    this.logService.mark(`[SDK FIDO2] Assertion sync ${sync ? "started" : "skipped"}`);
 
-    if (found.length === 0 || stale) {
+    if (sync) {
       await this.syncService.fullSync(false);
     }
   }
