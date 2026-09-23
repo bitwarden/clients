@@ -194,6 +194,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       devicePublicKeyEncryptedUserKey.encryptedString,
       userKeyEncryptedDevicePublicKey.encryptedString,
       deviceKeyEncryptedDevicePrivateKey.encryptedString,
+      userId,
     );
 
     // store device key in local/secure storage if enc keys posted to server successfully
@@ -220,7 +221,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       throw new Error("New user key is required. Cannot get rotated data.");
     }
 
-    const devices = await this.devicesApiService.getDevices();
+    const devices = await this.devicesApiService.getDevices(userId);
     const devicesToUntrust: string[] = [];
     const rotatedData = await Promise.all(
       devices.data
@@ -261,7 +262,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     );
     if (rotatedData.length > 0) {
       this.logService.info("[Device trust rotation] Distrusting devices that failed to decrypt.");
-      await this.devicesApiService.untrustDevices(devicesToUntrust);
+      await this.devicesApiService.untrustDevices(devicesToUntrust, userId);
     }
     return rotatedData;
   }
@@ -295,7 +296,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     secretVerificationRequest.masterPasswordHash = masterPasswordHash;
 
     // Get the keys that are used in rotating a devices keys from the server
-    const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(deviceIdentifier);
+    const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(deviceIdentifier, userId);
 
     // Decrypt the existing device public key with the old user key
     const decryptedDevicePublicKey = await this.encryptService.unwrapEncapsulationKey(
@@ -331,7 +332,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       "[Device trust rotation] Posting device trust update with current device:",
       deviceIdentifier,
     );
-    await this.devicesApiService.updateTrust(trustRequest, deviceIdentifier);
+    await this.devicesApiService.updateTrust(trustRequest, deviceIdentifier, userId);
     this.logService.info("[Device trust rotation] Device trust update posted successfully.");
   }
 
@@ -440,9 +441,9 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
   }
 
-  async recordDeviceTrustLoss(): Promise<void> {
+  async recordDeviceTrustLoss(userId: UserId): Promise<void> {
     const deviceIdentifier = await this.appIdService.getAppId();
-    await this.devicesApiService.postDeviceTrustLoss(deviceIdentifier);
+    await this.devicesApiService.postDeviceTrustLoss(deviceIdentifier, userId);
   }
 
   private getSecureStorageOptions(userId: UserId): StorageOptions {

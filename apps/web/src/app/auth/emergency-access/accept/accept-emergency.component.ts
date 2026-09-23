@@ -2,8 +2,11 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { isId } from "@bitwarden/common/types/guid";
@@ -37,6 +40,7 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
     authService: AuthService,
     private emergencyAccessService: EmergencyAccessService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
@@ -48,7 +52,8 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
       return;
     }
 
-    this.actionPromise = this.emergencyAccessService.accept(qParams.id, qParams.token);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.actionPromise = this.emergencyAccessService.accept(qParams.id, qParams.token, userId);
     await this.actionPromise;
     this.toastService.showToast({
       variant: "success",

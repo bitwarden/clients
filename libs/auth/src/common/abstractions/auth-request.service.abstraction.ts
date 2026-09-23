@@ -41,16 +41,18 @@ export abstract class AuthRequestServiceAbstraction {
   abstract clearAdminAuthRequest(userId: UserId): Promise<void>;
   /**
    * Gets a list of standard pending auth requests for the user.
+   * @param userId The user id to authenticate the request as.
    * @returns An observable of an array of auth request.
    * The array will be empty if there are no pending auth requests.
    */
-  abstract getPendingAuthRequests$(): Observable<Array<AuthRequestResponse>>;
+  abstract getPendingAuthRequests$(userId: UserId): Observable<Array<AuthRequestResponse>>;
   /**
    * Get the most recent AuthRequest for the logged in user
+   * @param userId The user id to authenticate the request as.
    * @returns An observable of an auth request. If there are no auth requests
    * the result will be null.
    */
-  abstract getLatestPendingAuthRequest$(): Observable<AuthRequestResponse> | null;
+  abstract getLatestPendingAuthRequest$(userId: UserId): Observable<AuthRequestResponse> | null;
   /**
    * Approve or deny an auth request.
    * @param approve True to approve, false to deny.

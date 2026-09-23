@@ -53,7 +53,7 @@ export class VaultBannersService {
     );
 
     const pendingAuthRequests = await firstValueFrom(
-      this.authRequestService.getPendingAuthRequests$(),
+      this.authRequestService.getPendingAuthRequests$(userId),
     );
 
     return pendingAuthRequests.length > 0 && !alreadyDismissed;

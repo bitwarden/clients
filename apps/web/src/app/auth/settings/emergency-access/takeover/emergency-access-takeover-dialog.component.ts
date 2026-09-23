@@ -100,6 +100,7 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
 
     const grantorPolicies = await this.emergencyAccessService.getGrantorPolicies(
       this.dialogData.emergencyAccessId,
+      activeUserId,
     );
 
     this.masterPasswordPolicyOptions = await firstValueFrom(

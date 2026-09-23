@@ -4,6 +4,7 @@ import { DeviceType, DeviceTypeMetadata } from "../../../enums";
 import { ListResponse } from "../../../models/response/list.response";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { UserId } from "../../../types/guid";
 import { DevicesServiceAbstraction } from "../../abstractions/devices/devices.service.abstraction";
 import { DeviceResponse } from "../../abstractions/devices/responses/device.response";
 import { DeviceView } from "../../abstractions/devices/views/device.view";
@@ -27,8 +28,8 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
   /**
    * @description Gets the list of all devices.
    */
-  getDevices$(): Observable<Array<DeviceView>> {
-    return defer(() => this.devicesApiService.getDevices()).pipe(
+  getDevices$(userId: UserId): Observable<Array<DeviceView>> {
+    return defer(() => this.devicesApiService.getDevices(userId)).pipe(
       map((deviceResponses: ListResponse<DeviceResponse>) => {
         return deviceResponses.data.map((deviceResponse: DeviceResponse) => {
           return new DeviceView(deviceResponse);
@@ -40,8 +41,8 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
   /**
    * @description Gets the device with the specified identifier.
    */
-  getDeviceByIdentifier$(deviceIdentifier: string): Observable<DeviceView> {
-    return defer(() => this.devicesApiService.getDeviceByIdentifier(deviceIdentifier)).pipe(
+  getDeviceByIdentifier$(deviceIdentifier: string, userId: UserId): Observable<DeviceView> {
+    return defer(() => this.devicesApiService.getDeviceByIdentifier(deviceIdentifier, userId)).pipe(
       map((deviceResponse: DeviceResponse) => new DeviceView(deviceResponse)),
     );
   }
@@ -62,6 +63,7 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
     devicePublicKeyEncryptedUserKey: string,
     userKeyEncryptedDevicePublicKey: string,
     deviceKeyEncryptedDevicePrivateKey: string,
+    userId: UserId,
   ): Observable<DeviceView> {
     return defer(() =>
       this.devicesApiService.updateTrustedDeviceKeys(
@@ -69,6 +71,7 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
         devicePublicKeyEncryptedUserKey,
         userKeyEncryptedDevicePublicKey,
         deviceKeyEncryptedDevicePrivateKey,
+        userId,
       ),
     ).pipe(map((deviceResponse: DeviceResponse) => new DeviceView(deviceResponse)));
   }
@@ -76,17 +79,17 @@ export class DevicesServiceImplementation implements DevicesServiceAbstraction {
   /**
    * @description Deactivates a device
    */
-  deactivateDevice$(deviceId: string): Observable<void> {
-    return defer(() => this.devicesApiService.deactivateDevice(deviceId));
+  deactivateDevice$(deviceId: string, userId: UserId): Observable<void> {
+    return defer(() => this.devicesApiService.deactivateDevice(deviceId, userId));
   }
 
   /**
    * @description Gets the current device.
    */
-  getCurrentDevice$(): Observable<DeviceResponse> {
+  getCurrentDevice$(userId: UserId): Observable<DeviceResponse> {
     return defer(async () => {
       const deviceIdentifier = await this.appIdService.getAppId();
-      return this.devicesApiService.getDeviceByIdentifier(deviceIdentifier);
+      return this.devicesApiService.getDeviceByIdentifier(deviceIdentifier, userId);
     });
   }
 

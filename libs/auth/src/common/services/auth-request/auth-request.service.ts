@@ -100,8 +100,8 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   /**
    * @description Gets the list of all standard (not admin approval) pending AuthRequests.
    */
-  getPendingAuthRequests$(): Observable<Array<AuthRequestResponse>> {
-    return defer(() => this.authRequestApiService.getPendingAuthRequests()).pipe(
+  getPendingAuthRequests$(userId: UserId): Observable<Array<AuthRequestResponse>> {
+    return defer(() => this.authRequestApiService.getPendingAuthRequests(userId)).pipe(
       map((authRequestResponses: ListResponse<AuthRequestResponse>) => {
         return authRequestResponses.data.map((authRequestResponse: AuthRequestResponse) => {
           return new AuthRequestResponse(authRequestResponse);
@@ -110,8 +110,8 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     );
   }
 
-  getLatestPendingAuthRequest$(): Observable<AuthRequestResponse | null> {
-    return this.getPendingAuthRequests$().pipe(
+  getLatestPendingAuthRequest$(userId: UserId): Observable<AuthRequestResponse | null> {
+    return this.getPendingAuthRequests$(userId).pipe(
       map((authRequests: Array<AuthRequestResponse>) => {
         if (authRequests.length === 0) {
           return null;

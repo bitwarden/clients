@@ -143,7 +143,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     switch (verification.type) {
       case VerificationType.OTP:
-        return this.verifyUserByOTP(verification);
+        return this.verifyUserByOTP(verification, userId);
       case VerificationType.MasterPassword:
         await this.verifyUserByMasterPassword(verification, userId, email);
         return true;
@@ -159,10 +159,10 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     }
   }
 
-  private async verifyUserByOTP(verification: OtpVerification): Promise<boolean> {
+  private async verifyUserByOTP(verification: OtpVerification, userId: UserId): Promise<boolean> {
     const request = new VerifyOTPRequest(verification.secret);
     try {
-      await this.userVerificationApiService.postAccountVerifyOTP(request);
+      await this.userVerificationApiService.postAccountVerifyOTP(request, userId);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
@@ -213,7 +213,10 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         );
       request.authenticateWith(authenticationData);
       try {
-        policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(request);
+        policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(
+          request,
+          userId,
+        );
         // FIXME: Remove when updating file. Eslint update
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
@@ -236,8 +239,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     return this.biometricsService.authenticateWithBiometrics();
   }
 
-  async requestOTP() {
-    await this.userVerificationApiService.postAccountRequestOTP();
+  async requestOTP(userId: UserId) {
+    await this.userVerificationApiService.postAccountRequestOTP(userId);
   }
 
   async hasMasterPassword(userId?: string): Promise<boolean> {

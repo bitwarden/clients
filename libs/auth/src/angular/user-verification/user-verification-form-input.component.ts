@@ -10,12 +10,14 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { BehaviorSubject, Subject, takeUntil } from "rxjs";
+import { BehaviorSubject, Subject, firstValueFrom, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationBiometricsIcon } from "@bitwarden/assets/svg";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserVerificationOptions } from "@bitwarden/common/auth/types/user-verification-options";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -197,6 +199,7 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
   constructor(
     private userVerificationService: UserVerificationService,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -285,7 +288,8 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     if (!this.userVerificationOptions.server.masterPassword) {
       this.disableRequestOTP = true;
       try {
-        await this.userVerificationService.requestOTP();
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        await this.userVerificationService.requestOTP(userId);
         this.sentCode = true;
         this.sentInitialCode = true;
 

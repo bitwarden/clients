@@ -70,15 +70,15 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Gets an emergency access by id.
    * @param id emergency access id
    */
-  getEmergencyAccess(id: string): Promise<GranteeEmergencyAccess> {
-    return this.emergencyAccessApiService.getEmergencyAccess(id);
+  getEmergencyAccess(id: string, userId: UserId): Promise<GranteeEmergencyAccess> {
+    return this.emergencyAccessApiService.getEmergencyAccess(id, userId);
   }
 
   /**
    * Gets all emergency access that the user has been granted.
    */
-  async getEmergencyAccessTrusted(): Promise<GranteeEmergencyAccess[]> {
-    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessTrusted();
+  async getEmergencyAccessTrusted(userId: UserId): Promise<GranteeEmergencyAccess[]> {
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessTrusted(userId);
     if (!listResponse || listResponse.data.length === 0) {
       return [];
     }
@@ -88,8 +88,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
   /**
    * Gets all emergency access that the user has granted.
    */
-  async getEmergencyAccessGranted(): Promise<GrantorEmergencyAccess[]> {
-    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessGranted();
+  async getEmergencyAccessGranted(userId: UserId): Promise<GrantorEmergencyAccess[]> {
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessGranted(userId);
     if (!listResponse || listResponse.data.length === 0) {
       return [];
     }
@@ -111,8 +111,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * The only scenario where a Grantor does NOT get removed from the org is when that Grantor is the
    * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
    */
-  async getGrantorPolicies(id: string): Promise<Policy[]> {
-    const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id);
+  async getGrantorPolicies(id: string, userId: UserId): Promise<Policy[]> {
+    const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id, userId);
     let policies: Policy[] = [];
     if (response.data != null && response.data.length > 0) {
       policies = response.data.map((policyResponse) => new Policy(new PolicyData(policyResponse)));
@@ -128,13 +128,18 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param type type of emergency access
    * @param waitTimeDays number of days to wait before granting access
    */
-  async invite(email: string, type: EmergencyAccessType, waitTimeDays: number): Promise<void> {
+  async invite(
+    email: string,
+    type: EmergencyAccessType,
+    waitTimeDays: number,
+    userId: UserId,
+  ): Promise<void> {
     const request = new EmergencyAccessInviteRequest();
     request.email = email.trim();
     request.type = type;
     request.waitTimeDays = waitTimeDays;
 
-    await this.emergencyAccessApiService.postEmergencyAccessInvite(request);
+    await this.emergencyAccessApiService.postEmergencyAccessInvite(request, userId);
   }
 
   /**
@@ -142,8 +147,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantor.
    * @param id emergency access id
    */
-  reinvite(id: string): Promise<void> {
-    return this.emergencyAccessApiService.postEmergencyAccessReinvite(id);
+  reinvite(id: string, userId: UserId): Promise<void> {
+    return this.emergencyAccessApiService.postEmergencyAccessReinvite(id, userId);
   }
 
   /**
@@ -153,12 +158,17 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param type type of emergency access
    * @param waitTimeDays number of days to wait before granting access
    */
-  async update(id: string, type: EmergencyAccessType, waitTimeDays: number) {
+  async update(
+    id: string,
+    type: EmergencyAccessType,
+    waitTimeDays: number,
+    userId: UserId,
+  ) {
     const request = new EmergencyAccessUpdateRequest();
     request.type = type;
     request.waitTimeDays = waitTimeDays;
 
-    await this.emergencyAccessApiService.putEmergencyAccess(id, request);
+    await this.emergencyAccessApiService.putEmergencyAccess(id, request, userId);
   }
 
   /**
@@ -168,11 +178,11 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param id emergency access id
    * @param token secret token provided in email
    */
-  async accept(id: string, token: string): Promise<void> {
+  async accept(id: string, token: string, userId: UserId): Promise<void> {
     const request = new EmergencyAccessAcceptRequest();
     request.token = token;
 
-    await this.emergencyAccessApiService.postEmergencyAccessAccept(id, request);
+    await this.emergencyAccessApiService.postEmergencyAccessAccept(id, request, userId);
   }
 
   /**
@@ -206,7 +216,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
 
     const request = new EmergencyAccessConfirmRequest();
     request.key = await this.encryptKey(userKey, publicKey);
-    await this.emergencyAccessApiService.postEmergencyAccessConfirm(id, request);
+    await this.emergencyAccessApiService.postEmergencyAccessConfirm(id, request, activeUserId);
   }
 
   /**
@@ -214,8 +224,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for either grantor or grantee.
    * @param id emergency access id
    */
-  delete(id: string): Promise<void> {
-    return this.emergencyAccessApiService.deleteEmergencyAccess(id);
+  delete(id: string, userId: UserId): Promise<void> {
+    return this.emergencyAccessApiService.deleteEmergencyAccess(id, userId);
   }
 
   /**
@@ -223,8 +233,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantee.
    * @param id emergency access id
    */
-  requestAccess(id: string): Promise<void> {
-    return this.emergencyAccessApiService.postEmergencyAccessInitiate(id);
+  requestAccess(id: string, userId: UserId): Promise<void> {
+    return this.emergencyAccessApiService.postEmergencyAccessInitiate(id, userId);
   }
 
   /**
@@ -232,8 +242,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantor.
    * @param id emergency access id
    */
-  approve(id: string): Promise<void> {
-    return this.emergencyAccessApiService.postEmergencyAccessApprove(id);
+  approve(id: string, userId: UserId): Promise<void> {
+    return this.emergencyAccessApiService.postEmergencyAccessApprove(id, userId);
   }
 
   /**
@@ -241,8 +251,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantor.
    * @param id emergency access id
    */
-  reject(id: string): Promise<void> {
-    return this.emergencyAccessApiService.postEmergencyAccessReject(id);
+  reject(id: string, userId: UserId): Promise<void> {
+    return this.emergencyAccessApiService.postEmergencyAccessReject(id, userId);
   }
 
   /**
@@ -252,7 +262,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param activeUserId the user id of the active user
    */
   async getViewOnlyCiphers(id: string, activeUserId: UserId): Promise<CipherView[]> {
-    const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
+    const response = await this.emergencyAccessApiService.postEmergencyAccessView(id, activeUserId);
 
     const activeUserPrivateKey = await firstValueFrom(
       this.keyService.userPrivateKey$(activeUserId),
@@ -282,7 +292,10 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param activeUserId the user id of the active user
    */
   async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
-    const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(id);
+    const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(
+      id,
+      activeUserId,
+    );
 
     const activeUserPrivateKey = await firstValueFrom(
       this.keyService.userPrivateKey$(activeUserId),
@@ -345,12 +358,14 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
 
     const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
-    await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
+    await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request, activeUserId);
   }
 
-  private async getEmergencyAccessData(): Promise<EmergencyAccessGranteeDetailsResponse[]> {
+  private async getEmergencyAccessData(
+    userId: UserId,
+  ): Promise<EmergencyAccessGranteeDetailsResponse[]> {
     const existingEmergencyAccess =
-      await this.emergencyAccessApiService.getEmergencyAccessTrusted();
+      await this.emergencyAccessApiService.getEmergencyAccessTrusted(userId);
 
     if (!existingEmergencyAccess || existingEmergencyAccess.data.length === 0) {
       return [];
@@ -369,8 +384,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     return filteredAccesses;
   }
 
-  async getPublicKeys(): Promise<GranteeEmergencyAccessWithPublicKey[]> {
-    const emergencyAccessData = await this.getEmergencyAccessData();
+  async getPublicKeys(userId: UserId): Promise<GranteeEmergencyAccessWithPublicKey[]> {
+    const emergencyAccessData = await this.getEmergencyAccessData(userId);
     const emergencyAccessDataWithPublicKeys = await Promise.all(
       emergencyAccessData.map(async (details) => {
         const grantee = new GranteeEmergencyAccessWithPublicKey();
@@ -418,7 +433,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       trustedPublicKeys,
     );
 
-    const allDetails = await this.getPublicKeys();
+    const allDetails = await this.getPublicKeys(userId);
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(

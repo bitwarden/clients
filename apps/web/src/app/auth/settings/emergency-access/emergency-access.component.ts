@@ -100,8 +100,9 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   async load() {
-    this.trustedContacts = await this.emergencyAccessService.getEmergencyAccessTrusted();
-    this.grantedContacts = await this.emergencyAccessService.getEmergencyAccessGranted();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.trustedContacts = await this.emergencyAccessService.getEmergencyAccessTrusted(userId);
+    this.grantedContacts = await this.emergencyAccessService.getEmergencyAccessGranted(userId);
     this.loaded = true;
   }
 
@@ -131,7 +132,8 @@ export class EmergencyAccessComponent implements OnInit {
     if (this.actionPromise != null) {
       return;
     }
-    this.actionPromise = this.emergencyAccessService.reinvite(contact.id);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.actionPromise = this.emergencyAccessService.reinvite(contact.id, userId);
     await this.actionPromise;
     this.toastService.showToast({
       variant: "success",
@@ -218,7 +220,8 @@ export class EmergencyAccessComponent implements OnInit {
     }
 
     try {
-      await this.emergencyAccessService.delete(details.id);
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      await this.emergencyAccessService.delete(details.id, userId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -250,7 +253,8 @@ export class EmergencyAccessComponent implements OnInit {
       return false;
     }
 
-    await this.emergencyAccessService.requestAccess(details.id);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.emergencyAccessService.requestAccess(details.id, userId);
 
     details.status = EmergencyAccessStatusType.RecoveryInitiated;
     this.toastService.showToast({
@@ -279,7 +283,8 @@ export class EmergencyAccessComponent implements OnInit {
       return false;
     }
 
-    await this.emergencyAccessService.approve(details.id);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.emergencyAccessService.approve(details.id, userId);
     details.status = EmergencyAccessStatusType.RecoveryApproved;
 
     this.toastService.showToast({
@@ -290,7 +295,8 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   async reject(details: GranteeEmergencyAccess) {
-    await this.emergencyAccessService.reject(details.id);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.emergencyAccessService.reject(details.id, userId);
     details.status = EmergencyAccessStatusType.Confirmed;
 
     this.toastService.showToast({

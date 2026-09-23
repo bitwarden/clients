@@ -531,7 +531,7 @@ export class UserKeyRotationService {
     // 3. Show the user a dialog for each emergency access user and ask them to verify the trust.
 
     this.logService.info("[Userkey rotation] Verifying trust...");
-    const emergencyAccessGrantees = await this.emergencyAccessService.getPublicKeys();
+    const emergencyAccessGrantees = await this.emergencyAccessService.getPublicKeys(user.id);
     const organizations = await this.resetPasswordService.getPublicKeys(user.id);
 
     if (organizations.length > 0 || emergencyAccessGrantees.length > 0) {

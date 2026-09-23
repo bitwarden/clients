@@ -258,14 +258,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const authRequestResponse =
-        await this.authRequestApiService.postAdminAuthRequest(authRequest);
-
-      const adminAuthReqStorable = new AdminAuthRequestStorable({
-        id: authRequestResponse.id,
-        privateKey: this.authRequestKeyPair.privateKey,
-      });
-
       const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
 
       if (!userId) {
@@ -274,6 +266,16 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         );
         return;
       }
+
+      const authRequestResponse = await this.authRequestApiService.postAdminAuthRequest(
+        authRequest,
+        userId,
+      );
+
+      const adminAuthReqStorable = new AdminAuthRequestStorable({
+        id: authRequestResponse.id,
+        privateKey: this.authRequestKeyPair.privateKey,
+      });
 
       await this.authRequestService.setAdminAuthRequest(adminAuthReqStorable, userId);
 
@@ -485,6 +487,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     try {
       adminAuthRequestResponse = await this.authRequestApiService.getAuthRequest(
         adminAuthRequestStorable.id,
+        userId,
       );
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === HttpStatusCode.NotFound) {
@@ -552,7 +555,11 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       // Get the response based on whether we've authenticated or not.  We need to call a different API method
       // based on whether we have a token or need to use the accessCode.
       if (userHasAuthenticatedViaSSO) {
-        authRequestResponse = await this.authRequestApiService.getAuthRequest(requestId);
+        const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+        if (!userId) {
+          throw new Error("No active user id when retrieving an authenticated auth request.");
+        }
+        authRequestResponse = await this.authRequestApiService.getAuthRequest(requestId, userId);
       } else {
         if (!this.accessCode) {
           const errorMessage = "No access code available when handling approved auth request.";

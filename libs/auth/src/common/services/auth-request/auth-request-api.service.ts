@@ -3,6 +3,7 @@ import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request"
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 
@@ -12,16 +13,16 @@ export class DefaultAuthRequestApiService implements AuthRequestApiServiceAbstra
     private logService: LogService,
   ) {}
 
-  async getPendingAuthRequests(): Promise<ListResponse<AuthRequestResponse>> {
+  async getPendingAuthRequests(userId: UserId): Promise<ListResponse<AuthRequestResponse>> {
     const path = `/auth-requests/pending`;
-    const r = await this.apiService.send("GET", path, null, true, true);
+    const r = await this.apiService.send("GET", path, null, userId, true);
     return new ListResponse(r, AuthRequestResponse);
   }
 
-  async getAuthRequest(requestId: string): Promise<AuthRequestResponse> {
+  async getAuthRequest(requestId: string, userId: UserId): Promise<AuthRequestResponse> {
     try {
       const path = `/auth-requests/${requestId}`;
-      const response = await this.apiService.send("GET", path, null, true, true);
+      const response = await this.apiService.send("GET", path, null, userId, true);
 
       return new AuthRequestResponse(response);
     } catch (e: unknown) {
@@ -42,13 +43,13 @@ export class DefaultAuthRequestApiService implements AuthRequestApiServiceAbstra
     }
   }
 
-  async postAdminAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
+  async postAdminAuthRequest(request: AuthRequest, userId: UserId): Promise<AuthRequestResponse> {
     try {
       const response = await this.apiService.send(
         "POST",
         "/auth-requests/admin-request",
         request,
-        true,
+        userId,
         true,
       );
 
