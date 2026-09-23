@@ -39,7 +39,6 @@ describe("ReviewApplicationsViewV2Component", () => {
 
     // Set required signal inputs
     fixture.componentRef.setInput("applications", sampleApps);
-    fixture.componentRef.setInput("ciphers", []);
     fixture.componentRef.setInput("selectedApplications", new Set<string>());
   });
 
