@@ -2095,7 +2095,7 @@
     "message": "On system lock"
   },
   "onRestart": {
-    "message": "On restart"
+    "message": "On app restart"
   },
   "never": {
     "message": "Never"
@@ -2139,7 +2139,7 @@
     "message": "Language"
   },
   "languageDesc": {
-    "message": "Change the language used by the application. Restart is required."
+    "message": "Change the language used by the application. App restart is required."
   },
   "theme": {
     "message": "Theme"
@@ -2172,10 +2172,10 @@
     }
   },
   "restartToUpdate": {
-    "message": "Restart to update"
+    "message": "Restart app to update"
   },
   "restartToUpdateDesc": {
-    "message": "Version $VERSION_NUM$ is ready to install. You must restart the application to complete the installation. Do you want to restart and update now?",
+    "message": "Version $VERSION_NUM$ is ready to install. You must restart the application to complete the installation. Do you want to restart the app and update now?",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -2190,7 +2190,7 @@
     "message": "An update was found. Do you want to download it now?"
   },
   "restart": {
-    "message": "Restart"
+    "message": "Restart app"
   },
   "later": {
     "message": "Later"
@@ -2785,7 +2785,7 @@
     "message": "Ask for Touch ID on app start"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Lock with master password on restart"
+    "message": "Lock with master password on app restart"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
     "message": "Require master password or PIN on app restart"
@@ -3125,7 +3125,7 @@
     "message": "Use hardware acceleration"
   },
   "enableHardwareAccelerationDesc": {
-    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
+    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. App restart is required."
   },
   "approve": {
     "message": "Approve"
@@ -5352,10 +5352,10 @@
     "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
-    "message": "Disable hardware acceleration and restart"
+    "message": "Disable hardware acceleration and restart app"
   },
   "enableHardwareAccelerationRestart": {
-    "message": "Enable hardware acceleration and restart"
+    "message": "Enable hardware acceleration and restart app"
   },
   "removePasskey": {
     "message": "Remove passkey"
