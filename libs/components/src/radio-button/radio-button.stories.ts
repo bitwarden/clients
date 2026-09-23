@@ -361,6 +361,40 @@ export const FormControlCardGroupGrid: Story = {
   }),
 };
 
+export const FormControlCardGroupGridLongLabels: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-group grid formControlName="radio">
+          <bit-label>Select an option</bit-label>
+
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="0" />
+            <bit-label>A password manager with an extremely long vendor name</bit-label>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="1" />
+            <bit-label>Supercalifragilisticexpialidocious</bit-label>
+          </bit-form-control-card>
+          <bit-form-control-card title="Custom tooltip text">
+            <input type="radio" bitRadio [value]="2" />
+            <bit-label>Option with an overridden title</bit-label>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="3" />
+            <bit-label>Option D</bit-label>
+          </bit-form-control-card>
+        </bit-form-control-group>
+      </form>
+    `,
+  }),
+};
+
 export const FormControlCardCustomSlot: Story = {
   render: () => ({
     props: {
