@@ -61,11 +61,11 @@ export class KeyboardShortcutService implements OnDestroy {
    */
   readonly modifierKey: Signal<"Command" | "Ctrl"> = this.modifier.asReadonly();
 
-  // Capture phase so arbitration happens before any component handler, and outside the zone so a
-  // keystroke that matches nothing cannot tick change detection.
   private readonly listener = (event: KeyboardEvent) => this.handle(event);
 
   constructor() {
+    // Capture phase so arbitration happens before any component handler, and outside the zone so a
+    // keystroke that matches nothing cannot tick change detection.
     this.ngZone.runOutsideAngular(() =>
       this.document.addEventListener("keydown", this.listener, true),
     );

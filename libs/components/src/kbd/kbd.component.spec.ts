@@ -21,8 +21,8 @@ describe("BitKbdComponent", () => {
   let host: HostComponent;
 
   const labels = () =>
-    Array.from(fixture.nativeElement.querySelectorAll("kbd")).map((key) =>
-      (key as HTMLElement).textContent?.trim(),
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll("kbd")).map((key) =>
+      key.textContent?.trim(),
     );
 
   const setKeys = (keys: string[]) => {

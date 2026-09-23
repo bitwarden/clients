@@ -6,6 +6,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { MenuModule, MenuTriggerForDirective } from "../menu";
+import { dialogOver, dialogWith } from "../utils/dialog-mock";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SearchComponent } from "./search.component";
@@ -19,9 +20,6 @@ class HostComponent {
   readonly useKeyShortcuts = signal(true);
   readonly disabled = signal(false);
 }
-
-// Only identity is compared, so empty objects stand in for dialog refs.
-const newDialog = () => ({}) as DialogRef;
 
 const i18nMock = () =>
   new I18nMockService({
@@ -37,7 +35,6 @@ describe("SearchComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
   let openDialogs: DialogRef[];
-  const ownDialog = newDialog();
   let reachedDocument: jest.Mock;
 
   const input = () => fixture.nativeElement.querySelector("input") as HTMLInputElement;
@@ -66,9 +63,7 @@ describe("SearchComponent", () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs } as unknown as Dialog },
-        // The search's own dialog; it counts as open only once pushed onto `openDialogs`.
-        { provide: DialogRef, useValue: ownDialog },
+        { provide: Dialog, useValue: dialogWith(openDialogs) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -154,7 +149,7 @@ describe("SearchComponent", () => {
 
   describe("with a dialog open", () => {
     it("is a noop for a search behind the dialog", () => {
-      openDialogs.push(newDialog());
+      openDialogs.push(dialogOver(document.createElement("div")));
 
       const event = keydown({ key: "f", metaKey: true });
 
@@ -162,7 +157,7 @@ describe("SearchComponent", () => {
     });
 
     it("still focuses a search inside the dialog", () => {
-      openDialogs.push(ownDialog);
+      openDialogs.push(dialogOver(document.body));
 
       const event = keydown({ key: "f", metaKey: true });
 
@@ -315,7 +310,7 @@ describe("SearchComponent inside a dialog-role menu", () => {
     await TestBed.configureTestingModule({
       imports: [MenuHostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs: [] } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith([]) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();
@@ -387,7 +382,7 @@ describe("SearchComponent arbitration", () => {
     await TestBed.configureTestingModule({
       imports: [TwoSearchHostComponent],
       providers: [
-        { provide: Dialog, useValue: { openDialogs: [] } as unknown as Dialog },
+        { provide: Dialog, useValue: dialogWith([]) },
         { provide: I18nService, useFactory: i18nMock },
       ],
     }).compileComponents();

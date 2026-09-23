@@ -156,9 +156,7 @@ export class BulkActionsBarComponent {
    */
   readonly compact = signal(true);
 
-  // Seeded from navigator so the first announcement (which can fire before any
-  // keypress) has a sensible label; upgraded to ground truth as soon as a real
-  // Cmd/Ctrl-bearing keydown is observed. The spoken label, not the ⌘ glyph.
+  // The spoken label, not the ⌘ glyph: this feeds a live region.
   private readonly modifierLabel = injectModifierLabel();
 
   protected readonly announcement = computed(() => {
