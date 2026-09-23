@@ -98,6 +98,7 @@ import { AssignCollectionsWebDialogAdapter } from "../components/assign-collecti
 import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
+import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
@@ -109,8 +110,6 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  *
  * Every side-nav destination renders this one component, scoped by the `:vaultId` route segment —
  * see `VaultScope`.
- *
- * Not yet wired: the `?itemId=&action=` deep link that opens an item on load.
  */
 @Component({
   selector: "app-vault-next",
@@ -487,6 +486,66 @@ export class VaultNextComponent implements OnInit {
    */
   protected readonly itemAction = (item: CipherViewLike): Promise<void> =>
     this.itemActions.view(item);
+
+  private readonly queryParams = toSignal(this.activatedRoute.queryParamMap);
+
+  /** The item the URL asks the page to open, if any — see {@link itemDeepLinkFrom}. */
+  private readonly itemDeepLink = computed(() => itemDeepLinkFrom(this.queryParams()));
+
+  /** The `<cipherId>:<action>` of the deep link last dispatched, so it is dispatched only once. */
+  private readonly dispatchedDeepLink = signal<string | undefined>(undefined);
+
+  /**
+   * Opens the item named by the deep link on the URL — see {@link itemDeepLinkFrom}.
+   *
+   * The dispatch waits for the items to decrypt: `WebVaultItemActionsService` reads the item from
+   * storage, and an item that has not loaded yet reads the same as one that does not exist.
+   *
+   * It also holds while a dialog is open, because `VaultItemDialogComponent` writes these same
+   * params each time the user toggles view and edit — and it dispatches each link once, because
+   * the params the dialog leaves behind would otherwise reopen it.
+   */
+  private readonly openDeepLinkedItem = effect(() => {
+    const link = this.itemDeepLink();
+    const loading = this.loading();
+    const dialogOpen = this.itemActions.itemDialogOpen();
+
+    untracked(() => {
+      if (link == null) {
+        this.dispatchedDeepLink.set(undefined);
+        return;
+      }
+
+      if (loading || dialogOpen) {
+        return;
+      }
+
+      const dispatched = `${link.cipherId}:${link.action}`;
+      if (this.dispatchedDeepLink() === dispatched) {
+        return;
+      }
+      this.dispatchedDeepLink.set(dispatched);
+
+      void this.dispatchDeepLink(link);
+    });
+  });
+
+  private async dispatchDeepLink(link: ItemDeepLink): Promise<void> {
+    switch (link.action) {
+      case ItemDeepLinkAction.Edit:
+        await this.itemActions.editById(link.cipherId);
+        break;
+      case ItemDeepLinkAction.Clone:
+        await this.itemActions.cloneById(link.cipherId);
+        break;
+      case ItemDeepLinkAction.ShowFailedToDecrypt:
+        await this.itemActions.showDecryptionFailure(link.cipherId);
+        break;
+      case ItemDeepLinkAction.View:
+        await this.itemActions.viewById(link.cipherId);
+        break;
+    }
+  }
 
   /** Handles `vault-new-cipher-menu`'s `cipherAdded`, emitted by its legacy per-type dropdown. */
   protected async addCipher(cipherType: CipherType): Promise<void> {
