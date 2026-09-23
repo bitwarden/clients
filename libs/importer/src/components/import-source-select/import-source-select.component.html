@@ -43,12 +43,7 @@
             <bit-icon-tile slot="start" icon="bwi-key"></bit-icon-tile>
           }
           <input type="radio" bitRadio [value]="option.id" />
-          <bit-label>
-            <!-- tw-block + tw-min-w-0: text-overflow's ellipsis glyph has no effect on an inline
-               element and won't shrink inside bit-label's flex host without a width to shrink to
-               — both needed for tw-truncate to render an ellipsis instead of clipping mid-word. -->
-            <span class="tw-block tw-truncate tw-min-w-0">{{ displayNameFor(option) }}</span>
-          </bit-label>
+          <bit-label>{{ displayNameFor(option) }}</bit-label>
         </bit-form-control-card>
       </ng-template>
 
