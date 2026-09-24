@@ -12,23 +12,25 @@
 --     requester, at a time of their choosing, to start the lease
 --   - AccessLeases (time-bounded access grants, minted on activation)
 --   - Approver inbox / decisioning
---   - AccessLease lifecycle (active, expired, revoked) and extension
---   - Org-wide kill switch
---   - Governance dashboard (read model)
+--   - AccessLease lifecycle (active, expired, revoked, canceled) and extension
+--   - Notifications: which actions mail whom, and the access push
 --   - Vault export: the whole-vault export bypasses leasing; a member's export of
 --     their managed collections leaves gated items out
 --   - Write gating: changing a gated item needs a live lease
+--   - PLANNED, not built (see the PLANNED section): the org-wide kill switch and
+--     leasing freeze, and the governance dashboard
+--
+-- The audit trail those actions write is specified in pam-audit.allium, next to
+-- this file.
 --
 -- Excludes:
 --   - Vault encryption / cipher decryption (handled by the existing vault stack)
 --   - The vault-export stack itself (scope resolution, file generation,
 --     encryption) — the spec models only PAM's non-interference with it
 --   - Authentication / session management (auth stack)
---   - Email rendering and delivery (PM-37279 — implementation detail; the
---     spec models the *trigger*, not the template)
---   - Push notification transport (PM-37262 — implementation detail; the
---     spec models the *event*, not the wire format)
---   - Audit log persistence (server-side; the client observes outcomes only)
+--   - Email templates and delivery: the spec models which action mails whom, not
+--     the template
+--   - Push notification transport: the spec models the event, not the wire format
 --   - The PAM feature flag (FeatureFlagKeys.Pam, `pm-37044-pam-v-0`), because it is a
 --     temporary rollout gate rather than domain. While it is off, every rule is inert and
 --     a gated item opens to its collection members as it would without PAM (see the
@@ -36,11 +38,6 @@
 --     which fails closed; if the flag outlives the rollout, this line stops being true.
 --   - Clients other than the web vault. The server sends them no partial items, so a
 --     gated item is invisible there (see GatedCipherView); multi-client support is PAM-121.
---
--- Specified but NOT yet implemented in this client (the spec leads the code here):
---   - Org-wide kill switch and leasing freeze (KillSwitchControl, LeasingFreeze) —
---     no server or SDK backing
---   - Governance dashboard (GovernanceDashboard) — no server or SDK backing
 --
 -- The request form shapes itself from AccessRequestsClient::pre_check (see
 -- RequestAccessModal); there is no separate forecast read.
@@ -425,16 +422,6 @@ entity AccessLease {
         active -> canceled
         terminal: expired, revoked, canceled
     }
-}
-
--- An org-wide block on starting new leases, engaged by an admin (typically
--- alongside the kill switch). While one exists for an organization, no approved
--- request can be activated into a lease there. Its existence IS the "blocked" state;
--- removing it lifts the block. At most one per organization.
-entity LeasingFreeze {
-    organization: Organization
-    engaged_at: Timestamp
-    engaged_by: User
 }
 
 -- ----------------------------------------------------------------------------
@@ -864,6 +851,7 @@ rule MemberSubmitsAccessRequest {
         submitted_at: now,
         status: pending
     )
+    ensures: AccessChanged(requester: caller, collection: paired_memberships.first.collection)
 }
 
 rule MemberCancelsOwnRequest {
@@ -884,6 +872,7 @@ rule MemberCancelsOwnRequest {
     -- empty.
     ensures: request.approver = null
     ensures: request.approver_comment = null
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule MemberRequestsLeaseExtension {
@@ -960,6 +949,7 @@ rule MemberRequestsLeaseExtension {
                 approver_comment: "The lease being extended has ended",
                 extension_of: lease
             )
+    ensures: AccessChanged(requester: lease.requester, collection: lease.collection)
 }
 
 -- ----------------------------------------------------------------------------
@@ -1044,6 +1034,7 @@ rule RouteToHumanApprovers {
     requires: request.extension_of = null
     requires: request.rule.has_human_approval
     ensures: RequestAwaitingApprover(request)
+    ensures: ApproversNotified(request)
     @guidance
         -- Nothing yet shows the approver the requester's network, so "inform" is
         -- aspirational today.
@@ -1077,6 +1068,8 @@ rule ApproverApprovesRequest {
     ensures: request.approver = approver
     -- Optional on approve; a blank comment is stored as none.
     ensures: request.approver_comment = comment
+    ensures: RequesterNotifiedOfDecision(request, verdict)
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule ApproverDeniesRequest {
@@ -1096,6 +1089,8 @@ rule ApproverDeniesRequest {
     ensures: request.resolved_at = now
     ensures: request.approver = approver
     ensures: request.approver_comment = comment
+    ensures: RequesterNotifiedOfDecision(request, verdict)
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule ApproverRetractsRequest {
@@ -1123,6 +1118,9 @@ rule ApproverRetractsRequest {
     ensures: request.resolved_at = now
     ensures: request.approver = approver
     ensures: request.approver_comment = null
+    -- Pushed, but not mailed: the requester is not told by mail that their approval
+    -- was withdrawn (see Open questions).
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 -- ----------------------------------------------------------------------------
@@ -1150,10 +1148,11 @@ rule ApproverRetractsRequest {
 -- single_active_lease contention is resolved here, at start, since this is when
 -- the lease comes into being: if RuleAllowsLease is false (the cipher's single slot
 -- is already taken) the start is simply rejected and the approved request stays
--- activatable for a manual retry — there is no queue. A start is likewise refused
--- while the org is under a LeasingFreeze (the kill switch's optional
--- block-new-leases). Automated conditions (e.g. ip_allowlist) are re-checked here
--- too: a mismatch at start rejects the activation. Extensions never reach here —
+-- activatable for a manual retry — there is no queue. A start will likewise be
+-- refused while the org is under a LeasingFreeze (the kill switch's optional
+-- block-new-leases), once that is built (see the PLANNED section). Automated
+-- conditions (e.g. ip_allowlist) are re-checked here too: a mismatch at start
+-- rejects the activation. Extensions never reach here —
 -- they apply in place as they are created (MemberRequestsLeaseExtension).
 --
 -- A failed activation NEVER consumes the approval. The request counts as started
@@ -1168,9 +1167,8 @@ rule ApproverRetractsRequest {
 -- Every activation attempt is audited, success or failure: ActivateLease emits
 -- LeaseActivationAudited(.., outcome: succeeded) alongside minting the lease,
 -- and LeaseActivationRejected emits the same event with outcome: rejected for any
--- start that cannot proceed. (Audit-log *persistence* is out of scope — server-
--- side, per the Excludes block — but the EVENT emission is in scope, mirroring the
--- push-notification "models the event, not the wire format" pattern.)
+-- start that cannot proceed. The record these events write, and which refusals
+-- the server writes today, are specified in pam-audit.allium.
 
 rule ActivateLease {
     when: MemberActivatesLease(member, request)
@@ -1193,7 +1191,9 @@ rule ActivateLease {
     -- a delete re-resolves first (see AccessRequest.rule).
     requires: RuleAutomatedConditionsPass(request.rule, member)
     requires: RuleAllowsLease(request.requester, request.cipher)
-    -- Blocked while the org is under a leasing freeze (e.g. kill switch).
+    -- Blocked while the org is under a leasing freeze (e.g. kill switch). NOT
+    -- ENFORCED TODAY: the freeze is planned (PAM-49, PAM-17), no LeasingFreeze can
+    -- exist yet, so this guard is vacuous. See the PLANNED section.
     requires: not exists LeasingFreeze{organization: request.collection.organization}
     -- The lease runs from ACTIVATION (never backdated to the window start,
     -- PM-42596) to the window end. The window's length was capped at submit, and
@@ -1209,6 +1209,7 @@ rule ActivateLease {
         status: active
     )
     ensures: LeaseActivationAudited(request: request, outcome: succeeded)
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule LeaseActivationRejected {
@@ -1237,6 +1238,7 @@ rule LeaseActivationRejected {
     let cannot_start =
         not RuleAutomatedConditionsPass(request.rule, member)
         or not RuleAllowsLease(request.requester, request.cipher)
+        -- Planned, vacuous today; see ActivateLease.
         or exists LeasingFreeze{organization: request.collection.organization}
         or now >= request.actionable_until
         or now < request.lease_not_before
@@ -1309,6 +1311,7 @@ rule MemberEndsOwnLease {
     requires: now < lease.not_after
     requires: lease.requester = member
     ensures: LeaseSettles(lease: lease, ended_by: member, reason: reason)
+    ensures: AccessChanged(requester: lease.requester, collection: lease.collection)
 }
 
 rule ApproverRevokesLease {
@@ -1328,6 +1331,7 @@ rule ApproverRevokesLease {
     requires: now < lease.not_after
     requires: actor in EligibleRevokers(lease)
     ensures: LeaseSettles(lease: lease, ended_by: actor, reason: reason)
+    ensures: AccessChanged(requester: lease.requester, collection: lease.collection)
 }
 
 rule SettleLease {
@@ -1348,36 +1352,42 @@ rule SettleLease {
                 lease.status = canceled
             else:
                 lease.status = revoked
+                HolderNotifiedOfRevoke(lease)
             lease.ended_at = now
             lease.ended_by = ended_by
 }
 
-rule OrgAdminTriggersKillSwitch {
-    -- Org-wide kill switch revokes all active leases in the organization in a
-    -- single bulk operation. Optionally also blocks new leases from starting
-    -- (engages a LeasingFreeze) so the org stays locked down until an admin
-    -- explicitly unblocks. Surfaces in the governance dashboard.
-    when: OrgKillSwitchActivated(admin, organization, block_new_leases)
-    ensures:
-        for lease in AccessLease where collection.organization = organization and status = active:
-            lease.status = revoked
-            lease.ended_at = now
-            lease.ended_by = admin
-        if block_new_leases and not exists LeasingFreeze{organization: organization}:
-            LeasingFreeze.created(
-                organization: organization,
-                engaged_at: now,
-                engaged_by: admin
-            )
-}
+-- ----------------------------------------------------------------------------
+-- Notifications
+-- ----------------------------------------------------------------------------
 
-rule OrgAdminUnblocksNewLeases {
-    -- Lifts an org-wide leasing freeze so approved requests can be activated again.
-    when: OrgUnblocksNewLeases(admin, organization)
-    let freeze = LeasingFreeze{organization: organization}
-    requires: exists freeze
-    ensures: not exists freeze
-}
+-- Two channels, both sent by the server and both only while the PAM feature flag is
+-- on. The rules above emit them; this block states the policy once.
+--
+-- MAIL goes to three audiences, and only these:
+--   - ApproversNotified: a request needs a decision (RouteToHumanApprovers). Sent
+--     to EligibleApprovers for the request minus the requester, who cannot decide
+--     their own request; when nobody else can decide it, nobody is mailed.
+--   - RequesterNotifiedOfDecision: an approver approved or denied the request
+--     (ApproverApprovesRequest, ApproverDeniesRequest).
+--   - HolderNotifiedOfRevoke: an operator revoked the holder's lease (SettleLease's
+--     revoked branch). A holder ending their own lease is not mailed.
+-- Content policy, for every PAM mail: the organization's name, the window, and a
+-- link to the per-request view (RequestDetailView, /pam/requests/{id}). Never the
+-- requester's reason, and never a cipher or collection name; the link is where the
+-- reader, once signed in and unlocked, sees the rest.
+--
+-- Nothing is mailed for an automatic approval, a submit the conditions refused, a
+-- member's own cancel, an approver's retraction, an activation, an extension, a
+-- self-end, or an expiry. Three of those silences are undecided (see Open
+-- questions): the retraction, the refused submit, and expiry.
+--
+-- PUSH (AccessChanged) carries no content. Every rule that changes a request or a
+-- lease sends it, to the requester's clients and to the managers of the request's
+-- collection, so open pages and the cipher-view banner re-read instead of polling.
+-- Two exceptions push the requester only: an automatic approval at submit, and an
+-- extension denied because the lease had ended. Expiry sends nothing: nothing happens
+-- on the server when a window closes, so every reader checks the clock itself.
 
 -- ----------------------------------------------------------------------------
 -- Access rule administration (CRUD)
@@ -2230,64 +2240,6 @@ surface CollectionAccessRuleCallout {
             rule.single_active_lease
 }
 
-surface GovernanceDashboard {
-    -- Per-collection summary table for org admins: rule, members requiring a
-    -- lease, pending counts, active counts, last activity. Also the scope-wide
-    -- active and recently-ended lease lists (GET /leases/active, /leases/history).
-    -- See governance-dashboard.component.
-    facing admin: OrgAdmin
-
-    context org: Organization
-
-    exposes:
-        -- Strip totals.
-        AccessRule where organization = org
-                     and collections.count > 0
-        AccessRequest where collection.organization = org and status = pending
-        -- All active leases in scope, surfaced by GET /leases/active.
-        AccessLease where collection.organization = org and status = active
-        -- All recently-ended leases (expired, revoked or canceled) in scope, within the
-        -- shared history window — surfaced by GET /leases/history. A lease's end is its
-        -- ended_at (revoked or canceled) or its not_after (expired).
-        AccessLease where collection.organization = org
-                     and ((status in {revoked, canceled} and ended_at >= now - config.history_window)
-                          or (status = expired and not_after >= now - config.history_window))
-
-        -- Per-collection rows.
-        for col in Collection where organization = org:
-            col.name
-            AccessRule where collections.contains(col)
-            CollectionMembership where collection = col
-            AccessRequest where collection = col and status = pending
-            AccessLease where collection = col and status = active
-
-    provides:
-        -- Admins may revoke any single active lease directly, without the
-        -- org-wide kill switch.
-        ApproverRevokesLeaseAction(admin, lease, reason)
-            when lease.collection.organization = org and lease.status = active
-}
-
-surface KillSwitchControl {
-    -- Component on the governance dashboard for the org-wide kill switch.
-    -- See kill-switch.component.
-    facing admin: OrgAdmin
-
-    context org: Organization
-
-    exposes:
-        AccessLease where collection.organization = org and status = active
-        -- Present while new leases are blocked org-wide.
-        LeasingFreeze where organization = org
-
-    provides:
-        -- Revoke all active leases; optionally also block new ones from starting.
-        OrgKillSwitchActivated(admin, org, block_new_leases)
-        -- Lift the block so approved requests can be activated again.
-        OrgUnblocksNewLeases(admin, org)
-            when exists LeasingFreeze{organization: org}
-}
-
 -- ----------------------------------------------------------------------------
 -- Invariants
 -- ----------------------------------------------------------------------------
@@ -2377,12 +2329,6 @@ invariant SingleActiveLeaseRespected {
             implies not SingleActiveLeaseApplies(b.requester, b.cipher)
 }
 
-invariant AtMostOneLeasingFreezePerOrg {
-    for a in LeasingFreeze:
-        for b in LeasingFreeze:
-            a != b implies a.organization != b.organization
-}
-
 -- One live rule per collection is now structural, not an invariant: the link lives on
 -- Collection.access_rule as a single reference, so a collection cannot hold two. See the
 -- Collection entity and AccessRule.collections.
@@ -2396,6 +2342,132 @@ invariant OrgUniqueRuleNames {
     for a in AccessRule:
         for b in AccessRule:
             a != b and a.organization = b.organization implies a.name != b.name
+}
+
+-- ----------------------------------------------------------------------------
+-- PLANNED, NOT BUILT
+-- ----------------------------------------------------------------------------
+
+-- Everything in this section is GA backlog with no server, SDK or client
+-- implementation behind it. It is kept, not cut: the tickets below are open, though
+-- whether each makes GA waits on the MUST-versus-fast-follow cut (PAM-67). Nothing
+-- outside this section depends on it being built, except the leasing-freeze guard on
+-- ActivateLease, which is marked there as not enforced today.
+--
+-- Org-wide kill switch and leasing freeze: epic PAM-15 (PAM-16 force-release,
+-- PAM-17 kill switch with an optional freeze, PAM-18 freeze indicator and lift), and
+-- the member-side stories PAM-46 and PAM-49. Their audit kinds are reserved but never
+-- written (pam-audit.allium). When the design spike PAM-140 is groomed, reconcile
+-- three points: whether a freeze also blocks submitting a request (PAM-15's criteria)
+-- or only starting one (this spec); the audit and notification outcomes the kill
+-- switch and the unblock should emit; and the user-facing name ("Turn off all
+-- access", PAM-141).
+--
+-- Governance dashboard: epic PAM-115, story PAM-85, design in PAM-140. The server
+-- already serves the scope-wide lease lists (GET /leases/active and
+-- /leases/history, scoped to the collections the caller manages); the SDK wraps
+-- list_active only, and there is no summary read and no client. The surface below
+-- is the POC's design, to be re-derived from PAM-140 once it is groomed, audience
+-- included.
+
+-- An org-wide block on starting new leases, engaged by an admin (typically
+-- alongside the kill switch). While one exists for an organization, no approved
+-- request can be activated into a lease there. Its existence IS the "blocked" state;
+-- removing it lifts the block. At most one per organization.
+entity LeasingFreeze {
+    organization: Organization
+    engaged_at: Timestamp
+    engaged_by: User
+}
+
+rule OrgAdminTriggersKillSwitch {
+    -- Org-wide kill switch revokes all active leases in the organization in a
+    -- single bulk operation. Optionally also blocks new leases from starting
+    -- (engages a LeasingFreeze) so the org stays locked down until an admin
+    -- explicitly unblocks. Planned for the governance dashboard. Emits no audit or
+    -- notification outcome yet; PAM-17/18 and PAM-140 require both.
+    when: OrgKillSwitchActivated(admin, organization, block_new_leases)
+    ensures:
+        for lease in AccessLease where collection.organization = organization and status = active:
+            lease.status = revoked
+            lease.ended_at = now
+            lease.ended_by = admin
+        if block_new_leases and not exists LeasingFreeze{organization: organization}:
+            LeasingFreeze.created(
+                organization: organization,
+                engaged_at: now,
+                engaged_by: admin
+            )
+}
+
+rule OrgAdminUnblocksNewLeases {
+    -- Lifts an org-wide leasing freeze so approved requests can be activated again.
+    when: OrgUnblocksNewLeases(admin, organization)
+    let freeze = LeasingFreeze{organization: organization}
+    requires: exists freeze
+    ensures: not exists freeze
+}
+
+invariant AtMostOneLeasingFreezePerOrg {
+    for a in LeasingFreeze:
+        for b in LeasingFreeze:
+            a != b implies a.organization != b.organization
+}
+
+surface GovernanceDashboard {
+    -- The POC's design: a per-collection summary table for org admins (rule,
+    -- pending counts, active counts, last activity) and the scope-wide active and
+    -- recently-ended lease lists. The lease lists are the part the server already
+    -- serves (GET /leases/active, /leases/history).
+    facing admin: OrgAdmin
+
+    context org: Organization
+
+    exposes:
+        -- Strip totals.
+        AccessRule where organization = org
+                     and collections.count > 0
+        AccessRequest where collection.organization = org and status = pending
+        -- All active leases in scope, surfaced by GET /leases/active.
+        AccessLease where collection.organization = org and status = active
+        -- All recently-ended leases (expired, revoked or canceled) in scope, within the
+        -- shared history window — surfaced by GET /leases/history. A lease's end is its
+        -- ended_at (revoked or canceled) or its not_after (expired).
+        AccessLease where collection.organization = org
+                     and ((status in {revoked, canceled} and ended_at >= now - config.history_window)
+                          or (status = expired and not_after >= now - config.history_window))
+
+        -- Per-collection rows.
+        for col in Collection where organization = org:
+            col.name
+            AccessRule where col in collections
+            AccessRequest where collection = col and status = pending
+            AccessLease where collection = col and status = active
+
+    provides:
+        -- Admins may revoke any single active lease directly, without the
+        -- org-wide kill switch.
+        ApproverRevokesLeaseAction(admin, lease, reason)
+            when lease.collection.organization = org and lease.status = active
+}
+
+surface KillSwitchControl {
+    -- The org-wide kill switch control, planned for the governance dashboard.
+    facing admin: OrgAdmin
+
+    context org: Organization
+
+    exposes:
+        AccessLease where collection.organization = org and status = active
+        -- Present while new leases are blocked org-wide.
+        LeasingFreeze where organization = org
+
+    provides:
+        -- Revoke all active leases; optionally also block new ones from starting.
+        OrgKillSwitchActivated(admin, org, block_new_leases)
+        -- Lift the block so approved requests can be activated again.
+        OrgUnblocksNewLeases(admin, org)
+            when exists LeasingFreeze{organization: org}
 }
 
 -- ----------------------------------------------------------------------------
@@ -2413,6 +2485,12 @@ open question "One extension per lease, or several within a total (PAM-212)? Tod
 open question "Should lowering a rule's max_lease_duration reach requests and leases already made? Today the cap is checked once, at submit, against the rule as it was then; activation mints the window's end unchanged. So an admin who shortens a rule's maximum does not shorten an approved request that has not started yet, nor a lease that is already running. Should either be cut to the new maximum?"
 
 open question "What should an ip_allowlist restrict (PAM-205)? Today it bounds ACQUISITION, never USE. It is checked when a member submits on a rule without human approval and whenever they start a lease (PM-42273), but no read re-checks the caller's network: CipherLeaseGate releases on a live lease alone, so any lease, extended or not, is readable from anywhere for its whole window. Extensions (PM-42500) are not checked either, which lengthens that unchecked window by at most one max_extension_duration. An admin reading 'only from these CIDRs' may expect more. Options: re-check the allowlist on every lease-backed read of the credential; check the governing rule's automated conditions on the single-item release read only, so an off-allowlist read gets the partial item and the lease is untouched; bind a lease to the client instance that started it; enforce more strictly on some rules only; or keep today's behaviour and say at the admin surface that an allowlist bounds where access starts."
+
+open question "Should the requester be mailed when an approver withdraws their approval? Today a retraction (ApproverRetractsRequest) is pushed but not mailed, so a requester who is not looking at PAM learns of it only when Start is gone. PAM-29, the next change to retraction, would also require the approver to give a reason, which a mail could carry."
+
+open question "Should a submit the automated conditions refused notify anyone beyond the member, who sees the refusal at once? PAM-30 asks for a notification when policy auto-denies a request; since the refusal saves nothing (see the PAM-206 question), there is no request for approvers to see either."
+
+open question "Should expiry be announced? Nothing is sent when a pending request lapses undecided (the approvers who never acted are not told), when an approved request lapses unused (the requester is not told), or when a lease reaches its end. Expiry is derived when read, so any notice would need a sweep or a scheduled send."
 
 -- RESOLVED — what bounds a lease's cumulative life once extensions need no
 -- approval (PM-42500). Recorded because the reasoning matters, not just the outcome.
