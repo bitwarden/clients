@@ -509,6 +509,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           map((orgKeys) => ({ userKey: userKeys.userKey, orgKeys: orgKeys })),
         );
       }),
+      // Syncs rewrite key state with identical values; each emission re-decrypts the whole vault.
+      distinctUntilChanged(sameDecryptionKeys),
     );
   }
 
@@ -526,4 +528,29 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       }),
     );
   }
+}
+
+/** Whether both hold the same key material, e.g. before and after a sync rewrote unchanged keys. */
+function sameDecryptionKeys(
+  a: CipherDecryptionKeys | null,
+  b: CipherDecryptionKeys | null,
+): boolean {
+  if (a == null || b == null) {
+    return a === b;
+  }
+
+  if (a.userKey.keyB64 !== b.userKey.keyB64) {
+    return false;
+  }
+
+  if (a.orgKeys == null || b.orgKeys == null) {
+    return a.orgKeys === b.orgKeys;
+  }
+
+  const orgIds = Object.keys(a.orgKeys) as OrganizationId[];
+  if (orgIds.length !== Object.keys(b.orgKeys).length) {
+    return false;
+  }
+
+  return orgIds.every((id) => a.orgKeys![id]?.keyB64 === b.orgKeys![id]?.keyB64);
 }

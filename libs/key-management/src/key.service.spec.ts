@@ -39,6 +39,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
+import { CipherDecryptionKeys } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
 
@@ -532,6 +533,63 @@ describe("keyService", () => {
       expect(emittedValues[5]!.orgKeys![org1Id].keyB64).not.toEqual(
         emittedValues[4]!.orgKeys![org1Id].keyB64,
       );
+    });
+
+    it("does not re-emit when a sync rewrites identical keys", async () => {
+      // Every emission makes consumers re-decrypt the whole vault, e.g. after each sync write.
+      const orgKeys = {
+        [org1Id]: {
+          type: "organization" as const,
+          key: makeEncString("org1Key").encryptedString!,
+        },
+      };
+      const privateKey = makeEncString("privateKey");
+      updateKeys({ userKey: makeSymmetricCryptoKey<UserKey>(64), encryptedPrivateKey: privateKey });
+      updateKeys({ providerKeys: {}, orgKeys });
+
+      const emitted: (CipherDecryptionKeys | null)[] = [];
+      const subscription = keyService.cipherDecryptionKeys$(mockUserId).subscribe((keys) => {
+        emitted.push(keys);
+      });
+      await new Promise(process.nextTick);
+
+      updateKeys({ encryptedPrivateKey: privateKey });
+      await new Promise(process.nextTick);
+      updateKeys({ providerKeys: {} });
+      await new Promise(process.nextTick);
+      updateKeys({ orgKeys: { ...orgKeys } });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when an org key changes", async () => {
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+        },
+      });
+
+      const emitted: (CipherDecryptionKeys | null)[] = [];
+      const subscription = keyService.cipherDecryptionKeys$(mockUserId).subscribe((keys) => {
+        emitted.push(keys);
+      });
+      await new Promise(process.nextTick);
+
+      updateKeys({
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1KeyB").encryptedString! },
+        },
+      });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
+      expect(emitted[1]!.orgKeys![org1Id].keyB64).toContain("org1KeyB");
     });
   });
 
