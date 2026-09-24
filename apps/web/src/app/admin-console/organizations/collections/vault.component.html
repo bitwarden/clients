@@ -92,12 +92,9 @@
               filter.collectionId !== undefined)
           "
           [showPremiumFeatures]="organization?.useTotp"
-          [showBulkMove]="false"
-          [showBulkTrashOptions]="filter.type === 'trash'"
           [useEvents]="organization?.canAccessEventLogs"
           [showAdminActions]="true"
           (onEvent)="onVaultItemsEvent($event)"
-          [showBulkEditCollectionAccess]="true"
           [showBulkAddToCollections]="true"
           [viewingOrgVault]="true"
           [addAccessStatus]="collectionService.addAccessStatus$ | async"

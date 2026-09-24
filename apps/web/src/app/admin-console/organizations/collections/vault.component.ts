@@ -638,9 +638,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             event.initialPermission,
           );
           break;
-        case "bulkEditCollectionAccess":
-          await this.collectionActions.bulkEditCollectionAccess(event.items, organization);
-          break;
         case "assignToCollections":
           await this.cipherActions.bulkAssignToCollections(event.items);
           break;

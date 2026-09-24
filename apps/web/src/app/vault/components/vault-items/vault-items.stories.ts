@@ -268,8 +268,6 @@ export const Individual: Story = {
     showCollections: false,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -283,8 +281,6 @@ export const IndividualDisabled: Story = {
     showCollections: false,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -297,8 +293,6 @@ export const IndividualTrash: Story = {
     showCollections: false,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: false,
   },
 };
@@ -311,8 +305,6 @@ export const IndividualTopLevelCollection: Story = {
     showCollections: false,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -325,8 +317,6 @@ export const IndividualSecondLevelCollection: Story = {
     showCollections: false,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -339,8 +329,6 @@ export const OrganizationVault: Story = {
     showCollections: true,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -353,8 +341,6 @@ export const OrganizationTrash: Story = {
     showCollections: true,
     showGroups: false,
     showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: true,
   },
 };
@@ -372,8 +358,6 @@ export const OrganizationTopLevelCollection: Story = {
     showCollections: false,
     showGroups: true,
     showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -386,8 +370,6 @@ export const OrganizationSecondLevelCollection: Story = {
     showCollections: false,
     showGroups: true,
     showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
