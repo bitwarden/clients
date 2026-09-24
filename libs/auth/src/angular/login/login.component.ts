@@ -357,7 +357,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // so await the result before continuing to login to ensure we
     // don't call to get password prelogin data twice.
     // Other MP login flows in the app don't prefetch this data.
-    const preFetchedPreloginData = await firstValueFrom(
+    const preFetchedPreloginResult = await firstValueFrom(
       this.passwordPreloginService.getPreloginData$(email),
     );
 
@@ -366,7 +366,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       masterPassword,
       undefined,
       orgMasterPasswordPolicyOptions,
-      preFetchedPreloginData,
+      preFetchedPreloginResult,
     );
 
     try {

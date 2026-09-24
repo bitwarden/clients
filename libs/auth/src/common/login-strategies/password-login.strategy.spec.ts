@@ -13,6 +13,7 @@ import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/respons
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import {
   PasswordPreloginData,
+  PasswordPreloginResult,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -69,13 +70,17 @@ const masterPasswordPolicyResponse = new MasterPasswordPolicyResponse({
 });
 const kdfConfig = PBKDF2KdfConfig.createDefault();
 
-function credentialsWithPrefetchedData(salt: string = preloginSalt) {
+function preloginResult(salt: string | null, fetchedFromSdk: boolean, kdf = kdfConfig) {
+  return new PasswordPreloginResult(fetchedFromSdk, new PasswordPreloginData(kdf, salt));
+}
+
+function credentialsWithPrefetchedData(salt: string | null = preloginSalt, fetchedFromSdk = true) {
   return new PasswordLoginCredentials(
     email,
     masterPassword,
     undefined,
     undefined,
-    new PasswordPreloginData(kdfConfig, salt),
+    preloginResult(salt, fetchedFromSdk),
   );
 }
 
@@ -140,14 +145,12 @@ describe("PasswordLoginStrategy", () => {
       sub: userId,
     });
 
+    // Default to the API source so the behavior that predates the SDK prelogin path stays the
+    // baseline; tests that exercise the SDK source opt in explicitly.
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), preloginSalt)),
+      of(preloginResult(preloginSalt, false, PBKDF2KdfConfig.createDefault())),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
-
-    // Default to the flag off so the pre-PM-27060 behavior stays the baseline; tests that exercise
-    // the SDK prelogin path opt in explicitly.
-    configService.getFeatureFlag.mockResolvedValue(false);
 
     legacyCompatKeyService.hashMasterKey
       .calledWith(masterPassword, expect.anything())
@@ -275,21 +278,44 @@ describe("PasswordLoginStrategy", () => {
       expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
     });
 
-    // PM-27060: when prelogin comes from the SDK, the server dictates the KDF salt and the client
-    // must derive the master key from it rather than from the email the user typed. The flag gates
-    // this so it can be switched off if normalization diverges during the transition.
+    // When prelogin comes from the SDK, the server dictates the KDF salt and the client must
+    // derive the master key from it rather than from the email the user typed. The source is
+    // recorded on the prelogin result, so the strategy never resolves it a second time.
     describe("salt selection", () => {
-      it("reads the PM27060_PasswordPreloginFromSdk flag", async () => {
+      it("does not resolve the prelogin source itself", async () => {
+        // Resolving it here rather than trusting the result would reintroduce a second,
+        // independently-timed decision that can disagree with the one the fetch made.
         await passwordLoginStrategy.logIn(credentials);
 
-        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+        expect(configService.getFeatureFlag).not.toHaveBeenCalledWith(
           FeatureFlag.PM27060_PasswordPreloginFromSdk,
         );
       });
 
-      describe("when the flag is on", () => {
+      it("honors the source recorded on the result even when the live flag now disagrees", async () => {
+        // Mirrors server config hydrating between the prefetch and submit: the flag now reads
+        // on, but the data in hand came from the API and carries no salt.
+        configService.getFeatureFlag.mockResolvedValue(true);
+
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(null, false));
+
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          email,
+          kdfConfig,
+        );
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
+          masterPassword,
+          null,
+          expect.anything(),
+        );
+      });
+
+      describe("when the data came from the SDK", () => {
         beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(true);
+          passwordPreloginService.getPreloginData$.mockReturnValue(
+            of(preloginResult(preloginSalt, true, PBKDF2KdfConfig.createDefault())),
+          );
         });
 
         it("derives the master key from the prelogin salt for prefetched data", async () => {
@@ -338,15 +364,39 @@ describe("PasswordLoginStrategy", () => {
             kdfConfig,
           );
         });
+
+        it("throws rather than deriving a key when the SDK reported no salt", async () => {
+          // The SDK substitutes the normalized email when the server has no salt for the
+          // account, so a null one here means that guarantee broke.
+          await expect(
+            passwordLoginStrategy.logIn(credentialsWithPrefetchedData(null, true)),
+          ).rejects.toThrow("A salt is required to derive the master key.");
+
+          expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
+        });
       });
 
-      describe("when the flag is off", () => {
+      describe("when the data came from the API", () => {
         beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(false);
+          passwordPreloginService.getPreloginData$.mockReturnValue(
+            of(preloginResult(preloginSalt, false, PBKDF2KdfConfig.createDefault())),
+          );
+        });
+
+        it("derives the master key from the entered email when the API supplied no salt", async () => {
+          // The API path reports the server's salt verbatim and does not substitute the email,
+          // so an absent salt must never reach key derivation.
+          await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(null, false));
+
+          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+            masterPassword,
+            email,
+            kdfConfig,
+          );
         });
 
         it("derives the master key from the entered email for prefetched data", async () => {
-          await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
+          await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(preloginSalt, false));
 
           expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             masterPassword,

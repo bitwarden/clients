@@ -15,6 +15,7 @@ import { PasswordPreloginApiService } from "./password-prelogin-api.service";
 import { PasswordPreloginData } from "./password-prelogin.model";
 import { PasswordPreloginRequest } from "./password-prelogin.request";
 import { PasswordPreloginResponse } from "./password-prelogin.response";
+import { PasswordPreloginResult } from "./password-prelogin.result";
 
 // Fetching now awaits the feature flag before calling the API/SDK, so callers must let that
 // microtask resolve before asserting on the underlying mock.
@@ -46,13 +47,13 @@ describe("DefaultPasswordPreloginService", () => {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
     salt: sdkSalt,
   };
-  const expectedData = new PasswordPreloginData(
-    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-    apiSalt,
+  const expectedData = new PasswordPreloginResult(
+    false,
+    new PasswordPreloginData(new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue), apiSalt),
   );
-  const expectedSdkData = new PasswordPreloginData(
-    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-    sdkSalt,
+  const expectedSdkData = new PasswordPreloginResult(
+    true,
+    new PasswordPreloginData(new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue), sdkSalt),
   );
 
   beforeEach(() => {
@@ -91,6 +92,32 @@ describe("DefaultPasswordPreloginService", () => {
 
       expect(result).toEqual(expectedSdkData);
       expect(apiService.getPreloginData).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { description: "omits Salt", body: {} },
+      { description: "sends an explicit null Salt", body: { Salt: null } },
+    ])("emits an absent salt when the API response $description", async ({ body }) => {
+      // The API path has no email fallback, so a salt the server does not report reaches
+      // callers unchanged. Accounts that predate the salt column have none.
+      apiService.getPreloginData.mockResolvedValue(
+        new PasswordPreloginResponse({
+          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+          ...body,
+        }),
+      );
+
+      const result = await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(result.fetchedFromSdk).toBe(false);
+      expect(result.data.salt).toBeNull();
+    });
+
+    it("reads the feature flag exactly once per fetch", async () => {
+      // The whole point of pairing the source with the data: one read decides one login.
+      await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
     });
 
     it("checks the feature flag with the expected key", async () => {

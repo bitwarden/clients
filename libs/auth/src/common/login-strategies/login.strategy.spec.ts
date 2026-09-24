@@ -17,6 +17,7 @@ import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/resp
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import {
   PasswordPreloginData,
+  PasswordPreloginResult,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -180,7 +181,12 @@ describe("LoginStrategy", () => {
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
+      of(
+        new PasswordPreloginResult(
+          false,
+          new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt"),
+        ),
+      ),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 

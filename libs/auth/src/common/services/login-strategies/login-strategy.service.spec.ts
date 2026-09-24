@@ -13,6 +13,7 @@ import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/respons
 import { UserDecryptionOptionsResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import {
   PasswordPreloginData,
+  PasswordPreloginResult,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -62,7 +63,10 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CacheData } from "./login-strategy.state";
 
-const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt");
+const argon2PreloginResult = new PasswordPreloginResult(
+  false,
+  new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt"),
+);
 
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
@@ -158,7 +162,12 @@ describe("LoginStrategyService", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
+      of(
+        new PasswordPreloginResult(
+          false,
+          new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt"),
+        ),
+      ),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 
@@ -236,7 +245,7 @@ describe("LoginStrategyService", () => {
         userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
       }),
     );
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
 
     tokenService.decodeAccessToken.calledWith("ACCESS_TOKEN").mockResolvedValue({
       sub: "USER_ID",
@@ -263,7 +272,7 @@ describe("LoginStrategyService", () => {
       }),
     );
 
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
 
     await sut.logIn(credentials);
 
@@ -321,7 +330,7 @@ describe("LoginStrategyService", () => {
       }),
     );
 
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
 
     await sut.logIn(credentials);
 
@@ -377,7 +386,7 @@ describe("LoginStrategyService", () => {
     const deviceVerificationOtp = "123456";
 
     // Setup initial login and device verification response
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
 
     apiService.postIdentityToken.mockResolvedValueOnce(
       new IdentityTwoFactorResponse({
@@ -447,7 +456,7 @@ describe("LoginStrategyService", () => {
       }),
     );
 
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
 
     await sut.logIn(credentials);
 
@@ -467,7 +476,7 @@ describe("LoginStrategyService", () => {
 
   it("should clear cache when logInTwoFactor throws a non-API error", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
     apiService.postIdentityToken.mockResolvedValueOnce(
       new IdentityTwoFactorResponse({
         TwoFactorProviders: ["0"],
@@ -500,7 +509,7 @@ describe("LoginStrategyService", () => {
 
   it("should clear cache when logInNewDeviceVerification throws a non-API error", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
     apiService.postIdentityToken.mockResolvedValueOnce(
       new IdentityTwoFactorResponse({
         TwoFactorProviders: ["0"],
@@ -546,7 +555,7 @@ describe("LoginStrategyService", () => {
       }),
     );
 
-    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginResult));
 
     tokenService.decodeAccessToken.calledWith("ACCESS_TOKEN").mockResolvedValue({
       sub: "USER_ID",

@@ -12,11 +12,12 @@ import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { PasswordPreloginApiService } from "./password-prelogin-api.service";
 import { PasswordPreloginData } from "./password-prelogin.model";
 import { PasswordPreloginRequest } from "./password-prelogin.request";
+import { PasswordPreloginResult } from "./password-prelogin.result";
 import { PasswordPreloginService } from "./password-prelogin.service";
 
 export class DefaultPasswordPreloginService implements PasswordPreloginService {
   private currentEmail: string | null = null;
-  private currentPreloginData$: Observable<PasswordPreloginData> | null = null;
+  private currentPreloginResult$: Observable<PasswordPreloginResult> | null = null;
 
   constructor(
     private passwordPreloginApiService: PasswordPreloginApiService,
@@ -24,40 +25,46 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     private configService: ConfigService,
   ) {}
 
-  getPreloginData$(email: string): Observable<PasswordPreloginData> {
+  getPreloginData$(email: string): Observable<PasswordPreloginResult> {
     const normalized = email.trim().toLowerCase();
 
-    if (normalized === this.currentEmail && this.currentPreloginData$ !== null) {
-      return this.currentPreloginData$;
+    if (normalized === this.currentEmail && this.currentPreloginResult$ !== null) {
+      return this.currentPreloginResult$;
     }
 
     this.currentEmail = normalized;
-    this.currentPreloginData$ = from(this.fetchPreloginData(normalized)).pipe(
+    this.currentPreloginResult$ = from(this.fetchPreloginResult(normalized)).pipe(
       catchError((err: unknown) => {
         // If the fetch fails, we want to reset the stored email and prelogin data so that future calls will attempt to fetch again
         // otherwise, there isn't a way to recover from a failed call since the failed result would be cached indefinitely
         this.currentEmail = null;
-        this.currentPreloginData$ = null;
+        this.currentPreloginResult$ = null;
         throw err;
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-    return this.currentPreloginData$;
+    return this.currentPreloginResult$;
   }
 
   clearCache(): void {
     this.currentEmail = null;
-    this.currentPreloginData$ = null;
+    this.currentPreloginResult$ = null;
   }
 
-  private async fetchPreloginData(email: string): Promise<PasswordPreloginData> {
+  private async fetchPreloginResult(email: string): Promise<PasswordPreloginResult> {
     // TODO: PM-40137 - Remove this flag
     const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27060_PasswordPreloginFromSdk,
     );
 
-    return useSdk ? this.fetchPreloginDataFromSdk(email) : this.fetchPreloginDataFromApi(email);
+    const data = useSdk
+      ? await this.fetchPreloginDataFromSdk(email)
+      : await this.fetchPreloginDataFromApi(email);
+
+    // Pairing the source with the data it produced is what keeps a single login on a single
+    // decision; callers must not resolve the source again.
+    return new PasswordPreloginResult(useSdk, data);
   }
 
   private async fetchPreloginDataFromApi(email: string): Promise<PasswordPreloginData> {
