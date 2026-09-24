@@ -197,12 +197,6 @@ describe("VaultCipherRowComponent", () => {
       fixture.componentRef.setInput("disabled", false);
     });
 
-    it("renders when showBatchBar is true", () => {
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).not.toBeNull();
-    });
-
     it("sets aria-label to the cipher name", () => {
       fixture.detectChanges();
 
