@@ -369,6 +369,26 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     }, 0);
   }
 
+  /**
+   * Submits the form on Ctrl+Enter (Windows/Linux) or Cmd+Enter (macOS) from any field, including
+   * the notes textarea. `requestSubmit()` dispatches a regular `submit` event, so the submission takes
+   * the same path as clicking the submit button: Angular's `ngSubmit`, `bitSubmit` and the button's
+   * loading and disabled state.
+   */
+  protected submitOnModifierEnter(event: KeyboardEvent): void {
+    if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey)) {
+      return;
+    }
+
+    // Ignore key auto-repeat and Enter presses that confirm an IME composition.
+    if (event.repeat || event.isComposing) {
+      return;
+    }
+
+    event.preventDefault();
+    (event.currentTarget as HTMLFormElement).requestSubmit();
+  }
+
   submit = async () => {
     if (!this.config.organizationDataOwnershipDisabled && this.config.organizations.length === 0) {
       this.toastService.showToast({
