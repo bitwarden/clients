@@ -558,6 +558,60 @@ describe("keyService", () => {
         emittedValues[4]!.orgKeys![org1Id].keyB64,
       );
     });
+
+    it("does not re-emit when a sync rewrites identical org and provider keys", async () => {
+      // Every emission makes cipher consumers decrypt the whole vault.
+      const orgKeys = {
+        [org1Id]: { type: "organization" as const, key: makeEncString("org1Key").encryptedString! },
+      };
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys,
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({ providerKeys: {} });
+      await new Promise(process.nextTick);
+      updateKeys({ orgKeys: { ...orgKeys } });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(1);
+    });
+
+    it("re-emits when an org key changes", async () => {
+      updateKeys({
+        userKey: makeSymmetricCryptoKey<UserKey>(64),
+        encryptedPrivateKey: makeEncString("privateKey"),
+        providerKeys: {},
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+        },
+      });
+
+      const emitted: unknown[] = [];
+      const subscription = keyService
+        .cipherDecryptionKeys$(mockUserId)
+        .subscribe((keys) => emitted.push(keys));
+      await new Promise(process.nextTick);
+
+      updateKeys({
+        orgKeys: {
+          [org1Id]: { type: "organization", key: makeEncString("org1KeyB").encryptedString! },
+        },
+      });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toHaveLength(2);
+    });
   });
 
   describe("userEncryptionKeyPair$", () => {
