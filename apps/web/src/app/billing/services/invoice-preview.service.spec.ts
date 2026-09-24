@@ -66,7 +66,7 @@ describe("InvoicePreviewService", () => {
       expect(mockLogService.error).not.toHaveBeenCalled();
     });
 
-    it("should return an adapted cart carrying the amount due as its total", async () => {
+    it("should return an adapted cart with the gross total, amount due, and applied balance", async () => {
       mockClient.previewPremiumPurchase.mockResolvedValue({
         ...preview("premium"),
         total: 259.6,
@@ -75,7 +75,9 @@ describe("InvoicePreviewService", () => {
 
       const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
 
-      expect(cart.total).toBe(200);
+      expect(cart.total).toBe(259.6);
+      expect(cart.amountDue).toBe(200);
+      expect(cart.appliedBalance).toBe(59.6);
       expect(cart.estimatedTax).toBe(9.6);
     });
   });
