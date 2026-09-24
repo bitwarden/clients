@@ -27,6 +27,7 @@ mod approval;
 mod authorization;
 mod crypto;
 mod server;
+mod setup;
 mod storage;
 
 // external exports for napi
@@ -35,8 +36,10 @@ pub use approval::{ApprovalError, ApprovalRequester, SignApprovalRequest};
 pub use authorization::BitwardenAuthPolicy;
 pub use crypto::PublicKey;
 pub use server::{
-    AuthRequest, ConnectionContext, SIGNamespace, SessionBindContext, SignFlags, SignRequest,
+    socket_address, AuthRequest, ConnectionContext, SIGNamespace, SessionBindContext, SignFlags,
+    SignRequest,
 };
+pub use setup::{apply_configuration, is_configured};
 pub use storage::{
     keydata::{SSHKeyData, UnparsedSSHKeyData},
     keystore::{InMemoryEncryptedKeyStore, KeyStore},
