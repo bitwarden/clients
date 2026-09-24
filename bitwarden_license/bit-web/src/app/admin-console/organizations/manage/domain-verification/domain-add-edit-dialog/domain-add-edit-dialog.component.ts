@@ -34,6 +34,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  LinkModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -62,6 +63,7 @@ export interface DomainAddEditDialogData {
     ButtonModule,
     AsyncActionsModule,
     IconButtonModule,
+    LinkModule,
     I18nPipe,
   ],
 })
