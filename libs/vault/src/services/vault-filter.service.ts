@@ -88,11 +88,21 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected _organizationFilter = new BehaviorSubject<Organization>(null);
 
+  /**
+   * Cipher stream backing the folder tree (used under an org filter to decide which folders have
+   * items). Excludes PAM-gated ("partial") rows by default so a gated cipher never surfaces a
+   * folder on clients that don't support partials. The web individual vault overrides this to
+   * include partials, matching its list.
+   */
+  protected folderFilterCiphers$(userId: UserId): Observable<CipherView[] | CipherListView[]> {
+    return this.cipherService.cipherListViews$(userId);
+  }
+
   filteredFolders$: Observable<FolderView[]> = this.activeUserId$.pipe(
     switchMap((userId) =>
       combineLatest([
         this.folderService.folderViews$(userId),
-        this.cipherService.cipherListViews$(userId),
+        this.folderFilterCiphers$(userId),
         this._organizationFilter,
       ]),
     ),

@@ -89,7 +89,7 @@ describe("VaultFilterComponent", () => {
     i18nService.t.mockImplementation((key: string) => key);
 
     cipherService = mock<CipherService>();
-    cipherService.cipherListViews$.mockReturnValue(of([]));
+    cipherService.cipherListViewsWithPartials$.mockReturnValue(of([]));
 
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
@@ -132,7 +132,7 @@ describe("VaultFilterComponent", () => {
     describe("when there are no restrictions", () => {
       it("shows all type filters", async () => {
         restrictedSubject.next([]);
-        cipherService.cipherListViews$.mockReturnValue(of([]));
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(of([]));
 
         const section = await component.addTypeFilter();
         const ids = await getTypeFilterIds(section);
@@ -149,7 +149,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the restricted type even with CipherListView ciphers present", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { card: { brand: "" } }, organizationId: ORG_ID_1 })]),
         );
 
@@ -161,7 +161,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the restricted type even with CipherView ciphers present", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: CipherType.Card, organizationId: ORG_ID_1 })]),
         );
 
@@ -180,7 +180,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("shows the type when a CipherListView cipher exists in an allowed org", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { card: { brand: "Visa" } }, organizationId: ORG_ID_1 })]),
         );
 
@@ -191,7 +191,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("shows the type when a CipherView cipher exists in an allowed org", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: CipherType.Card, organizationId: ORG_ID_1 })]),
         );
 
@@ -202,7 +202,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the type when a CipherListView cipher exists but in a non-allowed org", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { card: { brand: "" } }, organizationId: ORG_ID_2 })]),
         );
 
@@ -213,7 +213,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the type when there are no ciphers of that type", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { login: {} } as CipherListViewType, organizationId: ORG_ID_1 })]),
         );
 
@@ -225,7 +225,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the type when a matching cipher exists but is deleted", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([
             cipherStub({
               type: { card: { brand: "" } },
@@ -242,7 +242,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the type when a matching cipher has no organizationId", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { card: { brand: "" } } })]),
         );
 
@@ -264,7 +264,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("shows the type when a cipher belongs to the filtered org", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { card: { brand: "" } }, organizationId: ORG_ID_1 })]),
         );
 
@@ -275,7 +275,7 @@ describe("VaultFilterComponent", () => {
       });
 
       it("hides the type when a cipher exists but belongs to a different org than filtered", async () => {
-        cipherService.cipherListViews$.mockReturnValue(
+        cipherService.cipherListViewsWithPartials$.mockReturnValue(
           of([cipherStub({ type: { card: { brand: "" } }, organizationId: ORG_ID_2 })]),
         );
 
