@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { catchError, combineLatest, from, map, Observable, of, switchMap } from "rxjs";
+import { catchError, combineLatest, from, map, merge, Observable, of, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,6 +13,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
@@ -35,8 +36,9 @@ type LeaseBadgeCell = AccessBadgeState | "none" | null;
  * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection. The badge
  * recipe, copy, and countdown live in {@link AccessStateBadgeComponent}.
  *
- * A cipher row fetches access state once per cipher/flag change; a collection row instead shows
- * the resting "Privileged" pill straight off `hasEnabledAccessRule`, at no fetch cost.
+ * A cipher row re-reads access state on {@link AccessRefreshService}, so cancelling a request
+ * from this row's own menu cannot leave the badge contradicting it; a collection row instead
+ * shows the resting "Privileged" pill straight off `hasEnabledAccessRule`, at no fetch cost.
  *
  * A cipher row with no rule draws an em dash — distinguishing "checked" from "not loaded" — but
  * a collection row never does, since `hasEnabledAccessRule` defaults `false` and can't tell "no
@@ -54,6 +56,7 @@ export class VaultRowLeaseBadgeComponent {
 
   private readonly configService = inject(ConfigService);
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
+  private readonly accessRefreshService = inject(AccessRefreshService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
 
@@ -121,10 +124,15 @@ export class VaultRowLeaseBadgeComponent {
     if (cipher.id == null) {
       return of(null);
     }
-    return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
-      map((state): LeaseBadgeCell => cipherAccessBadgeState(state) ?? "none"),
-      // A failed read is not evidence of anything, so it must not draw the placeholder.
-      catchError(() => of(null)),
+    const cipherId = String(cipher.id);
+    return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
+      switchMap(() =>
+        from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+          map((state): LeaseBadgeCell => cipherAccessBadgeState(state) ?? "none"),
+          // A failed read is not evidence of anything, so it must not draw the placeholder.
+          catchError(() => of(null)),
+        ),
+      ),
     );
   }
 
