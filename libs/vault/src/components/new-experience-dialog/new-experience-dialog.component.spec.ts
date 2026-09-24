@@ -89,6 +89,12 @@ describe("NewExperienceDialogComponent", () => {
     expect(fixture.nativeElement.querySelector("button[bitIconButton='bwi-close']")).not.toBeNull();
   });
 
+  it("renders the description as secondary text, so the title carries the emphasis", () => {
+    const description = fixture.nativeElement.querySelector("p") as HTMLElement;
+
+    expect(description.className).toContain("tw-text-fg-body-subtle");
+  });
+
   it("renders the title ahead of the screenshot, matching the sheet layout", () => {
     const order = fixture.nativeElement.querySelector("bit-dialog").textContent as string;
 
