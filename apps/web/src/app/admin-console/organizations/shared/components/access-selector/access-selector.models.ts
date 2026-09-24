@@ -1,4 +1,7 @@
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
+import {
+  OrganizationUserUserDetailsResponse,
+  OrganizationUserUserMiniResponse,
+} from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -11,23 +14,21 @@ import { GroupView } from "../../../core";
 /**
  * Permission options that replace/correspond with manage, readOnly, and hidePassword server fields.
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionPermission {
-  View = "view",
-  ViewExceptPass = "viewExceptPass",
-  Edit = "edit",
-  EditExceptPass = "editExceptPass",
-  Manage = "manage",
-}
+export const CollectionPermission = Object.freeze({
+  View: "view",
+  ViewExceptPass: "viewExceptPass",
+  Edit: "edit",
+  EditExceptPass: "editExceptPass",
+  Manage: "manage",
+} as const);
+export type CollectionPermission = (typeof CollectionPermission)[keyof typeof CollectionPermission];
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum AccessItemType {
-  Collection,
-  Group,
-  Member,
-}
+export const AccessItemType = Object.freeze({
+  Collection: 0,
+  Group: 1,
+  Member: 2,
+} as const);
+export type AccessItemType = (typeof AccessItemType)[keyof typeof AccessItemType];
 
 /**
  * A "generic" type that describes an item that can be selected from a
@@ -53,14 +54,14 @@ export type AccessItemView = SelectItemView & {
   readonlyPermission?: CollectionPermission;
 } & (
     | {
-        type: AccessItemType.Collection;
+        type: typeof AccessItemType.Collection;
         viaGroupName?: string;
       }
     | {
-        type: AccessItemType.Group;
+        type: typeof AccessItemType.Group;
       }
     | {
-        type: AccessItemType.Member; // Members have a few extra details required to display, so they're added here
+        type: typeof AccessItemType.Member; // Members have a few extra details required to display, so they're added here
         email: string;
         role: OrganizationUserType;
         status: OrganizationUserStatusType;
@@ -150,11 +151,19 @@ export const convertToSelectionView = (value: AccessItemValue) => {
 };
 
 const readOnly = (perm: CollectionPermission | undefined) =>
-  perm != null && [CollectionPermission.View, CollectionPermission.ViewExceptPass].includes(perm);
+  perm != null &&
+  (
+    [CollectionPermission.View, CollectionPermission.ViewExceptPass] as CollectionPermission[]
+  ).includes(perm);
 
 const hidePassword = (perm: CollectionPermission | undefined) =>
   perm != null &&
-  [CollectionPermission.ViewExceptPass, CollectionPermission.EditExceptPass].includes(perm);
+  (
+    [
+      CollectionPermission.ViewExceptPass,
+      CollectionPermission.EditExceptPass,
+    ] as CollectionPermission[]
+  ).includes(perm);
 
 export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
   return {
@@ -166,7 +175,9 @@ export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
 }
 
 // TODO: Use view when user apis are migrated to a service
-export function mapUserToAccessItemView(user: OrganizationUserUserDetailsResponse): AccessItemView {
+export function mapUserToAccessItemView(
+  user: OrganizationUserUserDetailsResponse | OrganizationUserUserMiniResponse,
+): AccessItemView {
   return {
     id: user.id,
     type: AccessItemType.Member,
