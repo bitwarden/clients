@@ -24,7 +24,7 @@
         <bit-label>{{
           organizationId
             ? ((vfo1Enabled() ? "sharedFolder" : "collection") | i18n)
-            : ((vfo1Enabled() ? "myFolder" : "folder") | i18n)
+            : ((vfo1Enabled() ? "importTargetMyFolder" : "folder") | i18n)
         }}</bit-label>
         <bit-select formControlName="targetSelector">
           @if (!organizationId) {
