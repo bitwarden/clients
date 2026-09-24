@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { distinctUntilChanged, filter, map, skip, Subject, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -25,6 +25,8 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -44,11 +46,14 @@ import {
   ButtonModule,
   ChipActionComponent,
   ChipFilterOption,
+  CollapseOnScrollDirective,
   CompactModeService,
   defineTable,
   FilterMenuModule,
+  FilterOptionNode,
   IconButtonModule,
   IconComponent,
+  ScrollCollapseSourceDirective,
   SearchModule,
   StatusLockupComponent,
   SvgComponent,
@@ -75,6 +80,7 @@ import {
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
+import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -88,9 +94,18 @@ import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 
-/** Flattens a `ChipFilterOption` tree depth-first; drop once CL-985 adds nesting. */
+/**
+ * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
+ * option, not per branch. Nested rendering rebuilds nesting from the original tree instead of
+ * this flat list — see {@link VaultPopupListTableComponent.toFilterOptionNodes}.
+ */
 function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
+}
+
+/** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
+function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
+  return nodes.flatMap((n) => [n.value, ...subtreeValues(n.options ?? [])]);
 }
 
 /** The chips a vault switch invalidates. Type is absent: item types span vaults. */
@@ -112,7 +127,6 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     CommonModule,
     FormsModule,
     JslibModule,
-    RouterLink,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -120,6 +134,8 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    ScrollCollapseSourceDirective,
+    CollapseOnScrollDirective,
     FilterMenuModule,
     IconButtonModule,
     IconComponent,
@@ -141,6 +157,9 @@ export class VaultPopupListTableComponent {
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
+  private readonly configService = inject(ConfigService);
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
+  private readonly router = inject(Router);
   protected readonly listTableService = inject(VaultPopupListTableService);
   private readonly vaultPopupItemsService = inject(VaultPopupItemsService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
@@ -345,8 +364,35 @@ export class VaultPopupListTableComponent {
     });
   });
 
-  /** Exposed for the folder chip's `[value]`, which falls back to this sentinel for "no folder". */
-  protected readonly NO_FOLDER = NO_FOLDER;
+  /**
+   * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,
+   * since each node's name is already truncated to its own path segment. The "no folder" pseudo
+   * option leads the tree as its own node, rather than projected content, since a chip can only
+   * take its options as `options` or as projected content, never both; its `dividerBefore` marks
+   * where the real folders start, standing in for a projected `bit-filter-option-divider`.
+   */
+  protected readonly nestedFolderOptions = computed<FilterOptionNode<string>[]>(() => {
+    const visibleIds = new Set(
+      this.folderOptions()
+        .map((option) => option.value?.id)
+        .filter((id): id is string => !!id),
+    );
+    const folders = this.toFilterOptionNodes(this.folderTree(), visibleIds, "folder");
+
+    const noFolder = this.folderOptions().find((option) => !option.value?.id);
+    if (!noFolder) {
+      return folders;
+    }
+    const pinned: FilterOptionNode<string> = {
+      value: NO_FOLDER,
+      label: noFolder.label ?? "",
+      count: this.optionCount("folder", [NO_FOLDER]),
+    };
+    if (folders.length === 0) {
+      return [pinned];
+    }
+    return [pinned, { ...folders[0], dividerBefore: true }, ...folders.slice(1)];
+  });
 
   /** True when collections span more than one organization — switches to org-sectioned layout. */
   protected readonly groupCollectionsByOrg = computed(() => {
@@ -383,6 +429,69 @@ export class VaultPopupListTableComponent {
     }
     return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
   });
+
+  /**
+   * {@link collectionOptions}, nested — same approach as {@link nestedFolderOptions}. Used for
+   * the ungrouped render; see {@link nestedCollectionsByOrg} for the grouped one.
+   */
+  protected readonly nestedCollectionOptions = computed(() => {
+    const visibleIds = new Set<string>(
+      this.collectionOptions()
+        .map((o) => o.value?.id)
+        .filter((id): id is NonNullable<typeof id> => id != null),
+    );
+    return this.toFilterOptionNodes(this.collectionTree(), visibleIds, "collection");
+  });
+
+  /**
+   * {@link collectionsByOrg}, nested per group the same way {@link nestedCollectionOptions} is,
+   * for the grouped (multi-org) render. Pruning to each group's ids naturally excludes other
+   * orgs' nodes too, since a collection only nests under its own org.
+   */
+  protected readonly nestedCollectionsByOrg = computed(() =>
+    this.collectionsByOrg().map((group) => {
+      const visibleIds = new Set<string>(
+        group.collections
+          .map((o) => o.value?.id)
+          .filter((id): id is NonNullable<typeof id> => id != null),
+      );
+      return {
+        ...group,
+        collections: this.toFilterOptionNodes(this.collectionTree(), visibleIds, "collection"),
+      };
+    }),
+  );
+
+  /**
+   * Prunes a `ChipFilterOption` tree to nodes in `visibleIds`, keeping ancestors with a visible
+   * descendant so nesting survives narrowing even when the ancestor itself didn't pass (e.g. a
+   * folder with no directly-scoped items). Converts to {@link FilterOptionNode} for
+   * `bit-filter-menu`'s `options` input — each node's `count` includes its full subtree so it
+   * matches the item set that clicking the parent actually selects.
+   */
+  private toFilterOptionNodes<T extends { id: string }>(
+    tree: ChipFilterOption<T>[],
+    visibleIds: ReadonlySet<string>,
+    key: "collection" | "folder",
+  ): FilterOptionNode<string>[] {
+    return tree.flatMap((option) => {
+      const id = option.value?.id;
+      if (id == null) {
+        return [];
+      }
+      const children = this.toFilterOptionNodes(option.children ?? [], visibleIds, key);
+      if (!visibleIds.has(id) && children.length === 0) {
+        return [];
+      }
+      const node: FilterOptionNode<string> = {
+        value: id,
+        label: option.label ?? "",
+        count: this.optionCount(key, [id, ...subtreeValues(children)]),
+        options: children,
+      };
+      return [node];
+    });
+  }
 
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 60))),
@@ -532,6 +641,15 @@ export class VaultPopupListTableComponent {
         control.setValue(undefined);
       }
     }
+  }
+
+  async navigateToImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
+    await this.router.navigate(["/import"]);
   }
 
   /**

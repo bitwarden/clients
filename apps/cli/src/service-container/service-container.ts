@@ -84,6 +84,7 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/servic
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -257,6 +258,7 @@ import { CliProcessReloadService } from "../key-management/cli-process-reload.se
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
+import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -389,6 +391,8 @@ export class ServiceContainer {
   lockService: LockService;
   unlockService: UnlockService;
   autoUnlockService: AutoUnlockService;
+  biometricsService: CliBiometricsService;
+  ipcService: CliIpcService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -536,9 +540,17 @@ export class ServiceContainer {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
+    );
+
+    this.ipcService = new CliIpcService(this.logService);
+    this.biometricsService = new CliBiometricsService(
+      this.accountService,
+      () => this.keyService,
+      this.logService,
+      this.ipcService,
+      () => this.configService,
     );
 
     this.keyService = new KeyService(
@@ -549,7 +561,7 @@ export class ServiceContainer {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
-      new CliBiometricsService(),
+      this.biometricsService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -561,7 +573,6 @@ export class ServiceContainer {
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -573,7 +584,6 @@ export class ServiceContainer {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -741,6 +751,7 @@ export class ServiceContainer {
       this.apiService,
       this.fileUploadService,
       this.sendService,
+      this.logService,
     );
 
     this.sendApiService = new SendApiServiceSelector(
@@ -804,7 +815,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.stateProvider,
       this.logService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
       this.autoUnlockService,
@@ -924,7 +935,6 @@ export class ServiceContainer {
       this.logService,
       this.keyConnectorService,
       this.environmentService,
-      this.stateService,
       this.twoFactorService,
       this.i18nService,
       this.encryptService,
@@ -1025,17 +1035,16 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.pinService,
       this.kdfConfigService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.masterPasswordUnlockService,
     );
 
-    const biometricService = new CliBiometricsService();
     const logoutService = new DefaultLogoutService(this.messagingService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
       this.accountService,
-      biometricService,
+      this.biometricsService,
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
@@ -1202,7 +1211,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.syncService,
       this.keyService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.platformUtilsService,
       new CliUserKeyRotationService(),
@@ -1240,9 +1249,13 @@ export class ServiceContainer {
     }
 
     await this.sdkLoadService.loadAndInit();
+
     await this.storageService.init();
 
     await this.migrationRunner.run();
+
+    // Reading the flag needs migrated storage, so this cannot run any earlier.
+    await this.connectToDesktop();
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
@@ -1265,5 +1278,29 @@ export class ServiceContainer {
     }
 
     this.inited = true;
+  }
+
+  /**
+   * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy. Skipped
+   * entirely when the flag is off, so an unflagged CLI never starts a proxy process.
+   *
+   * Desktop IPC is optional: commands that do not use desktop integration must continue
+   * to work when the desktop app is unavailable or incompatible.
+   */
+  private async connectToDesktop(): Promise<void> {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.BiometricsSDKIPC))) {
+      return;
+    }
+
+    try {
+      const desktopVersion = await this.ipcService.verifyDesktopConnection();
+      this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
+    } catch (error) {
+      this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
+    }
+  }
+
+  dispose(): void {
+    this.ipcService.disconnect();
   }
 }
