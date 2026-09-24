@@ -86,23 +86,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   host: {
     "[class.vfo1]": "vfo1Enabled()",
   },
-  template: `
-    @if (showHeader$ | async) {
-      <div class="header" [class.vfo1]="vfo1Enabled()"></div>
-    }
-
-    <div id="container">
-      @if (loading) {
-        <div class="loading">
-          <bit-spinner />
-        </div>
-      } @else {
-        <router-outlet />
-      }
-    </div>
-
-    <bit-toast-container></bit-toast-container>
-  `,
+  templateUrl: "app.component.html",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
