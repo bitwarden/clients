@@ -150,7 +150,9 @@ export class VaultCollectionActionsService {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
+          queryParams: this.vfo1TerminologyService.collectionQueryParams(
+            selectedCollection.parent?.node.id,
+          ),
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -195,7 +197,9 @@ export class VaultCollectionActionsService {
       const selectedCollection = await firstValueFrom(this.selectedCollection$);
       if (selectedCollection?.node.id === collection.id) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection?.parent?.node.id ?? null },
+          queryParams: this.vfo1TerminologyService.collectionQueryParams(
+            selectedCollection?.parent?.node.id,
+          ),
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
