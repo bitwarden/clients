@@ -452,6 +452,49 @@ describe("ConfigService", () => {
 
       expect(result).toBe(true);
     });
+
+    function configWithFlag(value: boolean) {
+      const config = new ServerConfig(
+        new ServerConfigData({ featureStates: { [FeatureFlag.FedRampGovRegion]: value } }),
+      );
+      config.utcDate = new Date();
+      return config;
+    }
+
+    it("does not re-emit when a config refresh keeps the flag value", async () => {
+      // Consumers restart their work on each emission, e.g. re-decrypting the whole vault.
+      overrideState.stateSubject.next({});
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(true) });
+
+      const emitted: boolean[] = [];
+      const subscription = sut
+        .getFeatureFlag$(FeatureFlag.FedRampGovRegion)
+        .subscribe((value) => emitted.push(value));
+      await new Promise(process.nextTick);
+
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(true) });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toEqual([true]);
+    });
+
+    it("re-emits when a config refresh changes the flag value", async () => {
+      overrideState.stateSubject.next({});
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(true) });
+
+      const emitted: boolean[] = [];
+      const subscription = sut
+        .getFeatureFlag$(FeatureFlag.FedRampGovRegion)
+        .subscribe((value) => emitted.push(value));
+      await new Promise(process.nextTick);
+
+      globalState.stateSubject.next({ [activeApiUrl]: configWithFlag(false) });
+      await new Promise(process.nextTick);
+
+      subscription.unsubscribe();
+      expect(emitted).toEqual([true, false]);
+    });
   });
 
   describe("slow configuration", () => {
