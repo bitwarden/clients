@@ -144,21 +144,28 @@ enum LeaseStatus { active | expired | revoked | canceled }
 -- ----------------------------------------------------------------------------
 
 -- A single access check evaluated when a member tries to open a gated cipher.
--- An access rule's conditions are ANDed: all must pass for an approval.
+-- An access rule's conditions are ANDed: all must pass for an approval. A rule
+-- holds at most config.max_rule_conditions of them. The same kind may appear more
+-- than once and is ANDed like any other: a second human_approval changes nothing,
+-- and two ip_allowlists admit only their intersection. A rule with no conditions
+-- is legal and still gates: it grants automatically, on request.
 value Condition {
     kind: HumanApproval | IpAllowlist
 }
 
 variant HumanApproval : Condition {
-    -- Who is allowed to approve a matching request.
-    --   collection_managers: any manager on the gated collection can approve
-    --   specific:            only the listed users can approve
-    approvers: ApproverScope
+    -- The request goes to a person. The approvers are always the users who can
+    -- Manage the request's collection (EligibleApprovers); the condition carries no
+    -- settings. Naming specific approvers was designed and never built (see the
+    -- future note by EligibleApprovers).
 }
 
 variant IpAllowlist : Condition {
-    -- CIDR ranges the member's source IP must fall inside. Empty list means
-    -- the condition never matches (i.e. effectively denies).
+    -- CIDR ranges the member's source IP must fall inside. A rule is only saved
+    -- with a non-empty list of valid CIDRs (OrgAdminCreatesAccessRule). At runtime
+    -- it fails closed: an empty list (reachable only through a stored row that
+    -- predates that check) never matches, and neither does a request whose source IP
+    -- is unknown.
     --
     -- Bounds where access STARTS, never where it is used. On a rule without human
     -- approval it is checked at submit (a miss refuses the submit) and again at every
@@ -170,11 +177,6 @@ variant IpAllowlist : Condition {
     -- credential only ever happens from these networks"; see the ip_allowlist open
     -- question (PAM-205).
     cidrs: List<String>
-}
-
-value ApproverScope {
-    mode: collection_managers | specific
-    specific_users: Set<User> when mode = specific
 }
 
 -- A rule carries two distinct kinds of control, evaluated at different points in
@@ -211,6 +213,9 @@ entity AccessRule {
     -- still surface several rules (per-path contention), which is what oldest_rule
     -- arbitrates.
     collections: Collection with access_rule = this
+    -- The duration the request form pre-selects, published by the pre-check and
+    -- clamped to the effective maximum; config.fallback_lease_duration when unset.
+    -- It bounds nothing: the maximum below does.
     default_lease_duration: Duration?
     -- AccessLease constraint: ceiling on the lease window, checked at SUBMIT. A
     -- longer window is refused, and since the lease runs to the window's end, no
@@ -242,6 +247,9 @@ entity AccessRule {
 
     creation_date: Timestamp
     revision_date: Timestamp
+    -- Who last created or changed the rule. Stored as the actor of the
+    -- rule_created and rule_updated audit events; the audit trail, not the rules
+    -- page, is where an admin sees it.
     last_edited_by: User?
 
     -- Projections
@@ -434,8 +442,12 @@ entity LeasingFreeze {
 -- ----------------------------------------------------------------------------
 
 config {
-    -- AccessLease duration used when an access rule does not specify one.
+    -- The duration pre-selected when an access rule sets no default of its own,
+    -- clamped to the rule's maximum (server LeaseDurationBounds).
     fallback_lease_duration: Duration = 1.hour
+
+    -- The most conditions one rule may hold.
+    max_rule_conditions: Integer = 10
 
     -- The ceiling on any lease window, and on every duration a rule may hold
     -- (server LeaseDurationBounds, raised from 24 hours by server #8378). A rule with
@@ -766,6 +778,11 @@ rule MemberSubmitsAccessRequest {
     -- length comes from the pinned rule, and the lease minted at activation runs
     -- to the window end either way (see ActivateLease). Evaluation runs
     -- immediately, so the submit response may already be approved.
+    --
+    -- KNOWN GAP: the built form's automatic path lets the member pick a duration
+    -- (pre-filled with the rule's default, capped at its maximum) rather than
+    -- taking the default. Whether every rule should submit the same shape, always a
+    -- window, is PAM-207; this rule keeps the older shape until that is decided.
     when: MemberSubmitsRequest(caller, target_cipher, reason?, window_start?, window_end?)
     -- A proposed window is all-or-nothing: a start without an end (or vice
     -- versa) is rejected rather than half-defaulted.
@@ -811,13 +828,18 @@ rule MemberSubmitsAccessRequest {
     -- exceed the rule's max_lease_duration, or the global ceiling when the rule sets
     -- none, and never the ceiling itself (PM-39858, server #8378). Too long a window
     -- is refused, not trimmed.
-    let window_open = window_start ?? now
-    let window_close = window_end ?? (now + (gating_rule.default_lease_duration ?? config.fallback_lease_duration))
     let effective_max =
         if gating_rule.max_lease_duration != null
            and gating_rule.max_lease_duration < config.global_max_lease_duration:
             gating_rule.max_lease_duration
         else: config.global_max_lease_duration
+    -- The on-demand length is the pre-fill: the rule's default, or the fallback,
+    -- clamped to the effective maximum so it can never exceed what is accepted.
+    let requested_default = gating_rule.default_lease_duration ?? config.fallback_lease_duration
+    let effective_default = if requested_default > effective_max: effective_max
+                            else: requested_default
+    let window_open = window_start ?? now
+    let window_close = window_end ?? (now + effective_default)
     requires: window_close - window_open <= effective_max
     let active_leases = AccessLease where requester = caller
                                  and cipher = target_cipher
@@ -1366,8 +1388,24 @@ rule OrgAdminCreatesAccessRule {
                             collections, default_lease_duration?, max_lease_duration?,
                             allows_extensions, max_extension_duration?,
                             single_active_lease, enabled)
+    -- Rule authorship is its own permission, separate from approving requests.
+    requires: CanManageAccessRules(admin, organization)
     requires: name.length > 0 and name.length <= 256
-    -- A rule that allows extensions must say how much one may add.
+    requires: conditions.count <= config.max_rule_conditions
+    -- An ip_allowlist needs at least one CIDR, and every entry must parse as one.
+    requires: conditions.all(c => c.kind = IpAllowlist
+                                  implies (c.cidrs.count > 0
+                                           and c.cidrs.all(r => valid_cidr(r))))
+    -- Durations: each one set must be positive and within the global ceiling, and
+    -- the pre-fill may not exceed the maximum. A rule that allows extensions must
+    -- say how much one may add.
+    requires: default_lease_duration = null or default_lease_duration > 0.seconds
+    requires: max_lease_duration = null or max_lease_duration > 0.seconds
+    requires: default_lease_duration = null or default_lease_duration <= config.global_max_lease_duration
+    requires: max_lease_duration = null or max_lease_duration <= config.global_max_lease_duration
+    requires: max_extension_duration = null or max_extension_duration <= config.global_max_lease_duration
+    requires: default_lease_duration = null or max_lease_duration = null
+              or default_lease_duration <= max_lease_duration
     requires: allows_extensions implies max_extension_duration > 0.seconds
     requires: collections.all(c => c.organization = organization)
     -- Each target collection must be free to govern: unlinked (a hard delete clears
@@ -1400,7 +1438,20 @@ rule OrgAdminUpdatesAccessRule {
                             collections, default_lease_duration?, max_lease_duration?,
                             allows_extensions, max_extension_duration?,
                             single_active_lease, enabled)
+    requires: CanManageAccessRules(admin, rule.organization)
     requires: name.length > 0 and name.length <= 256
+    -- The same shape checks as create.
+    requires: conditions.count <= config.max_rule_conditions
+    requires: conditions.all(c => c.kind = IpAllowlist
+                                  implies (c.cidrs.count > 0
+                                           and c.cidrs.all(r => valid_cidr(r))))
+    requires: default_lease_duration = null or default_lease_duration > 0.seconds
+    requires: max_lease_duration = null or max_lease_duration > 0.seconds
+    requires: default_lease_duration = null or default_lease_duration <= config.global_max_lease_duration
+    requires: max_lease_duration = null or max_lease_duration <= config.global_max_lease_duration
+    requires: max_extension_duration = null or max_extension_duration <= config.global_max_lease_duration
+    requires: default_lease_duration = null or max_lease_duration = null
+              or default_lease_duration <= max_lease_duration
     requires: allows_extensions implies max_extension_duration > 0.seconds
     -- Same free-to-govern check as create, but a collection already linked to THIS rule
     -- is fine (it is being kept, not stolen).
@@ -1437,6 +1488,7 @@ rule OrgAdminUpdatesAccessRule {
 
 rule OrgAdminDeletesAccessRule {
     when: DeleteAccessRule(admin, target_rule)
+    requires: CanManageAccessRules(admin, target_rule.organization)
     -- Hard delete: clear the rule's collection links and every request pin to it,
     -- then remove the rule. Each governed collection survives, now ungoverned. A
     -- deleted rule is simply gone — no gating / admin read can find it, so none
@@ -1478,6 +1530,24 @@ rule OrgAdminDeletesAccessRule {
 -- ApprovalPrivilegeService only mirror it to hide actions the server would refuse.
 deferred EligibleApprovers    -- see: server ApproverCollectionAccessQuery
 
+-- FUTURE, NOT GA: named approvers. Requirements once asked for a rule to name
+-- specific approvers (UC2), and the POC editor showed a disabled "Specific people"
+-- option. Design narrowed it during PM-39115, where the lead argued a single named
+-- approver is a failure point in approval flows, and the shipped human_approval
+-- condition carries no settings. PAM-10 (what happens when a named approver leaves
+-- the org) depends on the feature and should be closed or re-scoped when the GA cut
+-- is made.
+
+-- `CanManageAccessRules(member, organization)`: may author the organization's
+-- access rules: an Owner or Admin, or a Custom member holding Manage access rules.
+-- Provider users managing the organization are excluded: who may lease credentials
+-- out of an organization is not a provider's to change (PM-40211). This is its own
+-- authority, separate from approving requests (EligibleApprovers) and from managing
+-- rotation connectors. Reading the rules is wider: any confirmed member may list them,
+-- conditions included, which is what lets the collection dialog name a collection's
+-- rule to a non-admin manager; whether it should stay that wide is PAM-213.
+deferred CanManageAccessRules    -- see: server ManageAccessRulesRequirement
+
 -- `EligibleRevokers(lease)`: the operators who may revoke someone's active lease:
 -- EligibleApprovers for the lease's request, plus the lease's org admins. Org
 -- admins may revoke any single lease directly (from the governance dashboard) —
@@ -1506,6 +1576,12 @@ deferred EligibleRevokers     -- see: server RevokeAccessLeaseCommand; cipher-vi
 --     approval.
 -- A human-approval rule is therefore checked only at activation: its conditions
 -- inform the approver rather than pre-empting them (PM-42256).
+--
+-- Fail-safe for a stored conditions document the server cannot read (a kind it no
+-- longer knows, or malformed JSON): at submit the rule is treated as requiring
+-- human approval, so the request goes to a person; at activation the check fails,
+-- so the start is refused (PM-42273). Writes never produce such a document; only a
+-- legacy or hand-edited row can.
 --
 -- FIRST GRANTS ONLY. Since PM-42500 an extension is never evaluated against this
 -- predicate: it has no submit of its own to refuse, and it never activates (it
@@ -1685,6 +1761,19 @@ actor OrgAdmin {
     identified_by: User
     within: Organization
     -- Granted by the existing admin-console permission model.
+}
+
+actor RuleAuthor {
+    identified_by: User
+    within: Organization
+    -- An Owner or Admin, or a Custom member holding Manage access rules; never a
+    -- provider user (CanManageAccessRules).
+}
+
+actor CollectionManager {
+    identified_by: User
+    within: Collection
+    -- Anyone who can edit the collection, which is not the same as authoring rules.
 }
 
 -- ----------------------------------------------------------------------------
@@ -2073,8 +2162,9 @@ surface RequestDetailView {
 }
 
 surface AccessRulesAdminPage {
-    -- Admin-only CRUD page for an org's access rules. See access-rules.component.
-    facing admin: OrgAdmin
+    -- CRUD page for an org's access rules, for rule authors only (the route guard
+    -- checks canManageAccessRules). See access-rules.component.
+    facing admin: RuleAuthor
 
     context org: Organization
 
@@ -2091,7 +2181,6 @@ surface AccessRulesAdminPage {
             rule.single_active_lease
             rule.enabled
             rule.revision_date
-            rule.last_edited_by
 
     provides:
         CreateAccessRule(admin, org, name, description, conditions,
@@ -2103,6 +2192,13 @@ surface AccessRulesAdminPage {
                          allows_extensions, max_extension_duration,
                          single_active_lease, enabled)
         DeleteAccessRule(admin, rule)
+
+    @guidance
+        -- The editor offers preset durations only; the rules themselves accept any
+        -- value within the global ceiling, so a rule written through the API can
+        -- hold one the presets do not. Editing such a rule in the UI snaps the
+        -- value to the nearest preset today (PAM-227). Who last edited a rule is
+        -- not shown here; the audit trail records it (PM-39117 shipped without it).
 }
 
 surface CollectionAccessRuleCallout {
@@ -2113,7 +2209,11 @@ surface CollectionAccessRuleCallout {
     -- existing collection — there is nothing to gate before one exists. See
     -- collection-access-rule-callout.component, bound to the
     -- COLLECTION_ACCESS_RULE_CALLOUT seam.
-    facing admin: OrgAdmin
+    --
+    -- It faces whoever can edit the collection, rule author or not: a collection
+    -- manager who may not change the rule still sees it, through the member-wide
+    -- rule read (see CanManageAccessRules).
+    facing admin: CollectionManager
 
     context target_collection: Collection
 
@@ -2305,8 +2405,6 @@ invariant OrgUniqueRuleNames {
 open question "Should a disabled pinned rule behave like a deleted one (PAM-211)? Today they differ (see AccessRequest.rule). A deleted rule's pin is cleared and re-resolves at activation, so a younger rule on another path can take over. A disabled rule's pin survives and governs nothing, so its approved requests activate with no condition check ('instant access') even when a younger enabled rule on another path would have checked them, and extensions under it are refused. The reviewer's lean: a disabled pin should re-resolve at activation too. The answer decides the formal projection of the rule a pin governs by, which this spec leaves in prose until then."
 
 open question "When a rule's automated conditions refuse a submit, should a visible denied request be saved as well (PAM-206), as PM-42632 chose for late extensions, or is an audit event enough? Today nothing is saved and nothing is audited; PAM-229 adds the audit event. A refused out-of-network attempt that leaves no trace is a detection gap in a privileged-access product, which activation (LeaseActivationRejected) does not have."
-
-open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
 
 open question "Should the server audit a whole-vault export (PAM-204)? It is the only export that carries gated credentials in full (a member's own export leaves them out): a bulk, lease-free release of exactly what the trail exists to account for. Nothing in PAM records it (pam-audit's CredentialAccessed is itself deferred). The only trace is the organization event log's Organization_ClientExportedVault, which the CLIENT sends, so a modified client can skip it, and which never names the ciphers exported. Undecided: a server-written PAM event per export (or per gated cipher in it), or leave export accounting to the org event log."
 
