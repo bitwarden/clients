@@ -147,6 +147,20 @@ module.exports.buildConfig = function buildConfig(params) {
       FLAGS: envConfig.flags,
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
     }),
+    // The Chrome build ships without the core-js polyfills imported by popup/polyfills.ts
+    // and main.background.ts. Auto-updating Chrome (floor >= 134) natively provides
+    // everything they cover (Object.create, and Symbol.dispose / DisposableStack / `using`
+    // from explicit resource management), and core-js's IE-era Object.create shim is what
+    // the Chrome Web Store flags as "obfuscated code". Firefox (AMO) and Safari (App Store)
+    // keep core-js; older Safari still lacks native explicit resource management.
+    ...(browser === "chrome"
+      ? [
+          new webpack.NormalModuleReplacementPlugin(
+            /^core-js\/(stable|proposals\/explicit-resource-management)$/,
+            path.resolve(__dirname, "webpack/empty-module.js"),
+          ),
+        ]
+      : []),
   ];
 
   const plugins = [
