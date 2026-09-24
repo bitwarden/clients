@@ -154,7 +154,7 @@ export class SetInitialPasswordComponent implements OnInit {
 
         const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
           passwordInputResult.newPassword,
-          this.email.trim().toLowerCase(),
+          this.masterPasswordService.emailToSalt(this.email),
           passwordInputResult.kdfConfig,
         );
 

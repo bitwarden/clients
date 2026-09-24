@@ -6,6 +6,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -645,7 +646,7 @@ export class UserKeyRotationService {
   ): Promise<string> {
     const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       masterPassword,
-      masterKeySalt,
+      masterKeySalt as MasterPasswordSalt,
       masterKeyKdfConfig,
     );
     return this.legacyCompatKeyService.hashMasterKey(masterPassword, masterKey);
