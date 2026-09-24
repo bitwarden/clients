@@ -67,8 +67,6 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
-  SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
@@ -240,8 +238,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
-  [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
