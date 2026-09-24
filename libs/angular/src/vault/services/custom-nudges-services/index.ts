@@ -6,3 +6,4 @@ export * from "./vault-settings-import-nudge.service";
 export * from "./new-item-nudge.service";
 export * from "./new-account-nudge.service";
 export * from "./noop-nudge.service";
+export * from "./vfo1-onboarding-nudge.service";

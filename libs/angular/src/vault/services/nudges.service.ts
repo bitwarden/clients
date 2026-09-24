@@ -13,6 +13,7 @@ import {
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
   NoOpNudgeService,
+  Vfo1OnboardingNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 import { AUTOFILL_NUDGE_SERVICE, AUTO_CONFIRM_NUDGE_SERVICE } from "./nudge-injection-tokens";
@@ -41,6 +42,7 @@ export const NudgeType = {
   GeneratorNudgeStatus: "generator-nudge-status",
   AutoConfirmNudge: "auto-confirm-nudge",
   PremiumUpgrade: "premium-upgrade",
+  Vfo1NewExperience: "vfo1-new-experience",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -58,6 +60,7 @@ export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
 export class NudgesService {
   private newItemNudgeService = inject(NewItemNudgeService);
   private newAcctNudgeService = inject(NewAccountNudgeService);
+  private vfo1OnboardingNudgeService = inject(Vfo1OnboardingNudgeService);
 
   // NoOp service that always returns dismissed
   private noOpNudgeService = inject(NoOpNudgeService);
@@ -93,6 +96,7 @@ export class NudgesService {
     [NudgeType.NewNoteItemStatus]: this.newItemNudgeService,
     [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
     [NudgeType.AutoConfirmNudge]: this.autoConfirmNudgeService ?? this.noOpNudgeService,
+    [NudgeType.Vfo1NewExperience]: this.vfo1OnboardingNudgeService,
   };
 
   /**
