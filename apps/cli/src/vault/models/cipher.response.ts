@@ -22,6 +22,8 @@ export class CipherResponse extends CipherWithIdExport implements BaseResponse {
     super();
     this.object = "item";
     this.build(o);
+    // Redact the decrypted item key to prevent logging it to the CLI output.
+    this.key = undefined;
     if (o.attachments != null) {
       this.attachments = o.attachments.map((a) => new AttachmentResponse(a));
     }
