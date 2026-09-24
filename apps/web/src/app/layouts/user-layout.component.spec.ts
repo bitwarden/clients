@@ -94,6 +94,7 @@ describe("UserLayoutComponent", () => {
 
   const canArchive$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  const organizations$ = new BehaviorSubject<{ usePam: boolean }[]>([]);
 
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
@@ -138,6 +139,7 @@ describe("UserLayoutComponent", () => {
 
     canArchive$.next(true);
     archivedCiphers$.next([]);
+    organizations$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
@@ -158,7 +160,7 @@ describe("UserLayoutComponent", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         // This layout renders PamUserNavSlotComponent, which reads the user's organizations to
         // decide whether to show the PAM link.
-        { provide: OrganizationService, useValue: { organizations$: () => of([]) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
         {
           provide: PremiumSubscriptionRoutingService,
@@ -203,6 +205,15 @@ describe("UserLayoutComponent", () => {
         expect.arrayContaining(["generator", "importNoun", "exportNoun"]),
       );
     });
+
+    it("keeps Access requests above Tools", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+
+      expect(text.indexOf("pamAccessRequestsTitle")).toBeLessThan(text.indexOf("tools"));
+    });
   });
 
   describe("flag on", () => {
@@ -224,6 +235,34 @@ describe("UserLayoutComponent", () => {
       expect(text).toEqual(
         expect.arrayContaining(["manage", "myFolders", "archiveNoun", "trash", "settings"]),
       );
+    });
+
+    it("renders Access requests inside Manage, after Trash and before Settings", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+      const manage = text.indexOf("manage");
+      const trash = text.indexOf("trash");
+      const accessRequests = text.indexOf("pamAccessRequestsTitle");
+      const settings = text.indexOf("settings");
+
+      expect(accessRequests).toBeGreaterThan(manage);
+      expect(accessRequests).toBeGreaterThan(trash);
+      expect(accessRequests).toBeLessThan(settings);
+    });
+
+    it("no longer renders Access requests above Tools", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+
+      expect(text.indexOf("pamAccessRequestsTitle")).toBeGreaterThan(text.indexOf("tools"));
+    });
+
+    it("omits Access requests entirely without a PAM organization", () => {
+      expect(navText()).not.toContain("pamAccessRequestsTitle");
     });
 
     it("renders Export as the last Settings child", () => {
