@@ -15,7 +15,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -106,9 +105,6 @@ describe("AssignCollectionsComponent", () => {
   let toastService: MockProxy<ToastService>;
 
   async function setup(vfo1Enabled = false) {
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(vfo1Enabled));
-
     toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
@@ -119,10 +115,6 @@ describe("AssignCollectionsComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
-        {
-          provide: ConfigService,
-          useValue: configService,
-        },
         {
           provide: Vfo1TerminologyService,
           useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
@@ -412,9 +404,7 @@ describe("AssignCollectionsComponent", () => {
       },
     );
 
-    it("moveToOrganization falls back to the organization label when no org name is resolved", async () => {
-      component["orgName"] = undefined;
-
+    it("moveToOrganization shows collection-count toast (1 cipher, 0 collections)", async () => {
       await component["moveToOrganization"](
         "org-id" as OrganizationId,
         [{ id: "c1" } as CipherView],
@@ -423,7 +413,7 @@ describe("AssignCollectionsComponent", () => {
       );
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "itemMovedToOrg organization" }),
+        expect.objectContaining({ message: "itemMovedToCollections" }),
       );
     });
   });
@@ -483,9 +473,7 @@ describe("AssignCollectionsComponent", () => {
       },
     );
 
-    it("moveToOrganization falls back to the vault label when no org name is resolved", async () => {
-      component["orgName"] = undefined;
-
+    it("moveToOrganization shows collection-count toast (1 cipher, 0 collections)", async () => {
       await component["moveToOrganization"](
         "org-id" as OrganizationId,
         [{ id: "c1" } as CipherView],
@@ -494,7 +482,7 @@ describe("AssignCollectionsComponent", () => {
       );
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "itemMovedToOrg vault" }),
+        expect.objectContaining({ message: "itemAddedToSharedFolders" }),
       );
     });
   });
