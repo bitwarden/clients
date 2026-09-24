@@ -136,7 +136,7 @@ value GatedCipherView {
 
 -- Named rather than inline because the two share literals (canceled, expired):
 -- the checker cannot tell apart the same literal on two inline enums.
-enum RequestStatus { pending | approved | activated | denied | canceled | expired }
+enum RequestStatus { pending | approved | denied | canceled | expired }
 enum LeaseStatus { active | expired | revoked | canceled }
 
 -- ----------------------------------------------------------------------------
@@ -301,33 +301,32 @@ entity AccessRequest {
     -- An extension carries the increment instead, [the parent's end when
     -- requested, its new end]. It is never promoted to a lease of its own; it
     -- applies in place.
-    lease_not_before: Timestamp?
-    lease_not_after: Timestamp?
+    lease_not_before: Timestamp
+    lease_not_after: Timestamp
 
     reason: String?
     submitted_at: Timestamp
-
-    -- Global max-age cutoff: whatever its state, a request is invalid past this
-    -- age and auto-expires (cleanup of old requests). It no longer bounds an
-    -- extension's pending phase: since PM-42500 an extension is decided in the same
-    -- step it is created and never rests at pending.
-    valid_until: submitted_at + config.request_max_age
 
     -- Resolution
     -- An approved request is a *single-use grant*: the approver has granted
     -- access, but no AccessLease exists yet. The requester activates the approved
     -- request (ActivateLease), which mints the AccessLease running to the
-    -- activation-window end, and moves the request to `activated`. An approved
-    -- request left unactivated past its actionable_until bound transitions to
-    -- `expired`. Single use: one approved request yields at most one lease.
+    -- activation-window end. Activation is NOT a status: the request stays
+    -- `approved` for the rest of its life, and the lease row is the record that it
+    -- started (see `activated` below). Only an approved request that never started
+    -- lapses to `expired`. Single use: one approved request yields at most one lease.
+    --
+    -- The server stores the decision facts (the request's Action, and the lease's
+    -- own Action once it ends), never a status, and derives every status from those
+    -- facts and the clock when it reads (PM-42653). `expired` in particular is never
+    -- written: no request sweeper exists, and the expiry rules below describe what a
+    -- read reports once the window has closed.
     status: RequestStatus
-    -- Non-optional under its when-clause: every transition out of `pending` is
-    -- structurally obliged to set it (and every resolution rule does).
-    resolved_at: Timestamp when status != pending
-    -- When the request lapsed: actionable_until passed while pending, or an
-    -- approved request was never activated in time. Distinct from resolved_at,
-    -- which (for an expired-while-approved request) keeps the approval time.
-    expired_at: Timestamp? when status = expired
+    -- When a party acted: an approver decided, the system approved, the requester
+    -- canceled, or an extension was decided at creation. Null when nobody acted, so a
+    -- request that expired while pending has none; one that expired approved keeps
+    -- its approval time.
+    resolved_at: Timestamp? when status != pending
     -- The approver, or null for a system / access-rule auto-decision. Persists
     -- once set — through activation and unactivated expiry — for the audit trail.
     approver: User? when status != pending
@@ -337,39 +336,47 @@ entity AccessRequest {
     -- correct for the request's whole life, whatever the lease's later status.
     lease: AccessLease with request = this
 
-    -- The single upper bound on this request being actionable at all — deciding
-    -- a pending request AND starting an approved one: the activation-window end,
-    -- tightened by the max-age cutoff. For an extension (null window) it is the
-    -- max-age cutoff alone. Past it the request auto-expires whether pending or
-    -- approved (PendingRequestExpires / ApprovedRequestExpiresUnactivated).
+    -- The single upper bound on this request being actionable at all — deciding a
+    -- pending request AND starting an approved one: the window end. Past it a
+    -- request that is still pending, or approved and never started, reads as expired
+    -- (PendingRequestExpires / ApprovedRequestExpiresUnactivated). Nothing else ages
+    -- a request out: a request whose window ends a year away can wait that long. A
+    -- pending decision deadline (PAM-42: 7 days from submit) is not built; if it
+    -- ships, it becomes one more input to the read-time derivation, not a sweeper.
     -- MyAccessRequestsPage exposes it for the activation countdown.
-    actionable_until: if lease_not_after != null and lease_not_after < valid_until: lease_not_after
-                      else: valid_until
+    actionable_until: lease_not_after
 
     -- If this request is an extension of an existing lease, the parent lease.
     extension_of: AccessLease?
+
+    -- Derived "activation": the request is approved and started. A first grant
+    -- started when it produced its lease; an extension that applied counts as
+    -- started from its creation. Either way it stays approved and can no longer
+    -- lapse, be canceled or be retracted.
+    activated: status = approved and (lease != null or extension_of != null)
+
+    -- In flight: a first grant still pending, or approved and never started. What
+    -- MemberSubmitsAccessRequest refuses to duplicate (see
+    -- AtMostOneInFlightRequestPerRequesterCipher).
+    in_flight: extension_of = null
+               and (status = pending or (status = approved and lease = null))
 
     -- ActionableForRequester: the request still needs something from its requester.
     -- It is awaiting a decision, or approved, never started, and inside its window.
     -- Extensions never qualify, because they are decided and applied in the step that
     -- creates them. Drives MyAccessRequestsPage's outstanding rows and the
     -- PamNavBadge count (client isActionableRequest).
-    actionable_for_requester: extension_of = null
-                              and (status = pending
-                                   or (status = approved
-                                       and lease = null
-                                       and now < lease_not_after))
+    actionable_for_requester: in_flight and (status = pending or now < lease_not_after)
 
     transitions status {
         pending -> approved
         pending -> denied
         pending -> canceled
         pending -> expired
-        approved -> activated
         approved -> expired
         approved -> denied
         approved -> canceled
-        terminal: activated, denied, canceled, expired
+        terminal: denied, canceled, expired
     }
 }
 
@@ -435,12 +442,6 @@ config {
     -- no max_lease_duration is capped here, so the rule editor's "No cap" means one
     -- year.
     global_max_lease_duration: Duration = 365.days
-
-    -- Global max age of a request: how long after submission it remains valid
-    -- in ANY non-terminal state (pending or approved) before auto-expiring.
-    -- Cleans up old requests, and caps how far ahead a scheduled window can
-    -- usefully be proposed — a window past this cutoff expires before it opens.
-    request_max_age: Duration = 60.days
 
     -- How far back resolved requests are surfaced in history views: the
     -- approver inbox history and the member's own requests page share this
@@ -584,10 +585,12 @@ rule CipherOpenRequiresAccessRequest {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    -- CipherOpenWithApprovedRequest handles the already-approved-request case.
+    -- CipherOpenWithApprovedRequest handles the approved-and-not-started case.
     let approved_requests = AccessRequest where requester = caller
                                              and cipher = target_cipher
                                              and status = approved
+                                             and lease = null
+                                             and extension_of = null
     requires: approved_requests.count = 0
     ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule,
                                     PartialView(caller, target_cipher))
@@ -623,12 +626,16 @@ rule CipherOpenWithApprovedRequest {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
+    -- Approved and never started: a request that already produced its (now ended)
+    -- lease stays approved but offers nothing here.
     let approved_requests = AccessRequest where requester = caller
                                              and cipher = target_cipher
                                              and status = approved
+                                             and lease = null
+                                             and extension_of = null
     requires: approved_requests.count > 0
-    -- Singleton by AtMostOneInFlightRequestPerRequesterCipher (extensions never
-    -- rest at `approved`), so .first is deterministic.
+    -- Singleton by AtMostOneInFlightRequestPerRequesterCipher, so .first is
+    -- deterministic.
     ensures: CipherOpenAwaitingActivation(caller, target_cipher, approved_requests.first,
                                           PartialView(caller, target_cipher))
     @guidance
@@ -817,15 +824,13 @@ rule MemberSubmitsAccessRequest {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    -- No duplicate while an approved request or another pending request exists.
-    let approved_requests = AccessRequest where requester = caller
-                                             and cipher = target_cipher
-                                             and status = approved
-    requires: approved_requests.count = 0
-    let pending_requests = AccessRequest where requester = caller
-                                            and cipher = target_cipher
-                                            and status = pending
-    requires: pending_requests.count = 0
+    -- No duplicate while another request for this cipher is in flight: pending,
+    -- or approved and not started. A request that started and whose lease has
+    -- since ended blocks nothing.
+    let in_flight_requests = AccessRequest where requester = caller
+                                              and cipher = target_cipher
+                                              and in_flight
+    requires: in_flight_requests.count = 0
     ensures: AccessRequest.created(
         requester: caller,
         cipher: target_cipher,
@@ -861,19 +866,23 @@ rule MemberCancelsOwnRequest {
 
 rule MemberRequestsLeaseExtension {
     -- The lease holder asks to push its end out by a duration they name, with a
-    -- justification. Modelled as a fresh AccessRequest pointing back at the parent
-    -- lease — but the request exists for the audit trail, not to be decided:
-    -- extensions never require an approval (PM-42500), so AutoApproveExtension
-    -- approves it on the spot and ExtensionApprovedExtendsParentLease applies it to
-    -- the parent in place rather than minting a new lease. It is created `pending`
-    -- only to pass through the single evaluation entry point; it never rests there.
+    -- justification. Recorded as a fresh AccessRequest pointing back at the parent
+    -- lease, but one that is never waited on: extensions never require an approval
+    -- (PM-42500), so the request is created ALREADY DECIDED, in one step, and never
+    -- passes through pending or evaluation. Its window is the increment, from the
+    -- parent's current end to its new end.
     --
-    -- Its window is the increment: from the parent's current end to its new end.
+    -- Parent live: created approved (a system decision, no approver) and applied in
+    -- place, pushing the parent's end out by the requested duration; no new lease is
+    -- minted. Parent no longer live (it expired, or was revoked or ended): created
+    -- denied with a reason, so the requester can inspect a late extension instead of
+    -- getting a bare error (PM-42632). There is no liveness check before that, and
+    -- the denied request still counts as the lease's one extension. The client only
+    -- offers Extend on a live lease, so only the API reaches the late case.
     --
-    -- No check here that the parent is still live (PM-42632). A late extension is
-    -- recorded, then denied by ExtensionDeniedParentGone, so the requester can see
-    -- what happened instead of getting a bare error. The client only offers Extend on
-    -- a live lease, so only the API reaches the late case.
+    -- Either way the request is final at creation: an applied extension stays
+    -- approved and cannot be canceled or retracted (the server and client still
+    -- allow it, PAM-222).
     when: MemberRequestsExtension(member, lease, duration, reason)
     requires: lease.requester = member
     -- An extension buys new access, so it needs a PAM seat like any acquisition.
@@ -892,18 +901,43 @@ rule MemberRequestsLeaseExtension {
     -- One extension per lease (PM-40526), whatever became of an earlier attempt:
     -- a denied late extension counts too. See AtMostOneExtensionPerLease.
     requires: (AccessRequest where extension_of = lease).count = 0
-    ensures: AccessRequest.created(
-        requester: lease.requester,
-        cipher: lease.cipher,
-        collection: lease.collection,
-        rule: governing,
-        lease_not_before: lease.not_after,
-        lease_not_after: lease.not_after + duration,
-        reason: reason,
-        submitted_at: now,
-        status: pending,
-        extension_of: lease
-    )
+    let parent_live = lease.status = active and now < lease.not_after
+    let old_end = lease.not_after
+    let new_end = lease.not_after + duration
+    ensures:
+        if parent_live:
+            AccessRequest.created(
+                requester: lease.requester,
+                cipher: lease.cipher,
+                collection: lease.collection,
+                rule: governing,
+                lease_not_before: old_end,
+                lease_not_after: new_end,
+                reason: reason,
+                submitted_at: now,
+                status: approved,
+                resolved_at: now,
+                approver: null,
+                approver_comment: null,
+                extension_of: lease
+            )
+            lease.not_after = new_end
+        else:
+            AccessRequest.created(
+                requester: lease.requester,
+                cipher: lease.cipher,
+                collection: lease.collection,
+                rule: governing,
+                lease_not_before: old_end,
+                lease_not_after: new_end,
+                reason: reason,
+                submitted_at: now,
+                status: denied,
+                resolved_at: now,
+                approver: null,
+                approver_comment: "The lease being extended has ended",
+                extension_of: lease
+            )
 }
 
 -- ----------------------------------------------------------------------------
@@ -911,8 +945,9 @@ rule MemberRequestsLeaseExtension {
 -- ----------------------------------------------------------------------------
 
 -- A request is created and becomes ready for evaluation in one step when the
--- member submits the Request Access modal (MemberSubmitsAccessRequest), or when
--- an extension is created. Every gated open — including IP-allowlist-only rules
+-- member submits the Request Access modal (MemberSubmitsAccessRequest). An
+-- extension never comes here: it is created already decided. Every gated open —
+-- including IP-allowlist-only rules
 -- — goes through the modal/submit. A rule with no human_approval condition
 -- resolves synchronously on submit, so the submit response can already carry an
 -- approved request. Its automated conditions were already checked by the submit
@@ -923,9 +958,10 @@ rule MemberRequestsLeaseExtension {
 --
 -- AN EXTENSION IS NOT EVALUATED AGAINST THE RULE AT ALL (PM-42500). A rule's
 -- conditions gate the FIRST grant only. Extending a lease the member already holds
--- is not a fresh grant, so it is approved on the spot by AutoApproveExtension: no
--- approver sees it, AND no automated condition is asked either. An extension
--- requested from outside the rule's ip_allowlist still applies.
+-- is not a fresh grant, so it is approved as it is created
+-- (MemberRequestsLeaseExtension): no approver sees it, AND no automated condition
+-- is asked either. An extension requested from outside the rule's ip_allowlist
+-- still applies.
 --
 -- The reasoning, stated plainly because the consequence is not small: the decision
 -- that mattered was the original grant, and an extension re-opens no new access —
@@ -938,46 +974,20 @@ rule MemberRequestsLeaseExtension {
 -- from anywhere. That is a deliberate trade, not an oversight — see the
 -- ip_allowlist open question (PAM-205).
 --
--- The three evaluation rules below partition the pending space exactly once, so no
--- request matches two:
---   extension                          -> AutoApproveExtension
---   non-extension + no human_approval  -> AutoApproveWhenNoHumanApproval
---   non-extension + human_approval     -> RouteToHumanApprovers
+-- The two evaluation rules below partition the pending space exactly once, so no
+-- request matches both (a pending request is always a first grant):
+--   no human_approval  -> AutoApproveWhenNoHumanApproval
+--   human_approval     -> RouteToHumanApprovers
 
 rule RequestReadyForEvaluationOnCreation {
     -- Requests are only ever created by a member submitting the Request Access
     -- modal (MemberSubmitsAccessRequest) or by a lease extension
-    -- (MemberRequestsLeaseExtension) — never speculatively at cipher-open. So a
-    -- freshly created request is, by construction, one the member has submitted,
-    -- and is immediately ready for evaluation.
+    -- (MemberRequestsLeaseExtension) — never speculatively at cipher-open. Only the
+    -- first is created pending; it is, by construction, one the member has
+    -- submitted, and is immediately ready for evaluation.
     when: request: AccessRequest.created
     requires: request.status = pending
     ensures: RequestReadyForEvaluation(request)
-}
-
-rule AutoApproveExtension {
-    -- Extensions never require an approval (PM-42500). A member pushing out a lease
-    -- they already hold is not asking for a new grant, so the decision is not put to
-    -- a human — not even when the governing rule carries a human_approval condition.
-    -- Approved on the spot with no approver recorded, the same shape as any other
-    -- system decision. ExtensionApprovedExtendsParentLease then applies it to the
-    -- parent lease in the same step, so an extension never rests at `approved`
-    -- either — it is already `activated` (or `denied`) before anything can observe it.
-    --
-    -- The rule's automated conditions are NOT asked either, so this rule has no
-    -- failure branch: every extension that reaches evaluation is approved here. An
-    -- extension requested from outside the rule's ip_allowlist is approved like any
-    -- other. The only way one still ends up `denied` is ExtensionDeniedParentGone —
-    -- the parent lease vanished in the same step — which is a fact about the parent,
-    -- not a verdict on the request. The gates on extending are all checked when the
-    -- extension is requested (MemberRequestsLeaseExtension): the rule's opt-in, the
-    -- per-increment cap, a justification, and one extension per lease.
-    when: RequestReadyForEvaluation(request)
-    requires: request.status = pending
-    requires: request.extension_of != null
-    ensures: request.status = approved
-    ensures: request.resolved_at = now
-    ensures: request.approver = null
 }
 
 rule AutoApproveWhenNoHumanApproval {
@@ -987,8 +997,7 @@ rule AutoApproveWhenNoHumanApproval {
     -- requester starts it on activation, where the conditions are checked again.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
-    -- First grants only; an extension is approved by AutoApproveExtension whatever
-    -- the rule says, and this guard keeps the two rules from both matching.
+    -- First grants only, stated locally: an extension is never pending.
     requires: request.extension_of = null
     requires: not request.rule.has_human_approval
     ensures: request.status = approved
@@ -1006,8 +1015,8 @@ rule RouteToHumanApprovers {
     -- they inform the approver's decision rather than pre-empting it (PM-42256), and
     -- bind at activation instead (PM-42273), so an approver can be asked about a
     -- request submitted from outside the allowlist, which then fails at Start. First
-    -- grants only: an extension is never routed to a human (PM-42500); it takes the
-    -- AutoApproveExtension path instead, even under a human_approval rule.
+    -- grants only: an extension is never routed to a human (PM-42500), even under a
+    -- human_approval rule; it is decided as it is created.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
     requires: request.extension_of = null
@@ -1098,42 +1107,6 @@ rule ApproverRetractsRequest {
 -- Activation: the requester starts the lease at a time of their choosing
 -- ----------------------------------------------------------------------------
 
-rule ExtensionApprovedExtendsParentLease {
-    -- An approved extension applies in place: it pushes the parent lease's end
-    -- out rather than minting a new lease the requester must start. Since PM-42500
-    -- the ONLY way an extension reaches `approved` is AutoApproveExtension — no
-    -- human ever decides one — so this fires in the same step the extension is
-    -- created. The parent moves out to the end of the extension's window: by the
-    -- duration the member asked for, already capped by the rule's
-    -- max_extension_duration at request time. Cumulative life is therefore bounded:
-    -- one window plus one extension (see AtMostOneExtensionPerLease). If the parent
-    -- is no longer live it is denied instead — see ExtensionDeniedParentGone.
-    when: request: AccessRequest.status transitions_to approved
-    requires: request.extension_of != null
-    let parent = request.extension_of
-    requires: parent.status = active and now < parent.not_after
-    ensures: parent.not_after = request.lease_not_after
-    ensures: request.status = activated
-}
-
-rule ExtensionDeniedParentGone {
-    -- An approved extension whose parent lease is no longer live (it expired, or
-    -- was revoked or ended) cannot apply — there is nothing to extend. Deny it
-    -- explicitly with a reason rather than refusing the call and leaving no trace,
-    -- so the requester can inspect it (PM-42632). This covers any parent that is not
-    -- live when the extension is written, whether it ended long before or at the same
-    -- moment: the request rule does not check liveness. The denied request still
-    -- counts as the lease's one extension, so a retry is refused before it gets here.
-    -- The approval and this denial happen in the same step, so resolved_at (set
-    -- on approval) already reflects the moment.
-    when: request: AccessRequest.status transitions_to approved
-    requires: request.extension_of != null
-    let parent = request.extension_of
-    requires: parent.status != active or now >= parent.not_after
-    ensures: request.status = denied
-    ensures: request.approver_comment = "The lease being extended has ended"
-}
-
 -- An approved request is activated via MemberActivatesLease. Activation is ALWAYS an
 -- explicit member action — a Start click on MyAccessRequestsPage, the
 -- CipherViewBanner or the RequestDetailView — never a side effect of opening the
@@ -1159,15 +1132,15 @@ rule ExtensionDeniedParentGone {
 -- while the org is under a LeasingFreeze (the kill switch's optional
 -- block-new-leases). Automated conditions (e.g. ip_allowlist) are re-checked here
 -- too: a mismatch at start rejects the activation. Extensions never reach here —
--- they apply in place via ExtensionApprovedExtendsParentLease.
+-- they apply in place as they are created (MemberRequestsLeaseExtension).
 --
--- A failed activation NEVER consumes the approval. The request transitions to
--- `activated` ONLY in the same transition that mints the lease (ActivateLease). Any
--- rejected start — automated-condition mismatch, single_active_lease contention,
--- leasing freeze, or a lapsed window — leaves the request `approved` and
--- activatable for a retry up to actionable_until (the activation-window end,
--- tightened by the max-age cutoff). This lease↔activated correspondence is
--- pinned by the AtMostOneLeasePerActivatedRequest and NoLeaseWithoutActivatedRequest
+-- A failed activation NEVER consumes the approval. The request counts as started
+-- (`activated`) ONLY once the start mints its lease (ActivateLease); the status
+-- stays `approved` throughout. Any rejected start — automated-condition mismatch,
+-- single_active_lease contention, leasing freeze, or a lapsed window — leaves the
+-- request approved with no lease, and activatable for a retry up to
+-- actionable_until (the window end). This lease↔request correspondence is pinned by
+-- the AtMostOneLeasePerActivatedRequest and NoLeaseWithoutActivatedRequest
 -- invariants; this prose does not restate it.
 --
 -- Every activation attempt is audited, success or failure: ActivateLease emits
@@ -1181,11 +1154,15 @@ rule ActivateLease {
     when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
+    -- Single use: a request that already produced its lease cannot start another.
+    -- Asking again returns that lease while it is live and is refused once it has
+    -- ended; neither is a genuine attempt, so neither is audited.
+    requires: request.lease = null
     requires: request.requester = member
     -- Starting a lease is an acquisition: it needs a PAM seat (PM-39423).
     requires: HoldsPamSeat(member, request.collection.organization)
     -- Eligibility: only inside the activation window (both shapes carry one,
-    -- pinned at submit), and never past the max-age cutoff.
+    -- pinned at submit).
     requires: now >= request.lease_not_before
     requires: now < request.actionable_until
     -- Automated conditions (e.g. ip_allowlist) are re-checked at start against
@@ -1209,7 +1186,6 @@ rule ActivateLease {
         not_after: request.lease_not_after,
         status: active
     )
-    ensures: request.status = activated
     ensures: LeaseActivationAudited(request: request, outcome: succeeded)
 }
 
@@ -1233,6 +1209,7 @@ rule LeaseActivationRejected {
     when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
+    requires: request.lease = null
     requires: request.requester = member
     requires: HoldsPamSeat(member, request.collection.organization)
     let cannot_start =
@@ -1265,31 +1242,41 @@ rule LeaseExpires {
     when: lease: AccessLease.not_after <= now
     requires: lease.status = active
     ensures: LeaseSettles(lease: lease, ended_by: null, reason: null)
+    @guidance
+        -- Like request expiry, derived at read time: a lease past not_after reads
+        -- as expired with nothing written. A lease-only sweep does run, once a
+        -- minute, but only to journal each natural lapse once: it emits the
+        -- lease_expired audit event and the access-end rotation trigger, and still
+        -- writes no status.
 }
 
+-- Request expiry is DERIVED at read time: no stored transition and no request
+-- sweeper (PM-42653). The server stores what the parties did and reads a request
+-- whose window has closed, still pending or approved and never started, as
+-- expired. The two rules below say what such a read reports and when; the write
+-- guards use the same clock comparison, so the moment matches exactly.
 rule PendingRequestExpires {
-    -- A pending request expires once it is no longer actionable: its activation
-    -- window closed undecided (approval is not possible outside the window), or
-    -- it hit the global max-age cutoff — whichever came first (actionable_until).
+    -- A pending request expires once its window closes undecided (approval is not
+    -- possible outside the window).
     when: request: AccessRequest.actionable_until <= now
     requires: request.status = pending
     ensures: request.status = expired
-    ensures: request.resolved_at = now
-    ensures: request.expired_at = now
-    -- No decision was made; approver fields are present but empty.
+    -- Nobody acted, so it has no resolution time and no approver.
+    ensures: request.resolved_at = null
     ensures: request.approver = null
     ensures: request.approver_comment = null
 }
 
 rule ApprovedRequestExpiresUnactivated {
-    -- An approved request the requester never activated lapses once it is no
-    -- longer startable — its activation-window end, tightened by the max-age
-    -- cutoff (actionable_until), whatever its shape. resolved_at and approver
-    -- keep the approval record; the lease was never minted.
+    -- An approved request the requester never started lapses once its window
+    -- closes. resolved_at and approver keep the approval record; the lease was
+    -- never minted. A request that DID start stays approved for good, and an
+    -- extension, which applied at creation, never lapses either.
     when: request: AccessRequest.actionable_until <= now
     requires: request.status = approved
+    requires: request.lease = null
+    requires: request.extension_of = null
     ensures: request.status = expired
-    ensures: request.expired_at = now
 }
 
 rule MemberEndsOwnLease {
@@ -1731,13 +1718,15 @@ surface CipherViewBanner {
         AccessLease where requester = viewer and cipher = target_cipher and status = active
         AccessRequest where requester = viewer and cipher = target_cipher and status = pending
         -- Approved-but-unactivated request: banner offers "Start access".
-        AccessRequest where requester = viewer and cipher = target_cipher and status = approved
+        AccessRequest where requester = viewer and cipher = target_cipher
+                                               and status = approved and lease = null
 
     provides:
         OpenCipher(viewer, target_cipher)
         MemberActivatesLease(viewer, request)
             when request.requester = viewer and request.cipher = target_cipher
                                              and request.status = approved
+             and request.lease = null
              and HoldsPamSeat(viewer, target_cipher.organization)
         -- Withdraw, on the pending and approved states. Hidden behind the unlicensed
         -- block here, but the vault row's menu (VaultRowAccessState) and the My
@@ -1764,8 +1753,7 @@ surface VaultRowAccessState {
         -- The row badge: the viewer's own state on the item, which the SDK ranks
         -- into one badge (pending, ready to start, or active with a countdown).
         AccessLease where requester = viewer and cipher = target_cipher and status = active
-        AccessRequest where requester = viewer and cipher = target_cipher
-                                               and status in {pending, approved}
+        AccessRequest where requester = viewer and cipher = target_cipher and in_flight
 
     provides:
         -- Withdraw the viewer's outstanding request from the row menu, with the
@@ -1868,11 +1856,9 @@ surface MyAccessRequestsPage {
     -- "My requests": the caller's own AccessRequest rows, bounded by the shared
     -- history window. Implemented as two tabs of the Access requests page rather than
     -- one list — my-requests-tab.component holds what is still actionable (pending
-    -- requests, an extension-requests bucket, active leases) and history-tab.component
-    -- holds what has resolved — because the two carry different actions. Weed target:
-    -- since PM-42500 the extension bucket cannot fill, because an extension resolves
-    -- in the step it is created and is never outstanding. Each row links to
-    -- access-request-route.component for the single-request view.
+    -- requests and active leases) and history-tab.component holds what has resolved —
+    -- because the two carry different actions. Each row links to the single-request
+    -- view (RequestDetailView).
     facing viewer: Member
 
     context viewer: Member
@@ -1891,7 +1877,8 @@ surface MyAccessRequestsPage {
             r.lease_not_after
 
         -- Activation countdown for approved-but-unactivated requests.
-        for r in AccessRequest where requester = viewer and status = approved:
+        for r in AccessRequest where requester = viewer and status = approved
+                                  and lease = null and extension_of = null:
             r.actionable_until
 
         -- The outstanding rows of the My requests tab: what still needs the viewer
@@ -1915,6 +1902,7 @@ surface MyAccessRequestsPage {
         -- activation, so the action is withheld.
         MemberActivatesLease(viewer, request)
             when request.status = approved and request.requester = viewer
+             and request.lease = null
              and request.extension_of = null
              and now < request.lease_not_after
 }
@@ -2056,6 +2044,7 @@ surface RequestDetailView {
         MemberActivatesLease(viewer, request)
             when request.requester = viewer
              and request.status = approved
+             and request.lease = null
              and request.extension_of = null
              and now < request.lease_not_after
         -- An approver's actions, under ApproverInbox's guards.
@@ -2204,19 +2193,22 @@ surface KillSwitchControl {
 -- ----------------------------------------------------------------------------
 
 invariant AtMostOneLeasePerActivatedRequest {
-    -- Single-use approved request: an activated request maps to exactly one
-    -- lease; an approved-but-unactivated request maps to none. Extensions are
-    -- excluded — they activate by extending the parent in place and never mint
-    -- a lease of their own.
-    for request in AccessRequest where status = activated and extension_of = null:
-        (AccessLease where request = request).count = 1
+    -- Single-use approved request: a request that has a lease has exactly one,
+    -- and an extension never has any — it applies by extending the parent in place
+    -- and never mints a lease of its own. An approved request with no lease is one
+    -- that has not started.
+    for request in AccessRequest:
+        (AccessLease where request = request).count <= 1
+            and (request.extension_of != null
+                 implies (AccessLease where request = request).count = 0)
 }
 
 invariant NoLeaseWithoutActivatedRequest {
-    -- A lease exists only because its approved request was activated; the request
-    -- stays `activated` for the rest of its life, whatever the lease's later status.
+    -- A lease exists only because an approved first-grant request was started, and
+    -- that request stays approved for the rest of its life, whatever the lease's
+    -- later status: it never lapses, and it cannot be canceled or retracted.
     for lease in AccessLease:
-        lease.request.status = activated
+        lease.request.status = approved and lease.request.extension_of = null
 }
 
 invariant AtMostOneActiveLeasePerRequesterCipher {
@@ -2234,23 +2226,20 @@ invariant AtMostOneActiveLeasePerRequesterCipher {
 }
 
 invariant AtMostOneInFlightRequestPerRequesterCipher {
-    -- At most one non-extension request in {pending, approved} per
-    -- (requester, cipher): MemberSubmitsAccessRequest refuses to create a
-    -- request while another is pending or approved, and nothing else creates
-    -- one. Licenses the `.first` on approved_requests in
-    -- CipherOpenWithApprovedRequest — extensions never rest at `approved`
-    -- (they apply or deny in the same step they are approved), so that set is
-    -- a singleton too. Extension requests are excluded from this invariant; they
-    -- are bounded separately, at most one per lease (AtMostOneExtensionPerLease).
-    -- Since PM-42500 they do not rest at `pending` either — no approver is waited
-    -- on, so an extension is created, approved and applied in a single step and is
-    -- already terminal (`activated` or `denied`) before anything else can observe
-    -- it.
-    for a in AccessRequest where extension_of = null:
-        for b in AccessRequest where extension_of = null:
+    -- At most one request in flight per (requester, cipher): a first grant still
+    -- pending, or approved and not started (AccessRequest.in_flight).
+    -- MemberSubmitsAccessRequest refuses to create a request while another is in
+    -- flight, and nothing else creates one. Licenses the `.first` on
+    -- approved_requests in CipherOpenWithApprovedRequest. A started request stays
+    -- approved but is no longer in flight, so a member can hold many approved
+    -- requests for one cipher over time. Extensions are never in flight: they are
+    -- created already decided, and bounded separately, at most one per lease
+    -- (AtMostOneExtensionPerLease). The server check is not yet race-safe against
+    -- two submits at once (PAM-223, PAM-215).
+    for a in AccessRequest:
+        for b in AccessRequest:
             a != b and a.requester = b.requester and a.cipher = b.cipher
-                implies not (a.status in {pending, approved}
-                             and b.status in {pending, approved})
+                implies not (a.in_flight and b.in_flight)
 }
 
 invariant AtMostOneExtensionPerLease {
@@ -2267,7 +2256,7 @@ invariant AtMostOneExtensionPerLease {
 invariant SelfApprovalForbidden {
     -- Enforced by the server's DecideAccessRequestCommand (and, for a retraction,
     -- CancelAccessRequestCommand); the client's canApprove.ts only mirrors it.
-    for request in AccessRequest where status in {approved, activated, denied}
+    for request in AccessRequest where status in {approved, denied}
                                     and approver != null:
         request.approver != request.requester
 }
