@@ -525,7 +525,7 @@ describe("FilterMenuComponent disabled trigger", () => {
     trigger().click();
     fixture.detectChanges();
 
-    expect(menuTrigger.isOpen).toBe(false);
+    expect(menuTrigger.isOpen()).toBe(false);
   });
 });
 

@@ -46,7 +46,7 @@ import {
 } from "@bitwarden/web-vault/app/billing/clients";
 import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 
-import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
+import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { EnterBillingAddressComponent, EnterPaymentMethodComponent } from "../payment/components";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
@@ -386,6 +386,12 @@ const createMockPlans = (): PlanResponse[] => {
   ];
 };
 
+/** Types `value` into a rendered input so the bound form control picks it up. */
+function setInputValue(input: HTMLInputElement, value: string) {
+  input.value = value;
+  input.dispatchEvent(new Event("input"));
+}
+
 describe("OrganizationPlansComponent", () => {
   let component: OrganizationPlansComponent;
   let fixture: ComponentFixture<OrganizationPlansComponent>;
@@ -606,6 +612,33 @@ describe("OrganizationPlansComponent", () => {
       setHasPremium: jest.fn().mockResolvedValue(undefined),
     } as any;
 
+    await configureTestBed();
+
+    fixture = TestBed.createComponent(OrganizationPlansComponent);
+    component = fixture.componentInstance;
+  });
+
+  /**
+   * Configures the TestBed for `OrganizationPlansComponent`.
+   *
+   * Child components are swapped for mocks by default. Pass `{ useRealOrgInfo: true }` to keep the
+   * real standalone `OrganizationInformationComponent` mounted so its rendered form can be driven
+   * through the DOM.
+   */
+  async function configureTestBed({ useRealOrgInfo = false } = {}) {
+    const realChildren = [
+      SecretsManagerSubscribeComponent,
+      EnterPaymentMethodComponent,
+      EnterBillingAddressComponent,
+      OrganizationSelfHostingLicenseUploaderComponent,
+    ];
+    const mockChildren = [
+      MockSmSubscribeComponent,
+      MockEnterPaymentMethodComponent,
+      MockEnterBillingAddressComponent,
+      MockOrganizationSelfHostingLicenseUploaderComponent,
+    ];
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: ApiService, useValue: mockApiService },
@@ -638,13 +671,9 @@ describe("OrganizationPlansComponent", () => {
       // Override the component to replace child components with mocks and provide mock services
       .overrideComponent(OrganizationPlansComponent, {
         remove: {
-          imports: [
-            OrganizationCreateModule,
-            SecretsManagerSubscribeComponent,
-            EnterPaymentMethodComponent,
-            EnterBillingAddressComponent,
-            OrganizationSelfHostingLicenseUploaderComponent,
-          ],
+          imports: useRealOrgInfo
+            ? realChildren
+            : [OrganizationInformationComponent, ...realChildren],
           providers: [
             AccountBillingClient,
             PreviewInvoiceClient,
@@ -654,13 +683,7 @@ describe("OrganizationPlansComponent", () => {
           ],
         },
         add: {
-          imports: [
-            MockOrgInfoComponent,
-            MockSmSubscribeComponent,
-            MockEnterPaymentMethodComponent,
-            MockEnterBillingAddressComponent,
-            MockOrganizationSelfHostingLicenseUploaderComponent,
-          ],
+          imports: useRealOrgInfo ? mockChildren : [MockOrgInfoComponent, ...mockChildren],
           providers: [
             { provide: AccountBillingClient, useValue: mockAccountBillingClient },
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
@@ -671,10 +694,7 @@ describe("OrganizationPlansComponent", () => {
         },
       })
       .compileComponents();
-
-    fixture = TestBed.createComponent(OrganizationPlansComponent);
-    component = fixture.componentInstance;
-  });
+  }
 
   describe("component creation", () => {
     it("should create", () => {
@@ -2979,6 +2999,48 @@ describe("OrganizationPlansComponent", () => {
           mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
         ).toHaveBeenCalledTimes(1);
       }));
+    });
+  });
+
+  describe("organization information step", () => {
+    // Mounts the real standalone OrganizationInformationComponent instead of MockOrgInfoComponent,
+    // so the step's own template dependencies and its form wiring into the parent are exercised.
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      await configureTestBed({ useRealOrgInfo: true });
+
+      fixture = TestBed.createComponent(OrganizationPlansComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    });
+
+    it("renders the information step", () => {
+      const orgInfo = fixture.nativeElement.querySelector("app-org-info");
+
+      expect(orgInfo).not.toBeNull();
+      expect(orgInfo.querySelectorAll("bit-form-field").length).toBe(2);
+      expect(orgInfo.querySelector('input[formcontrolname="name"]')).not.toBeNull();
+      expect(orgInfo.querySelector('input[formcontrolname="billingEmail"]')).not.toBeNull();
+    });
+
+    it("submits the values entered into the information step", async () => {
+      mockOrganizationApiService.create.mockResolvedValue({ id: "new-org-id" } as any);
+
+      const orgInfo = fixture.nativeElement.querySelector("app-org-info");
+      setInputValue(orgInfo.querySelector('input[formcontrolname="name"]'), "Typed Org Name");
+      setInputValue(
+        orgInfo.querySelector('input[formcontrolname="billingEmail"]'),
+        "typed@example.com",
+      );
+      fixture.detectChanges();
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "Typed Org Name", billingEmail: "typed@example.com" }),
+      );
     });
   });
 });
