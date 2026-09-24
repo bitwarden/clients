@@ -1,30 +1,28 @@
-<bit-simple-dialog>
-  <img
-    bitDialogIcon
-    class="tw-w-full tw-rounded-lg"
-    [src]="params.lightImgSrc"
-    [appDarkImgSrc]="params.darkImgSrc"
-    [alt]="'newExperienceDialogImgAlt' | i18n"
-  />
+<bit-dialog dialogSize="default">
   <span bitDialogTitle>{{ "newExperienceDialogTitle" | i18n }}</span>
   <div bitDialogContent>
-    <p bitTypography="body1" noMargin>{{ "newExperienceDialogDesc" | i18n }}</p>
+    <img
+      class="tw-w-full tw-rounded-lg"
+      [src]="params.lightImgSrc"
+      [appDarkImgSrc]="params.darkImgSrc"
+      [alt]="'newExperienceDialogImgAlt' | i18n"
+    />
+    <p bitTypography="body1" noMargin class="tw-mt-4">{{ "newExperienceDialogDesc" | i18n }}</p>
   </div>
   <ng-container bitDialogFooter>
     <button
       type="button"
       bitButton
       buttonType="primary"
-      block
       id="new-experience-dialog_button_explore"
       (click)="explore()"
     >
       {{ "exploreTheNewVault" | i18n }}
     </button>
     <a
-      bitLink
-      linkType="primary"
-      class="tw-self-center"
+      bitButton
+      buttonType="secondary"
+      endIcon="bwi-external-link"
       [href]="learnMoreUrl"
       target="_blank"
       rel="noreferrer"
@@ -33,4 +31,4 @@
       {{ "learnMore" | i18n }}
     </a>
   </ng-container>
-</bit-simple-dialog>
+</bit-dialog>

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
@@ -7,7 +8,6 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -45,14 +45,7 @@ export const NEW_EXPERIENCE_LEARN_MORE_URL = "https://bitwarden.com/help/";
   selector: "vault-new-experience-dialog",
   templateUrl: "./new-experience-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ButtonModule,
-    DarkImageSourceDirective,
-    DialogModule,
-    I18nPipe,
-    LinkModule,
-    TypographyModule,
-  ],
+  imports: [ButtonModule, DarkImageSourceDirective, DialogModule, I18nPipe, TypographyModule],
 })
 export class NewExperienceDialogComponent {
   private readonly dialogRef = inject<DialogRef<NewExperienceDialogResult>>(DialogRef);
@@ -65,10 +58,24 @@ export class NewExperienceDialogComponent {
     await this.dialogRef.close(NewExperienceDialogResult.Explore);
   }
 
-  static open(dialogService: DialogService, params: NewExperienceDialogParams) {
-    return dialogService.open<NewExperienceDialogResult, NewExperienceDialogParams>(
+  /**
+   * Opens the dialog and reports how the user left it.
+   *
+   * `bit-dialog`'s header close button, the escape key and the backdrop all close without a
+   * value, so anything short of an explicit "explore" reports as
+   * {@link NewExperienceDialogResult.Dismissed}.
+   */
+  static async open(
+    dialogService: DialogService,
+    params: NewExperienceDialogParams,
+  ): Promise<NewExperienceDialogResult> {
+    const dialogRef = dialogService.open<NewExperienceDialogResult, NewExperienceDialogParams>(
       NewExperienceDialogComponent,
       { data: params },
     );
+
+    const result = await firstValueFrom(dialogRef.closed);
+
+    return result ?? NewExperienceDialogResult.Dismissed;
   }
 }

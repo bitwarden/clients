@@ -40,6 +40,7 @@ import {
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogComponent,
+  NewExperienceDialogResult,
   VaultCopyButtonsService,
   VaultItemsTransferService,
   VaultNavService,
@@ -208,7 +209,7 @@ const autoConfirmDialogSpy = jest
 
 const newExperienceDialogSpy = jest
   .spyOn(NewExperienceDialogComponent, "open")
-  .mockImplementation((_: DialogService, _params: any) => mockDialogRef as any);
+  .mockResolvedValue(NewExperienceDialogResult.Dismissed);
 
 jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
 jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();

@@ -493,13 +493,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = NewExperienceDialogComponent.open(this.dialogService, {
+    await NewExperienceDialogComponent.open(this.dialogService, {
       lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
     });
 
     // Dismissed however the dialog closed — exploring and closing both count as having seen it.
-    await firstValueFrom(dialogRef.closed);
     await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, userId);
   }
 

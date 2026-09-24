@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,6 +28,8 @@ describe("NewExperienceDialogComponent", () => {
 
   const buildComponent = async () => {
     dialogRef = mock<DialogRef<NewExperienceDialogResult>>();
+    // A bare mock reports every property as truthy, which would hide `bit-dialog`'s close button.
+    Object.defineProperty(dialogRef, "disableClose", { value: false });
     selectedTheme = new BehaviorSubject<Theme>(ThemeTypes.Light);
 
     const i18nService = mock<I18nService>();
@@ -83,6 +85,18 @@ describe("NewExperienceDialogComponent", () => {
     expect(learnMoreLink().getAttribute("target")).toBe("_blank");
   });
 
+  it("offers a header close button, so the sheet can be dismissed without exploring", () => {
+    expect(fixture.nativeElement.querySelector("button[bitIconButton='bwi-close']")).not.toBeNull();
+  });
+
+  it("renders the title ahead of the screenshot, matching the sheet layout", () => {
+    const order = fixture.nativeElement.querySelector("bit-dialog").textContent as string;
+
+    expect(order.indexOf("newExperienceDialogTitle")).toBeLessThan(
+      order.indexOf("newExperienceDialogDesc"),
+    );
+  });
+
   describe("screenshot", () => {
     it("uses the light source under the light theme", () => {
       expect(image().getAttribute("src")).toBe(params.lightImgSrc);
@@ -107,14 +121,36 @@ describe("NewExperienceDialogComponent", () => {
   });
 
   describe("open", () => {
-    it("leaves the position strategy unset so the dialog renders as a bottom sheet in the popup", () => {
+    /** Opens against a dialog service whose dialog closes with `closedWith`. */
+    const openWith = (closedWith: NewExperienceDialogResult | undefined) => {
       const dialogService = mock<DialogService>();
+      dialogService.open.mockReturnValue({ closed: of(closedWith) } as never);
 
-      NewExperienceDialogComponent.open(dialogService, params);
+      return {
+        dialogService,
+        result: NewExperienceDialogComponent.open(dialogService, params),
+      };
+    };
+
+    it("leaves the position strategy unset so the dialog renders as a bottom sheet in the popup", async () => {
+      const { dialogService, result } = openWith(NewExperienceDialogResult.Explore);
+      await result;
 
       expect(dialogService.open).toHaveBeenCalledWith(NewExperienceDialogComponent, {
         data: params,
       });
+    });
+
+    it("reports a close carrying no result as dismissed", async () => {
+      const { result } = openWith(undefined);
+
+      await expect(result).resolves.toBe(NewExperienceDialogResult.Dismissed);
+    });
+
+    it("passes the explore result through", async () => {
+      const { result } = openWith(NewExperienceDialogResult.Explore);
+
+      await expect(result).resolves.toBe(NewExperienceDialogResult.Explore);
     });
   });
 });
