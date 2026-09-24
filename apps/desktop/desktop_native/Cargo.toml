@@ -54,7 +54,7 @@ napi = "=3.8.5"
 napi-build = "=2.3.1"
 napi-derive = "=3.5.4"
 oo7 = "=0.5.0"
-rand = "=0.9.3"
+rand = "=0.10.2"
 # rand_core 0.10 (a distinct major from `rand` 0.9) provides the `Rng` trait needed to draw bytes
 # from `bitwarden_random::rng()`, whose RNG type is built on the 0.10 rand-core traits.
 rand_core = "=0.10.1"
