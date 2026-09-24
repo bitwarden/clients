@@ -2,7 +2,7 @@
   [itemSize]="RowHeight"
   bitScrollLayout
   class="tw-transition-[padding-bottom] tw-duration-300 tw-ease-in-out"
-  [ngClass]="batchBarService?.barVisible() ? 'tw-pb-[7.5rem]' : 'tw-pb-8'"
+  [ngClass]="batchBarService.barVisible() ? 'tw-pb-[7.5rem]' : 'tw-pb-8'"
 >
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>

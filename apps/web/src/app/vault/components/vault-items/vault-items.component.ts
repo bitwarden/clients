@@ -147,20 +147,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
-  protected readonly batchBarService = inject(VaultBatchBarService, {
-    optional: true,
-  }) as VaultBatchBarService<C> | null;
+  protected readonly batchBarService = inject(VaultBatchBarService) as VaultBatchBarService<C>;
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  private readonly _localSelection = new SelectionModel<VaultItem<C>>(
-    true,
-    [],
-    true,
-    compareVaultItems,
-  );
   get selection(): SelectionModel<VaultItem<C>> {
-    return this.batchBarService?.selection ?? this._localSelection;
+    return this.batchBarService.selection;
   }
   protected showCopyAndLaunchActions$: Observable<boolean>;
   protected showQuickCopyActions$: Observable<boolean>;
@@ -186,24 +178,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       this.restrictedTypes = types;
       this.refreshItems();
     });
-
-    if (!this.batchBarService) {
-      this.routedVaultFilterService.filter$
-        .pipe(
-          distinctUntilChanged(
-            (prev, curr) =>
-              prev.organizationId === curr.organizationId &&
-              prev.collectionId === curr.collectionId &&
-              prev.folderId === curr.folderId &&
-              prev.type === curr.type &&
-              prev.organizationIdParamType === curr.organizationIdParamType,
-          ),
-          takeUntilDestroyed(),
-        )
-        .subscribe(() => {
-          this.clearSelection();
-        });
-    }
   }
 
   clearSelection() {
@@ -228,7 +202,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return showQuickCopyActions ? "tw-w-48" : "tw-w-32";
     }
 
-    return this.batchBarService ? "tw-w-24" : "tw-w-12";
+    return "tw-w-24";
   }
 
   get isAllSelected() {
