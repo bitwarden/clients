@@ -230,6 +230,15 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
+    it("is withheld from an approver with no history at all", () => {
+      canApprove$.next(true);
+
+      create();
+
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
+      expect(component["scope"]()).toBe("all");
+    });
+
     it("shows both sources merged under All, newest first", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1", resolvedAt: "2026-08-17T10:00:00.000Z" })]);
@@ -601,7 +610,7 @@ describe("HistoryTabComponent", () => {
       passSkeletonDelay();
 
       expect(query('[data-testid="history-loading"]')).not.toBeNull();
-      expect(fixture.nativeElement.textContent).not.toContain("pamMyRequestsHistoryEmpty");
+      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
 
       myRows$.next([historyRow({ id: "mine-1" })]);
       myLoading$.next(false);
@@ -901,19 +910,40 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  // Spans both sources, so it can't borrow either side's empty-state wording.
-  it("says which slice is empty", () => {
-    canApprove$.next(true);
-    create();
+  describe("empty state", () => {
+    it("takes the chip away with the rows, since every scope narrows to the same nothing", () => {
+      canApprove$.next(true);
 
-    expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
+      create();
 
-    selectScope("mine");
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
+      expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("pamHistoryEmptyTitle");
+      expect(fixture.nativeElement.textContent).toContain("pamHistoryEmptyDescription");
+    });
 
-    expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
+    // A scope that narrows to nothing must leave a way back, so this state keeps the chip and
+    // says which slice is empty rather than claiming nothing has happened.
+    it("keeps the chip and names the empty slice when another scope still holds rows", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
 
-    showManaged();
+      showManaged();
 
-    expect(fixture.nativeElement.textContent).toContain("pamInboxHistoryEmpty");
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-history-empty"]')).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("pamInboxHistoryEmpty");
+    });
+
+    it("names an empty Mine against a history of managed rows", () => {
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      create();
+
+      selectScope("mine");
+
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
+    });
   });
 });
