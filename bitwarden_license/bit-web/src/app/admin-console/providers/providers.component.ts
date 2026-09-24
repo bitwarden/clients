@@ -1,4 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { RouterLink } from "@angular/router";
 import { map, Observable, switchMap, tap } from "rxjs";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -7,13 +9,24 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { AvatarComponent, ContainerComponent, TableModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-providers",
   templateUrl: "providers.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    RouterLink,
+    ContainerComponent,
+    AvatarComponent,
+    TableModule,
+    I18nPipe,
+    HeaderModule,
+  ],
 })
 export class ProvidersComponent implements OnInit {
   providers$?: Observable<Provider[]>;
