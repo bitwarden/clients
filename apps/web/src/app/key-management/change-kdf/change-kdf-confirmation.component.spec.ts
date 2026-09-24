@@ -18,7 +18,7 @@ import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitw
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, EncString, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../shared";
 
@@ -241,15 +241,6 @@ describe("ChangeKdfConfirmationComponent", () => {
 
         // Assert
         expect(changeKdf).toHaveBeenCalledWith(mockMasterPassword, kdfConfig.toSdkConfig());
-        expect(mockMasterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-          mockMasterPassword,
-          mockUnlockData,
-          mockUserId,
-        );
-        expect(mockMasterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-          new EncString(mockWrappedUserKey.encryptedString),
-          mockUserId,
-        );
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "success",
           message: "encKeySettingsChanged-used-i18n",
@@ -270,15 +261,6 @@ describe("ChangeKdfConfirmationComponent", () => {
 
         // Assert
         expect(changeKdf).toHaveBeenCalledWith(mockMasterPassword, kdfConfig.toSdkConfig());
-        expect(mockMasterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-          mockMasterPassword,
-          mockUnlockData,
-          mockUserId,
-        );
-        expect(mockMasterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-          new EncString(mockWrappedUserKey.encryptedString),
-          mockUserId,
-        );
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "success",
           title: "encKeySettingsChanged-used-i18n",
