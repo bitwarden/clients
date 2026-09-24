@@ -121,9 +121,16 @@ pub mod sshagent {
     }
 
     /// Appliy the Bitwarden agent configuration to the system.
+    /// Not supported on windows, where the user disables the openssh service manually.
     #[napi]
     pub async fn apply_configuration() -> napi::Result<()> {
-        run_blocking(ssh_agent::apply_configuration).await
+        #[cfg(unix)]
+        return run_blocking(ssh_agent::apply_configuration).await;
+
+        #[cfg(windows)]
+        Err(napi::Error::from_reason(
+            "Automatic configuration is not supported on windows",
+        ))
     }
 
     async fn run_blocking<T: Send + 'static>(

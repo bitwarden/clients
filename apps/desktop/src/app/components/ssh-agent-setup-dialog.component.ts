@@ -70,8 +70,8 @@ export class SshAgentSetupDialogComponent {
   }
 
   /**
-   * Configures the machine for the user: appends the export line to the shell
-   * profiles on unix, disables the built-in OpenSSH agent service on Windows.
+   * Configures the machine for the user by appending the export line to the shell
+   * profiles. Unix only: on Windows the user disables the OpenSSH service manually.
    */
   protected readonly applyAutomatically = async () => {
     try {

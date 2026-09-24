@@ -25,9 +25,11 @@
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="primary" [bitAction]="applyAutomatically">
-      {{ "sshAgentSetupApplyAutomatically" | i18n }}
-    </button>
+    @if (!isWindows) {
+      <button bitButton type="button" buttonType="primary" [bitAction]="applyAutomatically">
+        {{ "sshAgentSetupApplyAutomatically" | i18n }}
+      </button>
+    }
     <button bitButton type="button" buttonType="secondary" [bitDialogClose]="undefined">
       {{ "ok" | i18n }}
     </button>

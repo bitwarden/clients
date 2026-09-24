@@ -39,7 +39,9 @@ pub use server::{
     socket_address, AuthRequest, ConnectionContext, SIGNamespace, SessionBindContext, SignFlags,
     SignRequest,
 };
-pub use setup::{apply_configuration, is_configured};
+#[cfg(unix)]
+pub use setup::apply_configuration;
+pub use setup::is_configured;
 pub use storage::{
     keydata::{SSHKeyData, UnparsedSSHKeyData},
     keystore::{InMemoryEncryptedKeyStore, KeyStore},

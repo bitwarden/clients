@@ -74,6 +74,17 @@ describe("SshAgentSetupDialogComponent", () => {
     expect(fixture.nativeElement.textContent).toContain("sshAgentSetupWindowsService");
   });
 
+  it("offers automatic configuration on unix only", async () => {
+    const unixFixture = await createComponent(DeviceType.MacOsDesktop);
+    expect(unixFixture.nativeElement.textContent).toContain("sshAgentSetupApplyAutomatically");
+
+    TestBed.resetTestingModule();
+    const windowsFixture = await createComponent(DeviceType.WindowsDesktop);
+    expect(windowsFixture.nativeElement.textContent).not.toContain(
+      "sshAgentSetupApplyAutomatically",
+    );
+  });
+
   it("copies the export line to the clipboard", async () => {
     const fixture = await createComponent(DeviceType.LinuxDesktop);
 
@@ -98,8 +109,8 @@ describe("SshAgentSetupDialogComponent", () => {
   });
 
   it("keeps the dialog open and toasts when applying fails", async () => {
-    applyConfiguration.mockRejectedValue(new Error("elevation declined"));
-    const fixture = await createComponent(DeviceType.WindowsDesktop);
+    applyConfiguration.mockRejectedValue(new Error("profile not writable"));
+    const fixture = await createComponent(DeviceType.LinuxDesktop);
 
     await fixture.componentInstance["applyAutomatically"]();
 

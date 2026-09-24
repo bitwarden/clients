@@ -1,5 +1,5 @@
 //! Detection and automatic configuration of the host, so that SSH clients reach
-//! the Bitwarden agent instead of another agent.
+//! the Bitwarden agent instead of another agent. Windows only supports detection.
 //!
 //! Each platform needs something different:
 //! - unix: `SSH_AUTH_SOCK` must point at the agent's socket, which means adding a line to the
@@ -15,4 +15,4 @@ mod windows;
 #[cfg(unix)]
 pub use unix::{apply_configuration, is_configured};
 #[cfg(windows)]
-pub use windows::{apply_configuration, is_configured};
+pub use windows::is_configured;
