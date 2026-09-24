@@ -24,7 +24,7 @@
         <bit-label>{{
           organizationId
             ? ((vfo1Enabled() ? "sharedFolder" : "collection") | i18n)
-            : ("folder" | i18n)
+            : ((vfo1Enabled() ? "myFolder" : "folder") | i18n)
         }}</bit-label>
         <bit-select formControlName="targetSelector">
           @if (!organizationId) {
@@ -45,12 +45,13 @@
             }
           }
         </bit-select>
-        <bit-hint>{{
-          organizationId
-            ? ((vfo1Enabled() ? "importTargetHintSharedFolder" : "importTargetHintCollection")
-              | i18n)
-            : ("importTargetHintFolder" | i18n)
-        }}</bit-hint>
+        @if (!vfo1Enabled()) {
+          <bit-hint>{{
+            organizationId
+              ? ("importTargetHintCollection" | i18n)
+              : ("importTargetHintFolder" | i18n)
+          }}</bit-hint>
+        }
       </bit-form-field>
     </bit-card>
   </bit-section>
