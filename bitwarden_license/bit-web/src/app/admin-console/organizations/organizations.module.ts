@@ -6,13 +6,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 
 import { SsoManageComponent } from "../../auth/sso/sso-manage.component";
 
-import { DomainAddEditDialogComponent } from "./manage/domain-verification/domain-add-edit-dialog/domain-add-edit-dialog.component";
-import { DomainVerificationComponent } from "./manage/domain-verification/domain-verification.component";
 import { ScimComponent } from "./manage/scim.component";
 import { OrganizationsRoutingModule } from "./organizations-routing.module";
 
 @NgModule({
   imports: [SharedModule, OrganizationsRoutingModule, HeaderModule, ScimComponent, IconModule],
-  declarations: [SsoManageComponent, DomainVerificationComponent, DomainAddEditDialogComponent],
+  declarations: [SsoManageComponent],
 })
 export class OrganizationsModule {}
