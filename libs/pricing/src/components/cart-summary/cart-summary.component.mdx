@@ -28,6 +28,7 @@ behavior across Bitwarden applications.
   - [With Account Credit](#with-account-credit)
   - [All Proration Invoice](#all-proration-invoice)
   - [Recurring Items With Proration](#recurring-items-with-proration)
+  - [With Applied Account Balance](#with-applied-account-balance)
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
   - [With Item-Level Discount](#with-item-level-discount)
@@ -60,12 +61,12 @@ import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input                | Type                     | Description                                                                                                                   |
-| -------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `cart`               | `Cart`                   | **Required.** The cart data containing all products, discounts, tax, and cadence                                              |
-| `header`             | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                                                            |
-| `hidePricingTerm`    | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
-| `showDiscountBadges` | `boolean`                | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
+| Input                | Type                                | Description                                                                                                                   |
+| -------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `cart`               | `Cart`                              | **Required.** The cart data containing all products, discounts, tax, and cadence                                              |
+| `header`             | `TemplateRef<{ total, amountDue }>` | **Optional.** Custom header template to replace the default header                                                            |
+| `hidePricingTerm`    | `boolean`                           | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
+| `showDiscountBadges` | `boolean`                           | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
 
 **Note:** Individual `CartItem` objects in the cart can include:
 
@@ -105,9 +106,11 @@ export type Cart = {
   cadence: "annually" | "monthly"; // Billing period for entire cart
   hidePricingTerm?: boolean; // Optional set if term should be removed
   discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
-  credit?: Credit; // Optional account credit
+  credit?: Credit; // Optional pre-tax credit (e.g. prorated subscription credit)
   estimatedTax: number; // Tax amount
-  total?: number; // Optional authoritative total; when absent the component computes it
+  appliedBalance?: number; // Optional applied account balance (positive magnitude); rendered as a negative "Applied balance" row below the gross total
+  amountDue?: number; // Optional amount charged after applied balance; when absent the renderer falls back to total
+  total?: number; // Optional gross total; when absent the component computes it from the line items
 };
 
 export type Credit = {
@@ -432,6 +435,34 @@ Show a renewal with a mid-cycle change: recurring seat and storage lines alongsi
 proration charge rows, with the billing term retained:
 
 <Canvas of={CartSummaryStories.RecurringWithProration} />
+
+### With Applied Account Balance
+
+Show a cart where Stripe applied part of the customer's account balance to the invoice. The gross
+total, the applied balance (as a negative row), and the resulting amount due each render as their
+own row, so the amount due is the figure the customer is actually charged:
+
+<Canvas of={CartSummaryStories.WithAppliedBalance} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 1,
+        translationKey: 'premiumMembership',
+        cost: 19.80
+      }
+    },
+    cadence: 'annually',
+    estimatedTax: 1.58,
+    total: 21.38,
+    appliedBalance: 12.96,
+    amountDue: 8.42
+  }"
+>
+</billing-cart-summary>
+```
 
 ### With Percent Discount
 

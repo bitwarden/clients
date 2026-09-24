@@ -37,7 +37,7 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   selector: "activate-autofill-policy-edit",
   template: `
     <p bitTypography="body1">
-      {{ "activateAutofillPolicyDescV2" | i18n }}
+      {{ "activateAutofillPolicyDescV3" | i18n }}
       <a
         bitLink
         href="https://bitwarden.com/help/auto-fill-browser/#on-page-load"
