@@ -266,11 +266,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: false },
   );
 
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    { initialValue: false },
-  );
-
   protected readonly folders = toSignal(
     this.accountService.activeAccount$.pipe(
       map((a) => a?.id),

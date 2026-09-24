@@ -156,14 +156,7 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly ownerColumnWidthClass = OWNER_COLUMN_WIDTH_CLASS;
 
-  protected readonly showBatchBar = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    { initialValue: false },
-  );
-
-  protected readonly barVisible = computed(
-    () => this.showBatchBar() && this.batchBarService.selectedCount() > 0,
-  );
+  protected readonly barVisible = computed(() => this.batchBarService.selectedCount() > 0);
 
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
