@@ -49,7 +49,11 @@ import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bi
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
-import { RoutedVaultFilterService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  RoutedVaultFilterService,
+  PasswordRepromptService,
+  VaultBatchBarService,
+} from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -204,6 +208,20 @@ export default {
           useValue: () => {},
         },
         { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
+        {
+          provide: VaultBatchBarService,
+          useValue: {
+            barVisible: () => false,
+            selection: {
+              hasValue: () => false,
+              isSelected: () => false,
+              toggle: () => {},
+              clear: () => {},
+              select: () => {},
+              selected: [],
+            },
+          },
+        },
       ],
     }),
     applicationConfig({
