@@ -32,9 +32,8 @@ import { liveActiveLease } from "../helpers/lease-liveness";
  * Binds `ITEM_DETAILS_STATE_BADGE` for the open item: the access-state pill on the
  * item-details card's name row, via the shared {@link AccessStateBadgeComponent}.
  *
- * Separate from `VaultRowLeaseBadgeComponent` since refresh semantics differ: this re-reads on
- * {@link AccessRefreshService} so a card mutation can't leave a contradicting pill, while a
- * vault list reads once per row instead.
+ * Separate from `VaultRowLeaseBadgeComponent` since this one drops the `active` state; both
+ * re-read on {@link AccessRefreshService} so a mutation can't leave a contradicting pill.
  *
  * {@link isGovernedCipher} keeps a plain item from firing a PAM read; a null state renders no
  * element, not even the spacing wrapper.
