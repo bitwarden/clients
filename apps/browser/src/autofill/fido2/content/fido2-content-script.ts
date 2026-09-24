@@ -38,9 +38,11 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
   // Report this frame's iframe `allow=` attributes to the background so the
   // Permissions Policy gate can consult them when evaluating cross-origin
-  // sub-frames. No-op when this frame has no iframes.
-  reportIframeAttributesWhenReady(globalContext.document, (command, payload) =>
-    sendExtensionMessage(command, payload),
+  // sub-frames, including iframes inserted after page load. No-op while this
+  // frame has no iframes.
+  const stopReportingIframeAttributes = reportIframeAttributesWhenReady(
+    globalContext.document,
+    (command, payload) => sendExtensionMessage(command, payload),
   );
 
   /**
@@ -224,6 +226,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
    * implemented page-script.js logic.
    */
   function handlePortOnDisconnect() {
+    stopReportingIframeAttributes();
     void messenger.destroy();
   }
 })(globalThis);
