@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,6 +10,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
@@ -74,6 +75,10 @@ function pam(
         },
       },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: AccessRefreshService,
+        useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
+      },
       {
         provide: OrganizationService,
         useValue: {
