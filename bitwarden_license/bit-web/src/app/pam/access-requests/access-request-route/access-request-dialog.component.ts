@@ -50,7 +50,7 @@ import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
 import { emptyResolvedNames, organizationNameFor } from "../access-name-resolver.service";
-import { historyDisplayStatus } from "../my-access-row";
+import { historyDisplayStatus, lapsedGrantBadge } from "../my-access-row";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 
@@ -170,7 +170,12 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected readonly badge = computed(() => {
     const request = this.request();
-    return request == null ? null : historyDisplayStatus(request);
+    if (request == null) {
+      return null;
+    }
+    return isUnstartedApproval(request) && Date.parse(request.leaseNotAfter) <= this.nowMs()
+      ? { badgeState: null, statusBadge: lapsedGrantBadge }
+      : historyDisplayStatus(request);
   });
 
   protected readonly duration = computed(() => {
