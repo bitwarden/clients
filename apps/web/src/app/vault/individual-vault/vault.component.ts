@@ -226,11 +226,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   protected showAddCipherBtn: boolean = false;
 
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
-
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },

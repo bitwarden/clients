@@ -186,11 +186,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  protected readonly vaultBatchBarFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
-
   protected readonly Unassigned = Unassigned;
 
   readonly trashCleanupWarning: string = this.i18nService.t(

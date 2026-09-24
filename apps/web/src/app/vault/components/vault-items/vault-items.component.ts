@@ -303,7 +303,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return showQuickCopyActions ? "tw-w-48" : "tw-w-32";
     }
 
-    return this.batchBarService?.enabled() ? "tw-w-24" : "tw-w-12";
+    return this.batchBarService ? "tw-w-24" : "tw-w-12";
   }
 
   get isAllSelected() {
