@@ -79,7 +79,7 @@
     "@storybook/test-runner": "0.24.4",
     "@storybook/web-components-vite": "10.6.0",
     "@tailwindcss/container-queries": "0.1.1",
-    "@types/chrome": "0.1.28",
+    "@types/chrome": "0.3.0",
     "@types/firefox-webext-browser": "143.0.0",
     "@types/inquirer": "8.2.10",
     "@types/jest": "30.0.0",
