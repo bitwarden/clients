@@ -1,0 +1,527 @@
+-- allium: 3
+-- pam-audit.allium
+--
+-- Scope: the PAM access-audit trail. It is a queryable, governance-grade record of
+-- privileged-access activity: who asked for access to what, who decided, who started
+-- it, who ended it, how access rules changed, and what credential rotation did. Org
+-- admins read it in the Admin Console. It is the companion to pam.allium, which
+-- models the actions; this spec defines the record those actions write and the read
+-- over it.
+--
+-- A WRITTEN, APPEND-ONLY store. Each state-changing PAM action writes its audit
+-- event at the moment it happens, through a single emit seam that every audited
+-- command and sweep calls. Rows are never updated or deleted by PAM. The trail is
+-- read straight from that store. Nothing is reconstructed from the current state
+-- of requests, leases or rules.
+--
+-- Attempt/Outcome pairs (write-ahead). An action writes an `attempt` before its
+-- point of no return and an `outcome` after, and both halves share one correlation
+-- id. Emission is not transactional, so a failure between the two leaves an attempt
+-- with no outcome: an in-doubt entry, not a silently lost event. The read collapses
+-- each pair to one entry (see AccessAuditTrail).
+--
+-- Self-contained rows. The actor and requester names and emails, and the cipher and
+-- collection names, are snapshotted onto the row at write time. Rule, target-system
+-- and access-connector names are supplied by the emitting command, because the
+-- subject may be hard-deleted in the same action. A later delete or rename cannot
+-- rewrite what an event said. Cipher and collection names are captured encrypted.
+--
+-- NOT the generic org event log. The organization event log cannot BE the audit
+-- trail: it is a fixed-column feed with no phase, no correlation and no PAM
+-- subjects, and it is not filterable by requester, approver or PAM event kind. PAM
+-- does copy a lossy subset of its outcomes into it (the fan-out, below). The PAM
+-- store stays the system of record.
+--
+-- Includes:
+--   - The audit event record, its kind taxonomy, and what emits each kind.
+--   - The organization event log fan-out.
+--   - The operational kill switch that withdraws the trail.
+--   - The org-wide trail read: a 90-day window, 50-row pages newest first, filters,
+--     and the companion read that builds the Item filter's menu.
+--   - The Admin Console audit page and its CSV export.
+--
+-- Excludes (deferred today):
+--   - Tamper-evidence. Append-only is a property of the write path. Nothing
+--     enforces it: no MSSQL Ledger table and no hash chain.
+--   - The kinds no action emits (see the taxonomy): request_expired_unanswered and
+--     request_expired_unactivated (no sweep derives request expiry),
+--     credential_accessed and credential_access_denied (opening a credential leaves
+--     no per-open footprint), and the system-controls kinds
+--     leasing_kill_switch_triggered, leasing_freeze_enabled and leasing_freeze_lifted
+--     (the kill switch and freeze are not built).
+--   - Retention pruning. The read reaches back 90 days; nothing deletes older rows.
+--     See the open question.
+--   - A per-request timeline. The trail has no request filter and no per-request
+--     read exists.
+--   - Org event log copies of the rotation and fleet kinds. They stay in the PAM
+--     store only.
+--
+-- Rotation and fleet kinds are listed here so the taxonomy is complete. Their
+-- behaviour belongs to the server's rotation-server.allium.
+
+use "./pam.allium" as pam
+
+------------------------------------------------------------
+-- Enumerations
+------------------------------------------------------------
+
+-- The write-ahead pair. An action writes an `attempt` before its point of no return
+-- and an `outcome` after. A machinery event with nothing to be in doubt about (an
+-- automatic approval, a lease reaching its end) writes an outcome alone.
+enum Phase { attempt | outcome }
+
+-- The kinds of audit event, grouped by subject. Each literal notes what writes it:
+--   (EMITTED)   written today by the named action, through the emit seam.
+--   (DEFERRED)  no action writes it. It is defined so the vocabulary stays stable,
+--               the page can still label it, and it is kept out of the Event filter.
+-- "actor" is who performed the event and "requester" is who owns the subject
+-- request or lease. `detail` carries whatever free text the action had.
+enum AccessAuditEventKind {
+    -- Access requests --------------------------------------------------------
+    -- (EMITTED) by the submit command, as a pair. actor = requester,
+    -- detail = the requester's stated reason. On the human-approval path the
+    -- attempt names no request yet; the outcome carries it.
+    request_submitted |
+    -- (EMITTED) two ways:
+    --   * by the decide command on approval, as a pair: actor = the approver,
+    --     detail = the approver's optional comment;
+    --   * alongside an auto-approved submission, as an outcome alone with no actor.
+    --     It is a separate event from the submission and has its own correlation.
+    request_approved |
+    -- (EMITTED) two ways:
+    --   * by the decide command on denial, as a pair: actor = the approver,
+    --     detail = the approver's reason, which a denial requires;
+    --   * as the outcome of a lease-extension attempt that found the lease already
+    --     ended: actor = the requester, detail = a fixed "lease ended" comment. The
+    --     attempt half of that pair says lease_extended.
+    request_denied |
+    -- (EMITTED) by the cancel command, as a pair. Covers BOTH the requester
+    -- withdrawing their own request and a managing approver retracting it; actor
+    -- tells them apart. No detail. A retraction leaves the request itself denied
+    -- (pam.allium ApproverRetractsRequest), though its audit kind is this one.
+    request_cancelled |
+    -- (DEFERRED) a pending request that lapsed undecided. Request expiry is derived
+    -- when read and never written, so no sweep emits it.
+    request_expired_unanswered |
+    -- (DEFERRED) an approved request whose window lapsed unused. Time-derived like
+    -- the above, with no sweep.
+    request_expired_unactivated |
+
+    -- Access leases ----------------------------------------------------------
+    -- (EMITTED) by the activation command, as a pair around minting the lease.
+    -- actor = the requester. lease_not_before is the activation instant, not the
+    -- approved window's start; lease_not_after is the approved end.
+    lease_activated |
+    -- (EMITTED) as the outcome of an activation attempt that was refused after the
+    -- attempt was written:
+    --   * an automated condition no longer holds (detail = the internal reason
+    --     code, not the requester-facing copy);
+    --   * another active lease holds the credential (single-active-lease conflict);
+    --   * the activation lost a race and no live winning lease exists.
+    -- A lost race that another activation WON writes no outcome, so its attempt
+    -- stays in doubt. Refusals checked before the attempt is written write
+    -- nothing: a caller without a PAM seat, a request that already produced its
+    -- lease, and a window not yet open or already closed. The window refusals are
+    -- the one gap: pam.allium's LeaseActivationRejected says they are audited, and
+    -- PAM-224 tracks the code.
+    lease_activation_rejected |
+    -- (EMITTED) by the extension command, as a pair. actor = the requester,
+    -- lease_not_after = the lease's NEW end, detail = the requester's reason. The
+    -- old end is not recorded. A second extension that loses the one-extension
+    -- race writes no outcome.
+    lease_extended |
+    -- (EMITTED) by the revoke command, as a pair. Covers BOTH an operator revoke
+    -- and the holder ending their own lease early: actor = requester means a
+    -- self-end. detail = the optional reason. Carries the lease window. The lease
+    -- itself settles to canceled for a self-end and revoked otherwise (pam.allium
+    -- SettleLease); the audit kind is lease_revoked for both.
+    lease_revoked |
+    -- (EMITTED) by the lease-expiry sweep, as an outcome alone with no actor, when
+    -- an active lease reaches its end. The sweep runs every minute, so occurred_at
+    -- is when the sweep settled the lease, up to about a minute after
+    -- lease_not_after.
+    lease_expired |
+
+    -- Credential access ------------------------------------------------------
+    -- (DEFERRED) opening a leased credential: a repeated read with no per-open
+    -- footprint to write from.
+    credential_accessed |
+    -- (DEFERRED) a blocked read: it changes no state and repeats.
+    credential_access_denied |
+
+    -- Rule administration ----------------------------------------------------
+    -- (EMITTED) by the create-rule command, as a pair. actor = the editing admin.
+    -- The attempt names no rule id, because the rule has none yet. The outcome
+    -- waits until the collection links are written, so an attempt alone flags a
+    -- half-created rule.
+    rule_created |
+    -- (EMITTED) by the update-rule command, as a pair. Each edit is its own event.
+    -- rule_name is the name AFTER the edit. An attempt alone flags an edit that may
+    -- not have reached the collection links.
+    rule_updated |
+    -- (EMITTED) by the delete-rule command, as a pair. The command captures the
+    -- rule name before the hard delete, so the event names a rule that no longer
+    -- exists.
+    rule_deleted |
+
+    -- System controls --------------------------------------------------------
+    -- (DEFERRED) the org-wide kill switch and leasing freeze are not built.
+    leasing_kill_switch_triggered |
+    leasing_freeze_enabled |
+    leasing_freeze_lifted |
+
+    -- Credential rotation (EMITTED) ------------------------------------------
+    -- Written by the rotation commands (config, pause/resume, offer, claim, report,
+    -- manual record, cipher write-back) and by the rotation sweep (released,
+    -- timed out). The behaviour is specified in rotation-server.allium.
+    rotation_config_created | rotation_settings_updated | rotation_account_updated |
+    rotation_paused | rotation_resumed | rotation_config_deleted |
+    rotation_offered | rotation_dispatched | rotation_succeeded |
+    rotation_attempt_failed | rotation_failed | rotation_job_released |
+    rotation_job_timed_out | rotation_cipher_write_rejected |
+    rotation_report_rejected | manual_rotation_due | manual_rotation_recorded |
+
+    -- Access connector and target system administration (EMITTED) -------------
+    -- Written by the access-connector and target-system commands.
+    access_connector_registered | access_connector_disabled |
+    access_connector_enabled | access_connector_deleted |
+    access_connector_assigned_to_target | access_connector_unassigned_from_target |
+    target_system_registered | target_system_disabled | target_system_enabled |
+    target_system_renamed | target_system_policy_updated | target_system_deleted |
+    -- (LEGACY) nothing emits it any more. Disable, enable and delete replaced the
+    -- revoke action. The kind is kept so rows written before that change still
+    -- read.
+    access_connector_revoked
+}
+
+------------------------------------------------------------
+-- Entities and Variants
+------------------------------------------------------------
+
+-- One row in the audit trail. The emit seam writes it once, at the moment a PAM
+-- action happens, and nothing updates it afterwards. It is an `entity`, not a
+-- `value`, because a stored row with its own identity backs it.
+--
+-- `kind` carries the result (an approval and a denial are different kinds), so
+-- there is no separate verdict field. `phase` and `correlation_id` place the row in
+-- its write-ahead pair: the attempt and outcome of one action share a correlation
+-- id, and a separate event written alongside (the automatic approval on an
+-- auto-approved submission) gets its own.
+--
+-- The entity references are kept for CORRELATION and filtering, and they are
+-- present according to the kind. The *_name and *_email fields are the display
+-- values snapshotted at write time. The read never dereferences the references for
+-- display.
+entity AccessAuditEvent {
+    kind: AccessAuditEventKind
+    phase: Phase
+    correlation_id: String
+    occurred_at: Timestamp
+    organization: pam/Organization
+
+    -- Who performed it. Null for a system event: an automatic approval, a lease
+    -- expiry, or a rotation sweep outcome.
+    actor: pam/User?
+    -- The owner of the subject request or lease (the access requester).
+    requester: pam/User?
+
+    -- Subjects, present according to the kind.
+    collection: pam/Collection?
+    cipher: pam/Cipher?
+    request: pam/AccessRequest?
+    lease: pam/AccessLease?
+    rule: pam/AccessRule?
+
+    -- Display values frozen at write time. Actor and requester names and emails are
+    -- plaintext. cipher_name and collection_name are the encrypted names, captured
+    -- as they are. rule_name, target_system_name and access_connector_name are
+    -- plaintext org configuration, supplied by the emitting command.
+    actor_name: String?
+    actor_email: String?
+    requester_name: String?
+    requester_email: String?
+    cipher_name: String?
+    collection_name: String?
+    rule_name: String?
+    target_system_name: String?
+    access_connector_name: String?
+
+    -- Rotation and fleet kinds also carry their own subjects (target system, access
+    -- connector, rotation config and job) and the rotation source and sync state.
+    -- Those are specified with rotation-server.allium and are not repeated here.
+
+    -- Free text the action carried: the requester's reason (submission, extension),
+    -- the approver's comment or denial reason, a revoke reason, an activation
+    -- refusal's reason code, or the fixed "lease ended" comment on a refused
+    -- extension. Null when the action had none.
+    detail: String?
+
+    -- The lease window, on lease-scoped kinds. See the kind notes for which bound
+    -- each kind sets.
+    lease_not_before: Timestamp?
+    lease_not_after: Timestamp?
+
+    -- A system event has no human actor. This drives the Actor filter's "System"
+    -- bucket.
+    automated: actor = null
+}
+
+------------------------------------------------------------
+-- Config
+------------------------------------------------------------
+
+config {
+    -- How far back the trail reaches. It is the single window every PAM history
+    -- read uses: approver history, lease history, the requester's own history,
+    -- and this trail.
+    audit_history_window: Duration = pam/config.history_window
+
+    -- Rows per page of the trail. The server fixes it; callers cannot raise it,
+    -- because the page size is what bounds the read.
+    audit_page_size: Integer = 50
+
+    -- The operational kill switch (PM-42480). While it is on, PAM writes nothing
+    -- to its audit store and both audit reads are withdrawn. The org event log
+    -- fan-out continues. It is read on every write and read, so flipping it takes
+    -- effect on the next request.
+    audit_store_withdrawn: Boolean = false
+}
+
+------------------------------------------------------------
+-- Rules
+------------------------------------------------------------
+
+-- No rules are declared here. The write happens inside each audited action (the
+-- commands pam.allium models, the lease-expiry sweep, and the rotation and fleet
+-- commands), and the taxonomy notes above say what each action writes. The notes
+-- below cover the behaviour that belongs to the emit seam itself, whichever action
+-- calls it.
+--
+-- EMISSION NEVER ALTERS THE ACTION. The emit seam is awaited as part of the action
+-- but does not change its result. The lease-expiry sweep goes further: it isolates
+-- a failed audit write so the rotation trigger that follows still runs.
+--
+-- KILL SWITCH (config.audit_store_withdrawn). While it is on:
+--   - no row is written to the PAM audit store, attempt or outcome;
+--   - the trail read and the Item-filter read both answer "not found", the same
+--     answer a viewer without the permission gets, rather than serve a record that
+--     silently omits recent activity;
+--   - the org event log fan-out below still runs.
+-- Actions taken while the switch is on are permanently absent from the PAM trail.
+-- The org event log copy is the only record of them, and only for the kinds that
+-- fan out.
+--
+-- ORG EVENT LOG FAN-OUT (PM-42814). After the store write, the emit seam copies
+-- the event into the organization event log. It is a lossy projection:
+--   - Only OUTCOMES cross over. The org event log has no phase or correlation, so
+--     an in-doubt attempt never appears there.
+--   - Only twelve kinds have an org event log equivalent: request_submitted,
+--     request_approved, request_denied, request_cancelled, lease_activated,
+--     lease_activation_rejected, lease_extended, lease_revoked, lease_expired,
+--     rule_created, rule_updated and rule_deleted. Rotation and fleet kinds are
+--     recorded in the PAM store only.
+--   - The copy keeps PAM's occurred_at, so both trails agree on when. It names the
+--     actor as the acting member and the requester as the subject member, and it
+--     carries the cipher and collection, so the event also files under the item's
+--     own event history.
+--   - An event with no actor is attributed to the PAM system user. The org event
+--     log page shows it as "Privileged Controls" (PAM-197), not as the requester
+--     the member column would otherwise name.
+--   - It follows the org event log's own entitlement: an organization without
+--     event logs gets no copy. The PAM trail does not depend on that entitlement.
+--   - It is best-effort. A failed copy is logged and swallowed; the PAM store write
+--     has already happened.
+
+------------------------------------------------------------
+-- Invariants
+------------------------------------------------------------
+
+-- No action writes the deferred kinds, so the store holds none. If one of these
+-- ever appears, something started emitting it without this spec moving it to
+-- (EMITTED).
+invariant DeferredKindsAreNeverWritten {
+    for event in AccessAuditEvents:
+        event.kind not in {
+            request_expired_unanswered, request_expired_unactivated,
+            credential_accessed, credential_access_denied,
+            leasing_kill_switch_triggered, leasing_freeze_enabled, leasing_freeze_lifted
+        }
+}
+
+-- A lease reaching its end is written by the sweep as a lone outcome with no human
+-- actor. A human ending a lease early is lease_revoked.
+invariant LeaseExpiryIsASystemOutcome {
+    for event in AccessAuditEvents:
+        event.kind = lease_expired implies (event.phase = outcome and event.actor = null)
+}
+
+-- A request approval with no actor is the automatic approval written alongside an
+-- auto-approved submission. It is a lone outcome and never has an attempt.
+invariant AutomaticApprovalIsALoneOutcome {
+    for event in AccessAuditEvents:
+        (event.kind = request_approved and event.actor = null) implies event.phase = outcome
+}
+
+------------------------------------------------------------
+-- Actor Declarations
+------------------------------------------------------------
+
+-- The governance audience: anyone who holds the AccessEventLogs permission on the
+-- organization. That is the same permission that gates the organization event log.
+-- It covers:
+--   - organization owners and admins;
+--   - custom-role members granted "access event logs";
+--   - PROVIDER users of the provider that manages the organization. The owner
+--     check admits them, so the event-log permission does too.
+-- Providers can therefore read the whole PAM audit trail even though PAM's access
+-- rules deliberately exclude them: they can neither read nor change access rules.
+-- This is how the shipped permission behaves, not an oversight in this spec.
+--
+-- A viewer sees the ENTIRE organization's trail, whichever collections they
+-- manage. Audit visibility is a permission. It does not follow collection
+-- management, unlike the approver inbox and the lease lists in pam.allium.
+actor GovernanceViewer {
+    identified_by: pam/User
+    within: pam/Organization
+}
+
+------------------------------------------------------------
+-- Surfaces
+------------------------------------------------------------
+
+surface AccessAuditLog {
+    -- The organization's privileged-access audit trail in the Admin Console: rows
+    -- the viewer filters and exports. This is the job the generic event log
+    -- cannot do.
+    facing viewer: GovernanceViewer
+
+    context organization: pam/Organization
+
+    exposes:
+        -- One page of the trail within the window, newest first.
+        AccessAuditTrail(organization, now - config.audit_history_window, now)
+            when not config.audit_store_withdrawn
+        -- The subjects the trail names in the same range, for the Item filter.
+        AccessAuditItems(organization, now - config.audit_history_window, now)
+            when not config.audit_store_withdrawn
+
+    @guarantee ReadOnly
+        -- The page never changes PAM state. It reads the audit store and offers no
+        -- actions. Rows are written only on the emit path.
+
+    @guarantee WithdrawnRatherThanPartial
+        -- While the kill switch is on, both reads answer "not found", the same
+        -- answer a viewer without the permission gets. The page never shows a trail
+        -- that silently omits recent activity.
+
+    @guarantee NotFoundRatherThanEmpty
+        -- A caller without AccessEventLogs gets "not found", never an empty trail,
+        -- so an empty page always means "nothing happened in this range".
+
+    @guarantee WindowedRange
+        -- The range is bounded by audit_history_window. An absent start reaches
+        -- back to the window's floor, and an absent end means now. Bounds given in
+        -- the wrong order are swapped. A span wider than the window is REFUSED, not
+        -- silently clamped, and no start reaches past the floor.
+
+    @guarantee PagedNewestFirst
+        -- Each read returns at most audit_page_size rows, newest first, with ties
+        -- on one instant broken stably. A continuation marker is issued while a
+        -- page comes back full and is absent on the last page. The page size is
+        -- fixed by the server.
+
+    @guarantee OneEntryPerAction
+        -- The read collapses each correlated pair to one entry: its outcome, or,
+        -- when no outcome landed, its attempt flagged as incomplete (in doubt).
+        -- Filters apply AFTER the collapse, because an action's two halves can
+        -- disagree: an extension attempted as lease_extended may land as
+        -- request_denied.
+
+    @guarantee FiltersAreNeverSilentlyIgnored
+        -- An unknown event kind, or a continuation marker the server did not
+        -- issue, is refused rather than ignored. An ignored filter would answer
+        -- with the wrong trail, and an audit page that reads empty says "this
+        -- never happened".
+
+    @guarantee ExportIsTheFilteredTrail
+        -- The CSV export walks EVERY page of the active filter, not just the rows
+        -- on screen. It fails rather than loop if the server returns the same page
+        -- twice. Every text cell that would open as a spreadsheet formula is
+        -- escaped. The escape keeps the recorded text instead of stripping it,
+        -- so the file never quietly differs from the record.
+
+    @guidance
+        -- Filters. Every dimension is optional and can take several values.
+        -- Values within a dimension are OR-ed and dimensions are AND-ed, with two
+        -- unions:
+        --   - Event: kinds by their vocabulary names. The page offers only the
+        --     kinds an action can emit, so the deferred and legacy kinds are not
+        --     offered, since they could only return nothing.
+        --   - Actor: members, plus a "System" bucket for events with no actor. The
+        --     bucket is added to the chosen members, not intersected with them.
+        --   - Requester: the member the event concerns.
+        --   - Item: credentials and access rules. They are the two halves of one
+        --     selection and are unioned, because a rule-administration event names a
+        --     rule and no credential. The menu is built from AccessAuditItems and
+        --     narrowed to the credentials the viewer's own vault can name.
+        --   - Time period: Today (the viewer's local day), Past 7 days, Past 30
+        --     days, All time (the whole window) and a custom range. A custom end
+        --     bound covers the whole chosen minute.
+        --
+        -- Names. Events with no actor show as "System" on this page. The org event
+        -- log's copy of the same event shows "Privileged Controls". Credential and
+        -- collection names are resolved from the viewer's own vault, not from the
+        -- encrypted names on the row, because an auditor generally cannot decrypt
+        -- another member's items. A credential outside the viewer's vault shows,
+        -- and exports, blank. A lease_revoked whose actor is its requester is shown
+        -- as the holder ending their own access, not as an operator revoke.
+        --
+        -- CSV columns: timestamp (ISO 8601 UTC), event label, actor name and email,
+        -- requester name and email, item, collection, rule, target system, access
+        -- connector, granted duration (lease_activated), extended-until
+        -- (lease_extended), detail, automated, incomplete, request id, lease id.
+        -- `detail` exports the free text as written: requester reasons, approver
+        -- comments and denial reasons, and revoke reasons. See the open question.
+        --
+        -- Organization deletion. Deleting an organization deletes its trail with
+        -- it. The PAM store has no copy that outlives the organization.
+}
+
+------------------------------------------------------------
+-- Deferred Specifications
+------------------------------------------------------------
+
+-- `AccessAuditTrail(organization, since, until)`: one page of the stored events
+-- for the whole organization with occurred_at in [since, until], after the
+-- viewer's filters. Correlated pairs are collapsed to one entry each. At most
+-- config.audit_page_size entries, newest first, plus a continuation marker while
+-- more remain. Returns Sequence<AccessAuditEvent>. It is deferred because the query
+-- is read-and-filter mechanics. The record, the taxonomy and the AccessAuditLog
+-- guarantees are its contract. It reads only the audit store and joins nothing
+-- for display.
+deferred AccessAuditTrail    -- see: server GET organizations/{orgId}/audit
+
+-- `AccessAuditItems(organization, since, until)`: the distinct subjects the trail
+-- names in the range. Each is a credential with its collection, or an access rule
+-- with its snapshotted name. It is unpaged, because it is bounded by how many
+-- credentials and rules the organization governs. It is guarded exactly as the
+-- trail is: the same permission and the same kill switch. So it cannot disclose
+-- what the trail would not. It returns no credential names; the viewer's client
+-- supplies those. It takes only the range, so narrowing the trail by actor does
+-- not quietly remove items from the menu.
+deferred AccessAuditItems    -- see: server GET organizations/{orgId}/audit/items
+
+------------------------------------------------------------
+-- Open Questions
+------------------------------------------------------------
+
+open question "Should the exportable CSV carry revoke reasons and approver comments? Today its `detail` column exports every event's free text as written: requester reasons, approver comments, denial reasons and revoke reasons. That text is written by members for an in-product audience, and the file leaves the product. Product call: keep all of it, drop some kinds of text, or gate it."
+
+open question "Are audit rows older than the 90-day window meant to be pruned? The read never reaches past audit_history_window, and the server's filter documentation says an absent start reaches back 'as far as the store holds anything'. Yet nothing deletes rows: there is no retention job, and the store is append-only. Today older rows stay stored but no read can reach them. Decide between pruning at the window, keeping them with a longer or exportable reach, or keeping them unreadable as they are now."
+
+-- KNOWN FUTURE RISK (not a decision, recorded for whoever next touches the write
+-- path): cipher_name is snapshotted by reading the cipher's server-side name at
+-- write time. If cipher data becomes a single opaque encrypted blob, that snapshot
+-- breaks. The fix would then be to store the id only or have the client supply the
+-- encrypted name. collection_name is unaffected. The page already ignores
+-- cipher_name and resolves names from the viewer's vault.
