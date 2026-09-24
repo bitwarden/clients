@@ -9,8 +9,7 @@ import { InvoicePreviewResponse } from "@bitwarden/common/billing/models/respons
 import type { PlanTier } from "@bitwarden/pricing";
 
 import type { BillingAddress } from "../payment/types";
-
-import type { OrganizationSubscriptionPurchase } from "./preview-invoice.client";
+import type { OrganizationSubscriptionPurchase } from "../types";
 
 /**
  * Request shapes are owned by the per-screen tickets that consume each route. They are kept

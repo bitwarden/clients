@@ -43,12 +43,12 @@ import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/cons
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { EnterBillingAddressComponent, EnterPaymentMethodComponent } from "../payment/components";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { SecretsManagerSubscribeComponent, BillingSharedModule } from "../shared";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "../shared/self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
 
 import { OrganizationPlansComponent } from "./organization-plans.component";
-import { OrganizationCheckoutPreviewService } from "./services/organization-checkout-preview.service";
 
 // Mocked Child Components
 @Component({
@@ -415,7 +415,7 @@ describe("OrganizationPlansComponent", () => {
   let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
   let mockPremiumOrgUpgradeService: jest.Mocked<PremiumOrgUpgradeService>;
   let mockSubscriptionDiscountService: jest.Mocked<SubscriptionDiscountService>;
-  let mockOrganizationCheckoutPreviewService: jest.Mocked<OrganizationCheckoutPreviewService>;
+  let mockInvoicePreviewService: jest.Mocked<InvoicePreviewService>;
   let mockLogService: jest.Mocked<LogService>;
 
   let previewDrivenCartFlag: boolean;
@@ -561,9 +561,9 @@ describe("OrganizationPlansComponent", () => {
 
     mockLogService = mock<LogService>();
 
-    mockOrganizationCheckoutPreviewService = {
-      previewCheckoutCart: jest.fn(),
-      previewPremiumUpgradeCart: jest.fn(),
+    mockInvoicePreviewService = {
+      previewOrganizationCheckoutCart: jest.fn(),
+      previewPremiumOrgUpgradeCart: jest.fn(),
     } as any;
 
     mockPremiumOrgUpgradeService = {
@@ -672,10 +672,7 @@ describe("OrganizationPlansComponent", () => {
         { provide: BillingAccountProfileStateService, useValue: mockBillingAccountProfileService },
         { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
         { provide: LogService, useValue: mockLogService },
-        {
-          provide: OrganizationCheckoutPreviewService,
-          useValue: mockOrganizationCheckoutPreviewService,
-        },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     })
       // Override the component to replace child components with mocks and provide mock services
@@ -693,7 +690,7 @@ describe("OrganizationPlansComponent", () => {
             SubscriberBillingClient,
             PremiumOrgUpgradeService,
             SubscriptionDiscountService,
-            OrganizationCheckoutPreviewService,
+            InvoicePreviewService,
           ],
         },
         add: {
@@ -705,10 +702,7 @@ describe("OrganizationPlansComponent", () => {
             { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
             { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
             { provide: LogService, useValue: mockLogService },
-            {
-              provide: OrganizationCheckoutPreviewService,
-              useValue: mockOrganizationCheckoutPreviewService,
-            },
+            { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
           ],
         },
       })
@@ -3034,8 +3028,8 @@ describe("OrganizationPlansComponent", () => {
     });
 
     describe("premium upgrade branch", () => {
-      it("previews through the new service, not the legacy proration endpoint", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart.mockResolvedValue(
+      it("previews through the invoice preview service, not the legacy proration endpoint", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(
           premiumUpgradeCart,
         );
         hasPremiumPersonallySubject.next(true);
@@ -3048,11 +3042,11 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
-        expect(
-          mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart,
-        ).toHaveBeenCalledWith(
-          ProductTierType.Teams,
-          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith(
+          {
+            targetProductTierType: ProductTierType.Teams,
+            billingAddress: { country: "US", postalCode: "12345" },
+          },
           "Teams",
         );
         expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).not.toHaveBeenCalled();
@@ -3062,7 +3056,7 @@ describe("OrganizationPlansComponent", () => {
       }));
 
       it("renders the server cart verbatim, including the credit row and collapsed seat line", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart.mockResolvedValue(
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(
           premiumUpgradeCart,
         );
         hasPremiumPersonallySubject.next(true);
@@ -3090,7 +3084,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       it("renders Scenario A verbatim — coupon discount and $31.60 total", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockResolvedValue(scenarioACart);
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
 
         selectTeams();
         enterValidAddress();
@@ -3107,7 +3101,7 @@ describe("OrganizationPlansComponent", () => {
       }));
 
       it("passes Scenario E's item-scoped and cart-wide discounts through untouched", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockResolvedValue(scenarioECart);
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioECart);
 
         selectTeams();
         enterValidAddress();
@@ -3125,7 +3119,7 @@ describe("OrganizationPlansComponent", () => {
       }));
 
       it("sends the real storage and sponsorship values in a single call (PM-27585 workaround retired)", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockResolvedValue(scenarioFCart);
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioFCart);
         fixture.componentRef.setInput("acceptingSponsorship", true);
 
         component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
@@ -3134,15 +3128,15 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
-        expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).toHaveBeenCalledTimes(1);
-        const [purchase] =
-          mockOrganizationCheckoutPreviewService.previewCheckoutCart.mock.calls[0]!;
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        const [{ purchase }] =
+          mockInvoicePreviewService.previewOrganizationCheckoutCart.mock.calls[0]!;
         expect(purchase.passwordManager.sponsored).toBe(true);
         expect(purchase.passwordManager.additionalStorage).toBe(2);
       }));
 
       it("shows the server's sponsorship label rather than the client-side AmountOff", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockResolvedValue(scenarioFCart);
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioFCart);
         fixture.componentRef.setInput("acceptingSponsorship", true);
 
         component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
@@ -3159,13 +3153,13 @@ describe("OrganizationPlansComponent", () => {
 
     describe("request shape", () => {
       beforeEach(async () => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockResolvedValue(scenarioACart);
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
         fixture.detectChanges();
         await fixture.whenStable();
       });
 
       const lastPurchase = () =>
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mock.calls.at(-1)![0];
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mock.calls.at(-1)![0].purchase;
 
       it("includes Secrets Manager with standalone false when enabled", fakeAsync(() => {
         selectTeams();
@@ -3210,9 +3204,7 @@ describe("OrganizationPlansComponent", () => {
         mockDiscountSubject.next([eligibleDiscount]);
         tick(1500);
 
-        const [, , couponIds] =
-          mockOrganizationCheckoutPreviewService.previewCheckoutCart.mock.calls.at(-1)!;
-        expect(couponIds).toEqual([eligibleDiscount.stripeCouponId]);
+        expect(lastPurchase().coupons).toEqual([eligibleDiscount.stripeCouponId]);
       }));
     });
 
@@ -3228,10 +3220,8 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
-        expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).not.toHaveBeenCalled();
-        expect(
-          mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart,
-        ).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
         expect(component["previewCart"]()).toBeNull();
         expect(
           mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
@@ -3273,10 +3263,8 @@ describe("OrganizationPlansComponent", () => {
         tick(1500);
 
         expect(component["selectedPlan"]()?.productTier).toBe(ProductTierType.TeamsStarter);
-        expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).not.toHaveBeenCalled();
-        expect(
-          mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart,
-        ).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
         expect(component["previewCart"]()).toBeNull();
         expect(component["previewFailed"]()).toBe(false);
         expect(mockLogService.error).not.toHaveBeenCalled();
@@ -3292,10 +3280,8 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
-        expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).not.toHaveBeenCalled();
-        expect(
-          mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart,
-        ).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
         expect(component["previewCart"]()).toBeNull();
         expect(
           mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
@@ -3313,7 +3299,7 @@ describe("OrganizationPlansComponent", () => {
         });
         tick(1500);
 
-        expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
         expect(component["previewFailed"]()).toBe(false);
       }));
 
@@ -3327,7 +3313,7 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
-        expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).not.toHaveBeenCalled();
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
         expect(component["previewFailed"]()).toBe(false);
       }));
     });
@@ -3338,8 +3324,8 @@ describe("OrganizationPlansComponent", () => {
         await fixture.whenStable();
       });
 
-      it("raises the failure flag and never substitutes a local cart", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockRejectedValue(
+      it("raises the failure flag, toasts, and never substitutes a local cart", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
           new Error("route not found"),
         );
 
@@ -3349,7 +3335,10 @@ describe("OrganizationPlansComponent", () => {
 
         expect(component["previewFailed"]()).toBe(true);
         expect(component["previewCart"]()).toBeNull();
-        expect(mockToastService.showToast).not.toHaveBeenCalled();
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "invoicePreviewErrorMessage",
+        });
         expect(mockLogService.error).toHaveBeenCalled();
 
         fixture.detectChanges();
@@ -3359,7 +3348,7 @@ describe("OrganizationPlansComponent", () => {
       }));
 
       it("clears the failure state once a later preview succeeds", fakeAsync(() => {
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
           .mockRejectedValueOnce(new Error("route not found"))
           .mockResolvedValue(scenarioACart);
 
@@ -3382,7 +3371,7 @@ describe("OrganizationPlansComponent", () => {
 
       it("ignores a stale preview that resolves after a newer one", fakeAsync(() => {
         let resolveFirst!: (cart: Cart) => void;
-        mockOrganizationCheckoutPreviewService.previewCheckoutCart
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
           .mockImplementationOnce(() => new Promise<Cart>((resolve) => (resolveFirst = resolve)))
           .mockResolvedValue(scenarioACart);
 
@@ -3406,7 +3395,7 @@ describe("OrganizationPlansComponent", () => {
       mockConfigService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
         flag === FeatureFlag.PM36631_PreviewDrivenCart ? flagSubject.asObservable() : of(true),
       );
-      mockOrganizationCheckoutPreviewService.previewCheckoutCart.mockResolvedValue(scenarioACart);
+      mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
 
       const runtimeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const runtimeComponent = runtimeFixture.componentInstance;
@@ -3429,7 +3418,7 @@ describe("OrganizationPlansComponent", () => {
       expect(runtimeComponent["previewCart"]()).toBeNull();
       expect(runtimeComponent["previewFailed"]()).toBe(false);
       expect(runtimeComponent["cart"]()).not.toBe(scenarioACart);
-      expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).toHaveBeenCalledTimes(1);
+      expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).toHaveBeenCalledTimes(1);
@@ -3454,10 +3443,8 @@ describe("OrganizationPlansComponent", () => {
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).toHaveBeenCalledTimes(1);
-      expect(mockOrganizationCheckoutPreviewService.previewCheckoutCart).not.toHaveBeenCalled();
-      expect(
-        mockOrganizationCheckoutPreviewService.previewPremiumUpgradeCart,
-      ).not.toHaveBeenCalled();
+      expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+      expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
       expect(legacyComponent["previewCart"]()).toBeNull();
       expect(legacyComponent["previewFailed"]()).toBe(false);
     }));

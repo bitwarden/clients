@@ -77,8 +77,6 @@ import {
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
-  OrganizationSubscriptionPlan,
-  OrganizationSubscriptionPurchase,
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
@@ -89,13 +87,16 @@ import {
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
+import {
+  OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
+} from "@bitwarden/web-vault/app/billing/types";
 
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
-
-import { OrganizationCheckoutPreviewService } from "./services/organization-checkout-preview.service";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -523,7 +524,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   // Private properties
   private readonly logService = inject(LogService);
-  private readonly organizationCheckoutPreviewService = inject(OrganizationCheckoutPreviewService);
+  private readonly invoicePreviewService = inject(InvoicePreviewService);
 
   private _familyPlan: PlanType | null = null; // Used to track which Families plan to show when product tier is Families
   private readonly destroy$ = new Subject<void>();
@@ -995,21 +996,31 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       const billingAddress = getBillingAddressFromForm(
         this.billingFormGroup.controls.billingAddress,
       );
+      if (this.canUpgradeFromPremium()) {
+        return from(
+          this.invoicePreviewService.previewPremiumOrgUpgradeCart(
+            {
+              targetProductTierType: selectedPlan.productTier,
+              billingAddress: {
+                country: billingAddress.country,
+                postalCode: billingAddress.postalCode,
+              },
+            },
+            selectedPlan.name,
+          ),
+        );
+      }
+
+      const purchase = this.buildTaxPreviewRequest(
+        this.formGroup.value.additionalStorage ?? 0,
+        this.acceptingSponsorship(),
+      );
+      const couponIds = this.eligibleCouponIds();
       return from(
-        this.canUpgradeFromPremium()
-          ? this.organizationCheckoutPreviewService.previewPremiumUpgradeCart(
-              selectedPlan.productTier,
-              billingAddress,
-              selectedPlan.name,
-            )
-          : this.organizationCheckoutPreviewService.previewCheckoutCart(
-              this.buildTaxPreviewRequest(
-                this.formGroup.value.additionalStorage ?? 0,
-                this.acceptingSponsorship(),
-              ),
-              billingAddress,
-              this.eligibleCouponIds(),
-            ),
+        this.invoicePreviewService.previewOrganizationCheckoutCart({
+          purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
+          billingAddress,
+        }),
       );
     }).pipe(
       tap((cart) => {
@@ -1019,6 +1030,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       map((): void => undefined),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("invoicePreviewErrorMessage"),
+        });
         this.previewCart.set(null);
         this.previewFailed.set(true);
         return of(undefined);
