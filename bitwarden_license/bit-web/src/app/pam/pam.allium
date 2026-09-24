@@ -15,7 +15,9 @@
 --   - AccessLease lifecycle (active, expired, revoked) and extension
 --   - Org-wide kill switch
 --   - Governance dashboard (read model)
---   - Vault export as a permission-level bypass of leasing
+--   - Vault export: the whole-vault export bypasses leasing; a member's export of
+--     their managed collections leaves gated items out
+--   - Write gating: changing a gated item needs a live lease
 --
 -- Excludes:
 --   - Vault encryption / cipher decryption (handled by the existing vault stack)
@@ -27,7 +29,13 @@
 --   - Push notification transport (PM-37262 — implementation detail; the
 --     spec models the *event*, not the wire format)
 --   - Audit log persistence (server-side; the client observes outcomes only)
---   - LaunchDarkly feature-flag gating (deployment concern, not domain)
+--   - The PAM feature flag (FeatureFlagKeys.Pam, `pm-37044-pam-v-0`), because it is a
+--     temporary rollout gate rather than domain. While it is off, every rule is inert and
+--     a gated item opens to its collection members as it would without PAM (see the
+--     @guidance on CipherOpenWithActiveLease). That fails OPEN, unlike the PAM licence,
+--     which fails closed; if the flag outlives the rollout, this line stops being true.
+--   - Clients other than the web vault. The server sends them no partial items, so a
+--     gated item is invisible there (see GatedCipherView); multi-client support is PAM-121.
 --
 -- Specified but NOT yet implemented in this client (the spec leads the code here):
 --   - Org-wide kill switch and leasing freeze (KillSwitchControl, LeasingFreeze) —
@@ -85,19 +93,40 @@ external entity CollectionMembership {
 -- The non-sensitive projection of a Cipher the server returns in a GATED
 -- response — enough for the client to render the vault row and the request /
 -- banner UI without the protected secret. It carries NO sensitive fields (no
--- password, note, card, identity, TOTP or custom fields); those are withheld
--- until the member holds an active lease, at which point the full cipher is
--- returned instead.
+-- username, password, note, card, identity, TOTP or custom fields). Only a
+-- single-item read by an ungated caller, or under a live lease, returns the full
+-- cipher instead (see the cipher-open section).
 --
--- NOTE: the name and exact field shape of this view are not final — the
--- non-sensitive-only intent is the firm part; the precise fields are provisional.
+-- Mirrors the server's PartialCipherData, which is the allowlist: every field of
+-- the cipher's data not named there is dropped. Nothing is decrypted to build it;
+-- the retained name and URIs stay individually encrypted. Attachments are withheld
+-- entirely, metadata included, because the metadata carries each attachment's key
+-- (and the download is lease-gated too).
+--
+-- Only the web vault is sent this shape (server PartialCipherSupport). Every other
+-- client (extension, desktop, mobile, CLI, or an unrecognised device type) cannot
+-- render a partial item and would blank the withheld fields if it saved one back, so
+-- the server leaves gated items out of its sync and lists altogether and answers a
+-- single read or a write with not-found, unless the call is one that returns the full
+-- item. Such a client has no request surface either, so a gated item is invisible
+-- outside the web vault. When other clients learn to render partials they should get
+-- them (PAM-121).
 value GatedCipherView {
     cipher: Cipher                  -- identity only (the cipher id)
+    type: String                    -- the item type (login, card, note, ...)
     collections: Set<Collection>
-    name: String                    -- the item's display name
-    uris: List<String>              -- login URIs, for match / launch
+    name: String                    -- the item's display name (encrypted)
+    uris: List<String>              -- login URIs, for match / launch; empty unless type is login
     created_at: Timestamp?
     revised_at: Timestamp?
+    deleted_at: Timestamp?
+    archived_at: Timestamp?
+    -- The caller's own flags on the item, as for any item they can reach: folder,
+    -- favourite, and whether they may edit it or view its password.
+    folder: String?
+    favorite: Boolean
+    edit: Boolean
+    view_password: Boolean
 }
 
 -- ----------------------------------------------------------------------------
@@ -281,6 +310,17 @@ entity AccessRequest {
     -- If this request is an extension of an existing lease, the parent lease.
     extension_of: AccessLease?
 
+    -- ActionableForRequester: the request still needs something from its requester.
+    -- It is awaiting a decision, or approved, never started, and inside its window.
+    -- Extensions never qualify, because they are decided and applied in the step that
+    -- creates them. Drives MyAccessRequestsPage's outstanding rows and the
+    -- PamNavBadge count (client isActionableRequest).
+    actionable_for_requester: extension_of = null
+                              and (status = pending
+                                   or (status = approved
+                                       and lease = null
+                                       and now < lease_not_after))
+
     transitions status {
         pending -> approved
         pending -> denied
@@ -367,24 +407,35 @@ config {
 -- rule on the other collection cannot gate it. This is a real bypass, and it is
 -- currently SILENT to admins (see RuleBypassableCiphers).
 --
--- This determination is authoritative on the SERVER. Opening a gated cipher is a
--- server round-trip, and the server runs exactly this calculation — the member's
--- collection paths to the cipher, whether any path is ungated, and whether the
--- member holds an active lease — to decide what to return: the full, decryptable
--- cipher when the member is ungated or holds an active lease, otherwise a gated
--- response carrying a partial cipher (a GatedCipherView — id, collections, name,
--- URIs and created/revised timestamps; no sensitive fields) alongside the
--- request/approved-request context, never the protected secret. The client runs
--- the same check to drive its UI, but it is advisory —
--- it cannot release a payload the server withholds, so a tampered or stale
--- client cannot bypass an access rule. The CipherOpened / CipherOpenNeedsRequest
--- / CipherOpenAwaitingActivation outcomes below are the server's decision, not a
--- client-only branch.
+-- When several rules gate the item for a member (one per gated path), the OLDEST
+-- rule takes precedence: the enabled rule with the earliest creation_date, ties
+-- broken on rule id. Its conditions alone decide; a younger rule on another path
+-- adds nothing. See oldest_rule.
 --
--- Opening a cipher is not the only way its secret reaches a member. A vault
--- EXPORT releases gated ciphers in full with no lease at all, gated instead by
--- an org-wide export permission that overrides leasing outright. Everything in
--- this section describes the OPEN path only — see VaultExportBypassesLeasing.
+-- The SERVER decides; the client only renders. The member's vault holds a gated
+-- cipher as a GatedCipherView, from sync. The secret is released only by a
+-- single-item read, which returns the full cipher when the caller is ungated or
+-- holds a live lease. Sync, list and export reads, and the item a write echoes back,
+-- always carry the partial shape, lease or not, so the secret never lands in a
+-- client's local store where it would outlive the lease. The client learns that an
+-- item is gated from the server's partial flag (CipherView.partial) rather than
+-- recomputing the collection paths, and reads the caller's request and lease state
+-- separately (AccessRequestsClient::cipher_access_state). It cannot release a
+-- payload the server withholds, so a tampered or stale client cannot bypass a rule.
+-- The outcomes below are the server's decision for that single-item read.
+--
+-- Only CipherOpened carries the full cipher, and it has exactly three sources: an
+-- ungated path (CipherOpenPassthrough), a single read under a live lease
+-- (CipherOpenWithActiveLease), and the whole-vault export
+-- (VaultExportBypassesLeasing). Every other outcome carries a GatedCipherView.
+--
+-- All of this holds only while the PAM feature flag is on for the deployment (see the
+-- @guidance on CipherOpenWithActiveLease).
+--
+-- Opening a cipher is not the only way its secret reaches a member. The whole-vault
+-- EXPORT releases gated ciphers in full with no lease at all, gated instead by an
+-- org-wide permission that overrides leasing outright. Everything in this section
+-- describes the OPEN path only; see the vault-export section.
 
 rule CipherOpenWithActiveLease {
     when: OpenCipher(caller, target_cipher)
@@ -402,6 +453,21 @@ rule CipherOpenWithActiveLease {
     requires: active_leases.count > 0
     -- Singleton by AtMostOneActiveLeasePerRequesterCipher, so .first is deterministic.
     ensures: CipherOpened(caller, target_cipher, active_leases.first)
+    @guidance
+        -- The server enforces "only CipherOpened carries the full cipher"
+        -- structurally. A full cipher response cannot be built without a
+        -- FullCipherAccess witness, which only the leasing gate (CipherLeaseGate)
+        -- mints, and the check runs per item, so a bulk list or export fails
+        -- closed. To look for a leak, look at who mints that witness. An
+        -- administrative reader is leasing-gated like any member; the whole-vault
+        -- export is the only context in which leasing is waived.
+        --
+        -- Feature flag: every CipherOpen* rule is enforced only while the PAM
+        -- feature flag (FeatureFlagKeys.Pam) is on for the deployment. While it is
+        -- off, the server treats every rule as inert (UnrestrictedCipherLeaseGate),
+        -- a gated item opens to its collection members as it would without PAM, and
+        -- no PAM record is written for those reads. Nobody gains more than their
+        -- collection membership already grants; only the time-bounding layer goes.
 }
 
 rule CipherOpenRequiresAccessRequest {
@@ -438,17 +504,17 @@ rule CipherOpenRequiresAccessRequest {
                                              and cipher = target_cipher
                                              and status = approved
     requires: approved_requests.count = 0
-    ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule)
+    ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule,
+                                    PartialView(caller, target_cipher))
     @guidance
-        -- Implementation: there is no separate cipher-open round-trip. The server
-        -- serves a gated cipher as a RESTRICTED (partial) cipher on sync — name and
-        -- URIs only, every secret field absent — and the client reads
-        -- CipherView.partial to know it is gated. The banner then reads the caller's
-        -- own state for that cipher through
+        -- Implementation: the item is already in the vault as a partial cipher from
+        -- sync, and the client reads CipherView.partial to know it is gated. The
+        -- banner then reads the caller's own state for that cipher through
         -- AccessRequestsClient::cipher_access_state, and offers Request access when
         -- no lease, approved request, or pending request comes back. Submitting calls
         -- AccessRequestsClient::request, whose result may already be approved when
-        -- the rule needs no human approval.
+        -- the rule needs no human approval. Enforced only while the PAM feature flag
+        -- is on (see CipherOpenWithActiveLease).
 }
 
 rule CipherOpenWithApprovedRequest {
@@ -477,27 +543,14 @@ rule CipherOpenWithApprovedRequest {
     requires: approved_requests.count > 0
     -- Singleton by AtMostOneInFlightRequestPerRequesterCipher (extensions never
     -- rest at `approved`), so .first is deterministic.
-    ensures: CipherOpenAwaitingActivation(caller, target_cipher, approved_requests.first)
+    ensures: CipherOpenAwaitingActivation(caller, target_cipher, approved_requests.first,
+                                          PartialView(caller, target_cipher))
     @guidance
-        -- KNOWN DIVERGENCE: the current implementation (PamCipherOpenGate,
-        -- cipher-open-gate.service.ts) instead activates a startable approved
-        -- request on open — calling activateLease, toasting, and opening the
-        -- full cipher — and silently drops the open when the post-activation
-        -- re-fetch is withheld. This spec is the intended behavior; the
-        -- implementation will be brought back to explicit activation in a
-        -- follow-up. Failure feedback for an explicit start (rejection toast,
-        -- no fall-through to the Request Access modal while the approved
-        -- request exists) belongs to the Start action's surfaces.
-        --
-        -- That swallowed-handover branch (activation succeeds, the leased
-        -- re-fetch is withheld, no feedback) also violates the consume-only-on-
-        -- lease decision: it burns the single-use approval and starts the lease
-        -- clock while denying access. Under this spec it cannot occur — access is
-        -- never withheld after a lease is minted; if access would be denied (e.g.
-        -- an ip_allowlist mismatch) the ACTIVATION itself fails atomically and
-        -- consumes nothing, because ActivateLease re-
-        -- check RuleAutomatedConditionsPass at start. The branch disappears once
-        -- the implementation moves to explicit, condition-re-checking activation.
+        -- A failed Start (the rule's conditions refuse it, or the single active
+        -- lease slot is taken) shows a toast and leaves the request approved; it
+        -- never falls through to Request access (cipher-view-banner.component,
+        -- activateRequest). Enforced only while the PAM feature flag is on (see
+        -- CipherOpenWithActiveLease).
 }
 
 rule CipherOpenPassthrough {
@@ -513,44 +566,97 @@ rule CipherOpenPassthrough {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count = 0 or has_ungated_path
     ensures: CipherOpened(caller, target_cipher, null)
+    @guidance
+        -- While the PAM feature flag is off, every open takes this path, whatever
+        -- the rules say (see CipherOpenWithActiveLease).
 }
 
 -- ----------------------------------------------------------------------------
--- Vault export: a permission-level bypass of leasing
+-- Write gating: changing a gated cipher needs a live lease
 -- ----------------------------------------------------------------------------
 
--- Exporting a vault does NOT require a lease. Leasing gates the cipher-OPEN
--- path (the section above); it has no say over export, which is governed by its
--- own org-wide export permission and overrides PAM outright. A member holding
--- that permission exports gated ciphers in full — no AccessRequest, no
--- AccessLease, no approver in the loop — even where every one of their
--- collection paths to a cipher carries an enabled AccessRule.
+rule MemberChangesGatedCiphers {
+    -- A member edits, deletes, restores, moves or re-files items. Any item gated for
+    -- them needs a live lease on it. A bulk change refuses the WHOLE batch when any
+    -- one item fails, and the refusal reads as not-found, the answer an item the
+    -- caller cannot see would get (server 720cef135). A lease is enough because a
+    -- write copies no secret out, and the item the write echoes back is still the
+    -- partial shape. One write this lets through does matter: re-filing under a
+    -- lease, see the named bypass next to RuleBypassableCiphers.
+    when: MemberChangesCiphers(caller, targets)
+    requires: targets.all(t =>
+        not GatedFor(caller, t)
+        or (AccessLease where requester = caller
+                           and cipher = t
+                           and status = active
+                           and now < not_after).count > 0)
+    ensures: CipherChangesAccepted(caller, targets)
+    @guidance
+        -- Enforced in CipherLeaseGate (EnsureCanMutateAsync for one item,
+        -- EnsureCanMutateManyAsync for a batch), only while the PAM feature flag is
+        -- on.
+}
+
+-- ----------------------------------------------------------------------------
+-- Vault export: two paths, one bypass
+-- ----------------------------------------------------------------------------
+
+-- Leasing gates the cipher-OPEN path (the sections above). Export takes one of two
+-- paths, and PAM treats them in opposite ways (PM-42352):
 --
--- This is a second deliberate bypass, on a different AXIS from the union/OR one.
--- RuleBypassableCiphers is a per-path escape: one ungated collection undoes one
--- rule for the members who reach the cipher that way. This is a per-caller
--- escape: one permission undoes every rule in the org, for every cipher in the
--- caller's export scope, in a single action. Granting the export permission
--- should therefore be read as granting standing, lease-free access to every
--- gated credential in that scope.
+--   - The WHOLE-VAULT export (Owner, Admin, or Custom with Import/export) bypasses
+--     leasing. It releases every cipher in its scope in full, with no AccessRequest,
+--     no AccessLease and no approver, even where every path to a cipher carries an
+--     enabled rule (VaultExportBypassesLeasing).
 --
--- PAM neither narrows nor widens what an export contains. The scope is whatever
--- the export stack already resolves for this caller (ExportedCiphers); PAM's
--- only statement is that gating subtracts nothing from it. The export stack
--- itself — scope resolution, file generation, encryption — is out of scope here
--- (see the Excludes block), so no PAM surface provides this trigger: it arrives
--- from the existing vault-export path.
+--   - A member's export of the collections they MANAGE leaves out every cipher gated
+--     for them, whether or not they hold a lease on it, and the export screen says
+--     how many were left out before the download
+--     (ManagedCollectionsExportExcludesGated).
+--
+-- Why a lease does not unlock export: export is a bulk read, like sync. A lease
+-- expires and an exported file does not, so honouring the lease would mint a copy
+-- of the credential that outlives the grant (PM-42352).
+--
+-- The whole-vault export is a second deliberate bypass, on a different AXIS from the
+-- union/OR one. RuleBypassableCiphers is a per-path escape: one ungated collection
+-- undoes one rule for the members who reach the cipher that way. This is a
+-- per-caller escape: one permission undoes every rule in the org, for every cipher
+-- in the export, in a single action. Granting it should therefore be read as
+-- granting standing, lease-free access to every gated credential in the org.
+--
+-- The export stack itself (scope resolution, file generation, encryption) is out of
+-- scope here (see the Excludes block), so no PAM surface provides these triggers:
+-- they arrive from the existing vault-export paths.
 
 rule VaultExportBypassesLeasing {
     when: ExportOrganizationVault(caller, organization)
     requires: CanExportOrganizationVault(caller, organization)
     -- Every cipher in the export's scope is released in full with no lease
-    -- authorizing it — the same outcome as an ungated open
-    -- (CipherOpenPassthrough), reached by permission rather than by an ungated
-    -- path. Gated or not, leased or not, the export withholds nothing.
+    -- authorizing it: the same outcome as an ungated open (CipherOpenPassthrough),
+    -- reached by permission rather than by an ungated path.
     ensures:
         for c in ExportedCiphers(caller, organization):
             CipherOpened(caller, c, null)
+}
+
+rule ManagedCollectionsExportExcludesGated {
+    -- Any confirmed member may export the collections they manage. Each cipher in
+    -- that scope that is gated for them is left out, lease or no lease; the rest
+    -- export as the export stack resolves them.
+    when: ExportManagedCollections(caller, organization)
+    ensures:
+        for c in ManagedExportCiphers(caller, organization):
+            if GatedFor(caller, c):
+                CipherLeftOutOfExport(caller, c)
+            else:
+                CipherOpened(caller, c, null)
+    @guidance
+        -- The web vault builds this export from its local store, where a gated item
+        -- is only ever a partial, and leaves partials out of every format (JSON,
+        -- CSV, encrypted); it shows the left-out count before the download
+        -- (PM-42531). The server's managed-collections export endpoint drops them
+        -- too.
 }
 
 -- ----------------------------------------------------------------------------
@@ -1262,19 +1368,50 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- first.
 deferred RuleBypassableCiphers    -- see: server-side ListRuleBypassableCiphersQuery
 
--- `CanExportOrganizationVault(member, organization)`: whether the member holds the
--- org-wide vault-export permission. Owned by the existing organization permission
--- model, not by PAM — PAM only reads it. Holding it overrides leasing outright
--- (VaultExportBypassesLeasing): it is not an AccessRule condition, no rule can
--- narrow it, and no lease, request or approval stands between the holder and a
--- gated credential in their export scope.
-deferred CanExportOrganizationVault    -- see: organization export permission (accessImportExport)
+-- NAMED BYPASS: re-filing under a lease. The third deliberate bypass, and the only
+-- one a MEMBER can make. MemberChangesGatedCiphers lets a lease holder who may edit a
+-- gated item change which collections it is in, including adding it to a collection
+-- with no rule. The review kept this: a lease holder may re-file what they hold. From
+-- then on the item has an ungated path, so it is ungated for them and for everyone in
+-- that collection, with no lease, no approver and no PAM audit event (the org event
+-- log records only Cipher_UpdatedCollections). RuleBypassableCiphers then counts the
+-- new path like any other.
+--
+-- It interacts with RotateOnAccessEnd. Rotation exists so that a copy taken during a
+-- lease goes stale when the lease ends; a re-filed item keeps the member attached to
+-- every future rotated value, so a time-boxed grant becomes standing access that
+-- outlives rotation. Whether the move should warn or be audited is PAM-203. The same
+-- re-file through the admin endpoint, by a Custom user with Edit any collection and
+-- no lease, is PAM-202.
 
--- `ExportedCiphers(member, organization)`: the ciphers an export by this member
--- covers, as resolved by the existing export stack. PAM neither computes nor
--- filters it; the predicate is named here only so VaultExportBypassesLeasing can
--- state that gating subtracts nothing from it.
+-- `GatedFor(member, cipher)`: the member reaches the cipher, and only through
+-- collections that carry an enabled AccessRule. It is the has_ungated_path test the
+-- CipherOpen* rules spell out, negated, named here so the write and export rules can
+-- reuse it.
+deferred GatedFor    -- see: server CipherLeaseGate / GoverningRuleResolver
+
+-- `PartialView(member, cipher)`: the GatedCipherView the server returns for `cipher`
+-- to `member`, built from the PartialCipherData allowlist plus the member's own flags.
+-- Every gated outcome carries it in place of the cipher.
+deferred PartialView    -- see: server Partial*CipherResponseModel
+
+-- `CanExportOrganizationVault(member, organization)`: whether the member may run the
+-- whole-vault export: Owner, Admin, or Custom holding Import/export
+-- (accessImportExport). Owned by the organization permission model, not by PAM; PAM
+-- only reads it. Holding it overrides leasing outright (VaultExportBypassesLeasing): it
+-- is not an AccessRule condition, no rule can narrow it, and no lease, request or
+-- approval stands between the holder and a gated credential.
+deferred CanExportOrganizationVault    -- see: server VaultExportAuthorizationHandler, OrganizationExportController
+
+-- `ExportedCiphers(member, organization)`: the ciphers a whole-vault export covers, as
+-- resolved by the existing export stack. PAM neither computes nor filters it; it is
+-- named so VaultExportBypassesLeasing can state that gating subtracts nothing from it.
 deferred ExportedCiphers    -- see: vault export stack (outside PAM)
+
+-- `ManagedExportCiphers(member, organization)`: the ciphers in the collections the
+-- member manages, which is the scope of a member's own export. Resolved by the export
+-- stack; ManagedCollectionsExportExcludesGated subtracts the gated ones.
+deferred ManagedExportCiphers    -- see: vault export stack (outside PAM)
 
 -- `ForecastDecision(member, cipher, rule)`: a side-effect-free dry run of the
 -- evaluation rules for a prospective request — what submitting now WOULD yield,
@@ -1355,6 +1492,10 @@ surface CipherViewBanner {
     -- credential in place the moment a lease becomes active, without reopening the
     -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
     -- the reveal itself goes through the GATED_CIPHER_RELOADER seam.
+    --
+    -- It also renders on an item the server no longer gates for the caller while they
+    -- still hold a live lease on it (the item was since filed into a collection with no
+    -- rule), so the holder can still extend or end that lease (PM-43689).
     facing viewer: Member
 
     context target_cipher: Cipher
@@ -1372,6 +1513,65 @@ surface CipherViewBanner {
         MemberActivatesLease(viewer, request)
             when request.requester = viewer and request.cipher = target_cipher
                                              and request.status = approved
+        -- Withdraw, on the pending and approved states. The vault row's menu offers
+        -- the same (VaultRowAccessState).
+        MemberCancelsRequest(viewer, request)
+            when request.requester = viewer and request.cipher = target_cipher
+             and (request.status = pending
+                  or (request.status = approved and request.lease = null))
+        -- Extending and ending the lease are offered here as well, through
+        -- extend-lease-dialog.component; ActiveLeasesPage states them once for every
+        -- screen that offers them.
+}
+
+surface VaultRowAccessState {
+    -- A vault row for an item gated for the viewer (a partial row). Presentation over
+    -- reads modelled elsewhere, apart from one write: the row menu's withdraw. See
+    -- vault-row-lease-badge/ and the VaultRowAccessActionsService seam.
+    facing viewer: Member
+
+    context target_cipher: Cipher
+
+    exposes:
+        -- The row badge: the viewer's own state on the item, which the SDK ranks
+        -- into one badge (pending, ready to start, or active with a countdown).
+        AccessLease where requester = viewer and cipher = target_cipher and status = active
+        AccessRequest where requester = viewer and cipher = target_cipher
+                                               and status in {pending, approved}
+
+    provides:
+        -- Withdraw the viewer's outstanding request from the row menu, with the
+        -- banner's semantics: pending, or approved and never started.
+        MemberCancelsRequest(viewer, request)
+            when request.requester = viewer and request.cipher = target_cipher
+             and (request.status = pending
+                  or (request.status = approved and request.lease = null))
+
+    @guidance
+        -- Filters: the sidebar's "Controlled access" group narrows the item list by
+        -- the same badge. "Privileged" keeps every item gated for the viewer, and
+        -- "My requests" keeps those with a pending, ready or active badge.
+        --
+        -- Collection level: the collection row's "Privileged" pill, the sidebar lock
+        -- and the banner above a governed collection's item list describe the
+        -- COLLECTION (it carries an enabled rule), not every item in it. An item the
+        -- viewer also reaches through a collection with no rule opens normally
+        -- (CipherOpenPassthrough) and renders as an ordinary row.
+}
+
+surface PamNavBadge {
+    -- The count beside the Access requests nav item: the viewer's own requests that
+    -- still need them, unioned by request id with the pending requests awaiting the
+    -- viewer's decision. See pam-nav-badge.service.
+    facing viewer: Member
+
+    exposes:
+        for r in AccessRequest where requester = viewer and actionable_for_requester:
+            r.id
+        for r in AccessRequest where status = pending
+                                  and now < lease_not_after
+                                  and viewer in EligibleApprovers(r):
+            r.id
 }
 
 surface RequestAccessModal {
@@ -1457,6 +1657,11 @@ surface MyAccessRequestsPage {
         -- Activation countdown for approved-but-unactivated requests.
         for r in AccessRequest where requester = viewer and status = approved:
             r.actionable_until
+
+        -- The outstanding rows of the My requests tab: what still needs the viewer
+        -- (ActionableForRequester), the same set PamNavBadge counts.
+        for r in AccessRequest where requester = viewer and actionable_for_requester:
+            r.id
 
     provides:
         -- Withdraw a not-yet-activated request. A pending request can always be
@@ -1800,13 +2005,11 @@ open question "AccessRequest.rule is pinned as an FK to AccessRule (RuleId), yet
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
 
-open question "Does a vault export that carries PAM-gated credentials emit a PAM audit event? An export is a bulk, lease-free release of exactly the credentials the trail exists to account for, yet nothing in PAM writes it today (pam-audit's CredentialAccessed is itself deferred), and the organization event log records only that an export happened — never which gated ciphers it carried. Undecided: emit a PAM event per export (or per gated cipher within it), or leave export accounting to the org event log."
+open question "Should the server audit a whole-vault export (PAM-204)? It is the only export that carries gated credentials in full (a member's own export leaves them out): a bulk, lease-free release of exactly what the trail exists to account for. Nothing in PAM records it (pam-audit's CredentialAccessed is itself deferred). The only trace is the organization event log's Organization_ClientExportedVault, which the CLIENT sends, so a modified client can skip it, and which never names the ciphers exported. Undecided: a server-written PAM event per export (or per gated cipher in it), or leave export accounting to the org event log."
 
 open question "PM-42500 removes approval from lease extensions, and with it the control that used to bound a lease's cumulative life — every extension was previously a fresh authorization, so on a human_approval rule each increment needed a human. Now a member granted one human-approved lease can self-renew it indefinitely without an approver ever seeing it again, and max_lease_duration deliberately clamps only a single lease as minted, never the total. So what bounds cumulative lease life? The implementation has two controls the spec does not model — the rule's allowsExtensions toggle (may this rule be extended at all) and its per-increment maxExtensionDurationSeconds cap — but neither bounds the COUNT of extensions, which is the axis approval used to hold. Options: model a cumulative ceiling on the rule, cap the number of extensions per lease, expire the right to extend along with the original approval, or accept unbounded self-renewal as the intended trade."
 
-open question "PM-42500 stops evaluating a rule's conditions on an extension, so an ip_allowlist no longer bounds a member's period of access — only its start. A member who obtains a lease from inside the allowlist can extend it from any network, and nothing downstream re-asks: CipherLeaseGate hands over a gated cipher on the existence of an active lease alone. This is the same gap PM-42273 closed on the activation path, deliberately left open on the extension path, and it sits badly next to that fix. The argument FOR leaving it: an extension re-opens no new access, so re-litigating the network is a check on a decision already made. The argument AGAINST: an allowlist is a standing condition on where a credential may be reached from, not a one-time entry test, and an admin reading 'only from these CIDRs' will not expect a lease to outlive the network. Undecided: gate extensions on the automated conditions after all (the human stays out, the machine check returns), gate only the ip_allowlist kind while exempting the rest, cap what an extension can add so the unchecked window is bounded, or accept that an allowlist bounds the start of access and document it as such at the admin surface."
-
-open question "Does an org-wide kill switch or LeasingFreeze stop vault export? A freeze blocks STARTING leases, and an export mints none, so on the current reading export keeps working while the org is otherwise locked down — a hole in what an admin may well read as a total shutdown. Undecided: leave the two axes independent (export overrides leasing, freeze included), or have a freeze withhold gated ciphers from export too."
+open question "What should an ip_allowlist restrict (PAM-205)? Today it bounds ACQUISITION, never USE. It is checked when a member submits on a rule without human approval and whenever they start a lease (PM-42273), but no read re-checks the caller's network: CipherLeaseGate releases on a live lease alone, so any lease, extended or not, is readable from anywhere for its whole window. Extensions (PM-42500) are not checked either, which only lengthens that unchecked window. An admin reading 'only from these CIDRs' may expect more. Options: re-check the allowlist on every lease-backed read of the credential; check the governing rule's automated conditions on the single-item release read only, so an off-allowlist read gets the partial item and the lease is untouched; bind a lease to the client instance that started it; enforce more strictly on some rules only; or keep today's behaviour and say at the admin surface that an allowlist bounds where access starts."
 
 -- SUPERSEDED by PM-42500 — cumulative extension duration. Recorded here because
 -- the reasoning matters, not just the outcome.
