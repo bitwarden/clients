@@ -1141,7 +1141,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  protected openImport(): void {
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
+      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
+      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
+      await this.router.navigate(["/import"]);
+      return;
+    }
+
     let defaultOrganizationId;
     let defaultCollectionId;
 

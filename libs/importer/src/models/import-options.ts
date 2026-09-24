@@ -571,7 +571,7 @@ export const importOptionsById = deepFreeze({
   // link and four <code> filenames/commands, which doesn't fit the flat instructionKey/
   // instructionLink shape.
   gnomejson: {
-    name: "GNOME Passwords and Keys/Seahorse (json)",
+    name: "GNOME/Seahorse (json)",
     featuredImporter: false,
     isBrowser: false,
     acceptedFileTypes: ["json"],

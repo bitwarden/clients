@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { firstValueFrom, of, skip } from "rxjs";
 
 // AccessSelectorModule / SelectModule use browser observers not available in jsdom
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -186,9 +186,11 @@ describe("BulkCollectionsDialogComponent", () => {
   afterEach(() => TestBed.resetTestingModule());
 
   describe("loading state", () => {
-    it("is false after data loads", async () => {
+    it("starts true and becomes false once data loads", async () => {
       const { component } = await createComponent();
-      expect((component as any).loading).toBe(false);
+      const loading$ = (component as any).loading$;
+      expect(await firstValueFrom(loading$)).toBe(true);
+      expect(await firstValueFrom(loading$.pipe(skip(1)))).toBe(false);
     });
   });
 
@@ -200,7 +202,7 @@ describe("BulkCollectionsDialogComponent", () => {
         users: [buildMiniUser("u1")],
       });
 
-      const items = (component as any).accessItems;
+      const items = await firstValueFrom((component as any).accessItems$);
       expect(items).toHaveLength(2);
       expect(items).toEqual(
         expect.arrayContaining([

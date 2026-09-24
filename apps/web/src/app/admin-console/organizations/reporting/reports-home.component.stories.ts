@@ -32,8 +32,13 @@ export default {
   component: ReportsHomeComponent,
   decorators: [
     moduleMetadata({
-      imports: [SharedModule, ReportsSharedModule, StubHeaderComponent, Vfo1I18nPipe],
-      declarations: [ReportsHomeComponent],
+      imports: [
+        SharedModule,
+        ReportsSharedModule,
+        StubHeaderComponent,
+        Vfo1I18nPipe,
+        ReportsHomeComponent,
+      ],
       providers: [
         {
           provide: ActivatedRoute,
