@@ -49,11 +49,7 @@ import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bi
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
-import {
-  RoutedVaultFilterService,
-  PasswordRepromptService,
-  VaultBatchBarService,
-} from "@bitwarden/vault";
+import { PasswordRepromptService, VaultBatchBarService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -156,17 +152,6 @@ export default {
           useValue: {
             restricted$: of([]), // No restricted item types for this story
             isCipherRestricted: () => false, // No restrictions for this story
-          },
-        },
-        {
-          provide: RoutedVaultFilterService,
-          useValue: {
-            filter$: of({
-              organizationId: null,
-              collectionId: null,
-              folderId: null,
-              type: null,
-            }),
           },
         },
         {

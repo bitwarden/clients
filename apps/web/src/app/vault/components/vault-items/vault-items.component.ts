@@ -24,12 +24,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import {
-  RoutedVaultFilterService,
-  VaultBatchBarService,
-  VaultCopyButtonsService,
-  VaultItem,
-} from "@bitwarden/vault";
+import { VaultBatchBarService, VaultCopyButtonsService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -151,7 +146,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    protected routedVaultFilterService: RoutedVaultFilterService,
     private configService: ConfigService,
   ) {
     this.showQuickCopyActions$ = combineLatest([

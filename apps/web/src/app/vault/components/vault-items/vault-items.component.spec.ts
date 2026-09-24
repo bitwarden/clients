@@ -1,7 +1,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { TestBed } from "@angular/core/testing";
-import { of, Subject } from "rxjs";
+import { of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,8 +13,6 @@ import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   compareVaultItems,
-  RoutedVaultFilterService,
-  RoutedVaultFilterModel,
   VaultBatchBarService,
   VaultCopyButtonsService,
   VaultItem,
@@ -24,7 +22,6 @@ import { VaultItemsComponent } from "./vault-items.component";
 
 describe("VaultItemsComponent", () => {
   let component: VaultItemsComponent<CipherViewLike>;
-  let filterSelect: Subject<RoutedVaultFilterModel>;
   let mockSelection: SelectionModel<VaultItem<CipherViewLike>>;
 
   const cipher1: Partial<CipherView> = {
@@ -40,7 +37,6 @@ describe("VaultItemsComponent", () => {
   };
 
   beforeEach(async () => {
-    filterSelect = new Subject<RoutedVaultFilterModel>();
     mockSelection = new SelectionModel<VaultItem<CipherViewLike>>(
       true,
       [],
@@ -70,12 +66,6 @@ describe("VaultItemsComponent", () => {
           provide: I18nService,
           useValue: {
             t: (key: string) => key,
-          },
-        },
-        {
-          provide: RoutedVaultFilterService,
-          useValue: {
-            filter$: filterSelect,
           },
         },
         {
