@@ -145,12 +145,12 @@ export class Main {
       });
     }
 
-    const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
+    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
 
     // Main has no ConfigService, so it reads the cached server configs straight from the store.
     let flightRecorderEnabled = false;
     try {
-      const configs = (electronStoreBackend.read().global_config_byServer ?? {}) as Record<
+      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
         string,
         { featureStates?: Record<string, unknown> }
       >;
@@ -165,7 +165,7 @@ export class Main {
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
 
-    this.storageService = new ElectronStorageService(new CachedBackend(electronStoreBackend));
+    this.storageService = new ElectronStorageService(storageBackend);
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
