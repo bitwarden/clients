@@ -106,7 +106,7 @@
     "axe-playwright": "2.2.2",
     "babel-loader": "10.1.1",
     "base64-loader": "1.0.0",
-    "browserslist": "4.28.2",
+    "browserslist": "4.28.7",
     "chromatic": "18.0.1",
     "concurrently": "9.2.1",
     "copy-webpack-plugin": "14.0.0",
