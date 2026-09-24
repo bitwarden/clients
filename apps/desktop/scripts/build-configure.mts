@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
+import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
 
 import {
@@ -26,6 +27,7 @@ import {
   getXcodeLibraryIdentifierForArchitecture,
   XCODE_PROVISIONING_PROFILES,
 } from "./build-support-macos.mts";
+import { CARGO_WORKSPACE_DIR } from "./build-support-rust.mts";
 
 async function configureBuildTask(config: BuildConfig, task: BuildTask): Promise<void> {
   const { outputDir, privateDir } = getBuildDirectories(config, task);
@@ -155,7 +157,18 @@ async function main() {
     console.log("CPU architecture:", config.architecture);
 
     config.platform = options.platform;
-    console.log("Platform: ", config.platform);
+    console.log("Platform:", config.platform);
+
+    config.derived.hostPlatform = platformMap[
+      process.platform as keyof typeof platformMap
+    ] as Platform;
+    console.log("Host Platform:", config.derived.hostPlatform);
+
+    config.derived.isCrossPlatform = config.platform !== config.derived.hostPlatform;
+
+    config.derived.cargoTargetDir = path.join(CARGO_WORKSPACE_DIR, "target");
+    console.log("Is Cross Platform:", config.derived.isCrossPlatform);
+
     if (config.platform === "linux") {
       config.linux = {} as any;
     }
@@ -418,13 +431,14 @@ async function main() {
     config.derived.productName = productName;
     console.log("Product name:", productName);
 
+    // Required features
+    tasks.push(NapiBuildTask);
+
     // Optional features
 
     if (options.withAutofillExtension) {
       if (options.platform === "macos") {
-        BitwardenMacosProviderBuildTask.validate(config);
         tasks.push(BitwardenMacosProviderBuildTask);
-        BitwardenMacosAutofillExtensionBuildTask.validate(config);
         tasks.push(BitwardenMacosAutofillExtensionBuildTask);
         let autofillExtensionAppId;
         let extensionProvisioningProfile: string;
@@ -519,6 +533,10 @@ async function main() {
 
     const orderedTasks = getDependencyOrder(tasks);
     config.targets = orderedTasks.map((t) => t.targetName);
+
+    for (const task of tasks) {
+      await task.validate(config);
+    }
 
     if (!isValid) {
       console.error("❌ Configuration is not valid.");

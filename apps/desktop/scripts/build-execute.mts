@@ -7,10 +7,12 @@ import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-aut
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
 import { mkdirSync, readFileSync } from "fs";
 import { Logger } from "./build-support.mts";
+import NapiBuildTask from "@bitwarden/desktop-napi/scripts/build-napi.mts";
 
 const ALL_TARGETS: BuildTask[] = [
   BitwardenMacosAutofillExtensionBuildTask,
   BitwardenMacosProviderBuildTask,
+  NapiBuildTask,
 ];
 
 const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === "true";

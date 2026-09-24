@@ -89,8 +89,12 @@ export interface BuildConfig {
   };
   dependencies: Record<string, { path: string }>;
   derived: {
+    hostPlatform: Platform;
+    isCrossPlatform: boolean;
     appId: string;
     productName: string;
+    /// Root of the Cargo build output tree, i.e. `<workspace>/target`.
+    cargoTargetDir: string;
     macos?: {
       ARCHS: "arm64" | "x86_64" | "arm64 x86_64";
       appProvisioningProfile: string;

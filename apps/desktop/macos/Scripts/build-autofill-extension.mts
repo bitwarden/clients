@@ -53,6 +53,13 @@ const BitwardenMacosAutofillExtensionBuildTask: BuildTask = {
     if (!provisioningProfiles || provisioningProfiles.length === 0) {
       validationErrors.push(new BuildError(`Provisioning profiles for autofill extension not set`));
     }
+
+    if (validationErrors.length > 0) {
+      throw new AggregateError(
+        validationErrors,
+        `Build configuration of ${this.targetName}failed validation`,
+      );
+    }
   },
 
   async configure(config, outputDir, privateDir) {

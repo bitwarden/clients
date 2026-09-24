@@ -7,7 +7,7 @@ import type { Architecture, Platform, Profile } from "./build-config.mts";
 import { DESKTOP_PROJECT_DIR, runCommand } from "./build-support.mts";
 import { glob } from "fs/promises";
 
-const CARGO_WORKSPACE_DIR = path.resolve(DESKTOP_PROJECT_DIR, "desktop_native");
+export const CARGO_WORKSPACE_DIR = path.resolve(DESKTOP_PROJECT_DIR, "desktop_native");
 
 /// Platforms we can build on. Narrower than NodeJS.Platform, which is why callers pass their
 /// own `process.platform` through `asHostPlatform`.
