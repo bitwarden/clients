@@ -966,7 +966,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildTaxPreviewRequest(
+  private buildOrganizationPurchase(
     additionalStorage: number,
     sponsored: boolean,
   ): OrganizationSubscriptionPurchase {
@@ -1023,7 +1023,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         );
       }
 
-      const purchase = this.buildTaxPreviewRequest(
+      const purchase = this.buildOrganizationPurchase(
         this.formGroup.value.additionalStorage ?? 0,
         this.acceptingSponsorship(),
       );
@@ -1094,11 +1094,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
       const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
         this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          this.buildTaxPreviewRequest(0, false),
+          this.buildOrganizationPurchase(0, false),
           billingAddress,
         ),
         this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage ?? 0, false),
+          this.buildOrganizationPurchase(this.formGroup.value.additionalStorage ?? 0, false),
           billingAddress,
         ),
       ]);
@@ -1108,7 +1108,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     } else {
       const taxAmounts =
         await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-          this.buildTaxPreviewRequest(
+          this.buildOrganizationPurchase(
             this.formGroup.value.additionalStorage ?? 0,
             sponsoredForTaxPreview,
           ),
