@@ -3,14 +3,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  Observable,
-  combineLatest,
-  distinctUntilChanged,
-  map,
-  of,
-  switchMap,
-} from "rxjs";
+import { Observable, combineLatest, map, of, switchMap } from "rxjs";
 
 import {
   CollectionAdminView,
@@ -32,7 +25,6 @@ import {
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 import {
-  compareVaultItems,
   RoutedVaultFilterService,
   VaultBatchBarService,
   VaultCopyButtonsService,
@@ -80,9 +72,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() useEvents: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showPremiumFeatures: boolean;
   // Encompasses functionality only available from the organization vault context
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -154,7 +143,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   get selection(): SelectionModel<VaultItem<C>> {
     return this.batchBarService.selection;
   }
-  protected showCopyAndLaunchActions$: Observable<boolean>;
   protected showQuickCopyActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
@@ -166,10 +154,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     protected routedVaultFilterService: RoutedVaultFilterService,
     private configService: ConfigService,
   ) {
-    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
-    );
-
     this.showQuickCopyActions$ = combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
       this.vaultCopyButtonsService.showQuickCopyActions$,
@@ -193,16 +177,9 @@ export class VaultItemsComponent<C extends CipherViewLike> {
    * left of its options menu, so the column has to be wide enough to hold them all. Otherwise they
    * render on top of the preceding columns, e.g. the owner badge.
    */
-  protected optionsColumnWidthClass(
-    showCopyAndLaunchActions: boolean,
-    showQuickCopyActions: boolean,
-  ): string {
-    if (showCopyAndLaunchActions) {
-      // Quick copy shows an icon per copyable field rather than a single combined copy menu
-      return showQuickCopyActions ? "tw-w-48" : "tw-w-32";
-    }
-
-    return "tw-w-24";
+  protected optionsColumnWidthClass(showQuickCopyActions: boolean): string {
+    // Quick copy shows an icon per copyable field rather than a single combined copy menu
+    return showQuickCopyActions ? "tw-w-48" : "tw-w-32";
   }
 
   get isAllSelected() {

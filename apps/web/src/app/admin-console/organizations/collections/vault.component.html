@@ -91,7 +91,6 @@
             ((filter.type === undefined && filter.collectionId === undefined) ||
               filter.collectionId !== undefined)
           "
-          [showPremiumFeatures]="organization?.useTotp"
           [useEvents]="organization?.canAccessEventLogs"
           [showAdminActions]="true"
           (onEvent)="onVaultItemsEvent($event)"

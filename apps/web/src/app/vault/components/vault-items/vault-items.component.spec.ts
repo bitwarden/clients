@@ -106,15 +106,11 @@ describe("VaultItemsComponent", () => {
 
   describe("optionsColumnWidthClass", () => {
     it("reserves room for the quick copy icons when they are shown", () => {
-      expect(component["optionsColumnWidthClass"](true, true)).toBe("tw-w-48");
+      expect(component["optionsColumnWidthClass"](true)).toBe("tw-w-48");
     });
 
     it("reserves room for the combined copy and launch actions", () => {
-      expect(component["optionsColumnWidthClass"](true, false)).toBe("tw-w-32");
-    });
-
-    it("only fits the options menu when there are no copy or launch actions", () => {
-      expect(component["optionsColumnWidthClass"](false, false)).toBe("tw-w-24");
+      expect(component["optionsColumnWidthClass"](false)).toBe("tw-w-32");
     });
   });
 

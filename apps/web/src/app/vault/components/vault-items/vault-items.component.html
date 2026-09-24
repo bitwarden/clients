@@ -68,12 +68,7 @@
         <th
           bitCell
           class="tw-text-right"
-          [ngClass]="
-            optionsColumnWidthClass(
-              (showCopyAndLaunchActions$ | async) ?? false,
-              (showQuickCopyActions$ | async) ?? false
-            )
-          "
+          [ngClass]="optionsColumnWidthClass((showQuickCopyActions$ | async) ?? false)"
         >
             {{ "options" | i18n }}
         </th>
@@ -116,7 +111,6 @@
             [showOwner]="showOwner"
             [showCollections]="showCollections"
             [showGroups]="showGroups"
-            [showPremiumFeatures]="showPremiumFeatures"
             [useEvents]="useEvents"
             [viewingOrgVault]="viewingOrgVault"
             [cloneable]="canClone$(item) | async"

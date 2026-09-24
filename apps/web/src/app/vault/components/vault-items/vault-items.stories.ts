@@ -285,7 +285,6 @@ export const Individual: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: false,
   },
 };
@@ -298,7 +297,6 @@ export const IndividualDisabled: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: false,
   },
 };
@@ -310,7 +308,6 @@ export const IndividualTrash: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: false,
   },
 };
@@ -322,7 +319,6 @@ export const IndividualTopLevelCollection: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: false,
   },
 };
@@ -334,7 +330,6 @@ export const IndividualSecondLevelCollection: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: false,
   },
 };
@@ -346,7 +341,6 @@ export const OrganizationVault: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: true,
   },
 };
@@ -358,7 +352,6 @@ export const OrganizationTrash: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showPremiumFeatures: true,
     useEvents: true,
   },
 };
@@ -375,7 +368,6 @@ export const OrganizationTopLevelCollection: Story = {
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showPremiumFeatures: true,
     useEvents: true,
   },
 };
@@ -387,7 +379,6 @@ export const OrganizationSecondLevelCollection: Story = {
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showPremiumFeatures: true,
     useEvents: true,
   },
 };
