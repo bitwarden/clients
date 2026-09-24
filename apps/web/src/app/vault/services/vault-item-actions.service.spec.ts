@@ -41,6 +41,7 @@ describe("WebVaultItemActionsService", () => {
 
   let itemDialogOpen: jest.SpyInstance;
   let assignCollectionsDialogOpen: jest.SpyInstance;
+  let decryptionFailureDialogOpen: jest.SpyInstance;
 
   /**
    * A test that exercises the dialog config, the reprompt, or the passkey warning sets this
@@ -89,6 +90,11 @@ describe("WebVaultItemActionsService", () => {
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
     assignCollectionsDialogOpen = jest
       .spyOn(AssignCollectionsWebComponent, "open")
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+
+    decryptionFailureDialogOpen = jest
+      .spyOn(DecryptionFailureDialogComponent, "open")
+      .mockClear()
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
 
     TestBed.configureTestingModule({
@@ -202,6 +208,25 @@ describe("WebVaultItemActionsService", () => {
           replaceUrl: true,
         }),
       );
+    });
+
+    describe("an item that failed to decrypt", () => {
+      it("opens the failure dialog instead of the item dialog", async () => {
+        await service.view(buildCipher({ decryptionFailure: true }));
+
+        expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+          cipherIds: [cipherId],
+        });
+        expect(itemDialogOpen).not.toHaveBeenCalled();
+      });
+
+      it("does not prompt for the password first", async () => {
+        await service.view(
+          buildCipher({ decryptionFailure: true, reprompt: CipherRepromptType.Password }),
+        );
+
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+      });
     });
   });
 
