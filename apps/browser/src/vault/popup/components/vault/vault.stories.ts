@@ -589,9 +589,14 @@ const buildProviders = (args: StoryArgs) => {
       // Both the org-notifications and at-risk services read state through `getUser`, keyed by
       // their own `UserKeyDefinition`. Everything defaults to `null` (nothing dismissed); only the
       // at-risk key carries a value, since its success banner is gated on prior interaction.
+      // The simplified-autofill info icon reads `getUserState$` and is marked dismissed to keep it
+      // out of snapshots.
       provide: StateProvider,
       useValue: {
-        getUserState$: () => of(null),
+        getUserState$: (key: { key: string }) =>
+          key?.key === "vaultAutofillSimplifiedIcon"
+            ? of({ hasSeen: true, hasDismissed: true })
+            : of(null),
         // Matched on the literal key: `@bitwarden/vault` doesn't re-export
         // `AT_RISK_PASSWORD_CALLOUT_KEY`, and widening its public API for a story isn't worth it.
         getUser: (_userId: UserId, key: { key: string }) => ({
