@@ -77,10 +77,16 @@ export class InvoicePreviewClient {
   previewPremiumOrgUpgrade = async (
     request: PremiumOrgUpgradePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
+    const params = new URLSearchParams({
+      targetProductTierType: request.targetProductTierType.toString(),
+      country: request.billingAddress.country,
+      postalCode: request.billingAddress.postalCode,
+    });
+
     const json = await this.apiService.send(
-      "POST",
-      "/account/billing/subscription/premium/upgrade/invoice/preview",
-      request,
+      "GET",
+      `/account/billing/subscription/upgrade/preview?${params.toString()}`,
+      null,
       true,
       true,
     );

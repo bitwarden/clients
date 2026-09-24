@@ -35,6 +35,7 @@ function makeCipher(
     collectionIds: string[];
     type: CipherType;
     permissions: { delete: boolean; restore: boolean } | null;
+    decryptionFailure: boolean;
   }> = {},
 ): CipherView {
   return {
@@ -497,6 +498,47 @@ describe("CipherRowMenuService", () => {
 
     it("hides when not in trash (use delete instead)", () => {
       expect(show("permanentlyDelete", makeCipher())).toBe(false);
+    });
+  });
+
+  describe("a cipher that failed to decrypt", () => {
+    function visibleActionIds(cipher: CipherView, collections: CollectionView[] = []): string[] {
+      return service
+        .getRowActions(collections, {
+          edit: () => {},
+          clone: () => {},
+          assignToCollections: () => {},
+        })
+        .filter((action) => action.show?.(cipher) ?? true)
+        .map((action) => action.id);
+    }
+
+    it("offers only Delete", () => {
+      expect(visibleActionIds(makeCipher({ decryptionFailure: true }))).toEqual(["delete"]);
+    });
+
+    it("offers only Permanently delete once trashed", () => {
+      expect(visibleActionIds(makeCipher({ decryptionFailure: true, isDeleted: true }))).toEqual([
+        "permanentlyDelete",
+      ]);
+    });
+
+    it("offers nothing when the user cannot delete it either", () => {
+      expect(
+        visibleActionIds(
+          makeCipher({
+            decryptionFailure: true,
+            organizationId: "org-1",
+            permissions: { delete: false, restore: false },
+          }),
+        ),
+      ).toEqual([]);
+    });
+
+    it("leaves a healthy cipher's actions alone", () => {
+      expect(visibleActionIds(makeCipher())).toEqual(
+        expect.arrayContaining(["addFavorite", "edit", "archive", "delete"]),
+      );
     });
   });
 });

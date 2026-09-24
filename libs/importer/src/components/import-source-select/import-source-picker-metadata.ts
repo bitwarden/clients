@@ -157,7 +157,7 @@ const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> 
   netwrixpasswordsecure: { icon: ImportNetwrixIcon, displayName: "Netwrix" },
   passworddepot17xml: { icon: ImportPasswordDepotIcon, displayName: "Password Depot" },
   delineaxml: { icon: ImportDelineaIcon, darkIcon: ImportDelineaDarkIcon, displayName: "Delinea" },
-  gnomejson: { icon: ImportGnomeIcon, displayName: "GNOME Passwords and Keys" },
+  gnomejson: { icon: ImportGnomeIcon, displayName: "GNOME" },
   blurcsv: { icon: ImportBlurIcon, displayName: "Blur" },
   remembearcsv: { icon: ImportRemembearIcon, displayName: "RememBear" },
   mykicsv: { icon: ImportMykiIcon, displayName: "Myki" },

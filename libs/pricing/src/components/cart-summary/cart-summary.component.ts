@@ -43,7 +43,7 @@ export class CartSummaryComponent {
   readonly cart = input.required<Cart>();
 
   // Optional inputs
-  readonly header = input<TemplateRef<{ total: number }>>();
+  readonly header = input<TemplateRef<{ total: number; amountDue: number }>>();
 
   // Hide pricing term (e.g., "/ month" or "/ year") if true
   readonly hidePricingTerm = input<boolean>(false);
@@ -259,7 +259,8 @@ export class CartSummaryComponent {
     return credit.value;
   });
 
-  readonly accountCreditAmount = computed<number>(() => this.cart().accountCredit?.value ?? 0);
+  readonly appliedBalance = computed<number>(() => this.cart().appliedBalance ?? 0);
+  readonly amountDue = computed<number>(() => this.cart().amountDue ?? this.total());
 
   /**
    * Calculates the total of all line items including discounts, credits and tax. Per-line
@@ -267,12 +268,7 @@ export class CartSummaryComponent {
    * subtracted here.
    */
   private readonly computedTotal = computed<number>(
-    () =>
-      this.subtotal() -
-      this.discountAmount() -
-      this.creditAmount() +
-      this.estimatedTax() -
-      this.accountCreditAmount(),
+    () => this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax(),
   );
 
   /**
