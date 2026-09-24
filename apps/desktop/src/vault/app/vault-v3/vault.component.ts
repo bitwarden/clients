@@ -89,6 +89,7 @@ import {
   AutofocusDirective,
   IconTileComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -1148,8 +1149,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  protected openImport(): void {
-    this.dialogService.open(ImportDesktopComponent);
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
+      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
+      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
+      await this.router.navigate(["/import"]);
+      return;
+    }
+
+    let defaultOrganizationId;
+    let defaultCollectionId;
+
+    const vfo1Enabled = this.vfo1Foundation();
+    const scope = this.vaultScope();
+    if (vfo1Enabled) {
+      defaultOrganizationId =
+        scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
+      defaultCollectionId =
+        scope.type === VaultScopeType.Organization &&
+        scope.collectionId &&
+        isGuid(scope.collectionId)
+          ? scope.collectionId
+          : undefined;
+    }
+
+    this.dialogService.open(ImportDesktopComponent, {
+      data: { defaultOrganizationId, defaultCollectionId },
+    });
   }
 
   filterSearchText(searchText: string) {

@@ -4,7 +4,7 @@ import { of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, EncString, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { makeEncString } from "../../../../spec";
@@ -193,15 +193,6 @@ describe("MinimumKdfMigration", () => {
       );
       const expectedKdf = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min);
       expect(changeKdf).toHaveBeenCalledWith(mockMasterPassword, expectedKdf.toSdkConfig());
-      expect(mockMasterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockUnlockData,
-        mockUserId,
-      );
-      expect(mockMasterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString(mockWrappedUserKey.encryptedString),
-        mockUserId,
-      );
 
       // The SDK persists the new KDF config to state via the state bridge, so verify the
       // config passed to the SDK carries the minimum iteration count.

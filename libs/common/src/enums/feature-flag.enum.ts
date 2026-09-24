@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  StagedStatus = "pm-34423-staged-status",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
@@ -67,8 +66,6 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
-  SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
@@ -93,6 +90,7 @@ export enum FeatureFlag {
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -146,7 +144,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
@@ -184,6 +181,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -238,8 +236,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
-  [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
