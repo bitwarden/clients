@@ -18,8 +18,8 @@ import {
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 
 import { MemberDialogResult } from "../../components/member-dialog/member-dialog.types";
@@ -167,7 +167,7 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() returns early without opening a dialog when the org already has an invite link configured", async () => {
     const organization = createOrganization();
     organizationInviteLinkService.inviteLink$.mockReturnValue(
-      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+      of(Object.assign(new OrganizationInviteLinkView({} as any), { id: "link-1" })),
     );
 
     await service.showIfEligible(organization);
@@ -178,7 +178,7 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() dismisses the callout for good when the org already has an invite link configured", async () => {
     const organization = createOrganization();
     organizationInviteLinkService.inviteLink$.mockReturnValue(
-      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+      of(Object.assign(new OrganizationInviteLinkView({} as any), { id: "link-1" })),
     );
 
     await service.showIfEligible(organization);
