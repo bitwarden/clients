@@ -1,4 +1,5 @@
 <app-header [title]="'pamRotationTitle' | i18n">
+  <div slot="subtitle">{{ "pamRotationSubtitle" | i18n }}</div>
   @switch (activeTab()) {
     @case ("access-connectors") {
       @if (hasAccessConnectors()) {
