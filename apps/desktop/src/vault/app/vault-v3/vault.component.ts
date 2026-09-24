@@ -27,6 +27,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   of,
+  skip,
 } from "rxjs";
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
@@ -86,7 +87,9 @@ import {
   ToastService,
   SearchModule,
   AutofocusDirective,
+  IconTileComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -122,12 +125,26 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  hasMultipleVaults,
+  MY_ITEMS_ROUTE,
   organizationInScope,
+  organizationNameForScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
+  parseVaultScope,
   resolveVaultScope,
+  scopeKey,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
+  VaultBreadcrumbsComponent,
+  VaultRemountOnDirective,
+  sharedFolderNameForScope,
   VaultNavService,
+  vaultScopeCommands,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
   VaultScopeType,
+  defaultUserCollectionId,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -169,6 +186,9 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultOrganizationUserNotificationsComponent,
     AutofocusDirective,
     SharedFolderCardGridComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
+    VaultRemountOnDirective,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -274,7 +294,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
-    switchMap((id) => this.organizationService.organizations$(id)),
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
+  );
+
+  /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
+  private readonly vaultNav$ = this.userId$.pipe(
+    switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
@@ -284,11 +310,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
-        ? combineLatest([
-            this.route.paramMap,
-            this.route.data,
-            this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
-          ]).pipe(
+        ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
             map(
               ([params, data, nav]) =>
                 resolveVaultScope(
@@ -306,6 +328,25 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
 
+  /**
+   * The scope key the vault table's filter state belongs to. Read from the route rather than from
+   * {@link vaultScope$}, which resolves a second time as the nav loads.
+   */
+  protected readonly filterScopeKey = toSignal(
+    combineLatest([this.route.paramMap, this.route.data]).pipe(
+      map(([params, data]) =>
+        scopeKey(
+          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
+            ALL_ITEMS_SCOPE,
+        ),
+      ),
+    ),
+    { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
+  );
+
+  /** {@link vaultNav$} as a signal for use in computed properties. */
+  private readonly vaultNav = toSignal(this.vaultNav$);
+
   /** The organization the page is pinned to, whichever nav the user is on. */
   protected readonly selectedOrganization$ = combineLatest([
     this.vfo1Foundation$,
@@ -321,6 +362,75 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return organizations?.find((org) => org.id === organizationId);
     }),
   );
+
+  /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
+  protected readonly title = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
+      ),
+    ),
+  );
+
+  /**
+   * Whether the scope is a vault an "empty vault" message makes sense for. Trash and Archive are
+   * not — an account with e.g. only one organization vault would otherwise show "No items in
+   * {org}" (and its Add item button) over an empty Trash or Archive, which is not a vault at all.
+   */
+  private readonly isVaultBrowsingScope$ = this.vaultScope$.pipe(
+    map((scope) => scope.type !== VaultScopeType.Trash && scope.type !== VaultScopeType.Archive),
+  );
+
+  /**
+   * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
+   * through `app-vault-list-table` untouched. Only meaningful once `vfo1Foundation` is on — see
+   * {@link vaultScope$} — the legacy nav renders its own empty states instead.
+   *
+   * Gated by {@link isVaultBrowsingScope$}: Trash and Archive are not vaults an "Add item" message
+   * makes sense for, even for an account these facts would otherwise resolve non-empty for.
+   */
+  protected readonly emptyVaultOrganizationName = toSignal(
+    combineLatest([this.vaultScope$, this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([scope, nav, browsing]) =>
+        browsing ? organizationNameForScope(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  protected readonly headerTile = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeHeaderTile(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(
+        ([vfo1Foundation, scope, nav]) =>
+          vfo1Foundation &&
+          organizationVaultPage(scope, nav) === OrganizationVaultPage.SharedFolder,
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly hasMultipleVaults = toSignal(
+    combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([nav, browsing]) => browsing && hasMultipleVaults(nav)),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly defaultCollectionId = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return defaultUserCollectionId(scope.organizationId, this.vaultNav());
+  });
 
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,
@@ -362,6 +472,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected scopedOrganizations: Organization[] = [];
   protected scopedCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
+
+  /**
+   * The shared folder the current vault scope has drilled into, by name — relayed through
+   * `app-vault-list-table` to {@link EmptyVaultComponent} untouched. `undefined` outside an
+   * organization vault's shared-folder route, or while `vfo1Foundation` is off.
+   */
+  protected emptySharedFolderName?: string;
 
   protected readonly searchPlaceholderText = computed(() =>
     this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
@@ -554,6 +671,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const filter$ = this.routedVaultFilterService.filter$;
 
+    /** Whether the current view is Trash, from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const inTrash$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]) =>
+        vfo1Foundation ? scope.type === VaultScopeType.Trash : filter.type === "trash",
+      ),
+    );
+
     /** Rows come from the route's scope under VFO1, and from the query-param filter otherwise. */
     const rowFilter$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
       map(([vfo1Foundation, scope, filter]): FilterFunction =>
@@ -685,6 +809,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.scopedCollections = vfo1Foundation
             ? allCollections.filter((collection) => collectionInScope(collection, scope))
             : allCollections;
+          this.emptySharedFolderName = vfo1Foundation
+            ? sharedFolderNameForScope(scope, this.scopedCollections)
+            : undefined;
           this.scopedOrganizations = vfo1Foundation
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
@@ -694,17 +821,30 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.performingInitialLoad = false;
           this.refreshing = false;
 
-          // Explicitly mark for check to ensure the view is updated
-          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
-          this.changeDetectorRef.markForCheck();
+          // WS server notifications emit outside the Angular zone; force change detection so the list updates.
+          this.changeDetectorRef.detectChanges();
         },
       );
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([allCollections, hasCiphers]) =>
-        this.vaultBatchBarService?.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      .subscribe(([allCollections, hasCiphers, inTrash]) =>
+        this.vaultBatchBarService?.setConfig({
+          isOrgVault: false,
+          allCollections,
+          hasCiphers,
+          inTrash,
+        }),
       );
+
+    this.vaultScope$
+      .pipe(
+        map((scope) => vaultScopeCommands(scope).join("/")),
+        distinctUntilChanged(),
+        skip(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.vaultBatchBarService?.clearSelection());
 
     this.vaultBatchBarService?.completed$
       .pipe(takeUntil(this.destroy$))
@@ -860,7 +1000,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     let collectionIds: CollectionId[] = [];
     let folderId: string | undefined;
 
-    if (activeFilter.collectionId != null) {
+    if (this.vfo1Foundation()) {
+      // VFO1 routes can scope to an organization and optionally to a collection within it —
+      // see `vaultScope$`.
+      const scope = this.vaultScope();
+      if (scope.type === VaultScopeType.Organization) {
+        organizationId = scope.organizationId;
+        if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
+          collectionIds = [scope.collectionId];
+        }
+      }
+    } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
       if (collection) {
         organizationId = collection.organizationId as OrganizationId;
@@ -999,8 +1149,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  protected openImport(): void {
-    this.dialogService.open(ImportDesktopComponent);
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
+      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
+      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
+      await this.router.navigate(["/import"]);
+      return;
+    }
+
+    let defaultOrganizationId;
+    let defaultCollectionId;
+
+    const vfo1Enabled = this.vfo1Foundation();
+    const scope = this.vaultScope();
+    if (vfo1Enabled) {
+      defaultOrganizationId =
+        scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
+      defaultCollectionId =
+        scope.type === VaultScopeType.Organization &&
+        scope.collectionId &&
+        isGuid(scope.collectionId)
+          ? scope.collectionId
+          : undefined;
+    }
+
+    this.dialogService.open(ImportDesktopComponent, {
+      data: { defaultOrganizationId, defaultCollectionId },
+    });
   }
 
   filterSearchText(searchText: string) {

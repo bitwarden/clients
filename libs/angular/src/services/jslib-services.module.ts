@@ -211,9 +211,7 @@ import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-con
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { DefaultKeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/services/default-key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
-import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
 import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
-import { DefaultKeyApiService } from "@bitwarden/common/key-management/keys/services/default-key-api-service.service";
 import { DefaultRotateableKeySetService } from "@bitwarden/common/key-management/keys/services/default-rotateable-key-set.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
@@ -268,7 +266,7 @@ import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/un
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { devFlagEnabled, devFlagValue } from "@bitwarden/common/platform/misc/flags";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -313,6 +311,7 @@ import {
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
@@ -397,7 +396,11 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderService } from "@bitwarden/logging-angular";
-import { DefaultManagedSettingsService, ManagedSettingsService } from "@bitwarden/managed-settings";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import {
   DefaultOrganizationInviteLinkApiService,
   DefaultOrganizationInviteLinkService,
@@ -648,7 +651,6 @@ const safeProviders: SafeProvider[] = [
       LogService,
       KeyConnectorServiceAbstraction,
       EnvironmentService,
-      StateServiceAbstraction,
       TwoFactorService,
       I18nServiceAbstraction,
       EncryptService,
@@ -896,7 +898,6 @@ const safeProviders: SafeProvider[] = [
     provide: LegacyCompatKeyService,
     useClass: DefaultLegacyCompatKeyService,
     deps: [
-      InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionServiceAbstraction,
       EncryptService,
@@ -980,6 +981,11 @@ const safeProviders: SafeProvider[] = [
     useExisting: InternalSendService,
   }),
   safeProvider({
+    provide: SendDecryptionService,
+    useClass: SendDecryptionService,
+    deps: [SdkService, ConfigService, LegacyCompatKeyService],
+  }),
+  safeProvider({
     provide: InternalSendService,
     useClass: SendService,
     deps: [
@@ -991,6 +997,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       ConfigService,
       SdkService,
+      SendDecryptionService,
     ],
   }),
   safeProvider({
@@ -1001,22 +1008,24 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendApiService,
     useClass: SendApiService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService, LogService],
   }),
   safeProvider({
     provide: SendSdkApiService,
     useClass: SendSdkApiService,
-    deps: [SdkService, SendApiService, InternalSendService, AccountServiceAbstraction, LogService],
+    deps: [
+      SdkService,
+      SendApiService,
+      InternalSendService,
+      AccountServiceAbstraction,
+      LogService,
+      SendDecryptionService,
+    ],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,
     useClass: SendApiServiceSelector,
     deps: [ConfigService, SendApiService, SendSdkApiService],
-  }),
-  safeProvider({
-    provide: KeyApiService,
-    useClass: DefaultKeyApiService,
-    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: SyncService,
@@ -1340,7 +1349,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       StateProvider,
       KeyGenerationService,
-      LogService,
       CryptoFunctionServiceAbstraction,
       AccountServiceAbstraction,
     ],
@@ -1357,7 +1365,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordUnlockService,
     useClass: DefaultMasterPasswordUnlockService,
-    deps: [InternalMasterPasswordServiceAbstraction, LegacyCompatKeyService, LogService],
+    deps: [InternalMasterPasswordServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
@@ -1941,7 +1949,15 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ManagedSettingsService,
-    useFactory: () => new DefaultManagedSettingsService(SdkLoadService.Ready),
+    useFactory: () => {
+      if (!devFlagEnabled("managedSettingsDevSource")) {
+        return new DefaultManagedSettingsService(SdkLoadService.Ready);
+      }
+
+      const service = new DevManagedSettingsService(SdkLoadService.Ready);
+      service.pushExplicit(devFlagValue("managedSettingsDevSource") as Record<string, unknown>);
+      return service;
+    },
     deps: [],
   }),
   safeProvider({
@@ -2063,7 +2079,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService, SdkService, EnvironmentService, ConfigService],
+    deps: [PasswordPreloginApiService, SdkService, ConfigService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,
