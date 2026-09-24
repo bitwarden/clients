@@ -622,7 +622,9 @@ export default class AutofillService implements AutofillServiceInterface {
       return { didAutofill: false };
     }
     const tabUrl = tab.url;
-    if (fromCommand) {
+    if (autoSubmitLogin) {
+      cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, false);
+    } else if (fromCommand) {
       cipher = await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId);
     } else {
       const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
@@ -647,7 +649,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (await this.isPasswordRepromptRequired(cipher, tab)) {
-      if (fromCommand) {
+      if (fromCommand && !autoSubmitLogin) {
         this.cipherService.updateLastUsedIndexForUrl(tabUrl);
       }
 
@@ -662,13 +664,13 @@ export default class AutofillService implements AutofillServiceInterface {
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
       fillNewPassword: fromCommand,
-      allowUntrustedIframe: fromCommand,
-      allowTotpAutofill: fromCommand,
+      allowUntrustedIframe: fromCommand && !autoSubmitLogin,
+      allowTotpAutofill: fromCommand && !autoSubmitLogin,
       autoSubmitLogin,
     });
 
     // Update last used index as autofill has succeeded
-    if (fromCommand && result.didAutofill) {
+    if (fromCommand && !autoSubmitLogin && result.didAutofill) {
       this.cipherService.updateLastUsedIndexForUrl(tabUrl);
     }
 

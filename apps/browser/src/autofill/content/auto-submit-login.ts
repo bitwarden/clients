@@ -65,6 +65,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
    */
   function endUpAutoSubmitLoginWorkflow() {
     clearAutoSubmitLoginTimeout();
+    chrome.runtime.onMessage.removeListener(handleExtensionMessage);
     updateIsFieldCurrentlyFilling(false);
   }
 
