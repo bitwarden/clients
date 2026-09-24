@@ -265,6 +265,16 @@ describe("PasswordLoginStrategy", () => {
       expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
     });
 
+    it("clears the prelogin cache when the master key derivation fails", async () => {
+      // The cache holds per-attempt state, so its lifetime tracks the attempt rather than
+      // the attempt's outcome.
+      legacyCompatKeyService.makeMasterKey.mockRejectedValue(new Error("derivation failed"));
+
+      await expect(passwordLoginStrategy.logIn(credentials)).rejects.toThrow("derivation failed");
+
+      expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
+    });
+
     // PM-27060: when prelogin comes from the SDK, the server dictates the KDF salt and the client
     // must derive the master key from it rather than from the email the user typed. The flag gates
     // this so it can be switched off if normalization diverges during the transition.

@@ -244,7 +244,10 @@ export class LoginComponent implements OnInit, OnDestroy {
           // Clear previous login attempt errors as they are no longer valid for the new region
           this.formGroup.controls.masterPassword.setErrors(null);
           this.formGroup.controls.masterPassword.updateValueAndValidity();
-          // Fetch new prelogin data for the updated region
+          // Fetch new prelogin data for the updated region. The cache is keyed on email
+          // alone, so without clearing it first the refetch is a cache hit and the previous
+          // region's KDF config and salt persist.
+          this.passwordPreloginService.clearCache();
           this.prefetchPasswordPreloginData();
         }
       });

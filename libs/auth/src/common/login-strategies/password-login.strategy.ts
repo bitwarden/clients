@@ -84,12 +84,17 @@ export class PasswordLoginStrategy extends LoginStrategy {
     const { email, masterPassword, twoFactor, preFetchedPreloginData } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.makePasswordPreloginMasterKey(
-      masterPassword,
-      email,
-      preFetchedPreloginData,
-    );
-    this.passwordPreloginService.clearCache();
+    try {
+      data.masterKey = await this.makePasswordPreloginMasterKey(
+        masterPassword,
+        email,
+        preFetchedPreloginData,
+      );
+    } finally {
+      // Clear unconditionally so the cache's lifetime matches the login attempt rather than
+      // its outcome. The service holds its entry with refCount: false and no expiry.
+      this.passwordPreloginService.clearCache();
+    }
     data.masterPassword = masterPassword;
     data.userEnteredEmail = email;
 
