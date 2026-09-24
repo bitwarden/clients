@@ -16,14 +16,12 @@ import {
   Vfo1OnboardingNudgeService,
 } from "./vfo1-onboarding-nudge.service";
 
-/** Shifts a copy of the GA release date by the given number of days. */
 function gaDatePlusDays(days: number): Date {
   const date = new Date(VFO1_GA_RELEASE_DATE);
   date.setDate(date.getDate() + days);
   return date;
 }
 
-/** Shifts a copy of the GA release date by the given number of months. */
 function gaDatePlusMonths(months: number): Date {
   const date = new Date(VFO1_GA_RELEASE_DATE);
   date.setMonth(date.getMonth() + months);

@@ -22,7 +22,6 @@ export const VFO1_GA_RELEASE_DATE = new Date("2026-10-01T00:00:00.000Z");
 /** How long after GA the VFO1 onboarding messages stay eligible to show. */
 export const VFO1_ONBOARDING_WINDOW_MONTHS = 6;
 
-/** The moment the onboarding window closes, after which every VFO1 message stays hidden. */
 function onboardingWindowEnd(): number {
   const end = new Date(VFO1_GA_RELEASE_DATE);
   end.setMonth(end.getMonth() + VFO1_ONBOARDING_WINDOW_MONTHS);
@@ -30,11 +29,8 @@ function onboardingWindowEnd(): number {
 }
 
 /**
- * Custom nudge service for the VFO1 onboarding messages.
- *
- * Hides a message in two cases: the account was created on or after the GA release date, or the
- * onboarding window has closed. This is the inverse of {@link NewAccountNudgeService}, which hides
- * a nudge once an account grows older than a cutoff.
+ * The inverse of {@link NewAccountNudgeService}: hides a nudge for accounts *newer* than the
+ * cutoff, rather than older.
  */
 @Injectable({
   providedIn: "root",
@@ -52,9 +48,8 @@ export class Vfo1OnboardingNudgeService extends DefaultSingleNudgeService {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Error getting profile creation date");
-        // Default to today, which reads as an account created after GA and hides the message.
-        // Withholding the message is the safer failure: it avoids telling a brand new user that
-        // a vault they have never seen has changed.
+        // Default to today, which reads as an account created after GA and hides the message —
+        // safer than telling a brand new user that a vault they have never seen has changed.
         return of(new Date());
       }),
     );

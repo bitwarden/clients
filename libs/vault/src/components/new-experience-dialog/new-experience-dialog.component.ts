@@ -59,10 +59,8 @@ export class NewExperienceDialogComponent {
   }
 
   /**
-   * Opens the dialog and reports how the user left it.
-   *
-   * `bit-dialog`'s header close button, the escape key and the backdrop all close without a
-   * value, so anything short of an explicit "explore" reports as
+   * `bit-dialog`'s header close button, the escape key and the backdrop all close without a value,
+   * so anything short of an explicit "explore" reports as
    * {@link NewExperienceDialogResult.Dismissed}.
    */
   static async open(

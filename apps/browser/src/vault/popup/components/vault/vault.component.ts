@@ -103,10 +103,7 @@ const VaultState = {
 
 type VaultState = UnionOfValues<typeof VaultState>;
 
-/**
- * Screenshots of the redesigned vault, shown in the new experience dialog. Paths resolve against
- * the popup document, which sits at the extension root, matching the other popup image references.
- */
+// Resolved against the popup document at the extension root, not this file.
 const NEW_EXPERIENCE_LIGHT_IMG = "../../../../images/new-experience/new-experience.light.png";
 const NEW_EXPERIENCE_DARK_IMG = "../../../../images/new-experience/new-experience.dark.png";
 
@@ -470,7 +467,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Announces the redesigned vault, once, to accounts that predate the GA release.
+   * Opens {@link NewExperienceDialogComponent} once, for accounts that predate the GA release.
    *
    * Gated on the intro carousel — the extension's onboarding welcome — so a user who has not yet
    * been introduced to the product is not told what changed about it. This is the only onboarding

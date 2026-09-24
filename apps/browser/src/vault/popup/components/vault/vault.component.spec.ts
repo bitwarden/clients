@@ -1207,7 +1207,6 @@ describe("VaultComponent", () => {
   });
 
   describe("NewExperienceDialog", () => {
-    /** Runs ngOnInit far enough for the dialog gate to resolve. */
     function initVault() {
       const fixture = TestBed.createComponent(VaultComponent);
       void fixture.componentInstance.ngOnInit();

@@ -127,7 +127,6 @@ describe("NewExperienceDialogComponent", () => {
   });
 
   describe("open", () => {
-    /** Opens against a dialog service whose dialog closes with `closedWith`. */
     const openWith = (closedWith: NewExperienceDialogResult | undefined) => {
       const dialogService = mock<DialogService>();
       dialogService.open.mockReturnValue({ closed: of(closedWith) } as never);
