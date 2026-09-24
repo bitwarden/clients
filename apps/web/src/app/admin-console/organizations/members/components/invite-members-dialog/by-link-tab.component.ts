@@ -1,5 +1,17 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -46,6 +58,13 @@ import {
 } from "@bitwarden/organization-invite-link";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+function parseDomains(rawDomains: string | null | undefined): string[] {
+  return (rawDomains ?? "")
+    .split(",")
+    .map((domain) => domain.trim())
+    .filter((domain) => domain.length > 0);
+}
+
 @Component({
   standalone: true,
   selector: "app-by-link-tab",
@@ -76,6 +95,13 @@ export class ByLinkTabComponent {
 
   readonly tourStep = signal<number>(0);
 
+  // TODO(coachmark cleanup): remove domainsInput and injector along with the rest of the
+  // guided tour (showCoachMarks, tourStep, and the effect() below in the constructor). They
+  // exist only to work around the step 1 popover's backdrop blocking clicks into the page — see
+  // the focus() call sites in save() for the other half of this workaround.
+  protected readonly domainsInput = viewChild<ElementRef<HTMLInputElement>>("domainsInput");
+
+  private readonly injector = inject(Injector);
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
   private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
@@ -147,7 +173,7 @@ export class ByLinkTabComponent {
 
   readonly domainsEmpty = toSignal(
     this.form.controls.domains.valueChanges.pipe(
-      map((v) => !v || v.trim().length === 0),
+      map((v) => parseDomains(v).length === 0),
       startWith(true),
     ),
     { initialValue: true },
@@ -157,6 +183,18 @@ export class ByLinkTabComponent {
   private readonly tourStarted = signal(false);
 
   constructor() {
+    // TODO(coachmark cleanup): remove this effect() with the rest of the guided tour. The step 1
+    // popover sits behind a backdrop that blocks clicks into the page, so the domains input can't
+    // be focused by clicking it while the popover is open. Focus it directly instead.
+    effect(() => {
+      if (this.tourStep() !== 1) {
+        return;
+      }
+      afterNextRender(() => this.domainsInput()?.nativeElement.focus(), {
+        injector: this.injector,
+      });
+    });
+
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
         this.prefillAttempted.set(true);
@@ -244,35 +282,42 @@ export class ByLinkTabComponent {
 
   readonly save = async () => {
     this.form.markAllAsTouched();
-    if (this.form.invalid) {
+    // NOTE: this parses domains (not just `Validators.required` on the raw string) so that
+    // comma/whitespace-only input (e.g. ",  ,") is treated as empty here, rather than reaching
+    // the service layer and throwing "At least one allowed domain is required." This check
+    // should stay even after the guided tour is removed.
+    const domains = parseDomains(this.form.value.domains);
+    if (this.form.invalid || domains.length === 0) {
+      // TODO(coachmark cleanup): the focus() call below can be removed once the guided tour
+      // (and its backdrop, which blocks clicks into the page) is gone — see domainsInput above.
+      this.domainsInput()?.nativeElement.focus();
       return;
     }
 
     const userId = await firstValueFrom(this.userId$);
-    const rawDomains = this.form.value.domains;
-    if (rawDomains == null) {
-      throw new Error("Must provide at least one valid domain.");
-    }
-
-    const domains = rawDomains
-      .split(",")
-      .map((domain) => domain.trim())
-      .filter((domain) => domain.length > 0);
-
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
-    if (inviteLink) {
-      // Save only ever edits the domains once a link exists; the switch saves itself.
-      await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
-    } else {
-      // The switch is hidden until a link exists, so a new link always starts on the link-confirm
-      // flow — that is the behaviour we want admins defaulted into.
-      await this.inviteLinkService.createInviteLink(
-        userId,
-        this.organizationId(),
-        domains,
-        this.autoConfirmEnabled(),
-      );
+    try {
+      if (inviteLink) {
+        // Save only ever edits the domains once a link exists; the switch saves itself.
+        await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
+      } else {
+        // The switch is hidden until a link exists, so a new link always starts on the
+        // link-confirm flow — that is the behaviour we want admins defaulted into.
+        await this.inviteLinkService.createInviteLink(
+          userId,
+          this.organizationId(),
+          domains,
+          this.autoConfirmEnabled(),
+        );
+      }
+    } catch (e) {
+      // The server can still reject domains that passed client-side parsing (e.g. malformed or
+      // duplicate domains), so refocus here too rather than only on the local validation path.
+      // TODO(coachmark cleanup): this focus() call exists for the same backdrop-blocks-clicks
+      // reason as the one above — remove both together with the guided tour.
+      this.domainsInput()?.nativeElement.focus();
+      throw e;
     }
 
     this.form.markAsPristine();
@@ -286,7 +331,7 @@ export class ByLinkTabComponent {
   readonly saveAndAdvanceToStep2 = async () => {
     if (this.form.dirty || (await firstValueFrom(this.inviteLink$)) == null) {
       await this.save();
-      if (this.form.invalid) {
+      if (this.form.invalid || this.domainsEmpty()) {
         return;
       }
     }
