@@ -46,15 +46,15 @@
               [route]="vfo1SubscriptionRoute"
             ></bit-nav-item>
           }
+          @if (!singleOrgPolicyApplies()) {
+            <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
+          }
           <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
           @if (showEmergencyAccess()) {
             <bit-nav-item
               [text]="'emergencyAccess' | i18n"
               route="settings/emergency-access"
             ></bit-nav-item>
-          }
-          @if (!singleOrgPolicyApplies()) {
-            <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
           }
           <billing-free-families-nav-item></billing-free-families-nav-item>
           <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
