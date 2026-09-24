@@ -1,3 +1,4 @@
+import { SelectionModel } from "@angular/cdk/collections";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { TestBed } from "@angular/core/testing";
 import { of, Subject } from "rxjs";
@@ -11,8 +12,10 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  compareVaultItems,
   RoutedVaultFilterService,
   RoutedVaultFilterModel,
+  VaultBatchBarService,
   VaultCopyButtonsService,
   VaultItem,
 } from "@bitwarden/vault";
@@ -22,6 +25,7 @@ import { VaultItemsComponent } from "./vault-items.component";
 describe("VaultItemsComponent", () => {
   let component: VaultItemsComponent<CipherViewLike>;
   let filterSelect: Subject<RoutedVaultFilterModel>;
+  let mockSelection: SelectionModel<VaultItem<CipherViewLike>>;
 
   const cipher1: Partial<CipherView> = {
     id: "cipher-1",
@@ -37,6 +41,12 @@ describe("VaultItemsComponent", () => {
 
   beforeEach(async () => {
     filterSelect = new Subject<RoutedVaultFilterModel>();
+    mockSelection = new SelectionModel<VaultItem<CipherViewLike>>(
+      true,
+      [],
+      true,
+      compareVaultItems,
+    );
 
     await TestBed.configureTestingModule({
       declarations: [VaultItemsComponent],
@@ -80,6 +90,13 @@ describe("VaultItemsComponent", () => {
             showQuickCopyActions$: of(false),
           },
         },
+        {
+          provide: VaultBatchBarService,
+          useValue: {
+            selection: mockSelection,
+            clearSelection: () => mockSelection.clear(),
+          },
+        },
       ],
     });
 
@@ -97,7 +114,7 @@ describe("VaultItemsComponent", () => {
     });
 
     it("only fits the options menu when there are no copy or launch actions", () => {
-      expect(component["optionsColumnWidthClass"](false, false)).toBe("tw-w-12");
+      expect(component["optionsColumnWidthClass"](false, false)).toBe("tw-w-24");
     });
   });
 
@@ -113,8 +130,8 @@ describe("VaultItemsComponent", () => {
     });
   });
 
-  describe("filter change handling", () => {
-    it("clears selection when routed filter changes", () => {
+  describe("clearSelection", () => {
+    it("clears the selection", () => {
       const items: VaultItem<CipherView>[] = [
         { cipher: cipher1 as CipherView },
         { cipher: cipher2 as CipherView },
@@ -123,9 +140,7 @@ describe("VaultItemsComponent", () => {
       component["selection"].select(...items);
       expect(component["selection"].selected.length).toBeGreaterThan(0);
 
-      filterSelect.next({
-        folderId: "folderId",
-      });
+      component.clearSelection();
 
       expect(component["selection"].selected.length).toBe(0);
     });

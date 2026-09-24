@@ -68,7 +68,6 @@ export class BulkCollectionsDialogComponent {
   private readonly i18nService = inject(I18nService);
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly toastService = inject(ToastService);
-  private readonly configService = inject(ConfigService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
