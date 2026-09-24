@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
 import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
+import WebpackBuildTask from "../build-app.mts";
 
 import {
   type BuildConfig,
@@ -433,6 +434,7 @@ async function main() {
 
     // Required features
     tasks.push(NapiBuildTask);
+    tasks.push(WebpackBuildTask);
 
     // Optional features
 

@@ -57,7 +57,7 @@ const BitwardenMacosAutofillExtensionBuildTask: BuildTask = {
     if (validationErrors.length > 0) {
       throw new AggregateError(
         validationErrors,
-        `Build configuration of ${this.targetName}failed validation`,
+        `Build configuration of ${this.targetName} failed validation`,
       );
     }
   },

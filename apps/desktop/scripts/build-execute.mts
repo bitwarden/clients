@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 
+import { mkdirSync, readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import { BuildError, type BuildTask, getBuildDirectories } from "./build-config.mts";
-import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
-import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
-import { mkdirSync, readFileSync } from "fs";
 import { Logger } from "./build-support.mts";
-import NapiBuildTask from "@bitwarden/desktop-napi/scripts/build-napi.mts";
+import WebpackBuildTask from "../build-app.mts";
+import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
+import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
+import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
 
 const ALL_TARGETS: BuildTask[] = [
   BitwardenMacosAutofillExtensionBuildTask,
   BitwardenMacosProviderBuildTask,
   NapiBuildTask,
+  WebpackBuildTask,
 ];
 
 const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === "true";
