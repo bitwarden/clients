@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { BehaviorSubject, of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,6 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
@@ -23,6 +25,8 @@ describe("VaultRowLeaseBadgeComponent", () => {
     getCipherAccessState: jest.Mock<Promise<CipherAccessStateView>, [string]>;
   };
   let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
+  let accessChanged$: Subject<void>;
+  let accessRefresh: MockProxy<AccessRefreshService>;
 
   function create(cipher: CipherView): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
@@ -65,12 +69,16 @@ describe("VaultRowLeaseBadgeComponent", () => {
       { id: PAM_ORG, usePam: true },
       { id: PLAIN_ORG, usePam: false },
     ]);
+    accessChanged$ = new Subject<void>();
+    accessRefresh = mock<AccessRefreshService>();
+    accessRefresh.accessChanged$.mockReturnValue(accessChanged$);
 
     TestBed.configureTestingModule({
       imports: [VaultRowLeaseBadgeComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
         { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
+        { provide: AccessRefreshService, useValue: accessRefresh },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         {
@@ -155,6 +163,47 @@ describe("VaultRowLeaseBadgeComponent", () => {
     fixture.detectChanges();
 
     expect(component["badge"]()).toBeNull();
+  });
+
+  describe("refreshing", () => {
+    it("re-reads the access state when the row's access changes", async () => {
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          pendingRequest: {},
+          badgeState: "pending",
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({ badgeState: "privileged" } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(component["badge"]()?.kind).toBe("pending");
+
+      accessChanged$.next();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["badge"]()?.kind).toBe("privileged");
+    });
+
+    // A broadcast subscription would re-read every gated row in the viewport on any mutation.
+    it("scopes the subscription to the row's own cipher", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+        badgeState: "privileged",
+      } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await fixture.whenStable();
+
+      expect(accessRefresh.accessChanged$).toHaveBeenCalledWith("cipher-1");
+    });
+
+    it("does not subscribe for a non-gated cipher", async () => {
+      create(ungatedCipher(PAM_ORG));
+      await fixture.whenStable();
+
+      expect(accessRefresh.accessChanged$).not.toHaveBeenCalled();
+    });
   });
 
   describe("the no-access-rule placeholder", () => {
