@@ -98,7 +98,13 @@ type Story = StoryObj<DomainAddEditDialogComponent>;
 /** Adding a brand new domain — the domain name field is editable. */
 export const Add: Story = {
   decorators: [
-    storyProviders({ organizationId: ORG_ID, orgDomain: null, existingDomainNames: [] }),
+    // orgDomain is null when creating a new domain; the field's type doesn't reflect this
+    // (see domain-add-edit-dialog.component.ts, which relies on @ts-strict-ignore for the same call).
+    storyProviders({
+      organizationId: ORG_ID,
+      orgDomain: null as unknown as OrganizationDomainResponse,
+      existingDomainNames: [],
+    }),
   ],
 };
 
