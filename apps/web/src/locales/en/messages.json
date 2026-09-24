@@ -18889,6 +18889,9 @@
   "pamRotationTitle": {
     "message": "Rotation"
   },
+  "pamRotationSubtitle": {
+    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
+  },
   "pamRotationTabManagedCredentials": {
     "message": "Managed credentials"
   },
