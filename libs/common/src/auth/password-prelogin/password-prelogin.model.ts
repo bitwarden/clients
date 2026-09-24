@@ -12,7 +12,11 @@ import { PasswordPreloginResponse } from "./password-prelogin.response";
 export class PasswordPreloginData {
   constructor(
     readonly kdfConfig: KdfConfig,
-    readonly salt: string,
+    /**
+     * The salt as reported by its source, without substitution. Null when the source had
+     * none to report, which only the API path can produce.
+     */
+    readonly salt: string | null,
   ) {}
 
   /**
