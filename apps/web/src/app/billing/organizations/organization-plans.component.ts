@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  inject,
   input,
   OnDestroy,
   OnInit,
@@ -62,7 +63,7 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -163,6 +164,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // Computed signals
   readonly createOrganization = computed(() => this.organizationId() == null);
   readonly hasProvider = computed(() => this.providerId() != null);
+
+  private readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+
+  /**
+   * Tightens the spacing between sections to 24px, replacing the default `bit-section` margin.
+   * Only applies when the component is hosted in the sponsorship flow with VFO1 on.
+   */
+  protected readonly sponsoredPlanLayout = computed(
+    () => this.acceptingSponsorship() && this.vfo1Enabled(),
+  );
 
   /**
    * Determines whether the user can upgrade from Premium to an organization plan.
@@ -680,7 +691,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
   get paymentDesc() {
     if (this.acceptingSponsorship()) {
-      return this.i18nService.t("paymentSponsored");
+      return this.i18nService.t(
+        this.vfo1Enabled() ? "paymentSponsoredFamilyVault" : "paymentSponsored",
+      );
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
       return this.i18nService.t(
         "paymentChargedWithTrialSpecificLength",
