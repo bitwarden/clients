@@ -87,66 +87,81 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._error.next(null);
     this.logService.mark("[AccessReportFlow]: page open");
 
-    return forkJoin({
-      reportResult: this.reportPersistenceService.loadLastReport$(orgId),
-      ciphers: this.loadCiphersOnly$(orgId),
-    }).pipe(
-      switchMap(({ reportResult, ciphers }) => {
-        this._ciphers.next(ciphers);
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+      .pipe(
+        first(),
+        switchMap((performanceAtScaleEnabled) =>
+          forkJoin({
+            reportResult: this.reportPersistenceService.loadLastReport$(orgId),
+            // With the flag on, ciphers are deferred until we know no report exists
+            ciphers: performanceAtScaleEnabled ? of(null) : this.loadCiphersOnly$(orgId),
+          }),
+        ),
+        switchMap(({ reportResult, ciphers }) => {
+          if (ciphers) {
+            this._ciphers.next(ciphers);
+          }
 
-        if (!reportResult) {
-          return of(null);
-        }
+          if (!reportResult) {
+            if (ciphers) {
+              return of(null);
+            }
+            return this.loadCiphersOnly$(orgId).pipe(
+              tap((loadedCiphers) => this._ciphers.next(loadedCiphers)),
+              map((): AccessReportView | null => null),
+            );
+          }
 
-        const { report, hadLegacyBlobs } = reportResult;
+          const { report, hadLegacyBlobs } = reportResult;
 
-        if (hadLegacyBlobs) {
-          this.logService.info(
-            "[DefaultAccessIntelligenceDataService] Legacy blobs detected, re-saving in current format",
+          if (hadLegacyBlobs) {
+            this.logService.info(
+              "[DefaultAccessIntelligenceDataService] Legacy blobs detected, re-saving in current format",
+            );
+            return this.reportPersistenceService.saveReport$(report, orgId).pipe(
+              tap(({ id, contentEncryptionKey }) => {
+                report.id = id;
+                report.contentEncryptionKey = contentEncryptionKey;
+                this.logService.info(
+                  "[DefaultAccessIntelligenceDataService] Legacy blobs re-saved in current format",
+                );
+              }),
+              map(() => report),
+            );
+          }
+
+          return of(report);
+        }),
+        switchMap((report) => {
+          if (report) {
+            this.logService.debug("[DefaultAccessIntelligenceDataService] Report loaded");
+          } else {
+            this.logService.debug("[DefaultAccessIntelligenceDataService] No reports found");
+          }
+          this._report.next(report);
+          this._loading.next(false);
+          return of(undefined as void);
+        }),
+        measureFlowStep(this.logService, "Load: page initialized", () => {
+          const report = this._report.value;
+          return [
+            ["itemCount", this._ciphers.value.length],
+            ["memberCount", report ? Object.keys(report.memberRegistry).length : 0],
+            ["applicationCount", report?.reports.length ?? 0],
+          ];
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(
+            "[DefaultAccessIntelligenceDataService] Initialization failed",
+            error,
           );
-          return this.reportPersistenceService.saveReport$(report, orgId).pipe(
-            tap(({ id, contentEncryptionKey }) => {
-              report.id = id;
-              report.contentEncryptionKey = contentEncryptionKey;
-              this.logService.info(
-                "[DefaultAccessIntelligenceDataService] Legacy blobs re-saved in current format",
-              );
-            }),
-            map(() => report),
-          );
-        }
-
-        return of(report);
-      }),
-      switchMap((report) => {
-        if (report) {
-          this.logService.debug("[DefaultAccessIntelligenceDataService] Report loaded");
-        } else {
-          this.logService.debug("[DefaultAccessIntelligenceDataService] No reports found");
-        }
-        this._report.next(report);
-        this._loading.next(false);
-        return of(undefined as void);
-      }),
-      measureFlowStep(this.logService, "Load: page initialized", () => {
-        const report = this._report.value;
-        return [
-          ["itemCount", this._ciphers.value.length],
-          ["memberCount", report ? Object.keys(report.memberRegistry).length : 0],
-          ["applicationCount", report?.reports.length ?? 0],
-        ];
-      }),
-      catchError((error: unknown) => {
-        this.logService.error(
-          "[DefaultAccessIntelligenceDataService] Initialization failed",
-          error,
-        );
-        this._error.next("Failed to initialize");
-        this._loading.next(false);
-        this._report.next(null);
-        return of(undefined as void);
-      }),
-    );
+          this._error.next("Failed to initialize");
+          this._loading.next(false);
+          this._report.next(null);
+          return of(undefined as void);
+        }),
+      );
   }
 
   generateNewReport$(orgId: OrganizationId): Observable<void> {
