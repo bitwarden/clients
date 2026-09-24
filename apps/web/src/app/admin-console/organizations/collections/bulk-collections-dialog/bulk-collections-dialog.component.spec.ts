@@ -26,7 +26,6 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -93,7 +92,6 @@ interface CreateOptions {
   orgOverrides?: Partial<Organization>;
   groups?: GroupView[];
   users?: any[];
-  batchBarEnabled?: boolean;
   vfo1Enabled?: boolean;
 }
 
@@ -108,7 +106,6 @@ async function createComponent(options: CreateOptions = {}): Promise<{
     collectionAdminService: MockProxy<CollectionAdminService>;
     i18nService: MockProxy<I18nService>;
     toastService: MockProxy<ToastService>;
-    configService: MockProxy<ConfigService>;
     dialogRef: MockProxy<DialogRef<BulkCollectionsDialogResult>>;
   };
 }> {
@@ -124,7 +121,6 @@ async function createComponent(options: CreateOptions = {}): Promise<{
   const collectionAdminService = mock<CollectionAdminService>();
   const i18nService = mock<I18nService>();
   const toastService = mock<ToastService>();
-  const configService = mock<ConfigService>();
   const dialogRef = mock<DialogRef<BulkCollectionsDialogResult>>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
@@ -135,7 +131,6 @@ async function createComponent(options: CreateOptions = {}): Promise<{
   } as any);
   collectionAdminService.collectionAdminViews$.mockReturnValue(of(options.adminViews ?? []));
   collectionAdminService.bulkAssignAccess.mockResolvedValue(undefined);
-  configService.getFeatureFlag.mockResolvedValue(options.batchBarEnabled ?? false);
   i18nService.t.mockImplementation((key) => key);
 
   await TestBed.configureTestingModule({
@@ -151,7 +146,6 @@ async function createComponent(options: CreateOptions = {}): Promise<{
       { provide: I18nService, useValue: i18nService },
       { provide: CollectionAdminService, useValue: collectionAdminService },
       { provide: ToastService, useValue: toastService },
-      { provide: ConfigService, useValue: configService },
       {
         provide: Vfo1TerminologyService,
         useValue: {
@@ -179,7 +173,6 @@ async function createComponent(options: CreateOptions = {}): Promise<{
       collectionAdminService,
       i18nService,
       toastService,
-      configService,
       dialogRef,
     },
   };
@@ -332,7 +325,6 @@ describe("BulkCollectionsDialogComponent", () => {
     it("uses the singular edited message for a single collection when the batch bar is enabled", async () => {
       const { component, mocks } = await createComponent({
         collections: [collectionView("c1")],
-        batchBarEnabled: true,
       });
 
       await component.submit();
@@ -343,18 +335,6 @@ describe("BulkCollectionsDialogComponent", () => {
     it("uses the plural edited message for multiple collections when the batch bar is enabled", async () => {
       const { component, mocks } = await createComponent({
         collections: [collectionView("c1"), collectionView("c2")],
-        batchBarEnabled: true,
-      });
-
-      await component.submit();
-
-      expect(mocks.i18nService.t).toHaveBeenCalledWith("collectionsEdited");
-    });
-
-    it("uses the plural edited message when the batch bar is disabled", async () => {
-      const { component, mocks } = await createComponent({
-        collections: [collectionView("c1")],
-        batchBarEnabled: false,
       });
 
       await component.submit();
@@ -365,7 +345,6 @@ describe("BulkCollectionsDialogComponent", () => {
     it("uses the shared folder singular message when the VFO1 flag is on", async () => {
       const { component, mocks } = await createComponent({
         collections: [collectionView("c1")],
-        batchBarEnabled: true,
         vfo1Enabled: true,
       });
 
@@ -377,7 +356,6 @@ describe("BulkCollectionsDialogComponent", () => {
     it("uses the shared folder plural message when the VFO1 flag is on", async () => {
       const { component, mocks } = await createComponent({
         collections: [collectionView("c1"), collectionView("c2")],
-        batchBarEnabled: true,
         vfo1Enabled: true,
       });
 
