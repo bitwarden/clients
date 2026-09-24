@@ -930,7 +930,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "base64",
- "cbc 0.1.2",
+ "cbc 0.2.1",
  "desktop_objc",
  "dirs",
  "hex",
