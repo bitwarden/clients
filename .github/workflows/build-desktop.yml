@@ -12,6 +12,8 @@ on:
       - 'cf-pages'
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
       - '!*.md'
@@ -24,6 +26,8 @@ on:
       - 'hotfix-rc-desktop'
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
       - '!*.md'
@@ -184,7 +188,17 @@ jobs:
           echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
   linux:
-    name: Linux Build
+    name: Linux Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -245,7 +259,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -258,11 +272,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -287,47 +320,47 @@ jobs:
           node build.js --target=x86_64-unknown-linux-gnu --release
 
       - name: Build application
-        run: npm run dist:lin
+        run: npm run dist:${{ matrix.variant }}:lin
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
           if-no-files-found: error
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           if-no-files-found: error
 
       - name: Upload .snap artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload .AppImage artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-linux.yml
+          name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}-linux.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
           if-no-files-found: error
 
@@ -340,12 +373,22 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: com.bitwarden.desktop.flatpak
+          name: ${{ matrix.artifact_prefix }}com.bitwarden.desktop.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
 
   linux-arm64:
-    name: Linux ARM64 Build
+    name: Linux ARM64 Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -409,7 +452,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -422,11 +465,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -464,19 +526,19 @@ jobs:
           # Snapcraft environment variables to bypass LXD requirement on ARM64
           SNAPCRAFT_BUILD_ENVIRONMENT: host
           USE_SYSTEM_FPM: true
-        run: npm run dist:lin:arm64
+        run: npm run dist:${{ matrix.variant }}:lin:arm64
 
       - name: Upload .snap artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           if-no-files-found: error
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
           if-no-files-found: error
 
@@ -489,12 +551,22 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: com.bitwarden.desktop-arm64.flatpak
+          name: ${{ matrix.artifact_prefix }}com.bitwarden.desktop-arm64.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
 
   windows:
-    name: Windows Build
+    name: Windows Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: windows-2022
     needs:
       - setup
@@ -570,7 +642,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -583,11 +655,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -606,7 +697,7 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -664,7 +755,7 @@ jobs:
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -672,7 +763,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -680,7 +771,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           if-no-files-found: error
 
@@ -688,7 +779,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           if-no-files-found: error
 
@@ -696,7 +787,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
@@ -704,7 +795,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           if-no-files-found: error
 
@@ -712,7 +803,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           if-no-files-found: error
 
@@ -720,7 +811,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           if-no-files-found: error
 
@@ -728,7 +819,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           if-no-files-found: error
 
@@ -736,7 +827,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           if-no-files-found: error
 
@@ -744,7 +835,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           if-no-files-found: error
 
@@ -752,7 +843,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
+          name: ${{ matrix.artifact_prefix }}bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           if-no-files-found: error
 
@@ -760,7 +851,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ needs.setup.outputs.release_channel }}.yml
+          name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
@@ -805,7 +896,17 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   windows-beta:
-    name: Windows Beta Build
+    name: Windows Beta Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: windows-2022
     needs: setup
     permissions:
@@ -880,7 +981,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -893,11 +994,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -918,7 +1038,7 @@ jobs:
       - name: Build
         env:
           CHANNEL: beta
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       # pack:win:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
       # electron-builder reads for artifact names and the channel file. The `-beta.N`
@@ -1010,7 +1130,7 @@ jobs:
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -1018,7 +1138,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -1026,7 +1146,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           if-no-files-found: error
 
@@ -1034,7 +1154,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           if-no-files-found: error
 
@@ -1042,7 +1162,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
@@ -1050,7 +1170,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           if-no-files-found: error
 
@@ -1058,7 +1178,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           if-no-files-found: error
 
@@ -1066,7 +1186,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           if-no-files-found: error
 
@@ -1074,7 +1194,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           if-no-files-found: error
 
@@ -1082,7 +1202,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           if-no-files-found: error
 
@@ -1090,7 +1210,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           if-no-files-found: error
 
@@ -1098,12 +1218,22 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: beta.yml
+          name: ${{ matrix.artifact_prefix }}beta.yml
           path: apps/desktop/dist/nsis-web/beta.yml
           if-no-files-found: error
 
   macos-build:
-    name: MacOS Build
+    name: MacOS Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     needs:
       - setup
@@ -1161,14 +1291,14 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Cache Safari
         id: safari-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/browser/dist/Safari
-          key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-safari-extension
 
       - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1277,7 +1407,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1290,11 +1420,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -1313,7 +1462,7 @@ jobs:
         run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
   browser-build:
     name: Browser Build
@@ -1327,7 +1476,17 @@ jobs:
       id-token: write
 
   macos-package-github:
-    name: MacOS Package GitHub Release Assets
+    name: MacOS Package GitHub Release Assets [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1388,14 +1547,14 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/browser/dist/Safari
-          key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-safari-extension
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -1493,7 +1652,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1506,11 +1665,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -1530,7 +1708,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Download Browser artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -1571,33 +1749,43 @@ jobs:
       - name: Upload .zip artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-mac.yml
+          name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
           if-no-files-found: error
 
   macos-beta:
-    name: MacOS Beta Build
+    name: MacOS Beta Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1731,7 +1919,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -1744,11 +1932,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
@@ -1769,7 +1976,7 @@ jobs:
       - name: Build
         env:
           CHANNEL: beta
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Set up private auth key
         id: setup-auth-key
@@ -1798,26 +2005,36 @@ jobs:
       - name: Upload .zip artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: beta-mac.yml
+          name: ${{ matrix.artifact_prefix }}beta-mac.yml
           path: apps/desktop/dist/beta-mac.yml
           if-no-files-found: error
 
   macos-package-mas:
-    name: MacOS Package Prod Release Asset
+    name: MacOS Package Prod Release Asset [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1878,14 +2095,14 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/browser/dist/Safari
-          key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-safari-extension
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -1991,7 +2208,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -2004,11 +2221,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -2028,7 +2264,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Download Browser artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -2079,14 +2315,14 @@ jobs:
       - name: Upload MacOS App Store build number artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: macos-build-number.json
+          name: ${{ matrix.artifact_prefix }}macos-build-number.json
           path: apps/desktop/dist/macos-build-number.json
           if-no-files-found: error
 
       - name: Upload .pkg artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           if-no-files-found: error
 
@@ -2094,6 +2330,7 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+          && matrix.license_type == 'oss'
         env:
           _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
@@ -2116,6 +2353,7 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+          && matrix.license_type == 'oss'
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
@@ -2139,6 +2377,7 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+          && matrix.license_type == 'oss'
         uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         with:
           webhook: ${{ steps.retrieve-slack-secret.outputs.slack-webhook-alerts-deploy-qa }}

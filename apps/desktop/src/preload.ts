@@ -1,10 +1,6 @@
 import { contextBridge } from "electron";
 
-import tools from "./app/tools/preload";
-import auth from "./auth/preload";
-import autofill from "./autofill/preload";
-import keyManagement from "./key-management/preload";
-import platform from "./platform/preload";
+import { ipc } from "./preload.base";
 
 /**
  * Bitwarden Preload script.
@@ -17,12 +13,6 @@ import platform from "./platform/preload";
  */
 
 // Each team owns a subspace of the `ipc` global variable in the renderer.
-export const ipc = {
-  auth,
-  autofill,
-  platform,
-  keyManagement,
-  tools,
-};
+export { ipc };
 
 contextBridge.exposeInMainWorld("ipc", ipc);
