@@ -18713,8 +18713,11 @@
   "pamHistoryScopeLabel": {
     "message": "History scope"
   },
-  "pamHistoryEmpty": {
-    "message": "No request history to display"
+  "pamHistoryEmptyTitle": {
+    "message": "Nothing to show yet"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "Activity around requests and approvals will display here once actions are taken."
   },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."

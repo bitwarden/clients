@@ -221,12 +221,19 @@ export class HistoryTabComponent {
 
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
+  /** Whether any scope holds a row, so there is a history to narrow at all. */
+  protected readonly hasHistory = computed(
+    () => this.myRows().length > 0 || this.hasManagedHistory(),
+  );
+
   /**
-   * Offered to anyone who can approve, rows or not — gating on rows would hide the filters until
-   * there is something to filter. `hasManagedHistory()` also covers a viewer with managed rows
-   * whom the privilege predicate does not recognize as an approver.
+   * Offered to anyone who can approve once there is something to filter — over an empty history
+   * every scope narrows to the same nothing. `hasManagedHistory()` also covers a viewer with
+   * managed rows whom the privilege predicate does not recognize as an approver.
    */
-  protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
+  protected readonly canSwitchScope = computed(
+    () => this.hasHistory() && (this.canApprove() || this.hasManagedHistory()),
+  );
 
   /**
    * One source of truth for the scope — the shape the sibling access-audit page uses for its
@@ -283,20 +290,13 @@ export class HistoryTabComponent {
   );
 
   /**
-   * Each scope answers for the slice it lists. All spans both sources, so borrowing either side's
-   * wording tells a reader with no history at all that they have raised nothing — which is only
-   * half of what the empty table means.
+   * Wording for a scope that lists nothing while another one still holds rows. A history that is
+   * empty in every scope is a different state with its own copy, and {@link canSwitchScope} keeps
+   * All from reaching here.
    */
-  protected readonly emptyMessageKey = computed(() => {
-    switch (this.scope()) {
-      case HistoryScope.Managed:
-        return "pamInboxHistoryEmpty";
-      case HistoryScope.Mine:
-        return "pamMyRequestsHistoryEmpty";
-      default:
-        return "pamHistoryEmpty";
-    }
-  });
+  protected readonly emptyMessageKey = computed(() =>
+    this.scope() === HistoryScope.Managed ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty",
+  );
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
