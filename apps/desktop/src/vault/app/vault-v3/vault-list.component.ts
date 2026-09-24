@@ -135,9 +135,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private configService = inject(ConfigService);
-  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
-    optional: true,
-  });
+  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService);
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
   /**
@@ -159,15 +157,12 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly ownerColumnWidthClass = OWNER_COLUMN_WIDTH_CLASS;
 
   protected readonly showBatchBar = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
     { initialValue: false },
   );
 
   protected readonly barVisible = computed(
-    () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
+    () => this.showBatchBar() && this.batchBarService.selectedCount() > 0,
   );
 
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
@@ -179,7 +174,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   private restrictedTypes: RestrictedCipherType[] = [];
 
   get selection(): SelectionModel<VaultItem<C>> {
-    return this.batchBarService?.selection;
+    return this.batchBarService.selection;
   }
 
   get isAllSelected(): boolean {

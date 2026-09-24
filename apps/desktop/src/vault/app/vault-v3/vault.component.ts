@@ -236,7 +236,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
-  private vaultBatchBarService = inject(VaultBatchBarService, { optional: true });
+  private vaultBatchBarService = inject(VaultBatchBarService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
   protected readonly activeFilter = signal<VaultFilter>(new VaultFilter());
@@ -267,10 +267,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   );
 
   protected readonly vaultBatchBarFeatureFlag = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
     { initialValue: false },
   );
 
@@ -829,7 +826,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0)), inTrash$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([allCollections, hasCiphers, inTrash]) =>
-        this.vaultBatchBarService?.setConfig({
+        this.vaultBatchBarService.setConfig({
           isOrgVault: false,
           allCollections,
           hasCiphers,
@@ -844,9 +841,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         skip(1),
         takeUntil(this.destroy$),
       )
-      .subscribe(() => this.vaultBatchBarService?.clearSelection());
+      .subscribe(() => this.vaultBatchBarService.clearSelection());
 
-    this.vaultBatchBarService?.completed$
+    this.vaultBatchBarService.completed$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
