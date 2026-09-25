@@ -1216,6 +1216,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       mode,
       formConfig,
       restore: this.restore,
+      // Keep the cipher used by the copy shortcuts in sync with what the drawer shows:
+      // after saving a new item it was null, and after editing it still held the old values.
+      onCipherChanged: (cipher) => {
+        if (this.activeDrawerRef === drawerRef) {
+          this.cipher.set(cipher);
+        }
+      },
     });
     this.activeDrawerRef = drawerRef;
     drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
