@@ -27,6 +27,7 @@ import {
   BitCellDefDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
+  BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
   DialogService,
@@ -71,6 +72,15 @@ type FilterableRow = {
   collectionName: string | null;
 };
 
+/** The toolbar's selections, resolved to the shape {@link matchesFilter} tests a row against. */
+type MyRequestsFilter = { term: string; collection: string | null };
+
+/**
+ * The toolbar's raw values, keyed by each control's filter key — `search` is the key the table
+ * adopts a projected `bit-search` under. Untyped per key because a chip's value is `unknown`.
+ */
+type MyRequestsFilterValues = { search?: unknown; collection?: unknown };
+
 /**
  * A row of the active-access table. Exactly one of `lease` / `request` is set. `cipherName` /
  * `notAfter` are flattened onto the row, since `bit-table` sorts on top-level properties.
@@ -114,6 +124,7 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
     BitCellDefDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
+    BitTableToolbarComponent,
     BitTableV2Component,
     ButtonModule,
     FilterMenuComponent,
@@ -207,7 +218,28 @@ export class MyRequestsTabComponent {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
+  /**
+   * Bound onto each Collection option so the chip does not fall back to the count its host table
+   * computes: the chip narrows all three sections, but it is projected into the Pending table,
+   * whose data is the pending rows alone — an option whose collection holds only a lease would
+   * otherwise read "0" and still reveal rows when picked.
+   *
+   * Counted over the same rows {@link collectionOptions} is built from, and against no search
+   * term, matching the absolute (non-faceted) counts the host produces.
+   */
+  protected readonly collectionCounts = computed<ReadonlyMap<string, number>>(() => {
+    const counts = new Map<string, number>();
+    for (const row of [...this.allPending(), ...this.allExtensions(), ...this.allLeases()]) {
+      counts.set(row.collectionId, (counts.get(row.collectionId) ?? 0) + 1);
+    }
+    return counts;
+  });
+
   private readonly filteredPending = computed(() => this.applyFilters(this.allPending()));
+
+  private readonly allPendingRows = computed(() =>
+    this.allPending().filter((row) => row.status === "pending"),
+  );
 
   /** Rows still awaiting an approver's decision — the only thing "Pending" holds. */
   protected readonly pendingRows = computed(() =>
@@ -301,8 +333,14 @@ export class MyRequestsTabComponent {
   protected readonly extensionDataSource = new TableDataSource<MyAccessRequestRow>();
   protected readonly activeAccessDataSource = new TableDataSource<ActiveAccessRow>();
 
+  /**
+   * Fed the unfiltered pending rows: the toolbar is projected into this table, so the chip and the
+   * search register with it and it narrows itself through {@link rowMatchesFilter}. Handing it
+   * {@link pendingRows} as well would filter the same set twice and leave the chip's option counts
+   * measured against rows the search had already removed.
+   */
   protected readonly pendingTable = defineTable<MyAccessRequestRow, "window" | "actions">(
-    this.pendingRows,
+    this.allPendingRows,
   );
   protected readonly extensionTable = defineTable<MyAccessRequestRow, "window" | "actions">(
     this.extensionRows,
@@ -324,20 +362,28 @@ export class MyRequestsTabComponent {
     });
   }
 
-  /** Filter a row set by the free-text search term and the selected collection. */
+  private readonly filterInputs = computed<MyRequestsFilter>(() => ({
+    term: this.searchTerm().trim().toLowerCase(),
+    collection: this.selectedCollection() ?? null,
+  }));
+
+  /**
+   * The Pending table's row test. The chip and the projected `bit-search` register with that
+   * table, so their values arrive as `values` rather than through {@link filterInputs} — the
+   * keyed shape is what lets the table count the chip's options.
+   */
+  protected readonly rowMatchesFilter = (
+    row: MyAccessRequestRow,
+    values: MyRequestsFilterValues,
+  ): boolean => matchesFilter(row, toMyRequestsFilter(values));
+
+  /**
+   * Filter a row set by the free-text search term and the selected collection. Every section but
+   * Pending reaches the toolbar this way; Pending is narrowed by the table it hosts the toolbar in.
+   */
   private applyFilters<T extends FilterableRow>(rows: T[]): T[] {
-    const term = this.searchTerm().trim().toLowerCase();
-    const collection = this.selectedCollection();
-    return rows.filter((row) => {
-      if (collection != null && row.collectionId !== collection) {
-        return false;
-      }
-      if (term === "") {
-        return true;
-      }
-      const haystack = `${row.cipherName ?? ""} ${row.collectionName ?? ""}`.toLowerCase();
-      return haystack.includes(term);
-    });
+    const filter = this.filterInputs();
+    return rows.filter((row) => matchesFilter(row, filter));
   }
 
   /** The decrypted cipher for a row, undefined when absent from the caller's vault; the template renders `app-vault-icon` only then. */
@@ -498,4 +544,22 @@ export class MyRequestsTabComponent {
       });
     }
   }
+}
+
+function matchesFilter(row: FilterableRow, filter: MyRequestsFilter): boolean {
+  if (filter.collection != null && row.collectionId !== filter.collection) {
+    return false;
+  }
+  if (filter.term === "") {
+    return true;
+  }
+  const haystack = `${row.cipherName ?? ""} ${row.collectionName ?? ""}`.toLowerCase();
+  return haystack.includes(filter.term);
+}
+
+function toMyRequestsFilter(values: MyRequestsFilterValues): MyRequestsFilter {
+  return {
+    term: typeof values.search === "string" ? values.search.trim().toLowerCase() : "",
+    collection: typeof values.collection === "string" ? values.collection : null,
+  };
 }
