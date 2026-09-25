@@ -1745,8 +1745,8 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
       expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
     });
 
-    // The search and the chips land inside the table's toolbar, so a placeholder row above the
-    // skeleton would promise controls in a place that never receives them.
+    // The placeholder strip reserves the toolbar's height so the table does not shift down when
+    // the rows land and the real search and chips replace it.
     it("reserves the toolbar row while loading on both paths", () => {
       const placeholders = (el: HTMLElement): number =>
         el.querySelectorAll(
