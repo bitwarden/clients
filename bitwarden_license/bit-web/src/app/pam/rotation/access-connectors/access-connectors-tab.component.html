@@ -213,7 +213,9 @@
       </bit-column>
 
       <bit-column width="72px">
-        <bit-header-cell></bit-header-cell>
+        <bit-header-cell>
+          <span class="tw-sr-only">{{ "options" | i18n }}</span>
+        </bit-header-cell>
         <bit-cell *bitCellDef="table.columns.actions; let r">
           <button
             slot="end"

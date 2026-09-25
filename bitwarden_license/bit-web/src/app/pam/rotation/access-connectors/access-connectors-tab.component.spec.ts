@@ -1458,14 +1458,23 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     const v1 = headers(render(false)).map(text);
     const v2 = headers(render(true)).map(text);
 
-    expect(v2).toEqual([
+    expect(v2.slice(0, 4)).toEqual([
       "name",
       "status",
       "pamAccessConnectorConnection",
       "pamAccessConnectorAssignments",
-      "",
     ]);
-    expect(v2).toEqual(v1);
+    expect(v2.slice(0, 4)).toEqual(v1.slice(0, 4));
+    expect(v2).toHaveLength(v1.length);
+  });
+
+  it("gives the actions column a screen-reader-only heading", () => {
+    const actionsHeader = headers(render(true))[4];
+    const label = actionsHeader.querySelector(".tw-sr-only");
+
+    expect(text(actionsHeader)).toBe("options");
+    expect(label).not.toBeNull();
+    expect(text(label as HTMLElement)).toBe("options");
   });
 
   it("renders the same rows and cells as the v1 table", () => {
