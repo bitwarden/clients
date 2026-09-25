@@ -79,15 +79,12 @@ export class RoutedVaultFilterService implements OnDestroy {
    */
   createRoute(filter: RoutedVaultFilterModel): [commands: any[], extras?: NavigationExtras] {
     const commands: string[] = this.baseRoute ? [this.baseRoute] : [];
-    // When the flag is on, write the new `sharedFolderId` param and clear the legacy
-    // `collectionId` (queryParamsHandling: "merge" removes any param set to null).
     const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const organizationId =
       filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null);
     const extras: NavigationExtras = {
       queryParams: {
-        collectionId: vfo1Enabled ? null : (filter.collectionId ?? null),
-        sharedFolderId: vfo1Enabled ? (filter.collectionId ?? null) : null,
+        ...this.vfo1TerminologyService.collectionQueryParams(filter.collectionId),
         folderId: filter.folderId ?? null,
         ...(vfo1Enabled
           ? { vaultId: organizationId, organizationId: null }
