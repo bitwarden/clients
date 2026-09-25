@@ -9,8 +9,10 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
@@ -113,6 +115,15 @@ type Story = StoryObj<TargetSystemsTabComponent>;
  */
 export const Default: Story = {
   decorators: [rotationServices(SYSTEMS)],
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
+};
+
+/** {@link Default} with the VFO1 flag on, which draws the list with `bit-table-v2`. */
+export const FlagOn: Story = {
+  decorators: [rotationServices(SYSTEMS)],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /**
