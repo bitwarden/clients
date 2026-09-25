@@ -22,8 +22,8 @@ import { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";
 
-const PERF_TRACK_GROUP = "KeyManagement";
-const PERF_TRACK = "LegacyCrypto";
+const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK = "Legacy Crypto";
 
 export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbstraction {
   constructor(
