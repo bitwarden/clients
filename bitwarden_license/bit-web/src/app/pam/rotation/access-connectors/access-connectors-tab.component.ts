@@ -200,6 +200,8 @@ export class AccessConnectorsTabComponent {
   protected readonly loadingTable = defineTable<AccessConnectorTabRow, "actions">(
     signal<AccessConnectorTabRow[]>([]),
   );
+  /** The loading toolbar's count, blank rather than a "0 items" the load has not established. */
+  protected readonly blankCountLabel = (): string => "";
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 

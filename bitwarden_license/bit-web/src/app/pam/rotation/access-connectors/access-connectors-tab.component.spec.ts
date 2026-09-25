@@ -1795,15 +1795,24 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       expect(placeholder().querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
     });
 
-    it("holds a toolbar-shaped strip while rows load, and hands off to the real toolbar", () => {
+    it("holds the toolbar inside the table while rows load, and hands off to the real one", () => {
       const el = render(true, [], true);
       advance(1000);
 
+      const loadingToolbar = placeholder().querySelector<HTMLElement>(
+        "bit-table-v2 bit-table-toolbar",
+      );
+      expect(placeholder().firstElementChild!.tagName).toBe("BIT-TABLE-V2");
+      expect(loadingToolbar).not.toBeNull();
+      expect(loadingToolbar!.hasAttribute("inert")).toBe(true);
+      expect(loadingToolbar!.querySelector("bit-search")).not.toBeNull();
       expect(
-        el.querySelectorAll(
-          '[data-testid="access-connectors-loading"] > div:first-child bit-skeleton',
-        ).length,
-      ).toBeGreaterThan(0);
+        Array.from(loadingToolbar!.querySelectorAll("bit-filter-menu")).map((menu) =>
+          menu.getAttribute("key"),
+        ),
+      ).toEqual(["status", "connection"]);
+      expect(loadingToolbar!.querySelectorAll("bit-filter-option")).toHaveLength(0);
+      expect(loadingToolbar!.textContent).not.toContain("itemCount");
       expect(placeholder().querySelectorAll("bit-row").length).toBeGreaterThan(0);
 
       rows$.next(ROWS);
