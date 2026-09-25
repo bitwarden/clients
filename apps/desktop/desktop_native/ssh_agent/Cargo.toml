@@ -13,7 +13,7 @@ mockall = { workspace = true }
 rkyv = "=0.8.17"
 rsa = "0.9"
 secure_memory = { path = "../secure_memory" }
-sha2 = "=0.10.9"
+sha2 = "=0.11.0"
 signature = "=2.2.0"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
