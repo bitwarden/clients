@@ -90,7 +90,11 @@ export function deepLinkGuard(): CanActivateFn {
      * SSO users would be navigated to the "lock" component loop if we persisted the "lock" url.
      */
 
-    if (lowerCaseUrl.includes("/login-initiated") || lowerCaseUrl.includes("/lock")) {
+    if (
+      lowerCaseUrl.includes("/login-initiated") ||
+      lowerCaseUrl.includes("/lock") ||
+      lowerCaseUrl.includes("/sso")
+    ) {
       return false;
     }
 
