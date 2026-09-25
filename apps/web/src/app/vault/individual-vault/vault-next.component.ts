@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   signal,
+  Type,
   untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -20,6 +21,8 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId } from "@bitwarden/common/types/guid";
@@ -78,6 +81,7 @@ import {
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
+import { VAULT_ROW_LEASE_BADGE } from "../components/vault-items/vault-row-lease-badge.token";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
@@ -140,7 +144,20 @@ export class VaultNextComponent {
   private readonly batchBarService = inject(VaultBatchBarService);
 
   private readonly policyService = inject(PolicyService);
+  private readonly configService = inject(ConfigService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  /**
+   * Host-provided "Controlled access" badge seam. Unprovided, no privileged-access feature is
+   * installed and the table's Controlled access column stays absent.
+   */
+  private readonly leaseBadge: Type<unknown> | null = inject(VAULT_ROW_LEASE_BADGE, {
+    optional: true,
+  });
+
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
 
@@ -274,6 +291,17 @@ export class VaultNextComponent {
     const scope = this.vaultScope();
     return this.organizations().filter((organization) => organizationInScope(organization, scope));
   });
+
+  /**
+   * The badge the table renders in its Controlled access column, or `null` to leave the column
+   * out: the PAM feature flag is enabled, at least one organization in view has `usePam`, and a
+   * host provides the badge seam — the same gate the v1 list applies in `vault-items.component`.
+   */
+  protected readonly controlledAccessBadge = computed<Type<unknown> | null>(() =>
+    this.pamEnabled() && this.leaseBadge != null && this.scopedOrganizations().some((o) => o.usePam)
+      ? this.leaseBadge
+      : null,
+  );
 
   /** Scopes the table's search index to the organization, for an organization vault. */
   protected readonly scopedOrganizationId = computed(() => {

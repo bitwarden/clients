@@ -245,6 +245,20 @@
     </bit-cell>
   </bit-column>
 
+  <!-- Controlled access -->
+  @if (controlledAccessBadge(); as badge) {
+    <bit-column width="minmax(140px, 200px)">
+      <bit-header-cell>{{ "controlledAccess" | i18n }}</bit-header-cell>
+      <bit-cell
+        *bitCellDef="table.columns.controlledAccess; let row"
+        [class.tw-cursor-pointer]="itemAction() != null"
+        (click)="onCellActivate(row, $event)"
+      >
+        <ng-container *ngComponentOutlet="badge; inputs: { cipher: row }" />
+      </bit-cell>
+    </bit-column>
+  }
+
   <!-- Options -->
   <vault-items-table-actions-column
     [table]="table"

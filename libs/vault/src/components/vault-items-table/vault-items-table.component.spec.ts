@@ -1,5 +1,5 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -121,6 +121,19 @@ class WrappedToolbarHostComponent {
 })
 class BareToolbarHostComponent {
   readonly show = signal(true);
+}
+
+/**
+ * Stands in for a host's Controlled access badge: takes the row on the one input the table binds,
+ * and renders its name so a test can tell which row each instance received.
+ */
+@Component({
+  selector: "test-controlled-access-badge",
+  template: `<span>{{ cipher()?.name }}</span>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ControlledAccessBadgeStubComponent {
+  readonly cipher = input<CipherViewLike | null>(null);
 }
 
 function batchBarDouble() {
@@ -1012,6 +1025,7 @@ describe("VaultItemsTableComponent", () => {
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-1" as never }),
         ]);
+        fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
 
         expect(component["visibleColumns"]()).toEqual(component["displayedColumns"]());
       });
@@ -1061,6 +1075,72 @@ describe("VaultItemsTableComponent", () => {
       fixture.componentRef.setInput("ciphers", []);
 
       expect(component["showSharedFolders"]()).toBe(false);
+    });
+  });
+
+  describe("controlled access column", () => {
+    /** Two rows, so a per-row badge can be told apart from a single table-wide one. */
+    function renderRows() {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Bank" }),
+      ]);
+      fixture.detectChanges();
+    }
+
+    /** The badge instances the column stamped, in row order. */
+    function badges(): HTMLElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll("test-controlled-access-badge"));
+    }
+
+    /** Every column header's text, in display order. The i18n double echoes the key. */
+    function headers(): string[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('[role="columnheader"]')).map(
+        (header) => (header as HTMLElement).textContent?.trim() ?? "",
+      );
+    }
+
+    it("leaves the column out when no badge is provided", () => {
+      renderRows();
+
+      expect(component["visibleColumns"]()).not.toContain("controlledAccess");
+      expect(headers()).not.toContain("controlledAccess");
+      expect(badges()).toHaveLength(0);
+    });
+
+    it("adds the column when a badge is provided", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+
+      expect(component["visibleColumns"]()).toContain("controlledAccess");
+      expect(headers()).toContain("controlledAccess");
+    });
+
+    it("renders the badge once per row, bound to that row", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+
+      expect(badges().map((badge) => badge.textContent?.trim())).toEqual(["Amazon", "Bank"]);
+    });
+
+    it("sits last among the data columns, ahead of the actions column", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+
+      const columns = component["visibleColumns"]();
+      expect(columns.indexOf("controlledAccess")).toBe(columns.indexOf("actions") - 1);
+    });
+
+    it("drops the column again when the badge is withdrawn", () => {
+      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
+      renderRows();
+      expect(badges()).toHaveLength(2);
+
+      fixture.componentRef.setInput("controlledAccessBadge", null);
+      fixture.detectChanges();
+
+      expect(component["visibleColumns"]()).not.toContain("controlledAccess");
+      expect(badges()).toHaveLength(0);
     });
   });
 

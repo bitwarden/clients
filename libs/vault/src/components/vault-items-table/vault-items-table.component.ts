@@ -1,3 +1,4 @@
+import { NgComponentOutlet } from "@angular/common";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -8,6 +9,7 @@ import {
   input,
   output,
   signal,
+  Type,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -110,6 +112,7 @@ export const VAULT_COLUMNS = Object.freeze([
   "vault",
   "sharedFolders",
   "myFolders",
+  "controlledAccess",
   "actions",
 ] as const);
 
@@ -214,6 +217,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     IconModule,
     IconTileComponent,
     LinkModule,
+    NgComponentOutlet,
     SearchModule,
     SkeletonTextComponent,
     VaultIconComponent,
@@ -268,6 +272,16 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** How the built-in Copy quick action presents itself. */
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
+
+  /**
+   * Optional per-row badge for the Controlled access column. Given a component class, the table
+   * shows the column and renders one instance per row, bound to that row as its `cipher` input;
+   * left unset, the column is absent and the table is unchanged.
+   *
+   * The table asks nothing of the component beyond that input, and decides nothing about when the
+   * column applies — a host that has such a badge to show passes it, and one that hasn't doesn't.
+   */
+  readonly controlledAccessBadge = input<Type<unknown> | null>(null);
 
   /** Folders used to resolve the My folders column and chip. */
   readonly folders = input<FolderView[]>([]);
@@ -404,6 +418,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
+   *  - Controlled access is omitted unless a host supplies {@link controlledAccessBadge}
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -412,6 +427,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
+    }
+    if (this.controlledAccessBadge() == null) {
+      hidden.add("controlledAccess");
     }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
