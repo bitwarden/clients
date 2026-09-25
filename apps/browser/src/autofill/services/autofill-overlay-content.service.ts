@@ -313,6 +313,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   sendGeneratedPasswordModifyLogin = async () => {
     await this.sendExtensionMessage("generatedPasswordFilled", this.getFormFieldData());
+    await this.sendExtensionMessage("openAutofillInlineMenu");
   };
 
   /**
