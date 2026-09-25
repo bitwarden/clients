@@ -124,6 +124,9 @@ export default {
               removeItem: "Remove __$1__",
               search: "Search",
               resetSearch: "Reset search",
+              itemCount: "__$1__ items",
+              clearAll: "Clear all",
+              filters: "Filters",
               pamAccessConnectorSearch: "Search access connectors",
               pamAccessConnectorEmptyStateTitle: "No access connectors registered",
               pamAccessConnectorEmptyStateDescription:

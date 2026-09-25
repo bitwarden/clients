@@ -8,13 +8,16 @@
   <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
 } @else if (loadingVisible()) {
   <div aria-hidden="true" data-testid="access-connectors-loading">
-    <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
-      @if (showSkeleton()) {
-        <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
-        <bit-skeleton class="tw-h-10 tw-w-24"></bit-skeleton>
-        <bit-skeleton class="tw-h-10 tw-w-32"></bit-skeleton>
-      }
-    </div>
+    @if (!vfo1Enabled()) {
+      <!-- remove this branch when the VFO1 flag is removed -->
+      <div class="tw-mb-4 tw-flex tw-h-10 tw-flex-wrap tw-items-center tw-gap-3">
+        @if (showSkeleton()) {
+          <bit-skeleton class="tw-h-10 tw-w-full tw-max-w-md"></bit-skeleton>
+          <bit-skeleton class="tw-h-10 tw-w-24"></bit-skeleton>
+          <bit-skeleton class="tw-h-10 tw-w-32"></bit-skeleton>
+        }
+      </div>
+    }
 
     @if (vfo1Enabled()) {
       <bit-table-v2
@@ -22,6 +25,26 @@
         [loading]="showSkeleton()"
         [loadingRows]="skeletonRows.length"
       >
+        <!-- The real toolbar, disabled, so the header row sits where it will once rows land. -->
+        <bit-table-toolbar inert [countLabel]="blankCountLabel">
+          <bit-search
+            class="tw-flex-1"
+            [placeholder]="'pamAccessConnectorSearch' | i18n"
+            [disabled]="true"
+          ></bit-search>
+          <bit-filter-menu
+            key="status"
+            [placeholderText]="'status' | i18n"
+            [unsetLabel]="'all' | i18n"
+            [disabled]="true"
+          ></bit-filter-menu>
+          <bit-filter-menu
+            key="connection"
+            [placeholderText]="'pamAccessConnectorConnection' | i18n"
+            [unsetLabel]="'all' | i18n"
+            [disabled]="true"
+          ></bit-filter-menu>
+        </bit-table-toolbar>
         <div slot="empty"></div>
         <bit-column width="minmax(12rem, 2fr)">
           <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
@@ -106,40 +129,40 @@
     </button>
   </bit-status-lockup>
 } @else {
-  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-    <bit-search
-      class="tw-grow tw-max-w-md"
-      [placeholder]="'pamAccessConnectorSearch' | i18n"
-      [formControl]="searchControl"
-    ></bit-search>
-    @if (statusOptions().length > 0) {
-      <bit-filter-menu
-        #statusFilter
-        key="status"
-        [placeholderText]="'status' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
-        @for (option of statusOptions(); track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-    }
-    @if (connectionOptions().length > 0) {
-      <bit-filter-menu
-        #connectionFilter
-        key="connection"
-        [placeholderText]="'pamAccessConnectorConnection' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
-        @for (option of connectionOptions(); track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-    }
-  </div>
-
   @if (vfo1Enabled()) {
-    <bit-table-v2 [tableDef]="table" [filter]="rowFilter()">
+    <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter">
+      <bit-table-toolbar>
+        <bit-search
+          class="tw-flex-1"
+          [placeholder]="'pamAccessConnectorSearch' | i18n"
+          [formControl]="searchControl"
+        ></bit-search>
+        @if (statusOptions().length > 0) {
+          <bit-filter-menu
+            #statusFilter
+            key="status"
+            [placeholderText]="'status' | i18n"
+            [unsetLabel]="'all' | i18n"
+          >
+            @for (option of statusOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        }
+        @if (connectionOptions().length > 0) {
+          <bit-filter-menu
+            #connectionFilter
+            key="connection"
+            [placeholderText]="'pamAccessConnectorConnection' | i18n"
+            [unsetLabel]="'all' | i18n"
+          >
+            @for (option of connectionOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-menu>
+        }
+      </bit-table-toolbar>
+
       <div slot="empty" class="tw-py-6 tw-text-center tw-text-muted">
         {{ "pamAccessConnectorNoResults" | i18n }}
       </div>
@@ -299,6 +322,38 @@
     </bit-table-v2>
   } @else {
     <!-- remove this @else branch when the VFO1 flag is removed -->
+    <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+      <bit-search
+        class="tw-grow tw-max-w-md"
+        [placeholder]="'pamAccessConnectorSearch' | i18n"
+        [formControl]="searchControl"
+      ></bit-search>
+      @if (statusOptions().length > 0) {
+        <bit-filter-menu
+          #statusFilter
+          key="status"
+          [placeholderText]="'status' | i18n"
+          [unsetLabel]="'all' | i18n"
+        >
+          @for (option of statusOptions(); track option.value) {
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          }
+        </bit-filter-menu>
+      }
+      @if (connectionOptions().length > 0) {
+        <bit-filter-menu
+          #connectionFilter
+          key="connection"
+          [placeholderText]="'pamAccessConnectorConnection' | i18n"
+          [unsetLabel]="'all' | i18n"
+        >
+          @for (option of connectionOptions(); track option.value) {
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          }
+        </bit-filter-menu>
+      }
+    </div>
+
     <bit-table [dataSource]="dataSource">
       <ng-container header>
         <tr>

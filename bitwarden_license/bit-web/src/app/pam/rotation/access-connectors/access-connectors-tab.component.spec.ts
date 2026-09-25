@@ -1632,6 +1632,130 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     expect(count.getAttribute("aria-expanded")).toBe("true");
   });
 
+  describe("toolbar", () => {
+    function toolbar(el: HTMLElement): HTMLElement {
+      return el.querySelector("bit-table-v2 bit-table-toolbar")!;
+    }
+
+    function chipKeys(root: ParentNode): (string | null)[] {
+      return Array.from(root.querySelectorAll("bit-filter-menu")).map((menu) =>
+        menu.getAttribute("key"),
+      );
+    }
+
+    it("puts the search and every filter chip inside the table's toolbar", () => {
+      const el = render(true);
+
+      expect(toolbar(el)).not.toBeNull();
+      expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
+      expect(chipKeys(toolbar(el))).toEqual(["status", "connection"]);
+      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
+      expect(el.querySelectorAll("bit-filter-menu")).toHaveLength(2);
+    });
+
+    it("leaves the controls outside the table when the flag is off", () => {
+      const el = render(false);
+
+      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(el.querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
+      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
+      expect(chipKeys(el)).toEqual(["status", "connection"]);
+    });
+
+    it("keeps each chip's label and unset state", () => {
+      const offLabels = Array.from(render(false).querySelectorAll("bit-filter-menu")).map(text);
+      const onLabels = Array.from(toolbar(render(true)).querySelectorAll("bit-filter-menu")).map(
+        text,
+      );
+
+      expect(offLabels[0]).toContain("status");
+      expect(offLabels[1]).toContain("pamAccessConnectorConnection");
+      expect(offLabels.every((label) => label.includes("all"))).toBe(true);
+      expect(onLabels).toEqual(offLabels);
+    });
+
+    it("keeps the search placeholder and input type it had off the flag", () => {
+      const offInput = render(false).querySelector("bit-search input")!;
+      const offPlaceholder = offInput.getAttribute("placeholder");
+      const offType = offInput.getAttribute("type");
+
+      const onInput = toolbar(render(true)).querySelector("bit-search input")!;
+
+      expect(onInput.getAttribute("placeholder")).toBe("pamAccessConnectorSearch");
+      expect(onInput.getAttribute("placeholder")).toBe(offPlaceholder);
+      expect(onInput.getAttribute("type")).toBe(offType);
+      expect(onInput.hasAttribute("disabled")).toBe(false);
+    });
+
+    it("caps the search by making it a flex item of the toolbar, not a block child", () => {
+      const search = toolbar(render(true)).querySelector("bit-search")!;
+
+      expect(search.className).toContain("tw-flex-1");
+    });
+
+    it("keeps every toolbar control keyboard reachable", () => {
+      const el = render(true);
+      const focusable = Array.from(
+        toolbar(el).querySelectorAll<HTMLElement>("input, button"),
+      ).filter((control) => control.getAttribute("tabindex") !== "-1");
+
+      expect(focusable.length).toBeGreaterThanOrEqual(3);
+      expect(focusable.every((control) => !control.hasAttribute("disabled"))).toBe(true);
+    });
+
+    it.each<[string, { search?: string; status?: string; connection?: boolean }]>([
+      ["the status chip", { status: "pamAccessConnectorStatusInactive" }],
+      ["the connection chip, on its false side", { connection: false }],
+      ["search on a connector name", { search: "prod" }],
+      [
+        "every control at once",
+        { search: "r", status: "pamAccessConnectorStatusActive", connection: false },
+      ],
+    ])("narrows the toolbar's rows the same way the flag-off path does: %s", (_, filters) => {
+      const names = (vfo1: boolean): string[] => {
+        const el = render(vfo1);
+        if (filters.search !== undefined) {
+          (
+            fixture.componentInstance as unknown as {
+              searchControl: { setValue: (value: string) => void };
+            }
+          ).searchControl.setValue(filters.search);
+        }
+        if (filters.status !== undefined) {
+          chip("status").toggle(filters.status);
+        }
+        if (filters.connection !== undefined) {
+          chip("connection").toggle(filters.connection);
+        }
+        fixture.detectChanges();
+        return rowNames(el);
+      };
+
+      const off = names(false);
+      expect(off.length).toBeGreaterThan(0);
+      expect(names(true)).toEqual(off);
+    });
+
+    it("keeps the toolbar in place when the filters empty the table", () => {
+      const el = render(true, [ROWS[0]]);
+      chip("connection").toggle(false);
+      fixture.detectChanges();
+
+      expect(bodyRows(el)).toHaveLength(0);
+      expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
+      expect(chipKeys(toolbar(el))).toEqual(["status", "connection"]);
+    });
+
+    it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
+      const el = render(true);
+      chip("status").toggle("pamAccessConnectorStatusInactive");
+      fixture.detectChanges();
+
+      expect(rowNames(el)).toEqual(["Staging"]);
+      expect(menuItems(el, 0)).toContain("pamAccessConnectorActivate");
+    });
+  });
+
   describe("loading", () => {
     beforeEach(() => {
       jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
@@ -1669,6 +1793,34 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       ]);
       expect(placeholder().querySelectorAll("bit-row")).toHaveLength(5);
       expect(placeholder().querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
+    });
+
+    it("holds the toolbar inside the table while rows load, and hands off to the real one", () => {
+      const el = render(true, [], true);
+      advance(1000);
+
+      const loadingToolbar = placeholder().querySelector<HTMLElement>(
+        "bit-table-v2 bit-table-toolbar",
+      );
+      expect(placeholder().firstElementChild!.tagName).toBe("BIT-TABLE-V2");
+      expect(loadingToolbar).not.toBeNull();
+      expect(loadingToolbar!.hasAttribute("inert")).toBe(true);
+      expect(loadingToolbar!.querySelector("bit-search")).not.toBeNull();
+      expect(
+        Array.from(loadingToolbar!.querySelectorAll("bit-filter-menu")).map((menu) =>
+          menu.getAttribute("key"),
+        ),
+      ).toEqual(["status", "connection"]);
+      expect(loadingToolbar!.querySelectorAll("bit-filter-option")).toHaveLength(0);
+      expect(loadingToolbar!.textContent).not.toContain("itemCount");
+      expect(placeholder().querySelectorAll("bit-row").length).toBeGreaterThan(0);
+
+      rows$.next(ROWS);
+      loading$.next(false);
+      advance(1000);
+
+      expect(placeholder()).toBeNull();
+      expect(el.querySelector("bit-table-v2 bit-table-toolbar")).not.toBeNull();
     });
 
     it("draws the headers alone, with no skeleton or empty state, before the delay is up", () => {
