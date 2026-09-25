@@ -3459,7 +3459,7 @@
     "message": "选择一个集合"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "选择共享文件夹"
   },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
@@ -3468,7 +3468,7 @@
     "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "如果希望将导入的文件内容移动到共享文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "选择要导入的文件"
+  },
+  "importSourceBreadcrumb": {
+    "message": "选择源"
+  },
+  "importSourceSelectTitle": {
+    "message": "选择您的源"
+  },
+  "importSourceSelectDescription": {
+    "message": "选择您要从中导入数据的密码管理器或浏览器。"
+  },
+  "importSourceBrowsers": {
+    "message": "浏览器"
+  },
+  "importSourcePasswordManagers": {
+    "message": "密码管理器"
+  },
+  "importSourceShowAll": {
+    "message": "显示全部"
+  },
+  "importSourceShowLess": {
+    "message": "显示更少"
+  },
+  "importSourceStepCount": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "选择文件"
@@ -4472,6 +4506,14 @@
     "message": "账户余额",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "已抵扣余额",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "应付金额",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
+  },
   "accountBalance": {
     "message": "账户余额",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
@@ -4607,7 +4649,7 @@
     "message": "月"
   },
   "months": {
-    "message": "个月"
+    "message": "月"
   },
   "monthAbbr": {
     "message": "月",
@@ -6894,6 +6936,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "点击这里添加付款方式。"
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "请联系您的 Bitwarden 销售代表设置计费方式。"
+  },
   "joinOrganization": {
     "message": "加入组织"
   },
@@ -7540,7 +7585,7 @@
     "message": "<strong>需要管理员确认</strong>才能批准新成员加入组织。"
   },
   "shareTheLinkAnywhere": {
-    "message": "随时随地分享链接"
+    "message": "随时随地共享链接"
   },
   "shareTheLinkAnywhereCoachMarkBody": {
     "message": "复制并粘贴此链接到您的团队可找到的地方：您的入职清单、Slack #new-joiners 频道、Notion 文档或电子邮件模板。"
@@ -8152,7 +8197,7 @@
     "message": "您当前的组织策略禁止您加入多个组织。请联系您的组织管理员，或从其他 Bitwarden 账户注册。"
   },
   "singleOrgPolicyMemberWarning": {
-    "message": "不符合要求的成员将被置于已撤销状态，直到他们退出所有其他组织，管理员不受此约束。达到要求后，管理员可以恢复他们的成员资格。"
+    "message": "不符合要求的成员将被置于「已撤销」状态，直到他们退出所有其他组织，管理员不受此约束。达到要求后，管理员可以恢复他们的成员资格。"
   },
   "requireSso": {
     "message": "要求单点登录 (SSO) 身份验证"
@@ -9078,7 +9123,7 @@
     "message": "防止机密遭泄漏。"
   },
   "preventSecretLeaksDescription": {
-    "message": "使用端到端加密保护机密。而不再需要硬编码机密或通过 .env 文件分享机密。"
+    "message": "使用端到端加密保护机密。而不再需要硬编码机密或通过 .env 文件共享机密。"
   },
   "enhanceDeveloperProductivity": {
     "message": "提升开发人员的工作效率。"
@@ -9886,7 +9931,10 @@
     "message": "为所有成员启用浏览器扩展中的页面加载时自动填充设置。"
   },
   "activateAutofillPolicyDescV2": {
-    "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。被攻破或不受信任的网站可能会"
+    "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。请注意，被攻破或不受信任的网站可能会"
+  },
+  "activateAutofillPolicyDescV3": {
+    "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。启用此策略后，成员必须调整其个人设置以启用自动填充。请注意，被攻破或不受信任的网站可能会"
   },
   "exploitAutofillOnPageLoad": {
     "message": "利用页面加载时的自动填充功能"
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "选择您希望被赞助的组织"
   },
+  "selectAFamilyVault": {
+    "message": "选择一个家庭密码库"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "您想兑换哪一个免费家庭版邀请？"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "接受现有组织的邀请或创建一个新的家庭版组织。"
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ 已为您赞助了一个免费的 Bitwarden 家庭版方案！您可以将此免费方案应用于现有的家庭密码库，也可以创建一个新的家庭密码库。",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "您已经被赞助了一个免费的 Bitwarden 家庭版方案！您可以将此免费方案应用于现有的家庭密码库，也可以创建一个新的家庭密码库。",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "您已被邀请加入免费的 Bitwarden 家庭版方案组织。要继续，您需要登录到接收邀请的账户。"
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "接受免费的 Bitwarden 家庭版"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "接受赞助的家庭版方案"
+  },
+  "sponsoredPlanDetails": {
+    "message": "赞助方案详细信息"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "免费的 Bitwarden 家庭版邀请已成功兑换"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "请提供一个与组织关联的付款方式。无需担心，我们不会向您收取任何费用，除非您选择附加功能或您的赞助到期。 "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "请提供一个与家庭密码库关联的付款方式。无需担心，我们不会向您收取任何费用，除非您选择附加功能或您的赞助到期。 ",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "赞助邀请已过期，您可以删除您创建的组织，以避免 7 天试用期结束时收取费用。您也可以关闭这个提示，以保留此组织并承担计费责任。"
   },
   "newFamiliesOrganization": {
     "message": "新增家庭版组织"
   },
+  "createVault": {
+    "message": "创建密码库"
+  },
   "acceptOffer": {
     "message": "接受邀请"
+  },
+  "applySponsorship": {
+    "message": "应用赞助"
   },
   "sponsoringOrg": {
     "message": "赞助组织"
@@ -11324,11 +11405,11 @@
     "description": "Section header for previous versions of a secret in the version history."
   },
   "versionHistory": {
-    "message": "历史版本",
+    "message": "版本历史记录",
     "description": "Menu option to view the version history of a secret."
   },
   "noVersionHistory": {
-    "message": "没有历史版本",
+    "message": "没有版本历史记录",
     "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
@@ -16720,7 +16801,7 @@
     "message": "生成账单预览时遇到错误。"
   },
   "planProratedMembershipInMonths": {
-    "message": "按比例分配的 $PLAN$ 成员资格（$NUMOFMONTHS$）",
+    "message": "按比例的 $PLAN$ 成员资格（$NUMOFMONTHS$）",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -17750,7 +17831,7 @@
     "message": "拥有公司电子邮箱的任何人都可以使用邀请链接加入您的组织。将其拖放到入职资源中，以便新雇员准备好后可以加入。"
   },
   "inviteLinkCalloutImageAlt": {
-    "message": "Invite members dialog preview showing the new by-link tab"
+    "message": "邀请成员对话框预览显示新增的「通过链接」选项卡"
   },
   "showMeHow": {
     "message": "告诉我怎么做"
@@ -17775,7 +17856,7 @@
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "一次性分享",
+    "message": "一次性共享",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
@@ -17807,7 +17888,7 @@
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "通过链接分享",
+    "message": "通过链接共享",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
@@ -17845,10 +17926,10 @@
     "message": "成员"
   },
   "annualLower": {
-    "message": "annual"
+    "message": "每年"
   },
   "monthlyLower": {
-    "message": "monthly"
+    "message": "按月"
   },
   "organizationSubscriptionCardTitle": {
     "message": "$PLAN$ $CADENCE$ 订阅",
@@ -17876,7 +17957,7 @@
     "message": "订阅详细信息未加载"
   },
   "subscriptionDetailsNotLoadingDesc": {
-    "message": "我们的计费服务暂时不可用，因此目前无法显示您的订阅和价格。您的订阅本身不会受到影响。"
+    "message": "我们的计费服务暂时不可用，因此目前无法显示您的订阅和价格信息。您的订阅本身不会受到影响。"
   },
   "passwordManagerProratedCharge": {
     "message": "按比例的 Password Manager 费用"

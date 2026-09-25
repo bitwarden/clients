@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "Chọn tập tin nhập"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Chọn tập tin"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Tín dụng tài khoản",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Số dư tài khoản",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Nhấp vào đây để thêm phương thức thanh toán."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "Tham gia tổ chức"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Bật cài đặt tự động điền khi tải trang trong tiện ích mở rộng trình duyệt cho tất cả thành viên hiện tại và thành viên mới. Hãy lưu ý rằng các trang web bị xâm nhập hoặc không đáng tin có thể"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "khai thác tính năng tự động điền khi tải trang"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Chọn tổ chức bạn muốn được tài trợ"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Bạn muốn đổi ưu đãi Gói Gia đình miễn phí nào?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Chấp nhận ưu đãi cho một tổ chức hiện có hoặc tạo tổ chức Gia đình mới."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Bạn đã được tặng một tổ chức gói Bitwarden Gia đình miễn phí. Để tiếp tục, bạn cần đăng nhập vào tài khoản đã nhận ưu đãi này."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Chấp nhận Gói Bitwarden Gia đình miễn phí"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Ưu đãi Gói Bitwarden Gia đình miễn phí đã được đổi thành công"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Vui lòng cung cấp phương thức thanh toán để liên kết với tổ chức. Đừng lo, chúng tôi sẽ không tính phí trừ khi bạn chọn thêm tính năng hoặc khi gói tài trợ của bạn hết hạn. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Ưu đãi tài trợ đã hết hạn. Bạn có thể xóa tổ chức mà bạn đã tạo để tránh bị tính phí khi kết thúc 7 ngày dùng thử. Nếu không, bạn có thể đóng thông báo này để giữ tổ chức và chịu trách nhiệm thanh toán."
   },
   "newFamiliesOrganization": {
     "message": "Tổ chức Gia đình mới"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Chấp nhận ưu đãi"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Tổ chức tài trợ"
