@@ -28,71 +28,131 @@
         {{ "pamMyRequestsPendingEmpty" | i18n }}
       </p>
     } @else {
-      <bit-table [dataSource]="pendingDataSource">
-        <ng-container header>
-          <tr>
-            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
-            <th bitCell bitSortable="submittedAt" default="desc">
-              {{ "pamColumnSubmitted" | i18n }}
-            </th>
-            <th bitCell class="tw-w-32">
-              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
-            </th>
-          </tr>
-        </ng-container>
-        <ng-template body let-rows$>
-          <tr
-            bitRow
-            *ngFor="let row of rows$ | async"
-            [attr.data-testid]="'my-access-pending-' + row.id"
-          >
-            <td bitCell>
-              <div class="tw-flex tw-items-center tw-gap-3">
-                @if (cipherFor(row.cipherId); as cipher) {
-                  <app-vault-icon [cipher]="cipher" />
-                }
-                <div>
-                  <a [routerLink]="['/pam/requests', row.id]">{{
-                    row.cipherName ?? row.cipherId
-                  }}</a>
-                  @if (row.collectionName) {
-                    <div class="tw-text-xs tw-text-muted">
-                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
-                    </div>
-                  }
-                </div>
-              </div>
-            </td>
-            <td bitCell>
+      @if (vfo1Enabled()) {
+        <bit-table-v2 [tableDef]="pendingTable">
+          <bit-column sortable width="minmax(240px, 2fr)">
+            <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
+            <bit-cell
+              *bitCellDef="pendingTable.columns.cipherName; let row"
+              [truncate]="false"
+              [attr.data-testid]="'my-access-pending-' + row.id"
+            >
+              @if (cipherFor(row.cipherId); as cipher) {
+                <app-vault-icon slot="start" [cipher]="cipher" />
+              }
+              <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
+              @if (row.collectionName) {
+                <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+              }
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(200px, 1fr)">
+            <bit-header-cell>{{ "pamColumnRequestedWindow" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="pendingTable.columns.window; let row" [truncate]="false">
               @if (startsNow(row)) {
                 {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
               } @else {
                 {{ row.leaseNotBefore | date: "short" }} &ndash;
                 {{ row.leaseNotAfter | date: "short" }}
               }
-            </td>
-            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
-            <td bitCell>
-              <div class="tw-flex tw-items-start tw-gap-2">
-                @if (canCancel(row)) {
-                  <button
-                    type="button"
-                    bitButton
-                    buttonType="secondary"
-                    size="small"
-                    [disabled]="isCancelling(row.id)"
-                    (click)="cancel(row)"
-                    [attr.data-testid]="'my-access-pending-cancel-' + row.id"
-                  >
-                    {{ "cancel" | i18n }}
-                  </button>
+            </bit-cell>
+          </bit-column>
+          <bit-column sortable defaultSort="desc" width="minmax(140px, 1fr)">
+            <bit-header-cell>{{ "pamColumnSubmitted" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="pendingTable.columns.submittedAt; let row" [truncate]="false">
+              {{ row.submittedAt | date: "short" }}
+            </bit-cell>
+          </bit-column>
+          <bit-column width="128px">
+            <bit-header-cell>
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </bit-header-cell>
+            <bit-cell *bitCellDef="pendingTable.columns.actions; let row" [truncate]="false">
+              @if (canCancel(row)) {
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  size="small"
+                  [id]="'pam-my-requests_button_pending-cancel-' + row.id"
+                  [disabled]="isCancelling(row.id)"
+                  (click)="cancel(row)"
+                  [attr.data-testid]="'my-access-pending-cancel-' + row.id"
+                >
+                  {{ "cancel" | i18n }}
+                </button>
+              }
+            </bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      } @else {
+        <!-- Remove this branch along with the VFO1 flag. -->
+        <bit-table [dataSource]="pendingDataSource">
+          <ng-container header>
+            <tr>
+              <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+              <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+              <th bitCell bitSortable="submittedAt" default="desc">
+                {{ "pamColumnSubmitted" | i18n }}
+              </th>
+              <th bitCell class="tw-w-32">
+                <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+              </th>
+            </tr>
+          </ng-container>
+          <ng-template body let-rows$>
+            <tr
+              bitRow
+              *ngFor="let row of rows$ | async"
+              [attr.data-testid]="'my-access-pending-' + row.id"
+            >
+              <td bitCell>
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  @if (cipherFor(row.cipherId); as cipher) {
+                    <app-vault-icon [cipher]="cipher" />
+                  }
+                  <div>
+                    <a [routerLink]="['/pam/requests', row.id]">{{
+                      row.cipherName ?? row.cipherId
+                    }}</a>
+                    @if (row.collectionName) {
+                      <div class="tw-text-xs tw-text-muted">
+                        {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td bitCell>
+                @if (startsNow(row)) {
+                  {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
+                } @else {
+                  {{ row.leaseNotBefore | date: "short" }} &ndash;
+                  {{ row.leaseNotAfter | date: "short" }}
                 }
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
+              </td>
+              <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+              <td bitCell>
+                <div class="tw-flex tw-items-start tw-gap-2">
+                  @if (canCancel(row)) {
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      [disabled]="isCancelling(row.id)"
+                      (click)="cancel(row)"
+                      [attr.data-testid]="'my-access-pending-cancel-' + row.id"
+                    >
+                      {{ "cancel" | i18n }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </bit-table>
+      }
     }
   </bit-accordion>
 
@@ -101,54 +161,49 @@
     <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
       <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
 
-      <bit-table [dataSource]="extensionDataSource">
-        <ng-container header>
-          <tr>
-            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
-            <th bitCell bitSortable="submittedAt" default="desc">
-              {{ "pamColumnSubmitted" | i18n }}
-            </th>
-            <th bitCell class="tw-w-32">
-              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
-            </th>
-          </tr>
-        </ng-container>
-        <ng-template body let-rows$>
-          <tr
-            bitRow
-            *ngFor="let row of rows$ | async"
-            [attr.data-testid]="'my-access-extension-' + row.id"
-          >
-            <td bitCell>
-              <div class="tw-flex tw-items-center tw-gap-3">
-                @if (cipherFor(row.cipherId); as cipher) {
-                  <app-vault-icon [cipher]="cipher" />
-                }
-                <div>
-                  <a [routerLink]="['/pam/requests', row.id]">{{
-                    row.cipherName ?? row.cipherId
-                  }}</a>
-                  @if (row.collectionName) {
-                    <div class="tw-text-xs tw-text-muted">
-                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
-                    </div>
-                  }
-                </div>
-              </div>
-            </td>
-            <td bitCell>
+      @if (vfo1Enabled()) {
+        <bit-table-v2 [tableDef]="extensionTable">
+          <bit-column sortable width="minmax(240px, 2fr)">
+            <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
+            <bit-cell
+              *bitCellDef="extensionTable.columns.cipherName; let row"
+              [truncate]="false"
+              [attr.data-testid]="'my-access-extension-' + row.id"
+            >
+              @if (cipherFor(row.cipherId); as cipher) {
+                <app-vault-icon slot="start" [cipher]="cipher" />
+              }
+              <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
+              @if (row.collectionName) {
+                <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+              }
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(200px, 1fr)">
+            <bit-header-cell>{{ "pamColumnRequestedWindow" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="extensionTable.columns.window; let row" [truncate]="false">
               {{ row.leaseNotBefore | date: "short" }} &ndash;
               {{ row.leaseNotAfter | date: "short" }}
-            </td>
-            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
-            <td bitCell>
+            </bit-cell>
+          </bit-column>
+          <bit-column sortable defaultSort="desc" width="minmax(140px, 1fr)">
+            <bit-header-cell>{{ "pamColumnSubmitted" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="extensionTable.columns.submittedAt; let row" [truncate]="false">
+              {{ row.submittedAt | date: "short" }}
+            </bit-cell>
+          </bit-column>
+          <bit-column width="128px">
+            <bit-header-cell>
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </bit-header-cell>
+            <bit-cell *bitCellDef="extensionTable.columns.actions; let row" [truncate]="false">
               @if (canCancel(row)) {
                 <button
                   type="button"
                   bitButton
                   buttonType="secondary"
                   size="small"
+                  [id]="'pam-my-requests_button_extension-cancel-' + row.id"
                   [disabled]="isCancelling(row.id)"
                   (click)="cancel(row)"
                   [attr.data-testid]="'my-access-extension-cancel-' + row.id"
@@ -156,10 +211,71 @@
                   {{ "cancel" | i18n }}
                 </button>
               }
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
+            </bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      } @else {
+        <!-- Remove this branch along with the VFO1 flag. -->
+        <bit-table [dataSource]="extensionDataSource">
+          <ng-container header>
+            <tr>
+              <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+              <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+              <th bitCell bitSortable="submittedAt" default="desc">
+                {{ "pamColumnSubmitted" | i18n }}
+              </th>
+              <th bitCell class="tw-w-32">
+                <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+              </th>
+            </tr>
+          </ng-container>
+          <ng-template body let-rows$>
+            <tr
+              bitRow
+              *ngFor="let row of rows$ | async"
+              [attr.data-testid]="'my-access-extension-' + row.id"
+            >
+              <td bitCell>
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  @if (cipherFor(row.cipherId); as cipher) {
+                    <app-vault-icon [cipher]="cipher" />
+                  }
+                  <div>
+                    <a [routerLink]="['/pam/requests', row.id]">{{
+                      row.cipherName ?? row.cipherId
+                    }}</a>
+                    @if (row.collectionName) {
+                      <div class="tw-text-xs tw-text-muted">
+                        {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td bitCell>
+                {{ row.leaseNotBefore | date: "short" }} &ndash;
+                {{ row.leaseNotAfter | date: "short" }}
+              </td>
+              <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+              <td bitCell>
+                @if (canCancel(row)) {
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="isCancelling(row.id)"
+                    (click)="cancel(row)"
+                    [attr.data-testid]="'my-access-extension-cancel-' + row.id"
+                  >
+                    {{ "cancel" | i18n }}
+                  </button>
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </bit-table>
+      }
     </bit-accordion>
   }
 
@@ -173,63 +289,55 @@
         {{ "pamMyRequestsActiveAccessEmpty" | i18n }}
       </p>
     } @else {
-      <bit-table [dataSource]="activeAccessDataSource">
-        <ng-container header>
-          <tr>
-            <th bitCell bitSortable="cipherName" [fn]="byItemName">
-              {{ "pamColumnItem" | i18n }}
-            </th>
-            <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
-            <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
-            <th bitCell class="tw-w-32">
-              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
-            </th>
-          </tr>
-        </ng-container>
-        <ng-template body let-rows$>
-          <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="row.testId">
-            <td bitCell>
-              <div class="tw-flex tw-items-center tw-gap-3">
-                @if (cipherFor(row.cipherId); as cipher) {
-                  <app-vault-icon [cipher]="cipher" />
-                }
-                <div>
-                  <a [routerLink]="['/pam/requests', row.requestId]">{{
-                    row.cipherName ?? row.cipherId
-                  }}</a>
-                  @if (row.collectionName) {
-                    <div class="tw-text-xs tw-text-muted">
-                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
-                    </div>
-                  }
-                  @if (row.lease; as lease) {
-                    @if (lease.extendedUntil) {
-                      <span
-                        bitBadge
-                        variant="secondary"
-                        class="tw-mt-1 tw-inline-block"
-                        [attr.data-testid]="'my-access-lease-extended-' + lease.id"
-                      >
-                        {{
-                          "pamExtendedBadge"
-                            | i18n
-                              : (lease.extendedBySeconds | durationShort)
-                              : (lease.extendedUntil | date: "short")
-                        }}
-                      </span>
-                    }
-                  }
-                </div>
-              </div>
-            </td>
-            <td bitCell>
+      @if (vfo1Enabled()) {
+        <bit-table-v2 [tableDef]="activeAccessTable">
+          <bit-column sortable [sortFn]="byItemName" width="minmax(240px, 2fr)">
+            <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
+            <bit-cell
+              *bitCellDef="activeAccessTable.columns.cipherName; let row"
+              [truncate]="false"
+              [attr.data-testid]="row.testId"
+            >
+              @if (cipherFor(row.cipherId); as cipher) {
+                <app-vault-icon slot="start" [cipher]="cipher" />
+              }
+              <a [routerLink]="['/pam/requests', row.requestId]">{{
+                row.cipherName ?? row.cipherId
+              }}</a>
+              @if (row.collectionName) {
+                <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+              }
+              @if (row.lease?.extendedUntil ? row.lease : null; as lease) {
+                <span
+                  slot="secondary"
+                  bitBadge
+                  variant="secondary"
+                  class="tw-mt-1 tw-inline-block"
+                  [attr.data-testid]="'my-access-lease-extended-' + lease.id"
+                >
+                  {{
+                    "pamExtendedBadge"
+                      | i18n
+                        : (lease.extendedBySeconds | durationShort)
+                        : (lease.extendedUntil | date: "short")
+                  }}
+                </span>
+              }
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(200px, 1fr)">
+            <bit-header-cell>{{ "pamColumnWindow" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="activeAccessTable.columns.window; let row" [truncate]="false">
               @if (row.request != null && isReadyNow(row.request)) {
                 {{ "pamWindowUntil" | i18n: (row.notAfter | date: "short") }}
               } @else {
                 {{ row.notBefore | date: "short" }} &ndash; {{ row.notAfter | date: "short" }}
               }
-            </td>
-            <td bitCell>
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(160px, 1fr)">
+            <bit-header-cell>{{ "pamColumnStatus" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="activeAccessTable.columns.status; let row" [truncate]="false">
               @if (row.lease; as lease) {
                 <app-pam-access-state-badge [state]="leaseBadgeState(lease.id)" />
               } @else if (row.request; as request) {
@@ -255,14 +363,20 @@
                   </div>
                 }
               }
-            </td>
-            <td bitCell>
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(208px, 1fr)">
+            <bit-header-cell>
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </bit-header-cell>
+            <bit-cell *bitCellDef="activeAccessTable.columns.actions; let row" [truncate]="false">
               @if (row.lease; as lease) {
                 <button
                   type="button"
                   bitButton
                   buttonType="secondary"
                   size="small"
+                  [id]="'pam-my-requests_button_end-' + lease.id"
                   [loading]="isEnding(lease.id)"
                   [disabled]="isEnding(lease.id)"
                   (click)="endLease(lease)"
@@ -279,6 +393,7 @@
                       buttonType="primary"
                       size="small"
                       class="tw-whitespace-nowrap"
+                      [id]="'pam-my-requests_button_start-' + request.id"
                       [loading]="isStarting(request.id)"
                       [disabled]="isStarting(request.id)"
                       (click)="activate(request)"
@@ -294,6 +409,7 @@
                       bitButton
                       buttonType="secondary"
                       size="small"
+                      [id]="'pam-my-requests_button_approved-cancel-' + request.id"
                       [disabled]="isCancelling(request.id)"
                       (click)="cancel(request)"
                       [attr.data-testid]="'my-access-approved-cancel-' + request.id"
@@ -303,10 +419,146 @@
                   }
                 </div>
               }
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
+            </bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      } @else {
+        <!-- Remove this branch along with the VFO1 flag. -->
+        <bit-table [dataSource]="activeAccessDataSource">
+          <ng-container header>
+            <tr>
+              <th bitCell bitSortable="cipherName" [fn]="byItemName">
+                {{ "pamColumnItem" | i18n }}
+              </th>
+              <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
+              <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
+              <th bitCell class="tw-w-32">
+                <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+              </th>
+            </tr>
+          </ng-container>
+          <ng-template body let-rows$>
+            <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="row.testId">
+              <td bitCell>
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  @if (cipherFor(row.cipherId); as cipher) {
+                    <app-vault-icon [cipher]="cipher" />
+                  }
+                  <div>
+                    <a [routerLink]="['/pam/requests', row.requestId]">{{
+                      row.cipherName ?? row.cipherId
+                    }}</a>
+                    @if (row.collectionName) {
+                      <div class="tw-text-xs tw-text-muted">
+                        {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                      </div>
+                    }
+                    @if (row.lease; as lease) {
+                      @if (lease.extendedUntil) {
+                        <span
+                          bitBadge
+                          variant="secondary"
+                          class="tw-mt-1 tw-inline-block"
+                          [attr.data-testid]="'my-access-lease-extended-' + lease.id"
+                        >
+                          {{
+                            "pamExtendedBadge"
+                              | i18n
+                                : (lease.extendedBySeconds | durationShort)
+                                : (lease.extendedUntil | date: "short")
+                          }}
+                        </span>
+                      }
+                    }
+                  </div>
+                </div>
+              </td>
+              <td bitCell>
+                @if (row.request != null && isReadyNow(row.request)) {
+                  {{ "pamWindowUntil" | i18n: (row.notAfter | date: "short") }}
+                } @else {
+                  {{ row.notBefore | date: "short" }} &ndash; {{ row.notAfter | date: "short" }}
+                }
+              </td>
+              <td bitCell>
+                @if (row.lease; as lease) {
+                  <app-pam-access-state-badge [state]="leaseBadgeState(lease.id)" />
+                } @else if (row.request; as request) {
+                  @if (isReadyNow(request)) {
+                    <app-pam-access-state-badge [state]="readyBadge" />
+                  } @else if (grantBadge(request); as badge) {
+                    <span
+                      bitBadge
+                      [variant]="badge.variant"
+                      [attr.data-testid]="'my-access-approved-status-' + request.id"
+                    >
+                      {{ badge.labelKey | i18n }}
+                    </span>
+                  }
+                  @if (canStart(request)) {
+                    <div
+                      class="tw-mt-1 tw-text-xs tw-text-muted tw-whitespace-nowrap"
+                      [id]="'my-access-approved-deadline-' + request.id"
+                    >
+                      {{
+                        "pamActivateWithin" | i18n: (request.leaseNotAfter | remainingTime: nowMs())
+                      }}
+                    </div>
+                  }
+                }
+              </td>
+              <td bitCell>
+                @if (row.lease; as lease) {
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [loading]="isEnding(lease.id)"
+                    [disabled]="isEnding(lease.id)"
+                    (click)="endLease(lease)"
+                    [attr.data-testid]="'my-access-end-' + lease.id"
+                  >
+                    {{ "pamEndLeaseButton" | i18n }}
+                  </button>
+                } @else if (row.request; as request) {
+                  <div class="tw-flex tw-items-start tw-gap-2">
+                    @if (canStart(request)) {
+                      <button
+                        type="button"
+                        bitButton
+                        buttonType="primary"
+                        size="small"
+                        class="tw-whitespace-nowrap"
+                        [loading]="isStarting(request.id)"
+                        [disabled]="isStarting(request.id)"
+                        (click)="activate(request)"
+                        [attr.aria-describedby]="'my-access-approved-deadline-' + request.id"
+                        [attr.data-testid]="'my-access-approved-start-' + request.id"
+                      >
+                        {{ "pamStartLeaseButton" | i18n }}
+                      </button>
+                    }
+                    @if (canCancel(request)) {
+                      <button
+                        type="button"
+                        bitButton
+                        buttonType="secondary"
+                        size="small"
+                        [disabled]="isCancelling(request.id)"
+                        (click)="cancel(request)"
+                        [attr.data-testid]="'my-access-approved-cancel-' + request.id"
+                      >
+                        {{ "cancel" | i18n }}
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </bit-table>
+      }
     }
   </bit-accordion>
 </bit-accordion-group>
