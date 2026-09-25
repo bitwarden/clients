@@ -1,0 +1,143 @@
+<bit-dialog
+  [title]="'requestAccessModalTitle' | i18n"
+  [subtitle]="params.itemName"
+  [loading]="loading()"
+>
+  <div bitDialogContent class="tw-text-fg-body">
+    @if (requestMode() !== null) {
+      @if (slotContention(); as contention) {
+        <!-- Replaces the description: the automatic path's immediate-access copy is false while the slot is taken. -->
+        <p bitTypography="helper" class="tw-mb-3 tw-mt-0 tw-flex tw-items-start tw-gap-2">
+          <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-shrink-0 tw-text-warning" />
+          <span class="tw-min-w-0">
+            @if (contention.freesAt) {
+              {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | date: "short") }}
+            } @else {
+              {{ "pamRequestSlotTaken" | i18n }}
+            }
+          </span>
+        </p>
+      } @else {
+        <p bitTypography="helper" class="tw-mb-3 tw-mt-0">
+          @if (requestMode() === "automatic") {
+            {{ "requestAccessModalAutomaticDescription" | i18n }}
+          } @else {
+            {{ "requestAccessModalHumanDescription" | i18n }}
+          }
+        </p>
+      }
+
+      @if (requestMode() === "automatic") {
+        <form [formGroup]="automaticForm" class="tw-flex tw-flex-col">
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+            <select
+              bitInput
+              formControlName="durationSeconds"
+              id="pam-request-access-dialog_select_duration"
+            >
+              @for (option of durationOptions(); track option.seconds) {
+                <option [value]="option.seconds">
+                  {{
+                    option.labelKey ? (option.labelKey | i18n) : (option.seconds | durationShort)
+                  }}
+                </option>
+              }
+            </select>
+          </bit-form-field>
+
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              rows="2"
+              formControlName="reason"
+              [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+              id="pam-request-access-dialog_textarea_automatic-reason"
+            ></textarea>
+            <bit-hint>{{ "requestAccessModalAutomaticReasonHint" | i18n }}</bit-hint>
+          </bit-form-field>
+        </form>
+      } @else {
+        <form [formGroup]="humanForm" class="tw-flex tw-flex-col">
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="date"
+              formControlName="date"
+              [min]="minRequestDate()"
+              id="pam-request-access-dialog_input_date"
+            />
+          </bit-form-field>
+
+          <div class="tw-grid tw-grid-cols-2 tw-gap-2">
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="time"
+                formControlName="start"
+                id="pam-request-access-dialog_input_start"
+              />
+            </bit-form-field>
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="time"
+                formControlName="end"
+                id="pam-request-access-dialog_input_end"
+              />
+              @if (nextDayEnd(); as nextDay) {
+                <bit-hint data-testid="request-window-next-day">
+                  {{ "requestAccessModalEndsNextDay" | i18n: (nextDay | date: "short") }}
+                </bit-hint>
+              }
+            </bit-form-field>
+          </div>
+
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              rows="2"
+              formControlName="reason"
+              [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+              id="pam-request-access-dialog_textarea_human-reason"
+            ></textarea>
+            <bit-hint>{{ "requestAccessModalHumanReasonHint" | i18n }}</bit-hint>
+          </bit-form-field>
+        </form>
+      }
+    }
+
+    @if (requestError(); as error) {
+      <p bitTypography="helper" class="tw-mb-0 tw-mt-2 tw-text-danger" data-testid="request-error">
+        {{ error }}
+      </p>
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    @if (requestMode() !== null) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="submit"
+        id="pam-request-access-dialog_button_submit"
+      >
+        {{ "requestAccessModalSubmit" | i18n }}
+      </button>
+    }
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+      id="pam-request-access-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

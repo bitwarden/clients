@@ -15,8 +15,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { ITEM_DETAILS_STATE_BADGE } from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_STATE_BADGE } from "@bitwarden/vault";
 
+import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 
 /** PAM providers for the extension popup's commercial `AppModule`. */
@@ -51,6 +52,10 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_STATE_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    safeProvider({
+      provide: CIPHER_VIEW_BANNER,
+      useValue: CipherViewBannerComponent,
     }),
   ];
 }
