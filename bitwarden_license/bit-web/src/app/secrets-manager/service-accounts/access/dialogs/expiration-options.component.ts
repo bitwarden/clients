@@ -55,6 +55,7 @@ export class ExpirationOptionsComponent
   }
 
   currentDate = new Date();
+  maxDate = new Date(9999, 11, 31, 23, 59);
 
   protected form = new FormGroup({
     expires: new FormControl("never", [Validators.required]),
