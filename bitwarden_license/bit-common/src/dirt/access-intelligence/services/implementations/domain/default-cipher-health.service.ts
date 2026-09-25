@@ -1,4 +1,4 @@
-import { forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray } from "rxjs";
+import { forkJoin, from, map, mergeMap, Observable, of, switchMap, take, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -173,6 +173,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
             weakPasswordScore,
           });
         }),
+        take(1),
       );
   }
 
