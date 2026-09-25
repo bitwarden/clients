@@ -10,12 +10,21 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
+import { of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncActionsModule,
+  BitCellComponent,
+  BitHeaderCellComponent,
+  BitHeaderRowComponent,
+  BitRowComponent,
+  BitTableV2Component,
   ButtonModule,
   CardComponent,
   FormFieldModule,
@@ -47,6 +56,12 @@ export interface AssignmentPickerColumn {
 /** The context each assigned row's cells are rendered with. */
 export interface AssignmentPickerRowContext<TRow extends AssignmentPickerRow> {
   readonly $implicit: TRow;
+  /**
+   * Set when the row is drawn by `bit-table-v2`, whose cells must then be `<bit-cell>`: a `<td>`
+   * there has no `<table>` ancestor, so it is exposed with no cell role at all. Remove when the
+   * VFO1 flag is removed.
+   */
+  readonly vfo1?: boolean;
 }
 
 /** The i18n key for the hint under the picker, one per state the section can be in. */
@@ -74,6 +89,11 @@ export interface AssignmentPickerHints {
     FormsModule,
     RouterLink,
     AsyncActionsModule,
+    BitCellComponent,
+    BitHeaderCellComponent,
+    BitHeaderRowComponent,
+    BitRowComponent,
+    BitTableV2Component,
     ButtonModule,
     CardComponent,
     FormFieldModule,
@@ -89,6 +109,14 @@ export interface AssignmentPickerHints {
 })
 export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   private readonly i18nService = inject(I18nService);
+  // Optional because the host pages' specs render this card without providing one.
+  private readonly configService = inject(ConfigService, { optional: true });
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
 
   /** i18n key for the section heading. */
   readonly headingKey = input.required<string>();
