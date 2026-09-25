@@ -1,10 +1,9 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CipherCreateRequest,
   CipherEditRequest,
   CipherPartialEditRequest,
-  CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
@@ -24,7 +23,6 @@ import { AttachmentView } from "./attachment.view";
 import { BankAccountView } from "./bank-account.view";
 import { CardView } from "./card.view";
 import { DriversLicenseView } from "./drivers-license.view";
-import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { ItemView } from "./item.view";
@@ -66,9 +64,7 @@ export class CipherView implements View, InitializerMetadata {
   deletedDate?: Date;
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
-  // We need a copy of the encrypted key so we can pass it to
-  // the SdkCipherView during encryption
-  key?: EncString;
+  key?: SymmetricCryptoKey;
 
   /**
    * Flag to indicate if the cipher decryption failed.
@@ -98,7 +94,6 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
-    this.key = c.key;
   }
 
   private get item(): ItemView | undefined {
@@ -253,17 +248,7 @@ export class CipherView implements View, InitializerMetadata {
     view.passwordHistory =
       obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph)) ?? [];
 
-    if (obj.key != null) {
-      let key: EncString | undefined;
-      if (typeof obj.key === "string") {
-        // If the key is a string, we need to parse it as EncString
-        key = EncString.fromJSON(obj.key);
-      } else if ((obj.key as any) instanceof EncString) {
-        // If the key is already an EncString instance, we can use it directly
-        key = obj.key;
-      }
-      view.key = key;
-    }
+    view.key = obj.key != null ? SymmetricCryptoKey.fromJSON(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -300,7 +285,7 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(obj: SdkCipherView, sdk?: CiphersClient): CipherView | undefined {
+  static fromSdkCipherView(obj: SdkCipherView): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }
@@ -341,7 +326,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
-    cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
+    cipherView.key = obj.key ? SymmetricCryptoKey.fromString(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -354,19 +339,6 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.Login:
         cipherView.login = obj.login ? LoginView.fromSdkLoginView(obj.login) : new LoginView();
-        if (sdk && obj.login?.fido2Credentials?.length) {
-          const fido2CredentialViews = sdk.decrypt_fido2_credentials(obj);
-          const decryptedKeyValue = sdk.decrypt_fido2_private_key(obj);
-          cipherView.login.fido2Credentials = fido2CredentialViews
-            .map((cred) => {
-              const view = Fido2CredentialView.fromSdkFido2CredentialView(cred);
-              if (view) {
-                view.keyValue = decryptedKeyValue;
-              }
-              return view;
-            })
-            .filter((cred): cred is Fido2CredentialView => !!cred);
-        }
         break;
       case CipherType.SecureNote:
         cipherView.secureNote = obj.secureNote
@@ -405,7 +377,7 @@ export class CipherView implements View, InitializerMetadata {
    *
    * @returns {CipherCreateRequest} The SDK cipher create request object
    */
-  toSdkCreateCipherRequest(sdk: CiphersClient): CipherCreateRequest {
+  toSdkCreateCipherRequest(): CipherCreateRequest {
     const sdkCipherCreateRequest: CipherCreateRequest = {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map((i) => asUuid(i)) : [],
@@ -419,13 +391,6 @@ export class CipherView implements View, InitializerMetadata {
       archivedDate: this.archivedDate?.toISOString(),
     };
 
-    // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
-    // separately due to restrictions in how the SDK handles them.
-    if (this.type === CipherType.Login && this.login?.hasFido2Credentials) {
-      const sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
-      sdkCipherCreateRequest.type = { login: sdkCipherView.login! };
-    }
-
     return sdkCipherCreateRequest;
   }
 
@@ -434,7 +399,7 @@ export class CipherView implements View, InitializerMetadata {
    *
    * @returns {CipherEditRequest} The SDK cipher edit request object
    */
-  toSdkUpdateCipherRequest(sdk: CiphersClient): CipherEditRequest {
+  toSdkUpdateCipherRequest(): CipherEditRequest {
     const sdkCipherEditRequest: CipherEditRequest = {
       id: asUuid(this.id),
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
@@ -450,13 +415,6 @@ export class CipherView implements View, InitializerMetadata {
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
       key: this.key?.toSdk(),
     };
-
-    // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
-    // separately due to restrictions in how the SDK handles them.
-    if (this.type === CipherType.Login && this.login?.hasFido2Credentials) {
-      const sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
-      sdkCipherEditRequest.type = { login: sdkCipherView.login! };
-    }
 
     return sdkCipherEditRequest;
   }
@@ -521,16 +479,10 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Maps CipherView to SdkCipherView
    *
-   * If `sdk` parameter is provided, it will set the FIDO2 credentials on the SDK view,
-   * since they remain encrypted and are not included in the standard mapping.
-   *
-   * If sdk is not provided, the caller is responsible for handling the FIDO2 credentials
-   * on the SDK view separately.
-   *
    * @returns {SdkCipherView} The SDK cipher view object
    */
-  toSdkCipherView(sdk?: CiphersClient): SdkCipherView {
-    let sdkCipherView: SdkCipherView = {
+  toSdkCipherView(): SdkCipherView {
+    const sdkCipherView: SdkCipherView = {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
@@ -594,14 +546,6 @@ export class CipherView implements View, InitializerMetadata {
         break;
       default:
         break;
-    }
-
-    // If the cipher has FIDO2 credentials, we need to set them on the SDK view separately since they remain encrypted.
-    if (sdk && this.type === CipherType.Login && this.login?.hasFido2Credentials) {
-      const fido2Credentials = this.login.fido2Credentials.map((cred) =>
-        cred.toSdkFido2CredentialFullView(),
-      );
-      sdkCipherView = sdk.set_fido2_credentials(sdkCipherView, fido2Credentials);
     }
 
     return sdkCipherView;

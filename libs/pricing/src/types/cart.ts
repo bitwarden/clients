@@ -27,9 +27,13 @@ export type Cart = {
   discounts?: CartDiscount[];
   credit?: Credit;
   estimatedTax: number;
-  /**
-   * The authoritative invoice total, set by the preview adapter. Absent on legacy carts, in
-   * which case the renderer falls back to computing the total from the cart's line items.
-   */
+  /** The applied account balance as a positive magnitude; absent when none. Rendered as a
+   * negative "Applied balance" row. */
+  appliedBalance?: number;
+  /** What the subscriber is charged after applied balance. Absent on legacy carts; the
+   * renderer falls back to {@link total}. */
+  amountDue?: number;
+  /** The gross invoice total. Absent on legacy carts, where the renderer computes it from the
+   * line items instead. */
   total?: number;
 };

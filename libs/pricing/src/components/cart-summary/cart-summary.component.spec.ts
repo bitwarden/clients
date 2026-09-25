@@ -91,8 +91,10 @@ describe("CartSummaryComponent", () => {
                   return "Premium membership";
                 case "discount":
                   return "discount";
-                case "accountCredit":
-                  return "accountCredit";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -1318,6 +1320,79 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
   });
+
+  describe("applied balance and amount due", () => {
+    it("renders Total (gross), Applied balance, and Amount due when a balance applies", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="final-total"]')).nativeElement.textContent,
+      ).toContain("$14.54");
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="applied-balance-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$12.96");
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="amount-due"]')).nativeElement.textContent,
+      ).toContain("$1.58");
+    });
+
+    it("omits the applied balance and amount due rows when there is no balance", () => {
+      fixture.componentRef.setInput("cart", mockCart);
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('[data-testid="applied-balance-amount"]')),
+      ).toBeNull();
+      expect(fixture.debugElement.query(By.css('[data-testid="amount-due"]'))).toBeNull();
+    });
+
+    it("shows amount due, not the gross total, in the default header", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      const defaultHeader = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(defaultHeader.nativeElement.textContent).toContain("$1.58");
+      expect(defaultHeader.nativeElement.textContent).not.toContain("$14.54");
+    });
+
+    it("labels the default header 'Amount due' when a balance applies and 'Total' otherwise", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 14.54,
+        appliedBalance: 12.96,
+        amountDue: 1.58,
+      });
+      fixture.detectChanges();
+
+      const withBalance = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(withBalance.nativeElement.textContent).toContain("Amount due");
+      expect(withBalance.nativeElement.textContent).not.toContain("Total");
+
+      fixture.componentRef.setInput("cart", mockCart);
+      fixture.detectChanges();
+
+      const noBalance = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(noBalance.nativeElement.textContent).toContain("Total");
+    });
+  });
 });
 
 describe("CartSummaryComponent - Non-Latin locale (double-translation regression)", () => {
@@ -1462,8 +1537,10 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Collapse purchase details";
                 case "discount":
                   return "discount";
-                case "accountCredit":
-                  return "accountCredit";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }

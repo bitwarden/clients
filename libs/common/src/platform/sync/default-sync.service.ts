@@ -245,11 +245,6 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    // This is for key-connector users
-    if (response?.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
-    }
-
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
@@ -428,10 +423,10 @@ export class DefaultSyncService extends CoreSyncService {
     fallback: PolicyResponse[] | undefined,
     userId: UserId,
   ) {
-    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
-    // feature flag is off) so the new service is always seeded with data.
+    // Fall back to `policies` when `policiesNew` is absent or empty, so the new service
+    // is always seeded with data on servers that do not send `policiesNew`.
     const source = response != null && response.length > 0 ? response : fallback;
-    if (source == null || source.length === 0) {
+    if (source == null) {
       return;
     }
     const policies: { [id: string]: PolicyData } = {};

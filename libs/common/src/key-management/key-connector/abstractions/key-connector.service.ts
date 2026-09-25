@@ -6,8 +6,6 @@ import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-c
 import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
 
 export abstract class KeyConnectorService {
-  abstract setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId): Promise<void>;
-
   abstract getManagingOrganization(userId: UserId): Promise<Organization>;
 
   abstract getUsesKeyConnector(userId: UserId): Promise<boolean>;

@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 import {
   InvoicePreviewClient,
@@ -51,15 +52,18 @@ describe("InvoicePreviewClient", () => {
       );
     });
 
-    it("should POST premium org upgrade previews to the premium upgrade route", async () => {
-      const request: PremiumOrgUpgradePreviewRequest = { planTier: "teams", cadence: "annually" };
+    it("should GET premium org upgrade previews from the upgrade preview route with query params", async () => {
+      const request: PremiumOrgUpgradePreviewRequest = {
+        targetProductTierType: ProductTierType.Teams,
+        billingAddress: { country: "US", postalCode: "12345" },
+      };
 
       await sut.previewPremiumOrgUpgrade(request);
 
       expect(mockApiService.send).toHaveBeenCalledWith(
-        "POST",
-        "/account/billing/subscriptions/premium/upgrade/invoice/preview",
-        request,
+        "GET",
+        `/account/billing/subscription/upgrade/preview?targetProductTierType=${ProductTierType.Teams}&country=US&postalCode=12345`,
+        null,
         true,
         true,
       );
