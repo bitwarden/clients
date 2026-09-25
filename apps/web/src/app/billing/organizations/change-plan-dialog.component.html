@@ -390,9 +390,9 @@
         </app-enter-billing-address>
       </ng-container>
       @if (previewCartEnabled()) {
-        @if (planChangeCart.value(); as cart) {
+        @if (planChangeCart.hasValue()) {
           <div class="tw-mt-4">
-            <billing-cart-summary [cart]="cart" />
+            <billing-cart-summary [cart]="planChangeCart.value()" />
           </div>
         }
       } @else {

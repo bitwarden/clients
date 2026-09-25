@@ -1109,6 +1109,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const plan = this.getPlanFromLegacyEnum(this.selectedPlan.type);
+    if (plan == null) {
+      return undefined;
+    }
+
     return {
       tier: plan.tier,
       cadence: plan.cadence,

@@ -16735,9 +16735,6 @@
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Applied subscription credits"
-  },
   "appliedProrationCredits": {
     "message": "Applied proration credit"
   },
