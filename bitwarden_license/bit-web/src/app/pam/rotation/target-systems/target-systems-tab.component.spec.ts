@@ -1777,18 +1777,24 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   });
 
   describe("loading skeleton", () => {
-    beforeEach(async () => {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-    });
-
     afterEach(() => {
       jest.useRealTimers();
     });
 
-    async function renderLoading(): Promise<HTMLElement> {
-      const el = await render(true, []);
+    /**
+     * Raises the loading flag on a fake clock. The clock goes in only after `render` has settled:
+     * the toolbar's chip measurement schedules a change detection pass on a timer, which
+     * `whenStable` waits for and a fake clock would never run.
+     */
+    function startLoading(): void {
+      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
       loading$.next(true);
       fixture.detectChanges();
+    }
+
+    async function renderLoading(): Promise<HTMLElement> {
+      const el = await render(true, []);
+      startLoading();
       return el;
     }
 
@@ -1826,8 +1832,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
 
     it("lays the skeleton out on the same column tracks as the loaded table", async () => {
       const el = await render(true);
-      loading$.next(true);
-      fixture.detectChanges();
+      startLoading();
       jest.advanceTimersByTime(1000);
       fixture.detectChanges();
       const skeletonTracks = el.querySelector<HTMLElement>(
