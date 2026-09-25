@@ -35,6 +35,7 @@
 
       <bit-nav-section [label]="'manage' | i18n">
         <vault-manage-nav />
+        <app-pam-user-nav-slot />
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
@@ -46,15 +47,15 @@
               [route]="vfo1SubscriptionRoute"
             ></bit-nav-item>
           }
+          @if (!singleOrgPolicyApplies()) {
+            <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
+          }
           <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
           @if (showEmergencyAccess()) {
             <bit-nav-item
               [text]="'emergencyAccess' | i18n"
               route="settings/emergency-access"
             ></bit-nav-item>
-          }
-          @if (!singleOrgPolicyApplies()) {
-            <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
           }
           <billing-free-families-nav-item></billing-free-families-nav-item>
           <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
@@ -65,6 +66,7 @@
       @if (sendEnabled$ | async) {
         <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
       }
+      <app-pam-user-nav-slot />
       <bit-nav-group
         icon="bwi-wrench"
         [text]="'tools' | i18n"
