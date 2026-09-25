@@ -363,6 +363,16 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.next();
   }
 
+  /**
+   * TODO: This does not redirect the user. `setPreviousUrl` only sets an in-memory value that
+   * nothing uses as a post-login redirect, and the next navigation overwrites it. The URL is also
+   * wrong: the families-for-enterprise setup page reads a `token` query param, not `plan`.
+   * Confirm with the Billing team whether this redirect is still needed:
+   * 1. If yes: persist the URL (with `token`) as the deep-link redirect right before `logIn()`,
+   *    so `deepLinkGuard` replays it. This replaces the final step's navigation to the new org
+   *    (the `getStarted` and `inviteUsers` buttons) with the sponsorship setup page.
+   * 2. If no: remove this method and the `sponsorshipToken` query param handling.
+   */
   private setupFamilySponsorship(sponsorshipToken: string) {
     if (sponsorshipToken != null) {
       const route = this.router.createUrlTree(["setup/families-for-enterprise"], {

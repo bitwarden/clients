@@ -32,6 +32,18 @@ const DEEP_LINK_REDIRECT_URL = new KeyDefinition(ROUTER_DISK, "deepLinkRedirectU
   deserializer: (value: string) => value,
 });
 
+/**
+ * TODO: This service mixes tab titles, deep-link redirects, and dead URL tracking. Clean it up:
+ * 1. Replace the tab-title logic in the constructor with an Angular `TitleStrategy`.
+ * 2. Move the deep-link redirect state and its methods into `DeepLinkRedirectService`
+ *    (`WebDeepLinkRedirectService` on web).
+ * 3. Remove `previousUrl` tracking and `RouteDataProperties.doNotSaveUrl`. Nothing reads this
+ *    service's `previousUrl`, so on web `doNotSaveUrl` has no effect. Callers of
+ *    `setPreviousUrl` must move to the deep-link redirect or be deleted first. Browser's
+ *    `doNotSaveUrl` is a separate route-data property with its own readers.
+ * Do 1 before or with 2. The title logic runs only if something injects this service, so
+ * removing its last injector would silently stop tab-title updates.
+ */
 @Injectable()
 export class RouterService {
   /**
