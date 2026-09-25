@@ -1,7 +1,21 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nKeyOrLiteral } from "@bitwarden/common/tools/types";
 import { isI18nKey } from "@bitwarden/common/tools/util";
-import { AlgorithmInfo, AlgorithmMetadata } from "@bitwarden/generator-core";
+import {
+  AlgorithmInfo,
+  AlgorithmMetadata,
+  CredentialPreference,
+  isForwarderExtensionId,
+} from "@bitwarden/generator-core";
+
+/** Gets the active username preference and preferred forwarder. */
+export function getUsernameGeneratorSelection({ email, username }: CredentialPreference) {
+  const preference = email.updated > username.updated ? email : username;
+  const forwarder =
+    email.forwarder ?? (isForwarderExtensionId(email.algorithm) ? email.algorithm : undefined);
+
+  return { preference, forwarder };
+}
 
 /** Adapts {@link AlgorithmMetadata} to legacy {@link AlgorithmInfo} structure. */
 export function toAlgorithmInfo(metadata: AlgorithmMetadata, i18n: I18nService) {
