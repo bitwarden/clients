@@ -31,6 +31,7 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -160,7 +161,9 @@ export class Main {
     } catch {
       // Ignore errors
     }
-    const flightRecorder = new FlightRecorderLogRecorder(SdkLoadService.Ready);
+    const flightRecorder = new FlightRecorderLogRecorder(
+      SdkLoadService.Ready.then(() => new FlightRecorderClient()),
+    );
     flightRecorder.setEnabled(flightRecorderEnabled);
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);

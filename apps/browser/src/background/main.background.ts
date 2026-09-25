@@ -305,6 +305,7 @@ import {
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -635,7 +636,7 @@ export default class MainBackground {
     this.logService = new ConsoleLogService(
       isDev,
       null,
-      new FlightRecorderLogRecorder(SdkLoadService.Ready),
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
     );
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);

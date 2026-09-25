@@ -5,28 +5,22 @@ import { FlightRecorderClient, LogLevel as SdkLogLevel } from "@bitwarden/sdk-in
 import { FlightRecorderLogRecorder } from "./flight-recorder-log-recorder";
 import { LogLevel } from "./log-level";
 
-let mockClient: MockProxy<FlightRecorderClient>;
-
-jest.mock("@bitwarden/sdk-internal", () => ({
-  ...jest.requireActual("@bitwarden/sdk-internal"),
-  FlightRecorderClient: jest.fn().mockImplementation(() => mockClient),
-}));
-
-/** Lets the recorder's SDK-ready chain settle. */
+/** Lets the recorder's client-ready chain settle. */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("FlightRecorderLogRecorder", () => {
-  let resolveSdk: () => void;
-  let rejectSdk: (reason: unknown) => void;
+  let mockClient: MockProxy<FlightRecorderClient>;
+  let resolveClient: (client: FlightRecorderClient) => void;
+  let rejectClient: (reason: unknown) => void;
   let recorder: FlightRecorderLogRecorder;
 
   beforeEach(() => {
     mockClient = mock<FlightRecorderClient>();
     jest.spyOn(Date, "now").mockReturnValue(1000);
     recorder = new FlightRecorderLogRecorder(
-      new Promise<void>((resolve, reject) => {
-        resolveSdk = resolve;
-        rejectSdk = reject;
+      new Promise<FlightRecorderClient>((resolve, reject) => {
+        resolveClient = resolve;
+        rejectClient = reject;
       }),
     );
     recorder.setEnabled(true);
@@ -36,15 +30,15 @@ describe("FlightRecorderLogRecorder", () => {
     jest.restoreAllMocks();
   });
 
-  /** Loads the SDK and lets the recorder flush. */
+  /** Hands the client to the recorder and lets it flush. */
   const ready = async () => {
-    resolveSdk();
+    resolveClient(mockClient);
     await settle();
   };
 
   /** Fails the SDK load and lets the recorder drop its queue. */
   const failLoad = async () => {
-    rejectSdk(new Error("load failed"));
+    rejectClient(new Error("load failed"));
     await settle();
   };
 
@@ -186,7 +180,7 @@ describe("FlightRecorderLogRecorder", () => {
     let disabled: FlightRecorderLogRecorder;
 
     beforeEach(async () => {
-      disabled = new FlightRecorderLogRecorder(Promise.resolve());
+      disabled = new FlightRecorderLogRecorder(Promise.resolve(mockClient));
       await Promise.resolve();
     });
 
@@ -220,7 +214,7 @@ describe("FlightRecorderLogRecorder", () => {
     let undecided: FlightRecorderLogRecorder;
 
     beforeEach(async () => {
-      undecided = new FlightRecorderLogRecorder(Promise.resolve());
+      undecided = new FlightRecorderLogRecorder(Promise.resolve(mockClient));
       await Promise.resolve();
     });
 
@@ -249,7 +243,7 @@ describe("FlightRecorderLogRecorder", () => {
   });
 
   it("records the configured target", async () => {
-    const targeted = new FlightRecorderLogRecorder(Promise.resolve(), "background");
+    const targeted = new FlightRecorderLogRecorder(Promise.resolve(mockClient), "background");
     targeted.setEnabled(true);
     await settle();
 

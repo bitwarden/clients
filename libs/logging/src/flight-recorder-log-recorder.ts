@@ -1,4 +1,4 @@
-import { FlightRecorderClient, LogLevel as SdkLogLevel } from "@bitwarden/sdk-internal";
+import { type FlightRecorderClient, LogLevel as SdkLogLevel } from "@bitwarden/sdk-internal";
 
 import { LogLevel } from "./log-level";
 import { LogRecorder } from "./log-recorder";
@@ -47,27 +47,25 @@ export class FlightRecorderLogRecorder implements LogRecorder {
   private enabled: boolean | null = null;
 
   /**
-   * @param sdkReady Resolves once the SDK WASM is loaded. If it rejects, or the
-   *   client cannot be created, the recorder is disabled.
+   * @param clientReady Resolves with the client once the SDK WASM is loaded. If it
+   *   rejects, the recorder is disabled.
    * @param target The target recorded alongside each event, mirroring the Rust
    *   module path on SDK-origin events.
    */
   constructor(
-    sdkReady: Promise<void>,
+    clientReady: Promise<FlightRecorderClient>,
     private readonly target = "typescript",
   ) {
-    void sdkReady
-      .then(() => new FlightRecorderClient())
-      .then(
-        (client) => {
-          this.client = client;
-          this.flush();
-        },
-        () => {
-          this.enabled = false;
-          this.queue = [];
-        },
-      );
+    void clientReady.then(
+      (client) => {
+        this.client = client;
+        this.flush();
+      },
+      () => {
+        this.enabled = false;
+        this.queue = [];
+      },
+    );
   }
 
   setEnabled(enabled: boolean): void {
