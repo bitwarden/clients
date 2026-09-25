@@ -21,6 +21,8 @@ import { NoResults } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -28,8 +30,14 @@ import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import {
   AsyncActionsModule,
   BadgeModule,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   ButtonModule,
   CalloutModule,
+  ColumnName,
   DialogService,
   DrawerRef,
   FILTER_CONTROL,
@@ -40,6 +48,7 @@ import {
   SvgComponent,
   TableModule,
   TooltipDirective,
+  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
@@ -158,6 +167,11 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitCellDefDirective,
     TooltipDirective,
     I18nPipe,
   ],
@@ -179,6 +193,13 @@ export class AccessAuditComponent implements OnInit {
   private readonly userNamePipe = inject(UserNamePipe);
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   /**
    * The organization whose trail to show, from the route. `requireSync` holds since `params` emits its current value on subscribe.
@@ -227,6 +248,16 @@ export class AccessAuditComponent implements OnInit {
 
   protected readonly canLoadMore = computed(() => this.continuationToken() != null);
 
+  protected readonly table = defineTable<AuditRow, "item">(this.rows);
+
+  /**
+   * Each row's position in {@link rows}, which the v2 cell templates do not receive. The per-row ids
+   * are keyed on it, and the v2 table neither sorts nor filters here, so it matches the rendered order.
+   */
+  protected readonly rowIndex = computed(
+    () => new Map(this.rows().map((row, index) => [row, index] as const)),
+  );
+
   /** The open details drawer, or null; held as the ref so a stale close can't report the newer one closed. */
   private readonly detailsDrawer = signal<DrawerRef<unknown, AuditEventDrawerComponent> | null>(
     null,
@@ -238,6 +269,12 @@ export class AccessAuditComponent implements OnInit {
    * Driven by the drawer's own state, not a viewport breakpoint, since it's the drawer's grid column that narrows the table.
    */
   protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
+
+  protected readonly displayedColumns = computed<ColumnName<AuditRow, "item">[]>(() =>
+    this.detailsOpen()
+      ? ["occurredAt", "kindLabelKey", "item"]
+      : ["occurredAt", "kindLabelKey", "actor", "requester", "item", "duration"],
+  );
 
   /**
    * The organization's members, keyed by platform user id — the id an audit row carries, not the organization-user id the entity-events dialog expects.
