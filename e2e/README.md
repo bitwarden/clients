@@ -18,6 +18,9 @@ npm run test:e2e:all       # all three, sequentially
 Add `-- --headed`, `-- --debug` or `-- --ui` to any of them; everything after `--`
 is forwarded to `playwright test`.
 
+Failing tests keep a video. Set `E2E_VIDEO=1` to record every test; videos land in
+`e2e/test-results/<test>/`.
+
 ## Credentials
 
 Accounts live in `.debug/credentials.txt` (gitignored), an INI-style file:

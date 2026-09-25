@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { ElectronApplication, Page, _electron, test as base } from "@playwright/test";
 
 import { DESKTOP_BUILD_DIR, E2E_STATE_DIR } from "../paths";
+import { videoDir } from "../video";
 
 // Keeps the suite's vault, settings and logs away from a real installation's app data.
 const APPDATA_DIR = resolve(E2E_STATE_DIR, "desktop-profile");
@@ -14,6 +15,7 @@ const WINDOW_TIMEOUT_MS = 60_000;
 async function launch(
   extraArgs: string[],
   extraEnv: Record<string, string>,
+  recordVideoDir: string | undefined,
 ): Promise<ElectronApplication> {
   rmSync(APPDATA_DIR, { recursive: true, force: true });
 
@@ -28,6 +30,7 @@ async function launch(
       NODE_ENV: "development",
       ...extraEnv,
     },
+    recordVideo: recordVideoDir == null ? undefined : { dir: recordVideoDir },
   });
 }
 
@@ -41,8 +44,8 @@ export const test = base.extend<{
 }>({
   extraArgs: [[], { option: true }],
   extraEnv: [{}, { option: true }],
-  app: async ({ extraArgs, extraEnv }, use) => {
-    const app = await launch(extraArgs, extraEnv);
+  app: async ({ extraArgs, extraEnv }, use, testInfo) => {
+    const app = await launch(extraArgs, extraEnv, videoDir(testInfo.outputDir));
     await use(app);
     await app.close();
   },

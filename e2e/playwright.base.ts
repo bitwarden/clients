@@ -1,6 +1,7 @@
 import { PlaywrightTestConfig } from "@playwright/test";
 
 import { LOCAL_WEB_VAULT_URL } from "./src/credentials";
+import { VIDEO_MODE } from "./src/video";
 
 /** Tests are named `.e2e.ts` so the repo's jest projects never pick them up. */
 const TEST_MATCH = "**/*.e2e.ts";
@@ -25,7 +26,7 @@ export const baseConfig: PlaywrightTestConfig = {
   use: {
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: VIDEO_MODE,
   },
 };
 

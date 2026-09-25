@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { BrowserContext, Page, chromium, expect, test as base } from "@playwright/test";
 
 import { BROWSER_BUILD_DIR, E2E_STATE_DIR } from "../paths";
+import { videoDir } from "../video";
 
 const PROFILE_DIR = resolve(E2E_STATE_DIR, "chrome-profile");
 const EXTENSION_SCHEME = "chrome-extension://";
@@ -37,7 +38,10 @@ async function enableDeveloperMode(context: BrowserContext) {
   await page.close();
 }
 
-async function launch(baseURL: string | undefined): Promise<BrowserContext> {
+async function launch(
+  baseURL: string | undefined,
+  recordVideoDir: string | undefined,
+): Promise<BrowserContext> {
   rmSync(PROFILE_DIR, { recursive: true, force: true });
 
   return chromium.launchPersistentContext(PROFILE_DIR, {
@@ -47,6 +51,7 @@ async function launch(baseURL: string | undefined): Promise<BrowserContext> {
     ignoreHTTPSErrors: true,
     // Lets suites that also drive the web vault use relative URLs in this context.
     baseURL,
+    recordVideo: recordVideoDir == null ? undefined : { dir: recordVideoDir },
     args: [
       `--load-extension=${BROWSER_BUILD_DIR}`,
       `--disable-extensions-except=${BROWSER_BUILD_DIR}`,
@@ -157,8 +162,8 @@ export async function reachLoginPage(page: Page) {
 
 /** `popup` is the extension popup opened as a full page, which is how Playwright can drive it. */
 export const test = base.extend<{ context: BrowserContext; popup: Page }>({
-  context: async ({ baseURL }, use) => {
-    const context = await launch(baseURL);
+  context: async ({ baseURL }, use, testInfo) => {
+    const context = await launch(baseURL, videoDir(testInfo.outputDir));
     await enableDeveloperMode(context);
     await use(context);
     await context.close();
