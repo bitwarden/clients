@@ -159,6 +159,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
     return this.configService
       .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
       .pipe(
+        take(1),
         switchMap((accessIntelligencePerfEnabled) =>
           this.auditService.passwordLeaked(password, !accessIntelligencePerfEnabled),
         ),
@@ -173,7 +174,6 @@ export class DefaultCipherHealthService extends CipherHealthService {
             weakPasswordScore,
           });
         }),
-        take(1),
       );
   }
 
