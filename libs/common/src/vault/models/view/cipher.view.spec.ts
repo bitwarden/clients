@@ -1,9 +1,6 @@
-import { Jsonify } from "type-fest";
-
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
-  CiphersClient,
   CipherView as SdkCipherView,
   CipherType as SdkCipherType,
   CipherRepromptType as SdkCipherRepromptType,
@@ -36,8 +33,6 @@ jest.mock("../../models/view/field.view");
 jest.mock("../../models/view/password-history.view");
 
 describe("CipherView", () => {
-  const mockCiphersClient = {} as CiphersClient;
-
   beforeEach(() => {
     (LoginView as any).mockClear();
     (AttachmentView as any).mockClear();
@@ -95,23 +90,13 @@ describe("CipherView", () => {
       expect(actual).toMatchObject(expected);
     });
 
-    it("handle both string and object inputs for the cipher key", () => {
-      const cipherKeyString = "cipherKeyString";
-      const cipherKeyObject = new EncString("cipherKeyObject");
+    it("deserializes the cipher key to a SymmetricCryptoKey", () => {
+      const mockKey = { keyB64: "c29tZS1iYXNlNjQta2V5" };
+      jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey as any);
 
-      // Test with string input
-      let actual = CipherView.fromJSON({
-        key: cipherKeyString,
-      });
-      expect(actual.key).toBeInstanceOf(EncString);
-      expect(actual.key?.toJSON()).toBe(cipherKeyString);
-
-      // Test with object input (which can happen when cipher view is stored in an InMemory state provider)
-      actual = CipherView.fromJSON({
-        key: cipherKeyObject,
-      } as Jsonify<CipherView>);
-      expect(actual.key).toBeInstanceOf(EncString);
-      expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
+      const actual = CipherView.fromJSON({ key: mockKey as any });
+      expect(actual.key).toBe(mockKey);
+      expect(SymmetricCryptoKey.fromJSON).toHaveBeenCalledWith(mockKey);
     });
 
     it("fromJSON should always restore top-level CipherView properties", () => {
@@ -144,7 +129,7 @@ describe("CipherView", () => {
       original.deletedDate = new Date("2022-01-03");
       original.archivedDate = new Date("2022-01-04");
       original.reprompt = CipherRepromptType.Password;
-      original.key = new EncString("test-key");
+      original.key = new SymmetricCryptoKey(new Uint8Array(64));
       original.decryptionFailure = true;
 
       // Serialize and deserialize
@@ -305,7 +290,7 @@ describe("CipherView", () => {
       cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
       cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
       cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
-      cipherView.key = new EncString("some-key");
+      cipherView.key = { toSdk: () => "some-key-b64" } as any;
       cipherView.name = "name";
       cipherView.notes = "notes";
       cipherView.type = CipherType.Login;
@@ -335,7 +320,7 @@ describe("CipherView", () => {
         organizationId: asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"),
         folderId: asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"),
         collectionIds: [asUuid("b0473506-3c3c-4260-a734-dfaaf833ab6f")],
-        key: "some-key" as any,
+        key: "some-key-b64" as any,
         name: "name",
         notes: "notes",
         type: SdkCipherType.Login,
@@ -393,7 +378,7 @@ describe("CipherView", () => {
       cipherView.login.username = "testuser";
       cipherView.login.password = "testpass";
 
-      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkCreateCipherRequest();
 
       expect(result.organizationId).toEqual(asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"));
       expect(result.folderId).toEqual(asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"));
@@ -424,7 +409,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.SecureNote;
       cipherView.secureNote = new RealSecureNoteView();
 
-      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkCreateCipherRequest();
 
       expect(result.organizationId).toBeUndefined();
       expect(result.folderId).toBeUndefined();
@@ -440,7 +425,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.login = new RealLoginView();
 
-      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkCreateCipherRequest();
 
       expect(result.collectionIds).toEqual([]);
     });
@@ -454,7 +439,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.login = new RealLoginView();
 
-      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkCreateCipherRequest();
 
       expect(result.favorite).toBe(false);
     });
@@ -468,7 +453,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.login = new RealLoginView();
 
-      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkCreateCipherRequest();
 
       expect(result.reprompt).toBe(CipherRepromptType.None);
     });
@@ -493,7 +478,7 @@ describe("CipherView", () => {
         const viewPropertyName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         (cipherView as any)[viewPropertyName] = new ViewClass();
 
-        const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+        const result = cipherView.toSdkCreateCipherRequest();
 
         const typeKey = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         expect(result.type).toHaveProperty(typeKey);
@@ -517,7 +502,7 @@ describe("CipherView", () => {
       cipherView.reprompt = CipherRepromptType.Password;
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
       cipherView.archivedDate = new Date("2022-01-03T12:00:00.000Z");
-      cipherView.key = new EncString("cipher-key");
+      cipherView.key = { toSdk: () => "cipher-key-b64" } as any;
 
       const mockField = new RealFieldView();
       mockField.name = "testField";
@@ -527,7 +512,7 @@ describe("CipherView", () => {
       cipherView.login = new RealLoginView();
       cipherView.login.username = "testuser";
 
-      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkUpdateCipherRequest();
 
       expect(result.id).toEqual(asUuid("0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602"));
       expect(result.organizationId).toEqual(asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"));
@@ -563,7 +548,7 @@ describe("CipherView", () => {
       cipherView.secureNote = new RealSecureNoteView();
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
 
-      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkUpdateCipherRequest();
 
       expect(result.organizationId).toBeUndefined();
       expect(result.folderId).toBeUndefined();
@@ -582,7 +567,7 @@ describe("CipherView", () => {
       cipherView.revisionDate = new Date("2022-05-15T10:30:00.000Z");
       cipherView.archivedDate = new Date("2022-06-20T14:45:00.000Z");
 
-      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkUpdateCipherRequest();
 
       expect(result.revisionDate).toBe("2022-05-15T10:30:00.000Z");
       expect(result.archivedDate).toBe("2022-06-20T14:45:00.000Z");
@@ -608,7 +593,7 @@ describe("CipherView", () => {
 
       cipherView.attachments = [attachment1, attachment2];
 
-      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+      const result = cipherView.toSdkUpdateCipherRequest();
 
       expect(result.attachments).toHaveLength(2);
     });
@@ -634,7 +619,7 @@ describe("CipherView", () => {
         const viewPropertyName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         (cipherView as any)[viewPropertyName] = new ViewClass();
 
-        const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+        const result = cipherView.toSdkUpdateCipherRequest();
 
         const typeKey = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         expect(result.type).toHaveProperty(typeKey);
