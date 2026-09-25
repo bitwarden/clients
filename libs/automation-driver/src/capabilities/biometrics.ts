@@ -1,4 +1,11 @@
+import { ToastService } from "@bitwarden/components";
+
 import { AutomationCapability } from "../automation-capability";
+
+const TOAST_TITLE = "Automation biometrics";
+
+/** A biometric request the automation biometrics service holds, e.g. `{ id: "1", type: "unlock" }`. */
+export type AutomationBiometricRequestInfo = { id: string; type: string };
 
 /**
  * Controls the desktop main-process automation biometrics service from the renderer. Kept generic
@@ -10,18 +17,30 @@ export interface AutomationBiometricsController {
   setStatus(status: number): Promise<void>;
   /** List the biometric requests currently awaiting approval. */
   listPending(): Promise<unknown[]>;
-  /** Approve a pending request by id, or the oldest pending request when no id is given. */
-  approve(id?: string): Promise<void>;
-  /** Deny a pending request by id, or the oldest pending request when no id is given. */
-  deny(id?: string): Promise<void>;
+  /** Approve a pending request by id, or every pending request when no id is given. Returns the approved requests. */
+  approve(id?: string): Promise<AutomationBiometricRequestInfo[]>;
+  /** Deny a pending request by id, or every pending request when no id is given. Returns the denied requests. */
+  deny(id?: string): Promise<AutomationBiometricRequestInfo[]>;
+  /** Calls `callback` for each request as it starts awaiting approval. */
+  onRequest(callback: (request: AutomationBiometricRequestInfo) => void): void;
 }
 
-/** Drives mocked biometrics through a client-supplied controller. Desktop only. */
+/**
+ * Drives mocked biometrics through a client-supplied controller. Desktop only.
+ * Toasts each request and its answer, since no native prompt shows them.
+ */
 export class BiometricsCapability extends AutomationCapability {
   readonly automationName = "biometrics";
 
-  constructor(private controller: AutomationBiometricsController) {
+  constructor(
+    private controller: AutomationBiometricsController,
+    private toastService: ToastService,
+  ) {
     super();
+
+    this.controller.onRequest((request) =>
+      this.toast("info", `Pending ${request.type} request ${request.id}`),
+    );
   }
 
   async setStatus(status: number): Promise<void> {
@@ -33,10 +52,20 @@ export class BiometricsCapability extends AutomationCapability {
   }
 
   async approve(id?: string): Promise<void> {
-    await this.controller.approve(id);
+    const approved = await this.controller.approve(id);
+    for (const request of approved) {
+      this.toast("success", `Approved ${request.type} request ${request.id}`);
+    }
   }
 
   async deny(id?: string): Promise<void> {
-    await this.controller.deny(id);
+    const denied = await this.controller.deny(id);
+    for (const request of denied) {
+      this.toast("warning", `Denied ${request.type} request ${request.id}`);
+    }
+  }
+
+  private toast(variant: "info" | "success" | "warning", message: string) {
+    this.toastService.showToast({ variant, title: TOAST_TITLE, message });
   }
 }
