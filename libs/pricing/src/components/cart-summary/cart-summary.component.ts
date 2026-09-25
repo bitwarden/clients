@@ -43,7 +43,7 @@ export class CartSummaryComponent {
   readonly cart = input.required<Cart>();
 
   // Optional inputs
-  readonly header = input<TemplateRef<{ total: number }>>();
+  readonly header = input<TemplateRef<{ total: number; amountDue: number }>>();
 
   // Hide pricing term (e.g., "/ month" or "/ year") if true
   readonly hidePricingTerm = input<boolean>(false);
@@ -259,8 +259,11 @@ export class CartSummaryComponent {
     return credit.value;
   });
 
+  readonly appliedBalance = computed<number>(() => this.cart().appliedBalance ?? 0);
+  readonly amountDue = computed<number>(() => this.cart().amountDue ?? this.total());
+
   /**
-   * Calculates the total of all line items including discounts, credit and tax. Per-line
+   * Calculates the total of all line items including discounts, credits and tax. Per-line
    * discounts are already netted into {@link subtotal}, so only the cart-level discount is
    * subtracted here.
    */

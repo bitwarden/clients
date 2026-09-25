@@ -12,15 +12,22 @@ import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 import {
   getCartItemTranslationKey,
   getCreditTranslationKey,
+  getProratedSeatTranslationKey,
   getProrationChargeTranslationKey,
 } from "./translation";
+
+export type AdaptInvoicePreviewOptions = {
+  planName?: string;
+};
 
 /**
  * Where a proration charge appears in the cart.
  *
  * - SeatLine (upgrade, plan-change): the server bakes each proration charge into its seat line —
  *   the seat line is the charge. No separate charge row renders, and the seat line's quantity x
- *   cost breakdown hides because its cost is a lump, not a per-unit price.
+ *   cost breakdown hides because its cost is a lump, not a per-unit price. When the invoice is all
+ *   prorations (the Premium upgrade's `always_invoice` preview), there is no seat line on the wire,
+ *   so the summed charge becomes the seat line.
  * - ProrationLine (subscription page): the seat line is a real per-unit renewal price, or absent
  *   entirely on an all-proration transition invoice — where no seat quantity exists, so a seat
  *   line can't be built. Charged prorations render as their own lines either way.
@@ -55,6 +62,7 @@ export const adaptInvoicePreviewToCart = (
   preview: InvoicePreview,
   flowContext: InvoicePreviewFlowContext,
   logService: LogService,
+  options: AdaptInvoicePreviewOptions = {},
 ): Cart => {
   const { passwordManager, secretsManager, planTier } = preview;
 
@@ -88,8 +96,36 @@ export const adaptInvoicePreviewToCart = (
   });
 
   /**
-   * Builds one product group's rows: its seat line, if the invoice carries one, plus the group's
-   * charged prorations, placed per the flow's charge placement.
+   * Stands in for a missing seat line on SeatLine placements: the group's summed proration charge
+   * at quantity 1, with the breakdown hidden because the cost is a lump. Returns `undefined` when
+   * nothing was charged, so a credit-only group renders no seat row.
+   */
+  const derivedSeatLine = (
+    prorations: PurchasableProration[] | undefined,
+    seatReference: PurchasableReference,
+  ): CartItem | undefined => {
+    const cost = sumInCents((prorations ?? []).map((proration) => proration.charge));
+    if (cost <= 0) {
+      return undefined;
+    }
+
+    return {
+      translationKey: getCartItemTranslationKey(
+        seatReference,
+        planTier,
+        flowContext,
+        logService,
+        1,
+      ),
+      quantity: 1,
+      cost,
+      hideBreakdown: true,
+    };
+  };
+
+  /**
+   * Builds one product group's rows: its seat line, if the invoice carries one (or can stand in
+   * for it), plus the group's charged prorations, placed per the flow's charge placement.
    */
   const buildGroup = (
     item: InvoicePreviewItem | undefined,
@@ -103,7 +139,11 @@ export const adaptInvoicePreviewToCart = (
     const shouldHideBreakdown =
       placement === ProrationChargePlacements.SeatLine && hasProrations(prorations);
 
-    const seats = item ? toCartItem(item, shouldHideBreakdown) : undefined;
+    const seats = item
+      ? toCartItem(item, shouldHideBreakdown)
+      : placement === ProrationChargePlacements.SeatLine
+        ? derivedSeatLine(prorations, seatReference)
+        : undefined;
 
     let prorationCharges: CartItem[] | undefined;
     if (placement === ProrationChargePlacements.ProrationLine && prorations != null) {
@@ -123,6 +163,21 @@ export const adaptInvoicePreviewToCart = (
     ? buildGroup(secretsManager.seats, secretsManager.prorations, "sm-seat")
     : {};
 
+  const proratedMonths = passwordManager.prorations?.[0]?.months ?? 0;
+
+  const labelProratedMonths = (seats: CartItem): CartItem => {
+    const translationKey = getProratedSeatTranslationKey(flowContext);
+    if (!translationKey || !options.planName || proratedMonths <= 0) {
+      return seats;
+    }
+
+    return {
+      ...seats,
+      translationKey,
+      translationParams: [options.planName, formatMonthLabel(proratedMonths)],
+    };
+  };
+
   // A mid-cycle change can return an "all-proration" invoice: only one-time proration adjustments,
   // with no recurring seat, storage, or service-account line items.
   const allProrationInvoice =
@@ -133,7 +188,7 @@ export const adaptInvoicePreviewToCart = (
 
   const cart: Cart = {
     passwordManager: {
-      ...(pm.seats ? { seats: pm.seats } : {}),
+      ...(pm.seats ? { seats: labelProratedMonths(pm.seats) } : {}),
       ...(passwordManager.additionalStorage
         ? { additionalStorage: toCartItem(passwordManager.additionalStorage) }
         : {}),
@@ -165,21 +220,27 @@ export const adaptInvoicePreviewToCart = (
     cart.credit = credit;
   }
 
-  // Deliberately NOT mapped:
-  // - `startingBalance`: the cart summary does not render account balance.
-  // - `amountDue` and `nextPaymentAttempt`: no corresponding `Cart` field.
+  cart.amountDue = preview.amountDue;
+  const appliedBalance = sumInCents([preview.total, -preview.amountDue]);
+  if (appliedBalance > 0) {
+    cart.appliedBalance = appliedBalance;
+  }
+
   return cart;
 };
 
 const hasProrations = (prorations: PurchasableProration[] | undefined): boolean =>
   !!prorations && prorations.length > 0;
 
+const formatMonthLabel = (months: number): string => `${months} month${months > 1 ? "s" : ""}`;
+
+/** Sums in integer cents and converts once so a run of fractional amounts cannot accumulate drift. */
+const sumInCents = (amounts: number[]): number =>
+  amounts.reduce((sum, amount) => sum + Math.round(amount * 100), 0) / 100;
+
 /**
- * Collapses every proration across both product groups into at most one credit row.
- *
- * Sums in integer cents and converts once at the end so a run of fractional credits cannot
- * accumulate floating-point drift. The row is emitted only when the total is positive AND the
- * flow context actually renders credit.
+ * Collapses every proration across both product groups into at most one credit row. The row is
+ * emitted only when the total is positive AND the flow context actually renders credit.
  */
 const buildCreditRow = (
   preview: InvoicePreview,
@@ -190,14 +251,16 @@ const buildCreditRow = (
     return undefined;
   }
 
-  const totalCents = [
-    ...(preview.passwordManager.prorations ?? []),
-    ...(preview.secretsManager?.prorations ?? []),
-  ].reduce((sum, proration) => sum + Math.round(proration.credit * 100), 0);
+  const value = sumInCents(
+    [
+      ...(preview.passwordManager.prorations ?? []),
+      ...(preview.secretsManager?.prorations ?? []),
+    ].map((proration) => proration.credit),
+  );
 
-  if (totalCents <= 0) {
+  if (value <= 0) {
     return undefined;
   }
 
-  return { translationKey, value: totalCents / 100 };
+  return { translationKey, value };
 };

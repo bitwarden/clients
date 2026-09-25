@@ -184,6 +184,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
@@ -299,11 +300,11 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogService,
-    useFactory: () => {
+    useFactory: (recorder: FlightRecorderLogRecorderService) => {
       const isDev = process.env.ENV === "development";
-      return new ConsoleLogService(isDev);
+      return new ConsoleLogService(isDev, null, recorder);
     },
-    deps: [],
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: EnvironmentService,
@@ -345,7 +346,6 @@ const safeProviders: SafeProvider[] = [
     // services the container needs are first available together.
     provide: LegacyCompatKeyService,
     useFactory: (
-      masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
       encryptService: EncryptService,
@@ -355,7 +355,6 @@ const safeProviders: SafeProvider[] = [
       keyService: KeyService,
     ) => {
       const legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-        masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
         encryptService,
@@ -368,7 +367,6 @@ const safeProviders: SafeProvider[] = [
       return legacyCompatKeyService;
     },
     deps: [
-      InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
       EncryptService,

@@ -149,6 +149,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   SHARE_ITEM_PRESENTER,
@@ -259,14 +260,18 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AutomationCapability,
-    useFactory: () =>
-      new BiometricsCapability({
-        setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
-        listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
-        approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
-        deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
-      }),
-    deps: [],
+    useFactory: (toastService: ToastService) =>
+      new BiometricsCapability(
+        {
+          setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+          listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+          approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+          deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+          onRequest: (callback) => ipc.keyManagement.automation.biometrics.onRequest(callback),
+        },
+        toastService,
+      ),
+    deps: [ToastService],
     multi: true,
   }),
   safeProvider({
@@ -287,8 +292,9 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogServiceAbstraction,
-    useClass: ElectronLogRendererService,
-    deps: [],
+    useFactory: (recorder: FlightRecorderLogRecorderService) =>
+      new ElectronLogRendererService(null, recorder),
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,

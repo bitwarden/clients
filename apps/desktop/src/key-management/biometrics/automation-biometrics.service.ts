@@ -1,3 +1,5 @@
+import { Observable, Subject } from "rxjs";
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
@@ -29,6 +31,10 @@ export class AutomationBiometricsService implements OsBiometricService {
   private keys = new Map<UserId, SymmetricCryptoKey>();
   private pendingRequests: PendingRequest[] = [];
   private nextRequestId = 1;
+  private readonly requestsSubject = new Subject<AutomationBiometricRequest>();
+
+  /** Each request as it starts awaiting approval, e.g. to show it to a person watching. */
+  readonly requests$: Observable<AutomationBiometricRequest> = this.requestsSubject.asObservable();
 
   constructor(private readonly logService: LogService) {}
 
@@ -42,15 +48,17 @@ export class AutomationBiometricsService implements OsBiometricService {
     return this.pendingRequests.map(({ id, type, userId }) => ({ id, type, userId }));
   }
 
-  approveRequest(id?: string): void {
-    this.resolveRequests(id, true);
+  /** Approves the request with `id`, or all pending ones, and returns the approved requests. */
+  approveRequest(id?: string): AutomationBiometricRequest[] {
+    return this.resolveRequests(id, true);
   }
 
-  denyRequest(id?: string): void {
-    this.resolveRequests(id, false);
+  /** Denies the request with `id`, or all pending ones, and returns the denied requests. */
+  denyRequest(id?: string): AutomationBiometricRequest[] {
+    return this.resolveRequests(id, false);
   }
 
-  private resolveRequests(id: string | undefined, approved: boolean): void {
+  private resolveRequests(id: string | undefined, approved: boolean): AutomationBiometricRequest[] {
     let matches: PendingRequest[];
     if (id == null) {
       matches = this.pendingRequests.splice(0, this.pendingRequests.length);
@@ -61,6 +69,8 @@ export class AutomationBiometricsService implements OsBiometricService {
     for (const request of matches) {
       request.resolve(approved);
     }
+
+    return matches.map(({ id, type, userId }) => ({ id, type, userId }));
   }
 
   private awaitApproval(type: AutomationBiometricRequestType, userId?: UserId): Promise<boolean> {
@@ -70,9 +80,12 @@ export class AutomationBiometricsService implements OsBiometricService {
       type,
       id,
     );
-    return new Promise<boolean>((resolve) => {
+    const approval = new Promise<boolean>((resolve) => {
       this.pendingRequests.push({ id, type, userId, resolve });
     });
+
+    this.requestsSubject.next({ id, type, userId });
+    return approval;
   }
 
   // --- OsBiometricService implementation ---

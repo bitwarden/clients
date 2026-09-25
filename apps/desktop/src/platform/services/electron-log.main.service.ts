@@ -8,6 +8,7 @@ import log from "electron-log/main";
 import { LogLevelType } from "@bitwarden/common/platform/enums/log-level-type.enum";
 import { ConsoleLogService as BaseLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { logging } from "@bitwarden/desktop-napi";
+import { LogRecorder } from "@bitwarden/logging";
 
 import { isDev } from "../../utils";
 
@@ -15,8 +16,9 @@ export class ElectronLogMainService extends BaseLogService {
   constructor(
     protected filter: (level: LogLevelType) => boolean = null,
     private logDir: string = null,
+    recorder: LogRecorder = null,
   ) {
-    super(isDev(), filter);
+    super(isDev(), filter, recorder);
 
     if (log.transports == null) {
       return;
@@ -29,7 +31,8 @@ export class ElectronLogMainService extends BaseLogService {
     log.initialize();
 
     ipcMain.handle("ipc.log", (_event, { level, message, optionalParams }) => {
-      this.write(level, message, ...optionalParams);
+      // The renderer has already recorded this event in its own buffer.
+      this.writeToLog(level, message, ...optionalParams);
     });
 
     logging.initNapiLog((error, level, message) => this.writeNapiLog(level, message));
@@ -57,6 +60,11 @@ export class ElectronLogMainService extends BaseLogService {
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
+    this.tee(level, message, ...optionalParams);
+    this.writeToLog(level, message, ...optionalParams);
+  }
+
+  private writeToLog(level: LogLevelType, message?: any, ...optionalParams: any[]) {
     if (this.filter != null && this.filter(level)) {
       return;
     }

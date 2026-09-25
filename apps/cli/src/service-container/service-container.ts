@@ -209,11 +209,13 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -419,6 +421,7 @@ export class ServiceContainer {
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
     );
     this.cryptoFunctionService = new NodeCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(
@@ -540,7 +543,6 @@ export class ServiceContainer {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
     );
@@ -574,7 +576,6 @@ export class ServiceContainer {
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -586,7 +587,6 @@ export class ServiceContainer {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -938,7 +938,6 @@ export class ServiceContainer {
       this.logService,
       this.keyConnectorService,
       this.environmentService,
-      this.stateService,
       this.twoFactorService,
       this.i18nService,
       this.encryptService,
