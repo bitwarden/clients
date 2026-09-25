@@ -39,7 +39,6 @@ import { MembersComponent } from "./manage/members.component";
 import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
-import { ProvidersComponent } from "./providers.component";
 import { WebProviderService } from "./services/web-provider.service";
 import { AccountComponent } from "./settings/account.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
@@ -84,7 +83,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ProviderBillingHistoryComponent,
     ProviderSubscriptionComponent,
     ProviderSubscriptionStatusComponent,
-    ProvidersComponent,
     VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
