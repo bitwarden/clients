@@ -11,6 +11,8 @@
       />
       <app-coachmark #sharedFoldersCoachmark stepId="shareWithCollections" />
 
+      <app-pam-user-nav-slot />
+
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item
           icon="bwi-file-text"
@@ -65,6 +67,7 @@
       @if (sendEnabled$ | async) {
         <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
       }
+      <app-pam-user-nav-slot />
       <bit-nav-group
         icon="bwi-wrench"
         [text]="'tools' | i18n"

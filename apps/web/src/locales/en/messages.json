@@ -17493,6 +17493,9 @@
   "pam": {
     "message": "PAM"
   },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
+  },
   "pamAccessRules": {
     "message": "Access rules"
   },
