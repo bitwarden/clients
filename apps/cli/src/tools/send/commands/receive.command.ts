@@ -30,6 +30,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -559,6 +560,10 @@ export class SendReceiveCommand extends DownloadCommand {
             accessToken,
             apiUrl,
           );
+
+          if (unsafeUrlReason(downloadData.url, apiUrl)) {
+            return Response.error("Download blocked: the file url failed a security check.");
+          }
 
           const decryptBufferFn = async (resp: globalThis.Response) => {
             const encBuf = await EncArrayBuffer.fromResponse(resp);
