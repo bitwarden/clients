@@ -15,13 +15,21 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitCellLoadingDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   ButtonModule,
   ChipActionComponent,
   DialogService,
@@ -41,6 +49,7 @@ import {
   TableModule,
   ToastService,
   TooltipDirective,
+  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -96,6 +105,12 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -113,6 +128,13 @@ export class AccessConnectorsTabComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly loading = toSignal(this.accessConnectorsService.loading$, {
     initialValue: true,
@@ -168,6 +190,14 @@ export class AccessConnectorsTabComponent {
   });
 
   protected readonly dataSource = new TableDataSource<AccessConnectorTabRow>();
+  protected readonly table = defineTable<AccessConnectorTabRow, "actions">(this.rows);
+  /**
+   * Model for the loading placeholder, which draws no data rows: while a load is in flight, rows
+   * already held from an earlier load would otherwise show through before the skeleton's delay.
+   */
+  protected readonly loadingTable = defineTable<AccessConnectorTabRow, "actions">(
+    signal<AccessConnectorTabRow[]>([]),
+  );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
@@ -204,6 +234,25 @@ export class AccessConnectorsTabComponent {
 
   protected readonly isRowBusy = this.busyRows.isBusy;
 
+  protected readonly rowFilter = computed(() => {
+    const text = this.searchText().trim().toLowerCase();
+    const status = this.statusFilterChip()?.value() as string | null | undefined;
+    const connected = this.connectionFilterChip()?.value() as boolean | null | undefined;
+
+    return (row: AccessConnectorTabRow): boolean => {
+      if (text !== "" && !row.name.toLowerCase().includes(text)) {
+        return false;
+      }
+      if (status != null && row.statusLabelKey !== status) {
+        return false;
+      }
+      if (connected != null && row.isConnected !== connected) {
+        return false;
+      }
+      return true;
+    };
+  });
+
   constructor() {
     effect(() => {
       void this.loadAll(this.organizationId());
@@ -214,22 +263,7 @@ export class AccessConnectorsTabComponent {
     });
 
     effect(() => {
-      const text = this.searchText().trim().toLowerCase();
-      const status = this.statusFilterChip()?.value() as string | null | undefined;
-      const connected = this.connectionFilterChip()?.value() as boolean | null | undefined;
-
-      this.dataSource.filter = (row) => {
-        if (text !== "" && !row.name.toLowerCase().includes(text)) {
-          return false;
-        }
-        if (status != null && row.statusLabelKey !== status) {
-          return false;
-        }
-        if (connected != null && row.isConnected !== connected) {
-          return false;
-        }
-        return true;
-      };
+      this.dataSource.filter = this.rowFilter();
     });
   }
 
@@ -355,7 +389,7 @@ export class AccessConnectorsTabComponent {
 
   protected readonly unassign = (
     row: AccessConnectorRow,
-    targetSystemId: string,
+    targetSystemId: TargetSystemId,
     targetName: string,
   ): Promise<void> =>
     this.busyRows.run(row.id, async () => {
@@ -370,10 +404,7 @@ export class AccessConnectorsTabComponent {
         return;
       }
       try {
-        await this.accessConnectorsService.unassign(
-          row.accessConnector,
-          asUuid<TargetSystemId>(targetSystemId),
-        );
+        await this.accessConnectorsService.unassign(row.accessConnector, targetSystemId);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessConnectorUnassigned"),
