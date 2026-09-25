@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
+import DesktopProxyBuildTask from "../desktop_native/proxy/build-desktop-proxy.mts";
 import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
 import WebpackBuildTask from "../build-app.mts";
@@ -433,6 +434,7 @@ async function main() {
     console.log("Product name:", productName);
 
     // Required features
+    tasks.push(DesktopProxyBuildTask);
     tasks.push(NapiBuildTask);
     tasks.push(WebpackBuildTask);
 
