@@ -8,7 +8,6 @@ import {
   ViewContainerRef,
   WritableSignal,
   computed,
-  inject,
   signal,
   viewChild,
 } from "@angular/core";
@@ -28,7 +27,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { policyDrawerDescriptionKeys, policyDrawerTitleKeys } from "../base-policy-edit.component";
@@ -61,8 +59,6 @@ export class MultiStepPolicyEditDialogComponent
   readonly currentStep: WritableSignal<number> = signal(0);
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
-
-  private readonly terminology = inject(Vfo1TerminologyService);
 
   private readonly dialogTitleKeys = computed<[string, string]>(() =>
     policyDrawerTitleKeys(this.policy),
@@ -173,10 +169,7 @@ export class MultiStepPolicyEditDialogComponent
       // (e.g. when disabling a policy or for users without permission to see later steps).
       const isLastStep = this.currentStep() === this.policySteps().length - 1;
       if (isLastStep || (typeof result === "object" && result.closeDialog)) {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
-        });
+        this.showEditedPolicyToast();
         await this.dialogRef.close("saved");
         return;
       }

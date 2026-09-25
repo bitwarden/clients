@@ -52,12 +52,14 @@ describe("MultiStepPolicyEditDialogComponent", () => {
   let fixture: ComponentFixture<MultiStepPolicyEditDialogComponent>;
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
+  let terminologyEnabled: boolean;
   let dialogRef: MockProxy<DialogRef<PolicyEditDialogResult>>;
   let policyComponent: MockProxy<BasePolicyEditComponent>;
 
   const dialogData: PolicyEditDialogData = {
     policy: {
       name: "testPolicy",
+      nameVfo1: "testPolicyVfo1",
       description: "testDesc",
       type: 0,
       component: class {} as any,
@@ -71,6 +73,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
     i18nService.t.mockReturnValue("translated");
+    terminologyEnabled = false;
     dialogRef = mock<DialogRef<PolicyEditDialogResult>>();
     policyComponent = mock<BasePolicyEditComponent>();
 
@@ -87,7 +90,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
-        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => terminologyEnabled } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -179,6 +182,26 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
       expect(dialogRef.close).toHaveBeenCalledWith("saved");
+    });
+    it("uses the legacy policy name in the success toast when the VFO1 flag is off", async () => {
+      setupSteps([{}]);
+
+      await component.submit();
+
+      expect(i18nService.t).toHaveBeenCalledWith("testPolicy");
+      expect(i18nService.t).not.toHaveBeenCalledWith("testPolicyVfo1");
+      expect(i18nService.t).toHaveBeenCalledWith("editedPolicyId", "translated");
+    });
+
+    it("uses the VFO1 policy name in the success toast when the VFO1 flag is on", async () => {
+      terminologyEnabled = true;
+      setupSteps([{}]);
+
+      await component.submit();
+
+      expect(i18nService.t).toHaveBeenCalledWith("testPolicyVfo1");
+      expect(i18nService.t).not.toHaveBeenCalledWith("testPolicy");
+      expect(i18nService.t).toHaveBeenCalledWith("editedPolicyId", "translated");
     });
   });
 
