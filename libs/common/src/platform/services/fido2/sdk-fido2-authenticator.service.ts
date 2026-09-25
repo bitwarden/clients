@@ -1,4 +1,4 @@
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   Fido2CredentialAutofillView,
@@ -12,13 +12,11 @@ import {
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
-import { ConfigService } from "../../abstractions/config/config.service";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
@@ -47,72 +45,25 @@ import { withSdkClient } from "./with-sdk-client";
  */
 const SYNC_THRESHOLD_MS = 1000 * 60 * 30;
 
-const FLAG_ON_MESSAGE = `${FeatureFlag.PM8313_Fido2OperationsToSdk} enabled. SDK FIDO2 implementation active.`;
-const FLAG_OFF_MESSAGE = `${FeatureFlag.PM8313_Fido2OperationsToSdk} disabled. TypeScript FIDO2 implementation active.`;
-
 /**
- * A FIDO2 authenticator backed by the SDK, used when
- * {@link FeatureFlag.PM8313_Fido2OperationsToSdk} is on. With the flag off, every operation
- * delegates to the wrapped TypeScript {@link Fido2AuthenticatorService}.
- *
- * Its operations follow the authenticator API in the CTAP2 specification
- * (`authenticatorMakeCredential`, `authenticatorGetAssertion`), which defines their behavior.
- *
- * With the flag on, `makeCredential` and `getAssertion` throw SDK errors rather than retrying with
- * the TypeScript implementation, since a retry could ask the user to approve the same request twice.
- * `silentCredentialDiscovery` never prompts, so it logs the error and falls back instead: throwing
- * would also cancel the browser's own passkey suggestions on the page.
+ * A FIDO2 authenticator backed by the SDK. Its operations follow the authenticator API in the
+ * CTAP2 specification (`authenticatorMakeCredential`, `authenticatorGetAssertion`), which defines
+ * their behavior.
  */
 export class SdkFido2AuthenticatorService<
   ParentWindowReference,
 > implements Fido2AuthenticatorService<ParentWindowReference> {
-  private readonly sdkFido2Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.PM8313_Fido2OperationsToSdk,
-  );
-
   constructor(
-    private fallback: Fido2AuthenticatorService<ParentWindowReference>,
     private credentialStore: SdkFido2CredentialStore,
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
     private syncService: SyncService,
     private accountService: AccountService,
     private sdkService: SdkService,
-    private configService: ConfigService,
     private logService: LogService,
   ) {}
 
   async makeCredential(
-    params: Fido2AuthenticatorMakeCredentialsParams,
-    window: ParentWindowReference,
-    abortController?: AbortController,
-  ): Promise<Fido2AuthenticatorMakeCredentialResult> {
-    const useSdk = await firstValueFrom(this.sdkFido2Enabled$);
-    if (!useSdk) {
-      this.logService.info(FLAG_OFF_MESSAGE);
-      return await this.fallback.makeCredential(params, window, abortController);
-    }
-    this.logService.info(FLAG_ON_MESSAGE);
-
-    return await this.makeCredentialUsingSdk(params, window, abortController);
-  }
-
-  async getAssertion(
-    params: Fido2AuthenticatorGetAssertionParams,
-    window: ParentWindowReference,
-    abortController?: AbortController,
-  ): Promise<Fido2AuthenticatorGetAssertionResult> {
-    const useSdk = await firstValueFrom(this.sdkFido2Enabled$);
-    if (!useSdk) {
-      this.logService.info(FLAG_OFF_MESSAGE);
-      return await this.fallback.getAssertion(params, window, abortController);
-    }
-    this.logService.info(FLAG_ON_MESSAGE);
-
-    return await this.getAssertionUsingSdk(params, window, abortController);
-  }
-
-  private async makeCredentialUsingSdk(
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
@@ -149,7 +100,7 @@ export class SdkFido2AuthenticatorService<
     }
   }
 
-  private async getAssertionUsingSdk(
+  async getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
@@ -224,20 +175,6 @@ export class SdkFido2AuthenticatorService<
   }
 
   async silentCredentialDiscovery(rpId: string): Promise<Fido2CredentialView[]> {
-    const useSdk = await firstValueFrom(this.sdkFido2Enabled$);
-    if (!useSdk) {
-      return this.fallback.silentCredentialDiscovery(rpId);
-    }
-
-    try {
-      return await this.silentCredentialDiscoveryUsingSdk(rpId);
-    } catch (error) {
-      this.logService.error("SDK silent credential discovery failed, using TypeScript.", error);
-      return await this.fallback.silentCredentialDiscovery(rpId);
-    }
-  }
-
-  private async silentCredentialDiscoveryUsingSdk(rpId: string): Promise<Fido2CredentialView[]> {
     const discovered = await this.withAuthenticator(
       new NoopSdkFido2UserInterface(this.logService),
       (authenticator) => authenticator.silently_discover_credentials(rpId, undefined),

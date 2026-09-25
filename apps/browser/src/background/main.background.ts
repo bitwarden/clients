@@ -186,6 +186,7 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
+import { Fido2AuthenticatorServiceSelector } from "@bitwarden/common/platform/services/fido2/fido2-authenticator-service.selector";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
 import { SdkFido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/sdk-fido2-authenticator.service";
@@ -1516,17 +1517,19 @@ export default class MainBackground {
       this.accountService,
       this.sdkService,
     );
-    // Behind PM8313_Fido2OperationsToSdk. With the flag off every operation delegates to
-    // `legacyFido2AuthenticatorService`.
-    this.fido2AuthenticatorService = new SdkFido2AuthenticatorService(
-      legacyFido2AuthenticatorService,
+    const sdkFido2AuthenticatorService = new SdkFido2AuthenticatorService(
       sdkFido2CredentialStore,
       this.cipherService,
       this.fido2UserInterfaceService,
       this.syncService,
       this.accountService,
       this.sdkService,
+      this.logService,
+    );
+    this.fido2AuthenticatorService = new Fido2AuthenticatorServiceSelector(
       this.configService,
+      legacyFido2AuthenticatorService,
+      sdkFido2AuthenticatorService,
       this.logService,
     );
     this.fido2ActiveRequestManager = new Fido2ActiveRequestManager();

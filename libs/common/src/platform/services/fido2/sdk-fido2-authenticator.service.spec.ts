@@ -18,12 +18,10 @@ import { CipherType } from "../../../vault/enums";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import { LoginView } from "../../../vault/models/view/login.view";
-import { ConfigService } from "../../abstractions/config/config.service";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorGetAssertionParams,
   Fido2AuthenticatorMakeCredentialsParams,
-  Fido2AuthenticatorService,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import {
   Fido2UserInterfaceService,
@@ -133,7 +131,6 @@ function discovered(cipherId: string, credentialId: string): Fido2CredentialAuto
 }
 
 describe("SdkFido2AuthenticatorService", () => {
-  let fallback: MockProxy<Fido2AuthenticatorService<unknown>>;
   let credentialStore: MockProxy<SdkFido2CredentialStore>;
   let cipherService: MockProxy<CipherService>;
   let userInterfaceService: MockProxy<Fido2UserInterfaceService<unknown>>;
@@ -141,7 +138,6 @@ describe("SdkFido2AuthenticatorService", () => {
   let syncService: MockProxy<SyncService>;
   let accountService: AccountService;
   let sdkService: MockProxy<SdkService>;
-  let configService: MockProxy<ConfigService>;
   let logService: MockProxy<LogService>;
 
   let client: MockProxy<PasswordManagerClient>;
@@ -159,7 +155,6 @@ describe("SdkFido2AuthenticatorService", () => {
       configurable: true,
     });
 
-    fallback = mock<Fido2AuthenticatorService<unknown>>();
     credentialStore = mock<SdkFido2CredentialStore>();
     cipherService = mock<CipherService>();
     userInterfaceService = mock<Fido2UserInterfaceService<unknown>>();
@@ -171,7 +166,6 @@ describe("SdkFido2AuthenticatorService", () => {
     credentialStore.findCredentialCiphers.mockResolvedValue([cipherWithCounter(0)]);
     accountService = mockAccountServiceWith(USER_ID);
     sdkService = mock<SdkService>();
-    configService = mock<ConfigService>();
     logService = mock<LogService>();
 
     silentlyDiscover = jest.fn().mockResolvedValue([]);
@@ -193,49 +187,27 @@ describe("SdkFido2AuthenticatorService", () => {
     sdkService.userClient$.mockReturnValue(of(rc));
   });
 
-  /** The flag is read into a field initializer, so it has to be set before construction. */
-  function createService(flagEnabled: boolean) {
-    configService.getFeatureFlag$.mockReturnValue(of(flagEnabled) as never);
+  function createService() {
     return new SdkFido2AuthenticatorService<unknown>(
-      fallback,
       credentialStore,
       cipherService,
       userInterfaceService,
       syncService,
       accountService,
       sdkService,
-      configService,
       logService,
     );
   }
 
-  describe("with the flag off", () => {
-    it("delegates silent discovery to the TypeScript authenticator", async () => {
-      const expected = [credentialView(CREDENTIAL_ID)];
-      fallback.silentCredentialDiscovery.mockResolvedValue(expected);
-
-      await expect(createService(false).silentCredentialDiscovery(RP_ID)).resolves.toBe(expected);
-      expect(fallback.silentCredentialDiscovery).toHaveBeenCalledWith(RP_ID);
-    });
-
-    it("does not touch the SDK at all", async () => {
-      await createService(false).silentCredentialDiscovery(RP_ID);
-
-      expect(sdkService.userClient$).not.toHaveBeenCalled();
-      expect(buildAuthenticator).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("with the flag on", () => {
+  describe("silentCredentialDiscovery", () => {
     it("asks the SDK for the relying party, with no user handle filter", async () => {
-      await createService(true).silentCredentialDiscovery(RP_ID);
+      await createService().silentCredentialDiscovery(RP_ID);
 
       expect(silentlyDiscover).toHaveBeenCalledWith(RP_ID, undefined);
-      expect(fallback.silentCredentialDiscovery).not.toHaveBeenCalled();
     });
 
     it("builds the authenticator with the credential store and a no-op user interface", async () => {
-      await createService(true).silentCredentialDiscovery(RP_ID);
+      await createService().silentCredentialDiscovery(RP_ID);
 
       const [userInterface, store] = buildAuthenticator.mock.calls[0];
       expect(userInterface).toBeInstanceOf(NoopSdkFido2UserInterface);
@@ -247,7 +219,7 @@ describe("SdkFido2AuthenticatorService", () => {
       cipherService.getAllDecrypted.mockResolvedValue([cipher]);
       silentlyDiscover.mockResolvedValue([discovered(CIPHER_ID, CREDENTIAL_ID)]);
 
-      const result = await createService(true).silentCredentialDiscovery(RP_ID);
+      const result = await createService().silentCredentialDiscovery(RP_ID);
 
       // Identity, not shape: the fully populated view has to come from the vault, because the SDK's
       // autofill view carries no keyValue, counter or creationDate to rebuild one from.
@@ -262,7 +234,7 @@ describe("SdkFido2AuthenticatorService", () => {
       cipherService.getAllDecrypted.mockResolvedValue([]);
       silentlyDiscover.mockResolvedValue([discovered(CIPHER_ID, CREDENTIAL_ID)]);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
+      await expect(createService().silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
     });
 
     it("returns the credential the SDK found, not fido2Credentials[0]", async () => {
@@ -270,7 +242,7 @@ describe("SdkFido2AuthenticatorService", () => {
       cipherService.getAllDecrypted.mockResolvedValue([cipher]);
       silentlyDiscover.mockResolvedValue([discovered(CIPHER_ID, SECOND_CREDENTIAL_ID)]);
 
-      const result = await createService(true).silentCredentialDiscovery(RP_ID);
+      const result = await createService().silentCredentialDiscovery(RP_ID);
 
       expect(result).toEqual([cipher.login.fido2Credentials[1]]);
       expect(result[0].credentialId).toBe(SECOND_CREDENTIAL_ID);
@@ -284,7 +256,7 @@ describe("SdkFido2AuthenticatorService", () => {
         discovered(CIPHER_ID, SECOND_CREDENTIAL_ID),
       ]);
 
-      const result = await createService(true).silentCredentialDiscovery(RP_ID);
+      const result = await createService().silentCredentialDiscovery(RP_ID);
 
       expect(result.map((view) => view.credentialId)).toEqual([
         CREDENTIAL_ID,
@@ -298,7 +270,7 @@ describe("SdkFido2AuthenticatorService", () => {
       ]);
       silentlyDiscover.mockResolvedValue([discovered(CIPHER_ID, CREDENTIAL_ID)]);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
+      await expect(createService().silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
       expect(logService.warning).toHaveBeenCalledTimes(1);
     });
 
@@ -308,25 +280,25 @@ describe("SdkFido2AuthenticatorService", () => {
       ]);
       silentlyDiscover.mockResolvedValue([discovered(CIPHER_ID, CREDENTIAL_ID)]);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
+      await expect(createService().silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
       expect(logService.warning).toHaveBeenCalledTimes(1);
     });
 
     it("does not decrypt the vault when nothing was discovered", async () => {
       silentlyDiscover.mockResolvedValue([]);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
+      await expect(createService().silentCredentialDiscovery(RP_ID)).resolves.toEqual([]);
       expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
     });
 
     it("disposes the authenticator, which owns the callback objects", async () => {
-      await createService(true).silentCredentialDiscovery(RP_ID);
+      await createService().silentCredentialDiscovery(RP_ID);
 
       expect(disposeAuthenticator).toHaveBeenCalledTimes(1);
     });
 
     it("releases its SDK reference, so the client can still be freed afterwards", async () => {
-      await createService(true).silentCredentialDiscovery(RP_ID);
+      await createService().silentCredentialDiscovery(RP_ID);
       expect(client.free).not.toHaveBeenCalled();
 
       // Only reaches zero references if the service's `using` released its own.
@@ -334,69 +306,29 @@ describe("SdkFido2AuthenticatorService", () => {
       expect(client.free).toHaveBeenCalledTimes(1);
     });
 
-    it("logs and falls back to TypeScript when the SDK client is unavailable", async () => {
+    it("throws when the SDK client is unavailable", async () => {
       sdkService.userClient$.mockReturnValue(of(undefined) as never);
-      const fromTypeScript = [new Fido2CredentialView()];
-      fallback.silentCredentialDiscovery.mockResolvedValue(fromTypeScript);
 
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toBe(
-        fromTypeScript,
+      await expect(createService().silentCredentialDiscovery(RP_ID)).rejects.toThrow(
+        /SDK client is unavailable/,
       );
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({ message: expect.stringMatching(/SDK client is unavailable/) }),
-      );
-    });
-
-    it("logs and falls back to TypeScript when discovery fails", async () => {
-      const failure = new Error("discovery exploded");
-      silentlyDiscover.mockRejectedValue(failure);
-      const fromTypeScript = [new Fido2CredentialView()];
-      fallback.silentCredentialDiscovery.mockResolvedValue(fromTypeScript);
-
-      await expect(createService(true).silentCredentialDiscovery(RP_ID)).resolves.toBe(
-        fromTypeScript,
-      );
-      expect(logService.error).toHaveBeenCalledWith(expect.any(String), failure);
-      expect(fallback.silentCredentialDiscovery).toHaveBeenCalledWith(RP_ID);
     });
 
     it("releases its reference even when discovery throws", async () => {
       silentlyDiscover.mockRejectedValue(new Error("discovery exploded"));
 
-      await createService(true).silentCredentialDiscovery(RP_ID);
+      await expect(createService().silentCredentialDiscovery(RP_ID)).rejects.toThrow();
 
       rc.markForDisposal();
       expect(client.free).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe("makeCredential with the flag off", () => {
-    const window = {};
-
-    it("delegates to the TypeScript authenticator", async () => {
-      const params = makeCredentialParams();
-      const abortController = new AbortController();
-
-      await createService(false).makeCredential(params, window, abortController);
-
-      expect(fallback.makeCredential).toHaveBeenCalledWith(params, window, abortController);
-    });
-
-    it("opens no session and touches no SDK", async () => {
-      await createService(false).makeCredential(makeCredentialParams(), window);
-
-      expect(userInterfaceService.newSession).not.toHaveBeenCalled();
-      expect(buildAuthenticator).not.toHaveBeenCalled();
-      expect(syncService.fullSync).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("makeCredential with the flag on", () => {
+  describe("makeCredential", () => {
     const window = {};
 
     it("maps the request onto the SDK's CTAP shape", async () => {
-      await createService(true).makeCredential(
+      await createService().makeCredential(
         makeCredentialParams({
           excludeCredentialDescriptorList: [
             { id: new Uint8Array([7, 7]), type: "public-key", transports: ["internal"] },
@@ -417,13 +349,13 @@ describe("SdkFido2AuthenticatorService", () => {
     });
 
     it("sends no exclude list when the relying party supplied none", async () => {
-      await createService(true).makeCredential(makeCredentialParams(), window);
+      await createService().makeCredential(makeCredentialParams(), window);
 
       expect(makeCredential.mock.calls[0][0].excludeList).toBeUndefined();
     });
 
     it("maps a false verification requirement to discouraged, not preferred", async () => {
-      await createService(true).makeCredential(
+      await createService().makeCredential(
         makeCredentialParams({ requireUserVerification: false }),
         window,
       );
@@ -432,7 +364,7 @@ describe("SdkFido2AuthenticatorService", () => {
     });
 
     it("substitutes empty strings for the user fields the SDK requires", async () => {
-      await createService(true).makeCredential(
+      await createService().makeCredential(
         makeCredentialParams({ userEntity: { id: USER_HANDLE } }),
         window,
       );
@@ -445,7 +377,7 @@ describe("SdkFido2AuthenticatorService", () => {
     });
 
     it("maps the result back onto the abstraction, as byte arrays", async () => {
-      const result = await createService(true).makeCredential(makeCredentialParams(), window);
+      const result = await createService().makeCredential(makeCredentialParams(), window);
 
       expect(result).toEqual({
         credentialId: new Uint8Array([1, 1]),
@@ -459,7 +391,7 @@ describe("SdkFido2AuthenticatorService", () => {
     it("opens the session with the caller's window and abort controller", async () => {
       const abortController = new AbortController();
 
-      await createService(true).makeCredential(
+      await createService().makeCredential(
         makeCredentialParams({ fallbackSupported: false }),
         window,
         abortController,
@@ -472,15 +404,15 @@ describe("SdkFido2AuthenticatorService", () => {
     it("unlocks the vault before running the ceremony", async () => {
       session.ensureUnlockedVault.mockRejectedValue(new Error("still locked"));
 
-      await expect(
-        createService(true).makeCredential(makeCredentialParams(), window),
-      ).rejects.toThrow(/still locked/);
+      await expect(createService().makeCredential(makeCredentialParams(), window)).rejects.toThrow(
+        /still locked/,
+      );
       expect(makeCredential).not.toHaveBeenCalled();
     });
 
     it("throws rather than guessing when the relying party id is missing", async () => {
       await expect(
-        createService(true).makeCredential(
+        createService().makeCredential(
           makeCredentialParams({ rpEntity: { name: "Bitwarden" } }),
           window,
         ),
@@ -489,7 +421,7 @@ describe("SdkFido2AuthenticatorService", () => {
     });
 
     it("closes the session once the ceremony succeeds", async () => {
-      await createService(true).makeCredential(makeCredentialParams(), window);
+      await createService().makeCredential(makeCredentialParams(), window);
 
       expect(session.close).toHaveBeenCalledTimes(1);
     });
@@ -497,24 +429,14 @@ describe("SdkFido2AuthenticatorService", () => {
     it("closes the session when the ceremony fails", async () => {
       makeCredential.mockRejectedValue(new Error("creation exploded"));
 
-      await expect(
-        createService(true).makeCredential(makeCredentialParams(), window),
-      ).rejects.toThrow(/creation exploded/);
+      await expect(createService().makeCredential(makeCredentialParams(), window)).rejects.toThrow(
+        /creation exploded/,
+      );
       expect(session.close).toHaveBeenCalledTimes(1);
     });
 
-    it("propagates a failure instead of retrying through TypeScript", async () => {
-      makeCredential.mockRejectedValue(new Error("creation exploded"));
-
-      await expect(
-        createService(true).makeCredential(makeCredentialParams(), window),
-      ).rejects.toThrow(/creation exploded/);
-      // Retrying would prompt the user to approve the same ceremony a second time.
-      expect(fallback.makeCredential).not.toHaveBeenCalled();
-    });
-
     it("builds the authenticator with a prompting user interface and the credential store", async () => {
-      await createService(true).makeCredential(makeCredentialParams(), window);
+      await createService().makeCredential(makeCredentialParams(), window);
 
       const [userInterface, store] = buildAuthenticator.mock.calls[0];
       expect(userInterface).not.toBeInstanceOf(NoopSdkFido2UserInterface);
@@ -526,7 +448,7 @@ describe("SdkFido2AuthenticatorService", () => {
         const hoursAgo = new Date(Date.now() - 1000 * 60 * 60);
         syncService.activeUserLastSync$.mockReturnValue(of(hoursAgo));
 
-        await createService(true).makeCredential(makeCredentialParams(), window);
+        await createService().makeCredential(makeCredentialParams(), window);
 
         expect(syncService.fullSync).toHaveBeenCalledWith(false);
       });
@@ -534,7 +456,7 @@ describe("SdkFido2AuthenticatorService", () => {
       it("syncs when the vault has never been synced", async () => {
         syncService.activeUserLastSync$.mockReturnValue(of(null));
 
-        await createService(true).makeCredential(makeCredentialParams(), window);
+        await createService().makeCredential(makeCredentialParams(), window);
 
         expect(syncService.fullSync).toHaveBeenCalledWith(false);
       });
@@ -543,39 +465,18 @@ describe("SdkFido2AuthenticatorService", () => {
         const minutesAgo = new Date(Date.now() - 1000 * 60 * 5);
         syncService.activeUserLastSync$.mockReturnValue(of(minutesAgo));
 
-        await createService(true).makeCredential(makeCredentialParams(), window);
+        await createService().makeCredential(makeCredentialParams(), window);
 
         expect(syncService.fullSync).not.toHaveBeenCalled();
       });
     });
   });
 
-  describe("getAssertion with the flag off", () => {
-    const window = {};
-
-    it("delegates to the TypeScript authenticator", async () => {
-      const params = getAssertionParams();
-      const abortController = new AbortController();
-
-      await createService(false).getAssertion(params, window, abortController);
-
-      expect(fallback.getAssertion).toHaveBeenCalledWith(params, window, abortController);
-    });
-
-    it("opens no session and touches no SDK", async () => {
-      await createService(false).getAssertion(getAssertionParams(), window);
-
-      expect(userInterfaceService.newSession).not.toHaveBeenCalled();
-      expect(buildAuthenticator).not.toHaveBeenCalled();
-      expect(syncService.fullSync).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("getAssertion with the flag on", () => {
+  describe("getAssertion", () => {
     const window = {};
 
     it("maps the request onto the SDK's CTAP shape", async () => {
-      await createService(true).getAssertion(
+      await createService().getAssertion(
         getAssertionParams({
           requireUserVerification: true,
           allowCredentialDescriptorList: [
@@ -596,13 +497,13 @@ describe("SdkFido2AuthenticatorService", () => {
     });
 
     it("sends no allow list when the relying party supplied none", async () => {
-      await createService(true).getAssertion(getAssertionParams(), window);
+      await createService().getAssertion(getAssertionParams(), window);
 
       expect(getAssertion.mock.calls[0][0].allowList).toBeUndefined();
     });
 
     it("maps the result back onto the abstraction, as byte arrays", async () => {
-      const result = await createService(true).getAssertion(getAssertionParams(), window);
+      const result = await createService().getAssertion(getAssertionParams(), window);
 
       expect(result).toEqual({
         selectedCredential: {
@@ -617,14 +518,14 @@ describe("SdkFido2AuthenticatorService", () => {
     it("unlocks the vault before running the ceremony", async () => {
       session.ensureUnlockedVault.mockRejectedValue(new Error("still locked"));
 
-      await expect(createService(true).getAssertion(getAssertionParams(), window)).rejects.toThrow(
+      await expect(createService().getAssertion(getAssertionParams(), window)).rejects.toThrow(
         /still locked/,
       );
       expect(getAssertion).not.toHaveBeenCalled();
     });
 
     it("closes the session once the ceremony succeeds", async () => {
-      await createService(true).getAssertion(getAssertionParams(), window);
+      await createService().getAssertion(getAssertionParams(), window);
 
       expect(session.close).toHaveBeenCalledTimes(1);
     });
@@ -632,29 +533,17 @@ describe("SdkFido2AuthenticatorService", () => {
     it("closes the session when the ceremony fails", async () => {
       getAssertion.mockRejectedValue(new Error("assertion exploded"));
 
-      await expect(createService(true).getAssertion(getAssertionParams(), window)).rejects.toThrow(
+      await expect(createService().getAssertion(getAssertionParams(), window)).rejects.toThrow(
         /assertion exploded/,
       );
       expect(session.close).toHaveBeenCalledTimes(1);
-    });
-
-    it("propagates a failure instead of retrying through TypeScript", async () => {
-      getAssertion.mockRejectedValue(new Error("assertion exploded"));
-
-      await expect(createService(true).getAssertion(getAssertionParams(), window)).rejects.toThrow(
-        /assertion exploded/,
-      );
-      expect(fallback.getAssertion).not.toHaveBeenCalled();
     });
 
     it("forwards assumeUserPresence to the session, so the inline menu does not prompt twice", async () => {
       const cipher = { id: CIPHER_ID, reprompt: 0 } as unknown as SdkCipherView;
       session.pickCredential.mockResolvedValue({ cipherId: CIPHER_ID, userVerified: true });
 
-      await createService(true).getAssertion(
-        getAssertionParams({ assumeUserPresence: true }),
-        window,
-      );
+      await createService().getAssertion(getAssertionParams({ assumeUserPresence: true }), window);
 
       // The flag has no CTAP request field; it only reaches the session through the adapter the
       // ceremony was built with.
@@ -670,7 +559,7 @@ describe("SdkFido2AuthenticatorService", () => {
       const cipher = { id: CIPHER_ID, reprompt: 0 } as unknown as SdkCipherView;
       session.pickCredential.mockResolvedValue({ cipherId: CIPHER_ID, userVerified: true });
 
-      await createService(true).getAssertion(getAssertionParams(), window);
+      await createService().getAssertion(getAssertionParams(), window);
 
       const [userInterface] = buildAuthenticator.mock.calls[0];
       await userInterface.pick_credential_for_authentication([cipher]);
@@ -684,7 +573,7 @@ describe("SdkFido2AuthenticatorService", () => {
       it("does not sync when the credential is here and has never been used", async () => {
         credentialStore.findCredentialCiphers.mockResolvedValue([cipherWithCounter(0)]);
 
-        await createService(true).getAssertion(getAssertionParams(), window);
+        await createService().getAssertion(getAssertionParams(), window);
 
         expect(syncService.fullSync).not.toHaveBeenCalled();
       });
@@ -692,7 +581,7 @@ describe("SdkFido2AuthenticatorService", () => {
       it("syncs when no matching credential is here yet", async () => {
         credentialStore.findCredentialCiphers.mockResolvedValue([]);
 
-        await createService(true).getAssertion(getAssertionParams(), window);
+        await createService().getAssertion(getAssertionParams(), window);
 
         expect(syncService.fullSync).toHaveBeenCalledWith(false);
       });
@@ -700,7 +589,7 @@ describe("SdkFido2AuthenticatorService", () => {
       it("syncs when a matching credential has been asserted before", async () => {
         credentialStore.findCredentialCiphers.mockResolvedValue([cipherWithCounter(3)]);
 
-        await createService(true).getAssertion(getAssertionParams(), window);
+        await createService().getAssertion(getAssertionParams(), window);
 
         expect(syncService.fullSync).toHaveBeenCalledWith(false);
       });
@@ -708,7 +597,7 @@ describe("SdkFido2AuthenticatorService", () => {
       it("looks the credential up by the allow list when the relying party sent one", async () => {
         const id = new Uint8Array([7, 7]);
 
-        await createService(true).getAssertion(
+        await createService().getAssertion(
           getAssertionParams({
             allowCredentialDescriptorList: [{ id, type: "public-key" }],
           }),
@@ -719,7 +608,7 @@ describe("SdkFido2AuthenticatorService", () => {
       });
 
       it("asks for discoverable credentials when the relying party sent no allow list", async () => {
-        await createService(true).getAssertion(getAssertionParams(), window);
+        await createService().getAssertion(getAssertionParams(), window);
 
         expect(credentialStore.findCredentialCiphers).toHaveBeenCalledWith(undefined, RP_ID);
       });
