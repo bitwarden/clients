@@ -1,6 +1,8 @@
 import { LogLevel } from "./log-level";
 import { LogRecorder } from "./log-recorder";
 import { LogService } from "./log.service";
+import { Measurement } from "./measurement";
+import { recordTrackEntry } from "./track-entry";
 
 export class ConsoleLogService implements LogService {
   protected timersMap: Map<string, [number, number]> = new Map();
@@ -70,21 +72,33 @@ export class ConsoleLogService implements LogService {
     name?: string,
     properties?: [string, any][],
   ): PerformanceMeasure {
-    const measureName = `[${track}]: ${name}`;
+    return this.recordMeasure(`[${track}]: ${name}`, start, trackGroup, track, properties);
+  }
 
-    const measure = performance.measure(measureName, {
-      start: start,
-      detail: {
-        devtools: {
-          dataType: "track-entry",
-          track,
-          trackGroup,
-          properties,
-        },
-      },
-    });
+  startMeasurement(trackGroup: string, track: string, measureName: string): Measurement {
+    // The DevTools track already shows the track, so the entry keeps the bare name
+    return new Measurement((start, properties, duration) =>
+      this.recordMeasure(measureName, start, trackGroup, track, properties, duration),
+    );
+  }
 
-    this.debug(`${measureName} took ${measure.duration}`, properties);
+  /**
+   * Records a DevTools track entry and debug-logs it.
+   *
+   * @param entryName Name of the performance entry shown in DevTools.
+   * @param duration Fixed duration in ms; when omitted, the entry ends now.
+   */
+  private recordMeasure(
+    entryName: string,
+    start: DOMHighResTimeStamp,
+    trackGroup: string,
+    track: string,
+    properties?: [string, any][],
+    duration?: number,
+  ): PerformanceMeasure {
+    const measure = recordTrackEntry(entryName, start, trackGroup, track, properties, duration);
+
+    this.debug(`[${track}]: ${entryName} took ${measure.duration}`, properties);
     return measure;
   }
 

@@ -362,6 +362,11 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     return this.notifications$
       .pipe(
         mergeMap(async ([notification, userId]) => {
+          // Instant event per incoming notification, e.g. "SyncCipherUpdate"
+          this.logService
+            .startMeasurement("Notifications", "Incoming", NotificationType[notification.type])
+            .finishWithDefaultTime();
+
           try {
             await this.processNotification(notification, userId);
           } catch (err: unknown) {

@@ -2,10 +2,14 @@ import * as forge from "node-forge";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { measured } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { UnsignedPublicKey } from "../types/key-types";
+
+const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK = "Slow Crypto";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
   private crypto: Crypto;
@@ -21,6 +25,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     this.subtle = this.crypto.subtle;
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async pbkdf2(
     password: string | Uint8Array,
     salt: string | Uint8Array,
@@ -132,6 +137,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return new Uint8Array(buffer);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
@@ -141,6 +147,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return PureCrypto.rsa_encrypt_data(data, publicKey);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async rsaDecrypt(
     data: Uint8Array,
     privateKey: Uint8Array,
@@ -155,6 +162,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return PureCrypto.rsa_extract_public_key(privateKey) as UnsignedPublicKey;
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async rsaGenerateKeyPair(_length: 2048): Promise<[UnsignedPublicKey, Uint8Array]> {
     await SdkLoadService.Ready;
     const privateKey = PureCrypto.rsa_generate_keypair();

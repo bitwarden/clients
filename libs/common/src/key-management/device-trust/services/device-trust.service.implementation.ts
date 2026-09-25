@@ -15,6 +15,7 @@ import {
   EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { measured } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -66,6 +67,9 @@ export const SHOULD_TRUST_DEVICE = new UserKeyDefinition<boolean | null>(
     clearOn: [], // Need to preserve the user setting, so we can't clear it automatically during lock or logout
   },
 );
+
+const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK = "Device Trust";
 
 export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   private readonly platformSupportsSecureStorage =
@@ -139,6 +143,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     await this.stateProvider.setUserState(SHOULD_TRUST_DEVICE, value, userId);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async trustDeviceIfRequired(userId: UserId): Promise<void> {
     if (!userId) {
       throw new Error("UserId is required. Cannot trust device if required.");

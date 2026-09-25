@@ -1,4 +1,5 @@
 import { LogLevel } from "./log-level";
+import { Measurement } from "./measurement";
 
 export abstract class LogService {
   abstract debug(message?: any, ...optionalParams: any[]): void;
@@ -11,8 +12,8 @@ export abstract class LogService {
    * Helper wrapper around `performance.measure` to log a measurement. Should also debug-log the data.
    *
    * @param start Start time of the measurement.
-   * @param trackGroup A track-group for the measurement, should generally be the team owning the domain.
-   * @param track A track for the measurement, should generally be the class name.
+   * @param trackGroup A track-group for the measurement, should generally be the domain or flow, e.g. `"Unlock"`.
+   * @param track A track for the measurement, should be the sub-area within the group, e.g. `"Crypto"`.
    * @param measureName A descriptive name for the measurement.
    * @param properties Additional properties to include.
    */
@@ -23,6 +24,16 @@ export abstract class LogService {
     measureName: string,
     properties?: [string, any][],
   ): PerformanceMeasure;
+
+  /**
+   * Starts a measurement now. Call {@link Measurement.finish} to record it as a DevTools track
+   * entry and debug-log it.
+   *
+   * @param trackGroup A track-group for the measurement, should generally be the domain or flow, e.g. `"Unlock"`.
+   * @param track A track for the measurement, should be the sub-area within the group, e.g. `"Crypto"`.
+   * @param measureName The entry name shown on the track, without a track prefix, e.g. `"Decrypt User Keys"`.
+   */
+  abstract startMeasurement(trackGroup: string, track: string, measureName: string): Measurement;
 
   /**
    * Helper wrapper around `performance.mark` to log a mark. Should also debug-log the data.

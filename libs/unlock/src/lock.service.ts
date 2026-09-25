@@ -70,6 +70,7 @@ export class DefaultLockService implements LockService {
   }
 
   async lockAll(source: LockSource) {
+    this.logService.mark(`Lock all (${source})`);
     const accounts = await firstValueFrom(
       combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
         map(([activeAccount, accounts]) => {
@@ -133,12 +134,14 @@ export class DefaultLockService implements LockService {
       return;
     }
 
+    this.logService.mark(`Lock start (${source})`);
     await this.wipeDecryptedState(userId);
     await this.waitForLockedStatus(userId);
     await this.systemService.clearPendingClipboard();
     await this.runPlatformOnLockActions(userId, source);
 
     this.logService.info(`[LockService] Locked user ${userId}`);
+    this.logService.mark("Vault locked");
 
     // Subscribers navigate the client to the lock screen based on this lock message.
     // We need to disable auto-prompting as we are just entering a locked state now.
