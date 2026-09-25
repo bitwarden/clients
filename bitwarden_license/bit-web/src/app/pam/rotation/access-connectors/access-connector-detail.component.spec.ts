@@ -871,6 +871,31 @@ describe("AccessConnectorDetailComponent", () => {
         ),
       ).not.toBeNull();
     });
+
+    it("keeps the pending badge out of the name's truncating box when the VFO1 flag is on", async () => {
+      rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+      await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
+        renderTemplate: true,
+      });
+      const configService = mock<ConfigService>();
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      TestBed.configureTestingModule({
+        providers: [{ provide: ConfigService, useValue: configService }],
+      });
+      const comp = await createComponent();
+
+      await comp.unassignTarget(comp.assignments()[0]);
+      fixture.detectChanges();
+
+      const nameCell = fixture.nativeElement.querySelector("bit-table-v2 bit-row bit-cell");
+      const badge = [...nameCell.querySelectorAll("[bitBadge]")].find((b: Element) =>
+        b.textContent?.includes("pamRotationAssignmentPendingUnassign"),
+      ) as Element | undefined;
+      expect(badge).toBeDefined();
+      expect(badge!.closest(".tw-text-ellipsis")).toBeNull();
+      expect(nameCell.querySelector(".tw-text-ellipsis")?.textContent).toContain("Prod Entra");
+    });
   });
 
   describe("assignment hint", () => {

@@ -1640,14 +1640,13 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
     it("draws each assigned connector's cells as bit-cell when the VFO1 flag is on", async () => {
       TestBed.resetTestingModule();
       rotationSdk = mock<RotationSdkService>();
+      const assigned = accessConnector({
+        id: connectorId("c-assigned"),
+        name: "Prod connector",
+        assignedTargetSystemIds: [SYSTEM_ID],
+      });
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID })]);
-      rotationSdk.listConnectors.mockResolvedValue([
-        accessConnector({
-          id: connectorId("c-assigned"),
-          name: "Prod connector",
-          assignedTargetSystemIds: [SYSTEM_ID],
-        }),
-      ]);
+      rotationSdk.listConnectors.mockResolvedValue([assigned]);
       rotationSdk.listConfigs.mockResolvedValue([]);
       const configService = mock<ConfigService>();
       configService.getFeatureFlag$.mockReturnValue(of(true));
@@ -1671,6 +1670,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       }).compileComponents();
       jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
       fixture = TestBed.createComponent(TargetSystemEditComponent);
+      component = fixture.componentInstance as unknown as AssignmentsComp;
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1681,6 +1681,15 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       expect(rows[0].querySelectorAll("[role=cell]")).toHaveLength(4);
       expect(rows[0].querySelectorAll("td")).toHaveLength(0);
       expect(rows[0].querySelector("bit-cell")?.textContent).toContain("Prod connector");
+
+      await component.stageUnassign(rowFor(assigned));
+      fixture.detectChanges();
+
+      const nameCell = rows[0].querySelector("bit-cell")!;
+      const badge = nameCell.querySelector("[bitBadge]");
+      expect(badge?.textContent).toContain("pamRotationAssignmentPendingUnassign");
+      expect(badge!.closest(".tw-text-ellipsis")).toBeNull();
+      expect(nameCell.querySelector(".tw-text-ellipsis")?.textContent).toContain("Prod connector");
     });
 
     it("renders the empty row and no remove control when nothing is assigned", async () => {

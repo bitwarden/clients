@@ -219,12 +219,12 @@
                 >
                 @switch (assignment.pending) {
                   @case ("add") {
-                    <span bitBadge variant="subtle" class="tw-ms-2">{{
+                    <span slot="end" bitBadge variant="subtle">{{
                       "pamRotationAssignmentPendingAssign" | i18n
                     }}</span>
                   }
                   @case ("remove") {
-                    <span bitBadge variant="subtle" class="tw-ms-2">{{
+                    <span slot="end" bitBadge variant="subtle">{{
                       "pamRotationAssignmentPendingUnassign" | i18n
                     }}</span>
                   }
