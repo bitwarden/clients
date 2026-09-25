@@ -46,7 +46,7 @@ describe("SearchService", () => {
   const mockLogService = {
     error: jest.fn(),
     info: jest.fn(),
-    startMeasurement: jest.fn(() => ({ finish: jest.fn() })),
+    measure: jest.fn(),
   };
   const mockLocale$ = new BehaviorSubject<string>("en");
   const mockI18nService = {

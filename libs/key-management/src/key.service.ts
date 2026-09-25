@@ -47,6 +47,7 @@ import {
   SymmetricCryptoKey,
   WrappedSigningKey,
 } from "@bitwarden/legacy-crypto";
+import { measured } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {
@@ -335,6 +336,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   private async decryptPrivateKey(
     encryptedPrivateKey: EncryptedString | null,
     key: SymmetricCryptoKey,
@@ -343,18 +345,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       return null;
     }
 
-    const measurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      PERF_TRACK,
-      "decryptPrivateKey",
-    );
-    const privateKey = (await this.encryptService.unwrapDecapsulationKey(
+    return (await this.encryptService.unwrapDecapsulationKey(
       new EncString(encryptedPrivateKey),
       key,
     )) as UserPrivateKey;
-    measurement.finish();
-
-    return privateKey;
   }
 
   /**
