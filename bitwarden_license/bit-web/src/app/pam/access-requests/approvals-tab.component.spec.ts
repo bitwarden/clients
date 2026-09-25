@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -1056,13 +1057,15 @@ describe("ApprovalsTabComponent", () => {
       expect(pendingOrder()).toEqual(["keep"]);
     });
 
-    it("keeps the section empty states outside the table", () => {
+    it("keeps the pending empty state inside its table, and the lease one outside", () => {
       inbox.activeLeaseRows$.next([leaseRow()]);
 
       createWithFlag(true);
 
-      expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
-      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(1);
+      const pendingEmpty = query('[data-testid="approvals-pending-empty"]');
+      expect(pendingEmpty?.closest("bit-table-v2")).toBe(pendingTable());
+      expect(query('[data-testid="approvals-active-access-empty"]')).toBeNull();
+      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(2);
     });
 
     it("shows a v2 skeleton, hidden from assistive tech, once loading has run for a second", () => {
@@ -1087,6 +1090,280 @@ describe("ApprovalsTabComponent", () => {
         "pamColumnActions",
       ]);
       expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
+    });
+
+    describe("toolbar", () => {
+      function chips(root: ParentNode): HTMLElement[] {
+        return queryAll(root, "bit-filter-menu");
+      }
+
+      /** The toolbar's chip row — the unit that collapses into the filter dialog below md. */
+      function filterRow(): HTMLElement {
+        return query("bit-table-toolbar [bitOverflowList]") as HTMLElement;
+      }
+
+      function optionLabels(chip: HTMLElement): string[] {
+        return queryAll(chip, "bit-filter-option").map(text);
+      }
+
+      function searchPlaceholder(): string | null | undefined {
+        return query("bit-search input")?.getAttribute("placeholder");
+      }
+
+      function leaseIds(): string[] {
+        return queryAll(fixture.nativeElement, '[data-testid^="approvals-revoke-"]').map((button) =>
+          (button.getAttribute("data-testid") ?? "").replace("approvals-revoke-", ""),
+        );
+      }
+
+      /** Two collections and two requesters across both sections, so either chip can narrow. */
+      function twoOfEach(): void {
+        inbox.inboxRows$.next([
+          row({ id: "prod-grace" }),
+          row({
+            id: "staging-alan",
+            collectionId: "col-2",
+            requesterName: "Alan",
+            requesterEmail: "alan@example.com",
+          }),
+        ]);
+        inbox.activeLeaseRows$.next([
+          leaseRow({ id: "req-live-1", producedLeaseId: "lease-prod" }),
+          leaseRow({
+            id: "req-live-2",
+            producedLeaseId: "lease-staging",
+            collectionId: "col-2",
+            requesterName: "Alan",
+            requesterEmail: "alan@example.com",
+          }),
+        ]);
+      }
+
+      it("projects the search and both filter chips into bit-table-toolbar", () => {
+        inbox.inboxRows$.next([row()]);
+
+        createWithFlag(true);
+
+        const toolbar = query("bit-table-toolbar");
+        expect(toolbar).not.toBeNull();
+        expect(toolbar?.querySelector("bit-search")).not.toBeNull();
+        expect(chips(toolbar as HTMLElement)).toHaveLength(2);
+        expect(queryAll(fixture.nativeElement, "bit-search")).toHaveLength(1);
+        expect(chips(fixture.nativeElement)).toHaveLength(2);
+      });
+
+      it("leaves the controls outside any toolbar with the flag off", () => {
+        inbox.inboxRows$.next([row()]);
+
+        createWithFlag(false);
+
+        expect(query("bit-table-toolbar")).toBeNull();
+        expect(query("bit-search")).not.toBeNull();
+        expect(chips(fixture.nativeElement)).toHaveLength(2);
+      });
+
+      it("keeps the search placeholder and id the v1 toolbar rendered", () => {
+        inbox.inboxRows$.next([row()]);
+
+        createWithFlag(false);
+        const v1Placeholder = searchPlaceholder();
+        const v1Id = query("bit-search")?.getAttribute("id");
+
+        createWithFlag(true);
+
+        expect(v1Placeholder).toBe("pamApprovalsSearchPlaceholder");
+        expect(searchPlaceholder()).toBe(v1Placeholder);
+        expect(query("bit-search")?.getAttribute("id")).toBe(v1Id);
+      });
+
+      it("keeps both chips' keys, labels and options", () => {
+        twoOfEach();
+
+        createWithFlag(false);
+        const v1Options = chips(fixture.nativeElement).map(optionLabels);
+        const v1Labels = chips(fixture.nativeElement).map(text);
+
+        createWithFlag(true);
+
+        expect(v1Options).toEqual([
+          ["Production", "Staging"],
+          ["Alan", "Grace"],
+        ]);
+        expect(chips(fixture.nativeElement).map(optionLabels)).toEqual(v1Options);
+        expect(chips(fixture.nativeElement).map(text)).toEqual(v1Labels);
+        expect([
+          component["collectionFilterMenu"]()?.key(),
+          component["requesterFilterMenu"]()?.key(),
+        ]).toEqual(["collection", "requester"]);
+      });
+
+      it("starts with both chips unset, as v1 does", () => {
+        twoOfEach();
+
+        createWithFlag(true);
+
+        expect(component["collectionFilterMenu"]()?.active()).toBe(false);
+        expect(component["requesterFilterMenu"]()?.active()).toBe(false);
+        expect(pendingOrder()).toEqual(["prod-grace", "staging-alan"]);
+        expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
+      });
+
+      it("narrows both sections from the collection chip, as v1 does", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        component["collectionFilterMenu"]()?.setValue("Staging");
+        fixture.detectChanges();
+
+        expect(pendingOrder()).toEqual(["staging-alan"]);
+        expect(leaseIds()).toEqual(["lease-staging"]);
+      });
+
+      it("narrows both sections from the requester chip, as v1 does", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        component["requesterFilterMenu"]()?.setValue("Grace");
+        fixture.detectChanges();
+
+        expect(pendingOrder()).toEqual(["prod-grace"]);
+        expect(leaseIds()).toEqual(["lease-prod"]);
+      });
+
+      it("intersects the chips with the search term, as v1 does", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        // Either control alone leaves rows; together they must leave none.
+        component["collectionFilterMenu"]()?.setValue("Production");
+        component["searchControl"].setValue("alan");
+        fixture.detectChanges();
+
+        expect(pendingOrder()).toEqual([]);
+        expect(leaseIds()).toEqual([]);
+        expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
+          "pamApprovalsNoResults",
+        );
+        expect(query('[data-testid="approvals-active-access-empty"]')?.textContent).toContain(
+          "pamApprovalsNoResults",
+        );
+      });
+
+      it("narrows both sections from the search box, matching the same fields as v1", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        component["searchControl"].setValue("staging");
+        fixture.detectChanges();
+
+        expect(pendingOrder()).toEqual(["staging-alan"]);
+        expect(leaseIds()).toEqual(["lease-staging"]);
+      });
+
+      it("keeps the toolbar on screen when a filter matches nothing", () => {
+        // The only way to clear a filter that emptied both sections.
+        twoOfEach();
+        createWithFlag(true);
+
+        component["searchControl"].setValue("nothing matches this");
+        fixture.detectChanges();
+
+        expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
+          "pamApprovalsNoResults",
+        );
+        expect(query("bit-table-toolbar bit-search")).not.toBeNull();
+        expect(chips(query("bit-table-toolbar") as HTMLElement)).toHaveLength(2);
+      });
+
+      it("projects the toolbar into the pending table, which holds its place when emptied", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        component["requesterFilterMenu"]()?.setValue("Alan");
+        component["searchControl"].setValue("nothing matches this");
+        fixture.detectChanges();
+
+        const toolbar = query("bit-table-toolbar") as HTMLElement;
+        expect(toolbar.closest("bit-table-v2")).toBe(pendingTable());
+        expect(pendingOrder()).toEqual([]);
+        expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
+        expect(chips(toolbar)).toHaveLength(2);
+      });
+
+      it("counts a chip's options against the pending rows the other chips have not seen", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        component["collectionFilterMenu"]()?.setValue("Production");
+        fixture.detectChanges();
+
+        const table = fixture.debugElement.query(By.css("bit-table-v2")).componentInstance as {
+          optionCount(key: string, value: unknown): number | undefined;
+        };
+        expect(table.optionCount("requester", "Alan")).toBe(1);
+        expect(pendingOrder()).toEqual(["prod-grace"]);
+      });
+
+      it("lays both chips out in the visible filter row at md and up", () => {
+        twoOfEach();
+
+        createWithFlag(true);
+
+        expect(chips(filterRow())).toHaveLength(2);
+        expect(filterRow().classList).not.toContain("tw-invisible");
+        expect(query("bit-table-toolbar .bwi-sliders")).toBeNull();
+      });
+
+      it("collapses the same chips into the filter dialog trigger below md", () => {
+        twoOfEach();
+        createWithFlag(true);
+
+        resizeTo(500);
+
+        expect(query("bit-table-toolbar .bwi-sliders")).not.toBeNull();
+        // Laid out but invisible, so the overflow list can keep measuring it.
+        expect(chips(filterRow())).toHaveLength(2);
+        expect(filterRow().classList).toContain("tw-invisible");
+      });
+
+      it("clears a collapsed selection from its active-filter chip, re-listing both sections", () => {
+        twoOfEach();
+        createWithFlag(true);
+        resizeTo(500);
+
+        component["collectionFilterMenu"]()?.setValue("Staging");
+        fixture.detectChanges();
+
+        const applied = queryAll(fixture.nativeElement, "bit-table-toolbar bit-chip");
+        expect(applied).toHaveLength(1);
+        expect(text(applied[0])).toContain("Staging");
+        expect(pendingOrder()).toEqual(["staging-alan"]);
+
+        applied[0].querySelector<HTMLElement>("button[bit-chip-dismiss-button]")?.click();
+        fixture.detectChanges();
+
+        expect(component["collectionFilterMenu"]()?.active()).toBe(false);
+        expect(pendingOrder()).toEqual(["prod-grace", "staging-alan"]);
+        expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
+      });
+
+      it("shows no toolbar while the skeleton is up, as v1 does", () => {
+        inbox.loading$.next(true);
+
+        createWithFlag(true);
+        jest.advanceTimersByTime(1000);
+        fixture.detectChanges();
+
+        expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
+        expect(query("bit-table-toolbar")).toBeNull();
+      });
+
+      it("shows no toolbar over the inbox-zero empty state, as v1 does", () => {
+        createWithFlag(true);
+
+        expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
+        expect(query("bit-table-toolbar")).toBeNull();
+      });
     });
   });
 });
