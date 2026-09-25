@@ -88,8 +88,7 @@ describe("OrganizationVaultFilterComponent", () => {
     const accountService = mockAccountServiceWith(USER_ID);
 
     await TestBed.configureTestingModule({
-      declarations: [VaultFilterComponent],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports: [VaultFilterComponent],
       providers: [
         { provide: VaultFilterService, useValue: vaultFilterService },
         { provide: I18nService, useValue: i18nService },
@@ -103,7 +102,12 @@ describe("OrganizationVaultFilterComponent", () => {
           useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(VaultFilterComponent, {
+        // Empty imports so no module providers leak in via the component's import chain.
+        set: { imports: [], schemas: [NO_ERRORS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(VaultFilterComponent);
     component = fixture.componentInstance;
