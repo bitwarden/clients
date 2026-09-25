@@ -8,9 +8,9 @@ import {
   signal,
   untracked,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { combineLatest, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -25,7 +25,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -53,6 +53,7 @@ import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
   copyPresentation$,
+  DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
@@ -271,10 +272,42 @@ export class VaultNextComponent implements OnInit {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  /**
+   * The items that could not be decrypted. `cipherListViews$` drops them, so they reach the page
+   * only through here — see {@link ciphers} and {@link showDecryptionFailureDialog}.
+   */
+  private readonly failedCiphers$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherService.failedToDecryptCiphers$(userId)),
+    filterOutNullish(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /** `undefined` until the ciphers stream first emits, which is what drives {@link loading}. */
   private readonly loadedCiphers = toSignal(this.allCiphers$);
 
   private readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
+
+  private readonly failedCiphers = toSignal(this.failedCiphers$, { initialValue: [] });
+
+  /**
+   * Opens once per visit, and names only the failures the page in view can show — the same
+   * `cipherInScope` narrowing {@link ciphers} applies.
+   */
+  private readonly showDecryptionFailureDialog = combineLatest([
+    this.failedCiphers$,
+    toObservable(this.vaultScope),
+  ])
+    .pipe(
+      map(([ciphers, scope]) => ciphers.filter((cipher) => cipherInScope(cipher, scope))),
+      filter((ciphers) => ciphers.length > 0),
+      take(1),
+      takeUntilDestroyed(),
+    )
+    .subscribe((ciphers) =>
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: ciphers.map((cipher) => cipher.id as CipherId),
+      }),
+    );
 
   /**
    * Every item in the account's active vaults. The banners and onboarding speak to the account as
@@ -285,10 +318,18 @@ export class VaultNextComponent implements OnInit {
     this.allCiphers().filter((cipher) => cipherInScope(cipher, ALL_ITEMS_SCOPE)),
   );
 
-  /** The rows for the table: {@link allCiphers} narrowed to the scope. */
+  /**
+   * The rows for the table: {@link allCiphers} plus {@link failedCiphers}, narrowed to the scope.
+   *
+   * A failed item still carries its organization, collections, and deleted date — none of which
+   * needed decrypting — so `cipherInScope` places it without any special case. It is left out of
+   * {@link activeCiphers}, which the banners and onboarding read.
+   */
   protected readonly ciphers = computed<CipherViewLike[]>(() => {
     const scope = this.vaultScope();
-    return this.allCiphers().filter((cipher) => cipherInScope(cipher, scope));
+    return [...this.failedCiphers(), ...this.allCiphers()].filter((cipher) =>
+      cipherInScope(cipher, scope),
+    );
   });
 
   protected readonly loading = computed(() => this.loadedCiphers() === undefined);
@@ -531,6 +572,11 @@ export class VaultNextComponent implements OnInit {
   });
 
   private async dispatchDeepLink(link: ItemDeepLink): Promise<void> {
+    if (this.failedCiphers().some((cipher) => cipher.id === link.cipherId)) {
+      await this.itemActions.showDecryptionFailure(link.cipherId);
+      return;
+    }
+
     switch (link.action) {
       case ItemDeepLinkAction.Edit:
         await this.itemActions.editById(link.cipherId);
