@@ -1,17 +1,25 @@
 import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { DialogService, NavigationModule, SideNavService } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutComponent,
+  NavigationModule,
+  SideNavService,
+} from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
@@ -97,6 +105,11 @@ describe("DesktopLayoutComponent", () => {
   const vaultNavService = mock<VaultNavService>();
   const cipherArchiveService = mock<CipherArchiveService>();
   const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+
+  /** Whether the layout was told to draw its rounded top-left corner. */
+  const rounded = (f: ComponentFixture<DesktopLayoutComponent>) =>
+    f.debugElement.query(By.directive(LayoutComponent)).componentInstance.rounded();
 
   /** Trimmed text of every rendered nav item, group, and section heading, in document order. */
   const navText = () =>
@@ -127,6 +140,7 @@ describe("DesktopLayoutComponent", () => {
     configService.getFeatureFlag$.mockReturnValue(flag$);
 
     i18nService.t.mockImplementation((key: string) => key);
+    platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
     vaultNavService.viewModel$.mockReturnValue(viewModel$);
@@ -143,6 +157,7 @@ describe("DesktopLayoutComponent", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {
@@ -222,6 +237,22 @@ describe("DesktopLayoutComponent", () => {
     it("keeps Send in Tools", () => {
       expect(fixture.nativeElement.querySelector("app-send-filters-nav")).toBeTruthy();
     });
+
+    it("rounds the layout on macOS", () => {
+      expect(rounded(fixture)).toBe(true);
+    });
+
+    it.each([DeviceType.WindowsDesktop, DeviceType.LinuxDesktop])(
+      "does not round the layout on device type %i",
+      (deviceType) => {
+        platformUtilsService.getDevice.mockReturnValue(deviceType);
+
+        const nonMacFixture = TestBed.createComponent(DesktopLayoutComponent);
+        nonMacFixture.detectChanges();
+
+        expect(rounded(nonMacFixture)).toBe(false);
+      },
+    );
   });
 
   describe("openImport", () => {
