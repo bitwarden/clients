@@ -1,12 +1,17 @@
 import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
+import { Observable, Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ChipComponent } from "../../chips";
-import { DialogService } from "../../dialog";
+import { DialogRef, DialogService } from "../../dialog";
+import {
+  FilterDialogComponent,
+  FilterDialogParams,
+} from "../../filter-menu/filter-dialog.component";
 import { FilterMenuComponent } from "../../filter-menu/filter-menu.component";
 import { FilterOptionComponent } from "../../filter-menu/filter-option.component";
 import { FilterToggleComponent } from "../../filter-menu/filter-toggle.component";
@@ -307,5 +312,149 @@ describe("BitTableToolbarComponent active filter chips", () => {
 
     expect(chipLabels()).toEqual([]);
     expect(host.vault().active()).toBe(false);
+  });
+});
+
+/** A toolbar whose filter dialog is driven from outside, as the browser popup drives it. */
+@Component({
+  imports: [BitTableToolbarComponent, FilterToggleComponent, SearchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-toolbar [(filterDialogOpen)]="open">
+      <bit-search placeholder="Search"></bit-search>
+      <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+      @if (extraFilter()) {
+        <bit-filter-toggle key="archive" label="Archive" icon="bwi-archive"></bit-filter-toggle>
+      }
+    </bit-table-toolbar>
+  `,
+})
+class DialogHostComponent {
+  readonly open = signal(false);
+  /** Stands in for a chip gated on options that arrive after the dialog is already open. */
+  readonly extraFilter = signal(false);
+}
+
+describe("BitTableToolbarComponent filter dialog", () => {
+  let fixture: ComponentFixture<DialogHostComponent>;
+  let host: DialogHostComponent;
+  let dialogService: MockProxy<DialogService>;
+  let closed: Subject<unknown>;
+
+  const trigger = () =>
+    fixture.nativeElement.querySelector("button[bitIconButton]") as HTMLButtonElement;
+
+  /** The filters the toolbar handed the dialog, read as the dialog itself reads them. */
+  const dialogFilters = () => {
+    const config = dialogService.open.mock.calls[0][1] as { data: FilterDialogParams };
+    return config.data.filters().map((filter) => filter.key());
+  };
+
+  beforeEach(async () => {
+    closed = new Subject<unknown>();
+    const ref = mock<DialogRef>();
+    // `closed` is declared readonly, and `mock()` auto-stubs it over anything passed in.
+    (ref as { closed: Observable<unknown> }).closed = closed.asObservable();
+    dialogService = mock<DialogService>();
+    dialogService.open.mockReturnValue(ref);
+
+    await TestBed.configureTestingModule({
+      imports: [DialogHostComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              filters: "Filters",
+              clearAll: "Clear all",
+              search: "Search",
+              resetSearch: "Reset search",
+              removeItem: (name?: string) => `Remove ${name}`,
+            }),
+        },
+        { provide: DialogService, useValue: dialogService },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DialogHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("stays closed until something opens it", () => {
+    expect(dialogService.open).not.toHaveBeenCalled();
+  });
+
+  it("raises the model when the trigger is clicked", () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(host.open()).toBe(true);
+    expect(dialogService.open).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens the dialog when the model is raised from outside", () => {
+    // The popup restores this from its view cache on load, with no click involved.
+    host.open.set(true);
+    fixture.detectChanges();
+
+    expect(dialogService.open).toHaveBeenCalledWith(FilterDialogComponent, expect.anything());
+  });
+
+  it("hands the dialog a live view of the projected filters", () => {
+    host.open.set(true);
+    fixture.detectChanges();
+
+    expect(dialogFilters()).toEqual(["favorites"]);
+
+    // A chip gated on async options registers after the restored dialog is already open.
+    host.extraFilter.set(true);
+    fixture.detectChanges();
+
+    expect(dialogFilters()).toEqual(["favorites", "archive"]);
+  });
+
+  it("lowers the model when the dialog closes", () => {
+    host.open.set(true);
+    fixture.detectChanges();
+
+    closed.next(undefined);
+    fixture.detectChanges();
+
+    expect(host.open()).toBe(false);
+  });
+
+  it("closes the dialog when the model is lowered from outside", () => {
+    host.open.set(true);
+    fixture.detectChanges();
+
+    const ref = dialogService.open.mock.results[0].value as DialogRef;
+    host.open.set(false);
+    fixture.detectChanges();
+
+    expect(ref.close).toHaveBeenCalled();
+  });
+
+  it("opens only once while the model stays raised", () => {
+    host.open.set(true);
+    fixture.detectChanges();
+
+    // An unrelated signal read by the same effect must not reopen the dialog.
+    host.extraFilter.set(true);
+    fixture.detectChanges();
+
+    expect(dialogService.open).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves the model raised when the host is destroyed with the dialog open", () => {
+    host.open.set(true);
+    fixture.detectChanges();
+
+    // `CdkDialog` closes its open dialogs as the app tears down. Mistaking that for the user
+    // dismissing the dialog would persist `false` and reinstate the defect.
+    fixture.destroy();
+    closed.next(undefined);
+
+    expect(host.open()).toBe(true);
   });
 });

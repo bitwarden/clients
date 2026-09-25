@@ -9,6 +9,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -249,6 +250,13 @@ describe("VaultPopupListTableComponent", () => {
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: WINDOW, useValue: window },
+        // Uncached: every test starts with the initial value, as the popup does on a cold open.
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: ({ initialValue }: { initialValue: unknown }) => signal(initialValue),
+          },
+        },
         { provide: ConfigService, useValue: configService },
         { provide: ImportUpgradeNavigationService, useValue: importUpgradeNavigationService },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },

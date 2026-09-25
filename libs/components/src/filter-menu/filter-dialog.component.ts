@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   Injector,
+  Signal,
   computed,
   inject,
   signal,
@@ -28,8 +29,11 @@ import { FilterPresenter } from "./filter-tokens";
 
 /** Data passed to {@link FilterDialogComponent} when the toolbar opens it. */
 export interface FilterDialogParams {
-  /** The toolbar's projected filters, in row order. */
-  readonly filters: readonly FilterPresenter[];
+  /**
+   * The toolbar's projected filters, in row order. A signal rather than a snapshot: chips are
+   * gated on async options, so the set can still grow after the dialog opens.
+   */
+  readonly filters: Signal<readonly FilterPresenter[]>;
 }
 
 /** A toggle reports no labels, so its `active` state stands in for its one selection. */
@@ -60,7 +64,6 @@ export class FilterDialogComponent {
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
-  /** The filters to present, in row order. */
   protected readonly filters = inject<FilterDialogParams>(DIALOG_DATA).filters;
 
   /** The filter being drilled into, or `undefined` on the list page. */
@@ -68,7 +71,7 @@ export class FilterDialogComponent {
 
   /** How many options are selected across every filter — shown in the list page's footer. */
   protected readonly selectedCount = computed(() =>
-    this.filters.reduce((total, filter) => total + optionCount(filter), 0),
+    this.filters().reduce((total, filter) => total + optionCount(filter), 0),
   );
 
   /** The same count for the filter being drilled into. */
@@ -151,7 +154,7 @@ export class FilterDialogComponent {
 
   /** Reset every filter's selection. */
   protected clearAll(): void {
-    this.filters.forEach((filter) => filter.clear());
+    this.filters().forEach((filter) => filter.clear());
     this.keepFocusOnDone();
   }
 
