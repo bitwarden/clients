@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ dalších sdílených složek zobrazených nad tímto tlačítkem",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 další sdílená složka zobrazená nad tímto tlačítkem",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Moje složka"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Zvolte sbírku"
   },
+  "selectImportSharedFolder": {
+    "message": "Vybrat sdílenou složku"
+  },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
   },
   "importTargetHintFolder": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sdílené složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Vyberte soubor pro import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrat zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte Váš zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správce hesel nebo prohlížeč ze kterého importujete."
+  },
+  "importSourceBrowsers": {
+    "message": "Prohlížeče"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správci hesel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobrazit vše"
+  },
+  "importSourceShowLess": {
+    "message": "Zobrazit méně"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Vybrat soubor"

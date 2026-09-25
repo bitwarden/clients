@@ -121,7 +121,7 @@
     "message": "Restableix la cerca"
   },
   "addItem": {
-    "message": "Afegeix element"
+    "message": "Afig element"
   },
   "shared": {
     "message": "Compartit"
@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "La meua carpeta"
   },
@@ -181,7 +167,7 @@
     "message": "Les meues carpetes"
   },
   "foldersFilterTooltip": {
-    "message": "Afegeix carpetes als elements per filtrar-los ací."
+    "message": "Afig carpetes als elements per filtrar-los ací."
   },
   "myItemsFilterTooltip": {
     "message": "Add items to My items to filter them here."
@@ -1243,7 +1229,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "addFolder": {
-    "message": "Afegeix carpeta"
+    "message": "Afig carpeta"
   },
   "editFolder": {
     "message": "Edita la carpeta"
@@ -1399,7 +1385,7 @@
     "description": "Search item type"
   },
   "newAttachment": {
-    "message": "Afegeix un adjunt nou"
+    "message": "Afig un adjunt nou"
   },
   "deletedAttachment": {
     "message": "Adjunt suprimit"
@@ -1872,7 +1858,7 @@
     "message": "Rota també la clau de xifrat del meu compte"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impacte de rotar la teva clau de xifrat"
+    "message": "Impacte de rotar la teua clau de xifratge"
   },
   "oldAttachmentsNeedFixDesc": {
     "message": "Hi ha fitxers adjunts antics al teu cofre que s'han de reparar abans de poder rotar la clau de xifrat del teu compte."
@@ -2949,10 +2935,10 @@
     "message": "Col·leccions suprimides"
   },
   "collectionDeleted": {
-    "message": "Col·lecció eliminada"
+    "message": "Col·lecció suprimida"
   },
   "collectionsDeleted": {
-    "message": "Col·leccions eliminades"
+    "message": "Col·leccions suprimides"
   },
   "movedItem": {
     "message": "Element desplaçat"
@@ -3011,7 +2997,7 @@
     "message": "Copia les notes"
   },
   "totpHelperTitle": {
-    "message": "Fes que la verificació en dos passos sigui perfecta"
+    "message": "Feu que la verificació en dos passos siga perfecta"
   },
   "totpHelper": {
     "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Copieu i enganxeu la clau en aquest camp."
@@ -3377,7 +3363,7 @@
     "message": "S'està esperant la interacció amb la clau de seguretat..."
   },
   "hideMyEmail": {
-    "message": "Amaga la meva adreça de correu electrònic als destinataris."
+    "message": "Amagueu la meua adreça de correu electrònic als destinataris."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Una o més polítiques d'organització afecten les vostres opcions del Send."
@@ -3951,7 +3937,7 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Afegeix prefix del lloc web",
+    "message": "Afig prefix del lloc web",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Selecciona una col·lecció"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Selecciona aquesta opció si vols que el contingut del fitxer importat es mogui a una col·lecció"
   },
   "importTargetHintFolder": {
     "message": "Selecciona aquesta opció si vols que el contingut del fitxer importat es mogui a una carpeta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "El fitxer conté elements no assignats."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Seleccioneu el fitxer d'importació"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Tria un fitxer"
@@ -4964,7 +4990,7 @@
     "message": "Contrasenya mestra de KeePass"
   },
   "addKeyFile": {
-    "message": "Afegeix fitxer de clau"
+    "message": "Afig fitxer de clau"
   },
   "keyFileUpload": {
     "message": "Pujada de fitxer de clau"
@@ -5595,7 +5621,7 @@
     "message": "Canvia la contrasenya en risc"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Aquest inici de sessió està en risc i li falta un lloc web. Afegeix un lloc web i canvia la contrasenya per a més seguretat."
+    "message": "Aquest inici de sessió està en risc i li falta un lloc web. Afig un lloc web i canvia la contrasenya per a més seguretat."
   },
   "vulnerablePassword": {
     "message": "Contrasenya vulnerable."
@@ -5726,16 +5752,16 @@
     "message": "Bitwarden utilitzarà els URI d'inici de sessió desats per identificar quina icona o URL de canvi de contrasenya s'ha d'utilitzar per millorar la teva experiència. No es recull ni desa cap informació quan utilitzes aquest servei."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Afegeix 3 botons de còpia ràpida al costat dels elements per copiar el nom d'usuari, la contrasenya o el codi de verificació al porta-retalls."
+    "message": "Afig 3 botons de còpia ràpida al costat dels elements per copiar el nom d'usuari, la contrasenya o el codi de verificació al porta-retalls."
   },
   "assignToCollections": {
     "message": "Assigna a col·leccions"
   },
   "addToSharedFolder": {
-    "message": "Afegeix a la carpeta compartida"
+    "message": "Afig a la carpeta compartida"
   },
   "transferAndAdd": {
-    "message": "Transfereix i afegeix"
+    "message": "Transfereix i afig"
   },
   "itemLower": {
     "message": "element"
@@ -6732,7 +6758,7 @@
     }
   },
   "addToFolder": {
-    "message": "Afegeix a la carpeta"
+    "message": "Afig a la carpeta"
   },
   "deleteCollection": {
     "message": "Elimina col·lecció"
