@@ -242,6 +242,10 @@ describe("WebSetInitialPasswordService", () => {
     });
 
     describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
+      beforeEach(() => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
+      });
+
       it("should NOT call routerService.getAndClearLoginRedirectUrl()", async () => {
         // Arrange
         credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
