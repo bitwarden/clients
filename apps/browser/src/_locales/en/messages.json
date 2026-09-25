@@ -1364,6 +1364,14 @@
   "pamRequestAccessButton": {
     "message": "Request access"
   },
+  "pamRequestAccessShort": {
+    "message": "Request",
+    "description": "Short label for the button on a vault list row that opens the request-access dialog for a privileged item."
+  },
+  "pamStartLeaseShort": {
+    "message": "Start",
+    "description": "Short label for the button on a vault list row that starts approved access to a privileged item."
+  },
   "pamRequestSlotTaken": {
     "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
   },

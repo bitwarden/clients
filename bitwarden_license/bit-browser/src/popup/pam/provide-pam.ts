@@ -10,6 +10,7 @@ import { AccessRequestsSdkService } from "@bitwarden/bit-common/pam/services/acc
 import { DefaultAccessEventService } from "@bitwarden/bit-common/pam/services/default-access-event.service";
 import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
 import { DefaultLeasingErrorService } from "@bitwarden/bit-common/pam/services/default-leasing-error.service";
+import { VAULT_ROW_ACCESS_ACTION } from "@bitwarden/browser/vault/popup/components/vault/vault-list-items-container/vault-row-access-action.token";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -19,6 +20,7 @@ import { CIPHER_VIEW_BANNER, ITEM_DETAILS_STATE_BADGE } from "@bitwarden/vault";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
+import { VaultRowAccessActionComponent } from "./vault-row-access-action/vault-row-access-action.component";
 
 /** PAM providers for the extension popup's commercial `AppModule`. */
 export function providePam(): SafeProvider[] {
@@ -56,6 +58,10 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherViewBannerComponent,
+    }),
+    safeProvider({
+      provide: VAULT_ROW_ACCESS_ACTION,
+      useValue: VaultRowAccessActionComponent,
     }),
   ];
 }

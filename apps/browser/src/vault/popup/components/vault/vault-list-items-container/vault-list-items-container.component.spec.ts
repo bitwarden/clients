@@ -369,4 +369,27 @@ describe("VaultListItemsContainerComponent", () => {
       expect(component.onViewCipher).not.toHaveBeenCalled();
     });
   });
+
+  describe("row access action", () => {
+    it("shows no action when no VAULT_ROW_ACCESS_ACTION is provided", () => {
+      fixture.detectChanges();
+
+      expect(component["accessAction"]).toBeNull();
+      expect(component["showAccessAction"]({ ...mockCipher, partial: true })).toBe(false);
+    });
+
+    it("shows the action for a gated row once one is provided", () => {
+      fixture.detectChanges();
+      component["accessAction"] = class {};
+
+      expect(component["showAccessAction"]({ ...mockCipher, partial: true })).toBe(true);
+    });
+
+    it("shows no action for a normal row even once one is provided", () => {
+      fixture.detectChanges();
+      component["accessAction"] = class {};
+
+      expect(component["showAccessAction"]({ ...mockCipher, partial: false })).toBe(false);
+    });
+  });
 });

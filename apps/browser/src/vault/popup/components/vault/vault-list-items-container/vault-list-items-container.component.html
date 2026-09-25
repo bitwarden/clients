@@ -172,7 +172,11 @@
                 ></button>
               </bit-item-action>
             }
-            @if (!CipherViewLikeUtils.isPartial(cipher)) {
+            @if (CipherViewLikeUtils.isPartial(cipher)) {
+              @if (showAccessAction(cipher)) {
+                <ng-container *ngComponentOutlet="accessAction; inputs: { cipher: cipher }" />
+              }
+            } @else {
               <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             }
             <app-item-more-options

@@ -12,6 +12,7 @@ import {
   Injector,
   signal,
   viewChild,
+  Type,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -87,6 +88,7 @@ import { VaultPopupSectionService } from "../../../services/vault-popup-section.
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+import { VAULT_ROW_ACCESS_ACTION } from "../vault-list-items-container/vault-row-access-action.token";
 
 /** Flattens a `ChipFilterOption` tree depth-first; drop once CL-985 adds nesting. */
 function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
@@ -155,12 +157,19 @@ export class VaultPopupListTableComponent {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly i18nService = inject(I18nService);
+  protected readonly accessAction: Type<unknown> | null = inject(VAULT_ROW_ACCESS_ACTION, {
+    optional: true,
+  });
   private readonly window = inject<Window>(WINDOW);
 
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
+
+  protected showAccessAction(cipher: PopupCipherViewLike): boolean {
+    return this.accessAction != null && CipherViewLikeUtils.isPartial(cipher);
+  }
 
   protected readonly deactivatedIcon = DeactivatedOrg;
 
