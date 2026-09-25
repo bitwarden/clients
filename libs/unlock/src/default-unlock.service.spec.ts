@@ -20,7 +20,7 @@ import {
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { LogService } from "@bitwarden/logging";
+import { Measurement, LogService } from "@bitwarden/logging";
 import { EncString, PureCrypto, V2UpgradeToken } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
@@ -47,7 +47,7 @@ describe("DefaultUnlockService", () => {
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const stateProvider = mock<StateProvider>();
-  const logService = mock<LogService>();
+  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const biometricsService = mock<BiometricsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();

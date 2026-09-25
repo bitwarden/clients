@@ -44,6 +44,14 @@ export type KeyConnectorUnlockData = {
   keyConnectorKeyWrappedUserKey: EncString;
 };
 
+const PERF_TRACK_GROUP = "Unlock";
+const PERF_TOTAL = "unlock";
+
+/** DevTools track per unlock method, e.g. "Unlock with MasterPassword". */
+function unlockTrack(method: UnlockMethod): string {
+  return `Unlock with ${method.charAt(0).toUpperCase()}${method.slice(1)}`;
+}
+
 export class DefaultUnlockService implements UnlockService {
   private onUnlockActions: Array<
     (userId: UserId, userKey: SymmetricCryptoKey, method: UnlockMethod) => Promise<void>
@@ -72,7 +80,11 @@ export class DefaultUnlockService implements UnlockService {
   }
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.Pin),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -82,11 +94,15 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.Pin,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithPin");
+    measurement.finish();
   }
 
   async unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void> {
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.MasterPassword),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -97,23 +113,28 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.MasterPassword,
     );
-    this.logService.measure(
-      startTime,
-      "Unlock",
-      "DefaultUnlockService",
-      "unlockWithMasterPassword",
-    );
+    measurement.finish();
   }
 
   async unlockWithBiometrics(userId: UserId): Promise<void> {
     // First, get the biometrics-protected user key. This will prompt the user to authenticate with biometrics.
+    const promptMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.Biometrics),
+      "biometricPrompt",
+    );
     const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
+    promptMeasurement.finish();
     if (!userKey) {
       throw new Error("Failed to unlock with biometrics");
     }
 
     // Now that we have the biometrics-protected user key, we can initialize the SDK with it to complete the unlock process.
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.Biometrics),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -123,7 +144,7 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.Biometrics,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
+    measurement.finish();
   }
 
   async unlockWithKeyConnector(
@@ -133,7 +154,11 @@ export class DefaultUnlockService implements UnlockService {
     // The SDK is responsible for fetching the key-connector-key from the key-connector using the
     // key-connector-unlock-data. It will unwrap the provided key and set it to state, unlocking
     // the vault.
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.KeyConnector),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -144,7 +169,7 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.KeyConnector,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
+    measurement.finish();
   }
 
   async unlockWithDecryptedUserKey(
@@ -152,7 +177,11 @@ export class DefaultUnlockService implements UnlockService {
     userKey: SymmetricCryptoKey,
     method: UnlockMethod = UnlockMethod.DecryptedUserKey,
   ): Promise<void> {
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(method),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -162,16 +191,15 @@ export class DefaultUnlockService implements UnlockService {
       },
       method,
     );
-    this.logService.measure(
-      startTime,
-      "Unlock",
-      "DefaultUnlockService",
-      "unlockWithDecryptedUserKey",
-    );
+    measurement.finish();
   }
 
   async unlockFromSharedUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.SharedUnlock),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -181,7 +209,7 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.SharedUnlock,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockFromSharedUnlock");
+    measurement.finish();
   }
 
   async unlockWithAutoUnlockKey(userId: UserId): Promise<boolean> {
@@ -194,7 +222,11 @@ export class DefaultUnlockService implements UnlockService {
       return false;
     }
 
-    const startTime = performance.now();
+    const measurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(UnlockMethod.AutoKey),
+      PERF_TOTAL,
+    );
     await this.unlockWithMethod(
       userId,
       {
@@ -204,7 +236,7 @@ export class DefaultUnlockService implements UnlockService {
       },
       UnlockMethod.AutoKey,
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithAutoUnlockKey");
+    measurement.finish();
     return true;
   }
 
@@ -213,25 +245,54 @@ export class DefaultUnlockService implements UnlockService {
     initMethod: InitUserCryptoMethod,
     unlockMethod: UnlockMethod,
   ): Promise<void> {
+    const registerMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(unlockMethod),
+      "registerClient",
+    );
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
+          registerMeasurement.finish();
           if (!sdk) {
             throw new Error("SDK not available");
           }
 
           using ref = sdk.take();
 
-          await ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
+          const paramsMeasurement = this.logService.startMeasurement(
+            PERF_TRACK_GROUP,
+            unlockTrack(unlockMethod),
+            "gatherParams",
+          );
+          const params = {
             kdfParams: await this.getKdfParams(userId),
             email: await this.getEmail(userId),
             accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: initMethod,
             upgradeToken: await this.getV2UpgradeToken(userId),
-          });
+          };
+          paramsMeasurement.finish();
 
+          // Includes key derivation for master password and PIN unlocks
+          const cryptoMeasurement = this.logService.startMeasurement(
+            PERF_TRACK_GROUP,
+            unlockTrack(unlockMethod),
+            "initializeUserCrypto",
+          );
+          await ref.value.crypto().initialize_user_crypto({
+            userId: asUuid(userId),
+            ...params,
+            method: initMethod,
+          });
+          cryptoMeasurement.finish();
+
+          const sideEffectsMeasurement = this.logService.startMeasurement(
+            PERF_TRACK_GROUP,
+            unlockTrack(unlockMethod),
+            "sideEffects",
+          );
           await this.runOnUnlockSideEffects(userId, ref, unlockMethod);
+          sideEffectsMeasurement.finish();
         }),
       ),
     );
@@ -290,13 +351,33 @@ export class DefaultUnlockService implements UnlockService {
     const userKey = SymmetricCryptoKey.fromString(
       await client.value.crypto().get_user_encryption_key(),
     );
+    const biometricsMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(method),
+      "setBiometricKey",
+    );
     if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
     }
+    biometricsMeasurement.finish();
+
+    const autoUnlockMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(method),
+      "setAutoUnlockKey",
+    );
     await this.autoUnlockService.setAutoUnlockKey(userId, userKey);
+    autoUnlockMeasurement.finish();
+
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
+    const actionsMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      unlockTrack(method),
+      "onUnlockActions",
+    );
     await this.runOnUnlockActions(userId, userKey, method);
+    actionsMeasurement.finish();
     await this.runUnlockActionInOtherProcess(userId, userKey, method);
   }
 

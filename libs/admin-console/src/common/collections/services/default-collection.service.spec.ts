@@ -7,6 +7,7 @@ import {
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { FakeStateProvider, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -21,6 +22,7 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 
@@ -76,6 +78,7 @@ describe("DefaultCollectionService", () => {
       i18nService,
       stateProvider,
       collectionEncryptionService,
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
     );
   });
 

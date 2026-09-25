@@ -53,7 +53,7 @@ export class LunrSearchService {
     ciphers: C[],
   ): Promise<C[]> {
     const results: C[] = [];
-    const searchStartTime = performance.now();
+    const searchMeasurement = this.logService.startMeasurement("Search", "Lunr", "search ciphers");
     const index = await this.getOrCreateIndex(makeIndexId(userId, organizationId), ciphers);
 
     // Convert to map that can be looked up in
@@ -73,7 +73,7 @@ export class LunrSearchService {
       this.logService.error(e);
     }
 
-    this.logService.measure(searchStartTime, "Vault", "LunrSearchService", "search complete");
+    searchMeasurement.finish();
     return results;
   }
 
@@ -91,7 +91,7 @@ export class LunrSearchService {
         return this.lunrIndices.get(indexId)!.lunrIndex;
       }
 
-      const start = performance.now();
+      const measurement = this.logService.startMeasurement("Search", "Lunr", "build index");
       this.logService.info("Starting Lunr index build");
 
       const index = await buildCipherIndex(ciphers);
@@ -103,9 +103,7 @@ export class LunrSearchService {
       });
 
       this.logService.info("Lunr index build complete");
-      this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
-        ["Items Indexed", ciphers.length],
-      ]);
+      measurement.finish([["Items Indexed", ciphers.length]]);
 
       return index;
     } finally {
