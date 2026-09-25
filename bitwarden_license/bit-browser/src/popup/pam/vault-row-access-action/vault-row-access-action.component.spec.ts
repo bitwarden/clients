@@ -81,9 +81,10 @@ describe("VaultRowAccessActionComponent", () => {
     );
   }
 
-  async function create(cipher: CipherView): Promise<void> {
+  async function create(cipher: CipherView, render: "status" | "action" = "action"): Promise<void> {
     fixture = TestBed.createComponent(VaultRowAccessActionComponent);
     fixture.componentRef.setInput("cipher", cipher);
+    fixture.componentRef.setInput("render", render);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -181,7 +182,7 @@ describe("VaultRowAccessActionComponent", () => {
     it("pending: shows only the pending pill", async () => {
       stateOf("pending", { pendingRequest: approvedRequest({ status: "pending" } as never) });
 
-      await create(gatedCipher({ organizationId: ORGANIZATION_ID }));
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
 
       onlyInSlot("vault-row-access-badge");
       expect(query("[data-testid='access-state-badge-pending']")).not.toBeNull();
@@ -203,7 +204,7 @@ describe("VaultRowAccessActionComponent", () => {
         approvedRequest: approvedRequest({ producedLeaseId: "lease-1" } as never),
       });
 
-      await create(gatedCipher({ organizationId: ORGANIZATION_ID }));
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
 
       onlyInSlot("vault-row-access-badge");
       expect(query("[data-testid='access-state-badge-ready']")).not.toBeNull();
@@ -212,16 +213,65 @@ describe("VaultRowAccessActionComponent", () => {
     it("active: shows only the countdown pill", async () => {
       stateOf(ACTIVE_BADGE);
 
-      await create(gatedCipher({ organizationId: ORGANIZATION_ID }));
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
 
       onlyInSlot("vault-row-access-badge");
       expect(query("[data-testid='access-state-badge-active']")).not.toBeNull();
     });
 
+    it("active, revealed under the lease: keeps the countdown pill", async () => {
+      stateOf(ACTIVE_BADGE);
+
+      await create(
+        gatedCipher({ organizationId: ORGANIZATION_ID, partial: false, leaseGated: true }),
+        "status",
+      );
+
+      expect(query("[data-testid='access-state-badge-active']")).not.toBeNull();
+    });
+
+    it("status: renders the pill but never an action chip", async () => {
+      stateOf("privileged");
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
+      expect(query("[data-testid='vault-row-access-action']")).toBeNull();
+
+      stateOf(ACTIVE_BADGE);
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
+      expect(query("[data-testid='access-state-badge-active']")).not.toBeNull();
+    });
+
+    it("status slot: shows the compact countdown, named in full for assistive tech", async () => {
+      stateOf(ACTIVE_BADGE);
+
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
+
+      const badge = query("[data-testid='access-state-badge-active']")!;
+      expect(badge.textContent!.trim()).toBe("18m");
+      expect(badge.getAttribute("aria-label")).toBe("pamAccessBadgeTimeLeft 18m");
+      expect(badge.getAttribute("title")).toBe("pamAccessBadgeTimeLeft 18m");
+    });
+
+    it("action slot: renders nothing for a status-only phase", async () => {
+      stateOf(ACTIVE_BADGE);
+
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }));
+
+      expect(query("[data-testid='access-state-badge-active']")).toBeNull();
+      expect(query("[data-testid='vault-row-access-action']")).toBeNull();
+    });
+
+    it("renders nothing for an ordinary, ungoverned cipher", async () => {
+      stateOf(ACTIVE_BADGE);
+
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID, partial: false }));
+
+      expect(accessRowStateService.state$).not.toHaveBeenCalled();
+    });
+
     it("active, ending soon: shows only the escalated countdown pill", async () => {
       stateOf(ENDING_SOON_BADGE);
 
-      await create(gatedCipher({ organizationId: ORGANIZATION_ID }));
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
 
       onlyInSlot("vault-row-access-badge");
       expect(query("[data-testid='access-state-badge-ending-soon']")).not.toBeNull();
@@ -230,7 +280,7 @@ describe("VaultRowAccessActionComponent", () => {
     it("active but lapsed before the next read: shows only the ended pill", async () => {
       stateOf(LAPSED_BADGE);
 
-      await create(gatedCipher({ organizationId: ORGANIZATION_ID }));
+      await create(gatedCipher({ organizationId: ORGANIZATION_ID }), "status");
 
       onlyInSlot("vault-row-access-badge");
       expect(query("[data-testid='access-state-badge-expired']")).not.toBeNull();

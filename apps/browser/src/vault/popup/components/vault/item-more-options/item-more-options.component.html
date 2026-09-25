@@ -20,17 +20,17 @@
           {{ "view" | i18n }}
         </button>
       }
-      @if (!isPartial) {
+      @if (!writeLocked) {
         <button type="button" bitMenuItem (click)="toggleFavorite()">
           {{ favoriteText | i18n }}
         </button>
       }
-      @if (canEdit && !isPartial) {
+      @if (canEdit && !writeLocked) {
         <button type="button" bitMenuItem (click)="edit()">
           {{ "edit" | i18n }}
         </button>
       }
-      @if (canEdit && canViewPassword && !isPartial) {
+      @if (canEdit && canViewPassword && !writeLocked) {
         @if (canClone$ | async) {
           <a bitMenuItem (click)="clone()">
             {{ "clone" | i18n }}
@@ -42,7 +42,7 @@
           </a>
         }
       }
-      @if (!isPartial) {
+      @if (!writeLocked) {
         @if (canArchive$ | async) {
           <button type="button" bitMenuItem (click)="archive()">
             {{ "archiveVerb" | i18n }}
@@ -64,7 +64,7 @@
         }
       }
     }
-    @if ((canDelete$ | async) && !isPartial) {
+    @if ((canDelete$ | async) && !writeLocked) {
       <button type="button" bitMenuItem variant="danger" (click)="delete()">
         {{ "delete" | i18n }}
       </button>

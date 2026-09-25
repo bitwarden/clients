@@ -412,6 +412,11 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return this.accessAction != null && CipherViewLikeUtils.isPartial(cipher);
   }
 
+  protected showAccessStatus(cipher: CipherViewLike): boolean {
+    const leaseGated = "leaseGated" in cipher && cipher.leaseGated === true;
+    return this.accessAction != null && (CipherViewLikeUtils.isPartial(cipher) || leaseGated);
+  }
+
   /**
    * Launches the login cipher in a new browser tab.
    */

@@ -21,3 +21,19 @@ export function formatRemaining(remainingMs: number): string {
   const minutes = totalMinutes - hours * 60;
   return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
 }
+
+/**
+ * The same countdown reduced to its largest unit for a compact badge: "2h", "47m", and "<1m"
+ * for anything under a minute, including non-positive and non-finite input.
+ */
+export function formatRemainingCompact(remainingMs: number): string {
+  if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
+    return "<1m";
+  }
+  const totalSeconds = Math.ceil(remainingMs / 1000);
+  if (totalSeconds < 60) {
+    return "<1m";
+  }
+  const totalMinutes = Math.ceil(totalSeconds / 60);
+  return totalMinutes < 60 ? `${totalMinutes}m` : `${Math.floor(totalMinutes / 60)}h`;
+}

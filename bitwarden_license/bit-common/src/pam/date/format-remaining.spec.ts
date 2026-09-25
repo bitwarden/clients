@@ -1,4 +1,4 @@
-import { formatRemaining } from "./format-remaining";
+import { formatRemaining, formatRemainingCompact } from "./format-remaining";
 
 describe("formatRemaining", () => {
   it.each([
@@ -18,5 +18,25 @@ describe("formatRemaining", () => {
     [2 * 60 * 60_000, "2h"],
   ])("formats %dms as %s", (ms, expected) => {
     expect(formatRemaining(ms)).toBe(expected);
+  });
+});
+
+describe("formatRemainingCompact", () => {
+  it.each([
+    [0, "<1m"],
+    [-1000, "<1m"],
+    [Number.NaN, "<1m"],
+    [Number.POSITIVE_INFINITY, "<1m"],
+    [1, "<1m"],
+    [59_000, "<1m"],
+    [60_000, "1m"],
+    [59_500, "1m"],
+    [47 * 60_000, "47m"],
+    [59 * 60_000, "59m"],
+    [60 * 60_000, "1h"],
+    [(2 * 60 + 5) * 60_000, "2h"],
+    [2 * 60 * 60_000, "2h"],
+  ])("reduces %dms to %s", (ms, expected) => {
+    expect(formatRemainingCompact(ms)).toBe(expected);
   });
 });

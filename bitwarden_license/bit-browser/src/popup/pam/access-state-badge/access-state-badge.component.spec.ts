@@ -3,15 +3,16 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { AccessBadgeState } from "@bitwarden/bit-common/pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { AccessStateBadgeComponent } from "./access-state-badge.component";
+import { AccessStateBadgeComponent, AccessStateBadgeDisplay } from "./access-state-badge.component";
 
 describe("AccessStateBadgeComponent", () => {
   let fixture: ComponentFixture<AccessStateBadgeComponent>;
   let component: AccessStateBadgeComponent;
 
-  function create(state: AccessBadgeState | null): void {
+  function create(state: AccessBadgeState | null, display: AccessStateBadgeDisplay = "full"): void {
     fixture = TestBed.createComponent(AccessStateBadgeComponent);
     fixture.componentRef.setInput("state", state);
+    fixture.componentRef.setInput("display", display);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }
@@ -78,6 +79,73 @@ describe("AccessStateBadgeComponent", () => {
     const recipe = component["recipe"]()!;
     expect(recipe.variant).toBe("subtle");
     expect(recipe.label).toBe("pamAccessBadgeEnded");
+  });
+
+  it("shows the full countdown as its text, tooltip and accessible name by default", () => {
+    create({ kind: "active", expiresAt: new Date(Date.now() + (3 * 60 + 37) * 60_000) });
+
+    const badge = fixture.nativeElement.querySelector("bit-badge") as HTMLElement;
+    expect(badge.textContent.trim()).toBe("pamAccessBadgeTimeLeft 3h 37m");
+    expect(badge.getAttribute("title")).toBe("pamAccessBadgeTimeLeft 3h 37m");
+    expect(badge.getAttribute("aria-label")).toBe("pamAccessBadgeTimeLeft 3h 37m");
+  });
+
+  describe("compact display", () => {
+    function badge(): HTMLElement {
+      return fixture.nativeElement.querySelector("bit-badge") as HTMLElement;
+    }
+
+    it.each([
+      ["over an hour", (3 * 60 + 37) * 60_000, "3h", "pamAccessBadgeTimeLeft 3h 37m"],
+      ["on the hour", 2 * 60 * 60_000, "2h", "pamAccessBadgeTimeLeft 2h"],
+      ["under an hour", 37 * 60_000, "37m", "pamAccessBadgeTimeLeft 37m"],
+      ["under a minute", 30_000, "<1m", "pamAccessBadgeEndingSoon 30s"],
+    ])("shows only the largest unit %s", (_, remainingMs, text, label) => {
+      create({ kind: "active", expiresAt: new Date(Date.now() + remainingMs) }, "compact");
+
+      expect(badge().textContent.trim()).toBe(text);
+      expect(badge().getAttribute("title")).toBe(label);
+      expect(badge().getAttribute("aria-label")).toBe(label);
+    });
+
+    it("keeps the unlock icon and accent variant above the threshold", () => {
+      create({ kind: "active", expiresAt: new Date(Date.now() + 18 * 60_000) }, "compact");
+
+      const recipe = component["recipe"]()!;
+      expect(recipe.variant).toBe("accent-primary");
+      expect(recipe.icon).toBe("bwi-unlock");
+      expect(recipe.testId).toBe("access-state-badge-active");
+    });
+
+    it("keeps the ending-soon escalation below the threshold", () => {
+      create({ kind: "active", expiresAt: new Date(Date.now() + 3 * 60_000) }, "compact");
+
+      const recipe = component["recipe"]()!;
+      expect(recipe.variant).toBe("danger");
+      expect(recipe.icon).toBe("bwi-exclamation-triangle");
+      expect(recipe.testId).toBe("access-state-badge-ending-soon");
+      expect(badge().textContent.trim()).toBe("3m");
+      expect(badge().getAttribute("aria-label")).toBe("pamAccessBadgeEndingSoon 3m");
+    });
+
+    it.each([
+      ["privileged", "pamAccessBadgePrivileged"],
+      ["pending", "pamAccessBadgePending"],
+      ["unavailable", "pamAccessBadgeUnavailable"],
+      ["ready", "pamAccessBadgeReady"],
+      ["expired", "pamAccessBadgeEnded"],
+    ])("keeps the %s label unchanged", (kind, label) => {
+      create({ kind } as AccessBadgeState, "compact");
+
+      expect(badge().textContent.trim()).toBe(label);
+      expect(badge().getAttribute("aria-label")).toBe(label);
+    });
+
+    it("shows the ended pill once the lease lapses", () => {
+      create({ kind: "active", expiresAt: new Date(Date.now() - 1_000) }, "compact");
+
+      expect(badge().textContent.trim()).toBe("pamAccessBadgeEnded");
+    });
   });
 });
 

@@ -11,10 +11,14 @@ What lives here:
   `request-access-error.ts` and the other `*-error.ts` classifiers).
 - `date/` — duration and relative-time formatting, and the Angular pipes over it.
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts, the refresh
-  services, and `pam-membership.ts`.
+  services, the gated-cipher reloader, and `pam-membership.ts`.
+- `helpers/leased-cipher.ts` — the one read of a leased cipher's full copy, shared by the web
+  reloader and the popup's leased-cipher source.
 - `access-state-badge/access-badge-state.ts` — the `AccessBadgeState` presentation model,
   `cipherAccessBadgeState()` and `ENDING_SOON_THRESHOLD_MS`. The badge _components_ are
   per-client and stay in their own client.
+- `access-state-badge/access-badge-ticker.service.ts` — the one shared 1-second clock. Both
+  clients' old paths are shims.
 - `testing/decision-builders.ts` — spec builders.
 
 Anything Angular-component-shaped, routed, or reaching into `@bitwarden/web-vault/` is

@@ -77,6 +77,26 @@ export const EndingSoon: Story = {
   args: { state: expiringIn(4 * MINUTE) },
 };
 
+/** The countdown shortened to its largest unit, for a vault row's status beside the name. */
+export const ActiveCompact: Story = {
+  args: { state: expiringIn(3 * HOUR + 37 * MINUTE), display: "compact" },
+};
+
+/** The compact countdown under an hour. */
+export const ActiveCompactMinutes: Story = {
+  args: { state: expiringIn(37 * MINUTE), display: "compact" },
+};
+
+/** The compact countdown keeps the ending-soon escalation. */
+export const EndingSoonCompact: Story = {
+  args: { state: expiringIn(4 * MINUTE), display: "compact" },
+};
+
+/** The compact countdown in its last minute. */
+export const EndingSoonCompactUnderAMinute: Story = {
+  args: { state: expiringIn(30 * 1000), display: "compact" },
+};
+
 /** Access has ended. */
 export const Expired: Story = {
   args: { state: { kind: "expired" } },
@@ -101,6 +121,8 @@ export const Gallery: Story = {
       ready: { kind: "ready" },
       active: expiringIn(2 * HOUR + 5 * MINUTE),
       endingSoon: expiringIn(4 * MINUTE),
+      activeMinutes: expiringIn(37 * MINUTE),
+      lastMinute: expiringIn(30 * 1000),
       expired: { kind: "expired" },
       unavailable: { kind: "unavailable" },
     },
@@ -113,6 +135,12 @@ export const Gallery: Story = {
         <app-pam-access-state-badge [state]="endingSoon" />
         <app-pam-access-state-badge [state]="expired" />
         <app-pam-access-state-badge [state]="unavailable" />
+      </div>
+      <div class="tw-w-[380px] tw-flex tw-flex-wrap tw-gap-2 tw-p-2">
+        <app-pam-access-state-badge [state]="active" display="compact" />
+        <app-pam-access-state-badge [state]="activeMinutes" display="compact" />
+        <app-pam-access-state-badge [state]="endingSoon" display="compact" />
+        <app-pam-access-state-badge [state]="lastMinute" display="compact" />
       </div>
     `,
   }),

@@ -3,9 +3,10 @@
     [variant]="recipe.variant"
     [startIcon]="recipe.icon"
     size="small"
-    [title]="recipe.label"
+    [appA11yTitle]="recipe.label"
+    [bitTooltip]="recipe.label"
     [attr.data-testid]="recipe.testId"
   >
-    {{ recipe.label }}
+    {{ recipe.text }}
   </bit-badge>
 }

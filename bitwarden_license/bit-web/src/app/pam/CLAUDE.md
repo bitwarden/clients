@@ -10,8 +10,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 here are one-line re-exports of their `@bitwarden/bit-common/pam/…` counterpart:
 `abstractions/`, `helpers/` and `date/` entirely; `services/*-sdk.service.ts`,
 `services/default-access-event.service.ts`, `services/default-access-refresh.service.ts`,
-`services/default-leasing-error.service.ts` and `services/pam-membership.ts`;
-`access-state-badge/access-badge-state.ts`; and `testing/decision-builders.ts`. Their specs
+`services/default-leasing-error.service.ts`, `services/pam-gated-cipher-reloader.service.ts` and
+`services/pam-membership.ts`; `access-state-badge/access-badge-state.ts` and
+`access-state-badge/access-badge-ticker.service.ts`; and `testing/decision-builders.ts`. Their specs
 are in `bit-common`. `index.ts` re-exports `bit-common`'s barrel and adds the web-only
 exports (the audit API and rotation).
 

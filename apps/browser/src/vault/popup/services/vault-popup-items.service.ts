@@ -25,12 +25,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
@@ -40,6 +42,10 @@ import {
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { waitUntil } from "../../util";
+import {
+  LEASED_CIPHER_SOURCE,
+  LeasedCipherSource,
+} from "../components/vault/vault-list-items-container/leased-cipher-source.token";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
@@ -60,6 +66,10 @@ export class VaultPopupItemsService {
   });
 
   readonly searchText$ = toObservable(this.cachedSearchText);
+
+  private readonly leasedCipherSource: LeasedCipherSource | null = inject(LEASED_CIPHER_SOURCE, {
+    optional: true,
+  });
 
   /**
    * Subject that emits whenever new ciphers are being processed/filtered.
@@ -112,31 +122,48 @@ export class VaultPopupItemsService {
       map((a) => a?.id),
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
-        merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
-          debounceTime(0),
-          runInsideAngular(this.ngZone),
-          tap(() => this._ciphersLoading$.next()),
-          waitUntilSync(this.syncService),
-          switchMap(() =>
-            combineLatest([
-              this.cipherService
-                .cipherListViewsWithPartials$(userId)
-                .pipe(filter((ciphers) => ciphers != null)),
-              this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
-              this.restrictedItemTypesService.restricted$,
-            ]),
-          ),
-          map(([ciphers, failedToDecryptCiphers, restrictions]) => {
-            const allCiphers = [...(failedToDecryptCiphers || []), ...ciphers];
-
-            return allCiphers.filter(
-              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
-            );
-          }),
-        ),
+        combineLatest([
+          this.decryptedCiphersForUser$(userId),
+          this.leasedCipherViews$(userId),
+        ]).pipe(map(([ciphers, leased]) => withLeasedViews(ciphers, leased))),
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
+
+  private decryptedCiphersForUser$(userId: UserId): Observable<CipherViewLike[]> {
+    return merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+      debounceTime(0),
+      runInsideAngular(this.ngZone),
+      tap(() => this._ciphersLoading$.next()),
+      waitUntilSync(this.syncService),
+      switchMap(() =>
+        combineLatest([
+          this.cipherService
+            .cipherListViewsWithPartials$(userId)
+            .pipe(filter((ciphers) => ciphers != null)),
+          this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
+          this.restrictedItemTypesService.restricted$,
+        ]),
+      ),
+      map(([ciphers, failedToDecryptCiphers, restrictions]) => {
+        const allCiphers = [...(failedToDecryptCiphers || []), ...ciphers];
+
+        return allCiphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
+        );
+      }),
+    );
+  }
+
+  /** Full views of the gated ciphers `userId` holds an active lease on. Memory only. */
+  private leasedCipherViews$(userId: UserId): Observable<ReadonlyMap<string, CipherView>> {
+    if (this.leasedCipherSource == null) {
+      return of(NO_LEASED_VIEWS);
+    }
+    return this.leasedCipherSource
+      .leasedCipherViews$(userId)
+      .pipe(startWith(NO_LEASED_VIEWS), distinctUntilChanged());
+  }
 
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
@@ -419,6 +446,22 @@ export class VaultPopupItemsService {
     // If types are the same, then sort by last used then name
     return this.cipherService.sortCiphersByLastUsedThenName(a, b);
   }
+}
+
+const NO_LEASED_VIEWS: ReadonlyMap<string, CipherView> = new Map();
+
+function withLeasedViews(
+  ciphers: CipherViewLike[],
+  leased: ReadonlyMap<string, CipherView>,
+): CipherViewLike[] {
+  if (leased.size === 0) {
+    return ciphers;
+  }
+  return ciphers.map((cipher) =>
+    CipherViewLikeUtils.isPartial(cipher) && cipher.id != null
+      ? (leased.get(uuidAsString(cipher.id)) ?? cipher)
+      : cipher,
+  );
 }
 
 /**

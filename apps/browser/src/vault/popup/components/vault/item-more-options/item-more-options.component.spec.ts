@@ -493,4 +493,92 @@ describe("ItemMoreOptionsComponent", () => {
       expect(menuTrigger()).not.toBeNull();
     });
   });
+
+  describe("leased (leaseGated) cipher menu", () => {
+    let overlayContainer: OverlayContainer;
+
+    const leasedCipher = { ...baseCipher, partial: false, leaseGated: true };
+
+    function openMenuAndGetContent(): string {
+      fixture.detectChanges();
+      const trigger: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+        'button[biticonbutton="bwi-ellipsis-v"]',
+      );
+      expect(trigger).toBeTruthy();
+
+      trigger!.click();
+      fixture.detectChanges();
+
+      return overlayContainer.getContainerElement().innerHTML.toLowerCase();
+    }
+
+    beforeEach(() => {
+      overlayContainer = TestBed.inject(OverlayContainer);
+      fixture.componentRef.setInput("showAutofill", true);
+      fixture.componentRef.setInput("showViewOption", true);
+    });
+
+    afterEach(() => {
+      overlayContainer.ngOnDestroy();
+    });
+
+    it("offers the read-only actions and none of the write actions", () => {
+      component.cipher = leasedCipher;
+
+      const content = openMenuAndGetContent();
+
+      expect(content).toContain("autofillverb");
+      expect(content).toContain("view");
+      expect(content).not.toContain("favorite");
+      expect(content).not.toContain("edit");
+      expect(content).not.toContain("clone");
+      expect(content).not.toContain("assigntocollections");
+      expect(content).not.toContain("archiveverb");
+      expect(content).not.toContain("delete");
+    });
+
+    it("keeps the write actions for a normal cipher", () => {
+      component.cipher = baseCipher;
+
+      const content = openMenuAndGetContent();
+
+      expect(content).toContain("favorite");
+      expect(content).toContain("edit");
+      expect(content).toContain("clone");
+      expect(content).toContain("archiveverb");
+      expect(content).toContain("delete");
+    });
+
+    it("is write-locked", () => {
+      component.cipher = leasedCipher;
+      expect(component.writeLocked).toBe(true);
+
+      component.cipher = baseCipher;
+      expect(component.writeLocked).toBe(false);
+    });
+
+    it("opens the autofill confirmation view-only, so no URL is saved onto a leased cipher", async () => {
+      component.cipher = leasedCipher;
+      passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
+      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
+
+      await component.doAutofill();
+
+      expect(openSpy).toHaveBeenCalledWith(
+        dialogService,
+        expect.objectContaining({ data: expect.objectContaining({ viewOnly: true }) }),
+      );
+    });
+
+    it("does not autofill-and-save a leased cipher", async () => {
+      component.cipher = leasedCipher;
+
+      await component.doAutofillAndSave();
+
+      expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
+      expect(cipherService.updateWithServer).not.toHaveBeenCalled();
+    });
+  });
 });

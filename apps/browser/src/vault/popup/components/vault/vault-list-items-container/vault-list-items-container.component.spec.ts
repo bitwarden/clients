@@ -385,6 +385,17 @@ describe("VaultListItemsContainerComponent", () => {
       expect(component["showAccessAction"]({ ...mockCipher, partial: true })).toBe(true);
     });
 
+    it("shows a governed row's status beside the name, and chips only in the action slot", () => {
+      fixture.detectChanges();
+      component["accessAction"] = class {};
+      const revealed = { ...mockCipher, partial: false, leaseGated: true };
+
+      expect(component["showAccessAction"](revealed)).toBe(false);
+      expect(component["showAccessStatus"](revealed)).toBe(true);
+      expect(component["showAccessStatus"]({ ...mockCipher, partial: true })).toBe(true);
+      expect(component["showAccessStatus"]({ ...mockCipher, partial: false })).toBe(false);
+    });
+
     it("shows no action for a normal row even once one is provided", () => {
       fixture.detectChanges();
       component["accessAction"] = class {};

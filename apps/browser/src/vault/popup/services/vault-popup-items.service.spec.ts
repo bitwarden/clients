@@ -1,7 +1,7 @@
-import { signal, WritableSignal } from "@angular/core";
+import { Provider, signal, WritableSignal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of, take, timeout } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, of, take, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -30,11 +30,15 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
+import { LEASED_CIPHER_SOURCE } from "../components/vault/vault-list-items-container/leased-cipher-source.token";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
@@ -47,6 +51,7 @@ import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filt
 
 describe("VaultPopupItemsService", () => {
   let testBed: TestBed;
+  let baseProviders: Provider[];
   let service: VaultPopupItemsService;
   let allCiphers: Record<CipherId, CipherView>;
   let autoFillCiphers: CipherView[];
@@ -168,34 +173,33 @@ describe("VaultPopupItemsService", () => {
       signal: jest.fn((options) => testSearchSignal),
     };
 
-    testBed = TestBed.configureTestingModule({
-      providers: [
-        { provide: CipherService, useValue: cipherServiceMock },
-        { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
-        { provide: SearchService, useValue: searchService },
-        { provide: OrganizationService, useValue: organizationServiceMock },
-        { provide: AccountService, useValue: accountServiceMock },
-        { provide: CollectionService, useValue: collectionService },
-        { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
-        { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
-        {
-          provide: VaultPopupListTableFiltersService,
-          useValue: vaultPopupListTableFiltersServiceMock,
-        },
-        { provide: SyncService, useValue: syncServiceMock },
-        { provide: ConfigService, useValue: configServiceMock },
-        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
-        {
-          provide: InlineMenuFieldQualificationService,
-          useValue: inlineMenuFieldQualificationServiceMock,
-        },
-        { provide: PopupViewCacheService, useValue: viewCacheService },
-        {
-          provide: RestrictedItemTypesService,
-          useValue: restrictedItemTypesService,
-        },
-      ],
-    });
+    baseProviders = [
+      { provide: CipherService, useValue: cipherServiceMock },
+      { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
+      { provide: SearchService, useValue: searchService },
+      { provide: OrganizationService, useValue: organizationServiceMock },
+      { provide: AccountService, useValue: accountServiceMock },
+      { provide: CollectionService, useValue: collectionService },
+      { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
+      { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
+      {
+        provide: VaultPopupListTableFiltersService,
+        useValue: vaultPopupListTableFiltersServiceMock,
+      },
+      { provide: SyncService, useValue: syncServiceMock },
+      { provide: ConfigService, useValue: configServiceMock },
+      { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
+      {
+        provide: InlineMenuFieldQualificationService,
+        useValue: inlineMenuFieldQualificationServiceMock,
+      },
+      { provide: PopupViewCacheService, useValue: viewCacheService },
+      {
+        provide: RestrictedItemTypesService,
+        useValue: restrictedItemTypesService,
+      },
+    ];
+    testBed = TestBed.configureTestingModule({ providers: baseProviders });
 
     service = testBed.inject(VaultPopupItemsService);
   });
@@ -411,6 +415,81 @@ describe("VaultPopupItemsService", () => {
         expect(ciphers.map((c) => c.id)).toEqual(expect.arrayContaining(["full", "gated"]));
         done();
       });
+    });
+  });
+
+  describe("leased ciphers", () => {
+    let leased$: BehaviorSubject<ReadonlyMap<string, CipherView>>;
+    let leasedView: CipherView;
+
+    beforeEach(() => {
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
+        of([
+          { id: "0", type: CipherType.Login, name: "Plain" },
+          { id: "gated", type: CipherType.Login, name: "Gated", partial: true },
+        ] as CipherView[]),
+      );
+      cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
+        ciphers.filter((c) => ["0", "gated"].includes(uuidAsString(c.id))),
+      );
+      leasedView = Object.assign(new CipherView(), {
+        id: "gated",
+        type: CipherType.Login,
+        name: "Gated",
+        leaseGated: true,
+      });
+      leased$ = new BehaviorSubject<ReadonlyMap<string, CipherView>>(new Map());
+
+      TestBed.resetTestingModule();
+      testBed = TestBed.configureTestingModule({
+        providers: [
+          ...baseProviders,
+          { provide: LEASED_CIPHER_SOURCE, useValue: { leasedCipherViews$: () => leased$ } },
+        ],
+      });
+      service = testBed.inject(VaultPopupItemsService);
+    });
+
+    const gatedEntry = (ciphers: CipherViewLike[]) => ciphers.find((c) => c.id === "gated");
+
+    it("replaces a partial entry with its leased full view", async () => {
+      leased$.next(new Map([["gated", leasedView]]));
+
+      const ciphers = await firstValueFrom(
+        service.filteredCiphers$.pipe(filter((list) => gatedEntry(list) === leasedView)),
+      );
+
+      expect(CipherViewLikeUtils.isPartial(gatedEntry(ciphers)!)).toBe(false);
+    });
+
+    it("offers the leased full view as an autofill suggestion", async () => {
+      leased$.next(new Map([["gated", leasedView]]));
+
+      const suggestions = await firstValueFrom(
+        service.autoFillCiphers$.pipe(filter((list) => list.length === 2)),
+      );
+
+      expect(gatedEntry(suggestions)).toBe(leasedView);
+    });
+
+    it("returns to the partial copy when the leased view is dropped", async () => {
+      leased$.next(new Map([["gated", leasedView]]));
+      await firstValueFrom(
+        service.filteredCiphers$.pipe(filter((list) => gatedEntry(list) === leasedView)),
+      );
+
+      leased$.next(new Map());
+
+      const ciphers = await firstValueFrom(
+        service.filteredCiphers$.pipe(filter((list) => gatedEntry(list) !== leasedView)),
+      );
+      expect(CipherViewLikeUtils.isPartial(gatedEntry(ciphers)!)).toBe(true);
+    });
+
+    it("leaves the list alone while no lease is held", async () => {
+      const ciphers = await firstValueFrom(service.filteredCiphers$);
+
+      expect(CipherViewLikeUtils.isPartial(gatedEntry(ciphers)!)).toBe(true);
     });
   });
 

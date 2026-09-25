@@ -5,7 +5,7 @@ import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of } from "rxjs";
+import { distinctUntilChanged, firstValueFrom, map, Observable, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
@@ -73,6 +73,10 @@ import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
 } from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
+import {
+  LEASED_CIPHER_SOURCE,
+  LeasedCipherSource,
+} from "../vault-list-items-container/leased-cipher-source.token";
 
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
@@ -114,6 +118,9 @@ type LoadAction =
 })
 export class ViewComponent {
   private readonly configService = inject(ConfigService);
+  private readonly leasedCipherSource: LeasedCipherSource | null = inject(LEASED_CIPHER_SOURCE, {
+    optional: true,
+  });
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
@@ -203,7 +210,12 @@ export class ViewComponent {
           return cipher;
         }),
         filterOutNullish(),
-        switchMap(async (cipher) => {
+        switchMap((cipher) =>
+          this.revealWhileLeased$(cipher).pipe(
+            map((shown, index) => ({ shown, first: index === 0 })),
+          ),
+        ),
+        switchMap(async ({ shown: cipher, first }) => {
           this.cipher = cipher;
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
@@ -214,6 +226,9 @@ export class ViewComponent {
                 (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
+          if (!first) {
+            return;
+          }
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
             cipher.id,
@@ -249,6 +264,25 @@ export class ViewComponent {
       [CipherType.Passport]: "viewItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
+  }
+
+  /**
+   * `cipher`, or its leased full view while an active lease covers it. Emits the partial copy
+   * again when the lease ends.
+   */
+  private revealWhileLeased$(cipher: CipherView): Observable<CipherView> {
+    if (this.leasedCipherSource == null || !cipher.partial) {
+      return of(cipher);
+    }
+    return this.leasedCipherSource.leasedCipherViews$(this.activeUserId).pipe(
+      map((leased) => leased.get(cipher.id) ?? cipher),
+      distinctUntilChanged(),
+    );
+  }
+
+  /** Partial and leased ciphers are read-only here: a save would build on the partial copy. */
+  protected get writeLocked(): boolean {
+    return this.cipher.partial || this.cipher.leaseGated === true;
   }
 
   async getCipherData(id: string, userId: UserId) {
@@ -396,7 +430,7 @@ export class ViewComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: this.cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        viewOnly: !this.cipher.edit || this.writeLocked,
       },
     });
 

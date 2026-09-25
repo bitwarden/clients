@@ -151,6 +151,28 @@ export const EndingSoon: Story = {
   decorators: [moduleMetadata({ providers: [stateOf(activeFor(3 * 60 * 1000))] })],
 };
 
+/** A row's status beside the name: the countdown shortened to its largest unit. */
+export const ActiveStatusCompact: Story = {
+  decorators: [
+    moduleMetadata({ providers: [stateOf(activeFor(3 * 60 * 60 * 1000 + 37 * 60 * 1000))] }),
+  ],
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-w-[380px] tw-flex tw-items-center tw-gap-1.5 tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-2">
+        <span class="tw-truncate tw-min-w-0">{{ cipher.name }}</span>
+        <app-pam-vault-row-access-action [cipher]="cipher" [render]="'status'" />
+      </div>
+    `,
+  }),
+};
+
+/** A row's status beside the name inside the last five minutes: compact and escalated. */
+export const EndingSoonStatusCompact: Story = {
+  ...ActiveStatusCompact,
+  decorators: [moduleMetadata({ providers: [stateOf(activeFor(3 * 60 * 1000))] })],
+};
+
 /** A lease that lapsed since the row was read: the ended pill until the next read. */
 export const Expired: Story = {
   decorators: [moduleMetadata({ providers: [stateOf(activeFor(-60 * 1000))] })],

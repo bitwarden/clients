@@ -28,18 +28,18 @@
 
   @if (showFooter$ | async) {
     <popup-footer slot="footer">
-      @if (!cipher.isDeleted && !cipher.partial) {
+      @if (!cipher.isDeleted && !writeLocked) {
         <button buttonType="primary" type="button" bitButton (click)="editCipher()">
           {{ "edit" | i18n }}
         </button>
       }
-      @if (cipher.isDeleted && cipher.permissions.restore) {
+      @if (cipher.isDeleted && cipher.permissions.restore && !writeLocked) {
         <button buttonType="primary" type="button" bitButton [bitAction]="restore">
           {{ "restore" | i18n }}
         </button>
       }
       <ng-container slot="end">
-        @if (cipher.isArchived && !cipher.isDeleted) {
+        @if (cipher.isArchived && !cipher.isDeleted && !writeLocked) {
           <button
             type="button"
             [bitAction]="unarchive"
@@ -47,7 +47,7 @@
             [label]="'unarchive' | i18n"
           ></button>
         }
-        @if ((userCanArchive$ | async) && cipher.canBeArchived) {
+        @if ((userCanArchive$ | async) && cipher.canBeArchived && !writeLocked) {
           <button
             type="button"
             [bitAction]="archive"
@@ -55,7 +55,7 @@
             [label]="'archiveVerb' | i18n"
           ></button>
         }
-        @if (canDeleteCipher$ | async) {
+        @if ((canDeleteCipher$ | async) && !writeLocked) {
           <button
             [bitAction]="delete"
             type="button"

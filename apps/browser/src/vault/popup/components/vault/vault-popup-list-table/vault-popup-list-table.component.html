@@ -169,6 +169,14 @@
                   [appA11yTitle]="orgIconTooltip(row.cipher)"
                 ></i>
               }
+              @if (showAccessStatus(row.cipher)) {
+                <ng-container
+                  *ngComponentOutlet="
+                    accessAction;
+                    inputs: { cipher: row.cipher, render: 'status' }
+                  "
+                />
+              }
               @if (CipherViewLikeUtils.hasAttachments(row.cipher)) {
                 <bit-icon
                   name="bwi-paperclip"
@@ -214,11 +222,12 @@
             [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
-        @if (CipherViewLikeUtils.isPartial(row.cipher)) {
-          @if (showAccessAction(row.cipher)) {
-            <ng-container *ngComponentOutlet="accessAction; inputs: { cipher: row.cipher }" />
-          }
-        } @else {
+        @if (showAccessAction(row.cipher)) {
+          <ng-container
+            *ngComponentOutlet="accessAction; inputs: { cipher: row.cipher, render: 'action' }"
+          />
+        }
+        @if (!CipherViewLikeUtils.isPartial(row.cipher)) {
           <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
         }
         <app-item-more-options
