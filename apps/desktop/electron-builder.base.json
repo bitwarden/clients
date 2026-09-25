@@ -1,0 +1,306 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "extraMetadata": {
+    "name": "bitwarden"
+  },
+  "productName": "Bitwarden",
+  "appId": "com.bitwarden.desktop",
+  "buildDependenciesFromSource": true,
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
+  "files": [
+    "!node_modules/@bitwarden/desktop-napi/scripts",
+    "!node_modules/@bitwarden/desktop-napi/src",
+    "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
+    "!node_modules/@bitwarden/desktop-napi/build.rs",
+    "!node_modules/@bitwarden/desktop-napi/package.json"
+  ],
+  "electronVersion": "43.2.0",
+  "generateUpdatesFilesForAllChannels": true,
+  "publish": {
+    "provider": "generic",
+    "url": "https://artifacts.bitwarden.com/desktop"
+  },
+  "mac": {
+    "electronUpdaterCompatibility": ">=0.0.1",
+    "category": "public.app-category.productivity",
+    "darkModeSupport": true,
+    "gatekeeperAssess": false,
+    "hardenedRuntime": true,
+    "entitlements": "resources/entitlements.mac.plist",
+    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
+    "extendInfo": {
+      "ITSAppUsesNonExemptEncryption": false,
+      "CFBundleLocalizations": [
+        "en",
+        "cs",
+        "da",
+        "de",
+        "es",
+        "et",
+        "fi",
+        "fr",
+        "hr",
+        "hu",
+        "id",
+        "it",
+        "ja",
+        "nb",
+        "nl",
+        "pl",
+        "pt-BR",
+        "pt-PT",
+        "ro",
+        "ru",
+        "sk",
+        "sv",
+        "tr",
+        "uk",
+        "vi",
+        "zh-Hans",
+        "zh-Hant"
+      ],
+      "CFBundleDevelopmentRegion": "en"
+    },
+    "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy.inherit"
+      }
+    ],
+    "signIgnore": [
+      "MacOS/desktop_proxy",
+      "MacOS/desktop_proxy.inherit",
+      "Contents/PlugIns/autofill-extension.appex",
+      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+    ],
+    "target": ["dmg", "zip"]
+  },
+  "win": {
+    "electronUpdaterCompatibility": ">=0.0.1",
+    "target": ["portable", "nsis-web", "appx"],
+    "signExts": [".dll", ".node"],
+    "signtoolOptions": {
+      "sign": "./sign.js",
+      "publisherName": "Bitwarden Inc."
+    },
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
+        "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
+        "to": "bitwarden_plugin_authenticator.exe"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "resources/windows_plugin_authenticator_config.json",
+        "to": "plugin_authenticator_config.json"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo.svg",
+        "to": "plugin_authenticator_logo.svg"
+      }
+    ]
+  },
+  "linux": {
+    "category": "Utility",
+    "synopsis": "A secure and free password manager for all of your devices.",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/libprocess_isolation.so",
+        "to": "libprocess_isolation.so"
+      }
+    ],
+    "target": ["deb", "rpm", "AppImage", "snap"],
+    "desktop": {
+      "entry": {
+        "Name": "Bitwarden",
+        "Type": "Application",
+        "GenericName": "Password Manager"
+      }
+    }
+  },
+  "dmg": {
+    "icon": "dmg.icns",
+    "background": "resources/background.png",
+    "sign": false,
+    "contents": [
+      {
+        "x": 150,
+        "y": 185,
+        "type": "file"
+      },
+      {
+        "x": 390,
+        "y": 180,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ],
+    "window": {
+      "width": 540,
+      "height": 380
+    }
+  },
+  "mas": {
+    "identity": "Bitwarden Inc",
+    "entitlements": "resources/entitlements.mas.plist",
+    "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
+    "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
+    "hardenedRuntime": true,
+    "extendInfo": {
+      "LSMinimumSystemVersion": "12",
+      "ElectronTeamID": "LTZ2PFU5D6"
+    }
+  },
+  "nsisWeb": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "artifactName": "${productName}-Installer-${version}.${ext}",
+    "uninstallDisplayName": "${productName}",
+    "deleteAppDataOnUninstall": true,
+    "include": "installer.nsh"
+  },
+  "portable": {
+    "artifactName": "${productName}-Portable-${version}.${ext}"
+  },
+  "appx": {
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "backgroundColor": "#175DDC",
+    "applicationId": "bitwardendesktop",
+    "identityName": "8bitSolutionsLLC.bitwardendesktop",
+    "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "publisherDisplayName": "Bitwarden Inc",
+    "languages": [
+      "en-US",
+      "af",
+      "ar",
+      "az-latn",
+      "be",
+      "bg",
+      "bn",
+      "bs",
+      "ca",
+      "cs",
+      "cy",
+      "da",
+      "de",
+      "el",
+      "en-gb",
+      "en-in",
+      "es",
+      "et",
+      "eu",
+      "fa",
+      "fi",
+      "fil",
+      "fr",
+      "gl",
+      "he",
+      "hi",
+      "hr",
+      "hu",
+      "id",
+      "it",
+      "ja",
+      "ka",
+      "km",
+      "kn",
+      "ko",
+      "lt",
+      "lv",
+      "ml",
+      "mr",
+      "nb",
+      "ne",
+      "nl",
+      "nn",
+      "or",
+      "pl",
+      "pt-br",
+      "pt-pt",
+      "ro",
+      "ru",
+      "si",
+      "sk",
+      "sl",
+      "sr-cyrl",
+      "sv",
+      "ta",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "vi",
+      "zh-cn",
+      "zh-tw"
+    ]
+  },
+  "deb": {
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "depends": ["libnotify4", "libxtst6", "libnss3", "libxss1"]
+  },
+  "appImage": {
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
+  },
+  "rpm": {
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
+  },
+  "snap": {
+    "summary": "Bitwarden is a secure and free password manager for all of your devices.",
+    "description": "Password Manager\n**Installation**\nBitwarden requires access to the `password-manager-service`. Please enable it through permissions or by running `sudo snap connect bitwarden:password-manager-service` after installation. See https://btwrdn.com/install-snap for details.",
+    "autoStart": true,
+    "base": "core22",
+    "confinement": "strict",
+    "plugs": [
+      "default",
+      "network-bind",
+      "password-manager-service",
+      {
+        "polkit": {
+          "action-prefix": "com.bitwarden.Bitwarden"
+        }
+      },
+      {
+        "dot-native-messaging": {
+          "interface": "personal-files",
+          "read": [],
+          "write": [
+            "$HOME/.config/chromium/NativeMessagingHosts",
+            "$HOME/.config/microsoft-edge/NativeMessagingHosts",
+            "$HOME/.config/google-chrome/NativeMessagingHosts",
+            "$HOME/.mozilla/native-messaging-hosts"
+          ]
+        }
+      },
+      "u2f-devices",
+      "hardware-observe"
+    ],
+    "stagePackages": ["default"],
+    "allowNativeWayland": true
+  },
+  "protocols": [
+    {
+      "name": "Bitwarden",
+      "schemes": ["bitwarden"]
+    }
+  ]
+}

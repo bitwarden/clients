@@ -32,6 +32,7 @@ import {
   XCODE_PROVISIONING_PROFILES,
 } from "./build-support-macos.mts";
 import { CARGO_WORKSPACE_DIR } from "./build-support-rust.mts";
+import ElectronBuildTask from "../build-electron.mts";
 
 async function configureBuildTask(config: BuildConfig, task: BuildTask): Promise<void> {
   const { outputDir, privateDir } = getBuildDirectories(config, task);
@@ -40,6 +41,7 @@ async function configureBuildTask(config: BuildConfig, task: BuildTask): Promise
 }
 
 function getDependencyOrder(tasks: BuildTask[]): BuildTask[] {
+  const enabledTasks = new Set(tasks.map((t) => t.targetName));
   const ordered: BuildTask[] = [];
   const visited = new Set<string>();
   const visiting = new Set<string>();
@@ -53,6 +55,9 @@ function getDependencyOrder(tasks: BuildTask[]): BuildTask[] {
     }
     visiting.add(task.targetName);
     for (const dependency of task.dependencies) {
+      if (!enabledTasks.has(dependency.targetName)) {
+        continue;
+      }
       visit(dependency);
     }
     visiting.delete(task.targetName);
@@ -232,7 +237,7 @@ async function main() {
         );
       }
     }
-    const packageFormats = new Set(config.packageFormats);
+    const packageFormats = new Set(options.packageFormat);
     let isMasBuild = false;
     let isMacBuild = false;
     // This prevents us from having to set multiple provisioning profiles, which would require us to compiling app package twice.
@@ -245,9 +250,21 @@ async function main() {
         console.error("❌ Only Mac App Store or direct download package formats are allowed");
         isValid = false;
       }
+      config.derived.macos!.isMasBuild = isMasBuild;
     }
     config.packageFormats = options.packageFormat;
     console.log("Package formats:", config.packageFormats.join(", "));
+
+    // Electron build folder
+    if (config.platform == "macos") {
+      if (isMasBuild && config.audience == "public") {
+        config.derived.electronFolder = `mas-${config.architecture}`;
+      } else if (isMasBuild && config.audience == "internal") {
+        config.derived.electronFolder = `mas-dev-${config.architecture}`;
+      } else {
+        config.derived.electronFolder = `mac-${config.architecture}`;
+      }
+    }
 
     // macOS provisioning profiles
     let appProvisioningProfile: string;
@@ -345,14 +362,15 @@ async function main() {
     if (packageSigningEnabled && options.platform === "macos" && options.audience === "internal") {
       if (options.signingCertificate) {
         // Check if there are any provisioning profiles that match this certificate
-        const provisioningProfiles = await discoverProvisioningProfilesByName(
-          config.derived.macos!.appProvisioningProfile,
-          [XCODE_PROVISIONING_PROFILES],
-        );
-        const hasEligibleCert = provisioningProfiles.some((p) =>
+        const provisioningProfiles = (
+          await discoverProvisioningProfilesByName(config.derived.macos!.appProvisioningProfile, [
+            XCODE_PROVISIONING_PROFILES,
+          ])
+        ).sort((a, b) => b.expirationDate.valueOf() - a.expirationDate.valueOf());
+        const selectedProfile = provisioningProfiles.find((p) =>
           p.developerCertificates.includes(options.signingCertificate),
         );
-        if (!hasEligibleCert) {
+        if (!selectedProfile) {
           console.error(
             "❌ No developer signing certificate found for required provisioning profile. Double-check that you've specified the correct certificate, and then ask BRE team to add your signing certificate to the provisioning profile",
           );
@@ -362,21 +380,34 @@ async function main() {
         } else {
           config.macos!.signingCertificate = options.signingCertificate;
           console.log("Signing certificate:", options.signingCertificate);
+          config.derived.macos!.appProvisioningProfilePath = selectedProfile.path;
+          console.log("Provisioning profile path:", selectedProfile.path);
         }
       } else {
         const availableCerts = await discoverDeveloperCodeSigningCertificates();
         if (availableCerts.length === 1) {
           const certHash = availableCerts[0];
-          const provisioningProfiles = await discoverProvisioningProfilesByName(
-            config.derived.macos!.appProvisioningProfile,
-            [XCODE_PROVISIONING_PROFILES],
-          );
-          const hasEligibleCert = provisioningProfiles.some((p) =>
+          // provisioning profiles in descending order
+          const provisioningProfiles = (
+            await discoverProvisioningProfilesByName(config.derived.macos!.appProvisioningProfile, [
+              XCODE_PROVISIONING_PROFILES,
+            ])
+          ).sort((a, b) => b.expirationDate.valueOf() - a.expirationDate.valueOf());
+          const selectedProfile = provisioningProfiles.find((p) =>
             p.developerCertificates.includes(certHash),
           );
-          if (hasEligibleCert) {
+          if (selectedProfile) {
             config.macos!.signingCertificate = certHash;
+            config.derived.macos!.appProvisioningProfilePath = selectedProfile.path;
             console.log("Signing certificate:", certHash);
+            console.log("Provisioning profile path", selectedProfile.path);
+          } else {
+            console.error(
+              "❌ Discovered a signing certificate but it is not eligible for the provisioning profile. Specify one explicitly, or check that the provisioning profile includes your certificate",
+            );
+            console.error("  Provisioning profile:", config.derived.macos!.appProvisioningProfile);
+            console.error("  Code signing certificate:", options.signingCertificate);
+            isValid = false;
           }
         } else if (availableCerts.length === 0) {
           console.error(
@@ -439,6 +470,7 @@ async function main() {
     tasks.push(DesktopProxyBuildTask);
     tasks.push(NapiBuildTask);
     tasks.push(WebpackBuildTask);
+    tasks.push(ElectronBuildTask);
 
     // Windows-specific
     if (config.platform === "windows") {

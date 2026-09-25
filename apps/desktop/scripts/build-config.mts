@@ -92,17 +92,20 @@ export interface BuildConfig {
     hostPlatform: Platform;
     isCrossPlatform: boolean;
     appId: string;
+    electronFolder: string;
     productName: string;
     /// Root of the Cargo build output tree, i.e. `<workspace>/target`.
     cargoTargetDir: string;
     macos?: {
       ARCHS: "arm64" | "x86_64" | "arm64 x86_64";
       appProvisioningProfile: string;
+      appProvisioningProfilePath: string;
       autofillExtensionAppId: string;
       /** Name of provisioning profile for Autofill Extension. Multiple may be
        * specified to build for multiple package formats. */
       autofillExtensionProvisioningProfile: string;
       ipcAppGroup: string;
+      isMasBuild: boolean;
       libraryIdentifier: "macos-arm64" | "macos-x86_64" | "macos-arm64_x86_64";
     };
   };

@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { BuildError, type BuildTask, getBuildDirectories } from "./build-config.mts";
 import { Logger } from "./build-support.mts";
 
+import ElectronBuildTask from "../build-electron.mts";
 import WebpackBuildTask from "../build-app.mts";
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
 import ChromiumImporterBuildTask from "../desktop_native/chromium_importer/build-chromium-importer.mts";
@@ -23,6 +24,7 @@ const ALL_TARGETS: BuildTask[] = [
   DesktopProxyBuildTask,
   NapiBuildTask,
   WebpackBuildTask,
+  ElectronBuildTask,
 ];
 
 const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === "true";
