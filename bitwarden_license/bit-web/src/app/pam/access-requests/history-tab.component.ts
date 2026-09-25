@@ -70,6 +70,11 @@ import { MyAccessService } from "./my-access.service";
 const HistoryScope = Object.freeze({ All: "all", Mine: "mine", Managed: "managed" } as const);
 type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
 
+/** The scope chip's value as a scope; unset or unrecognized reads as All. */
+function toHistoryScope(value: unknown): HistoryScope {
+  return value === HistoryScope.Mine || value === HistoryScope.Managed ? value : HistoryScope.All;
+}
+
 /**
  * How long the "loaded" announcement is left in the live region. Long enough for a polite
  * announcement to be taken, short enough that what is left behind is the empty region rather than a
@@ -147,9 +152,9 @@ export class HistoryTabComponent {
   /**
    * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip owns its selection and is read
    * through its `FILTER_CONTROL` contract rather than a form control. On the VFO1 path the chip
-   * sits in the table's toolbar and so also registers with the table, but the scope picks which
-   * list the table is handed rather than narrowing one, so this `viewChild` stays the plumbing on
-   * both paths and the scope is kept out of the table's `[filter]`.
+   * sits in the table's toolbar and so also registers with the table, which narrows its rows by
+   * the chip's value through {@link matchesFilters}; this `viewChild` still drives {@link scope}
+   * for what reads the current slice outside the table.
    */
   private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
@@ -266,12 +271,9 @@ export class HistoryTabComponent {
    * destroys the chip whenever {@link canSwitchScope} goes false, so a chip that returns starts
    * unset: a stale pick can't silently re-narrow the table, and nothing has to forget it.
    */
-  protected readonly scope = computed<HistoryScope>(() => {
-    const value = this.scopeChip()?.value();
-    return this.canSwitchScope() && (value === HistoryScope.Mine || value === HistoryScope.Managed)
-      ? value
-      : HistoryScope.All;
-  });
+  protected readonly scope = computed<HistoryScope>(() =>
+    this.canSwitchScope() ? toHistoryScope(this.scopeChip()?.value()) : HistoryScope.All,
+  );
 
   /**
    * Both sources in one list, de-duplicated by request id and re-sorted on the shared key. A row
@@ -291,6 +293,11 @@ export class HistoryTabComponent {
       (a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a),
     );
   });
+
+  private readonly myRowIds = computed(() => new Set(this.myRows().map((row) => String(row.id))));
+  private readonly managedRowIds = computed(
+    () => new Set(this.managedRows().map((row) => String(row.id))),
+  );
 
   protected readonly historyRows = computed(() => {
     switch (this.scope()) {
@@ -330,7 +337,11 @@ export class HistoryTabComponent {
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
-  protected readonly historyTable = defineTable<MyAccessRequestRow, "actions">(this.historyRows);
+  /**
+   * The VFO1 table holds every row and narrows by scope in {@link matchesFilters}, so the scope
+   * chip's option counts are drawn from the whole history rather than the slice already listed.
+   */
+  protected readonly historyTable = defineTable<MyAccessRequestRow, "actions">(this.allRows);
 
   /** The VFO1 table, for reading the term the toolbar's `bit-search` registered with it. */
   private readonly tableRef = viewChild(BitTableV2Component<MyAccessRequestRow>);
@@ -342,12 +353,29 @@ export class HistoryTabComponent {
       .toLowerCase(),
   );
 
+  /** The VFO1 table's row test: the scope chip's slice, then the toolbar search within it. */
+  protected readonly matchesFilters = (
+    row: MyAccessRequestRow,
+    values: { search?: string; historyScope?: unknown },
+  ) => this.inScope(row, toHistoryScope(values.historyScope)) && this.matchesSearch(row, values);
+
+  private inScope(row: MyAccessRequestRow, scope: HistoryScope): boolean {
+    switch (scope) {
+      case HistoryScope.Mine:
+        return this.myRowIds().has(String(row.id));
+      case HistoryScope.Managed:
+        return this.managedRowIds().has(String(row.id));
+      default:
+        return true;
+    }
+  }
+
   /**
    * The toolbar search, over the text the table actually shows: the item, its collection, who
    * resolved it and what they said. A resolver named only by an i18n key is matched on its
    * rendered wording rather than the key, so what a reader sees is what they can search for.
    */
-  protected readonly matchesSearch = (row: MyAccessRequestRow, values: { search?: string }) => {
+  private matchesSearch(row: MyAccessRequestRow, values: { search?: string }): boolean {
     const term = (values.search ?? "").trim().toLowerCase();
     if (term === "") {
       return true;
@@ -358,13 +386,16 @@ export class HistoryTabComponent {
       row.resolverLabelKey == null ? row.resolverName : this.i18nService.t(row.resolverLabelKey),
       row.approverComment,
     ].some((field) => field != null && field.toLowerCase().includes(term));
-  };
+  }
 
   /**
    * The toolbar's count label. These rows are access requests, not items, so the default
    * "N items" would name them wrongly.
    */
-  protected readonly resultsLabel = (count: number) => this.i18nService.t("filterResults", count);
+  protected readonly resultsLabel = (count: number) =>
+    count === 1
+      ? this.i18nService.t("oneFilterResult")
+      : this.i18nService.t("filterResults", count);
 
   /**
    * The Resolved column's sort, which is what actually orders the rendered table. Sorting on

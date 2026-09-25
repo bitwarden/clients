@@ -1488,7 +1488,33 @@ describe("HistoryTabComponent", () => {
 
         searchFor("staging");
 
-        expect(countText()).toBe("filterResults 1");
+        expect(countText()).toBe("oneFilterResult");
+      });
+
+      it("counts the chosen scope's rows", () => {
+        populateApprover();
+        createWithFlag(true);
+
+        selectScope("mine");
+
+        expect(countText()).toBe("filterResults 2");
+      });
+    });
+
+    describe("scope chip counts", () => {
+      function optionCount(scope: "mine" | "managed" | null): number | undefined {
+        return component["tableRef"]()!.optionCount("historyScope", scope);
+      }
+
+      it("counts each scope's own rows, whichever scope is listed", () => {
+        populateApprover();
+        createWithFlag(true);
+
+        expect([optionCount(null), optionCount("mine"), optionCount("managed")]).toEqual([5, 2, 3]);
+
+        selectScope("managed");
+
+        expect([optionCount(null), optionCount("mine"), optionCount("managed")]).toEqual([5, 2, 3]);
       });
     });
   });

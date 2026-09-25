@@ -1924,7 +1924,7 @@
   },
   "oneFilterResult": {
     "message": "1 result",
-    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+    "description": "Shown above a filter menu's option list when a search matches exactly one option, and as a table's row count when exactly one row is listed."
   },
   "filterResults": {
     "message": "$COUNT$ results",
@@ -1934,7 +1934,7 @@
         "example": "5"
       }
     },
-    "description": "Shown above a filter menu's option list when a search matches more than one option."
+    "description": "Shown above a filter menu's option list when a search matches more than one option, and as a table's row count when any other number of rows is listed."
   },
   "noFiltersMatchTerm": {
     "message": "No filters match “$SEARCH$”",
