@@ -6,6 +6,7 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -25,6 +26,21 @@ class ResizeObserverStub {
 }
 (global as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
 
+function vfo1ConfigService(
+  enabled$: BehaviorSubject<boolean>,
+): ReturnType<typeof mock<ConfigService>> {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockReturnValue(enabled$);
+  return configService;
+}
+
+/** The ids the three per-tab create buttons carry, wherever they are rendered. */
+const CREATE_BUTTON_ID = {
+  "access-connectors": "rotation-shell_button_new-access-connector",
+  "target-systems": "rotation-shell_button_new-target-system",
+  "managed-credentials": "rotation-shell_button_new-managed-credential",
+} as const;
+
 describe("RotationShellComponent", () => {
   let fixture: ComponentFixture<RotationShellComponent>;
   let awaitingManualCount$: BehaviorSubject<number>;
@@ -38,10 +54,12 @@ describe("RotationShellComponent", () => {
   let targetSystemsService: { systems$: BehaviorSubject<unknown[]> };
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
+  let vfo1$: BehaviorSubject<boolean>;
 
   const ORG_ID = "org-abc-123";
 
   beforeEach(async () => {
+    vfo1$ = new BehaviorSubject(false);
     awaitingManualCount$ = new BehaviorSubject<number>(0);
     configs$ = new BehaviorSubject<unknown[]>([]);
     loadMock = jest.fn().mockResolvedValue(undefined);
@@ -76,6 +94,7 @@ describe("RotationShellComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1$) },
       ],
     })
       .overrideComponent(RotationShellComponent, {
@@ -231,8 +250,17 @@ describe("RotationShellComponent (real router)", () => {
 
   let harness: RouterTestingHarness;
   let router: Router;
+  let vfo1$: BehaviorSubject<boolean>;
+  let configs$: BehaviorSubject<unknown[]>;
+  let accessConnectors$: BehaviorSubject<unknown[]>;
+  let systems$: BehaviorSubject<unknown[]>;
 
   beforeEach(async () => {
+    vfo1$ = new BehaviorSubject(false);
+    configs$ = new BehaviorSubject<unknown[]>([{ id: configId("config-1") }]);
+    accessConnectors$ = new BehaviorSubject<unknown[]>([{ id: "access-connector-1" }]);
+    systems$ = new BehaviorSubject<unknown[]>([{ id: "target-system-1" }]);
+
     await TestBed.configureTestingModule({
       imports: [RotationShellComponent, NoopAnimationsModule],
       providers: [
@@ -241,24 +269,25 @@ describe("RotationShellComponent (real router)", () => {
           provide: RotationConfigsService,
           useValue: {
             awaitingManualCount$: new BehaviorSubject(0),
-            configs$: new BehaviorSubject<unknown[]>([]),
+            configs$,
             load: jest.fn(),
           },
         },
         {
           provide: AccessConnectorsService,
           useValue: {
-            accessConnectors$: new BehaviorSubject<unknown[]>([]),
+            accessConnectors$,
             registerCompleted: jest.fn(),
           },
         },
         {
           provide: TargetSystemsService,
-          useValue: { systems$: new BehaviorSubject<unknown[]>([]) },
+          useValue: { systems$ },
         },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1$) },
       ],
     })
       .overrideComponent(RotationShellComponent, {
@@ -270,6 +299,17 @@ describe("RotationShellComponent (real router)", () => {
     router = TestBed.inject(Router);
     harness = await RouterTestingHarness.create();
   });
+
+  /** Renders the shell on `tab` with the VFO1 flag in the given state, and returns its header. */
+  const renderHeader = async (
+    tab: keyof typeof CREATE_BUTTON_ID,
+    vfo1: boolean,
+  ): Promise<HTMLElement> => {
+    vfo1$.next(vfo1);
+    await harness.navigateByUrl(`/rotation/${tab}`, RotationShellComponent);
+    harness.detectChanges();
+    return harness.fixture.nativeElement.querySelector("app-header") as HTMLElement;
+  };
 
   it("lands on the access connectors tab from the shell's bare path", async () => {
     await harness.navigateByUrl("/rotation", RotationShellComponent);
@@ -315,5 +355,61 @@ describe("RotationShellComponent (real router)", () => {
     await shell.createManagedCredential();
 
     expect(router.url).toBe("/rotation/managed-credentials/new");
+  });
+
+  describe("create action placement", () => {
+    const LABEL = {
+      "access-connectors": "pamAccessConnectorNew",
+      "target-systems": "pamTargetSystemNew",
+      "managed-credentials": "pamRotationConfigNew",
+    } as const;
+
+    const tabs = Object.keys(CREATE_BUTTON_ID) as (keyof typeof CREATE_BUTTON_ID)[];
+
+    it.each(tabs)("keeps the %s create button in the header with the flag off", async (tab) => {
+      const header = await renderHeader(tab, false);
+
+      const button = header.querySelector<HTMLButtonElement>(`#${CREATE_BUTTON_ID[tab]}`);
+      expect(button).not.toBeNull();
+      expect(button!.textContent?.trim()).toBe(LABEL[tab]);
+    });
+
+    it.each(tabs)(
+      "renders no %s create button anywhere in the shell with the flag on",
+      async (tab) => {
+        await renderHeader(tab, true);
+
+        expect(harness.fixture.nativeElement.querySelector(`#${CREATE_BUTTON_ID[tab]}`)).toBeNull();
+      },
+    );
+
+    it.each(tabs)("keeps the %s tab nav bar in the header with the flag on", async (tab) => {
+      const header = await renderHeader(tab, true);
+
+      expect(header.querySelector("bit-tab-nav-bar")).not.toBeNull();
+      expect(header.querySelectorAll("bit-tab-link")).toHaveLength(3);
+    });
+
+    it("hides the header create button on an empty list with the flag off", async () => {
+      configs$.next([]);
+      accessConnectors$.next([]);
+      systems$.next([]);
+
+      for (const tab of tabs) {
+        const header = await renderHeader(tab, false);
+        expect(header.querySelector(`#${CREATE_BUTTON_ID[tab]}`)).toBeNull();
+      }
+    });
+
+    it("hides the header create button on an empty list with the flag on", async () => {
+      configs$.next([]);
+      accessConnectors$.next([]);
+      systems$.next([]);
+
+      for (const tab of tabs) {
+        const header = await renderHeader(tab, true);
+        expect(header.querySelector(`#${CREATE_BUTTON_ID[tab]}`)).toBeNull();
+      }
+    });
   });
 });
