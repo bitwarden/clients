@@ -7,8 +7,10 @@ import { fireEvent, userEvent, within } from "storybook/test";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { DialogService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
@@ -555,6 +557,15 @@ type Story = StoryObj<AccessAuditComponent>;
 /** The populated trail, with the kind chips limited to the kinds actually present. */
 export const Default: Story = {
   decorators: [audit()],
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
+};
+
+/** The populated trail on the `bit-table-v2` path. */
+export const FlagOn: Story = {
+  decorators: [audit()],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** An organization with no PAM activity recorded yet. */
@@ -607,6 +618,12 @@ export const DetailsDrawerOpen: Story = {
     const row = canvasElement.querySelector<HTMLElement>("#access-audit_button_details-0")!;
     await userEvent.click(row);
   },
+};
+
+/** {@link DetailsDrawerOpen} on the `bit-table-v2` path, where the stood-down columns leave the grid. */
+export const DetailsDrawerOpenFlagOn: Story = {
+  ...DetailsDrawerOpen,
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /**
