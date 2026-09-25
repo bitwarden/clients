@@ -223,6 +223,7 @@ apps/browser/src/popup/components/extension-anon-layout-wrapper  @bitwarden/team
 apps/web/src/app/layouts                                         @bitwarden/team-ui-foundation
 
 ## Key management team files ##
+e2e                                               @bitwarden/team-key-management-dev
 apps/desktop/src/key-management                   @bitwarden/team-key-management-dev
 apps/web/src/app/key-management                   @bitwarden/team-key-management-dev
 apps/browser/src/key-management                   @bitwarden/team-key-management-dev
