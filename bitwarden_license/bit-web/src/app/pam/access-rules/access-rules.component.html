@@ -95,6 +95,7 @@
           <bit-cell *bitCellDef="table.columns.select; let r">
             <input
               slot="start"
+              data-selection-input
               type="checkbox"
               bitCheckbox
               [id]="'access-rules_checkbox_' + r.id"

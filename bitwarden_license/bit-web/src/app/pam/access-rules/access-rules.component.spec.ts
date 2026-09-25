@@ -828,6 +828,16 @@ describe("AccessRulesComponent — VFO1 table (flag on)", () => {
     expect(fixture.componentInstance["selectedRules"]().map((r) => r.name)).toEqual(["SSH"]);
   });
 
+  it("marks row checkboxes so bit-row applies its selected fill", async () => {
+    const fixture = await render(true);
+
+    const checkboxes = rowCheckboxes(fixture);
+    expect(checkboxes).toHaveLength(RULES.length);
+    checkboxes.forEach((checkbox) =>
+      expect(checkbox.hasAttribute("data-selection-input")).toBe(true),
+    );
+  });
+
   it("selects every filtered row from the header checkbox", async () => {
     const fixture = await render(true);
 
