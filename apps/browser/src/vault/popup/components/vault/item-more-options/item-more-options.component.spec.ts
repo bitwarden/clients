@@ -1,3 +1,4 @@
+import { OverlayContainer } from "@angular/cdk/overlay";
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -424,6 +425,72 @@ describe("ItemMoreOptionsComponent", () => {
         expect(result).toBe(false);
         done();
       });
+    });
+  });
+
+  describe("gated (partial) cipher menu", () => {
+    let overlayContainer: OverlayContainer;
+
+    const partialCipher = { ...baseCipher, partial: true, favorite: false };
+
+    function menuTrigger(): HTMLButtonElement | null {
+      return fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]');
+    }
+
+    function openMenuAndGetContent(): string {
+      fixture.detectChanges();
+      const trigger = menuTrigger();
+      expect(trigger).toBeTruthy();
+
+      trigger!.click();
+      fixture.detectChanges();
+
+      return overlayContainer.getContainerElement().innerHTML;
+    }
+
+    beforeEach(() => {
+      overlayContainer = TestBed.inject(OverlayContainer);
+      component.cipher = partialCipher;
+      fixture.componentRef.setInput("showAutofill", true);
+    });
+
+    afterEach(() => {
+      overlayContainer.ngOnDestroy();
+    });
+
+    it("isPartial reflects the cipher's partial flag", () => {
+      component.cipher = partialCipher;
+      expect(component["isPartial"]).toBe(true);
+
+      component.cipher = baseCipher;
+      expect(component["isPartial"]).toBe(false);
+    });
+
+    it("withholds the overflow trigger when a gated row has nothing to offer", () => {
+      fixture.detectChanges();
+
+      expect(menuTrigger()).toBeNull();
+    });
+
+    it("offers only View when a gated row's primary action is autofill", () => {
+      fixture.componentRef.setInput("showViewOption", true);
+
+      const content = openMenuAndGetContent().toLowerCase();
+
+      expect(content).toContain("view");
+      expect(content).not.toContain("autofillverb");
+      expect(content).not.toContain("favorite");
+      expect(content).not.toContain("edit");
+      expect(content).not.toContain("clone");
+      expect(content).not.toContain("archiveverb");
+      expect(content).not.toContain("delete");
+    });
+
+    it("keeps the overflow trigger for a normal row", () => {
+      component.cipher = baseCipher;
+      fixture.detectChanges();
+
+      expect(menuTrigger()).not.toBeNull();
     });
   });
 });
