@@ -1,21 +1,24 @@
-<!-- Toolbar: free-text search + collection filter -->
-<div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-  <bit-search
-    class="tw-grow tw-max-w-md"
-    [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
-    [formControl]="searchControl"
-  ></bit-search>
-  <bit-filter-menu
-    #collectionFilter
-    key="collection"
-    [placeholderText]="'pamCollectionFilter' | i18n"
-    [unsetLabel]="'all' | i18n"
-  >
-    @for (option of collectionOptions(); track option.value) {
-      <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-    }
-  </bit-filter-menu>
-</div>
+@if (!vfo1Enabled()) {
+  <!-- Remove this branch along with the VFO1 flag. -->
+  <!-- Toolbar: free-text search + collection filter -->
+  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+    <bit-search
+      class="tw-grow tw-max-w-md"
+      [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
+      [formControl]="searchControl"
+    ></bit-search>
+    <bit-filter-menu
+      #collectionFilter
+      key="collection"
+      [placeholderText]="'pamCollectionFilter' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of collectionOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+  </div>
+}
 
 <bit-accordion-group>
   <bit-accordion [title]="'pamMyRequestsPendingSection' | i18n" [open]="true">
@@ -23,136 +26,156 @@
       pendingRows().length
     }}</span>
 
-    @if (pendingRows().length === 0) {
-      <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-pending-empty">
-        {{ "pamMyRequestsPendingEmpty" | i18n }}
-      </p>
+    @if (vfo1Enabled()) {
+      <bit-table-v2 [tableDef]="pendingTable" [filter]="rowMatchesFilter">
+        <bit-table-toolbar>
+          <bit-search
+            class="tw-flex-1"
+            [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
+            [formControl]="searchControl"
+          ></bit-search>
+          <bit-filter-menu
+            #collectionFilter
+            key="collection"
+            [placeholderText]="'pamCollectionFilter' | i18n"
+            [unsetLabel]="'all' | i18n"
+          >
+            @for (option of collectionOptions(); track option.value) {
+              <bit-filter-option
+                [value]="option.value"
+                [count]="collectionCounts().get(option.value)"
+                >{{ option.label }}</bit-filter-option
+              >
+            }
+          </bit-filter-menu>
+        </bit-table-toolbar>
+        <div slot="empty" class="tw-py-6 tw-text-center">
+          <ng-container *ngTemplateOutlet="pendingEmptyState" />
+        </div>
+        <bit-column sortable width="minmax(240px, 2fr)">
+          <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
+          <bit-cell
+            *bitCellDef="pendingTable.columns.cipherName; let row"
+            [truncate]="false"
+            [attr.data-testid]="'my-access-pending-' + row.id"
+          >
+            @if (cipherFor(row.cipherId); as cipher) {
+              <app-vault-icon slot="start" [cipher]="cipher" />
+            }
+            <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
+            @if (row.collectionName) {
+              <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
+            }
+          </bit-cell>
+        </bit-column>
+        <bit-column width="minmax(200px, 1fr)">
+          <bit-header-cell>{{ "pamColumnRequestedWindow" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="pendingTable.columns.window; let row" [truncate]="false">
+            @if (startsNow(row)) {
+              {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
+            } @else {
+              {{ row.leaseNotBefore | date: "short" }} &ndash;
+              {{ row.leaseNotAfter | date: "short" }}
+            }
+          </bit-cell>
+        </bit-column>
+        <bit-column sortable defaultSort="desc" width="minmax(140px, 1fr)">
+          <bit-header-cell>{{ "pamColumnSubmitted" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="pendingTable.columns.submittedAt; let row" [truncate]="false">
+            {{ row.submittedAt | date: "short" }}
+          </bit-cell>
+        </bit-column>
+        <bit-column width="128px">
+          <bit-header-cell>
+            <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+          </bit-header-cell>
+          <bit-cell *bitCellDef="pendingTable.columns.actions; let row" [truncate]="false">
+            @if (canCancel(row)) {
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                [id]="'pam-my-requests_button_pending-cancel-' + row.id"
+                [disabled]="isCancelling(row.id)"
+                (click)="cancel(row)"
+                [attr.data-testid]="'my-access-pending-cancel-' + row.id"
+              >
+                {{ "cancel" | i18n }}
+              </button>
+            }
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    } @else if (pendingRows().length === 0) {
+      <ng-container *ngTemplateOutlet="pendingEmptyState" />
     } @else {
-      @if (vfo1Enabled()) {
-        <bit-table-v2 [tableDef]="pendingTable">
-          <bit-column sortable width="minmax(240px, 2fr)">
-            <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
-            <bit-cell
-              *bitCellDef="pendingTable.columns.cipherName; let row"
-              [truncate]="false"
-              [attr.data-testid]="'my-access-pending-' + row.id"
-            >
-              @if (cipherFor(row.cipherId); as cipher) {
-                <app-vault-icon slot="start" [cipher]="cipher" />
-              }
-              <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
-              @if (row.collectionName) {
-                <div slot="secondary">{{ "pamInboxInCollection" | i18n: row.collectionName }}</div>
-              }
-            </bit-cell>
-          </bit-column>
-          <bit-column width="minmax(200px, 1fr)">
-            <bit-header-cell>{{ "pamColumnRequestedWindow" | i18n }}</bit-header-cell>
-            <bit-cell *bitCellDef="pendingTable.columns.window; let row" [truncate]="false">
+      <!-- Remove this branch along with the VFO1 flag. -->
+      <bit-table [dataSource]="pendingDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+            <th bitCell bitSortable="submittedAt" default="desc">
+              {{ "pamColumnSubmitted" | i18n }}
+            </th>
+            <th bitCell class="tw-w-32">
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let row of rows$ | async"
+            [attr.data-testid]="'my-access-pending-' + row.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <a [routerLink]="['/pam/requests', row.id]">{{
+                    row.cipherName ?? row.cipherId
+                  }}</a>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
               @if (startsNow(row)) {
                 {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
               } @else {
                 {{ row.leaseNotBefore | date: "short" }} &ndash;
                 {{ row.leaseNotAfter | date: "short" }}
               }
-            </bit-cell>
-          </bit-column>
-          <bit-column sortable defaultSort="desc" width="minmax(140px, 1fr)">
-            <bit-header-cell>{{ "pamColumnSubmitted" | i18n }}</bit-header-cell>
-            <bit-cell *bitCellDef="pendingTable.columns.submittedAt; let row" [truncate]="false">
-              {{ row.submittedAt | date: "short" }}
-            </bit-cell>
-          </bit-column>
-          <bit-column width="128px">
-            <bit-header-cell>
-              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
-            </bit-header-cell>
-            <bit-cell *bitCellDef="pendingTable.columns.actions; let row" [truncate]="false">
-              @if (canCancel(row)) {
-                <button
-                  type="button"
-                  bitButton
-                  buttonType="secondary"
-                  size="small"
-                  [id]="'pam-my-requests_button_pending-cancel-' + row.id"
-                  [disabled]="isCancelling(row.id)"
-                  (click)="cancel(row)"
-                  [attr.data-testid]="'my-access-pending-cancel-' + row.id"
-                >
-                  {{ "cancel" | i18n }}
-                </button>
-              }
-            </bit-cell>
-          </bit-column>
-        </bit-table-v2>
-      } @else {
-        <!-- Remove this branch along with the VFO1 flag. -->
-        <bit-table [dataSource]="pendingDataSource">
-          <ng-container header>
-            <tr>
-              <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-              <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
-              <th bitCell bitSortable="submittedAt" default="desc">
-                {{ "pamColumnSubmitted" | i18n }}
-              </th>
-              <th bitCell class="tw-w-32">
-                <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
-              </th>
-            </tr>
-          </ng-container>
-          <ng-template body let-rows$>
-            <tr
-              bitRow
-              *ngFor="let row of rows$ | async"
-              [attr.data-testid]="'my-access-pending-' + row.id"
-            >
-              <td bitCell>
-                <div class="tw-flex tw-items-center tw-gap-3">
-                  @if (cipherFor(row.cipherId); as cipher) {
-                    <app-vault-icon [cipher]="cipher" />
-                  }
-                  <div>
-                    <a [routerLink]="['/pam/requests', row.id]">{{
-                      row.cipherName ?? row.cipherId
-                    }}</a>
-                    @if (row.collectionName) {
-                      <div class="tw-text-xs tw-text-muted">
-                        {{ "pamInboxInCollection" | i18n: row.collectionName }}
-                      </div>
-                    }
-                  </div>
-                </div>
-              </td>
-              <td bitCell>
-                @if (startsNow(row)) {
-                  {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
-                } @else {
-                  {{ row.leaseNotBefore | date: "short" }} &ndash;
-                  {{ row.leaseNotAfter | date: "short" }}
+            </td>
+            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+            <td bitCell>
+              <div class="tw-flex tw-items-start tw-gap-2">
+                @if (canCancel(row)) {
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="isCancelling(row.id)"
+                    (click)="cancel(row)"
+                    [attr.data-testid]="'my-access-pending-cancel-' + row.id"
+                  >
+                    {{ "cancel" | i18n }}
+                  </button>
                 }
-              </td>
-              <td bitCell>{{ row.submittedAt | date: "short" }}</td>
-              <td bitCell>
-                <div class="tw-flex tw-items-start tw-gap-2">
-                  @if (canCancel(row)) {
-                    <button
-                      type="button"
-                      bitButton
-                      buttonType="secondary"
-                      size="small"
-                      [disabled]="isCancelling(row.id)"
-                      (click)="cancel(row)"
-                      [attr.data-testid]="'my-access-pending-cancel-' + row.id"
-                    >
-                      {{ "cancel" | i18n }}
-                    </button>
-                  }
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </bit-table>
-      }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
     }
   </bit-accordion>
 
@@ -562,3 +585,9 @@
     }
   </bit-accordion>
 </bit-accordion-group>
+
+<ng-template #pendingEmptyState>
+  <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-pending-empty">
+    {{ "pamMyRequestsPendingEmpty" | i18n }}
+  </p>
+</ng-template>

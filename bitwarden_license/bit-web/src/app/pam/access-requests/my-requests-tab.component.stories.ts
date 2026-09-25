@@ -1,6 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
+import { userEvent, within } from "storybook/test";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -161,6 +162,22 @@ export const Default: Story = {
 export const FlagOn: Story = {
   decorators: [myAccess()],
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+};
+
+/**
+ * The Collection chip in force on the `bit-table-v2` path: the toolbar's second row, the
+ * applied-filter styling and the item count only render once something is selected, and the other
+ * two sections narrow with it from outside the table the toolbar sits in.
+ */
+export const FlagOnFiltered: Story = {
+  decorators: [myAccess()],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+  play: async ({ canvasElement }) => {
+    const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
+    await userEvent.click(trigger);
+    await userEvent.click(await within(document.body).findByText("Production"));
+    await userEvent.keyboard("{Escape}");
+  },
 };
 
 /** Nothing outstanding. Pending and Active carry their own empty state; Extension requests renders nothing at all. */
