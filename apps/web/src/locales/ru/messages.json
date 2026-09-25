@@ -3459,7 +3459,7 @@
     "message": "Выберите коллекцию"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Выберите общую папку"
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -3468,7 +3468,7 @@
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в общую папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "Выберите импортируемый файл"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Выберите менеджер паролей или браузер, из которого вы выполняете импорт."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузеры"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менеджеры паролей"
+  },
+  "importSourceShowAll": {
+    "message": "Показать все"
+  },
+  "importSourceShowLess": {
+    "message": "Меньше"
+  },
+  "importSourceStepCount": {
+    "message": "Шаг $CURRENT$ из $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Выбрать файл"
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Баланс аккаунта",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Примененный баланс",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Сумма к оплате",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Баланс аккаунта",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Нажмите здесь, чтобы добавить способ оплаты."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Свяжитесь с торговым представителем Bitwarden для настройки оплаты."
   },
   "joinOrganization": {
     "message": "Присоединиться к организации"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Включите автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых пользователей. Имейте в виду, что скомпрометированные или ненадежные сайты могут"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Включите Автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых пользователей. После включения этой политики пользователи должны будут настроить свои личные параметры, чтобы включить автозаполнение. Имейте в виду, что взломанные или ненадежные веб-сайты могут"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "использовать автозаполнение при загрузке страницы"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Выберите организацию, которую вы хотите спонсировать"
   },
+  "selectAFamilyVault": {
+    "message": "Выберите семейное хранилище"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Какое бесплатное предложение Bitwarden Families вы хотели бы использовать?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Примите предложение существующей организации или создайте новую организацию Bitwarden Families."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ спонсировала для вас бесплатный тарифный план Bitwarden Families! Вы можете применить этот бесплатный тариф к существующему семейному хранилищу или создать новое.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Вы были спонсированы бесплатным тарифным планом Bitwarden Families! Вы можете применить этот бесплатный тариф к существующему семейному хранилищу или создать новое.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Вам предложили бесплатный план Bitwarden Families. Чтобы продолжить, необходимо войти в учетную запись, которая получила предложение."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Принять бесплатный план Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Принять спонсорский план Family"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Информация о спонсорском плане"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Бесплатный план Bitwarden Families успешно активирован"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Укажите способ оплаты для сопоставления с организацией. Не волнуйтесь, мы не будем ничего взимать с вас, если вы не выберете дополнительные функции или ваше спонсорское предложение не истечет. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Укажите способ оплаты для сопоставления с вашим семейным хранилищем. Не волнуйтесь, мы не будем ничего взимать с вас, если вы не выберете дополнительные функции или ваше спонсорское предложение не истечет.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Срок действия спонсорского предложения истек. Вы можете удалить созданную вами организацию, чтобы избежать списания средств по истечении 7-дневного пробного периода. В противном случае вы можете закрыть эту подсказку, чтобы сохранить организацию и принять на себя платежные обязательства."
   },
   "newFamiliesOrganization": {
     "message": "Новая организация Bitwarden Families"
   },
+  "createVault": {
+    "message": "Создать хранилище"
+  },
   "acceptOffer": {
     "message": "Принять предложение"
+  },
+  "applySponsorship": {
+    "message": "Применить спонсорство"
   },
   "sponsoringOrg": {
     "message": "Спонсорская организация"

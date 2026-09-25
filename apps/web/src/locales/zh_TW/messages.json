@@ -907,7 +907,7 @@
     "message": "編輯資料夾"
   },
   "editFolderNamed": {
-    "message": "Edit $NAME$",
+    "message": "編輯 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -916,7 +916,7 @@
     }
   },
   "deleteFolderNamed": {
-    "message": "Delete $NAME$",
+    "message": "刪除 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1084,13 +1084,13 @@
     "message": "所有項目"
   },
   "allVaultItems": {
-    "message": "All vault items"
+    "message": "所有密碼庫項目"
   },
   "favorites": {
     "message": "我的最愛"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "將項目標記為「我的最愛」以在此篩選。"
   },
   "taskSummary": {
     "message": "任務摘要"
@@ -1225,7 +1225,7 @@
     "message": "共享資料夾"
   },
   "sharedFoldersInParent": {
-    "message": "Shared folders in $NAME$",
+    "message": "$NAME$ 中的共用資料夾",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -1235,7 +1235,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ 個共用資料夾",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1244,7 +1244,7 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ shared folder",
+    "message": "$COUNT$ 個共用資料夾",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1259,13 +1259,13 @@
     "message": "我的資料夾"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "新增資料夾至項目以在此篩選。"
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "新增項目至「我的項目」以在此篩選。"
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "新增項目至共用資料夾以在此篩選。"
   },
   "addSharedFolder": {
     "message": "新增共享資料夾"
@@ -1789,7 +1789,7 @@
     "message": "沒有可複製的詳細資訊"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "開啟網站"
   },
   "me": {
     "message": "我"
@@ -1798,7 +1798,7 @@
     "message": "個人文章"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "我的項目"
   },
   "myVault": {
     "message": "我的密碼庫"
@@ -1914,11 +1914,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 個結果",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ 個結果",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2135,7 +2135,7 @@
     "message": "Folders deleted"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "刪除 $COUNT$ 資料夾",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2156,7 +2156,7 @@
     "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "輸入名稱。"
   },
   "editInfo": {
     "message": "編輯資訊"
@@ -2567,10 +2567,10 @@
     "message": "密碼庫中沒有項目"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "我的密碼庫中沒有項目"
   },
   "noItemsInOrganizationVault": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "$VAULT_NAME$ 中沒有項目",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -2579,7 +2579,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "$VAULT_NAME$ 中沒有項目",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -2588,10 +2588,10 @@
     }
   },
   "emptyMyItems": {
-    "message": "No items in My items"
+    "message": "「我的項目」中沒有項目"
   },
   "noItemsInVaults": {
-    "message": "Your vaults are empty"
+    "message": "您的密碼庫是空的"
   },
   "noItemsMatchSelectedFilters": {
     "message": "No items match selected filters"
@@ -2627,10 +2627,10 @@
     }
   },
   "youHaveNoFolders": {
-    "message": "You have no folders."
+    "message": "您沒有資料夾。"
   },
   "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+    "message": "使用資料夾以整理密碼庫項目。它們只屬於您 — 沒有其他人會看到或使用它們。"
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."
@@ -2682,10 +2682,10 @@
     "message": "新增保管庫"
   },
   "addPlan": {
-    "message": "Add plan"
+    "message": "新增方案"
   },
   "addPlanDesc": {
-    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
+    "message": "您可以免費建立一個與另一人共用的新密碼庫。若您想與更多人一起儲存、管理或分享項目，您需要先新增一個新方案。請留意，某些選項可能會使帳單資訊發生變更。"
   },
   "noOrganizationsList": {
     "message": "您沒有加入任何組織。組織允許您與其他使用者安全地共用項目。"
@@ -3468,7 +3468,7 @@
     "message": "若你希望將匯入檔案的內容移至資料夾，請選擇此選項"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "若您希望將匯入檔案的內容移至共用資料夾，請選擇此選項"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派的項目。"
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "選擇要匯入的檔案"
+  },
+  "importSourceBreadcrumb": {
+    "message": "選擇來源"
+  },
+  "importSourceSelectTitle": {
+    "message": "選擇您的來源"
+  },
+  "importSourceSelectDescription": {
+    "message": "選擇您要匯入的密碼管理器或瀏覽器。"
+  },
+  "importSourceBrowsers": {
+    "message": "瀏覽器"
+  },
+  "importSourcePasswordManagers": {
+    "message": "密碼管理器"
+  },
+  "importSourceShowAll": {
+    "message": "顯示全部"
+  },
+  "importSourceShowLess": {
+    "message": "顯示較少"
+  },
+  "importSourceStepCount": {
+    "message": "步驟 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "選擇檔案"
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "帳戶餘額",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "帳戶餘額",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "按一下此處來新增付款方式。"
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "加入組織"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "為所有現有及新成員啟用瀏覽器擴充功能的「頁面載入時自動填入」設定。請注意，遭入侵或不可信任的網站可能會"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "利用頁面載入時自動填入功能"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "選擇您希望被贊助的組織"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "您想兌換哪一個免費家庭邀請呢？"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "接受現有組織的邀請或建立一個新的家庭組織。"
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "您已被邀請加入一個免費的 Bitwarden 家庭方案組織。若要繼續，您必須登入至接受邀請的帳戶。"
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "兌換免費的 Bitwarden 家庭方案"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "已成功兌換免費的 Bitwarden 家庭方案"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "請提供一個與此組織關聯的付款方式。別擔心，我們不會向您收取任何費用，除非您選擇進階功能或您的贊助到期。 "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "贊助邀請已逾期，您可以刪除您建立的組織，以避免在 7 天試用期結束後被收取費用。 您也可以關閉此提示以保留該組織並承擔計費責任。"
   },
   "newFamiliesOrganization": {
     "message": "新增家庭組織"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "接受邀請"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "贊助組織"

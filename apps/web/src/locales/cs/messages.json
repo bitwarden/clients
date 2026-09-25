@@ -3459,7 +3459,7 @@
     "message": "Zvolte sbírku"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Vybrat sdílenou složku"
   },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
@@ -3468,7 +3468,7 @@
     "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sdílené složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "Vyberte soubor pro import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrat zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte Váš zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správce hesel nebo prohlížeč ze kterého importujete."
+  },
+  "importSourceBrowsers": {
+    "message": "Prohlížeče"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správci hesel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobrazit vše"
+  },
+  "importSourceShowLess": {
+    "message": "Zobrazit méně"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Vybrat soubor"
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Kredit na účtu",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Použitý zůstatek",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Částka k zaplacení",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Zůstatek na účtu",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Klepněte zde pro přidání platební metody."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Obraťte se na svého zástupce pro prodej Bitwardenu pro nastavení fakturace."
   },
   "joinOrganization": {
     "message": "Přidat se k organizaci"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "V rozšíření prohlížeče povolte nastavení automatického vyplňování při načtení stránky pro všechny stávající i nové členy. Mějte na paměti, že napadené nebo nedůvěryhodné webové stránky mohou"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "V rozšíření prohlížeče povolte nastavení automatického vyplňování při načtení stránky pro všechny stávající i nové členy. Jakmile bude tato zásada aktivována, členové si budou muset upravit svá osobní nastavení, aby automatické vyplňování zapnuli. Mějte na paměti, že napadené nebo nedůvěryhodné webové stránky mohou"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "využít funkci automatického vyplňování při načtení stránky"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Vyberte organizaci, kterou chcete sponzorovat"
   },
+  "selectAFamilyVault": {
+    "message": "Vyberte rodinný trezor"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Kterou nabídku Bitwarden pro rodinu zdarma chcete uplatnit?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Přijmout nabídku pro existující organizaci nebo vytvořit novou organizaci rodin."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ Vám sponzorovala bezplatný tarif Bitwarden Families! Tento bezplatný tarif můžete použít pro stávající rodinný trezor nebo si vytvořit nový.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Získali jste zdarma tarif Bitwarden Families! Tento bezplatný tarif můžete použít pro stávající rodinný trezor nebo si vytvořit nový.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Byl Vám nabídnut bezplatný plán organizace Bitwarden pro rodinu zdarma. Chcete-li pokračovat, musíte se přihlásit k účtu, který obdržel nabídku."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Přijmout Bitwarden pro rodinu zdarma"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Přijmout sponzorovaný plán Families"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Detaily sponzorovaného plánu"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Nabídka Bitwarden pro rodinu zdarma byla úspěšně uplatněna"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Zadejte metodu platby, která se připojí k organizaci. Nebudeme Vám nic účtovat, dokud nevyberete další funkce nebo dokud nevyprší Vaše sponzorství. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Zadejte platební metodu, kterou chcete přiřadit ke svému rodinnému trezoru. Nemějte obavy, nic Vám nebudeme účtovat, dokud si nevyberete další funkce nebo dokud nevyprší platnost Vašeho sponzorství.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Nabídka sponzorství vypršela. Vytvořenou organizaci můžete smazat, abyste se vyhnuli poplatku na konci 7denní zkušební doby. V opačném případě můžete tuto výzvu zavřít, abyste si organizaci ponechali a převzali odpovědnost za vyúčtování."
   },
   "newFamiliesOrganization": {
     "message": "Nová organizace Families"
   },
+  "createVault": {
+    "message": "Vytvořit trezor"
+  },
   "acceptOffer": {
     "message": "Přijmout Nabídku"
+  },
+  "applySponsorship": {
+    "message": "Použít sponzorství"
   },
   "sponsoringOrg": {
     "message": "Sponzorující organizace"

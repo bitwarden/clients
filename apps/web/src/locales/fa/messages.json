@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "پرونده‌ی درون ریزی را انتخاب کنید"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "انتخاب پرونده"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "اعتبار حساب",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "مانده حساب",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "برای افزودن روش پرداخت، اینجا کلیک کنید."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "به سازمان بپیوندید"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "فعال کردن قابلیت پر کردن خودکار فرم هنگام بارگذاری صفحه در افزونه مرورگر برای همه اعضای فعلی و جدید. توجه داشته باشید که وب‌سایت‌های آسیب‌پذیر یا غیرقابل اعتماد می‌توانند"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "سوءاستفاده از قابلیت پر کردن خودکار صفحه هنگام بارگذاری"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "سازمانی را که می‌خواهید حمایت مالی شود انتخاب کنید"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "کدام پیشنهاد خانواده رایگان را می‌خواهید پس‌خرید کنید؟"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "پیشنهاد برای یک سازمان موجود را بپذیرید یا یک سازمان خانواده جدید ایجاد کنید."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "به شما یک سازمان طرح خانواده Bitwarden رایگان پیشنهاد شده است. برای ادامه، باید وارد حسابی شوید که پیشنهاد را دریافت کرده است."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "خانواده‌های رایگان Bitwarden را بپذیرید"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "پیشنهاد رایگان خانواده‌های Bitwarden با موفقیت بازخرید شد"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "لطفاً یک روش پرداخت برای ارتباط با سازمان ارائه دهید. نگران نباشید، ما هیچ هزینه ای از شما دریافت نمی‌کنیم مگر اینکه ویژگی‌های اضافی را انتخاب کنید یا حمایت مالی شما منقضی شود. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "پیشنهاد حمایت مالی منقضی شده است. می‌توانید سازمانی را که ایجاد کرده‌اید حذف کنید تا در پایان دوره آزمایشی ۷ روزه خود از کسر هزینه جلوگیری کنید. در غیر این صورت ممکن است این درخواست را ببندید تا سازمان را حفظ کنید و مسئولیت صورتحساب را بر عهده بگیرید."
   },
   "newFamiliesOrganization": {
     "message": "سازمان خانواده‌های جدید"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "قبول کردن پیشنهاد"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "سازمان حامی"
