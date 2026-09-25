@@ -47,13 +47,13 @@ describe("AuditService", () => {
     const origFetch = (auditService as any).fetchLeakedPasswordCount.bind(auditService);
     jest
       .spyOn(auditService as any, "fetchLeakedPasswordCount")
-      .mockImplementation(async (password: string) => {
+      .mockImplementation(async (password: string, addPadding: boolean) => {
         inFlight.push(password);
         maxInFlight.push(inFlight.length);
         // Simulate async work to allow concurrency limiter to take effect
         await new Promise((resolve) => setTimeout(resolve, 100));
         inFlight.splice(inFlight.indexOf(password), 1);
-        return origFetch(password);
+        return origFetch(password, addPadding);
       });
 
     const p1 = auditService.passwordLeaked("password1");
@@ -74,14 +74,33 @@ describe("AuditService", () => {
     expect(mockApi.nativeFetch).toHaveBeenCalledTimes(4);
   });
 
-  it("should include Add-Padding header when checking leaked passwords", async () => {
+  it("should include Add-Padding header by default when checking leaked passwords", async () => {
     const result = await auditService.passwordLeaked("password");
 
     expect(result).toBe(4);
     expect(mockApi.nativeFetch).toHaveBeenCalledTimes(1);
     const request = mockApi.nativeFetch.mock.calls[0][0] as any;
     expect(request.url).toBe("https://api.pwnedpasswords.com/range/AABBC");
-    expect(request.headers).toEqual(expect.objectContaining({ "Add-Padding": "true" }));
+    expect(request.headers.get("Add-Padding")).toBe("true");
+  });
+
+  it("should include Add-Padding header when addPadding is true", async () => {
+    const result = await auditService.passwordLeaked("password", true);
+
+    expect(result).toBe(4);
+    expect(mockApi.nativeFetch).toHaveBeenCalledTimes(1);
+    const request = mockApi.nativeFetch.mock.calls[0][0] as any;
+    expect(request.headers.get("Add-Padding")).toBe("true");
+  });
+
+  it("should not include Add-Padding header when addPadding is false", async () => {
+    const result = await auditService.passwordLeaked("password", false);
+
+    expect(result).toBe(4);
+    expect(mockApi.nativeFetch).toHaveBeenCalledTimes(1);
+    const request = mockApi.nativeFetch.mock.calls[0][0] as any;
+    expect(request.url).toBe("https://api.pwnedpasswords.com/range/AABBC");
+    expect(request.headers.has("Add-Padding")).toBe(false);
   });
 
   it("should return empty array for breachedAccounts when no breaches found", async () => {
