@@ -91,12 +91,9 @@
             ((filter.type === undefined && filter.collectionId === undefined) ||
               filter.collectionId !== undefined)
           "
-          [showBulkMove]="false"
-          [showBulkTrashOptions]="filter.type === 'trash'"
           [useEvents]="organization?.canAccessEventLogs"
           [showAdminActions]="true"
           (onEvent)="onVaultItemsEvent($event)"
-          [showBulkEditCollectionAccess]="true"
           [showBulkAddToCollections]="true"
           [viewingOrgVault]="true"
           [addAccessStatus]="collectionService.addAccessStatus$ | async"
@@ -160,6 +157,4 @@
   </div>
 }
 
-@if (vaultBatchBarFeatureFlag()) {
-  <bit-vault-batch-action />
-}
+<bit-vault-batch-action />

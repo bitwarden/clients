@@ -8,7 +8,6 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "clone"; item: C }
   | { type: "restore"; items: C[] }
   | { type: "delete"; items: VaultItem<C>[] }
-  | { type: "moveToFolder"; items: C[] }
   | { type: "assignToCollections"; items: C[] }
   | { type: "archive"; items: C[] }
   | { type: "unarchive"; items: C[] }

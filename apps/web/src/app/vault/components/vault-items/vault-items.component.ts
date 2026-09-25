@@ -3,15 +3,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  Observable,
-  combineLatest,
-  distinctUntilChanged,
-  map,
-  of,
-  startWith,
-  switchMap,
-} from "rxjs";
+import { Observable, combineLatest, map, of, switchMap } from "rxjs";
 
 import {
   CollectionAdminView,
@@ -32,13 +24,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import {
-  compareVaultItems,
-  RoutedVaultFilterService,
-  VaultBatchBarService,
-  VaultCopyButtonsService,
-  VaultItem,
-} from "@bitwarden/vault";
+import { VaultBatchBarService, VaultCopyButtonsService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -81,12 +67,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() useEvents: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showBulkMove: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showBulkTrashOptions: boolean;
   // Encompasses functionality only available from the organization vault context
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -100,9 +80,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() allGroups: GroupView[] = [];
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showBulkEditCollectionAccess = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showBulkAddToCollections = false;
@@ -154,24 +131,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
-  protected readonly batchBarService = inject(VaultBatchBarService, {
-    optional: true,
-  }) as VaultBatchBarService<C> | null;
+  protected readonly batchBarService = inject(VaultBatchBarService) as VaultBatchBarService<C>;
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  private readonly _localSelection = new SelectionModel<VaultItem<C>>(
-    true,
-    [],
-    true,
-    compareVaultItems,
-  );
   get selection(): SelectionModel<VaultItem<C>> {
-    return this.batchBarService?.selection ?? this._localSelection;
+    return this.batchBarService.selection;
   }
-  protected canDeleteSelected$: Observable<boolean>;
-  protected canRestoreSelected$: Observable<boolean>;
-  protected disableMenu$: Observable<boolean>;
   protected showQuickCopyActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
@@ -180,97 +146,16 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    protected routedVaultFilterService: RoutedVaultFilterService,
     private configService: ConfigService,
   ) {
     this.showQuickCopyActions$ = combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
       this.vaultCopyButtonsService.showQuickCopyActions$,
     ]).pipe(map(([flagEnabled, settingEnabled]) => flagEnabled && settingEnabled));
-    this.canDeleteSelected$ = this.selection.changed.pipe(
-      startWith(null),
-      switchMap(() => {
-        const ciphers = this.selection.selected
-          .filter((item) => item.cipher)
-          .map((item) => item.cipher);
-
-        if (this.selection.selected.length === 0) {
-          return of(true);
-        }
-
-        const canDeleteCiphers$ = ciphers.map((c) =>
-          cipherAuthorizationService.canDeleteCipher$(c, this.showAdminActions),
-        );
-
-        const canDeleteCollections = this.selection.selected
-          .filter((item) => item.collection)
-          .every((item) => item.collection && this.canDeleteCollection(item.collection));
-
-        const canDelete$ = combineLatest(canDeleteCiphers$).pipe(
-          map((results) => results.every((item) => item) && canDeleteCollections),
-        );
-
-        return canDelete$;
-      }),
-    );
-
     this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {
       this.restrictedTypes = types;
       this.refreshItems();
     });
-
-    this.canRestoreSelected$ = this.selection.changed.pipe(
-      startWith(null),
-      switchMap(() => {
-        const ciphers = this.selection.selected
-          .filter((item) => item.cipher)
-          .map((item) => item.cipher);
-
-        if (this.selection.selected.length === 0) {
-          return of(true);
-        }
-
-        const canRestoreCiphers$ = ciphers.map((c) =>
-          cipherAuthorizationService.canRestoreCipher$(c, this.showAdminActions),
-        );
-
-        const canRestore$ = combineLatest(canRestoreCiphers$).pipe(
-          map((results) => results.every((item) => item)),
-        );
-
-        return canRestore$;
-      }),
-      map((canRestore) => canRestore && this.showBulkTrashOptions),
-    );
-
-    this.disableMenu$ = this.canDeleteSelected$.pipe(
-      map((canDelete) => {
-        return (
-          !this.bulkMoveAllowed &&
-          !this.showAssignToCollections() &&
-          !canDelete &&
-          !this.showBulkEditCollectionAccess
-        );
-      }),
-    );
-
-    if (!this.batchBarService) {
-      this.routedVaultFilterService.filter$
-        .pipe(
-          distinctUntilChanged(
-            (prev, curr) =>
-              prev.organizationId === curr.organizationId &&
-              prev.collectionId === curr.collectionId &&
-              prev.folderId === curr.folderId &&
-              prev.type === curr.type &&
-              prev.organizationIdParamType === curr.organizationIdParamType,
-          ),
-          takeUntilDestroyed(),
-        )
-        .subscribe(() => {
-          this.clearSelection();
-        });
-    }
   }
 
   clearSelection() {
@@ -301,33 +186,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return this.dataSource.data.length === 0;
   }
 
-  get bulkMoveAllowed() {
-    return (
-      this.showBulkMove && this.selection.selected.filter((item) => item.collection).length === 0
-    );
-  }
-
-  get bulkArchiveAllowed() {
-    const selectedCiphers = this.selection.selected.filter((item) => item.cipher !== undefined);
-    if (selectedCiphers.length === 0 || !this.userCanArchive || this.showBulkTrashOptions) {
-      return false;
-    }
-
-    return (
-      this.userCanArchive &&
-      !selectedCiphers.find((item) => item.cipher && item.cipher.archivedDate)
-    );
-  }
-
-  // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
-  get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0 || this.showBulkTrashOptions) {
-      return false;
-    }
-
-    return !this.selection.selected.find((item) => !item.cipher?.archivedDate);
-  }
-
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
   get showDelete(): boolean {
     if (this.selection.selected.length === 0) {
@@ -355,20 +213,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     }
 
     return false;
-  }
-
-  get bulkAssignToCollectionsAllowed() {
-    return (
-      this.showBulkAddToCollections &&
-      this.ciphers.length > 0 &&
-      !this.anySelectedCiphersAreArchived
-    );
-  }
-
-  get anySelectedCiphersAreArchived() {
-    return this.selection.selected.some(
-      (item) => item.cipher && CipherViewLikeUtils.isArchived(item.cipher),
-    );
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
@@ -427,49 +271,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected event(event: VaultItemEvent<C>) {
     this.onEvent.emit(event);
-  }
-
-  protected bulkMoveToFolder() {
-    this.event({
-      type: "moveToFolder",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected bulkArchive() {
-    this.event({
-      type: "archive",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected bulkUnarchive() {
-    this.event({
-      type: "unarchive",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected bulkRestore() {
-    this.event({
-      type: "restore",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected bulkDelete() {
-    this.event({
-      type: "delete",
-      items: this.selection.selected,
-    });
   }
 
   protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {
@@ -559,69 +360,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
 
     this.dataSource.data = items;
-  }
-
-  protected bulkEditCollectionAccess() {
-    this.event({
-      type: "bulkEditCollectionAccess",
-      items: this.selection.selected
-        .filter((item) => item.collection !== undefined)
-        .map((item) => item.collection),
-    });
-  }
-
-  protected assignToCollections() {
-    this.event({
-      type: "assignToCollections",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected showAssignToCollections(): boolean {
-    if (!this.showBulkMove) {
-      return false;
-    }
-
-    // When the user doesn't belong to an organization, hide assign to collections
-    if (this.allOrganizations.length === 0) {
-      return false;
-    }
-
-    if (this.selection.selected.length === 0) {
-      return false;
-    }
-
-    const hasPersonalItems = this.hasPersonalItems();
-    const uniqueCipherOrgIds = this.getUniqueOrganizationIds();
-    const hasEditableCollections = this.allCollections.some((collection) => {
-      return !collection.readOnly;
-    });
-
-    // Return false if items are from different organizations
-    if (uniqueCipherOrgIds.size > 1) {
-      return false;
-    }
-
-    // If all selected items are personal, return based on personal items
-    if (uniqueCipherOrgIds.size === 0 && hasEditableCollections) {
-      return hasPersonalItems;
-    }
-
-    const [orgId] = uniqueCipherOrgIds;
-    const organization = this.allOrganizations.find((o) => o.id === orgId);
-
-    const canEditOrManageAllCiphers = organization?.canEditAllCiphers && this.viewingOrgVault;
-
-    const collectionNotSelected =
-      this.selection.selected.filter((item) => item.collection).length === 0;
-
-    return (
-      (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) &&
-      collectionNotSelected &&
-      hasEditableCollections
-    );
   }
 
   /**
