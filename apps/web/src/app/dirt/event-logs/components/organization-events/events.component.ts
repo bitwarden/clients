@@ -217,6 +217,11 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       };
     }
 
+    // PAM sets UserId to the requester, so the lookup below would name them as the decider.
+    if (r.systemUser === EventSystemUser.Pam) {
+      return this.getSystemUserName(r.systemUser);
+    }
+
     if (userId != null) {
       if (this.orgUsersUserIdMap.has(userId)) {
         return this.orgUsersUserIdMap.get(userId);
@@ -230,17 +235,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     }
 
     if (r.systemUser != null) {
-      const systemUserI18nKey: string = EVENT_SYSTEM_USER_TO_TRANSLATION[r.systemUser];
-
-      if (systemUserI18nKey) {
-        return {
-          name: this.i18nService.t(systemUserI18nKey),
-        };
-      } else {
-        return {
-          name: EventSystemUser[r.systemUser],
-        };
-      }
+      return this.getSystemUserName(r.systemUser);
     }
 
     if (r.serviceAccountId) {
@@ -250,6 +245,14 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     }
 
     return null;
+  }
+
+  private getSystemUserName(systemUser: EventSystemUser) {
+    const systemUserI18nKey: string = EVENT_SYSTEM_USER_TO_TRANSLATION[systemUser];
+
+    return {
+      name: systemUserI18nKey ? this.i18nService.t(systemUserI18nKey) : EventSystemUser[systemUser],
+    };
   }
 
   protected override linkableMemberIds(): ReadonlySet<string> {

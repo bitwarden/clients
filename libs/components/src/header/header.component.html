@@ -6,6 +6,10 @@
   <ng-content select="[slot=title-suffix]"></ng-content>
 </ng-template>
 
+<ng-template #subtitle>
+  <ng-content select="[slot=subtitle]"></ng-content>
+</ng-template>
+
 <ng-template #defaultContent>
   <ng-content></ng-content>
 </ng-template>
@@ -46,7 +50,7 @@
           </h1>
         }
         <div bitTypography="body1" class="tw-text-fg-body tw-max-w-[800px] empty:tw-hidden">
-          <ng-content select="[slot=subtitle]"></ng-content>
+          <ng-container *ngTemplateOutlet="subtitle"></ng-container>
         </div>
       </div>
       <div
@@ -83,6 +87,9 @@
             <ng-container *ngTemplateOutlet="titleSuffix"></ng-container>
           </div>
         </h1>
+        <div bitTypography="body1" class="tw-text-main tw-max-w-[800px] empty:tw-hidden">
+          <ng-container *ngTemplateOutlet="subtitle"></ng-container>
+        </div>
       </div>
       <div class="tw-ml-auto tw-flex tw-flex-col tw-gap-4">
         <div class="tw-flex tw-min-w-max tw-items-center tw-justify-end tw-gap-2">

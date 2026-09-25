@@ -206,9 +206,13 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** Nothing resolved yet. */
+/** Nothing resolved yet, in any scope: no chip over it, whether or not the caller can approve. */
 export const Empty: Story = {
   decorators: [history({ mine: [] })],
+};
+
+export const EmptyForAnApprover: Story = {
+  decorators: [history({ mine: [], canApprove: true })],
 };
 
 /**
@@ -226,7 +230,7 @@ export const WithManagedHistoryFlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** An approver with nothing decided yet: the filters are offered before there is anything to narrow. */
+/** An approver with nothing decided yet: the chip is offered over their own rows alone. */
 export const ApproverWithoutManagedHistory: Story = {
   decorators: [history({ canApprove: true })],
 };
@@ -239,6 +243,14 @@ export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
   play: async ({ canvasElement }) => {
     await selectHistoryScope(canvasElement, "For my collections");
+  },
+};
+
+/** The same approver on Raised by me, the one scope they have nothing in: the chip stays. */
+export const MineFilterWithNothingRaised: Story = {
+  decorators: [history({ mine: [], managed: managedRows })],
+  play: async ({ canvasElement }) => {
+    await selectHistoryScope(canvasElement, "Raised by me");
   },
 };
 

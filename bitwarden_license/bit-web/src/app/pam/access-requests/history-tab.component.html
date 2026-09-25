@@ -107,8 +107,15 @@
       }
     </div>
   }
-} @else if (historyRows().length === 0) {
+} @else if (!hasHistory()) {
   <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
+    <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+    <span slot="title">{{ "pamHistoryEmptyTitle" | i18n }}</span>
+    <span slot="description">{{ "pamHistoryEmptyDescription" | i18n }}</span>
+  </bit-status-lockup>
+} @else if (historyRows().length === 0) {
+  <!-- Keeps the chip on screen: a scope that narrows to nothing must leave a way back. -->
+  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-no-results">
     <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
     <span slot="title">{{ emptyMessageKey() | i18n }}</span>
   </bit-status-lockup>

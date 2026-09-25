@@ -107,9 +107,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `narrow$`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
-  name row. The hosts differ only in how they refresh — the item-details one re-reads on
-  `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
-  once so a list of gated rows does not carry a subscription each. The item-details host
+  name row. Both re-read on `AccessRefreshService` so neither can contradict a mutation
+  made beside it — the row badge because cancelling a request from that row's own menu
+  otherwise left the old pill standing until a reload (PAM-200). The item-details host
   also drops the `active` state, because the banner heading under it already runs that
   countdown on its own timer — but it drops it on a LIVE lease (`liveActiveLease`), not on
   the SDK's `active` ranking, or a lease the server still believes in after it lapsed would
@@ -255,8 +255,8 @@ more; the reloader re-enters explicitly, because the re-lock writes plain compon
 `vault-item-dialog.component.ts`.
 
 `badgeState` is NOT clamped — only the SDK ranks it, so a lapsed `active` badge falls to
-`AccessStateBadgeComponent`'s `remainingMs <= 0` recipe. The vault row stays out of all this and
-reads once, by design.
+`AccessStateBadgeComponent`'s `remainingMs <= 0` recipe. The vault row stays out of all this —
+no ticker, no clamp — though it does re-read on `AccessRefreshService`.
 
 ## OSS seams
 

@@ -12,32 +12,35 @@
 --     requester, at a time of their choosing, to start the lease
 --   - AccessLeases (time-bounded access grants, minted on activation)
 --   - Approver inbox / decisioning
---   - AccessLease lifecycle (active, expired, revoked) and extension
---   - Org-wide kill switch
---   - Governance dashboard (read model)
---   - Vault export as a permission-level bypass of leasing
+--   - AccessLease lifecycle (active, expired, revoked, canceled) and extension
+--   - Notifications: which actions mail whom, and the access push
+--   - Vault export: the whole-vault export bypasses leasing; a member's export of
+--     their managed collections leaves gated items out
+--   - Write gating: changing a gated item needs a live lease
+--   - PLANNED, not built (see the PLANNED section): the org-wide kill switch and
+--     leasing freeze, and the governance dashboard
+--
+-- The audit trail those actions write is specified in pam-audit.allium, next to
+-- this file.
 --
 -- Excludes:
 --   - Vault encryption / cipher decryption (handled by the existing vault stack)
 --   - The vault-export stack itself (scope resolution, file generation,
 --     encryption) — the spec models only PAM's non-interference with it
 --   - Authentication / session management (auth stack)
---   - Email rendering and delivery (PM-37279 — implementation detail; the
---     spec models the *trigger*, not the template)
---   - Push notification transport (PM-37262 — implementation detail; the
---     spec models the *event*, not the wire format)
---   - Audit log persistence (server-side; the client observes outcomes only)
---   - LaunchDarkly feature-flag gating (deployment concern, not domain)
+--   - Email templates and delivery: the spec models which action mails whom, not
+--     the template
+--   - Push notification transport: the spec models the event, not the wire format
+--   - The PAM feature flag (FeatureFlagKeys.Pam, `pm-37044-pam-v-0`), because it is a
+--     temporary rollout gate rather than domain. While it is off, every rule is inert and
+--     a gated item opens to its collection members as it would without PAM (see the
+--     @guidance on CipherOpenWithActiveLease). That fails OPEN, unlike the PAM licence,
+--     which fails closed; if the flag outlives the rollout, this line stops being true.
+--   - Clients other than the web vault. The server sends them no partial items, so a
+--     gated item is invisible there (see GatedCipherView); multi-client support is PAM-121.
 --
--- Specified but NOT yet implemented in this client (the spec leads the code here):
---   - Org-wide kill switch and leasing freeze (KillSwitchControl, LeasingFreeze) —
---     no server or SDK backing
---   - Governance dashboard (GovernanceDashboard) — no server or SDK backing
---   - EmailApprovalDeepLink as a distinct landing page; /pam/requests/:id currently
---     serves the requester's own request only
---   - ForecastDecision as a separate read; the built request form shapes itself from
---     AccessRequestsClient::pre_check instead. RuleAllowsLease now lands through that
---     same pre_check (PM-42446), as can_start_lease / slot_frees_at.
+-- The request form shapes itself from AccessRequestsClient::pre_check (see
+-- RequestAccessModal); there is no separate forecast read.
 
 -- ----------------------------------------------------------------------------
 -- External entities (other systems own these; PAM only references them)
@@ -56,6 +59,9 @@ external entity Cipher {
     -- The vault secret being gated. PAM never touches the encrypted payload;
     -- it only references the cipher's identity and which collections it lives in.
     collections: Set<Collection>
+    -- The owning organization. A gated cipher is always organization-owned, since
+    -- only collections can carry a rule.
+    organization: Organization?
 }
 
 external entity Collection {
@@ -85,72 +91,111 @@ external entity CollectionMembership {
 -- The non-sensitive projection of a Cipher the server returns in a GATED
 -- response — enough for the client to render the vault row and the request /
 -- banner UI without the protected secret. It carries NO sensitive fields (no
--- password, note, card, identity, TOTP or custom fields); those are withheld
--- until the member holds an active lease, at which point the full cipher is
--- returned instead.
+-- username, password, note, card, identity, TOTP or custom fields). Only a
+-- single-item read by an ungated caller, or under a live lease, returns the full
+-- cipher instead (see the cipher-open section).
 --
--- NOTE: the name and exact field shape of this view are not final — the
--- non-sensitive-only intent is the firm part; the precise fields are provisional.
+-- Mirrors the server's PartialCipherData, which is the allowlist: every field of
+-- the cipher's data not named there is dropped. Nothing is decrypted to build it;
+-- the retained name and URIs stay individually encrypted. Attachments are withheld
+-- entirely, metadata included, because the metadata carries each attachment's key
+-- (and the download is lease-gated too).
+--
+-- Only the web vault is sent this shape (server PartialCipherSupport). Every other
+-- client (extension, desktop, mobile, CLI, or an unrecognised device type) cannot
+-- render a partial item and would blank the withheld fields if it saved one back, so
+-- the server leaves gated items out of its sync and lists altogether and answers a
+-- single read or a write with not-found, unless the call is one that returns the full
+-- item. Such a client has no request surface either, so a gated item is invisible
+-- outside the web vault. When other clients learn to render partials they should get
+-- them (PAM-121).
 value GatedCipherView {
     cipher: Cipher                  -- identity only (the cipher id)
+    type: String                    -- the item type (login, card, note, ...)
     collections: Set<Collection>
-    name: String                    -- the item's display name
-    uris: List<String>              -- login URIs, for match / launch
+    name: String                    -- the item's display name (encrypted)
+    uris: List<String>              -- login URIs, for match / launch; empty unless type is login
     created_at: Timestamp?
     revised_at: Timestamp?
+    deleted_at: Timestamp?
+    archived_at: Timestamp?
+    -- The caller's own flags on the item, as for any item they can reach: folder,
+    -- favourite, and whether they may edit it or view its password.
+    folder: String?
+    favorite: Boolean
+    edit: Boolean
+    view_password: Boolean
 }
+
+-- ----------------------------------------------------------------------------
+-- Enumerations
+-- ----------------------------------------------------------------------------
+
+-- Named rather than inline because the two share literals (canceled, expired):
+-- the checker cannot tell apart the same literal on two inline enums.
+enum RequestStatus { pending | approved | denied | canceled | expired }
+enum LeaseStatus { active | expired | revoked | canceled }
 
 -- ----------------------------------------------------------------------------
 -- Access rule (org-scoped policy attached to one or more collections)
 -- ----------------------------------------------------------------------------
 
 -- A single access check evaluated when a member tries to open a gated cipher.
--- An access rule's conditions are ANDed: all must pass for an approval.
+-- An access rule's conditions are ANDed: all must pass for an approval. A rule
+-- holds at most config.max_rule_conditions of them. The same kind may appear more
+-- than once and is ANDed like any other: a second human_approval changes nothing,
+-- and two ip_allowlists admit only their intersection. A rule with no conditions
+-- is legal and still gates: it grants automatically, on request.
 value Condition {
     kind: HumanApproval | IpAllowlist
 }
 
 variant HumanApproval : Condition {
-    -- Who is allowed to approve a matching request.
-    --   collection_managers: any manager on the gated collection can approve
-    --   specific:            only the listed users can approve
-    approvers: ApproverScope
+    -- The request goes to a person. The approvers are always the users who can
+    -- Manage the request's collection (EligibleApprovers); the condition carries no
+    -- settings. Naming specific approvers was designed and never built (see the
+    -- future note by EligibleApprovers).
 }
 
 variant IpAllowlist : Condition {
-    -- CIDR ranges from which a request will auto-approve. Empty list means
-    -- the condition never matches (i.e. effectively denies).
+    -- CIDR ranges the member's source IP must fall inside. A rule is only saved
+    -- with a non-empty list of valid CIDRs (OrgAdminCreatesAccessRule). At runtime
+    -- it fails closed: an empty list (reachable only through a stored row that
+    -- predates that check) never matches, and neither does a request whose source IP
+    -- is unknown.
     --
-    -- Bounds the FIRST grant and each activation of one, not the member's whole
-    -- period of access: an extension is not evaluated against conditions
-    -- (PM-42500), so a lease obtained from inside the allowlist may be extended
-    -- from outside it. Do not read this as "access to this credential only ever
-    -- happens from these networks".
+    -- Bounds where access STARTS, never where it is used. On a rule without human
+    -- approval it is checked at submit (a miss refuses the submit) and again at every
+    -- activation. On a rule with human approval it is checked only at activation, so
+    -- an approver can be asked to approve a request submitted from outside the
+    -- allowlist, which then fails at Start (PM-42256: the conditions inform the
+    -- approver's decision rather than pre-empting it). No read re-checks it, and
+    -- neither does an extension (PM-42500). Do not read this as "access to this
+    -- credential only ever happens from these networks"; see the ip_allowlist open
+    -- question (PAM-205).
     cidrs: List<String>
-}
-
-value ApproverScope {
-    mode: collection_managers | specific
-    specific_users: Set<User> when mode = specific
 }
 
 -- A rule carries two distinct kinds of control, evaluated at different points in
 -- the lifecycle. Do not conflate them (admins may *see* them grouped as "rule
 -- settings", but they are not the same axis):
 --
---   - Conditions (the `conditions` list) gate the request DECISION. Each is a
---     predicate on the request (its approver scope, its source IP, ...),
---     evaluated together at request-evaluation time to decide approve / deny /
---     route-to-human. See the rule-evaluation rules. They gate FIRST GRANTS only:
---     an extension of an existing lease is not evaluated against them (PM-42500).
+--   - Conditions (the `conditions` list) gate the GRANT. human_approval routes the
+--     request to an approver; that is structural, read from the condition's presence
+--     and never from how the other conditions evaluate (PM-42256). The automated
+--     conditions (ip_allowlist) are checked at submit on a rule without human
+--     approval, where a failure refuses the submit, and at every activation on any
+--     rule. See the rule-evaluation rules. They gate FIRST GRANTS only: an extension
+--     of an existing lease is not evaluated against them (PM-42500).
 --
---   - AccessLease constraints (`single_active_lease`, `max_lease_duration`) do NOT gate
---     the decision — they shape the LEASE once approved, evaluated at lease start
---     against state beyond the request (the active-lease set for the cipher, the clock).
---     Many members can be approved and hold approved requests at once; these only
---     limit how a lease may be formed when one is activated. This is why single_active_lease
---     is a field checked in ActivateLease, not a
---     Condition variant: it answers "can a lease exist now for this cipher?", not "approve this
+--   - AccessLease constraints (`single_active_lease`, `max_lease_duration`, and the
+--     extension settings) do NOT gate the decision — they shape the LEASE. The
+--     window cap is checked at submit, the slot at lease start against state beyond
+--     the request (the active-lease set for the cipher), and the extension settings
+--     when the holder extends. Many members can be approved and hold approved
+--     requests at once; these only limit how a lease may be formed. This is why
+--     single_active_lease is a field checked in ActivateLease, not a Condition
+--     variant: it answers "can a lease exist now for this cipher?", not "approve this
 --     request?".
 entity AccessRule {
     organization: Organization
@@ -165,15 +210,25 @@ entity AccessRule {
     -- still surface several rules (per-path contention), which is what oldest_rule
     -- arbitrates.
     collections: Collection with access_rule = this
+    -- The duration the request form pre-selects, published by the pre-check and
+    -- clamped to the effective maximum; config.fallback_lease_duration when unset.
+    -- It bounds nothing: the maximum below does.
     default_lease_duration: Duration?
-    -- AccessLease constraint: ceiling on the duration of a single lease AS MINTED —
-    -- when set, the lease window is clamped to at most this long at activation.
-    -- It deliberately does NOT bound the lease's cumulative life across extensions:
-    -- each extension pushes the end out past it. Since PM-42500 no extension is gated
-    -- by an approval either, so nothing in this model bounds how far the total may
-    -- run — what SHOULD bound it is now an open question (see the cumulative-extension
-    -- note in Open questions). Null = no cap.
+    -- AccessLease constraint: ceiling on the lease window, checked at SUBMIT. A
+    -- longer window is refused, and since the lease runs to the window's end, no
+    -- lease minted under the rule runs longer than this. Null means the global
+    -- ceiling (config.global_max_lease_duration), not unbounded. It does not bound
+    -- the one extension a lease may take, which max_extension_duration caps, so a
+    -- lease's whole life is at most this plus max_extension_duration. Checked
+    -- against the rule as it was at submit; lowering it later touches no request or
+    -- lease already made (see Open questions).
     max_lease_duration: Duration?
+    -- AccessLease constraint: may a lease under this rule be extended at all
+    -- (once), without a new approval. See MemberRequestsLeaseExtension.
+    allows_extensions: Boolean
+    -- AccessLease constraint: the most one extension may add. Null refuses every
+    -- extension, so a rule that allows extensions must set it.
+    max_extension_duration: Duration?
     -- AccessLease constraint: when true, the rule asks for a per-cipher singleton — only
     -- one AccessLease active at a time for a given cipher, across all granted users.
     -- Honored by the same union/OR logic as cipher gating: the singleton binds for a
@@ -189,6 +244,9 @@ entity AccessRule {
 
     creation_date: Timestamp
     revision_date: Timestamp
+    -- Who last created or changed the rule. Stored as the actor of the
+    -- rule_created and rule_updated audit events; the audit trail, not the rules
+    -- page, is where an admin sees it.
     last_edited_by: User?
 
     -- Projections
@@ -203,22 +261,35 @@ entity AccessRule {
 entity AccessRequest {
     requester: User
     cipher: Cipher
+    -- The member collection paired with the governing rule at submit (its
+    -- access_rule is that rule). Approver eligibility keys on it: the approvers are
+    -- the users who can Manage this collection (EligibleApprovers). Deciding reads
+    -- nothing from the rule itself.
     collection: Collection
-    -- The access rule that gated the cipher and that this request is evaluated
-    -- against. Resolved ONCE at submit time (MemberSubmitsAccessRequest) and PINNED
-    -- here, so a later rule edit or a rule appearing/disappearing on another path
-    -- cannot change how this in-flight request is governed — everything downstream
-    -- (evaluation, approver scope, lease shaping, activation re-checks) reads this
-    -- pinned rule, never a re-resolution. The oldest-wins resolution is encoded
-    -- structurally at that submit rule; see oldest_rule for the WHY.
+    -- The PIN: the rule that governed the cipher for this member at submit,
+    -- resolved ONCE there (oldest wins, see oldest_rule) and stored on the request by
+    -- every creation path. The pin fixes WHICH rule governs; it is not a snapshot of
+    -- that rule's content. So a rule appearing or disappearing on another path never
+    -- moves the request to a different rule while the pin stands, but later edits to
+    -- the pinned rule itself do apply: activation re-checks its automated conditions
+    -- as they are now (PM-42273, so a narrowed allowlist binds an approved request),
+    -- and an extension reads its extension settings as they are now (PM-43689).
     --
-    -- IMPLEMENTATION STATUS — pinned at submit: the resolved rule's id is now stored on
-    -- the request at creation (all creation paths — auto, human, extension) and surfaced
-    -- on the request reads, so the pin no longer drifts. Note the downstream operations
-    -- that would RE-CHECK conditions or shape the lease at activation do not read it yet —
-    -- but only because those re-checks are themselves not implemented (see the
-    -- activation-side gap), not because the pin is missing.
-    rule: AccessRule
+    -- What happens when the pinned rule goes away:
+    --   - Deleted: the delete clears every pin to it (OrgAdminDeletesAccessRule), and
+    --     a cleared pin re-resolves against the member's current paths wherever it
+    --     would have been read. Activation is then governed by whichever rule governs
+    --     now, or activates unconditionally when none does; an extension is governed
+    --     by that rule, or refused when none does (the item no longer needs a lease).
+    --   - Disabled: the pin stays, and resolves to "governing nothing". Activation
+    --     skips the condition check, and an extension is refused ("the rule this lease
+    --     was granted under is no longer active"). Under ALL-paths gating the disabled
+    --     rule's collection is an escape path, so this grants nothing the member could
+    --     not already reach.
+    -- Deleted and disabled differ on purpose today; whether a disabled pin should
+    -- re-resolve like a deleted one is PAM-211 (see Open questions). A formal
+    -- projection of "the rule a pin governs by" waits for that answer.
+    rule: AccessRule?
 
     -- Activation window: the timestamps that bound WHEN this request may be
     -- promoted to a lease, NOT the window the requester wants access for. Pinned
@@ -229,37 +300,38 @@ entity AccessRequest {
     --                config.fallback_lease_duration).
     -- Approval AND activation are only possible up to lease_not_after (approval
     -- may land before the window opens; activation may not). The lease minted at
-    -- activation runs [now, min(lease_not_after, now + rule.max_lease_duration)]
-    -- — its end is the window end, capped from the actual start; the requester
-    -- never names a duration. Null only on extension requests, which are never
-    -- promoted to a lease of their own (they apply in place).
-    lease_not_before: Timestamp?
-    lease_not_after: Timestamp?
+    -- activation runs [now, lease_not_after]: its end is the window end, and the
+    -- window's length was capped at submit (see max_lease_duration).
+    --
+    -- An extension carries the increment instead, [the parent's end when
+    -- requested, its new end]. It is never promoted to a lease of its own; it
+    -- applies in place.
+    lease_not_before: Timestamp
+    lease_not_after: Timestamp
 
     reason: String?
     submitted_at: Timestamp
-
-    -- Global max-age cutoff: whatever its state, a request is invalid past this
-    -- age and auto-expires (cleanup of old requests). It no longer bounds an
-    -- extension's pending phase: since PM-42500 an extension is decided in the same
-    -- step it is created and never rests at pending.
-    valid_until: submitted_at + config.request_max_age
 
     -- Resolution
     -- An approved request is a *single-use grant*: the approver has granted
     -- access, but no AccessLease exists yet. The requester activates the approved
     -- request (ActivateLease), which mints the AccessLease running to the
-    -- activation-window end, and moves the request to `activated`. An approved
-    -- request left unactivated past its actionable_until bound transitions to
-    -- `expired`. Single use: one approved request yields at most one lease.
-    status: pending | approved | activated | denied | canceled | expired
-    -- Non-optional under its when-clause: every transition out of `pending` is
-    -- structurally obliged to set it (and every resolution rule does).
-    resolved_at: Timestamp when status != pending
-    -- When the request lapsed: actionable_until passed while pending, or an
-    -- approved request was never activated in time. Distinct from resolved_at,
-    -- which (for an expired-while-approved request) keeps the approval time.
-    expired_at: Timestamp? when status = expired
+    -- activation-window end. Activation is NOT a status: the request stays
+    -- `approved` for the rest of its life, and the lease row is the record that it
+    -- started (see `activated` below). Only an approved request that never started
+    -- lapses to `expired`. Single use: one approved request yields at most one lease.
+    --
+    -- The server stores the decision facts (the request's Action, and the lease's
+    -- own Action once it ends), never a status, and derives every status from those
+    -- facts and the clock when it reads (PM-42653). `expired` in particular is never
+    -- written: no request sweeper exists, and the expiry rules below describe what a
+    -- read reports once the window has closed.
+    status: RequestStatus
+    -- When a party acted: an approver decided, the system approved, the requester
+    -- canceled, or an extension was decided at creation. Null when nobody acted, so a
+    -- request that expired while pending has none; one that expired approved keeps
+    -- its approval time.
+    resolved_at: Timestamp? when status != pending
     -- The approver, or null for a system / access-rule auto-decision. Persists
     -- once set — through activation and unactivated expiry — for the audit trail.
     approver: User? when status != pending
@@ -269,34 +341,52 @@ entity AccessRequest {
     -- correct for the request's whole life, whatever the lease's later status.
     lease: AccessLease with request = this
 
-    -- The single upper bound on this request being actionable at all — deciding
-    -- a pending request AND starting an approved one: the activation-window end,
-    -- tightened by the max-age cutoff. For an extension (null window) it is the
-    -- max-age cutoff alone. Past it the request auto-expires whether pending or
-    -- approved (PendingRequestExpires / ApprovedRequestExpiresUnactivated).
+    -- The single upper bound on this request being actionable at all — deciding a
+    -- pending request AND starting an approved one: the window end. Past it a
+    -- request that is still pending, or approved and never started, reads as expired
+    -- (PendingRequestExpires / ApprovedRequestExpiresUnactivated). Nothing else ages
+    -- a request out: a request whose window ends a year away can wait that long. A
+    -- pending decision deadline (PAM-42: 7 days from submit) is not built; if it
+    -- ships, it becomes one more input to the read-time derivation, not a sweeper.
     -- MyAccessRequestsPage exposes it for the activation countdown.
-    actionable_until: if lease_not_after != null and lease_not_after < valid_until: lease_not_after
-                      else: valid_until
+    actionable_until: lease_not_after
 
     -- If this request is an extension of an existing lease, the parent lease.
     extension_of: AccessLease?
+
+    -- Derived "activation": the request is approved and started. A first grant
+    -- started when it produced its lease; an extension that applied counts as
+    -- started from its creation. Either way it stays approved and can no longer
+    -- lapse, be canceled or be retracted.
+    activated: status = approved and (lease != null or extension_of != null)
+
+    -- In flight: a first grant still pending, or approved and never started. What
+    -- MemberSubmitsAccessRequest refuses to duplicate (see
+    -- AtMostOneInFlightRequestPerRequesterCipher).
+    in_flight: extension_of = null
+               and (status = pending or (status = approved and lease = null))
+
+    -- ActionableForRequester: the request still needs something from its requester.
+    -- It is awaiting a decision, or approved, never started, and inside its window.
+    -- Extensions never qualify, because they are decided and applied in the step that
+    -- creates them. Drives MyAccessRequestsPage's outstanding rows and the
+    -- PamNavBadge count (client isActionableRequest).
+    actionable_for_requester: in_flight and (status = pending or now < lease_not_after)
 
     transitions status {
         pending -> approved
         pending -> denied
         pending -> canceled
         pending -> expired
-        approved -> activated
         approved -> expired
         approved -> denied
         approved -> canceled
-        terminal: activated, denied, canceled, expired
+        terminal: denied, canceled, expired
     }
 }
 
 entity AccessLease {
     request: AccessRequest
-    rule: AccessRule
     cipher: Cipher
     collection: Collection
     requester: User
@@ -304,33 +394,34 @@ entity AccessLease {
     not_before: Timestamp
     not_after: Timestamp
 
-    status: active | expired | revoked
-    -- Non-optional under their when-clause: every transition into `revoked` is
-    -- structurally obliged to stamp both (SettleLease, OrgAdminTriggersKillSwitch).
-    -- revocation_reason stays optional — a revoke may carry no reason.
-    revoked_at: Timestamp when status = revoked
-    revoked_by: User when status = revoked
-    revocation_reason: String? when status = revoked
+    -- How the lease left `active`: it ran out (expired), its holder ended it early
+    -- (canceled, MemberEndsOwnLease), or an operator did (revoked,
+    -- ApproverRevokesLease). The holder's own end is canceled even when the holder
+    -- could also manage the collection. Only a revoke notifies the holder.
+    status: LeaseStatus
+    -- Non-optional under their when-clause: every transition into `revoked` or
+    -- `canceled` is structurally obliged to stamp both (SettleLease,
+    -- OrgAdminTriggersKillSwitch).
+    ended_at: Timestamp when status = revoked | canceled
+    ended_by: User when status = revoked | canceled
+    -- The lease holds no reason of its own. A reason given for ending it is
+    -- recorded in the originating request's decision log, which is where the
+    -- read models take it from; the lease's own reason fields are always empty on
+    -- the wire.
 
     -- Projections
+    -- The lease stores no rule of its own: its rule is its originating request's
+    -- pin, so a rule delete leaves it none (see AccessRequest.rule).
+    rule: request.rule
     is_in_window: not_before <= now and now < not_after
     has_expired: now >= not_after
 
     transitions status {
         active -> expired
         active -> revoked
-        terminal: expired, revoked
+        active -> canceled
+        terminal: expired, revoked, canceled
     }
-}
-
--- An org-wide block on starting new leases, engaged by an admin (typically
--- alongside the kill switch). While one exists for an organization, no approved
--- request can be activated into a lease there. Its existence IS the "blocked" state;
--- removing it lifts the block. At most one per organization.
-entity LeasingFreeze {
-    organization: Organization
-    engaged_at: Timestamp
-    engaged_by: User
 }
 
 -- ----------------------------------------------------------------------------
@@ -338,14 +429,18 @@ entity LeasingFreeze {
 -- ----------------------------------------------------------------------------
 
 config {
-    -- AccessLease duration used when an access rule does not specify one.
+    -- The duration pre-selected when an access rule sets no default of its own,
+    -- clamped to the rule's maximum (server LeaseDurationBounds).
     fallback_lease_duration: Duration = 1.hour
 
-    -- Global max age of a request: how long after submission it remains valid
-    -- in ANY non-terminal state (pending or approved) before auto-expiring.
-    -- Cleans up old requests, and caps how far ahead a scheduled window can
-    -- usefully be proposed — a window past this cutoff expires before it opens.
-    request_max_age: Duration = 60.days
+    -- The most conditions one rule may hold.
+    max_rule_conditions: Integer = 10
+
+    -- The ceiling on any lease window, and on every duration a rule may hold
+    -- (server LeaseDurationBounds, raised from 24 hours by server #8378). A rule with
+    -- no max_lease_duration is capped here, so the rule editor's "No cap" means one
+    -- year.
+    global_max_lease_duration: Duration = 365.days
 
     -- How far back resolved requests are surfaced in history views: the
     -- approver inbox history and the member's own requests page share this
@@ -367,24 +462,41 @@ config {
 -- rule on the other collection cannot gate it. This is a real bypass, and it is
 -- currently SILENT to admins (see RuleBypassableCiphers).
 --
--- This determination is authoritative on the SERVER. Opening a gated cipher is a
--- server round-trip, and the server runs exactly this calculation — the member's
--- collection paths to the cipher, whether any path is ungated, and whether the
--- member holds an active lease — to decide what to return: the full, decryptable
--- cipher when the member is ungated or holds an active lease, otherwise a gated
--- response carrying a partial cipher (a GatedCipherView — id, collections, name,
--- URIs and created/revised timestamps; no sensitive fields) alongside the
--- request/approved-request context, never the protected secret. The client runs
--- the same check to drive its UI, but it is advisory —
--- it cannot release a payload the server withholds, so a tampered or stale
--- client cannot bypass an access rule. The CipherOpened / CipherOpenNeedsRequest
--- / CipherOpenAwaitingActivation outcomes below are the server's decision, not a
--- client-only branch.
+-- When several rules gate the item for a member (one per gated path), the OLDEST
+-- rule takes precedence: the enabled rule with the earliest creation_date, ties
+-- broken on rule id. Its conditions alone decide; a younger rule on another path
+-- adds nothing. See oldest_rule.
 --
--- Opening a cipher is not the only way its secret reaches a member. A vault
--- EXPORT releases gated ciphers in full with no lease at all, gated instead by
--- an org-wide export permission that overrides leasing outright. Everything in
--- this section describes the OPEN path only — see VaultExportBypassesLeasing.
+-- The SERVER decides; the client only renders. The member's vault holds a gated
+-- cipher as a GatedCipherView, from sync. The secret is released only by a
+-- single-item read, which returns the full cipher when the caller is ungated or
+-- holds a live lease. Sync, list and export reads, and the item a write echoes back,
+-- always carry the partial shape, lease or not, so the secret never lands in a
+-- client's local store where it would outlive the lease. The client learns that an
+-- item is gated from the server's partial flag (CipherView.partial) rather than
+-- recomputing the collection paths, and reads the caller's request and lease state
+-- separately (AccessRequestsClient::cipher_access_state). It cannot release a
+-- payload the server withholds, so a tampered or stale client cannot bypass a rule.
+-- The outcomes below are the server's decision for that single-item read.
+--
+-- Only CipherOpened carries the full cipher, and it has exactly three sources: an
+-- ungated path (CipherOpenPassthrough), a single read under a live lease held by a
+-- licensed member (CipherOpenWithActiveLease), and the whole-vault export
+-- (VaultExportBypassesLeasing). Every other outcome carries a GatedCipherView.
+--
+-- Licensing comes before everything else on a gated item. A member without a PAM
+-- seat (HoldsPamSeat) gets CipherOpenBlockedUnlicensed whatever they hold: a lease
+-- they already have stays active in every read but releases nothing, and they can
+-- neither request, start nor extend (PM-39423). Giving access back stays open to
+-- them: withdrawing a request and ending a lease need no seat.
+--
+-- All of this holds only while the PAM feature flag is on for the deployment (see the
+-- @guidance on CipherOpenWithActiveLease).
+--
+-- Opening a cipher is not the only way its secret reaches a member. The whole-vault
+-- EXPORT releases gated ciphers in full with no lease at all, gated instead by an
+-- org-wide permission that overrides leasing outright. Everything in this section
+-- describes the OPEN path only; see the vault-export section.
 
 rule CipherOpenWithActiveLease {
     when: OpenCipher(caller, target_cipher)
@@ -395,6 +507,10 @@ rule CipherOpenWithActiveLease {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
+    -- An active lease is not enough on its own: the holder must still hold a PAM
+    -- seat. A de-licensed holder's lease stays active but releases nothing (see
+    -- CipherOpenBlockedUnlicensed).
+    requires: HoldsPamSeat(caller, target_cipher.organization)
     let active_leases = AccessLease where requester = caller
                                  and cipher = target_cipher
                                  and status = active
@@ -402,6 +518,40 @@ rule CipherOpenWithActiveLease {
     requires: active_leases.count > 0
     -- Singleton by AtMostOneActiveLeasePerRequesterCipher, so .first is deterministic.
     ensures: CipherOpened(caller, target_cipher, active_leases.first)
+    @guidance
+        -- The server enforces "only CipherOpened carries the full cipher"
+        -- structurally. A full cipher response cannot be built without a
+        -- FullCipherAccess witness, which only the leasing gate (CipherLeaseGate)
+        -- mints, and the check runs per item, so a bulk list or export fails
+        -- closed. To look for a leak, look at who mints that witness. An
+        -- administrative reader is leasing-gated like any member; the whole-vault
+        -- export is the only context in which leasing is waived.
+        --
+        -- Feature flag: every CipherOpen* rule is enforced only while the PAM
+        -- feature flag (FeatureFlagKeys.Pam) is on for the deployment. While it is
+        -- off, the server treats every rule as inert (UnrestrictedCipherLeaseGate),
+        -- a gated item opens to its collection members as it would without PAM, and
+        -- no PAM record is written for those reads. Nobody gains more than their
+        -- collection membership already grants; only the time-bounding layer goes.
+}
+
+rule CipherOpenBlockedUnlicensed {
+    -- Gated, and the member holds no PAM seat. Comes first and replaces every other
+    -- gated outcome, an active lease included: the server stops releasing a gated
+    -- cipher to an unlicensed holder whatever lease they hold (LeaseCanRelease), so
+    -- the banner explains the block rather than narrating access that is no longer
+    -- served. Request access is withheld too, since the submit would be refused.
+    when: OpenCipher(caller, target_cipher)
+    let member_memberships = CollectionMembership where member = caller
+                                                    and collection in target_cipher.collections
+    let has_ungated_path = member_memberships.any(mm =>
+        (AccessRule where enabled
+                       and mm.collection in collections).count = 0)
+    requires: member_memberships.count > 0
+    requires: not has_ungated_path
+    requires: not HoldsPamSeat(caller, target_cipher.organization)
+    ensures: CipherOpenBlockedUnlicensed(caller, target_cipher,
+                                         PartialView(caller, target_cipher))
 }
 
 rule CipherOpenRequiresAccessRequest {
@@ -417,6 +567,7 @@ rule CipherOpenRequiresAccessRequest {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
+    requires: HoldsPamSeat(caller, target_cipher.organization)
     -- The rule governing the member's access: the oldest (earliest creation_date)
     -- enabled rule among the member's gated paths to the cipher. A
     -- deterministic choice, pinned on the AccessRequest at submit. See oldest_rule.
@@ -433,22 +584,24 @@ rule CipherOpenRequiresAccessRequest {
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    -- CipherOpenWithApprovedRequest handles the already-approved-request case.
+    -- CipherOpenWithApprovedRequest handles the approved-and-not-started case.
     let approved_requests = AccessRequest where requester = caller
                                              and cipher = target_cipher
                                              and status = approved
+                                             and lease = null
+                                             and extension_of = null
     requires: approved_requests.count = 0
-    ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule)
+    ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule,
+                                    PartialView(caller, target_cipher))
     @guidance
-        -- Implementation: there is no separate cipher-open round-trip. The server
-        -- serves a gated cipher as a RESTRICTED (partial) cipher on sync — name and
-        -- URIs only, every secret field absent — and the client reads
-        -- CipherView.partial to know it is gated. The banner then reads the caller's
-        -- own state for that cipher through
+        -- Implementation: the item is already in the vault as a partial cipher from
+        -- sync, and the client reads CipherView.partial to know it is gated. The
+        -- banner then reads the caller's own state for that cipher through
         -- AccessRequestsClient::cipher_access_state, and offers Request access when
         -- no lease, approved request, or pending request comes back. Submitting calls
         -- AccessRequestsClient::request, whose result may already be approved when
-        -- the rule needs no human approval.
+        -- the rule needs no human approval. Enforced only while the PAM feature flag
+        -- is on (see CipherOpenWithActiveLease).
 }
 
 rule CipherOpenWithApprovedRequest {
@@ -466,38 +619,30 @@ rule CipherOpenWithApprovedRequest {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
+    requires: HoldsPamSeat(caller, target_cipher.organization)
     let active_leases = AccessLease where requester = caller
                                  and cipher = target_cipher
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
+    -- Approved and never started: a request that already produced its (now ended)
+    -- lease stays approved but offers nothing here.
     let approved_requests = AccessRequest where requester = caller
                                              and cipher = target_cipher
                                              and status = approved
+                                             and lease = null
+                                             and extension_of = null
     requires: approved_requests.count > 0
-    -- Singleton by AtMostOneInFlightRequestPerRequesterCipher (extensions never
-    -- rest at `approved`), so .first is deterministic.
-    ensures: CipherOpenAwaitingActivation(caller, target_cipher, approved_requests.first)
+    -- Singleton by AtMostOneInFlightRequestPerRequesterCipher, so .first is
+    -- deterministic.
+    ensures: CipherOpenAwaitingActivation(caller, target_cipher, approved_requests.first,
+                                          PartialView(caller, target_cipher))
     @guidance
-        -- KNOWN DIVERGENCE: the current implementation (PamCipherOpenGate,
-        -- cipher-open-gate.service.ts) instead activates a startable approved
-        -- request on open — calling activateLease, toasting, and opening the
-        -- full cipher — and silently drops the open when the post-activation
-        -- re-fetch is withheld. This spec is the intended behavior; the
-        -- implementation will be brought back to explicit activation in a
-        -- follow-up. Failure feedback for an explicit start (rejection toast,
-        -- no fall-through to the Request Access modal while the approved
-        -- request exists) belongs to the Start action's surfaces.
-        --
-        -- That swallowed-handover branch (activation succeeds, the leased
-        -- re-fetch is withheld, no feedback) also violates the consume-only-on-
-        -- lease decision: it burns the single-use approval and starts the lease
-        -- clock while denying access. Under this spec it cannot occur — access is
-        -- never withheld after a lease is minted; if access would be denied (e.g.
-        -- an ip_allowlist mismatch) the ACTIVATION itself fails atomically and
-        -- consumes nothing, because ActivateLease re-
-        -- check RuleAutomatedConditionsPass at start. The branch disappears once
-        -- the implementation moves to explicit, condition-re-checking activation.
+        -- A failed Start (the rule's conditions refuse it, or the single active
+        -- lease slot is taken) shows a toast and leaves the request approved; it
+        -- never falls through to Request access (cipher-view-banner.component,
+        -- activateRequest). Enforced only while the PAM feature flag is on (see
+        -- CipherOpenWithActiveLease).
 }
 
 rule CipherOpenPassthrough {
@@ -513,44 +658,97 @@ rule CipherOpenPassthrough {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count = 0 or has_ungated_path
     ensures: CipherOpened(caller, target_cipher, null)
+    @guidance
+        -- While the PAM feature flag is off, every open takes this path, whatever
+        -- the rules say (see CipherOpenWithActiveLease).
 }
 
 -- ----------------------------------------------------------------------------
--- Vault export: a permission-level bypass of leasing
+-- Write gating: changing a gated cipher needs a live lease
 -- ----------------------------------------------------------------------------
 
--- Exporting a vault does NOT require a lease. Leasing gates the cipher-OPEN
--- path (the section above); it has no say over export, which is governed by its
--- own org-wide export permission and overrides PAM outright. A member holding
--- that permission exports gated ciphers in full — no AccessRequest, no
--- AccessLease, no approver in the loop — even where every one of their
--- collection paths to a cipher carries an enabled AccessRule.
+rule MemberChangesGatedCiphers {
+    -- A member edits, deletes, restores, moves or re-files items. Any item gated for
+    -- them needs a live lease on it. A bulk change refuses the WHOLE batch when any
+    -- one item fails, and the refusal reads as not-found, the answer an item the
+    -- caller cannot see would get (server 720cef135). A lease is enough because a
+    -- write copies no secret out, and the item the write echoes back is still the
+    -- partial shape. One write this lets through does matter: re-filing under a
+    -- lease, see the named bypass next to RuleBypassableCiphers.
+    when: MemberChangesCiphers(caller, targets)
+    requires: targets.all(t =>
+        not GatedFor(caller, t)
+        or (AccessLease where requester = caller
+                           and cipher = t
+                           and status = active
+                           and now < not_after).count > 0)
+    ensures: CipherChangesAccepted(caller, targets)
+    @guidance
+        -- Enforced in CipherLeaseGate (EnsureCanMutateAsync for one item,
+        -- EnsureCanMutateManyAsync for a batch), only while the PAM feature flag is
+        -- on.
+}
+
+-- ----------------------------------------------------------------------------
+-- Vault export: two paths, one bypass
+-- ----------------------------------------------------------------------------
+
+-- Leasing gates the cipher-OPEN path (the sections above). Export takes one of two
+-- paths, and PAM treats them in opposite ways (PM-42352):
 --
--- This is a second deliberate bypass, on a different AXIS from the union/OR one.
--- RuleBypassableCiphers is a per-path escape: one ungated collection undoes one
--- rule for the members who reach the cipher that way. This is a per-caller
--- escape: one permission undoes every rule in the org, for every cipher in the
--- caller's export scope, in a single action. Granting the export permission
--- should therefore be read as granting standing, lease-free access to every
--- gated credential in that scope.
+--   - The WHOLE-VAULT export (Owner, Admin, or Custom with Import/export) bypasses
+--     leasing. It releases every cipher in its scope in full, with no AccessRequest,
+--     no AccessLease and no approver, even where every path to a cipher carries an
+--     enabled rule (VaultExportBypassesLeasing).
 --
--- PAM neither narrows nor widens what an export contains. The scope is whatever
--- the export stack already resolves for this caller (ExportedCiphers); PAM's
--- only statement is that gating subtracts nothing from it. The export stack
--- itself — scope resolution, file generation, encryption — is out of scope here
--- (see the Excludes block), so no PAM surface provides this trigger: it arrives
--- from the existing vault-export path.
+--   - A member's export of the collections they MANAGE leaves out every cipher gated
+--     for them, whether or not they hold a lease on it, and the export screen says
+--     how many were left out before the download
+--     (ManagedCollectionsExportExcludesGated).
+--
+-- Why a lease does not unlock export: export is a bulk read, like sync. A lease
+-- expires and an exported file does not, so honouring the lease would mint a copy
+-- of the credential that outlives the grant (PM-42352).
+--
+-- The whole-vault export is a second deliberate bypass, on a different AXIS from the
+-- union/OR one. RuleBypassableCiphers is a per-path escape: one ungated collection
+-- undoes one rule for the members who reach the cipher that way. This is a
+-- per-caller escape: one permission undoes every rule in the org, for every cipher
+-- in the export, in a single action. Granting it should therefore be read as
+-- granting standing, lease-free access to every gated credential in the org.
+--
+-- The export stack itself (scope resolution, file generation, encryption) is out of
+-- scope here (see the Excludes block), so no PAM surface provides these triggers:
+-- they arrive from the existing vault-export paths.
 
 rule VaultExportBypassesLeasing {
     when: ExportOrganizationVault(caller, organization)
     requires: CanExportOrganizationVault(caller, organization)
     -- Every cipher in the export's scope is released in full with no lease
-    -- authorizing it — the same outcome as an ungated open
-    -- (CipherOpenPassthrough), reached by permission rather than by an ungated
-    -- path. Gated or not, leased or not, the export withholds nothing.
+    -- authorizing it: the same outcome as an ungated open (CipherOpenPassthrough),
+    -- reached by permission rather than by an ungated path.
     ensures:
         for c in ExportedCiphers(caller, organization):
             CipherOpened(caller, c, null)
+}
+
+rule ManagedCollectionsExportExcludesGated {
+    -- Any confirmed member may export the collections they manage. Each cipher in
+    -- that scope that is gated for them is left out, lease or no lease; the rest
+    -- export as the export stack resolves them.
+    when: ExportManagedCollections(caller, organization)
+    ensures:
+        for c in ManagedExportCiphers(caller, organization):
+            if GatedFor(caller, c):
+                CipherLeftOutOfExport(caller, c)
+            else:
+                CipherOpened(caller, c, null)
+    @guidance
+        -- The web vault builds this export from its local store, where a gated item
+        -- is only ever a partial, and leaves partials out of every format (JSON,
+        -- CSV, encrypted); it shows the left-out count before the download
+        -- (PM-42531). The server's managed-collections export endpoint drops them
+        -- too.
 }
 
 -- ----------------------------------------------------------------------------
@@ -567,6 +765,11 @@ rule MemberSubmitsAccessRequest {
     -- length comes from the pinned rule, and the lease minted at activation runs
     -- to the window end either way (see ActivateLease). Evaluation runs
     -- immediately, so the submit response may already be approved.
+    --
+    -- KNOWN GAP: the built form's automatic path lets the member pick a duration
+    -- (pre-filled with the rule's default, capped at its maximum) rather than
+    -- taking the default. Whether every rule should submit the same shape, always a
+    -- window, is PAM-207; this rule keeps the older shape until that is decided.
     when: MemberSubmitsRequest(caller, target_cipher, reason?, window_start?, window_end?)
     -- A proposed window is all-or-nothing: a start without an end (or vice
     -- versa) is rejected rather than half-defaulted.
@@ -575,6 +778,16 @@ rule MemberSubmitsAccessRequest {
     let memberships = CollectionMembership where collection in target_cipher.collections
                                               and member = caller
     requires: memberships.count > 0
+    -- Acquiring access needs a PAM seat (PM-39423). The refusal copy says nothing
+    -- about the rule, so it leaks no configuration.
+    requires: HoldsPamSeat(caller, target_cipher.organization)
+    -- Gated at all? The same ALL-paths test the CipherOpen* rules use: one path with
+    -- no enabled rule means the item is not gated for this member, and there is
+    -- nothing to request.
+    let has_ungated_path = memberships.any(mm =>
+        (AccessRule where enabled
+                       and mm.collection in collections).count = 0)
+    requires: not has_ungated_path
     -- Governing-rule resolution, computed once here and PINNED on the created
     -- AccessRequest.rule below (its RuleId stored at creation). The candidate set is
     -- the enabled rules on the collections through which the member
@@ -587,39 +800,71 @@ rule MemberSubmitsAccessRequest {
     let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
     requires: governing_candidates.all(r => gating_rule.creation_date <= r.creation_date)
+    -- The member's collections the winning rule governs. The request is filed
+    -- against one of them, and that collection's managers are its approvers.
+    let paired_memberships = memberships where collection.access_rule = gating_rule
+    -- A rule without human approval checks its automated conditions HERE, against
+    -- the member's current request context. A failure refuses the submit and nothing
+    -- is saved: no request, no decision, and today no audit event either (PAM-229
+    -- adds one; whether to save a denied request too is PAM-206). A rule with human
+    -- approval leaves them to activation.
+    requires: gating_rule.has_human_approval
+              or RuleAutomatedConditionsPass(gating_rule, caller)
+    -- The window, and its cap. The lease minted from this request runs to the
+    -- window's end, so capping the window HERE caps the lease: its span may not
+    -- exceed the rule's max_lease_duration, or the global ceiling when the rule sets
+    -- none, and never the ceiling itself (PM-39858, server #8378). Too long a window
+    -- is refused, not trimmed.
+    let effective_max =
+        if gating_rule.max_lease_duration != null
+           and gating_rule.max_lease_duration < config.global_max_lease_duration:
+            gating_rule.max_lease_duration
+        else: config.global_max_lease_duration
+    -- The on-demand length is the pre-fill: the rule's default, or the fallback,
+    -- clamped to the effective maximum so it can never exceed what is accepted.
+    let requested_default = gating_rule.default_lease_duration ?? config.fallback_lease_duration
+    let effective_default = if requested_default > effective_max: effective_max
+                            else: requested_default
+    let window_open = window_start ?? now
+    let window_close = window_end ?? (now + effective_default)
+    requires: window_close - window_open <= effective_max
     let active_leases = AccessLease where requester = caller
                                  and cipher = target_cipher
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    -- No duplicate while an approved request or another pending request exists.
-    let approved_requests = AccessRequest where requester = caller
-                                             and cipher = target_cipher
-                                             and status = approved
-    requires: approved_requests.count = 0
-    let pending_requests = AccessRequest where requester = caller
-                                            and cipher = target_cipher
-                                            and status = pending
-    requires: pending_requests.count = 0
+    -- No duplicate while another request for this cipher is in flight: pending,
+    -- or approved and not started. A request that started and whose lease has
+    -- since ended blocks nothing.
+    let in_flight_requests = AccessRequest where requester = caller
+                                              and cipher = target_cipher
+                                              and in_flight
+    requires: in_flight_requests.count = 0
     ensures: AccessRequest.created(
         requester: caller,
         cipher: target_cipher,
-        collection: memberships.first.collection,
+        collection: paired_memberships.first.collection,
         rule: gating_rule,
-        lease_not_before: window_start ?? now,
-        lease_not_after: window_end ?? (now + (gating_rule.default_lease_duration ?? config.fallback_lease_duration)),
+        lease_not_before: window_open,
+        lease_not_after: window_close,
         reason: reason,
         submitted_at: now,
         status: pending
     )
+    ensures: AccessChanged(requester: caller, collection: paired_memberships.first.collection)
 }
 
 rule MemberCancelsOwnRequest {
     -- The requester withdraws their own not-yet-activated request: still pending, or
-    -- approved but not yet activated (status = approved implies no lease — once a lease
-    -- is minted the request is activated, governed by ApproverRevokesLease instead).
+    -- approved but never started (once a lease is minted, that access is ended through
+    -- the lease instead). Only inside the window: past lease_not_after the request
+    -- reads as expired, and the server refuses to restamp it (PM-42653). An extension
+    -- cannot be withdrawn at all; it applied in the step that created it.
     when: MemberCancelsRequest(member, request)
     requires: request.status in {pending, approved}
+    requires: request.lease = null
+    requires: request.extension_of = null
+    requires: now < request.lease_not_after
     requires: request.requester = member
     ensures: request.status = canceled
     ensures: request.resolved_at = now
@@ -627,32 +872,84 @@ rule MemberCancelsOwnRequest {
     -- empty.
     ensures: request.approver = null
     ensures: request.approver_comment = null
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule MemberRequestsLeaseExtension {
-    -- Member with an active lease asks to push its end out. Modelled as a fresh
-    -- AccessRequest pointing back at the parent lease — but the request exists for
-    -- the audit trail, not to be decided: extensions never require an approval
-    -- (PM-42500), so AutoApproveExtension approves it on the spot and
-    -- ExtensionApprovedExtendsParentLease applies it to the parent in place rather
-    -- than minting a new lease. It is created `pending` only to pass through the
-    -- single evaluation entry point; it never rests there.
-    -- The member names no window and no duration: the extension amount is
-    -- rule-derived at apply time, and lease_not_before / lease_not_after stay
-    -- null because an extension is never promoted to a lease of its own.
-    when: MemberRequestsExtension(member, lease, reason?)
-    requires: lease.status = active
+    -- The lease holder asks to push its end out by a duration they name, with a
+    -- justification. Recorded as a fresh AccessRequest pointing back at the parent
+    -- lease, but one that is never waited on: extensions never require an approval
+    -- (PM-42500), so the request is created ALREADY DECIDED, in one step, and never
+    -- passes through pending or evaluation. Its window is the increment, from the
+    -- parent's current end to its new end.
+    --
+    -- Parent live: created approved (a system decision, no approver) and applied in
+    -- place, pushing the parent's end out by the requested duration; no new lease is
+    -- minted. Parent no longer live (it expired, or was revoked or ended): created
+    -- denied with a reason, so the requester can inspect a late extension instead of
+    -- getting a bare error (PM-42632). There is no liveness check before that, and
+    -- the denied request still counts as the lease's one extension. The client only
+    -- offers Extend on a live lease, so only the API reaches the late case.
+    --
+    -- Either way the request is final at creation: an applied extension stays
+    -- approved and cannot be canceled or retracted (the server and client still
+    -- allow it, PAM-222).
+    when: MemberRequestsExtension(member, lease, duration, reason)
     requires: lease.requester = member
-    ensures: AccessRequest.created(
-        requester: lease.requester,
-        cipher: lease.cipher,
-        collection: lease.collection,
-        rule: lease.rule,
-        reason: reason,
-        submitted_at: now,
-        status: pending,
-        extension_of: lease
-    )
+    -- An extension buys new access, so it needs a PAM seat like any acquisition.
+    requires: HoldsPamSeat(member, lease.collection.organization)
+    -- The rule read here is the lease's rule as it stands now: the pin of the
+    -- request that minted it. A disabled pin refuses the extension; a pin cleared by
+    -- a delete re-resolves against the member's current paths first, and refuses
+    -- when no rule governs (see AccessRequest.rule).
+    let governing = lease.rule
+    requires: governing.enabled
+    requires: governing.allows_extensions
+    requires: duration > 0.seconds
+    -- The rule's per-increment cap; a rule with no cap set refuses.
+    requires: duration <= governing.max_extension_duration
+    requires: reason != null and trim(reason) != ""
+    -- One extension per lease (PM-40526), whatever became of an earlier attempt:
+    -- a denied late extension counts too. See AtMostOneExtensionPerLease.
+    requires: (AccessRequest where extension_of = lease).count = 0
+    let parent_live = lease.status = active and now < lease.not_after
+    let old_end = lease.not_after
+    let new_end = lease.not_after + duration
+    ensures:
+        if parent_live:
+            AccessRequest.created(
+                requester: lease.requester,
+                cipher: lease.cipher,
+                collection: lease.collection,
+                rule: governing,
+                lease_not_before: old_end,
+                lease_not_after: new_end,
+                reason: reason,
+                submitted_at: now,
+                status: approved,
+                resolved_at: now,
+                approver: null,
+                approver_comment: null,
+                extension_of: lease
+            )
+            lease.not_after = new_end
+        else:
+            AccessRequest.created(
+                requester: lease.requester,
+                cipher: lease.cipher,
+                collection: lease.collection,
+                rule: governing,
+                lease_not_before: old_end,
+                lease_not_after: new_end,
+                reason: reason,
+                submitted_at: now,
+                status: denied,
+                resolved_at: now,
+                approver: null,
+                approver_comment: "The lease being extended has ended",
+                extension_of: lease
+            )
+    ensures: AccessChanged(requester: lease.requester, collection: lease.collection)
 }
 
 -- ----------------------------------------------------------------------------
@@ -660,82 +957,61 @@ rule MemberRequestsLeaseExtension {
 -- ----------------------------------------------------------------------------
 
 -- A request is created and becomes ready for evaluation in one step when the
--- member submits the Request Access modal (MemberSubmitsAccessRequest), or when
--- an extension is created. Every gated open — including IP-allowlist-only rules
--- — goes through the modal/submit; evaluation then considers the rule's
--- conditions. A rule with no human_approval condition resolves synchronously on
--- submit, so the submit response can already carry an approved request.
+-- member submits the Request Access modal (MemberSubmitsAccessRequest). An
+-- extension never comes here: it is created already decided. Every gated open —
+-- including IP-allowlist-only rules
+-- — goes through the modal/submit. A rule with no human_approval condition
+-- resolves synchronously on submit, so the submit response can already carry an
+-- approved request. Its automated conditions were already checked by the submit
+-- itself, which refuses on a failure and saves nothing, so evaluation never meets a
+-- failing request: there is no automatic denial of a first grant. A rule with
+-- human_approval routes to an approver whatever the automated conditions say; they
+-- are checked at activation instead (PM-42256, PM-42273).
 --
 -- AN EXTENSION IS NOT EVALUATED AGAINST THE RULE AT ALL (PM-42500). A rule's
 -- conditions gate the FIRST grant only. Extending a lease the member already holds
--- is not a fresh grant, so it is approved on the spot by AutoApproveExtension: no
--- approver sees it, AND no automated condition is asked either. An extension
--- requested from outside the rule's ip_allowlist still applies.
+-- is not a fresh grant, so it is approved as it is created
+-- (MemberRequestsLeaseExtension): no approver sees it, AND no automated condition
+-- is asked either. An extension requested from outside the rule's ip_allowlist
+-- still applies.
 --
 -- The reasoning, stated plainly because the consequence is not small: the decision
 -- that mattered was the original grant, and an extension re-opens no new access —
 -- it lengthens access the member already holds, over the same credential, under the
 -- same rule. The controls that remain on it are the rule's opt-in (may this lease
--- be extended at all) and the per-increment cap. What this gives up is that an
+-- be extended at all), the per-increment cap, and one extension per lease. What
+-- this gives up is that an
 -- ip_allowlist can no longer bound access to the admitted network once a lease
 -- exists: a member who obtained a lease from inside the allowlist may extend it
 -- from anywhere. That is a deliberate trade, not an oversight — see the
--- extension-conditions open question, which is where the argument against it lives.
+-- ip_allowlist open question (PAM-205).
 --
--- The four evaluation rules below partition the pending space exactly once, so no
--- request matches two:
---   extension                                          -> AutoApproveExtension
---   non-extension + automated pass + no human_approval -> AutoApproveWhenNoHumanApproval
---   non-extension + automated pass + human_approval    -> RouteToHumanApprovers
---   non-extension + automated fail                     -> AutoDenyWhenAutomatedConditionsFail
+-- The two evaluation rules below partition the pending space exactly once, so no
+-- request matches both (a pending request is always a first grant):
+--   no human_approval  -> AutoApproveWhenNoHumanApproval
+--   human_approval     -> RouteToHumanApprovers
 
 rule RequestReadyForEvaluationOnCreation {
     -- Requests are only ever created by a member submitting the Request Access
     -- modal (MemberSubmitsAccessRequest) or by a lease extension
-    -- (MemberRequestsLeaseExtension) — never speculatively at cipher-open. So a
-    -- freshly created request is, by construction, one the member has submitted,
-    -- and is immediately ready for evaluation.
+    -- (MemberRequestsLeaseExtension) — never speculatively at cipher-open. Only the
+    -- first is created pending; it is, by construction, one the member has
+    -- submitted, and is immediately ready for evaluation.
     when: request: AccessRequest.created
     requires: request.status = pending
     ensures: RequestReadyForEvaluation(request)
 }
 
-rule AutoApproveExtension {
-    -- Extensions never require an approval (PM-42500). A member pushing out a lease
-    -- they already hold is not asking for a new grant, so the decision is not put to
-    -- a human — not even when the governing rule carries a human_approval condition.
-    -- Approved on the spot with no approver recorded, the same shape as any other
-    -- system decision. ExtensionApprovedExtendsParentLease then applies it to the
-    -- parent lease in the same step, so an extension never rests at `approved`
-    -- either — it is already `activated` (or `denied`) before anything can observe it.
-    --
-    -- The rule's automated conditions are NOT asked either, so this rule has no
-    -- failure branch: every extension that reaches evaluation is approved here. An
-    -- extension requested from outside the rule's ip_allowlist is approved like any
-    -- other. The only way one still ends up `denied` is ExtensionDeniedParentGone —
-    -- the parent lease vanished in the same step — which is a fact about the parent,
-    -- not a verdict on the request. The only gates left on extending are the rule's
-    -- opt-in and the per-increment cap, neither of which is modelled here yet — see
-    -- the extension-conditions open question.
-    when: RequestReadyForEvaluation(request)
-    requires: request.status = pending
-    requires: request.extension_of != null
-    ensures: request.status = approved
-    ensures: request.resolved_at = now
-    ensures: request.approver = null
-}
-
 rule AutoApproveWhenNoHumanApproval {
-    -- If the access rule has no human_approval condition, and any non-human
-    -- conditions (e.g. ip_allowlist) pass, approve the request automatically on
-    -- submit. No lease is minted here — the requester starts it on activation.
+    -- The access rule has no human_approval condition: approve the request
+    -- automatically on submit. Its automated conditions (e.g. ip_allowlist) already
+    -- passed, since the submit refuses otherwise. No lease is minted here; the
+    -- requester starts it on activation, where the conditions are checked again.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
-    -- First grants only; an extension is approved by AutoApproveExtension whatever
-    -- the rule says, and this guard keeps the two rules from both matching.
+    -- First grants only, stated locally: an extension is never pending.
     requires: request.extension_of = null
     requires: not request.rule.has_human_approval
-    requires: RuleAutomatedConditionsPass(request)
     ensures: request.status = approved
     ensures: request.resolved_at = now
     ensures: request.approver = null
@@ -745,34 +1021,23 @@ rule AutoApproveWhenNoHumanApproval {
         -- pending state. See ActivateLease.
 }
 
-rule AutoDenyWhenAutomatedConditionsFail {
-    -- Any non-human condition (today: ip_allowlist) failed → reject without
-    -- ever surfacing the request in an approver inbox. First grants only: an
-    -- extension is not evaluated against the conditions at all (PM-42500), so it
-    -- cannot fail them and this rule must not catch it — without this guard an
-    -- extension outside the allowlist would match both this rule and
-    -- AutoApproveExtension.
-    when: RequestReadyForEvaluation(request)
-    requires: request.status = pending
-    requires: request.extension_of = null
-    requires: not RuleAutomatedConditionsPass(request)
-    ensures: request.status = denied
-    ensures: request.resolved_at = now
-    ensures: request.approver = null
-    ensures: request.approver_comment = "Outside access-rule window"
-}
-
 rule RouteToHumanApprovers {
-    -- Automated conditions passed, but the rule needs human approval. Leave
-    -- the request pending and signal the approver inbox. First grants only —
-    -- an extension is never routed to a human (PM-42500); it takes the
-    -- AutoApproveExtension path instead, even under a human_approval rule.
+    -- The rule needs human approval: leave the request pending and signal the
+    -- approver inbox. The automated conditions are NOT asked here. On a human rule
+    -- they inform the approver's decision rather than pre-empting it (PM-42256), and
+    -- bind at activation instead (PM-42273), so an approver can be asked about a
+    -- request submitted from outside the allowlist, which then fails at Start. First
+    -- grants only: an extension is never routed to a human (PM-42500), even under a
+    -- human_approval rule; it is decided as it is created.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
     requires: request.extension_of = null
     requires: request.rule.has_human_approval
-    requires: RuleAutomatedConditionsPass(request)
     ensures: RequestAwaitingApprover(request)
+    ensures: ApproversNotified(request)
+    @guidance
+        -- Nothing yet shows the approver the requester's network, so "inform" is
+        -- aspirational today.
 }
 
 -- ----------------------------------------------------------------------------
@@ -788,16 +1053,23 @@ rule ApproverApprovesRequest {
     -- rest at pending, so no approver can decide one; stated locally here rather
     -- than left to a reachability argument.
     requires: request.extension_of = null
-    requires: request.rule.has_human_approval
+    -- Deciding reads nothing from the pinned rule. A pending first grant only ever
+    -- exists under a human_approval rule (a rule without one resolves at submit),
+    -- and eligibility keys on request.collection, so a pin cleared by a rule delete
+    -- in the meantime changes nothing here.
     requires: verdict = approve
     requires: approver in EligibleApprovers(request)
-    -- Self-approval guard from canApprove.ts: an approver cannot approve their
-    -- own request.
+    -- Self-approval guard: an approver cannot approve their own request. Enforced
+    -- by the server's DecideAccessRequestCommand; canApprove.ts only mirrors it in
+    -- the UI.
     requires: approver != request.requester
     ensures: request.status = approved
     ensures: request.resolved_at = now
     ensures: request.approver = approver
+    -- Optional on approve; a blank comment is stored as none.
     ensures: request.approver_comment = comment
+    ensures: RequesterNotifiedOfDecision(request, verdict)
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule ApproverDeniesRequest {
@@ -806,81 +1078,59 @@ rule ApproverDeniesRequest {
     -- First grants only, mirroring ApproverApprovesRequest: an extension is never
     -- put to an approver at all, to approve or to deny (PM-42500).
     requires: request.extension_of = null
-    requires: request.rule.has_human_approval
     requires: verdict = deny
     requires: approver in EligibleApprovers(request)
     requires: approver != request.requester
+    -- A deny needs a reason (PM-39666): it reaches the requester's notification,
+    -- the resolved history and the audit trail, and there is no later chance to
+    -- add it.
+    requires: comment != null and trim(comment) != ""
     ensures: request.status = denied
     ensures: request.resolved_at = now
     ensures: request.approver = approver
     ensures: request.approver_comment = comment
+    ensures: RequesterNotifiedOfDecision(request, verdict)
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule ApproverRetractsRequest {
-    -- A managing approver retracts a not-yet-activated request — still pending, or
-    -- approved but not yet activated (status = approved implies no lease). Recorded as
-    -- a denial BY the approver so the audit trail names them, distinct from a member's
-    -- own cancellation (MemberCancelsOwnRequest), which records no approver. No comment
-    -- is captured: this is a retraction, not a considered decision. An activated request
-    -- (one that produced a lease) is out of scope — that access is governed by the lease
-    -- and ended via ApproverRevokesLease. Distinct from ApproverDecides, which only acts
-    -- on a pending request; this also reaches an already-approved one.
+    -- A managing approver withdraws an approval that was never started. Recorded
+    -- as a denial BY the approver so the audit trail names them, distinct from a
+    -- member's own cancellation (MemberCancelsOwnRequest), which records no approver.
+    -- No comment is captured today (PAM-29 would require a reason; that is the next
+    -- change here and in the code). Only inside the window: past lease_not_after the
+    -- request reads as expired, and the server refuses to restamp it (PM-42653).
+    --
+    -- Out of scope: a PENDING request, which the approver decides instead, with its
+    -- required deny reason (PAM-29 defines retraction as approved -> denied; the
+    -- server still accepts a manager's cancel of a pending request, PAM-225); a
+    -- started request, whose access is ended through the lease
+    -- (ApproverRevokesLease); and an extension, which applied in the step that
+    -- created it (PAM-222 is the server and client bug that still allows it).
     when: ApproverCancelsRequest(approver, request)
-    requires: request.status in {pending, approved}
+    requires: request.status = approved
+    requires: request.lease = null
+    requires: request.extension_of = null
+    requires: now < request.lease_not_after
     requires: approver in EligibleApprovers(request)
     requires: approver != request.requester
     ensures: request.status = denied
     ensures: request.resolved_at = now
     ensures: request.approver = approver
     ensures: request.approver_comment = null
+    -- Pushed, but not mailed: the requester is not told by mail that their approval
+    -- was withdrawn (see Open questions).
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 -- ----------------------------------------------------------------------------
 -- Activation: the requester starts the lease at a time of their choosing
 -- ----------------------------------------------------------------------------
 
-rule ExtensionApprovedExtendsParentLease {
-    -- An approved extension applies in place: it pushes the parent lease's end
-    -- out rather than minting a new lease the requester must start. Since PM-42500
-    -- the ONLY way an extension reaches `approved` is AutoApproveExtension — no
-    -- human ever decides one — so this fires in the same step the extension is
-    -- created. The push-out amount is rule-derived — the same duration an on-demand
-    -- window gets — added to the parent's current end; the requester names nothing.
-    -- The push-out is NOT clamped by max_lease_duration, and with approval no longer
-    -- in the loop nothing else clamps the cumulative total either — an open question,
-    -- not a settled position (see the cumulative-extension note in Open questions).
-    -- If the parent is no longer active it is denied instead — see
-    -- ExtensionDeniedParentGone.
-    when: request: AccessRequest.status transitions_to approved
-    requires: request.extension_of != null
-    let parent = request.extension_of
-    requires: parent.status = active
-    ensures: parent.not_after = parent.not_after
-                                + (request.rule.default_lease_duration ?? config.fallback_lease_duration)
-    ensures: request.status = activated
-}
-
-rule ExtensionDeniedParentGone {
-    -- An approved extension whose parent lease is no longer active (expired or
-    -- revoked) cannot apply — there is nothing to extend. Deny it explicitly with a
-    -- reason rather than letting it lapse silently. Since PM-42500 an extension is
-    -- approved in the same step it is created, so the window in which the parent can
-    -- vanish under it has narrowed to that single step: this now guards a lease that
-    -- expired or was revoked concurrently with the request, not one that sat waiting
-    -- on an approver. Kept as the safety net for exactly that case.
-    -- The approval and this denial happen in the same step, so resolved_at (set
-    -- on approval) already reflects the moment.
-    when: request: AccessRequest.status transitions_to approved
-    requires: request.extension_of != null
-    let parent = request.extension_of
-    requires: parent.status != active
-    ensures: request.status = denied
-    ensures: request.approver_comment = "The lease being extended has ended"
-}
-
 -- An approved request is activated via MemberActivatesLease. Activation is ALWAYS an
--- explicit member action — a Start click on MyAccessRequestsPage or the
--- CipherViewBanner — never a side effect of opening the item, and never automatic:
+-- explicit member action — a Start click on MyAccessRequestsPage, the
+-- CipherViewBanner or the RequestDetailView — never a side effect of opening the
+-- item, and never automatic:
 -- minting the lease requires the requester to be online to drive the client (this
 -- is why even a scheduled request must be started by the requester inside its
 -- window, rather than springing to life on its own when the window opens).
@@ -892,70 +1142,74 @@ rule ExtensionDeniedParentGone {
 -- [lease_not_before, actionable_until], one unactivated-expiry rule
 -- (ApprovedRequestExpiresUnactivated), and one lease-END formula — the lease
 -- runs from the moment of activation (never backdated to the window start) to
--- the window end, clamped to max_lease_duration from the actual start. The
--- rule's default duration already shaped the window at submit; it plays no
--- part at activation.
+-- the window end. The rule's durations already shaped and capped the window at
+-- submit; neither plays a part at activation.
 --
 -- single_active_lease contention is resolved here, at start, since this is when
 -- the lease comes into being: if RuleAllowsLease is false (the cipher's single slot
 -- is already taken) the start is simply rejected and the approved request stays
--- activatable for a manual retry — there is no queue. A start is likewise refused
--- while the org is under a LeasingFreeze (the kill switch's optional
--- block-new-leases). Automated conditions (e.g. ip_allowlist) are re-checked here
--- too: a mismatch at start rejects the activation. Extensions never reach here —
--- they apply in place via ExtensionApprovedExtendsParentLease.
+-- activatable for a manual retry — there is no queue. A start will likewise be
+-- refused while the org is under a LeasingFreeze (the kill switch's optional
+-- block-new-leases), once that is built (see the PLANNED section). Automated
+-- conditions (e.g. ip_allowlist) are re-checked here too: a mismatch at start
+-- rejects the activation. Extensions never reach here —
+-- they apply in place as they are created (MemberRequestsLeaseExtension).
 --
--- A failed activation NEVER consumes the approval. The request transitions to
--- `activated` ONLY in the same transition that mints the lease (ActivateLease). Any
--- rejected start — automated-condition mismatch, single_active_lease contention,
--- leasing freeze, or a lapsed window — leaves the request `approved` and
--- activatable for a retry up to actionable_until (the activation-window end,
--- tightened by the max-age cutoff). This lease↔activated correspondence is
--- pinned by the AtMostOneLeasePerActivatedRequest and NoLeaseWithoutActivatedRequest
+-- A failed activation NEVER consumes the approval. The request counts as started
+-- (`activated`) ONLY once the start mints its lease (ActivateLease); the status
+-- stays `approved` throughout. Any rejected start — automated-condition mismatch,
+-- single_active_lease contention, leasing freeze, or a lapsed window — leaves the
+-- request approved with no lease, and activatable for a retry up to
+-- actionable_until (the window end). This lease↔request correspondence is pinned by
+-- the AtMostOneLeasePerActivatedRequest and NoLeaseWithoutActivatedRequest
 -- invariants; this prose does not restate it.
 --
 -- Every activation attempt is audited, success or failure: ActivateLease emits
 -- LeaseActivationAudited(.., outcome: succeeded) alongside minting the lease,
 -- and LeaseActivationRejected emits the same event with outcome: rejected for any
--- start that cannot proceed. (Audit-log *persistence* is out of scope — server-
--- side, per the Excludes block — but the EVENT emission is in scope, mirroring the
--- push-notification "models the event, not the wire format" pattern.)
+-- start that cannot proceed. The record these events write, and which refusals
+-- the server writes today, are specified in pam-audit.allium.
 
 rule ActivateLease {
     when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
+    -- Single use: a request that already produced its lease cannot start another.
+    -- Asking again returns that lease while it is live and is refused once it has
+    -- ended; neither is a genuine attempt, so neither is audited.
+    requires: request.lease = null
     requires: request.requester = member
+    -- Starting a lease is an acquisition: it needs a PAM seat (PM-39423).
+    requires: HoldsPamSeat(member, request.collection.organization)
     -- Eligibility: only inside the activation window (both shapes carry one,
-    -- pinned at submit), and never past the max-age cutoff.
+    -- pinned at submit).
     requires: now >= request.lease_not_before
-    requires: now <= request.actionable_until
-    -- Automated conditions (e.g. ip_allowlist) are re-checked at start; a
-    -- mismatch rejects the activation (see LeaseActivationRejected).
-    requires: RuleAutomatedConditionsPass(request)
+    requires: now < request.actionable_until
+    -- Automated conditions (e.g. ip_allowlist) are re-checked at start against
+    -- the pinned rule as it stands now; a mismatch rejects the activation (see
+    -- LeaseActivationRejected). A disabled pin governs nothing, and a pin cleared by
+    -- a delete re-resolves first (see AccessRequest.rule).
+    requires: RuleAutomatedConditionsPass(request.rule, member)
     requires: RuleAllowsLease(request.requester, request.cipher)
-    -- Blocked while the org is under a leasing freeze (e.g. kill switch).
-    requires: not exists LeasingFreeze{organization: request.rule.organization}
-    -- The lease runs from ACTIVATION (never backdated to the window start) to
-    -- the window end, clamped to max_lease_duration from the actual start
-    -- (anchoring the cap at activation prevents a late start minting an
-    -- already-expired lease).
-    let window_end = request.lease_not_after
-    let cap_end = now + request.rule.max_lease_duration
-    let end = if cap_end != null and window_end > cap_end: cap_end
-              else: window_end
+    -- Blocked while the org is under a leasing freeze (e.g. kill switch). NOT
+    -- ENFORCED TODAY: the freeze is planned (PAM-49, PAM-17), no LeasingFreeze can
+    -- exist yet, so this guard is vacuous. See the PLANNED section.
+    requires: not exists LeasingFreeze{organization: request.collection.organization}
+    -- The lease runs from ACTIVATION (never backdated to the window start,
+    -- PM-42596) to the window end. The window's length was capped at submit, and
+    -- activation needs now >= lease_not_before, so the lease can never run longer
+    -- than the rule's max as it was at submit. Nothing re-caps it here.
     ensures: AccessLease.created(
         request: request,
-        rule: request.rule,
         cipher: request.cipher,
         collection: request.collection,
         requester: request.requester,
         not_before: now,
-        not_after: end,
+        not_after: request.lease_not_after,
         status: active
     )
-    ensures: request.status = activated
     ensures: LeaseActivationAudited(request: request, outcome: succeeded)
+    ensures: AccessChanged(requester: request.requester, collection: request.collection)
 }
 
 rule LeaseActivationRejected {
@@ -965,19 +1219,28 @@ rule LeaseActivationRejected {
     -- condition no longer passes (e.g. ip_allowlist), single_active_lease
     -- contention (RuleAllowsLease is false), an org leasing freeze, or the
     -- request's activation window has not opened or has lapsed. The disjunction is the
-    -- exact negation of ActivateLease's guards, so this rule and the start rule are
-    -- mutually exclusive. Nothing is consumed: the request stays `approved` and
-    -- activatable for a retry within its window (see the activation-section
+    -- exact negation of ActivateLease's remaining guards, so this rule and the start
+    -- rule are mutually exclusive. Nothing is consumed: the request stays `approved`
+    -- and activatable for a retry within its window (see the activation-section
     -- prose).
+    --
+    -- A caller without a PAM seat is NOT a genuine attempt: like a caller who does
+    -- not own the request, they are refused before the attempt is recorded, so the
+    -- refusal is not audited (the server checks the licence ahead of the audit
+    -- Attempt). Whether an admin should get a signal for it is still open on
+    -- PM-39423.
     when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
+    requires: request.lease = null
     requires: request.requester = member
+    requires: HoldsPamSeat(member, request.collection.organization)
     let cannot_start =
-        not RuleAutomatedConditionsPass(request)
+        not RuleAutomatedConditionsPass(request.rule, member)
         or not RuleAllowsLease(request.requester, request.cipher)
-        or exists LeasingFreeze{organization: request.rule.organization}
-        or now > request.actionable_until
+        -- Planned, vacuous today; see ActivateLease.
+        or exists LeasingFreeze{organization: request.collection.organization}
+        or now >= request.actionable_until
         or now < request.lease_not_before
     requires: cannot_start
     -- The audit log emits a lease_activation_rejected event at this moment (via the
@@ -990,47 +1253,72 @@ rule LeaseActivationRejected {
 -- AccessLease lifecycle: expiry, revocation, org-wide kill switch
 -- ----------------------------------------------------------------------------
 
--- Expiry and revocation are the two reasons a lease leaves `active`, and a
--- single transition out of `active` can have only one terminal outcome. Rather
--- than have the autonomous expiry timer and the explicit operator revoke each
--- write `status` directly — racing each other for the terminal value — both
--- emit a LeaseSettles event and SettleLease owns the single transition. Expiry
--- takes precedence: a revoke is only emitted while strictly in-window
--- (now < not_after), so once not_after has passed the only signal that can
--- arrive is the expiry one and the lease deterministically settles to
--- `expired`. The two paths are mutually exclusive by construction.
+-- Expiry and an early end are the ways a lease leaves `active`, and a single
+-- transition out of `active` can have only one terminal outcome. Rather than
+-- have the autonomous expiry timer, the holder's own end and an operator's
+-- revoke each write `status` directly — racing each other for the terminal value
+-- — all three emit a LeaseSettles event and SettleLease owns the single
+-- transition. Expiry takes precedence: an early end is only emitted while
+-- strictly in-window (now < not_after), so once not_after has passed the only
+-- signal that can arrive is the expiry one and the lease deterministically
+-- settles to `expired`. The paths are mutually exclusive by construction.
 rule LeaseExpires {
     when: lease: AccessLease.not_after <= now
     requires: lease.status = active
-    ensures: LeaseSettles(lease: lease, revoked_by: null, reason: null)
+    ensures: LeaseSettles(lease: lease, ended_by: null, reason: null)
+    @guidance
+        -- Like request expiry, derived at read time: a lease past not_after reads
+        -- as expired with nothing written. A lease-only sweep does run, once a
+        -- minute, but only to journal each natural lapse once: it emits the
+        -- lease_expired audit event and the access-end rotation trigger, and still
+        -- writes no status.
 }
 
+-- Request expiry is DERIVED at read time: no stored transition and no request
+-- sweeper (PM-42653). The server stores what the parties did and reads a request
+-- whose window has closed, still pending or approved and never started, as
+-- expired. The two rules below say what such a read reports and when; the write
+-- guards use the same clock comparison, so the moment matches exactly.
 rule PendingRequestExpires {
-    -- A pending request expires once it is no longer actionable: its activation
-    -- window closed undecided (approval is not possible outside the window), or
-    -- it hit the global max-age cutoff — whichever came first (actionable_until).
+    -- A pending request expires once its window closes undecided (approval is not
+    -- possible outside the window).
     when: request: AccessRequest.actionable_until <= now
     requires: request.status = pending
     ensures: request.status = expired
-    ensures: request.resolved_at = now
-    ensures: request.expired_at = now
-    -- No decision was made; approver fields are present but empty.
+    -- Nobody acted, so it has no resolution time and no approver.
+    ensures: request.resolved_at = null
     ensures: request.approver = null
     ensures: request.approver_comment = null
 }
 
 rule ApprovedRequestExpiresUnactivated {
-    -- An approved request the requester never activated lapses once it is no
-    -- longer startable — its activation-window end, tightened by the max-age
-    -- cutoff (actionable_until), whatever its shape. resolved_at and approver
-    -- keep the approval record; the lease was never minted.
+    -- An approved request the requester never started lapses once its window
+    -- closes. resolved_at and approver keep the approval record; the lease was
+    -- never minted. A request that DID start stays approved for good, and an
+    -- extension, which applied at creation, never lapses either.
     when: request: AccessRequest.actionable_until <= now
     requires: request.status = approved
+    requires: request.lease = null
+    requires: request.extension_of = null
     ensures: request.status = expired
-    ensures: request.expired_at = now
+}
+
+rule MemberEndsOwnLease {
+    -- The holder gives their access back early. Settles to canceled, not revoked.
+    -- Needs no PAM seat: a de-licensed holder can still end what they hold.
+    when: MemberEndsOwnLease(member, lease, reason?)
+    requires: lease.status = active
+    requires: now < lease.not_after
+    requires: lease.requester = member
+    ensures: LeaseSettles(lease: lease, ended_by: member, reason: reason)
+    ensures: AccessChanged(requester: lease.requester, collection: lease.collection)
 }
 
 rule ApproverRevokesLease {
+    -- An operator cuts off someone's live lease. Settles to revoked, and the holder
+    -- is told. Needs no PAM seat. When the actor happens to be the holder (a manager
+    -- of the collection ending their own lease), it settles to canceled all the
+    -- same.
     when: ApproverRevokesLeaseAction(actor, lease, reason?)
     requires: lease.status = active
     -- Expiry takes precedence over revocation: once not_after has passed the
@@ -1042,54 +1330,64 @@ rule ApproverRevokesLease {
     -- deterministic.
     requires: now < lease.not_after
     requires: actor in EligibleRevokers(lease)
-    ensures: LeaseSettles(lease: lease, revoked_by: actor, reason: reason)
+    ensures: LeaseSettles(lease: lease, ended_by: actor, reason: reason)
+    ensures: AccessChanged(requester: lease.requester, collection: lease.collection)
 }
 
 rule SettleLease {
     -- The single owner of the transition out of `active`. Driven by exactly one
-    -- of two emitters — the autonomous LeaseExpires timer or an in-window
-    -- ApproverRevokesLease — never both, since revocation is rejected at/past
-    -- not_after. A null revoker means the lease lapsed on its own (expired); a
-    -- present revoker means an operator ended it early (revoked).
-    when: LeaseSettles(lease, revoked_by, reason?)
+    -- emitter — the autonomous LeaseExpires timer, or an in-window
+    -- MemberEndsOwnLease or ApproverRevokesLease — never two, since an early end is
+    -- rejected at/past not_after. No ender means the lease lapsed on its own
+    -- (expired); the holder means they gave it back (canceled); anyone else means
+    -- an operator cut it off (revoked). The reason, if any, goes to the originating
+    -- request's decision log, not onto the lease.
+    when: LeaseSettles(lease, ended_by, reason?)
     requires: lease.status = active
     ensures:
-        if revoked_by != null:
-            lease.status = revoked
-            lease.revoked_at = now
-            lease.revoked_by = revoked_by
-            lease.revocation_reason = reason
-        else:
+        if ended_by = null:
             lease.status = expired
+        else:
+            if ended_by = lease.requester:
+                lease.status = canceled
+            else:
+                lease.status = revoked
+                HolderNotifiedOfRevoke(lease)
+            lease.ended_at = now
+            lease.ended_by = ended_by
 }
 
-rule OrgAdminTriggersKillSwitch {
-    -- Org-wide kill switch revokes all active leases in the organization in a
-    -- single bulk operation. Optionally also blocks new leases from starting
-    -- (engages a LeasingFreeze) so the org stays locked down until an admin
-    -- explicitly unblocks. Surfaces in the governance dashboard.
-    when: OrgKillSwitchActivated(admin, organization, block_new_leases)
-    ensures:
-        for lease in AccessLease where rule.organization = organization and status = active:
-            lease.status = revoked
-            lease.revoked_at = now
-            lease.revoked_by = admin
-            lease.revocation_reason = "Org-wide kill switch"
-        if block_new_leases and not exists LeasingFreeze{organization: organization}:
-            LeasingFreeze.created(
-                organization: organization,
-                engaged_at: now,
-                engaged_by: admin
-            )
-}
+-- ----------------------------------------------------------------------------
+-- Notifications
+-- ----------------------------------------------------------------------------
 
-rule OrgAdminUnblocksNewLeases {
-    -- Lifts an org-wide leasing freeze so approved requests can be activated again.
-    when: OrgUnblocksNewLeases(admin, organization)
-    let freeze = LeasingFreeze{organization: organization}
-    requires: exists freeze
-    ensures: not exists freeze
-}
+-- Two channels, both sent by the server and both only while the PAM feature flag is
+-- on. The rules above emit them; this block states the policy once.
+--
+-- MAIL goes to three audiences, and only these:
+--   - ApproversNotified: a request needs a decision (RouteToHumanApprovers). Sent
+--     to EligibleApprovers for the request minus the requester, who cannot decide
+--     their own request; when nobody else can decide it, nobody is mailed.
+--   - RequesterNotifiedOfDecision: an approver approved or denied the request
+--     (ApproverApprovesRequest, ApproverDeniesRequest).
+--   - HolderNotifiedOfRevoke: an operator revoked the holder's lease (SettleLease's
+--     revoked branch). A holder ending their own lease is not mailed.
+-- Content policy, for every PAM mail: the organization's name, the window, and a
+-- link to the per-request view (RequestDetailView, /pam/requests/{id}). Never the
+-- requester's reason, and never a cipher or collection name; the link is where the
+-- reader, once signed in and unlocked, sees the rest.
+--
+-- Nothing is mailed for an automatic approval, a submit the conditions refused, a
+-- member's own cancel, an approver's retraction, an activation, an extension, a
+-- self-end, or an expiry. Three of those silences are undecided (see Open
+-- questions): the retraction, the refused submit, and expiry.
+--
+-- PUSH (AccessChanged) carries no content. Every rule that changes a request or a
+-- lease sends it, to the requester's clients and to the managers of the request's
+-- collection, so open pages and the cipher-view banner re-read instead of polling.
+-- Two exceptions push the requester only: an automatic approval at submit, and an
+-- extension denied because the lease had ended. Expiry sends nothing: nothing happens
+-- on the server when a window closes, so every reader checks the clock itself.
 
 -- ----------------------------------------------------------------------------
 -- Access rule administration (CRUD)
@@ -1098,8 +1396,27 @@ rule OrgAdminUnblocksNewLeases {
 rule OrgAdminCreatesAccessRule {
     when: CreateAccessRule(admin, organization, name, description?, conditions,
                             collections, default_lease_duration?, max_lease_duration?,
+                            allows_extensions, max_extension_duration?,
                             single_active_lease, enabled)
+    -- Rule authorship is its own permission, separate from approving requests.
+    requires: CanManageAccessRules(admin, organization)
     requires: name.length > 0 and name.length <= 256
+    requires: conditions.count <= config.max_rule_conditions
+    -- An ip_allowlist needs at least one CIDR, and every entry must parse as one.
+    requires: conditions.all(c => c.kind = IpAllowlist
+                                  implies (c.cidrs.count > 0
+                                           and c.cidrs.all(r => valid_cidr(r))))
+    -- Durations: each one set must be positive and within the global ceiling, and
+    -- the pre-fill may not exceed the maximum. A rule that allows extensions must
+    -- say how much one may add.
+    requires: default_lease_duration = null or default_lease_duration > 0.seconds
+    requires: max_lease_duration = null or max_lease_duration > 0.seconds
+    requires: default_lease_duration = null or default_lease_duration <= config.global_max_lease_duration
+    requires: max_lease_duration = null or max_lease_duration <= config.global_max_lease_duration
+    requires: max_extension_duration = null or max_extension_duration <= config.global_max_lease_duration
+    requires: default_lease_duration = null or max_lease_duration = null
+              or default_lease_duration <= max_lease_duration
+    requires: allows_extensions implies max_extension_duration > 0.seconds
     requires: collections.all(c => c.organization = organization)
     -- Each target collection must be free to govern: unlinked (a hard delete clears
     -- the links of the rule it removes). A collection already governed by a live rule
@@ -1113,6 +1430,8 @@ rule OrgAdminCreatesAccessRule {
             conditions: conditions,
             default_lease_duration: default_lease_duration,
             max_lease_duration: max_lease_duration,
+            allows_extensions: allows_extensions,
+            max_extension_duration: max_extension_duration,
             single_active_lease: single_active_lease,
             enabled: enabled,
             creation_date: now,
@@ -1127,8 +1446,23 @@ rule OrgAdminCreatesAccessRule {
 rule OrgAdminUpdatesAccessRule {
     when: UpdateAccessRule(admin, rule, name, description?, conditions,
                             collections, default_lease_duration?, max_lease_duration?,
+                            allows_extensions, max_extension_duration?,
                             single_active_lease, enabled)
+    requires: CanManageAccessRules(admin, rule.organization)
     requires: name.length > 0 and name.length <= 256
+    -- The same shape checks as create.
+    requires: conditions.count <= config.max_rule_conditions
+    requires: conditions.all(c => c.kind = IpAllowlist
+                                  implies (c.cidrs.count > 0
+                                           and c.cidrs.all(r => valid_cidr(r))))
+    requires: default_lease_duration = null or default_lease_duration > 0.seconds
+    requires: max_lease_duration = null or max_lease_duration > 0.seconds
+    requires: default_lease_duration = null or default_lease_duration <= config.global_max_lease_duration
+    requires: max_lease_duration = null or max_lease_duration <= config.global_max_lease_duration
+    requires: max_extension_duration = null or max_extension_duration <= config.global_max_lease_duration
+    requires: default_lease_duration = null or max_lease_duration = null
+              or default_lease_duration <= max_lease_duration
+    requires: allows_extensions implies max_extension_duration > 0.seconds
     -- Same free-to-govern check as create, but a collection already linked to THIS rule
     -- is fine (it is being kept, not stolen).
     requires: collections.all(c => c.access_rule = null
@@ -1140,6 +1474,8 @@ rule OrgAdminUpdatesAccessRule {
     ensures: rule.conditions = conditions
     ensures: rule.default_lease_duration = default_lease_duration
     ensures: rule.max_lease_duration = max_lease_duration
+    ensures: rule.allows_extensions = allows_extensions
+    ensures: rule.max_extension_duration = max_extension_duration
     ensures: rule.single_active_lease = single_active_lease
     ensures: rule.enabled = enabled
     ensures: rule.revision_date = now
@@ -1151,60 +1487,116 @@ rule OrgAdminUpdatesAccessRule {
             c.access_rule = rule
         for c in removed:
             c.access_rule = null
+    @guidance
+        -- Edits bind requests already pinned to this rule: activation and extension
+        -- read the rule as it stands (see AccessRequest.rule). Setting enabled = false
+        -- makes the pin govern nothing. Approved requests pinned to it then activate
+        -- with no condition check, and extensions of leases under it are refused;
+        -- its collections become escape paths, so neither grants more than the member
+        -- could already reach.
 }
 
 rule OrgAdminDeletesAccessRule {
-    when: DeleteAccessRule(admin, rule)
-    -- Hard delete: clear the rule's collection links first (each governed
-    -- collection survives, now ungoverned), then remove the rule. A deleted rule is
-    -- simply gone — no gating / admin read can find it, so none needs to filter it
-    -- out. The name lookup for the rule_deleted audit event is supplied by the
-    -- delete command (captured before the delete), so the row need not survive.
+    when: DeleteAccessRule(admin, target_rule)
+    requires: CanManageAccessRules(admin, target_rule.organization)
+    -- Hard delete: clear the rule's collection links and every request pin to it,
+    -- then remove the rule. Each governed collection survives, now ungoverned. A
+    -- deleted rule is simply gone — no gating / admin read can find it, so none
+    -- needs to filter it out. The name lookup for the rule_deleted audit event is
+    -- supplied by the delete command (captured before the delete), so the row need
+    -- not survive.
     --
-    -- Deletion does not affect leases already granted under this rule; they live
-    -- out their windows. New opens against this rule's collections fall through to
-    -- the gating check, which no longer finds this rule and either passes through
-    -- (if no other rule attaches) or hits a different rule.
-    ensures: rule.collections = {}
-    ensures: not exists rule
+    -- The pin is provenance, not authority (server #8002), so the delete clears it
+    -- rather than being blocked by it. A pending or approved request pinned to the
+    -- rule then re-resolves against the member's current paths wherever the pin
+    -- would have been read (see AccessRequest.rule). Leases already granted live out
+    -- their windows. New opens against this rule's collections fall through to the
+    -- gating check, which no longer finds this rule and either passes through (if no
+    -- other rule attaches) or hits a different rule.
+    ensures: target_rule.collections = {}
+    ensures:
+        for r in AccessRequest where rule = target_rule:
+            r.rule = null
+    ensures: not exists target_rule
 }
 
 -- ----------------------------------------------------------------------------
 -- Derived helpers (predicates referenced by rules)
 -- ----------------------------------------------------------------------------
 
--- `EligibleApprovers(request)`: the set of users allowed to approve a request,
--- per the rule's human_approval condition.
---   collection_managers mode: all users with manage rights on request.collection.
---   specific mode: the listed users.
+-- `EligibleApprovers(request)`: the users who can Manage request.collection, the
+-- collection paired with the governing rule at submit. That is wider than the
+-- collection's own assignments, which matters most for a privileged-access product:
+--   - a direct or group assignment with Manage on the collection;
+--   - an org Owner or Admin, while the org lets admins access all collection items
+--     (AllowAdminAccessToAllCollectionItems), with no assignment needed;
+--   - a Custom user holding Edit any collection, with no assignment needed.
+-- Members of a suspended org still count (the membership is read from the database,
+-- not the claims). The pending-request mail goes to the same set minus the requester.
 -- The self-approval guard is enforced at the rule level (not in this set).
-deferred EligibleApprovers    -- see: bitwarden_license/bit-web/src/app/pam/helpers
-
--- `EligibleRevokers(lease)`: who may revoke an active lease. This is the lease's
--- own requester (early end), plus EligibleApprovers for the lease's request, plus
--- the lease's org admins. Org admins may revoke any single lease directly (from
--- the governance dashboard) — they are not limited to the org-wide kill switch.
 --
--- Implemented in RevokeAccessLeaseCommand: it authorizes the lease's own holder
--- (lease.RequesterId = caller) OR anyone who can Manage the lease's collection
--- (CanManageCollectionAsync, which already covers managing approvers and org
--- admins). The actor is recorded as the lease's revoked_by, so revoked_by =
--- requester marks a self-end versus an operator revoke. Surfaced today by the
--- cipher-lease banner's "End access" (holder) and the approver inbox (manager);
--- the dedicated ActiveLeasesPage is still planned but no longer the only path.
-deferred EligibleRevokers     -- see: RevokeAccessLeaseCommand; cipher-lease-banner ("End access"), approver-inbox
+-- The server decides: DecideAccessRequestCommand and CancelAccessRequestCommand
+-- authorize through ApproverCollectionAccessQuery. The client's canApprove.ts and
+-- ApprovalPrivilegeService only mirror it to hide actions the server would refuse.
+deferred EligibleApprovers    -- see: server ApproverCollectionAccessQuery
 
--- `RuleAutomatedConditionsPass(request)`: every non-human condition on the
--- rule evaluates to true for this request (today: ip_allowlist matches the
--- request's source IP). Evaluated at request evaluation (to decide approve / deny /
--- route-to-human) AND re-checked at lease start (ActivateLease): a mismatch at start
--- rejects the activation without consuming the approval.
+-- FUTURE, NOT GA: named approvers. Requirements once asked for a rule to name
+-- specific approvers (UC2), and the POC editor showed a disabled "Specific people"
+-- option. Design narrowed it during PM-39115, where the lead argued a single named
+-- approver is a failure point in approval flows, and the shipped human_approval
+-- condition carries no settings. PAM-10 (what happens when a named approver leaves
+-- the org) depends on the feature and should be closed or re-scoped when the GA cut
+-- is made.
+
+-- `CanManageAccessRules(member, organization)`: may author the organization's
+-- access rules: an Owner or Admin, or a Custom member holding Manage access rules.
+-- Provider users managing the organization are excluded: who may lease credentials
+-- out of an organization is not a provider's to change (PM-40211). This is its own
+-- authority, separate from approving requests (EligibleApprovers) and from managing
+-- rotation connectors. Reading the rules is wider: any confirmed member may list them,
+-- conditions included, which is what lets the collection dialog name a collection's
+-- rule to a non-admin manager; whether it should stay that wide is PAM-213.
+deferred CanManageAccessRules    -- see: server ManageAccessRulesRequirement
+
+-- `EligibleRevokers(lease)`: the operators who may revoke someone's active lease:
+-- EligibleApprovers for the lease's request, plus the lease's org admins. Org
+-- admins may revoke any single lease directly (from the governance dashboard) —
+-- they are not limited to the org-wide kill switch. The holder is not in this set;
+-- they end their own lease through MemberEndsOwnLease, which settles to canceled,
+-- and so does a revoke whose actor turns out to be the holder.
+--
+-- Implemented in RevokeAccessLeaseCommand, which serves both: it authorizes the
+-- lease's own holder OR anyone who can Manage the lease's collection
+-- (CanManageCollectionAsync), and records canceled for the holder and revoked for
+-- anyone else. Manage reaches org admins only while the org lets admins access
+-- all collection items; whether any Owner or Admin may revoke regardless is
+-- PAM-210. Surfaced by the cipher-view banner's "End access" and the My requests
+-- tab (holder), and by the approver's History tab and the request dialog (manager).
+deferred EligibleRevokers     -- see: server RevokeAccessLeaseCommand; cipher-view-banner ("End access"), approver-inbox
+
+-- `RuleAutomatedConditionsPass(rule, member)`: every non-human condition on `rule`
+-- holds for `member`'s current request context (today: the source IP falls inside
+-- each ip_allowlist). True when the rule governs nothing (disabled). Asked at two
+-- points:
+--   - At submit, on a rule WITHOUT human approval only (MemberSubmitsAccessRequest):
+--     a failure refuses the submit and saves nothing.
+--   - At every activation (ActivateLease), on any rule, asked of the request's pin
+--     as the rule stands now; a pin cleared by a delete re-resolves first (see
+--     AccessRequest.rule). A failure rejects the activation without consuming the
+--     approval.
+-- A human-approval rule is therefore checked only at activation: its conditions
+-- inform the approver rather than pre-empting them (PM-42256).
+--
+-- Fail-safe for a stored conditions document the server cannot read (a kind it no
+-- longer knows, or malformed JSON): at submit the rule is treated as requiring
+-- human approval, so the request goes to a person; at activation the check fails,
+-- so the start is refused (PM-42273). Writes never produce such a document; only a
+-- legacy or hand-edited row can.
 --
 -- FIRST GRANTS ONLY. Since PM-42500 an extension is never evaluated against this
--- predicate — not at request evaluation (AutoApproveExtension asks nothing) and not
--- at lease start (an extension never activates; it applies in place). So both
--- evaluation points above describe a non-extension request.
-deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
+-- predicate: it has no submit of its own to refuse, and it never activates (it
+-- applies in place).
+deferred RuleAutomatedConditionsPass    -- see: server SubmitAccessRequestCommand, ActivateAccessRequestCommand
 
 -- `oldest_rule(candidates)`: selection primitive for governing-rule resolution.
 -- Picks the AccessRule with the earliest creation_date from a candidate set,
@@ -1226,11 +1618,12 @@ deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 -- is the intended trade: determinism over least-restriction.
 --
 -- WHY pin at submit: resolution runs ONCE, at MemberSubmitsAccessRequest, and the
--- resolved rule is pinned on the AccessRequest.rule (see that field). Everything
--- downstream reads the pinned rule, never a re-resolution — so a later rule edit or
--- a rule appearing/disappearing on another path cannot change how an in-flight
--- request is governed. The property is therefore asserted at the creation
--- transition only; drift after submit is intentional.
+-- resolved rule is pinned on the AccessRequest.rule (see that field). Downstream
+-- reads the pinned rule and never re-resolves to a different one while the pin
+-- stands, so a rule appearing or disappearing on another path cannot move an
+-- in-flight request to a different rule. The pin fixes WHICH rule, not its content:
+-- later edits to the pinned rule do apply at activation and extension. The
+-- oldest-wins property is therefore asserted at the creation transition only.
 --
 -- This is distinct from — and does not change — the union/OR policy that decides
 -- WHETHER the cipher is gated at all (an ungated path bypasses gating; see
@@ -1262,39 +1655,59 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- first.
 deferred RuleBypassableCiphers    -- see: server-side ListRuleBypassableCiphersQuery
 
--- `CanExportOrganizationVault(member, organization)`: whether the member holds the
--- org-wide vault-export permission. Owned by the existing organization permission
--- model, not by PAM — PAM only reads it. Holding it overrides leasing outright
--- (VaultExportBypassesLeasing): it is not an AccessRule condition, no rule can
--- narrow it, and no lease, request or approval stands between the holder and a
--- gated credential in their export scope.
-deferred CanExportOrganizationVault    -- see: organization export permission (accessImportExport)
+-- NAMED BYPASS: re-filing under a lease. The third deliberate bypass, and the only
+-- one a MEMBER can make. MemberChangesGatedCiphers lets a lease holder who may edit a
+-- gated item change which collections it is in, including adding it to a collection
+-- with no rule. The review kept this: a lease holder may re-file what they hold. From
+-- then on the item has an ungated path, so it is ungated for them and for everyone in
+-- that collection, with no lease, no approver and no PAM audit event (the org event
+-- log records only Cipher_UpdatedCollections). RuleBypassableCiphers then counts the
+-- new path like any other.
+--
+-- It interacts with RotateOnAccessEnd. Rotation exists so that a copy taken during a
+-- lease goes stale when the lease ends; a re-filed item keeps the member attached to
+-- every future rotated value, so a time-boxed grant becomes standing access that
+-- outlives rotation. Whether the move should warn or be audited is PAM-203. The same
+-- re-file through the admin endpoint, by a Custom user with Edit any collection and
+-- no lease, is PAM-202.
 
--- `ExportedCiphers(member, organization)`: the ciphers an export by this member
--- covers, as resolved by the existing export stack. PAM neither computes nor
--- filters it; the predicate is named here only so VaultExportBypassesLeasing can
--- state that gating subtracts nothing from it.
+-- `GatedFor(member, cipher)`: the member reaches the cipher, and only through
+-- collections that carry an enabled AccessRule. It is the has_ungated_path test the
+-- CipherOpen* rules spell out, negated, named here so the write and export rules can
+-- reuse it.
+deferred GatedFor    -- see: server CipherLeaseGate / GoverningRuleResolver
+
+-- `PartialView(member, cipher)`: the GatedCipherView the server returns for `cipher`
+-- to `member`, built from the PartialCipherData allowlist plus the member's own flags.
+-- Every gated outcome carries it in place of the cipher.
+deferred PartialView    -- see: server Partial*CipherResponseModel
+
+-- `CanExportOrganizationVault(member, organization)`: whether the member may run the
+-- whole-vault export: Owner, Admin, or Custom holding Import/export
+-- (accessImportExport). Owned by the organization permission model, not by PAM; PAM
+-- only reads it. Holding it overrides leasing outright (VaultExportBypassesLeasing): it
+-- is not an AccessRule condition, no rule can narrow it, and no lease, request or
+-- approval stands between the holder and a gated credential.
+deferred CanExportOrganizationVault    -- see: server VaultExportAuthorizationHandler, OrganizationExportController
+
+-- `ExportedCiphers(member, organization)`: the ciphers a whole-vault export covers, as
+-- resolved by the existing export stack. PAM neither computes nor filters it; it is
+-- named so VaultExportBypassesLeasing can state that gating subtracts nothing from it.
 deferred ExportedCiphers    -- see: vault export stack (outside PAM)
 
--- `ForecastDecision(member, cipher, rule)`: a side-effect-free dry run of the
--- evaluation rules for a prospective request — what submitting now WOULD yield,
--- without creating an AccessRequest. Mirrors the real evaluation exactly:
---   - "would_deny"      → an automated condition fails (AutoDenyWhenAutomatedConditionsFail)
---   - "needs_approval"  → automated conditions pass but the rule needs a human
---                          (RouteToHumanApprovers)
---   - "auto_approve"    → no human_approval and automated conditions pass
---                          (AutoApproveWhenNoHumanApproval)
--- Forecasts the request DECISION only, against the supplied `rule` — the one
--- resolution picks right now (the oldest enabled, non-deleted rule on the
--- member's gated paths; see oldest_rule). single_active_lease availability is a separate axis,
--- surfaced alongside it via RuleAllowsLease(member, cipher): even an "auto_approve"
--- yields an approved request whose lease start can still fail single_active_lease
--- contention, re-checked for real at lease start. All are current-state hints, not
--- guarantees — the member's source IP or the cipher's active-lease set may change
--- before they submit, and because the governing rule is pinned deterministically at
--- submit (oldest wins; see oldest_rule), a rule added or removed on another path
--- in the meantime could change which rule actually governs the submitted request.
-deferred ForecastDecision    -- see: server-side rule evaluation (dry run)
+-- `ManagedExportCiphers(member, organization)`: the ciphers in the collections the
+-- member manages, which is the scope of a member's own export. Resolved by the export
+-- stack; ManagedCollectionsExportExcludesGated subtracts the gated ones.
+deferred ManagedExportCiphers    -- see: vault export stack (outside PAM)
+
+-- FUTURE, NOT PLANNED: a pre-submit forecast. The spec once described a per-caller
+-- dry run of evaluation (auto_approve / needs_approval / would_deny) shown before the
+-- member submits, together with the governing rule's conditions. It was never built:
+-- the request form shapes itself from pre_check instead (see RequestAccessModal),
+-- whose approval mode is structural and deliberately the same for every caller of a
+-- rule (PM-42256). A would_deny answer would also be an unaudited allowlist probe,
+-- which the server's deliberately vague refusal text exists to prevent. Whether to
+-- bring the forecast back is PAM-209.
 
 -- `SingleActiveLeaseApplies(member, cipher)`: true when EVERY collection through
 -- which `member` reaches `cipher` is governed by an enabled AccessRule whose
@@ -1318,10 +1731,27 @@ deferred SingleActiveLeaseApplies    -- see: server-side lease start / rule eval
 --
 -- Contention policy: when the cipher's slot is taken the start is rejected and the
 -- approved request stays `approved` — the member retries when it frees, bounded by
--- the activation window (scheduled) or activation deadline (on-demand). No
--- server-side queue; the member polls, with availability surfaced by the
--- RequestAccessModal forecast and the cipher lease banners.
-deferred RuleAllowsLease
+-- the activation window. No server-side queue; the member polls, with availability
+-- surfaced by pre_check (can_start_lease / slot_frees_at, PM-42446) in
+-- RequestAccessModal and by the cipher-view banner.
+deferred RuleAllowsLease    -- see: server SingleActiveLeaseEvaluator
+
+-- `HoldsPamSeat(member, organization)`: the member may use PAM in that
+-- organization. All three must hold: the member has a PAM seat (AccessPam), the
+-- organization's plan includes PAM (UsePam), and the organization is enabled (not
+-- suspended). Provider users acting in a client organization never hold one.
+-- Read from the member's token claims, so a change takes effect at their next token
+-- refresh (PM-39423).
+--
+-- Required to ACQUIRE access: submitting a request, activating a lease, extending
+-- one, and having a held lease release the cipher (CipherOpenWithActiveLease).
+-- Deliberately NOT required to give access back or to look: withdrawing a request,
+-- ending or revoking a lease, and every read stay open, so a de-licensed member can
+-- still return what they hold and the client can explain the block. A lease held
+-- when the seat goes stays active in every read but releases nothing
+-- (CipherOpenBlockedUnlicensed). There is no feature flag of its own; it rides on
+-- the PAM flag.
+deferred HoldsPamSeat    -- see: server PamLicenseGuard, CipherLeaseGate.LeaseCanRelease
 
 -- ----------------------------------------------------------------------------
 -- Actors
@@ -1343,35 +1773,120 @@ actor OrgAdmin {
     -- Granted by the existing admin-console permission model.
 }
 
+actor RuleAuthor {
+    identified_by: User
+    within: Organization
+    -- An Owner or Admin, or a Custom member holding Manage access rules; never a
+    -- provider user (CanManageAccessRules).
+}
+
+actor CollectionManager {
+    identified_by: User
+    within: Collection
+    -- Anyone who can edit the collection, which is not the same as authoring rules.
+}
+
 -- ----------------------------------------------------------------------------
 -- Surfaces (boundaries of the PAM client UI)
 -- ----------------------------------------------------------------------------
 
 surface CipherViewBanner {
     -- The requester's entry point on an open gated cipher: renders exactly one of
-    -- four states — active lease (countdown, extend, end), approved request (start,
-    -- withdraw), pending request (withdraw), or none of those (request access, which
-    -- folds out RequestAccessModal inline). Also the surface that reveals the
+    -- five states. Unlicensed comes first and replaces every other state, an active
+    -- lease included (CipherOpenBlockedUnlicensed): it explains the block and offers
+    -- nothing. Otherwise: active lease (countdown, extend, end), approved request
+    -- (start, withdraw), pending request (withdraw), or none of those (request
+    -- access, which folds out RequestAccessModal inline). Also the surface that reveals the
     -- credential in place the moment a lease becomes active, without reopening the
     -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
     -- the reveal itself goes through the GATED_CIPHER_RELOADER seam.
+    --
+    -- It also renders on an item the server no longer gates for the caller while they
+    -- still hold a live lease on it (the item was since filed into a collection with no
+    -- rule), so the holder can still extend or end that lease (PM-43689).
     facing viewer: Member
 
     context target_cipher: Cipher
 
     exposes:
         target_cipher.collections
+        -- Whether the viewer holds a PAM seat. Read from the viewer's own membership,
+        -- with no round trip, so the block shows even when the state read fails.
+        HoldsPamSeat(viewer, target_cipher.organization)
         -- Caller's lease/request state for this cipher, surfaced for the badge.
         AccessLease where requester = viewer and cipher = target_cipher and status = active
         AccessRequest where requester = viewer and cipher = target_cipher and status = pending
         -- Approved-but-unactivated request: banner offers "Start access".
-        AccessRequest where requester = viewer and cipher = target_cipher and status = approved
+        AccessRequest where requester = viewer and cipher = target_cipher
+                                               and status = approved and lease = null
 
     provides:
         OpenCipher(viewer, target_cipher)
         MemberActivatesLease(viewer, request)
             when request.requester = viewer and request.cipher = target_cipher
                                              and request.status = approved
+             and request.lease = null
+             and HoldsPamSeat(viewer, target_cipher.organization)
+        -- Withdraw, on the pending and approved states. Hidden behind the unlicensed
+        -- block here, but the vault row's menu (VaultRowAccessState) and the My
+        -- requests tab still offer it, since giving access back needs no seat.
+        MemberCancelsRequest(viewer, request)
+            when request.requester = viewer and request.cipher = target_cipher
+             and (request.status = pending
+                  or (request.status = approved and request.lease = null))
+             and HoldsPamSeat(viewer, target_cipher.organization)
+        -- Extending and ending the lease are offered here as well, through
+        -- extend-lease-dialog.component; ActiveLeasesPage states them once for every
+        -- screen that offers them.
+}
+
+surface VaultRowAccessState {
+    -- A vault row for an item gated for the viewer (a partial row). Presentation over
+    -- reads modelled elsewhere, apart from one write: the row menu's withdraw. See
+    -- vault-row-lease-badge/ and the VaultRowAccessActionsService seam.
+    facing viewer: Member
+
+    context target_cipher: Cipher
+
+    exposes:
+        -- The row badge: the viewer's own state on the item, which the SDK ranks
+        -- into one badge (pending, ready to start, or active with a countdown).
+        AccessLease where requester = viewer and cipher = target_cipher and status = active
+        AccessRequest where requester = viewer and cipher = target_cipher and in_flight
+
+    provides:
+        -- Withdraw the viewer's outstanding request from the row menu, with the
+        -- banner's semantics: pending, or approved and never started.
+        MemberCancelsRequest(viewer, request)
+            when request.requester = viewer and request.cipher = target_cipher
+             and (request.status = pending
+                  or (request.status = approved and request.lease = null))
+
+    @guidance
+        -- Filters: the sidebar's "Controlled access" group narrows the item list by
+        -- the same badge. "Privileged" keeps every item gated for the viewer, and
+        -- "My requests" keeps those with a pending, ready or active badge.
+        --
+        -- Collection level: the collection row's "Privileged" pill, the sidebar lock
+        -- and the banner above a governed collection's item list describe the
+        -- COLLECTION (it carries an enabled rule), not every item in it. An item the
+        -- viewer also reaches through a collection with no rule opens normally
+        -- (CipherOpenPassthrough) and renders as an ordinary row.
+}
+
+surface PamNavBadge {
+    -- The count beside the Access requests nav item: the viewer's own requests that
+    -- still need them, unioned by request id with the pending requests awaiting the
+    -- viewer's decision. See pam-nav-badge.service.
+    facing viewer: Member
+
+    exposes:
+        for r in AccessRequest where requester = viewer and actionable_for_requester:
+            r.id
+        for r in AccessRequest where status = pending
+                                  and now < lease_not_after
+                                  and viewer in EligibleApprovers(r):
+            r.id
 }
 
 surface RequestAccessModal {
@@ -1391,24 +1906,32 @@ surface RequestAccessModal {
 
     context target_cipher: Cipher
 
-    -- Same governing-rule resolution as MemberSubmitsAccessRequest, so the modal
-    -- previews the rule that would be pinned on submit (oldest wins; ties on rule
-    -- id via oldest_rule). Advisory: a rule added/removed on another path before
-    -- submit could change the pinned rule.
-    let member_collections = (CollectionMembership where member = requester
-                                                     and collection in target_cipher.collections) -> collection
+    -- Same gating test and governing-rule resolution as MemberSubmitsAccessRequest,
+    -- so pre_check describes the rule that would be pinned on submit (oldest wins;
+    -- ties on rule id via oldest_rule). Advisory: a rule added/removed on another
+    -- path before submit could change the pinned rule.
+    let member_memberships = CollectionMembership where member = requester
+                                                    and collection in target_cipher.collections
+    let has_ungated_path = member_memberships.any(mm =>
+        (AccessRule where enabled
+                       and mm.collection in collections).count = 0)
+    let member_collections = member_memberships -> collection
     let governing_candidates = AccessRule where enabled
                                             and collections.any(c => c in member_collections)
     let gating_rule = oldest_rule(governing_candidates)
 
+    -- Exactly what pre_check returns, and nothing about the rule beyond it: the
+    -- form never shows the rule's conditions.
     exposes:
         target_cipher.collections
-        -- The rule being requested against, so the modal can show its conditions
-        -- and default duration.
-        gating_rule
-        -- Optional dry run: what submitting now would yield (auto_approve /
-        -- needs_approval / would_deny), computed without creating a request.
-        ForecastDecision(requester, target_cipher, gating_rule)
+        -- The approval mode: whether the governing rule carries human_approval.
+        -- Structural, so every caller of a rule gets the same answer whatever their
+        -- IP or clock (PM-42256). A cipher that is not gated reports automatic.
+        gating_rule.has_human_approval when not has_ungated_path
+        -- The duration the form pre-selects, and the longest duration or window
+        -- span the server will accept.
+        gating_rule.default_lease_duration when not has_ungated_path
+        gating_rule.max_lease_duration when not has_ungated_path
         -- Whether a lease could actually be started right now — i.e. the per-cipher
         -- single_active_lease slot is currently free for this member. Only binds when
         -- all of the member's paths to the cipher are single_active_lease-governed
@@ -1432,11 +1955,9 @@ surface MyAccessRequestsPage {
     -- "My requests": the caller's own AccessRequest rows, bounded by the shared
     -- history window. Implemented as two tabs of the Access requests page rather than
     -- one list — my-requests-tab.component holds what is still actionable (pending
-    -- requests, an extension-requests bucket, active leases) and history-tab.component
-    -- holds what has resolved — because the two carry different actions. Weed target:
-    -- since PM-42500 the extension bucket cannot fill, because an extension resolves
-    -- in the step it is created and is never outstanding. Each row links to
-    -- access-request-route.component for the single-request view.
+    -- requests and active leases) and history-tab.component holds what has resolved —
+    -- because the two carry different actions. Each row links to the single-request
+    -- view (RequestDetailView).
     facing viewer: Member
 
     context viewer: Member
@@ -1455,34 +1976,39 @@ surface MyAccessRequestsPage {
             r.lease_not_after
 
         -- Activation countdown for approved-but-unactivated requests.
-        for r in AccessRequest where requester = viewer and status = approved:
+        for r in AccessRequest where requester = viewer and status = approved
+                                  and lease = null and extension_of = null:
             r.actionable_until
 
+        -- The outstanding rows of the My requests tab: what still needs the viewer
+        -- (ActionableForRequester), the same set PamNavBadge counts.
+        for r in AccessRequest where requester = viewer and actionable_for_requester:
+            r.id
+
     provides:
-        -- Withdraw a not-yet-activated request. A pending request can always be
-        -- withdrawn; an approved one only while its window can still produce access —
-        -- once lease_not_after passes it can no longer be started, so (like the
-        -- Start action) Cancel is withheld and it awaits server-side expiry. (The
-        -- transition itself, MemberCancelsOwnRequest, does not gate on the window; this
-        -- guard is the client UX gating, mirroring MemberActivatesLease.)
+        -- Withdraw a not-yet-activated request, pending or approved, while its
+        -- window is open. Past lease_not_after the request reads as expired and
+        -- MemberCancelsOwnRequest refuses it, so Cancel is withheld. The window end is
+        -- exclusive, as everywhere.
         MemberCancelsRequest(viewer, request)
             when request.requester = viewer
+             and request.extension_of = null
              and (request.status = pending
-                  or (request.status = approved
-                      and (request.lease_not_after = null
-                           or now <= request.lease_not_after)))
+                  or (request.status = approved and request.lease = null))
+             and now < request.lease_not_after
         -- Activate an approved request: start the lease when ready. Offered only
-        -- while the window can still produce access — once lease_not_after
-        -- passes, the server rejects activation, so the action is withheld.
+        -- while the window is open; past lease_not_after the server rejects
+        -- activation, so the action is withheld.
         MemberActivatesLease(viewer, request)
             when request.status = approved and request.requester = viewer
-             and (request.lease_not_after = null
-                  or now <= request.lease_not_after)
+             and request.lease = null
+             and request.extension_of = null
+             and now < request.lease_not_after
 }
 
 surface ActiveLeasesPage {
-    -- Caller's currently-active leases with per-row revoke (used by lease
-    -- holders to end their own access early) and extension.
+    -- Caller's currently-active leases, each of which they may end early
+    -- (canceled, MemberEndsOwnLease) or extend once.
     --
     -- No page of its own. Both actions it provides ARE reachable: the
     -- "Active access" section of my-requests-tab.component ends a lease, and
@@ -1502,10 +2028,17 @@ surface ActiveLeasesPage {
             l.not_after
 
     provides:
-        ApproverRevokesLeaseAction(viewer, lease, reason)
+        MemberEndsOwnLease(viewer, lease, reason)
             when lease.requester = viewer and lease.status = active
-        MemberRequestsExtension(viewer, lease, reason)
+        -- Offered only on a live lease that has not been extended yet, under a rule
+        -- that allows it. Only the API reaches a lease that has already ended (see
+        -- ExtensionDeniedParentGone). The dialog should offer only durations within
+        -- the rule's cap; today it offers presets above it, which the server refuses
+        -- (PAM-228).
+        MemberRequestsExtension(viewer, lease, duration, reason)
             when lease.requester = viewer and lease.status = active
+             and lease.rule.allows_extensions
+             and (AccessRequest where extension_of = lease).count = 0
 }
 
 surface ApproverInbox {
@@ -1556,34 +2089,92 @@ surface ApproverInbox {
     provides:
         ApproverDecides(viewer, request, verdict, comment)
             when request.status = pending and viewer != request.requester
-        -- Retract a not-yet-activated request the approver manages (→ denied). A
-        -- pending one any time; an approved one only while its window can still
-        -- produce access — past that it can no longer be started, so the action is
-        -- withheld (the ApproverRetractsRequest transition ignores the window; this is
-        -- the client UX gating).
+        -- Withdraw an approval that was never started (→ denied), offered on the
+        -- History tab since the request is no longer pending. Only while the window
+        -- is open; past lease_not_after the request reads as expired and
+        -- ApproverRetractsRequest refuses it. A pending request is decided instead,
+        -- and an extension is never withdrawn.
         ApproverCancelsRequest(viewer, request)
             when viewer != request.requester
-             and (request.status = pending
-                  or (request.status = approved
-                      and (request.lease_not_after = null
-                           or now <= request.lease_not_after)))
+             and request.status = approved
+             and request.lease = null
+             and request.extension_of = null
+             and now < request.lease_not_after
         ApproverRevokesLeaseAction(viewer, lease, reason)
             when lease.status = active
 }
 
-surface EmailApprovalDeepLink {
-    -- Deep-link landing page reached from an approver's notification email.
-    -- The approver must authenticate and unlock before reaching the route;
-    -- the page itself is a passthrough that forwards to the approver inbox
-    -- (PM-37268) where decisions are made. See access-request-route.component.
-    facing approver: Approver
+surface RequestDetailView {
+    -- The single-request view at /pam/requests/:id: a dialog over the Access
+    -- requests tabs, reached from any request row and from every PAM mail
+    -- (approvers are mailed this link when a request needs their decision). One view
+    -- serves both sides, and its actions follow who is viewing: the requester gets
+    -- theirs, an approver who can Manage the request's collection gets theirs, and
+    -- neither is shown the other side's (PAM-150). An approver landing cold from mail
+    -- gets the Approvals tab behind the dialog. The viewer must authenticate and
+    -- unlock before reaching the route (PAM-50). See access-request-route.component
+    -- and access-request-dialog.component.
+    facing viewer: Member
 
     context request: AccessRequest
+
+    exposes:
+        request.cipher
+        request.collection
+        request.requester
+        request.status
+        request.reason
+        request.lease_not_before
+        request.lease_not_after
+        request.submitted_at
+        request.resolved_at
+        request.approver
+        request.approver_comment
+        request.lease
+
+    provides:
+        -- The requester's actions, under MyAccessRequestsPage's guards.
+        MemberCancelsRequest(viewer, request)
+            when request.requester = viewer
+             and request.extension_of = null
+             and (request.status = pending
+                  or (request.status = approved and request.lease = null))
+             and now < request.lease_not_after
+        MemberActivatesLease(viewer, request)
+            when request.requester = viewer
+             and request.status = approved
+             and request.lease = null
+             and request.extension_of = null
+             and now < request.lease_not_after
+        -- An approver's actions, under ApproverInbox's guards.
+        ApproverDecides(viewer, request, verdict, comment)
+            when viewer in EligibleApprovers(request)
+             and viewer != request.requester
+             and request.status = pending
+        ApproverCancelsRequest(viewer, request)
+            when viewer in EligibleApprovers(request)
+             and viewer != request.requester
+             and request.status = approved
+             and request.lease = null
+             and request.extension_of = null
+             and now < request.lease_not_after
+        -- Ending the lease the request produced: the requester ends their own
+        -- access, a managing approver revokes it.
+        MemberEndsOwnLease(viewer, request.lease, reason)
+            when request.requester = viewer
+             and request.lease != null
+             and request.lease.status = active
+        ApproverRevokesLeaseAction(viewer, request.lease, reason)
+            when viewer in EligibleApprovers(request)
+             and viewer != request.requester
+             and request.lease != null
+             and request.lease.status = active
 }
 
 surface AccessRulesAdminPage {
-    -- Admin-only CRUD page for an org's access rules. See access-rules.component.
-    facing admin: OrgAdmin
+    -- CRUD page for an org's access rules, for rule authors only (the route guard
+    -- checks canManageAccessRules). See access-rules.component.
+    facing admin: RuleAuthor
 
     context org: Organization
 
@@ -1595,19 +2186,29 @@ surface AccessRulesAdminPage {
             rule.collections
             rule.default_lease_duration
             rule.max_lease_duration
+            rule.allows_extensions
+            rule.max_extension_duration
             rule.single_active_lease
             rule.enabled
             rule.revision_date
-            rule.last_edited_by
 
     provides:
         CreateAccessRule(admin, org, name, description, conditions,
                          collections, default_lease_duration, max_lease_duration,
+                         allows_extensions, max_extension_duration,
                          single_active_lease, enabled)
         UpdateAccessRule(admin, rule, name, description, conditions,
                          collections, default_lease_duration, max_lease_duration,
+                         allows_extensions, max_extension_duration,
                          single_active_lease, enabled)
         DeleteAccessRule(admin, rule)
+
+    @guidance
+        -- The editor offers preset durations only; the rules themselves accept any
+        -- value within the global ceiling, so a rule written through the API can
+        -- hold one the presets do not. Editing such a rule in the UI snaps the
+        -- value to the nearest preset today (PAM-227). Who last edited a rule is
+        -- not shown here; the audit trail records it (PM-39117 shipped without it).
 }
 
 surface CollectionAccessRuleCallout {
@@ -1618,7 +2219,11 @@ surface CollectionAccessRuleCallout {
     -- existing collection — there is nothing to gate before one exists. See
     -- collection-access-rule-callout.component, bound to the
     -- COLLECTION_ACCESS_RULE_CALLOUT seam.
-    facing admin: OrgAdmin
+    --
+    -- It faces whoever can edit the collection, rule author or not: a collection
+    -- manager who may not change the rule still sees it, through the member-wide
+    -- rule read (see CanManageAccessRules).
+    facing admin: CollectionManager
 
     context target_collection: Collection
 
@@ -1635,82 +2240,27 @@ surface CollectionAccessRuleCallout {
             rule.single_active_lease
 }
 
-surface GovernanceDashboard {
-    -- Per-collection summary table for org admins: rule, members requiring a
-    -- lease, pending counts, active counts, last activity. Also the scope-wide
-    -- active and recently-ended lease lists (GET /leases/active, /leases/history).
-    -- See governance-dashboard.component.
-    facing admin: OrgAdmin
-
-    context org: Organization
-
-    exposes:
-        -- Strip totals.
-        AccessRule where organization = org
-                     and collections.count > 0
-        AccessRequest where rule.organization = org and status = pending
-        -- All active leases in scope, surfaced by GET /leases/active.
-        AccessLease where rule.organization = org and status = active
-        -- All recently-ended leases (expired or revoked) in scope, within the shared
-        -- history window — surfaced by GET /leases/history. A lease's end is its
-        -- revoked_at (revoked) or its not_after (expired).
-        AccessLease where rule.organization = org
-                     and ((status = revoked and revoked_at >= now - config.history_window)
-                          or (status = expired and not_after >= now - config.history_window))
-
-        -- Per-collection rows.
-        for col in Collection where organization = org:
-            col.name
-            AccessRule where collections.contains(col)
-            CollectionMembership where collection = col
-            AccessRequest where collection = col and status = pending
-            AccessLease where collection = col and status = active
-
-    provides:
-        -- Admins may revoke any single active lease directly, without the
-        -- org-wide kill switch.
-        ApproverRevokesLeaseAction(admin, lease, reason)
-            when lease.rule.organization = org and lease.status = active
-}
-
-surface KillSwitchControl {
-    -- Component on the governance dashboard for the org-wide kill switch.
-    -- See kill-switch.component.
-    facing admin: OrgAdmin
-
-    context org: Organization
-
-    exposes:
-        AccessLease where rule.organization = org and status = active
-        -- Present while new leases are blocked org-wide.
-        LeasingFreeze where organization = org
-
-    provides:
-        -- Revoke all active leases; optionally also block new ones from starting.
-        OrgKillSwitchActivated(admin, org, block_new_leases)
-        -- Lift the block so approved requests can be activated again.
-        OrgUnblocksNewLeases(admin, org)
-            when exists LeasingFreeze{organization: org}
-}
-
 -- ----------------------------------------------------------------------------
 -- Invariants
 -- ----------------------------------------------------------------------------
 
 invariant AtMostOneLeasePerActivatedRequest {
-    -- Single-use approved request: an activated request maps to exactly one
-    -- lease; an approved-but-unactivated request maps to none. Extensions are
-    -- excluded — they activate by extending the parent in place and never mint
-    -- a lease of their own.
-    for request in AccessRequest where status = activated and extension_of = null:
-        (AccessLease where request = request).count = 1
+    -- Single-use approved request: a request that has a lease has exactly one,
+    -- and an extension never has any — it applies by extending the parent in place
+    -- and never mints a lease of its own. An approved request with no lease is one
+    -- that has not started.
+    for request in AccessRequest:
+        (AccessLease where request = request).count <= 1
+            and (request.extension_of != null
+                 implies (AccessLease where request = request).count = 0)
 }
 
 invariant NoLeaseWithoutActivatedRequest {
-    -- A lease exists only because its approved request was activated; the request
-    -- stays `activated` for the rest of its life, whatever the lease's later status.
+    -- A lease exists only because an approved first-grant request was started, and
+    -- that request stays approved for the rest of its life, whatever the lease's
+    -- later status: it never lapses, and it cannot be canceled or retracted.
     for lease in AccessLease:
-        lease.request.status = activated
+        lease.request.status = approved and lease.request.extension_of = null
 }
 
 invariant AtMostOneActiveLeasePerRequesterCipher {
@@ -1728,27 +2278,37 @@ invariant AtMostOneActiveLeasePerRequesterCipher {
 }
 
 invariant AtMostOneInFlightRequestPerRequesterCipher {
-    -- At most one non-extension request in {pending, approved} per
-    -- (requester, cipher): MemberSubmitsAccessRequest refuses to create a
-    -- request while another is pending or approved, and nothing else creates
-    -- one. Licenses the `.first` on approved_requests in
-    -- CipherOpenWithApprovedRequest — extensions never rest at `approved`
-    -- (they apply or deny in the same step they are approved), so that set is
-    -- a singleton too. Extension requests are excluded from this invariant:
-    -- MemberRequestsLeaseExtension has no duplicate guard. Since PM-42500 they do
-    -- not rest at `pending` either — no approver is waited on, so an extension is
-    -- created, approved and applied in a single step and is already terminal
-    -- (`activated` or `denied`) before anything else can observe it. The exclusion
-    -- is therefore now belt-and-braces rather than load-bearing.
-    for a in AccessRequest where extension_of = null:
-        for b in AccessRequest where extension_of = null:
+    -- At most one request in flight per (requester, cipher): a first grant still
+    -- pending, or approved and not started (AccessRequest.in_flight).
+    -- MemberSubmitsAccessRequest refuses to create a request while another is in
+    -- flight, and nothing else creates one. Licenses the `.first` on
+    -- approved_requests in CipherOpenWithApprovedRequest. A started request stays
+    -- approved but is no longer in flight, so a member can hold many approved
+    -- requests for one cipher over time. Extensions are never in flight: they are
+    -- created already decided, and bounded separately, at most one per lease
+    -- (AtMostOneExtensionPerLease). The server check is not yet race-safe against
+    -- two submits at once (PAM-223, PAM-215).
+    for a in AccessRequest:
+        for b in AccessRequest:
             a != b and a.requester = b.requester and a.cipher = b.cipher
-                implies not (a.status in {pending, approved}
-                             and b.status in {pending, approved})
+                implies not (a.in_flight and b.in_flight)
+}
+
+invariant AtMostOneExtensionPerLease {
+    -- A lease is extended at most once (PM-40526), whatever became of the attempt:
+    -- a denied late extension counts too. So a lease's whole life is at most its
+    -- window plus one max_extension_duration; after that a fresh request runs the
+    -- full evaluation, human approval included. The server re-counts under a
+    -- per-lease lock, so two concurrent attempts cannot both land.
+    for a in AccessRequest where extension_of != null:
+        for b in AccessRequest where extension_of != null:
+            a != b implies a.extension_of != b.extension_of
 }
 
 invariant SelfApprovalForbidden {
-    for request in AccessRequest where status in {approved, activated, denied}
+    -- Enforced by the server's DecideAccessRequestCommand (and, for a retraction,
+    -- CancelAccessRequestCommand); the client's canApprove.ts only mirrors it.
+    for request in AccessRequest where status in {approved, denied}
                                     and approver != null:
         request.approver != request.requester
 }
@@ -1769,12 +2329,6 @@ invariant SingleActiveLeaseRespected {
             implies not SingleActiveLeaseApplies(b.requester, b.cipher)
 }
 
-invariant AtMostOneLeasingFreezePerOrg {
-    for a in LeasingFreeze:
-        for b in LeasingFreeze:
-            a != b implies a.organization != b.organization
-}
-
 -- One live rule per collection is now structural, not an invariant: the link lives on
 -- Collection.access_rule as a single reference, so a collection cannot hold two. See the
 -- Collection entity and AccessRule.collections.
@@ -1791,66 +2345,180 @@ invariant OrgUniqueRuleNames {
 }
 
 -- ----------------------------------------------------------------------------
+-- PLANNED, NOT BUILT
+-- ----------------------------------------------------------------------------
+
+-- Everything in this section is GA backlog with no server, SDK or client
+-- implementation behind it. It is kept, not cut: the tickets below are open, though
+-- whether each makes GA waits on the MUST-versus-fast-follow cut (PAM-67). Nothing
+-- outside this section depends on it being built, except the leasing-freeze guard on
+-- ActivateLease, which is marked there as not enforced today.
+--
+-- Org-wide kill switch and leasing freeze: epic PAM-15 (PAM-16 force-release,
+-- PAM-17 kill switch with an optional freeze, PAM-18 freeze indicator and lift), and
+-- the member-side stories PAM-46 and PAM-49. Their audit kinds are reserved but never
+-- written (pam-audit.allium). When the design spike PAM-140 is groomed, reconcile
+-- three points: whether a freeze also blocks submitting a request (PAM-15's criteria)
+-- or only starting one (this spec); the audit and notification outcomes the kill
+-- switch and the unblock should emit; and the user-facing name ("Turn off all
+-- access", PAM-141).
+--
+-- Governance dashboard: epic PAM-115, story PAM-85, design in PAM-140. The server
+-- already serves the scope-wide lease lists (GET /leases/active and
+-- /leases/history, scoped to the collections the caller manages); the SDK wraps
+-- list_active only, and there is no summary read and no client. The surface below
+-- is the POC's design, to be re-derived from PAM-140 once it is groomed, audience
+-- included.
+
+-- An org-wide block on starting new leases, engaged by an admin (typically
+-- alongside the kill switch). While one exists for an organization, no approved
+-- request can be activated into a lease there. Its existence IS the "blocked" state;
+-- removing it lifts the block. At most one per organization.
+entity LeasingFreeze {
+    organization: Organization
+    engaged_at: Timestamp
+    engaged_by: User
+}
+
+rule OrgAdminTriggersKillSwitch {
+    -- Org-wide kill switch revokes all active leases in the organization in a
+    -- single bulk operation. Optionally also blocks new leases from starting
+    -- (engages a LeasingFreeze) so the org stays locked down until an admin
+    -- explicitly unblocks. Planned for the governance dashboard. Emits no audit or
+    -- notification outcome yet; PAM-17/18 and PAM-140 require both.
+    when: OrgKillSwitchActivated(admin, organization, block_new_leases)
+    ensures:
+        for lease in AccessLease where collection.organization = organization and status = active:
+            lease.status = revoked
+            lease.ended_at = now
+            lease.ended_by = admin
+        if block_new_leases and not exists LeasingFreeze{organization: organization}:
+            LeasingFreeze.created(
+                organization: organization,
+                engaged_at: now,
+                engaged_by: admin
+            )
+}
+
+rule OrgAdminUnblocksNewLeases {
+    -- Lifts an org-wide leasing freeze so approved requests can be activated again.
+    when: OrgUnblocksNewLeases(admin, organization)
+    let freeze = LeasingFreeze{organization: organization}
+    requires: exists freeze
+    ensures: not exists freeze
+}
+
+invariant AtMostOneLeasingFreezePerOrg {
+    for a in LeasingFreeze:
+        for b in LeasingFreeze:
+            a != b implies a.organization != b.organization
+}
+
+surface GovernanceDashboard {
+    -- The POC's design: a per-collection summary table for org admins (rule,
+    -- pending counts, active counts, last activity) and the scope-wide active and
+    -- recently-ended lease lists. The lease lists are the part the server already
+    -- serves (GET /leases/active, /leases/history).
+    facing admin: OrgAdmin
+
+    context org: Organization
+
+    exposes:
+        -- Strip totals.
+        AccessRule where organization = org
+                     and collections.count > 0
+        AccessRequest where collection.organization = org and status = pending
+        -- All active leases in scope, surfaced by GET /leases/active.
+        AccessLease where collection.organization = org and status = active
+        -- All recently-ended leases (expired, revoked or canceled) in scope, within the
+        -- shared history window — surfaced by GET /leases/history. A lease's end is its
+        -- ended_at (revoked or canceled) or its not_after (expired).
+        AccessLease where collection.organization = org
+                     and ((status in {revoked, canceled} and ended_at >= now - config.history_window)
+                          or (status = expired and not_after >= now - config.history_window))
+
+        -- Per-collection rows.
+        for col in Collection where organization = org:
+            col.name
+            AccessRule where col in collections
+            AccessRequest where collection = col and status = pending
+            AccessLease where collection = col and status = active
+
+    provides:
+        -- Admins may revoke any single active lease directly, without the
+        -- org-wide kill switch.
+        ApproverRevokesLeaseAction(admin, lease, reason)
+            when lease.collection.organization = org and lease.status = active
+}
+
+surface KillSwitchControl {
+    -- The org-wide kill switch control, planned for the governance dashboard.
+    facing admin: OrgAdmin
+
+    context org: Organization
+
+    exposes:
+        AccessLease where collection.organization = org and status = active
+        -- Present while new leases are blocked org-wide.
+        LeasingFreeze where organization = org
+
+    provides:
+        -- Revoke all active leases; optionally also block new ones from starting.
+        OrgKillSwitchActivated(admin, org, block_new_leases)
+        -- Lift the block so approved requests can be activated again.
+        OrgUnblocksNewLeases(admin, org)
+            when exists LeasingFreeze{organization: org}
+}
+
+-- ----------------------------------------------------------------------------
 -- Open questions
 -- ----------------------------------------------------------------------------
 
-open question "When an AccessRule is hard-deleted while an associated AccessLease is still active, what happens to a later extension of that lease? The lease lives out its window, but its rule reference now points to a removed rule — and an extension routes back through that rule (MemberRequestsLeaseExtension copies lease.rule onto the new request, and ExtensionApprovedExtendsParentLease reads its default_lease_duration to size the push-out). Does an extension against a deleted rule deny, or honour the original grant? And what resolves lease.rule once the row is gone? PM-42500 sharpens this rather than settling it: with no approver in the loop there is no human left to catch the dangling reference."
+open question "Should a disabled pinned rule behave like a deleted one (PAM-211)? Today they differ (see AccessRequest.rule). A deleted rule's pin is cleared and re-resolves at activation, so a younger rule on another path can take over. A disabled rule's pin survives and governs nothing, so its approved requests activate with no condition check ('instant access') even when a younger enabled rule on another path would have checked them, and extensions under it are refused. The reviewer's lean: a disabled pin should re-resolve at activation too. The answer decides the formal projection of the rule a pin governs by, which this spec leaves in prose until then."
 
-open question "AccessRequest.rule is pinned as an FK to AccessRule (RuleId), yet a rule is hard-deleted and the delete clears only the collection links, not the request pins — so deleting a rule that still has pinned requests fails on the AccessRequest→AccessRule foreign key (ON DELETE NO ACTION). Known issue, deferred: should the delete null the pins first (requests survive ungoverned, and the audit already snapshots the rule name), or should deleting a rule that has request history be blocked?"
+open question "When a rule's automated conditions refuse a submit, should a visible denied request be saved as well (PAM-206), as PM-42632 chose for late extensions, or is an audit event enough? Today nothing is saved and nothing is audited; PAM-229 adds the audit event. A refused out-of-network attempt that leaves no trace is a detection gap in a privileged-access product, which activation (LeaseActivationRejected) does not have."
 
-open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
+open question "Should the server audit a whole-vault export (PAM-204)? It is the only export that carries gated credentials in full (a member's own export leaves them out): a bulk, lease-free release of exactly what the trail exists to account for. Nothing in PAM records it (pam-audit's CredentialAccessed is itself deferred). The only trace is the organization event log's Organization_ClientExportedVault, which the CLIENT sends, so a modified client can skip it, and which never names the ciphers exported. Undecided: a server-written PAM event per export (or per gated cipher in it), or leave export accounting to the org event log."
 
-open question "Does a vault export that carries PAM-gated credentials emit a PAM audit event? An export is a bulk, lease-free release of exactly the credentials the trail exists to account for, yet nothing in PAM writes it today (pam-audit's CredentialAccessed is itself deferred), and the organization event log records only that an export happened — never which gated ciphers it carried. Undecided: emit a PAM event per export (or per gated cipher within it), or leave export accounting to the org event log."
+open question "One extension per lease, or several within a total (PAM-212)? Today a lease extends at most once (AtMostOneExtensionPerLease, since PM-40526), so its whole life is bounded by its window plus one max_extension_duration, and a denied late attempt uses up that one extension. The alternative is any number of extensions while the total stays within the rule's maximum access time. A narrower worry survives either way: on a human-approval rule, is one unapproved increment of up to max_extension_duration (which may be as long as the global ceiling) too much?"
 
-open question "PM-42500 removes approval from lease extensions, and with it the control that used to bound a lease's cumulative life — every extension was previously a fresh authorization, so on a human_approval rule each increment needed a human. Now a member granted one human-approved lease can self-renew it indefinitely without an approver ever seeing it again, and max_lease_duration deliberately clamps only a single lease as minted, never the total. So what bounds cumulative lease life? The implementation has two controls the spec does not model — the rule's allowsExtensions toggle (may this rule be extended at all) and its per-increment maxExtensionDurationSeconds cap — but neither bounds the COUNT of extensions, which is the axis approval used to hold. Options: model a cumulative ceiling on the rule, cap the number of extensions per lease, expire the right to extend along with the original approval, or accept unbounded self-renewal as the intended trade."
+open question "Should lowering a rule's max_lease_duration reach requests and leases already made? Today the cap is checked once, at submit, against the rule as it was then; activation mints the window's end unchanged. So an admin who shortens a rule's maximum does not shorten an approved request that has not started yet, nor a lease that is already running. Should either be cut to the new maximum?"
 
-open question "PM-42500 stops evaluating a rule's conditions on an extension, so an ip_allowlist no longer bounds a member's period of access — only its start. A member who obtains a lease from inside the allowlist can extend it from any network, and nothing downstream re-asks: CipherLeaseGate hands over a gated cipher on the existence of an active lease alone. This is the same gap PM-42273 closed on the activation path, deliberately left open on the extension path, and it sits badly next to that fix. The argument FOR leaving it: an extension re-opens no new access, so re-litigating the network is a check on a decision already made. The argument AGAINST: an allowlist is a standing condition on where a credential may be reached from, not a one-time entry test, and an admin reading 'only from these CIDRs' will not expect a lease to outlive the network. Undecided: gate extensions on the automated conditions after all (the human stays out, the machine check returns), gate only the ip_allowlist kind while exempting the rest, cap what an extension can add so the unchecked window is bounded, or accept that an allowlist bounds the start of access and document it as such at the admin surface."
+open question "What should an ip_allowlist restrict (PAM-205)? Today it bounds ACQUISITION, never USE. It is checked when a member submits on a rule without human approval and whenever they start a lease (PM-42273), but no read re-checks the caller's network: CipherLeaseGate releases on a live lease alone, so any lease, extended or not, is readable from anywhere for its whole window. Extensions (PM-42500) are not checked either, which lengthens that unchecked window by at most one max_extension_duration. An admin reading 'only from these CIDRs' may expect more. Options: re-check the allowlist on every lease-backed read of the credential; check the governing rule's automated conditions on the single-item release read only, so an off-allowlist read gets the partial item and the lease is untouched; bind a lease to the client instance that started it; enforce more strictly on some rules only; or keep today's behaviour and say at the admin surface that an allowlist bounds where access starts."
 
-open question "Does an org-wide kill switch or LeasingFreeze stop vault export? A freeze blocks STARTING leases, and an export mints none, so on the current reading export keeps working while the org is otherwise locked down — a hole in what an admin may well read as a total shutdown. Undecided: leave the two axes independent (export overrides leasing, freeze included), or have a freeze withhold gated ciphers from export too."
+open question "Should the requester be mailed when an approver withdraws their approval? Today a retraction (ApproverRetractsRequest) is pushed but not mailed, so a requester who is not looking at PAM learns of it only when Start is gone. PAM-29, the next change to retraction, would also require the approver to give a reason, which a mail could carry."
 
--- SUPERSEDED by PM-42500 — cumulative extension duration. Recorded here because
--- the reasoning matters, not just the outcome.
+open question "Should a submit the automated conditions refused notify anyone beyond the member, who sees the refusal at once? PAM-30 asks for a notification when policy auto-denies a request; since the refusal saves nothing (see the PAM-206 question), there is no request for approvers to see either."
+
+open question "Should expiry be announced? Nothing is sent when a pending request lapses undecided (the approvers who never acted are not told), when an approved request lapses unused (the requester is not told), or when a lease reaches its end. Expiry is derived when read, so any notice would need a sweep or a scheduled send."
+
+-- RESOLVED — what bounds a lease's cumulative life once extensions need no
+-- approval (PM-42500). Recorded because the reasoning matters, not just the outcome.
 --
--- The previous resolution: repeated extensions may push a lease past
--- max_lease_duration, deliberately, because the control on cumulative lease life is
--- per-extension APPROVAL rather than arithmetic — every extension ran the full
--- evaluation pipeline, so on a human-approval rule each increment was a fresh human
--- authorization. On an automatic rule extensions renewed unattended, but that granted
--- nothing re-requesting didn't already (a member could mint a fresh auto-approved
--- lease the moment the old one lapsed), so capping extensions while re-requests were
--- unbounded would have been control theater.
---
--- PM-42500 makes extensions never require an approval. That does two things:
---
---   WHAT NOW HOLDS. The wire layer's "extensions are always auto-approved"
---   (AccessLeaseExtensionRequest) is no longer a violation of this spec — it is what
---   the spec now says, and neither is its skipping of the rule's automated
---   conditions: the implementation never asked them on the extension path, and the
---   spec has come to it rather than the other way round. max_lease_duration still
---   bounds a single lease as minted and nothing more.
---
---   WHAT COLLAPSED. The "control theater" argument rested on extensions and
---   re-requests being equally unattended. That was true only on automatic rules. On a
---   human-approval rule a re-request still needs an approver and an extension no
---   longer does, so the two paths have come apart — and the cheaper one now wins. The
---   control that bounded cumulative lease life is simply gone, and no arithmetic one
---   replaced it. This is NOT re-resolved as "unbounded is fine"; it is reopened. See
---   the cumulative-extension open question above.
---
--- The impl's per-increment maxExtensionDurationSeconds cap and its allowsExtensions
--- toggle (may this rule be extended at all) are the only controls left in the code,
--- and both remain unmodeled here. With approval gone AND the conditions no longer
--- asked, they are now the ONLY controls on extending at all — which is why modelling
--- them has stopped being tidy-up and become the substance of two open questions (the
--- cumulative-life one above, and the extension-conditions one).
+-- Before PM-42500 every extension ran the full evaluation, so on a human-approval
+-- rule each increment was a fresh human authorization, and that was the stated
+-- control on cumulative life. PM-42500 removed approval from extensions, and the
+-- spec briefly concluded that nothing bounded a lease any more and a member could
+-- self-renew indefinitely. That premise was false when it was written: the server
+-- has allowed ONE extension per lease since PM-40526, the same day the spec was
+-- first written, and every later extension change kept it. So the bound is
+-- arithmetic: one window, capped at submit by max_lease_duration, plus one
+-- extension, capped by max_extension_duration, both within the global ceiling.
+-- After that the member makes a fresh request, which runs the full evaluation,
+-- human approval included. Whether one is the right number is PAM-212.
 
--- RESOLVED — org suspension and governance: a suspended (disabled) organization
--- drops out of the caller's claim-based current context, which would empty every
--- collection-scoped governance read (approver inbox, lease lists, audit trail).
--- Governance stays FULLY available to org admins while the org is suspended — the
--- manageable-collection resolution also reads the admin's confirmed memberships
--- from the database (which include disabled orgs), so both review AND leasing
--- actions (approve/deny/revoke) work during suspension.
+-- RESOLVED — org suspension. Governance keeps working while an organization is
+-- suspended; members' leases stop releasing.
+--   - Governance: the collection-scoped reads and actions (approver inbox, lease
+--     lists, request details, decide, cancel, revoke) resolve manageable collections
+--     partly from the admin's confirmed memberships in the database, which include
+--     disabled organizations, so they keep working. The audit trail is org-scoped and
+--     authorized by the event-log permission from claims; it stays available because
+--     the claims issued for a member include disabled organizations too.
+--   - Members: suspension clears PAM entitlement (HoldsPamSeat needs the org
+--     enabled), so nobody can submit, activate or extend, and every held lease stops
+--     releasing its cipher until the organization is re-enabled. That is the safe
+--     side for a suspended organization.
 
 -- RESOLVED — when a member reaches a cipher through multiple gated collections
 -- carrying different enabled rules, WHICH rule governs was previously undefined /
@@ -1859,12 +2527,27 @@ open question "Does an org-wide kill switch or LeasingFreeze stop vault export? 
 -- member's gated paths to the cipher (ties broken stably on rule id). Deterministic,
 -- with no favouring of automatic grants over human approval. Resolution happens
 -- once, at request submit time, and the resolved rule is PINNED on the AccessRequest
--- (its RuleId stored at creation); all downstream logic reads the pinned rule, never
--- a re-resolution. (Implementation status: oldest-wins selection AND submit-time pinning
--- are both live — the RuleId is stored at creation and surfaced on the request reads; see
--- the AccessRequest.rule field.) Trade-off, stated deliberately: a newer auto-approve rule no
--- longer pre-empts an older human-approval rule — determinism over least-restriction.
--- See the oldest_rule selector and the AccessRequest.rule field. NOTE: this
--- is distinct from — and does not change — the union/OR policy that decides WHETHER a
--- cipher is gated at all (one ungated path bypasses gating; see RuleBypassableCiphers)
--- or the union/OR logic for single_active_lease (see SingleActiveLeaseApplies).
+-- (its RuleId stored at creation). Downstream reads the pinned rule as it stands now
+-- and never re-resolves to a different rule while the pin stands; only a rule delete
+-- clears the pin (see the AccessRequest.rule field). Trade-off, stated deliberately: a
+-- newer auto-approve rule no longer pre-empts an older human-approval rule —
+-- determinism over least-restriction. See the oldest_rule selector and the
+-- AccessRequest.rule field. NOTE: this is distinct from — and does not change — the
+-- union/OR policy that decides WHETHER a cipher is gated at all (one ungated path
+-- bypasses gating; see RuleBypassableCiphers) or the union/OR logic for
+-- single_active_lease (see SingleActiveLeaseApplies).
+
+-- RESOLVED — deleting a rule that requests are pinned to (server #8002, the same day
+-- the spec was first written). The delete clears every pin to the rule before
+-- removing it, instead of failing on the request's foreign key or being blocked: the
+-- pin is provenance, not authority, and the audit trail already snapshots the rule's
+-- name. A request left without a pin re-resolves wherever the pin would have been read
+-- (see AccessRequest.rule and OrgAdminDeletesAccessRule).
+
+-- RESOLVED — extending a lease whose rule was deleted. A lease has no rule of its
+-- own: its rule is its originating request's pin, which the delete clears. The
+-- extension then re-resolves against the member's current paths. When no rule
+-- governs, the item no longer needs a lease and the extension is refused ("This item
+-- does not require a lease"); when another path's rule governs, that rule's extension
+-- settings decide. A pin to a rule that still exists but is disabled refuses the
+-- extension (PM-43689). No approver was ever needed to catch this.

@@ -13,6 +13,7 @@ import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
+import { lapsedGrantBadge } from "../my-access-row";
 
 import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
 import {
@@ -334,6 +335,55 @@ describe("AccessRequestDialogComponent", () => {
       create();
 
       expect(remaining()).toBeNull();
+    });
+
+    it("keeps an unactivated grant approved while its activation window is open", () => {
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+
+      create();
+
+      expect(component["badge"]()).toEqual({
+        badgeState: null,
+        statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+      });
+    });
+
+    it("reads an unactivated grant whose window already lapsed as expired", () => {
+      detail.request$.next(request({ status: "approved", leaseNotAfter: PAST }));
+
+      create();
+
+      expect(component["badge"]()).toEqual({ badgeState: null, statusBadge: lapsedGrantBadge });
+    });
+
+    it("flips an unactivated grant to expired when its window lapses while the dialog is open", () => {
+      const notAfter = new Date(Date.now() + 2000).toISOString();
+      detail.request$.next(request({ status: "approved", leaseNotAfter: notAfter }));
+
+      create();
+      expect(component["badge"]()?.statusBadge?.labelKey).toBe("pamStatusApproved");
+
+      component["nowMs"].set(Date.parse(notAfter) + 1000);
+
+      expect(component["badge"]()).toEqual({ badgeState: null, statusBadge: lapsedGrantBadge });
+    });
+
+    it("leaves an activated grant alone past the request's window, where the lease's own end governs", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          leaseNotAfter: PAST,
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+      );
+
+      create();
+
+      expect(component["badge"]()).toEqual({
+        badgeState: null,
+        statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
+      });
     });
   });
 
