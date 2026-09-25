@@ -14,12 +14,20 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitCellLoadingDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   CopyClickDirective,
   DialogService,
   FILTER_CONTROL,
@@ -35,6 +43,7 @@ import {
   TableModule,
   ToastService,
   TooltipDirective,
+  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -121,6 +130,12 @@ export type TargetSystemRow = {
     SkeletonComponent,
     SkeletonTextComponent,
     TableModule,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -137,6 +152,13 @@ export class TargetSystemsTabComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
@@ -186,6 +208,16 @@ export class TargetSystemsTabComponent {
   private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
+  protected readonly table = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
+    this.rows,
+  );
+  /**
+   * Model for the loading placeholder, which draws no data rows: while a load is in flight, rows
+   * already held from an earlier load would otherwise show through before the skeleton's delay.
+   */
+  protected readonly loadingTable = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
+    signal<TargetSystemRow[]>([]),
+  );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
@@ -220,6 +252,33 @@ export class TargetSystemsTabComponent {
     filterOptions(this.rows().map((row) => [row.statusLabelKey, row.statusLabel] as const)),
   );
 
+  protected readonly rowFilter = computed(() => {
+    const text = this.searchText().trim().toLowerCase();
+    const method = this.methodFilterChip()?.value() as string | null | undefined;
+    const kind = this.kindFilterChip()?.value() as TargetSystemKind | null | undefined;
+    const status = this.statusFilterChip()?.value() as string | null | undefined;
+
+    return (row: TargetSystemRow): boolean => {
+      if (
+        text !== "" &&
+        !row.name.toLowerCase().includes(text) &&
+        !(row.kindLabel?.toLowerCase().includes(text) ?? false)
+      ) {
+        return false;
+      }
+      if (method != null && row.methodLabelKey !== method) {
+        return false;
+      }
+      if (kind != null && row.system.kind !== kind) {
+        return false;
+      }
+      if (status != null && row.statusLabelKey !== status) {
+        return false;
+      }
+      return true;
+    };
+  });
+
   private readonly busyRows = new RowBusyTracker<TargetSystemId>();
 
   protected readonly isRowBusy = this.busyRows.isBusy;
@@ -234,30 +293,7 @@ export class TargetSystemsTabComponent {
     });
 
     effect(() => {
-      const text = this.searchText().trim().toLowerCase();
-      const method = this.methodFilterChip()?.value() as string | null | undefined;
-      const kind = this.kindFilterChip()?.value() as TargetSystemKind | null | undefined;
-      const status = this.statusFilterChip()?.value() as string | null | undefined;
-
-      this.dataSource.filter = (row) => {
-        if (
-          text !== "" &&
-          !row.name.toLowerCase().includes(text) &&
-          !(row.kindLabel?.toLowerCase().includes(text) ?? false)
-        ) {
-          return false;
-        }
-        if (method != null && row.methodLabelKey !== method) {
-          return false;
-        }
-        if (kind != null && row.system.kind !== kind) {
-          return false;
-        }
-        if (status != null && row.statusLabelKey !== status) {
-          return false;
-        }
-        return true;
-      };
+      this.dataSource.filter = this.rowFilter();
     });
   }
 
