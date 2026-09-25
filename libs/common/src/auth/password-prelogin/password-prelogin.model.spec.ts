@@ -5,7 +5,8 @@ import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginData } from "./password-prelogin.model";
 import { PasswordPreloginResponse } from "./password-prelogin.response";
 
-const salt = "user@example.com";
+const salt = "server.normalized+salt@example.com";
+const email = "user@example.com";
 
 describe("PasswordPreloginData", () => {
   describe("fromResponse", () => {
@@ -45,7 +46,10 @@ describe("PasswordPreloginData", () => {
         ),
       },
     ])("maps a $description response to a PasswordPreloginData", ({ response, expected }) => {
-      const result = PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response));
+      const result = PasswordPreloginData.fromResponse(
+        new PasswordPreloginResponse(response),
+        email,
+      );
 
       expect(result).toEqual(expected);
     });
@@ -58,10 +62,12 @@ describe("PasswordPreloginData", () => {
           KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
           Salt: serverSalt,
         }),
+        email,
       );
 
-      // The model is a pass-through: it does not normalize. Callers that derive a key still
-      // normalize on their own (LegacyCompatKeyService, MasterPasswordService).
+      // A present server salt wins verbatim: the model only normalizes in the fallback case.
+      // Callers that derive a key normalize again on their own (LegacyCompatKeyService,
+      // MasterPasswordService).
       expect(result.salt).toBe(serverSalt);
     });
 
@@ -71,6 +77,7 @@ describe("PasswordPreloginData", () => {
           kdfSettings: { kdfType: 0, iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
           salt,
         }),
+        email,
       );
 
       expect(result).toEqual(
@@ -79,6 +86,36 @@ describe("PasswordPreloginData", () => {
           salt,
         ),
       );
+    });
+
+    // The server declares Salt as `string?` and returns the nullable User.MasterPasswordSalt
+    // column verbatim, so a null salt reaches the client for any account the column was never
+    // backfilled for.
+    it.each([
+      { description: "the server salt is null", response: { Salt: null } },
+      { description: "the response omits Salt entirely", response: {} },
+    ])("falls back to the email when $description", ({ response }) => {
+      const result = PasswordPreloginData.fromResponse(
+        new PasswordPreloginResponse({
+          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+          ...response,
+        }),
+        email,
+      );
+
+      expect(result.salt).toBe(email);
+    });
+
+    it("trims and lower-cases the email it falls back to", () => {
+      const result = PasswordPreloginData.fromResponse(
+        new PasswordPreloginResponse({
+          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+          Salt: null,
+        }),
+        "  USER@Example.COM  ",
+      );
+
+      expect(result.salt).toBe(email);
     });
 
     it.each([
@@ -139,7 +176,7 @@ describe("PasswordPreloginData", () => {
       },
     ])("throws for $description", ({ response, expectedError }) => {
       expect(() =>
-        PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response)),
+        PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response), email),
       ).toThrow(expectedError);
     });
 
