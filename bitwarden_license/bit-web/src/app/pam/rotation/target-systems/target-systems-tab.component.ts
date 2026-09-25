@@ -21,6 +21,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  AsyncActionsModule,
   BadgeModule,
   BitCellComponent,
   BitCellDefDirective,
@@ -29,6 +30,7 @@ import {
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  ButtonModule,
   CopyClickDirective,
   DialogService,
   FILTER_CONTROL,
@@ -120,7 +122,9 @@ export type TargetSystemRow = {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    AsyncActionsModule,
     BadgeModule,
+    ButtonModule,
     CopyClickDirective,
     FilterMenuModule,
     IconButtonModule,
@@ -208,6 +212,13 @@ export class TargetSystemsTabComponent {
 
   /** The table's rows, and the set the toolbar chips derive their options from. */
   private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
+
+  /**
+   * Whether the org has any target system at all, which the toolbar's create button is gated on.
+   * A search term keeps the table and its toolbar on screen over an empty list, so the toolbar
+   * alone is not evidence that there is a list to add to.
+   */
+  protected readonly hasSystems = computed(() => this.rows().length > 0);
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly table = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
