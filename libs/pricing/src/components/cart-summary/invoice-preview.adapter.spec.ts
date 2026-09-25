@@ -233,8 +233,8 @@ describe("adaptInvoicePreviewToCart", () => {
 
     it.each([
       [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premiumSubscriptionCredit"],
-      [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedSubscriptionCredits"],
-      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "appliedSubscriptionCredits"],
+      [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedProrationCredits"],
+      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "appliedProrationCredits"],
     ])("should emit a credit row for %s", (flowContext, expectedKey) => {
       const preview = basePreview({
         passwordManager: {
@@ -276,7 +276,7 @@ describe("adaptInvoicePreviewToCart", () => {
           },
         ]);
         expect(cart.credit).toEqual({
-          translationKey: "appliedSubscriptionCredits",
+          translationKey: "appliedProrationCredits",
           value: 37.64,
         });
         expect(cart.hidePricingTerm).toBe(true);
@@ -338,10 +338,10 @@ describe("adaptInvoicePreviewToCart", () => {
           },
         ]);
         expect(cart.credit).toEqual({
-          translationKey: "appliedSubscriptionCredits",
+          translationKey: "appliedProrationCredits",
           value: 9.02,
         });
-        expect(cart.hidePricingTerm).toBeUndefined();
+        expect(cart.hidePricingTerm).toBe(undefined);
       });
 
       it("should emit no charge lines for a pure-credit proration", () => {
@@ -370,9 +370,95 @@ describe("adaptInvoicePreviewToCart", () => {
 
         expect(cart.passwordManager.prorationCharges).toBeUndefined();
         expect(cart.credit).toEqual({
-          translationKey: "appliedSubscriptionCredits",
+          translationKey: "appliedProrationCredits",
           value: 9.02,
         });
+      });
+    });
+
+    describe("plan change", () => {
+      it("should render charged prorations as their own lines beside a real seat line", () => {
+        // A plan change previews the new plan's per-unit price plus a separate mid-cycle proration
+        // charge, so the charge renders as its own line rather than merging into the seat line.
+        const preview = basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 3, cost: 144 },
+            prorations: [
+              {
+                reference: "pm-seat",
+                credit: 7,
+                charge: 13.99,
+                tax: 0,
+                total: 6.99,
+                months: 1,
+              },
+            ],
+          },
+          planTier: "enterprise",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationPlanChange,
+          logService,
+        );
+
+        expect(cart.passwordManager.seats).toEqual({
+          translationKey: "passwordManagerPlanPrice",
+          quantity: 3,
+          cost: 144,
+        });
+        expect(cart.passwordManager.prorationCharges).toEqual([
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 13.99,
+            hideBreakdown: true,
+          },
+        ]);
+        expect(cart.credit).toEqual({
+          translationKey: "appliedProrationCredits",
+          value: 7,
+        });
+        // The invoice is a one-time proration settlement, so the total carries no recurring term
+        // even though a recurring seat line is present.
+        expect(cart.hidePricingTerm).toBe(true);
+      });
+
+      it("orders the seat proration charge before the storage proration charge", () => {
+        // The server sends storage first; the seat charge must still render above it.
+        const preview = basePreview({
+          passwordManager: {
+            seats: { reference: "pm-seat", quantity: 3, cost: 144 },
+            additionalStorage: { reference: "pm-storage", quantity: 1, cost: 15 },
+            prorations: [
+              { reference: "pm-storage", credit: 0, charge: 5, tax: 0, total: 5, months: 1 },
+              { reference: "pm-seat", credit: 0, charge: 13.99, tax: 0, total: 13.99, months: 1 },
+            ],
+          },
+          planTier: "enterprise",
+        });
+
+        const cart = adaptInvoicePreviewToCart(
+          preview,
+          InvoicePreviewFlowContext.OrganizationPlanChange,
+          logService,
+        );
+
+        expect(cart.passwordManager.prorationCharges).toEqual([
+          {
+            translationKey: "passwordManagerProratedCharge",
+            quantity: 1,
+            cost: 13.99,
+            hideBreakdown: true,
+          },
+          {
+            translationKey: "storageProratedCharge",
+            quantity: 1,
+            cost: 5,
+            hideBreakdown: true,
+          },
+        ]);
       });
     });
 

@@ -16,31 +16,16 @@ import {
 } from "./translation";
 
 /**
- * Where a proration charge appears in the cart.
- *
- * - SeatLine (upgrade, plan-change): the server bakes each proration charge into its seat line —
- *   the seat line is the charge. No separate charge row renders, and the seat line's quantity x
- *   cost breakdown hides because its cost is a lump, not a per-unit price.
- * - ProrationLine (subscription page): the seat line is a real per-unit renewal price, or absent
- *   entirely on an all-proration transition invoice — where no seat quantity exists, so a seat
- *   line can't be built. Charged prorations render as their own lines either way.
+ * Describes the layout policy for a cart, derived from the flow context.
+ * - `prorationChargesAsSeparateLines`: whether charged prorations render as their own lines.
+ *   When `false`, the server bakes each proration charge into its seat line — the seat line is the
+ *   charge
+ * - `hidePricingTerm`: whether to suppress the recurring pricing term because the invoice is a
+ *   one-time invoice rather than a renewal.
  */
-const ProrationChargePlacements = {
-  SeatLine: "seat-line",
-  ProrationLine: "proration-line",
-} as const;
-type ProrationChargePlacement =
-  (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
-
-const getProrationChargePlacement = (
-  flowContext: InvoicePreviewFlowContext,
-): ProrationChargePlacement => {
-  switch (flowContext) {
-    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
-      return ProrationChargePlacements.ProrationLine;
-    default:
-      return ProrationChargePlacements.SeatLine;
-  }
+type CartLayout = {
+  prorationChargesAsSeparateLines: boolean;
+  hidePricingTerm: boolean;
 };
 
 /**
@@ -57,6 +42,7 @@ export const adaptInvoicePreviewToCart = (
   logService: LogService,
 ): Cart => {
   const { passwordManager, secretsManager, planTier } = preview;
+  const layout = resolveCartLayout(preview, flowContext);
 
   const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
     translationKey: getCartItemTranslationKey(
@@ -75,41 +61,28 @@ export const adaptInvoicePreviewToCart = (
   });
 
   /**
-   * Constructs a proration charge line for the cart.
-   */
-  const chargeLine = (
-    proration: PurchasableProration,
-    seatReference: PurchasableReference,
-  ): CartItem => ({
-    translationKey: getProrationChargeTranslationKey(proration.reference, seatReference),
-    quantity: 1,
-    cost: proration.charge,
-    hideBreakdown: true,
-  });
-
-  /**
    * Builds one product group's rows: its seat line, if the invoice carries one, plus the group's
-   * charged prorations, placed per the flow's charge placement.
+   * charged prorations, placed per the resolved layout.
    */
   const buildGroup = (
     item: InvoicePreviewItem | undefined,
     prorations: PurchasableProration[] | undefined,
     seatReference: PurchasableReference,
   ): { seats?: CartItem; prorationCharges?: CartItem[] } => {
-    const placement = getProrationChargePlacement(flowContext);
-
-    // On SeatLine placements the seat line's cost is the proration charge itself — a lump, not a
-    // per-unit price — so its quantity x cost breakdown would read false.
-    const shouldHideBreakdown =
-      placement === ProrationChargePlacements.SeatLine && hasProrations(prorations);
-
-    const seats = item ? toCartItem(item, shouldHideBreakdown) : undefined;
+    const hideBreakdown = !layout.prorationChargesAsSeparateLines && hasProrations(prorations);
+    const seats = item ? toCartItem(item, hideBreakdown) : undefined;
 
     let prorationCharges: CartItem[] | undefined;
-    if (placement === ProrationChargePlacements.ProrationLine && prorations != null) {
-      prorationCharges = prorations
-        .filter((proration) => proration.charge > 0)
-        .map((proration) => chargeLine(proration, seatReference));
+    if (layout.prorationChargesAsSeparateLines && prorations != null) {
+      const charged = prorations.filter((proration) => proration.charge > 0);
+      // Seat charge first, then the group's other purchasable (e.g. storage under it). A proration
+      // is only identifiable as non-seat by its reference — the same reference that labels it.
+      const isSeatCharge = (proration: PurchasableProration) =>
+        (proration.reference ?? seatReference) === seatReference;
+      prorationCharges = [
+        ...charged.filter(isSeatCharge),
+        ...charged.filter((p) => !isSeatCharge(p)),
+      ].map((proration) => chargeLine(proration, seatReference));
     }
 
     return {
@@ -122,14 +95,6 @@ export const adaptInvoicePreviewToCart = (
   const sm = secretsManager
     ? buildGroup(secretsManager.seats, secretsManager.prorations, "sm-seat")
     : {};
-
-  // A mid-cycle change can return an "all-proration" invoice: only one-time proration adjustments,
-  // with no recurring seat, storage, or service-account line items.
-  const allProrationInvoice =
-    pm.seats == null &&
-    passwordManager.additionalStorage == null &&
-    sm.seats == null &&
-    secretsManager?.additionalServiceAccounts == null;
 
   const cart: Cart = {
     passwordManager: {
@@ -154,7 +119,7 @@ export const adaptInvoicePreviewToCart = (
         }
       : {}),
     cadence: preview.cadence,
-    ...(allProrationInvoice ? { hidePricingTerm: true } : {}),
+    ...(layout.hidePricingTerm ? { hidePricingTerm: layout.hidePricingTerm } : {}),
     ...(preview.discounts ? { discounts: preview.discounts } : {}),
     estimatedTax: preview.estimatedTax,
     total: preview.total,
@@ -173,6 +138,68 @@ export const adaptInvoicePreviewToCart = (
 
 const hasProrations = (prorations: PurchasableProration[] | undefined): boolean =>
   !!prorations && prorations.length > 0;
+
+/**
+ * Resolves the layout policy for a cart based on the invoice preview and flow context.
+ * @param preview The current invoice preview.
+ * @param flowContext The current flow context of the invoice preview.
+ * @returns The resolved {@link CartLayout}.
+ */
+const resolveCartLayout = (
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
+): CartLayout => ({
+  prorationChargesAsSeparateLines:
+    flowContext === InvoicePreviewFlowContext.OrganizationSubscriptionPage ||
+    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange,
+  hidePricingTerm: shouldHidePricingTerm(preview, flowContext),
+});
+
+/**
+ * Constructs a proration charge line for the cart.
+ */
+const chargeLine = (
+  proration: PurchasableProration,
+  seatReference: PurchasableReference,
+): CartItem => ({
+  translationKey: getProrationChargeTranslationKey(proration.reference, seatReference),
+  quantity: 1,
+  cost: proration.charge,
+  hideBreakdown: true,
+});
+
+/**
+ * Determines whether the pricing term for a line should be hidden based on the flow context and the presence of prorations.
+ * @param preview The current invoice preview.
+ * @param flowContext The current flow context of the invoice preview.
+ * @returns `true` if the pricing term should be hidden, `false` otherwise.
+ */
+const shouldHidePricingTerm = (
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
+): boolean => {
+  const { passwordManager, secretsManager } = preview;
+
+  // All-proration invoice: only one-time proration adjustments, no recurring line at all.
+  if (
+    passwordManager.seats == null &&
+    passwordManager.additionalStorage == null &&
+    secretsManager?.seats == null &&
+    secretsManager?.additionalServiceAccounts == null
+  ) {
+    return true;
+  }
+
+  // Mid-cycle plan change: a one-time proration invoice
+  if (
+    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
+    (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations))
+  ) {
+    return true;
+  }
+
+  return false;
+};
 
 /**
  * Collapses every proration across both product groups into at most one credit row.
