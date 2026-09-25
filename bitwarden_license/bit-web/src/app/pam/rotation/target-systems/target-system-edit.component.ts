@@ -20,6 +20,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
+  BitCellComponent,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -172,6 +173,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
+    BitCellComponent,
     DetailBreadcrumbComponent,
     ButtonModule,
     CalloutModule,
