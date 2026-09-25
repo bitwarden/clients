@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -515,6 +515,32 @@ describe("VaultComponent", () => {
 
     sub.unsubscribe();
   });
+
+  it("marks the vault rendered only once, on the first render", fakeAsync(() => {
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const logService = TestBed.inject(LogService) as MockProxy<LogService>;
+    logService.mark.mockClear();
+
+    // loading$ has several subscribers, and background syncs flip it back to loading
+    const subs = [
+      getObs<boolean>(component, "loading$").subscribe(),
+      getObs<boolean>(component, "loading$").subscribe(),
+    ];
+    readySubject$.next(true);
+    vaultLoading$.next(false);
+    defaultFixture.detectChanges();
+
+    vaultLoading$.next(true);
+    vaultLoading$.next(false);
+    defaultFixture.detectChanges();
+    flush();
+
+    expect(logService.mark).toHaveBeenCalledTimes(1);
+    expect(logService.mark).toHaveBeenCalledWith("Vault rendered");
+
+    subs.forEach((sub) => sub.unsubscribe());
+  }));
 
   it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
     const fixture = TestBed.createComponent(VaultComponent);
