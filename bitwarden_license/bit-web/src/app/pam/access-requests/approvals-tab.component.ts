@@ -2,8 +2,6 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  Signal,
   computed,
   effect,
   inject,
@@ -48,6 +46,7 @@ import {
   TooltipDirective,
   TypographyModule,
   defineTable,
+  isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -69,14 +68,6 @@ type FilterOption = { label: string; value: string };
 
 type ApprovalColumn = ColumnName<ApprovalRow, "window" | "actions">;
 type LeaseColumn = ColumnName<ManagedLeaseRow, "window" | "actions">;
-
-/**
- * The widths the v1 table hides its secondary columns below (Tailwind's `lg` and `xl`). The
- * component library's `isAtOrLargerThanBreakpointSignal` covers this but is not exported from
- * `@bitwarden/components`.
- */
-const LG_MEDIA_QUERY = "(min-width: 1024px)";
-const XL_MEDIA_QUERY = "(min-width: 1280px)";
 
 /**
  * "Approvals" tab: requests awaiting the caller's decision, oldest first, plus the access
@@ -309,8 +300,8 @@ export class ApprovalsTabComponent {
     this.leaseRows,
   );
 
-  private readonly atLeastLg = mediaQuerySignal(LG_MEDIA_QUERY);
-  private readonly atLeastXl = mediaQuerySignal(XL_MEDIA_QUERY);
+  private readonly atLeastLg = isAtOrLargerThanBreakpointSignal("lg");
+  private readonly atLeastXl = isAtOrLargerThanBreakpointSignal("xl");
 
   /**
    * A v2 column is a grid track, so a breakpoint class on its cells would leave an empty track
@@ -414,18 +405,6 @@ export class ApprovalsTabComponent {
       rowBusy(this.revoking, String(row.leaseId)),
     );
   }
-}
-
-/** Whether the viewport matches `query`, tracking changes. Call in an injection context. */
-function mediaQuerySignal(query: string): Signal<boolean> {
-  const mediaQuery = typeof window === "undefined" ? undefined : window.matchMedia?.(query);
-  const matches = signal(mediaQuery?.matches ?? false);
-  if (mediaQuery != null) {
-    const listener = (event: MediaQueryListEvent) => matches.set(event.matches);
-    mediaQuery.addEventListener("change", listener);
-    inject(DestroyRef).onDestroy(() => mediaQuery.removeEventListener("change", listener));
-  }
-  return matches.asReadonly();
 }
 
 /** Whether two row lists hold the same row objects in the same order. */
