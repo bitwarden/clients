@@ -12,8 +12,8 @@ import { EncArrayBuffer } from "../models/enc-array-buffer";
 import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
-const PERF_TRACK_GROUP = "KeyManagement";
-const PERF_TRACK = "LegacyCrypto";
+const PERF_TRACK_GROUP = "Crypto";
+const PERF_TRACK = "Legacy Crypto";
 
 export class EncryptServiceImplementation implements EncryptService {
   constructor(
@@ -47,7 +47,8 @@ export class EncryptServiceImplementation implements EncryptService {
     return new EncArrayBuffer(PureCrypto.symmetric_encrypt_filedata(plainValue, key.toEncoded()));
   }
 
-  @measured(PERF_TRACK_GROUP, PERF_TRACK)
+  // This will be enabled once all vault item decryption is moved to the SDK.
+  // @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
     if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
