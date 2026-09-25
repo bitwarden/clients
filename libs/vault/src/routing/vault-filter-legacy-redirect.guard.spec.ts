@@ -298,6 +298,24 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       });
     });
 
+    describe("controlled access mapping", () => {
+      it("maps ?controlledAccess → ?vault.controlledAccess", async () => {
+        await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(
+          expect.objectContaining({ "vault.controlledAccess": "privileged" }),
+        );
+      });
+
+      it("strips the legacy key from the redirect URL", async () => {
+        await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(Object.keys(queryParams ?? {})).toEqual(["vault.controlledAccess"]);
+      });
+    });
+
     describe("legacy key stripping", () => {
       it("strips all legacy keys from the redirect URL", async () => {
         await runGuard(makeRoute({ type: "login" }));
