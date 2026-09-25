@@ -182,9 +182,9 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
 
     const encrypted = await firstValueFrom(
       this.cipherService.ciphers$(userId).pipe(
-        map((ciphers) => ciphers?.[cipherId]),
-        filter((cipher) => cipher !== undefined),
-        map((cipher) => new Cipher(cipher, undefined)),
+        map((records) => records?.[cipherId]),
+        filter((cipherData) => cipherData !== undefined),
+        map((cipherData) => new Cipher(cipherData, undefined)),
         timeout({
           first: CIPHER_APPEARANCE_TIMEOUT_MS,
           with: () => {
