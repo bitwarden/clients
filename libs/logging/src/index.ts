@@ -1,5 +1,6 @@
 export { LogService } from "./log.service";
 export { LogLevel } from "./log-level";
+export { Measurement } from "./measurement";
 export { ConsoleLogService } from "./console-log.service";
 export { LogRecorder } from "./log-recorder";
 export { safeStringify } from "./safe-stringify";

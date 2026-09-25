@@ -125,9 +125,13 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
       for (const { name, migration } of this.migrations) {
         if ((await migration.needsMigration(userId)) !== "noMigrationNeeded") {
           this.logService.info(`[Encrypted Migrator] Running migration: ${name}`);
-          const start = performance.now();
+          const measurement = this.logService.startMeasurement(
+            "Migrations",
+            "Encrypted Migrator",
+            name,
+          );
           await migration.runMigrations(userId, masterPassword);
-          this.logService.measure(start, "[Encrypted Migrator]", name, "ExecutionTime");
+          measurement.finish();
           ranMigration = true;
         }
       }

@@ -11,6 +11,7 @@ import {
   of,
   shareReplay,
   switchMap,
+  tap,
 } from "rxjs";
 
 import {
@@ -19,6 +20,7 @@ import {
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -43,6 +45,7 @@ export class DefaultCollectionService implements CollectionService {
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
     private collectionEncryptionService: CollectionEncryptionService,
+    private logService: LogService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
@@ -114,8 +117,14 @@ export class DefaultCollectionService implements CollectionService {
       this.encryptedCollections$(userId),
       this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
     ]).pipe(
-      switchMap(([collections]) =>
-        from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
+      switchMap(([collections]) => {
+        const decryptMeasurement = this.logService.startMeasurement(
+          "Unlock",
+          "Collections",
+          "decryptMany",
+        );
+        return from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
+          tap((views) => decryptMeasurement.finish([["Items", views.length]])),
           map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
           // Cache successful decryptions (delayWhen only runs on emitted values, so a failure
           // is never cached), then drop this emission - the value is delivered to subscribers
@@ -129,8 +138,8 @@ export class DefaultCollectionService implements CollectionService {
           catchError(() => {
             return of([]);
           }),
-        ),
-      ),
+        );
+      }),
     );
   }
 

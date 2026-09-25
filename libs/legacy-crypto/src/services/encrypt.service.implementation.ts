@@ -12,6 +12,9 @@ import { EncArrayBuffer } from "../models/enc-array-buffer";
 import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
+const PERF_TRACK_GROUP = "KeyManagement";
+const PERF_TRACK = "LegacyCrypto";
+
 export class EncryptServiceImplementation implements EncryptService {
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
@@ -20,203 +23,243 @@ export class EncryptServiceImplementation implements EncryptService {
   ) {}
 
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
-    if (plainValue == null) {
-      this.logService.warning(
-        "[EncryptService] WARNING: encryptString called with null value. Returning null, but this behavior is deprecated and will be removed.",
-      );
-      return null;
-    }
+    return this.measured("encryptString", async () => {
+      if (plainValue == null) {
+        this.logService.warning(
+          "[EncryptService] WARNING: encryptString called with null value. Returning null, but this behavior is deprecated and will be removed.",
+        );
+        return null;
+      }
 
-    await SdkLoadService.Ready;
-    return new EncString(PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()));
+      await SdkLoadService.Ready;
+      return new EncString(PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()));
+    });
   }
 
   async encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
-    await SdkLoadService.Ready;
-    return new EncString(PureCrypto.symmetric_encrypt_bytes(plainValue, key.toEncoded()));
+    return this.measured("encryptBytes", async () => {
+      await SdkLoadService.Ready;
+      return new EncString(PureCrypto.symmetric_encrypt_bytes(plainValue, key.toEncoded()));
+    });
   }
 
   async encryptFileData(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
-    await SdkLoadService.Ready;
-    return new EncArrayBuffer(PureCrypto.symmetric_encrypt_filedata(plainValue, key.toEncoded()));
+    return this.measured("encryptFileData", async () => {
+      await SdkLoadService.Ready;
+      return new EncArrayBuffer(PureCrypto.symmetric_encrypt_filedata(plainValue, key.toEncoded()));
+    });
   }
 
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
-    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
-      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
-    }
-    await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
+    return this.measured("decryptString", async () => {
+      if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
+        throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+      }
+      await SdkLoadService.Ready;
+      return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
+    });
   }
 
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
-      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
-    }
-    await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
+    return this.measured("decryptBytes", async () => {
+      if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
+        throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+      }
+      await SdkLoadService.Ready;
+      return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
+    });
   }
 
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    if (encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
-      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
-    }
-    await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
+    return this.measured("decryptFileData", async () => {
+      if (encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
+        throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+      }
+      await SdkLoadService.Ready;
+      return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
+    });
   }
 
   async wrapDecapsulationKey(
     decapsulationKeyPkcs8: Uint8Array,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (decapsulationKeyPkcs8 == null) {
-      throw new Error("No decapsulation key provided for wrapping.");
-    }
+    return this.measured("wrapDecapsulationKey", async () => {
+      if (decapsulationKeyPkcs8 == null) {
+        throw new Error("No decapsulation key provided for wrapping.");
+      }
 
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for wrapping.");
-    }
+      if (wrappingKey == null) {
+        throw new Error("No wrappingKey provided for wrapping.");
+      }
 
-    await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.wrap_decapsulation_key(decapsulationKeyPkcs8, wrappingKey.toEncoded()),
-    );
+      await SdkLoadService.Ready;
+      return new EncString(
+        PureCrypto.wrap_decapsulation_key(decapsulationKeyPkcs8, wrappingKey.toEncoded()),
+      );
+    });
   }
 
   async wrapEncapsulationKey(
     encapsulationKeySpki: Uint8Array,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (encapsulationKeySpki == null) {
-      throw new Error("No encapsulation key provided for wrapping.");
-    }
+    return this.measured("wrapEncapsulationKey", async () => {
+      if (encapsulationKeySpki == null) {
+        throw new Error("No encapsulation key provided for wrapping.");
+      }
 
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for wrapping.");
-    }
+      if (wrappingKey == null) {
+        throw new Error("No wrappingKey provided for wrapping.");
+      }
 
-    await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.wrap_encapsulation_key(encapsulationKeySpki, wrappingKey.toEncoded()),
-    );
+      await SdkLoadService.Ready;
+      return new EncString(
+        PureCrypto.wrap_encapsulation_key(encapsulationKeySpki, wrappingKey.toEncoded()),
+      );
+    });
   }
 
   async wrapSymmetricKey(
     keyToBeWrapped: SymmetricCryptoKey,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (keyToBeWrapped == null) {
-      throw new Error("No keyToBeWrapped provided for wrapping.");
-    }
+    return this.measured("wrapSymmetricKey", async () => {
+      if (keyToBeWrapped == null) {
+        throw new Error("No keyToBeWrapped provided for wrapping.");
+      }
 
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for wrapping.");
-    }
+      if (wrappingKey == null) {
+        throw new Error("No wrappingKey provided for wrapping.");
+      }
 
-    await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.wrap_symmetric_key(keyToBeWrapped.toEncoded(), wrappingKey.toEncoded()),
-    );
+      await SdkLoadService.Ready;
+      return new EncString(
+        PureCrypto.wrap_symmetric_key(keyToBeWrapped.toEncoded(), wrappingKey.toEncoded()),
+      );
+    });
   }
 
   async unwrapDecapsulationKey(
     wrappedDecapsulationKey: EncString,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<Uint8Array> {
-    if (wrappedDecapsulationKey == null) {
-      throw new Error("No wrappedDecapsulationKey provided for unwrapping.");
-    }
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for unwrapping.");
-    }
+    return this.measured("unwrapDecapsulationKey", async () => {
+      if (wrappedDecapsulationKey == null) {
+        throw new Error("No wrappedDecapsulationKey provided for unwrapping.");
+      }
+      if (wrappingKey == null) {
+        throw new Error("No wrappingKey provided for unwrapping.");
+      }
 
-    if (wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
-    }
+      if (wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
+        throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+      }
 
-    await SdkLoadService.Ready;
-    return PureCrypto.unwrap_decapsulation_key(
-      wrappedDecapsulationKey.encryptedString,
-      wrappingKey.toEncoded(),
-    );
+      await SdkLoadService.Ready;
+      return PureCrypto.unwrap_decapsulation_key(
+        wrappedDecapsulationKey.encryptedString,
+        wrappingKey.toEncoded(),
+      );
+    });
   }
   async unwrapEncapsulationKey(
     wrappedEncapsulationKey: EncString,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<Uint8Array> {
-    if (wrappedEncapsulationKey == null) {
-      throw new Error("No wrappedEncapsulationKey provided for unwrapping.");
-    }
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for unwrapping.");
-    }
-    if (wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
-    }
+    return this.measured("unwrapEncapsulationKey", async () => {
+      if (wrappedEncapsulationKey == null) {
+        throw new Error("No wrappedEncapsulationKey provided for unwrapping.");
+      }
+      if (wrappingKey == null) {
+        throw new Error("No wrappingKey provided for unwrapping.");
+      }
+      if (wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
+        throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+      }
 
-    await SdkLoadService.Ready;
-    return PureCrypto.unwrap_encapsulation_key(
-      wrappedEncapsulationKey.encryptedString,
-      wrappingKey.toEncoded(),
-    );
+      await SdkLoadService.Ready;
+      return PureCrypto.unwrap_encapsulation_key(
+        wrappedEncapsulationKey.encryptedString,
+        wrappingKey.toEncoded(),
+      );
+    });
   }
   async unwrapSymmetricKey(
     keyToBeUnwrapped: EncString,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<SymmetricCryptoKey> {
-    if (keyToBeUnwrapped == null) {
-      throw new Error("No keyToBeUnwrapped provided for unwrapping.");
-    }
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for unwrapping.");
-    }
-    if (keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64) {
-      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
-    }
+    return this.measured("unwrapSymmetricKey", async () => {
+      if (keyToBeUnwrapped == null) {
+        throw new Error("No keyToBeUnwrapped provided for unwrapping.");
+      }
+      if (wrappingKey == null) {
+        throw new Error("No wrappingKey provided for unwrapping.");
+      }
+      if (keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64) {
+        throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+      }
 
-    await SdkLoadService.Ready;
-    return new SymmetricCryptoKey(
-      PureCrypto.unwrap_symmetric_key(keyToBeUnwrapped.encryptedString, wrappingKey.toEncoded()),
-    );
+      await SdkLoadService.Ready;
+      return new SymmetricCryptoKey(
+        PureCrypto.unwrap_symmetric_key(keyToBeUnwrapped.encryptedString, wrappingKey.toEncoded()),
+      );
+    });
   }
 
   async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
-    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
-    return Utils.fromBufferToB64(hashArray);
+    return this.measured("hash", async () => {
+      const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
+      return Utils.fromBufferToB64(hashArray);
+    });
   }
 
   async encapsulateKeyUnsigned(
     sharedKey: SymmetricCryptoKey,
     encapsulationKey: Uint8Array,
   ): Promise<EncString> {
-    if (sharedKey == null) {
-      throw new Error("No sharedKey provided for encapsulation");
-    }
-    if (encapsulationKey == null) {
-      throw new Error("No encapsulationKey provided for encapsulation");
-    }
-    await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.encapsulate_key_unsigned(sharedKey.toEncoded(), encapsulationKey),
-    );
+    return this.measured("encapsulateKeyUnsigned", async () => {
+      if (sharedKey == null) {
+        throw new Error("No sharedKey provided for encapsulation");
+      }
+      if (encapsulationKey == null) {
+        throw new Error("No encapsulationKey provided for encapsulation");
+      }
+      await SdkLoadService.Ready;
+      return new EncString(
+        PureCrypto.encapsulate_key_unsigned(sharedKey.toEncoded(), encapsulationKey),
+      );
+    });
   }
 
   async decapsulateKeyUnsigned(
     encryptedSharedKey: EncString,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey> {
-    if (encryptedSharedKey == null) {
-      throw new Error("No encryptedSharedKey provided for decapsulation");
-    }
-    if (decapsulationKey == null) {
-      throw new Error("No decapsulationKey provided for decapsulation");
-    }
+    return this.measured("decapsulateKeyUnsigned", async () => {
+      if (encryptedSharedKey == null) {
+        throw new Error("No encryptedSharedKey provided for decapsulation");
+      }
+      if (decapsulationKey == null) {
+        throw new Error("No decapsulationKey provided for decapsulation");
+      }
 
-    await SdkLoadService.Ready;
-    const keyBytes = PureCrypto.decapsulate_key_unsigned(
-      encryptedSharedKey.encryptedString,
-      decapsulationKey,
-    );
-    return new SymmetricCryptoKey(keyBytes);
+      await SdkLoadService.Ready;
+      const keyBytes = PureCrypto.decapsulate_key_unsigned(
+        encryptedSharedKey.encryptedString,
+        decapsulationKey,
+      );
+      return new SymmetricCryptoKey(keyBytes);
+    });
+  }
+
+  /** Records `operation` on the DevTools "LegacyCrypto" track. */
+  private async measured<T>(operation: string, fn: () => Promise<T>): Promise<T> {
+    const measurement = this.logService.startMeasurement(PERF_TRACK_GROUP, PERF_TRACK, operation);
+    try {
+      return await fn();
+    } finally {
+      measurement.finish();
+    }
   }
 }

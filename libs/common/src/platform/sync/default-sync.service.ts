@@ -63,6 +63,9 @@ import { CoreSyncService } from "./core-sync.service";
 import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
 
+const PERF_TRACK_GROUP = "Sync";
+const PERF_TRACK = "Full Sync";
+
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
 
@@ -139,6 +142,7 @@ export class DefaultSyncService extends CoreSyncService {
       return this.syncCompleted(false, userId);
     }
 
+    const syncMeasurement = this.logService.startMeasurement(PERF_TRACK_GROUP, PERF_TRACK, "total");
     const now = new Date();
     let needsSync = false;
     let needsSyncSucceeded = true;
@@ -178,7 +182,19 @@ export class DefaultSyncService extends CoreSyncService {
         );
       }
 
+      const getSyncMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "getSync",
+      );
       const response = await this.inFlightApiCalls.sync;
+      getSyncMeasurement.finish();
+
+      const processMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "processResponse",
+      );
 
       // The crypto sync handler *MUST* be the first sync handler to run. It reserves
       // the option to reject a sync, should the data be inconsitent. In this case, it will throw.
@@ -197,8 +213,10 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
+      processMeasurement.finish([["Ciphers", response.ciphers?.length ?? 0]]);
 
       await this.setLastSync(now, userId);
+      syncMeasurement.finish([["Forced", forceSync]]);
       return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {

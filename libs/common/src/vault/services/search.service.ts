@@ -74,7 +74,7 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     this._isCipherSearching$.next(true);
-    const searchStartTime = performance.now();
+    const searchMeasurement = this.logService.startMeasurement("Search", "Basic", "search ciphers");
     query = normalizeSearchQuery(query.trim().toLowerCase());
     if (!(await this.isSearchable(query))) {
       this._isCipherSearching$.next(false);
@@ -95,7 +95,7 @@ export class SearchService implements SearchServiceAbstraction {
     } else {
       // Use basic search if the query is not a lunr query
       const basicResults = this.searchCiphersBasic(ciphers, query);
-      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      searchMeasurement.finish();
       this._isCipherSearching$.next(false);
       return basicResults;
     }

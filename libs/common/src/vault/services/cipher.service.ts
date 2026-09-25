@@ -22,6 +22,7 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { Measurement } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -151,7 +152,7 @@ export class CipherService implements CipherServiceAbstraction {
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
-    let decryptStartTime: number;
+    let decryptMeasurement: Measurement;
 
     return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
@@ -171,7 +172,11 @@ export class CipherService implements CipherServiceAbstraction {
             ),
           ),
           tap(() => {
-            decryptStartTime = performance.now();
+            decryptMeasurement = this.logService.startMeasurement(
+              "Unlock",
+              "Vault Items",
+              "listViewDecrypt",
+            );
           }),
           switchMap(async (ciphers) => {
             return await this.decryptCiphersWithSdk(ciphers, userId, false);
@@ -179,13 +184,7 @@ export class CipherService implements CipherServiceAbstraction {
           tap(([decrypted, failures]) => {
             void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
 
-            this.logService.measure(
-              decryptStartTime,
-              "Vault",
-              "CipherService",
-              "listView decrypt complete",
-              [["Items", decrypted.length]],
-            );
+            decryptMeasurement.finish([["Items", decrypted.length]]);
           }),
           map(([decrypted]) => decrypted),
         );
@@ -250,11 +249,17 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async setDecryptedCiphers(value: CipherView[], userId: UserId) {
+    const measurement = this.logService.startMeasurement(
+      "Unlock",
+      "Vault Items",
+      "setDecryptedCiphers",
+    );
     const cipherViews: { [id: string]: CipherView } = {};
     value?.forEach((c) => {
       cipherViews[c.id] = c;
     });
     await this.stateProvider.setUserState(DECRYPTED_CIPHERS, cipherViews, userId);
+    measurement.finish([["Items", value?.length ?? 0]]);
   }
 
   async clearCache(userId?: UserId): Promise<void> {
@@ -377,7 +382,16 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
+      const sdkMeasurement = this.logService.startMeasurement(
+        "Unlock",
+        "Vault Items",
+        "getAllDecrypted",
+      );
       const result = await this.cipherSdkService.getAllDecrypted(userId);
+      sdkMeasurement.finish([
+        ["Items", result.successes.length],
+        ["Failures", result.failures.length],
+      ]);
 
       const sortedSuccesses = hydrateCiphersWithLocalData(result.successes, localData).sort(
         this.getLocaleSortingFunction(),
@@ -414,13 +428,15 @@ export class CipherService implements CipherServiceAbstraction {
       return [[], []];
     }
 
-    const decryptStartTime = performance.now();
+    const decryptMeasurement = this.logService.startMeasurement(
+      "Unlock",
+      "Vault Items",
+      "decryptCiphers",
+    );
 
     const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
 
-    this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
-      ["Items", ciphers.length],
-    ]);
+    decryptMeasurement.finish([["Items", ciphers.length]]);
 
     return result;
   }

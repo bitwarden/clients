@@ -28,6 +28,7 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -358,6 +359,7 @@ describe("VaultComponent", () => {
           useValue: { translate: (key: string) => key, t: (key: string) => key },
         },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
         {
           provide: VaultPopupListTableFiltersService,

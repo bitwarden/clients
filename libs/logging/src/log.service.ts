@@ -1,4 +1,5 @@
 import { LogLevel } from "./log-level";
+import { Measurement } from "./measurement";
 
 export abstract class LogService {
   abstract debug(message?: any, ...optionalParams: any[]): void;
@@ -23,6 +24,15 @@ export abstract class LogService {
     measureName: string,
     properties?: [string, any][],
   ): PerformanceMeasure;
+
+  /**
+   * Starts a measurement now; call {@link Measurement.finish} to record it via {@link measure}.
+   *
+   * @param trackGroup A track-group for the measurement, should generally be the team owning the domain.
+   * @param track A track for the measurement, should generally be the class name.
+   * @param measureName A descriptive name for the measurement.
+   */
+  abstract startMeasurement(trackGroup: string, track: string, measureName: string): Measurement;
 
   /**
    * Helper wrapper around `performance.mark` to log a mark. Should also debug-log the data.

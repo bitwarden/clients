@@ -116,6 +116,31 @@ describe("ConsoleLogService", () => {
     );
   });
 
+  it("records a started measurement under its bare name on the track", () => {
+    const service = new ConsoleLogService(true, null, recorder);
+    const measureSpy = jest.spyOn(performance, "measure");
+
+    const measurement = service.startMeasurement("group", "track", "name");
+    measurement.finish([["Items", 1]]);
+
+    expect(measureSpy).toHaveBeenCalledWith("name", {
+      start: expect.any(Number),
+      detail: {
+        devtools: {
+          dataType: "track-entry",
+          track: "track",
+          trackGroup: "group",
+          properties: [["Items", 1]],
+        },
+      },
+    });
+    expect(recorder.record).toHaveBeenCalledWith(
+      LogLevel.Debug,
+      expect.stringContaining("[track]: name took"),
+      [["Items", 1]],
+    );
+  });
+
   it("does not tee prod debug logs, which return before write", () => {
     const service = new ConsoleLogService(false, null, recorder);
 
