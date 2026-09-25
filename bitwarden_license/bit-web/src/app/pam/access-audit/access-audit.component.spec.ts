@@ -13,7 +13,9 @@ import {
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -87,6 +89,7 @@ describe("AccessAuditComponent", () => {
   let fileDownloadService: MockProxy<FileDownloadService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let dialogService: MockProxy<DialogService>;
+  let configService: MockProxy<ConfigService>;
 
   const configureTestBed = async (canManageAccessRules = true, canViewAllCollections = true) => {
     await TestBed.configureTestingModule({
@@ -98,6 +101,7 @@ describe("AccessAuditComponent", () => {
         { provide: FileDownloadService, useValue: fileDownloadService },
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
         { provide: DialogService, useValue: dialogService },
+        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: ActivatedRoute,
@@ -236,6 +240,8 @@ describe("AccessAuditComponent", () => {
     fileDownloadService = mock<FileDownloadService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     dialogService = mock<DialogService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
     auditApiService.listAccessAuditItems.mockResolvedValue([]);
     organizationUserApiService.getAllMiniUserDetails.mockResolvedValue(
@@ -2377,6 +2383,291 @@ describe("AccessAuditComponent", () => {
 
       expect(component().detailsOpen()).toBe(false);
       expect(visibleColumns()).toEqual(ALL_COLUMNS);
+    });
+  });
+
+  it("renders the v1 table while the VFO1 flag is off", async () => {
+    returnsTrail([event()]);
+    await renderReady();
+
+    expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+    expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
+    expect(fixture.nativeElement.querySelector("bit-table-v2")).toBeNull();
+  });
+
+  describe("with the VFO1 flag on", () => {
+    const ALL_COLUMNS = ["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"];
+    const WITH_DRAWER = ["Timestamp", "Event", "Item"];
+    const ACTOR = 2;
+    const REQUESTER = 3;
+    const ITEM = 4;
+    const DURATION = 5;
+
+    beforeEach(() => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      fixture = TestBed.createComponent(AccessAuditComponent);
+    });
+
+    const render = async (events: AccessAuditEventResponse[]) => {
+      returnsTrail(events);
+      await renderReady();
+    };
+
+    const headers = (): string[] =>
+      Array.from<HTMLElement>(
+        fixture.nativeElement.querySelectorAll("bit-table-v2 [role='columnheader']"),
+      ).map((header) => header.textContent!.trim());
+
+    const bodyRows = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"));
+
+    const cellsOf = (row: HTMLElement): HTMLElement[] =>
+      Array.from(row.querySelectorAll("[role='cell']"));
+
+    const text = (column: number, row = 0) => cellsOf(bodyRows()[row])[column].textContent!.trim();
+
+    const activator = (index = 0): HTMLElement =>
+      fixture.nativeElement.querySelector(`#access-audit_button_details-${index}`);
+
+    const link = (name: string): HTMLAnchorElement | null =>
+      fixture.nativeElement.querySelector(`#access-audit_link_${name}-0`);
+
+    const drawerData = () =>
+      (dialogService.openDrawer.mock.calls[0][1] as { data: Record<string, any> }).data;
+
+    const dialogData = () =>
+      (dialogService.open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+
+    const press = (element: HTMLElement, key: string): KeyboardEvent => {
+      const keydown = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+      element.dispatchEvent(keydown);
+      fixture.detectChanges();
+      return keydown;
+    };
+
+    it("renders the v2 table in place of the v1 one", async () => {
+      await render([event()]);
+
+      expect(fixture.nativeElement.querySelector("bit-table-v2")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-table")).toBeNull();
+    });
+
+    it("heads the same six columns, in the same order", async () => {
+      await render([event({ Detail: "Incident closed early." })]);
+
+      expect(headers()).toEqual(ALL_COLUMNS);
+      expect(fixture.nativeElement.querySelector("bit-table-v2").textContent).not.toContain(
+        "Incident closed early.",
+      );
+    });
+
+    it("renders one row per event, newest first as the trail returned them", async () => {
+      await render([
+        event({ OccurredAt: "2026-08-18T09:00:00.000Z" }),
+        event({ OccurredAt: "2026-08-18T08:00:00.000Z" }),
+        event({ OccurredAt: "2026-08-18T07:00:00.000Z" }),
+      ]);
+
+      expect(bodyRows()).toHaveLength(3);
+      const medium = (iso: string) => new DatePipe("en-US").transform(new Date(iso), "medium")!;
+      expect(text(0, 0)).toBe(medium("2026-08-18T09:00:00.000Z"));
+      expect(text(0, 2)).toBe(medium("2026-08-18T07:00:00.000Z"));
+    });
+
+    it("appends the next page to the same table", async () => {
+      returnsTrailOnce([event()], "page-2");
+      returnsTrailOnce([event(), event()]);
+      await renderReady();
+
+      fixture.nativeElement.querySelector("#access-audit_button_load-more").click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(bodyRows()).toHaveLength(3);
+    });
+
+    it("keeps the no-matches empty state outside the table", async () => {
+      await render([event()]);
+      returnsTrail([]);
+      selectFilter("kind", ["ruleCreated"]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("bit-table-v2")).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("#access-audit_button_no-matches-clear-all"),
+      ).not.toBeNull();
+    });
+
+    it("opens the drawer over the row that was activated", async () => {
+      await render([
+        event({ OccurredAt: "2026-08-18T09:00:00.000Z", Detail: "first" }),
+        event({ OccurredAt: "2026-08-18T08:00:00.000Z", Detail: "second" }),
+      ]);
+
+      cellsOf(bodyRows()[1])[ITEM].click();
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+      expect(drawerData().row.detail).toBe("second");
+      expect(drawerData().organizationId).toBe(ORGANIZATION_ID);
+      expect(drawerData().canManageAccessRules).toBe(true);
+      expect(drawerData().canViewCollections).toBe(true);
+    });
+
+    it("opens the drawer from every cell of the row", async () => {
+      await render([event()]);
+
+      for (const cell of cellsOf(bodyRows()[0])) {
+        cell.click();
+      }
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(ALL_COLUMNS.length);
+    });
+
+    it("gives the row one keyboard activator, with a role and a name", async () => {
+      await render([event({ Incomplete: true }), event()]);
+
+      const button = activator();
+      expect(button.getAttribute("role")).toBe("button");
+      expect(button.getAttribute("tabindex")).toBe("0");
+      expect(button.getAttribute("aria-label")).toContain("Request approved");
+      expect(button.getAttribute("aria-label")).toContain("Incomplete");
+      expect(activator(1).getAttribute("aria-label")).not.toContain("Incomplete");
+      expect(bodyRows()[0].querySelectorAll('[role="button"]')).toHaveLength(1);
+    });
+
+    it("opens the drawer on Enter", async () => {
+      await render([event()]);
+
+      press(activator(), "Enter");
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens the drawer on Space, and swallows the key", async () => {
+      await render([event()]);
+
+      const keydown = press(activator(), " ");
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+      expect(keydown.defaultPrevented).toBe(true);
+    });
+
+    it("opens the drawer once when the activator itself is clicked", async () => {
+      await render([event()]);
+
+      activator().click();
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ["actor", { ActorId: "user-1", ActorName: "Ada" }, "org-user-1"],
+      ["requester", { RequesterId: "user-2", RequesterName: "Grace" }, "org-user-2"],
+    ])(
+      "opens only the entity dialog from the %s link",
+      async (name, overrides, organizationUserId) => {
+        await render([event(overrides)]);
+
+        link(name)!.click();
+
+        expect(dialogService.open).toHaveBeenCalledTimes(1);
+        expect(dialogService.openDrawer).not.toHaveBeenCalled();
+        expect(dialogData()).toEqual(
+          expect.objectContaining({ entity: "user", entityId: organizationUserId }),
+        );
+      },
+    );
+
+    it("opens only the entity dialog from the item link", async () => {
+      nameResolver.resolveNames.mockResolvedValue({
+        ...emptyResolvedNames(),
+        cipherNameById: new Map([["cipher-1", "Prod database"]]),
+      });
+      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
+
+      expect(link("item")!.textContent!.trim()).toBe("Prod database");
+      link("item")!.click();
+
+      expect(dialogService.openDrawer).not.toHaveBeenCalled();
+      expect(dialogData()).toEqual(
+        expect.objectContaining({ entity: "cipher", entityId: "cipher-1", name: "Prod database" }),
+      );
+    });
+
+    it("leaves the System actor and an unresolved identity as plain text", async () => {
+      await render([
+        event({ Automated: true }),
+        event({
+          ActorId: "user-9",
+          ActorName: "Linus",
+          RequesterId: "user-9",
+          RequesterName: "Linus",
+        }),
+      ]);
+
+      expect(link("actor")).toBeNull();
+      expect(text(ACTOR, 0)).toBe("System");
+      expect(text(ACTOR, 1)).toBe("Linus");
+      expect(text(REQUESTER, 1)).toBe("Linus");
+    });
+
+    it("leaves no cell of a bare row blank", async () => {
+      await render([
+        event({
+          ActorId: null,
+          ActorName: null,
+          ActorEmail: null,
+          RequesterId: null,
+          RequesterName: null,
+          RequesterEmail: null,
+        }),
+      ]);
+
+      for (const column of [ACTOR, REQUESTER, ITEM, DURATION]) {
+        expect(text(column)).toBe("—");
+        expect(cellsOf(bodyRows()[0])[column].querySelector(".tw-text-muted")).not.toBeNull();
+      }
+    });
+
+    describe("while the details drawer is open", () => {
+      let closed: Subject<unknown>;
+
+      beforeEach(() => {
+        closed = new Subject<unknown>();
+        dialogService.openDrawer.mockResolvedValue({
+          closed: closed.asObservable(),
+        } as unknown as DrawerRef);
+      });
+
+      const openRow = async () => {
+        activator().click();
+        await fixture.whenStable();
+        fixture.detectChanges();
+      };
+
+      it("stands Actor, Requester and Duration down, header and cells together", async () => {
+        await render([event(), event()]);
+        await openRow();
+
+        expect(headers()).toEqual(WITH_DRAWER);
+        for (const row of bodyRows()) {
+          expect(cellsOf(row)).toHaveLength(WITH_DRAWER.length);
+        }
+      });
+
+      it("restores all six columns when the drawer closes", async () => {
+        await render([event()]);
+        await openRow();
+
+        closed.next(undefined);
+        closed.complete();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(headers()).toEqual(ALL_COLUMNS);
+        expect(cellsOf(bodyRows()[0])).toHaveLength(ALL_COLUMNS.length);
+      });
     });
   });
 });
