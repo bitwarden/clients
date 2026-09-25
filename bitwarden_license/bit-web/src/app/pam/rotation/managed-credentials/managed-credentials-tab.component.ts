@@ -33,6 +33,7 @@ import {
   BitHeaderCellComponent,
   BitHeaderRowComponent,
   BitRowComponent,
+  BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
   DialogService,
@@ -96,6 +97,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -248,37 +250,57 @@ export class ManagedCredentialsTabComponent {
   }
 
   protected readonly rowFilter = computed(() => {
-    const text = this.searchText().trim().toLowerCase();
-    const status = this.statusFilterChip()?.value() as string | null | undefined;
-    const targetSystemId = this.targetSystemFilterChip()?.value() as
-      TargetSystemId | null | undefined;
-    const collectionId = this.collectionFilterChip()?.value() as string | null | undefined;
-
-    return (row: RotationConfigRow): boolean => {
-      if (
-        text !== "" &&
-        !row.cipherName.toLowerCase().includes(text) &&
-        !row.targetSystemName.toLowerCase().includes(text)
-      ) {
-        return false;
-      }
-      if (status != null && row.statusLabelKey !== status) {
-        return false;
-      }
-      if (targetSystemId != null && row.config.targetSystemId !== targetSystemId) {
-        return false;
-      }
-      const rowCollectionIds = this.cipherCollectionIds(row);
-      if (
-        collectionId != null &&
-        rowCollectionIds !== undefined &&
-        !rowCollectionIds.includes(collectionId)
-      ) {
-        return false;
-      }
-      return true;
-    };
+    const filter = toManagedCredentialFilter({
+      search: this.searchText(),
+      status: this.statusFilterChip()?.value(),
+      targetSystem: this.targetSystemFilterChip()?.value(),
+      collection: this.collectionFilterChip()?.value(),
+    });
+    return (row: RotationConfigRow): boolean => this.matchesFilter(row, filter);
   });
+
+  /**
+   * The v2 table's row test. Inside the toolbar the chips and the `bit-search` register with
+   * `bit-table-v2`, so their values arrive as `values` rather than through the chip refs — the
+   * table needs the keyed shape to count each chip's options.
+   *
+   * The term must come from `values.search` alone. {@link searchText} carries the same term (the
+   * projected `bit-search` keeps its form control), and reading both would narrow the rows twice.
+   */
+  protected readonly rowMatchesFilter = (
+    row: RotationConfigRow,
+    values: ManagedCredentialFilterValues,
+  ): boolean => this.matchesFilter(row, toManagedCredentialFilter(values));
+
+  /**
+   * A row with no loaded cipher passes the collection chip rather than being hidden by it: the
+   * collection ids are unknown, not empty, and dropping the row would silently shrink the list.
+   */
+  private matchesFilter(row: RotationConfigRow, filter: ManagedCredentialFilter): boolean {
+    const { text, statusLabelKey, targetSystemId, collectionId } = filter;
+    if (
+      text !== "" &&
+      !row.cipherName.toLowerCase().includes(text) &&
+      !row.targetSystemName.toLowerCase().includes(text)
+    ) {
+      return false;
+    }
+    if (statusLabelKey != null && row.statusLabelKey !== statusLabelKey) {
+      return false;
+    }
+    if (targetSystemId != null && row.config.targetSystemId !== targetSystemId) {
+      return false;
+    }
+    const rowCollectionIds = this.cipherCollectionIds(row);
+    if (
+      collectionId != null &&
+      rowCollectionIds !== undefined &&
+      !rowCollectionIds.includes(collectionId)
+    ) {
+      return false;
+    }
+    return true;
+  }
 
   constructor() {
     effect(() => {
@@ -442,4 +464,32 @@ export class ManagedCredentialsTabComponent {
         : this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
+}
+
+/**
+ * The toolbar's raw values, keyed by each control's filter key. Untyped per chip because that is
+ * what both hosts hand over: `bit-table-v2` collects whatever each chip reports, and off the flag
+ * the chips are read one at a time through `FilterControl`.
+ */
+type ManagedCredentialFilterValues = {
+  search?: string;
+  status?: unknown;
+  targetSystem?: unknown;
+  collection?: unknown;
+};
+
+type ManagedCredentialFilter = {
+  text: string;
+  statusLabelKey: string | null;
+  targetSystemId: TargetSystemId | null;
+  collectionId: string | null;
+};
+
+function toManagedCredentialFilter(values: ManagedCredentialFilterValues): ManagedCredentialFilter {
+  return {
+    text: (values.search ?? "").trim().toLowerCase(),
+    statusLabelKey: (values.status ?? null) as string | null,
+    targetSystemId: (values.targetSystem ?? null) as TargetSystemId | null,
+    collectionId: (values.collection ?? null) as string | null,
+  };
 }
