@@ -26,6 +26,8 @@ export class PasskeySettingsPage {
    * Needs an authenticator that supports PRF, else the encryption checkbox never shows.
    */
   async addWithPrf(name: string, masterPassword: string) {
+    // WebAuthn needs a focused page; other tabs, e.g. the extension's welcome tab, take focus.
+    await this.page.bringToFront();
     await this.addButton().click();
 
     const dialog = this.page.getByRole("dialog");
