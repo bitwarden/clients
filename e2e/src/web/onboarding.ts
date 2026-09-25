@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
 /** Post-login route offering the browser extension, shown until it is dismissed once. */
 export const SETUP_EXTENSION_URL = /#\/setup-extension/;
@@ -17,8 +17,17 @@ export async function skipExtensionSetup(page: Page) {
     return;
   }
 
-  await page.getByRole("button", { name: ADD_IT_LATER_BUTTON }).click();
-  await page.getByRole("link", { name: SKIP_TO_WEB_APP_LINK }).click();
+  // With the extension installed, the page links straight to the vault. Otherwise
+  // "Add it later" opens a dialog carrying that link.
+  const addItLater = page.getByRole("button", { name: ADD_IT_LATER_BUTTON });
+  const skip = page.getByRole("link", { name: SKIP_TO_WEB_APP_LINK });
+  await expect(addItLater.or(skip).first()).toBeVisible();
+
+  if (await addItLater.isVisible()) {
+    await addItLater.click();
+  }
+
+  await skip.click();
 }
 
 /**
