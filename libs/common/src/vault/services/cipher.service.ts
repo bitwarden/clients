@@ -249,6 +249,25 @@ export class CipherService implements CipherServiceAbstraction {
     await this.stateProvider.setUserState(FAILED_DECRYPTED_CIPHERS, cipherViews, userId);
   }
 
+  /**
+   * Drops ciphers for which we no longer have an organization key. Prevents decryption errors
+   * before the encrypted cache updates, immediately after a user leaves an organization.
+   */
+  private async excludeCiphersMissingOrgKey<T extends { organizationId?: string }>(
+    ciphers: T[],
+    userId: UserId,
+  ): Promise<T[]> {
+    const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId));
+    const orgKeys = keys?.orgKeys;
+    if (orgKeys == null) {
+      return ciphers;
+    }
+
+    return ciphers.filter(
+      (c) => c.organizationId == null || orgKeys[c.organizationId as OrganizationId] != null,
+    );
+  }
+
   private async setDecryptedCiphers(value: CipherView[], userId: UserId) {
     const cipherViews: { [id: string]: CipherView } = {};
     value?.forEach((c) => {
@@ -2167,22 +2186,25 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    // Fixes a bug causing decryption failures immediately after a user leaves an organization.
+    const decryptableCiphers = await this.excludeCiphersMissingOrgKey(ciphers, userId);
+
     // Short-circuit if there are no ciphers to decrypt
     // Observables reacting to key changes may attempt to decrypt with a stale SDK reference.
-    if (ciphers.length === 0) {
+    if (decryptableCiphers.length === 0) {
       return [[], []];
     }
 
     if (fullDecryption) {
       const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
-        ciphers,
+        decryptableCiphers,
         userId,
       );
       return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
     }
 
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
-      ciphers,
+      decryptableCiphers,
       userId,
     );
 
