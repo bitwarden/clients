@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
-import { PolicyView } from "@bitwarden/sdk-internal";
+import { Policy as SdkPolicy } from "@bitwarden/sdk-internal";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
@@ -248,13 +248,13 @@ describe("PolicyService", () => {
       const revisionDate = new Date("2026-01-15T12:00:00.000Z");
       const filterByType = jest.fn().mockReturnValue([
         {
-          id: policyId1,
+          id: asUuid(policyId1),
           organizationId: asUuid(orgId1),
           type: PolicyType.MaximumVaultTimeout as number,
           data: JSON.stringify({ minutes: 30 }),
           enabled: true,
           revisionDate: revisionDate.toISOString(),
-        } satisfies PolicyView,
+        } satisfies SdkPolicy,
       ]);
       sdkService.client.policies.mockReturnValue({ filter_by_type: filterByType } as any);
 
@@ -301,7 +301,7 @@ describe("PolicyService", () => {
       expect(sdkPolicies[0].data).toBeUndefined();
     });
 
-    it("maps an SDK PolicyView with no data back to a Policy with null data", async () => {
+    it("maps an SDK Policy with no data back to a Policy with null data", async () => {
       newPolicyService.policies$
         .calledWith(userId)
         .mockReturnValue(
@@ -311,13 +311,13 @@ describe("PolicyService", () => {
       sdkService.client.policies.mockReturnValue({
         filter_by_type: jest.fn().mockReturnValue([
           {
-            id: policyId1,
+            id: asUuid(policyId1),
             organizationId: asUuid(orgId1),
             type: PolicyType.DisableSend as number,
             data: undefined,
             enabled: true,
             revisionDate: new Date().toISOString(),
-          } satisfies PolicyView,
+          } satisfies SdkPolicy,
         ]),
       } as any);
 
