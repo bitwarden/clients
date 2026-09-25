@@ -474,6 +474,27 @@ describe("VaultItemDialogComponent", () => {
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 
+      it("notifies onCipherChanged with the refreshed cipher", async () => {
+        const onCipherChanged = jest.fn();
+        component.setTestParams({ onCipherChanged });
+        const refreshedCipherView = { id: "cipher-id", attachments: [] } as any;
+        cipherServiceMock.cipherView$.mockReturnValue(of(refreshedCipherView));
+
+        await component.cancel();
+
+        expect(onCipherChanged).toHaveBeenCalledWith(refreshedCipherView);
+      });
+
+      it("does not notify onCipherChanged when local state has no cipher", async () => {
+        const onCipherChanged = jest.fn();
+        component.setTestParams({ onCipherChanged });
+        cipherServiceMock.cipherView$.mockReturnValue(of(undefined));
+
+        await component.cancel();
+
+        expect(onCipherChanged).not.toHaveBeenCalled();
+      });
+
       it("leaves the existing cipher in place when local state has no cipher", async () => {
         const originalCipher = component["cipher"];
         cipherServiceMock.cipherView$.mockReturnValue(of(undefined));
@@ -566,6 +587,16 @@ describe("VaultItemDialogComponent", () => {
         savedCipherView,
         component["params"].isAdminConsoleAction,
       );
+    });
+
+    it("notifies onCipherChanged with the saved cipher", async () => {
+      const onCipherChanged = jest.fn();
+      component.setTestParams({ onCipherChanged });
+      const savedCipherView = { id: "cipher-id", collectionIds: [] } as any;
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(onCipherChanged).toHaveBeenCalledWith(savedCipherView);
     });
   });
 });
