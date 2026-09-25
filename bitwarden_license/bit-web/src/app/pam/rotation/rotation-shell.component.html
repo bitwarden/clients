@@ -2,7 +2,7 @@
   <div slot="subtitle">{{ "pamRotationSubtitle" | i18n }}</div>
   @switch (activeTab()) {
     @case ("access-connectors") {
-      @if (hasAccessConnectors()) {
+      @if (!vfo1Enabled() && hasAccessConnectors()) {
         <button
           type="button"
           bitButton
@@ -15,7 +15,7 @@
       }
     }
     @case ("target-systems") {
-      @if (hasTargetSystems()) {
+      @if (!vfo1Enabled() && hasTargetSystems()) {
         <button
           type="button"
           bitButton
@@ -28,7 +28,7 @@
       }
     }
     @case ("managed-credentials") {
-      @if (hasConfigs()) {
+      @if (!vfo1Enabled() && hasConfigs()) {
         <button
           type="button"
           bitButton
