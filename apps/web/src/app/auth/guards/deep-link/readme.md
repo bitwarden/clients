@@ -6,18 +6,14 @@ This guard will persist the protected URL to session state when a user is either
 
 Writing to session state allows users who are authenticating through SSO to be routed to their identity provider and back without losing the protected route they were trying to access in the first place.
 
-The deep link guard will not persist Urls that are in the middle of authentication or decryption. SSO users will sometimes have to decrypt their vault after a successful authentication. This is why we do not persist the `/lock` route.
+The deep link guard persists the URL of the route it is attached to. Attach it only to routes a user can deep link to, never to routes in the middle of authentication or decryption (e.g. `/lock`, `/login-initiated`). SSO users authenticate with their IdP, then pass through those routes before they are unlocked; a guard on those routes would overwrite the deep link they started with.
 
 ## General operation
 
-The `deep-link.guard.ts` will always return true. The `deep-link.guard.ts` will only persist a URL if the user is in an unauthenticated or locked state. The URL cannot contain `/lock` or `/login-initiated`. The persisted URL is cleared from state when it is read.
+The `deep-link.guard.ts` will always return true. The `deep-link.guard.ts` will only persist a URL if the user is in an unauthenticated or locked state. The persisted URL is cleared from state when it is read.
 
 ## Routes to protect
 
 The deep link guards should be used on routes where a user will be navigated to a protected route but may not be authenticated, decrypted, or have an account.
 
 A use cases is the `emergency-access` route which is a link that is sent to the user's email address, and in order for them to accept the request, they must first authenticate and decrypt.
-
-## TDE Users decrypting/unlocking with password
-
-For TDE users opting to decrypt with a password they will be routed from the `login-initiated` to the `lock` route. We ignore the `login-initiated` route for this reason allowing TDE users who decrypt/unlock with a password to still be navigated to the initial request.
