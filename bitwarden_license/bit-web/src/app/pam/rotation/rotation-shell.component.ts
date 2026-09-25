@@ -3,6 +3,8 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule, ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { filter, map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -26,8 +28,9 @@ import { TargetSystemsService } from "./target-systems/target-systems.service";
  * Target systems / Managed credentials); page-scoped services stay shared across tab
  * navigation since the shell stays mounted.
  *
- * The header hosts the active tab's primary create action, driven by the active child route, so
- * each tab renders only its list.
+ * Off the VFO1 flag the header hosts the active tab's primary create action, driven by the active
+ * child route, so each tab renders only its list. On it, each tab hosts its own action in its
+ * table toolbar.
  *
  * The Managed credentials tab label shows a warning berry when configs await a manual rotation
  * confirmation.
@@ -47,6 +50,13 @@ export class RotationShellComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   /** organizationId from the route params (inherited via paramsInheritanceStrategy "always"). */
   protected readonly organizationId = toSignal(

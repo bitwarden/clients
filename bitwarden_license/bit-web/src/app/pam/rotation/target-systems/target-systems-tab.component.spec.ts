@@ -1859,6 +1859,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
 
 describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
+  let systems$: BehaviorSubject<TargetSystem[]>;
 
   const entraActive = makeSystem({
     id: sysId("1"),
@@ -1888,6 +1889,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     systems: TargetSystem[] = SYSTEMS,
   ): Promise<ComponentFixture<TargetSystemsTabComponent>> {
     TestBed.resetTestingModule();
+    systems$ = new BehaviorSubject<TargetSystem[]>(systems);
     await TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
@@ -1897,7 +1899,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
           useValue: {
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
-            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systems$,
             systemById$: new BehaviorSubject(new Map()),
             automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
             load: jest.fn().mockResolvedValue(undefined),
@@ -2084,11 +2086,60 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
   });
 
-  it("leaves the end slot empty, since the create action belongs to the rotation shell header", async () => {
+  it("puts the create action in the end slot, not in the rotation shell header", async () => {
     const on = await render(true);
 
+    expect(endSlot(on).children).toHaveLength(1);
+    const button = endSlot(on).querySelector<HTMLButtonElement>(
+      "#rotation-shell_button_new-target-system",
+    );
+    expect(button).not.toBeNull();
+    expect(text(button!)).toBe("pamTargetSystemNew");
+    expect(button!.getAttribute("type")).toBe("button");
+  });
+
+  it("leaves the create action to the rotation shell header with the flag off", async () => {
+    const off = await render(false);
+
+    expect(el(off).querySelector("bit-table-toolbar")).toBeNull();
+    expect(el(off).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
+  });
+
+  it("navigates to the create page from the end slot button", async () => {
+    const on = await render(true);
+    const router = TestBed.inject(Router);
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    endSlot(on)
+      .querySelector<HTMLButtonElement>("#rotation-shell_button_new-target-system")!
+      .click();
+    await on.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "target-systems", "new"],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  it("keeps the create action out of the toolbar when a search holds the table over an empty list", async () => {
+    const on = await render(true);
+
+    setFilters(on, { search: "prod" });
+    systems$.next([]);
+    on.detectChanges();
+
+    expect(el(on).querySelector("bit-table-v2")).not.toBeNull();
+    expect(toolbar(on)).not.toBeNull();
     expect(endSlot(on).children).toHaveLength(0);
     expect(el(on).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
+  });
+
+  it("leaves the create action to the empty state when there are no target systems", async () => {
+    const on = await render(true, []);
+
+    expect(el(on).querySelector("bit-table-toolbar")).toBeNull();
+    expect(el(on).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
+    expect(el(on).querySelector("pam-target-systems-empty-state")).not.toBeNull();
   });
 
   it("keeps every toolbar control keyboard reachable", async () => {

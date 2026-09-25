@@ -26,6 +26,7 @@ import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sd
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  AsyncActionsModule,
   BadgeModule,
   BitCellComponent,
   BitCellDefDirective,
@@ -84,6 +85,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    AsyncActionsModule,
     BadgeModule,
     ButtonModule,
     FilterMenuModule,
