@@ -120,7 +120,7 @@ export class VaultPopupItemsService {
           switchMap(() =>
             combineLatest([
               this.cipherService
-                .cipherListViews$(userId)
+                .cipherListViewsWithPartials$(userId)
                 .pipe(filter((ciphers) => ciphers != null)),
               this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
               this.restrictedItemTypesService.restricted$,
@@ -228,7 +228,11 @@ export class VaultPopupItemsService {
       if (!tab || !tab.url) {
         return of([]);
       }
-      return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
+      return this.cipherService.filterCiphersForUrl(
+        ciphers.filter((cipher) => !CipherViewLikeUtils.isPartial(cipher)),
+        tab.url,
+        otherTypes,
+      );
     }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
     shareReplay({ refCount: false, bufferSize: 1 }),

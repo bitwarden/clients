@@ -99,7 +99,7 @@ describe("VaultPopupItemsService", () => {
 
     const cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
 
-    cipherServiceMock.cipherListViews$.mockReturnValue(cipherList$.asObservable());
+    cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(cipherList$.asObservable());
 
     ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>({});
     localDataSubject = new BehaviorSubject<Record<CipherId, LocalData>>({});
@@ -285,6 +285,23 @@ describe("VaultPopupItemsService", () => {
       });
     });
 
+    it("keeps PAM-gated partial ciphers out of the autofill suggestions", (done) => {
+      const currentTab = { url: "https://example.com" } as chrome.tabs.Tab;
+      jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(currentTab);
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
+        of([
+          { id: "full", type: CipherType.Login, name: "Full" },
+          { id: "gated", type: CipherType.Login, name: "Gated", partial: true },
+        ] as CipherView[]),
+      );
+
+      service.autoFillCiphers$.pipe(take(1)).subscribe(() => {
+        const offered = cipherServiceMock.filterCiphersForUrl.mock.calls[0][0].map((c) => c.id);
+        expect(offered).toEqual(["full"]);
+        done();
+      });
+    });
+
     it("should return ciphers sorted by type, then by last used date, then by name", (done) => {
       const expectedTypeOrder: Record<CipherType, number> = {
         [CipherType.Login]: 1,
@@ -381,9 +398,25 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
+  describe("PAM-gated partial ciphers", () => {
+    it("lists them with the rest of the vault", (done) => {
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
+        of([
+          { id: "full", type: CipherType.Login, name: "Full" },
+          { id: "gated", type: CipherType.Login, name: "Gated", partial: true },
+        ] as CipherView[]),
+      );
+
+      service.filteredCiphers$.pipe(take(1)).subscribe((ciphers) => {
+        expect(ciphers.map((c) => c.id)).toEqual(expect.arrayContaining(["full", "gated"]));
+        done();
+      });
+    });
+  });
+
   describe("emptyVault$", () => {
     it("should return true if there are no ciphers", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
       service.emptyVault$.pipe(take(1)).subscribe((empty) => {
         expect(empty).toBe(true);
         done();
@@ -391,7 +424,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return false if there are ciphers", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
         of([{ id: "1", type: CipherType.Login, name: "Login 1" }] as CipherView[]),
       );
 
@@ -402,7 +435,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return true when all ciphers are deleted/archived", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(
         of([
           { id: "1", type: CipherType.Login, name: "Login 1", isDeleted: true },
           { id: "2", type: CipherType.Login, name: "Login 2", isDeleted: true },
@@ -440,7 +473,7 @@ describe("VaultPopupItemsService", () => {
       deletedCipher.deletedDate = new Date();
       const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
-      cipherServiceMock.cipherListViews$.mockReturnValue(of(ciphers));
+      cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of(ciphers));
       ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);

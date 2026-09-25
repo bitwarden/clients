@@ -1239,6 +1239,46 @@
   "pamDeleteRequiresAccess": {
     "message": "You need active access to delete this item. Request access, then try again."
   },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged",
+    "description": "Badge on a vault item that is governed by a privileged access rule, with nothing requested yet."
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval",
+    "description": "Badge on a vault item where the user's request for access is waiting on an approver."
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable",
+    "description": "Badge on a vault item whose privileged access cannot currently be granted."
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use",
+    "description": "Badge on a vault item where access was approved and the user still has to start it."
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "description": "Badge counting down the access remaining on a vault item, for example '18m left'.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "description": "Badge counting down access on a vault item once it is about to end, for example 'Ending soon • 4m left'.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Access ended",
+    "description": "Badge on a vault item whose privileged access has finished."
+  },
   "overwritePassword": {
     "message": "Overwrite password"
   },

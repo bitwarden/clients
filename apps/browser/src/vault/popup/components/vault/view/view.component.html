@@ -28,7 +28,7 @@
 
   @if (showFooter$ | async) {
     <popup-footer slot="footer">
-      @if (!cipher.isDeleted) {
+      @if (!cipher.isDeleted && !cipher.partial) {
         <button buttonType="primary" type="button" bitButton (click)="editCipher()">
           {{ "edit" | i18n }}
         </button>

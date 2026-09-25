@@ -245,10 +245,11 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
-bitwarden_license/bit-common/src/pam   @bitwarden/team-pam-dev
-apps/web/src/app/pam                   @bitwarden/team-pam-dev
-libs/pam                               @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam        @bitwarden/team-pam-dev
+bitwarden_license/bit-common/src/pam         @bitwarden/team-pam-dev
+bitwarden_license/bit-browser/src/popup/pam  @bitwarden/team-pam-dev
+apps/web/src/app/pam                         @bitwarden/team-pam-dev
+libs/pam                                     @bitwarden/team-pam-dev
 
 ## Automation driver ##
 ### Temporary Code-owner.

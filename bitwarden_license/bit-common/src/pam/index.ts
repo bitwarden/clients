@@ -65,6 +65,12 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
 export { liveActiveLease } from "./helpers/lease-liveness";
+export {
+  cipherAccessBadgeState,
+  ENDING_SOON_THRESHOLD_MS,
+} from "./access-state-badge/access-badge-state";
+export type { AccessBadgeState } from "./access-state-badge/access-badge-state";
+export { isGovernedCipher } from "./helpers/governed-cipher";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";
