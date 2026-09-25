@@ -14,11 +14,18 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, startWith } from "rxjs";
 
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   BulkActionComponent,
   BulkActionsBarComponent,
   ButtonModule,
@@ -35,6 +42,7 @@ import {
   SortFn,
   TableDataSource,
   TableModule,
+  defineTable,
   ToastService,
   TooltipDirective,
   TypographyModule,
@@ -75,6 +83,11 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
     BadgeModule,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitTableV2Component,
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
@@ -103,6 +116,13 @@ export class AccessRulesComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
   protected readonly collections = toSignal(this.accessRules.collections$, {
@@ -124,6 +144,8 @@ export class AccessRulesComponent {
   protected readonly processedRows = toSignal(this.dataSource.connect(), {
     initialValue: [] as AccessRuleView[],
   });
+
+  protected readonly table = defineTable<AccessRuleView, "select" | "actions">(this.rules);
 
   // --- Toolbar filters ---
   // `bit-filter-menu` isn't a `ControlValueAccessor`, so only `search` is a form control; the
@@ -149,6 +171,22 @@ export class AccessRulesComponent {
     };
   });
 
+  protected readonly ruleFilter = computed(() => {
+    const { text, status, collectionIds } = this.filterInputs();
+    return (rule: AccessRuleView): boolean => {
+      const ruleCollectionIds = rule.collections.map(uuidAsString);
+      return accessRuleMatchesFilter(
+        { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
+        resolveCollectionNames(ruleCollectionIds, this.collections()),
+        { text, status, collectionIds },
+      );
+    };
+  });
+
+  private readonly selectableRows = computed(() =>
+    this.vfo1Enabled() ? this.rules().filter(this.ruleFilter()) : this.processedRows(),
+  );
+
   protected readonly statusOptions: { label: string; value: AccessRuleStatusFilter }[] = [
     { label: this.i18nService.t("pamAccessRuleActive"), value: "enabled" },
     { label: this.i18nService.t("pamAccessRuleInactive"), value: "disabled" },
@@ -168,7 +206,7 @@ export class AccessRulesComponent {
   }
 
   protected allSelected(): boolean {
-    const rows = this.processedRows();
+    const rows = this.selectableRows();
     return rows.length > 0 && rows.every((r) => this.selection.isSelected(r.id));
   }
 
@@ -195,15 +233,7 @@ export class AccessRulesComponent {
 
     // Recompute the combined filter whenever any toolbar control changes.
     effect(() => {
-      const { text, status, collectionIds } = this.filterInputs();
-      this.dataSource.filter = (rule) => {
-        const ruleCollectionIds = rule.collections.map(uuidAsString);
-        return accessRuleMatchesFilter(
-          { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-          resolveCollectionNames(ruleCollectionIds, this.collections()),
-          { text, status, collectionIds },
-        );
-      };
+      this.dataSource.filter = this.ruleFilter();
     });
   }
 
@@ -335,7 +365,7 @@ export class AccessRulesComponent {
       this.selection.clear();
       return;
     }
-    this.selection.select(...this.processedRows().map((r) => r.id));
+    this.selection.select(...this.selectableRows().map((r) => r.id));
   }
 
   protected readonly clearSelection = (): void => {
@@ -413,7 +443,7 @@ export class AccessRulesComponent {
   // --- Helpers ---
 
   private selectedRules(): AccessRuleView[] {
-    return this.processedRows().filter((r) => this.selection.isSelected(r.id));
+    return this.selectableRows().filter((r) => this.selection.isSelected(r.id));
   }
 
   /**
