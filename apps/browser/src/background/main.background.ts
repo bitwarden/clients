@@ -1795,7 +1795,10 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(
+      this.stateProvider,
+      ClientType.Browser,
+    );
     this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
       this.ipcService,
       this.accountService,

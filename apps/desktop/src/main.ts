@@ -298,7 +298,10 @@ export class Main {
       this.logService,
     );
 
-    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(
+      stateProvider,
+      ClientType.Desktop,
+    );
 
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,

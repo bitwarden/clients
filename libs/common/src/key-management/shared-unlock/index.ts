@@ -3,3 +3,4 @@ export { DefaultSharedUnlockPeerService } from "./default-shared-unlock-peer.ser
 export { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 export { DefaultSharedUnlockSettingsService } from "./default-shared-unlock-settings.service";
 export { JsSharedUnlockDriver } from "./shared-unlock-driver";
+export { PeerLockState, PeerState } from "./peer-state";
