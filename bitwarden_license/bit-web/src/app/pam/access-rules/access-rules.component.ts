@@ -25,6 +25,7 @@ import {
   BitCellDefDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
+  BitTableToolbarComponent,
   BitTableV2Component,
   BulkActionComponent,
   BulkActionsBarComponent,
@@ -51,6 +52,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
+  AccessRuleFilter,
   AccessRuleId,
   AccessRuleView,
   AccessRuleStatusFilter,
@@ -87,6 +89,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     BitCellDefDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
+    BitTableToolbarComponent,
     BitTableV2Component,
     BulkActionComponent,
     BulkActionsBarComponent,
@@ -150,6 +153,9 @@ export class AccessRulesComponent {
   // --- Toolbar filters ---
   // `bit-filter-menu` isn't a `ControlValueAccessor`, so only `search` is a form control; the
   // status/collection chips own their selection and are read through the `FilterControl` contract.
+  // In the v2 toolbar the table adopts the same `bit-search` under its own `search` key, so
+  // `rowMatchesFilter` must take the term from the table's values and never from `searchTerm`,
+  // which would narrow the rows a second time.
   protected readonly filterForm = new FormGroup({
     search: new FormControl("", { nonNullable: true }),
   });
@@ -162,26 +168,37 @@ export class AccessRulesComponent {
   private readonly statusFilter = viewChild("statusFilter", { read: FILTER_CONTROL });
   private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
-  private readonly filterInputs = computed(() => {
-    const status = this.statusFilter()?.value();
-    return {
-      text: this.searchTerm().trim().toLowerCase(),
-      status: (typeof status === "string" ? status : null) as AccessRuleStatusFilter | null,
-      collectionIds: selectedFilterStrings(this.collectionFilter()?.value()),
-    };
-  });
+  private readonly filterInputs = computed(() =>
+    toAccessRuleFilter({
+      search: this.searchTerm(),
+      status: this.statusFilter()?.value(),
+      collection: this.collectionFilter()?.value(),
+    }),
+  );
 
   protected readonly ruleFilter = computed(() => {
-    const { text, status, collectionIds } = this.filterInputs();
-    return (rule: AccessRuleView): boolean => {
-      const ruleCollectionIds = rule.collections.map(uuidAsString);
-      return accessRuleMatchesFilter(
-        { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-        resolveCollectionNames(ruleCollectionIds, this.collections()),
-        { text, status, collectionIds },
-      );
-    };
+    const filter = this.filterInputs();
+    return (rule: AccessRuleView): boolean => this.matchesFilter(rule, filter);
   });
+
+  /**
+   * The v2 table's row test. The toolbar chips and the projected `bit-search` register
+   * with the table, so their values arrive as `values` rather than through
+   * {@link filterInputs} — the table needs the keyed shape to count each chip's options.
+   */
+  protected readonly rowMatchesFilter = (
+    rule: AccessRuleView,
+    values: AccessRuleFilterValues,
+  ): boolean => this.matchesFilter(rule, toAccessRuleFilter(values));
+
+  private matchesFilter(rule: AccessRuleView, filter: AccessRuleFilter): boolean {
+    const ruleCollectionIds = rule.collections.map(uuidAsString);
+    return accessRuleMatchesFilter(
+      { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
+      resolveCollectionNames(ruleCollectionIds, this.collections()),
+      filter,
+    );
+  }
 
   private readonly selectableRows = computed(() =>
     this.vfo1Enabled() ? this.rules().filter(this.ruleFilter()) : this.processedRows(),
@@ -456,6 +473,27 @@ export class AccessRulesComponent {
       message: this.i18nService.t(accessRuleErrorMessageKey(e)),
     });
   }
+}
+
+/**
+ * The toolbar's raw values, keyed by each control's filter key. Untyped per key because
+ * that is what both hosts hand over: `bit-table-v2` collects whatever each chip reports,
+ * and off the flag the chips are read one by one through `FilterControl`.
+ */
+type AccessRuleFilterValues = {
+  search?: string;
+  status?: unknown;
+  collection?: unknown;
+};
+
+function toAccessRuleFilter(values: AccessRuleFilterValues): AccessRuleFilter {
+  return {
+    text: (values.search ?? "").trim().toLowerCase(),
+    status: (typeof values.status === "string"
+      ? values.status
+      : null) as AccessRuleStatusFilter | null,
+    collectionIds: selectedFilterStrings(values.collection),
+  };
 }
 
 /** A rule's revision date as epoch milliseconds for sorting; 0 when the date is invalid. */
