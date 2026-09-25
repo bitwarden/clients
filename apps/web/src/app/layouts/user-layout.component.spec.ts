@@ -8,6 +8,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -142,7 +143,10 @@ describe("UserLayoutComponent", () => {
     organizations$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
-    configService.getFeatureFlag$.mockReturnValue(flag$);
+    // Keep PAM on in both blocks so the Access requests assertions exercise the nav placement.
+    configService.getFeatureFlag$.mockImplementation((flag) =>
+      flag === FeatureFlag.Pam ? of(true) : flag$,
+    );
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
@@ -212,6 +216,7 @@ describe("UserLayoutComponent", () => {
 
       const text = navText();
 
+      expect(text).toContain("pamAccessRequestsTitle");
       expect(text.indexOf("pamAccessRequestsTitle")).toBeLessThan(text.indexOf("tools"));
     });
   });
