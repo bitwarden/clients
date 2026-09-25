@@ -33,26 +33,47 @@
       </div>
 
       @if (vfo1Enabled()) {
-        <bit-table-v2>
-          <bit-header-row>
+        <bit-table-v2
+          [tableDef]="historyTable"
+          [loading]="true"
+          [loadingRows]="skeletonRows.length"
+        >
+          <bit-column width="minmax(240px, 2fr)">
             <bit-header-cell>{{ "pamColumnItem" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="historyTable.columns.cipherName"></bit-cell>
+            <bit-cell *bitCellLoading>
+              <bit-skeleton slot="start" class="tw-size-6 tw-shrink-0"></bit-skeleton>
+              <bit-skeleton-text [lines]="2" class="tw-w-40"></bit-skeleton-text>
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(140px, 1fr)">
             <bit-header-cell>{{ "pamColumnStatus" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="historyTable.columns.status"></bit-cell>
+            <bit-cell *bitCellLoading>
+              <bit-skeleton-text class="tw-w-24"></bit-skeleton-text>
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(140px, 1fr)">
             <bit-header-cell>{{ "pamColumnResolver" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="historyTable.columns.resolverName"></bit-cell>
+            <bit-cell *bitCellLoading>
+              <bit-skeleton-text class="tw-w-32"></bit-skeleton-text>
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(200px, 2fr)">
             <bit-header-cell>{{ "pamColumnComment" | i18n }}</bit-header-cell>
+            <bit-cell *bitCellDef="historyTable.columns.approverComment"></bit-cell>
+            <bit-cell *bitCellLoading>
+              <bit-skeleton-text class="tw-w-56"></bit-skeleton-text>
+            </bit-cell>
+          </bit-column>
+          <bit-column width="minmax(140px, 1fr)">
             <bit-header-cell>{{ "pamColumnResolved" | i18n }}</bit-header-cell>
-          </bit-header-row>
-          @for (skeletonRow of skeletonRows; track skeletonRow) {
-            <bit-row>
-              <bit-cell>
-                <bit-skeleton slot="start" class="tw-size-6 tw-shrink-0"></bit-skeleton>
-                <bit-skeleton-text [lines]="2" class="tw-w-40"></bit-skeleton-text>
-              </bit-cell>
-              <bit-cell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
-              <bit-cell><bit-skeleton-text class="tw-w-32"></bit-skeleton-text></bit-cell>
-              <bit-cell><bit-skeleton-text class="tw-w-56"></bit-skeleton-text></bit-cell>
-              <bit-cell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
-            </bit-row>
-          }
+            <bit-cell *bitCellDef="historyTable.columns.resolvedAt"></bit-cell>
+            <bit-cell *bitCellLoading>
+              <bit-skeleton-text class="tw-w-24"></bit-skeleton-text>
+            </bit-cell>
+          </bit-column>
         </bit-table-v2>
       } @else {
         <!-- Remove this branch along with the VFO1 flag. -->

@@ -1018,6 +1018,35 @@ describe("HistoryTabComponent", () => {
       expect(query("bit-table-v2")).toBeNull();
     });
 
+    it("sizes the v2 skeleton's columns to match the loaded table's", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      createWithFlag(true);
+      passSkeletonDelay();
+
+      const skeleton = query('[data-testid="history-loading"] bit-table-v2')!;
+      const skeletonRows = [...skeleton.querySelectorAll<HTMLElement>("bit-header-row, bit-row")];
+      expect(skeleton.querySelectorAll("bit-row")).toHaveLength(5);
+      expect(headings()).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamColumnResolver",
+        "pamColumnComment",
+        "pamColumnResolved",
+      ]);
+      const skeletonTracks = skeletonRows.map((row) => row.style.gridTemplateColumns);
+
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      const loadedTracks = query("bit-table-v2 bit-header-row")!.style.gridTemplateColumns;
+      expect(loadedTracks).not.toBe("");
+      expect(skeletonTracks).toEqual(skeletonRows.map(() => loadedTracks));
+    });
+
     it("renders the same column headings, in the same order, as v1", () => {
       populateApprover();
       createWithFlag(false);
