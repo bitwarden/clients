@@ -4,14 +4,23 @@ Commercial home for Privileged Access Management: the access-rules admin UI, the
 requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pam`
 (`pm-37044-pam-v-0`).
 
+## The shared layer lives in `bit-common`
+
+`bitwarden_license/bit-common/src/pam/` holds it, so `bit-browser` can share it. These paths
+here are one-line re-exports of their `@bitwarden/bit-common/pam/…` counterpart:
+`abstractions/`, `helpers/` and `date/` entirely; `services/*-sdk.service.ts`,
+`services/default-access-event.service.ts`, `services/default-access-refresh.service.ts`,
+`services/default-leasing-error.service.ts` and `services/pam-membership.ts`;
+`access-state-badge/access-badge-state.ts`; and `testing/decision-builders.ts`. Their specs
+are in `bit-common`. `index.ts` re-exports `bit-common`'s barrel and adds the web-only
+exports (the audit API and rotation).
+
+**Edit the file in `bit-common`, never the shim.** Where a section below names a file at one
+of those paths, it means the `bit-common` copy.
+
 ## Surfaces
 
-- `abstractions/` / `helpers/` / `date/` — framework-agnostic contract layer: domain
-  types and error helpers (`abstractions/access-rule.ts`, `abstractions/access-lease.ts`),
-  the abstract service contracts, and pure helpers. Re-exported via `index.ts`. No
-  Angular APIs here; keep it that way so this stays unit-testable without a TestBed.
-  Was its own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was its
-  only consumer.
+- `abstractions/` / `helpers/` / `date/` — shims over `bit-common` (see above).
 - `access-rules/` — list (`access-rules.component` + `.service`) and the routed
   create/edit page (`access-rule-edit.component`), at `access-rules`,
   `access-rules/new`, `access-rules/:accessRuleId`.
@@ -126,8 +135,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   constant, not restate five minutes.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
   collection edit dialog.
-- `services/` — the SDK-backed implementations of the `abstractions/` contracts.
-- `testing/` — builders shared across specs (`decision-builders.ts`).
+- `services/` — the web-only services (`my-leases`, `pam-nav-badge`, `governed-collections`,
+  `access-rules`, …) beside shims for the SDK-backed ones in `bit-common`.
+- `testing/` — `story-fixtures.ts`, and a shim for `decision-builders.ts`.
 
 ## SDK-first, no exceptions
 

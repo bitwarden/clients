@@ -7,6 +7,12 @@ module.exports = {
   ...sharedConfig,
   displayName: "bit-common tests",
   testEnvironment: "jsdom",
+  transform: Object.fromEntries(
+    Object.entries(sharedConfig.transform).map(([pattern, [transformer, options]]) => [
+      pattern,
+      [transformer, { ...options, isolatedModules: true }],
+    ]),
+  ),
   moduleNameMapper: pathsToModuleNameMapper(
     {
       "@bitwarden/common/spec": ["libs/common/spec"],
