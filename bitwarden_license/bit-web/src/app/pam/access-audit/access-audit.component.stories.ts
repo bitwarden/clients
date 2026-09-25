@@ -667,6 +667,19 @@ export const NoMatches: Story = {
 };
 
 /**
+ * The same over-narrowed trail on the `bit-table-v2` path, where the chips sit in the table's own
+ * toolbar: the toolbar holds its place above the empty state, so loosening one chip is still a move
+ * away rather than only the wholesale Clear all.
+ */
+export const NoMatchesFlagOn: Story = {
+  decorators: [audit()],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+  play: async ({ canvasElement }) => {
+    await selectChipOption(canvasElement, "Time period", "Today");
+  },
+};
+
+/**
  * A preset in force. The Time period chip carries its selection the way the other three carry theirs —
  * same height, same pressed styling, same dismiss — so the row reads as one family of controls, and the
  * table is narrowed to the events inside the window rather than the whole fetched trail.
@@ -684,6 +697,19 @@ export const TimePeriodFiltered: Story = {
  */
 export const FiltersActive: Story = {
   decorators: [audit({ events: liveEvents() })],
+  play: async ({ canvasElement }) => {
+    await selectChipOption(canvasElement, "Time period", "Past 30 days");
+    await selectChipOption(canvasElement, "Event", "Request approved");
+  },
+};
+
+/**
+ * The same two chips on the `bit-table-v2` path. Clear all is the toolbar's own here, and the item
+ * count beside it reports the rows of the page in hand — see the toolbar note in the decisions log.
+ */
+export const FiltersActiveFlagOn: Story = {
+  decorators: [audit({ events: liveEvents() })],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
     await selectChipOption(canvasElement, "Time period", "Past 30 days");
     await selectChipOption(canvasElement, "Event", "Request approved");
