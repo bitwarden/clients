@@ -1309,8 +1309,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-loading"]')).toBeNull();
     });
 
-    // The chip lands in the table's toolbar, so a placeholder above the skeleton would promise a
-    // control in a place that never receives one.
+    // Reserves the space the scope chip will occupy, so the table does not jump when the rows land.
     it("reserves the scope-chip row while loading on both paths", () => {
       canApprove$.next(true);
       managedLoading$.next(true);

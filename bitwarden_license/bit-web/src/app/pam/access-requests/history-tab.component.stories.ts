@@ -227,9 +227,9 @@ export const WithManagedHistoryFlagOn: Story = {
 };
 
 /**
- * The scope chip in force on the `bit-table-v2` path: the toolbar's second row, the applied-filter
- * styling and the item count only render once a scope is picked, and the whole toolbar sits inside
- * the table's border.
+ * The scope chip in force on the `bit-table-v2` path: the applied-filter styling and the toolbar's
+ * clear-all button only show once a scope is picked, and the whole toolbar sits inside the
+ * table's border.
  */
 export const FlagOnFiltered: Story = {
   decorators: [history({ managed: managedRows })],
