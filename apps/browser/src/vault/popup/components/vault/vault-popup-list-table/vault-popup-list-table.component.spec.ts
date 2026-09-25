@@ -1,5 +1,4 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -174,7 +173,6 @@ describe("VaultPopupListTableComponent", () => {
       collection: [] as string[],
       folder: [] as string[],
     }),
-    selectedOrganizations: signal<Organization[]>([]),
     cipherTypes$: cipherTypes$.asObservable(),
     organizations$: organizations$.asObservable(),
     organizationNames$: organizationNames$.asObservable(),
