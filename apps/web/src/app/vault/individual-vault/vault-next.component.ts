@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  Type,
   untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -97,6 +98,7 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
 import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
+import { VAULT_ROW_LEASE_BADGE } from "../components/vault-items/vault-row-lease-badge.token";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
@@ -172,6 +174,7 @@ export class VaultNextComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly policyService = inject(PolicyService);
   private readonly webVaultPromptService = inject(WebVaultPromptService);
+  private readonly configService = inject(ConfigService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly coachmarkService = inject(CoachmarkService);
@@ -183,6 +186,18 @@ export class VaultNextComponent implements OnInit {
   protected readonly addItemCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "addItem",
   );
+
+  /**
+   * Host-provided "Controlled access" badge seam. Unprovided, no privileged-access feature is
+   * installed and the table's Controlled access column stays absent.
+   */
+  private readonly leaseBadge: Type<unknown> | null = inject(VAULT_ROW_LEASE_BADGE, {
+    optional: true,
+  });
+
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
 
   /**
    * Onboarding prompts are the page's to start. {@link WebVaultPromptService} sequences them so
@@ -379,6 +394,17 @@ export class VaultNextComponent implements OnInit {
     const scope = this.vaultScope();
     return this.organizations().filter((organization) => organizationInScope(organization, scope));
   });
+
+  /**
+   * The badge the table renders in its Controlled access column, or `null` to leave the column
+   * out: the PAM feature flag is enabled, at least one organization in view has `usePam`, and a
+   * host provides the badge seam — the same gate the v1 list applies in `vault-items.component`.
+   */
+  protected readonly controlledAccessBadge = computed<Type<unknown> | null>(() =>
+    this.pamEnabled() && this.leaseBadge != null && this.scopedOrganizations().some((o) => o.usePam)
+      ? this.leaseBadge
+      : null,
+  );
 
   /** Scopes the table's search index to the organization, for an organization vault. */
   protected readonly scopedOrganizationId = computed(() => {
