@@ -3,8 +3,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -84,6 +85,8 @@ describe("MyRequestsTabComponent", () => {
     endLease: jest.Mock;
   };
   let toastService: MockProxy<ToastService>;
+  let dialogService: MockProxy<DialogService>;
+  let configService: MockProxy<ConfigService>;
 
   function create(): void {
     fixture = TestBed.createComponent(MyRequestsTabComponent);
@@ -129,14 +132,18 @@ describe("MyRequestsTabComponent", () => {
       endLease: jest.fn().mockResolvedValue(undefined),
     };
     toastService = mock<ToastService>();
+    dialogService = mock<DialogService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [MyRequestsTabComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
         { provide: MyAccessService, useValue: myAccess },
-        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -503,6 +510,343 @@ describe("MyRequestsTabComponent", () => {
       create();
 
       expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(0);
+    });
+  });
+
+  describe("with the VFO1 flag on", () => {
+    function createWithFlag(enabled: boolean): void {
+      fixture?.destroy();
+      configService.getFeatureFlag$.mockReturnValue(of(enabled));
+      create();
+    }
+
+    function queryAll(root: ParentNode, selector: string): HTMLElement[] {
+      return Array.from(root.querySelectorAll<HTMLElement>(selector));
+    }
+
+    function text(element: Element): string {
+      return (element.textContent ?? "").replace(/\s+/g, " ").trim();
+    }
+
+    function sectionTable(titleKey: string): HTMLElement | null {
+      const section = queryAll(fixture.nativeElement, "bit-accordion").find((accordion) =>
+        text(accordion).includes(titleKey),
+      );
+      return section?.querySelector<HTMLElement>("bit-table, bit-table-v2") ?? null;
+    }
+
+    const pendingTable = () => sectionTable("pamMyRequestsPendingSection")!;
+    const extensionTable = () => sectionTable("pamMyRequestsGroupExtensions")!;
+    const activeTable = () => sectionTable("pamMyRequestsActiveAccessSection")!;
+
+    function headings(table: HTMLElement): string[] {
+      return queryAll(table, 'th, [role="columnheader"]').map(text);
+    }
+
+    function rowCount(table: HTMLElement): number {
+      return queryAll(table, "tr[bitRow], bit-row").length;
+    }
+
+    /** Each row's leading test id, read off the v1 `tr` or the v2 Item cell. */
+    function rowIds(table: HTMLElement): (string | null)[] {
+      return queryAll(table, "tr[bitRow], bit-row").map((row) =>
+        (row.matches("[data-testid]") ? row : row.querySelector("[data-testid]"))!.getAttribute(
+          "data-testid",
+        ),
+      );
+    }
+
+    function actions(table: HTMLElement): { testId: string | null; label: string }[] {
+      return queryAll(table, "button[data-testid]").map((button) => ({
+        testId: button.getAttribute("data-testid"),
+        label: text(button),
+      }));
+    }
+
+    function clickSortHeader(table: HTMLElement, heading: string): void {
+      const header = queryAll(table, '[role="columnheader"]').find(
+        (candidate) => text(candidate) === heading,
+      )!;
+      (header.querySelector("button") as HTMLButtonElement).click();
+      fixture.detectChanges();
+    }
+
+    function populate(): void {
+      pendingRows$.next([
+        requestRow({
+          id: "req-pending-old",
+          status: "pending",
+          submittedAt: "2026-08-17T09:00:00Z",
+        }),
+        requestRow({
+          id: "req-pending-new",
+          status: "pending",
+          submittedAt: "2026-08-18T09:00:00Z",
+        }),
+        requestRow({ id: "req-alpha", cipherName: "Alpha DB" }),
+        requestRow({ id: "req-lapsed", leaseNotAfter: "2026-08-19T11:30:00.000Z" }),
+      ]);
+      extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
+      leases$.next([
+        leaseRow({ id: "lease-late", requestId: "req-late", notAfter: "2026-08-20T18:00:00.000Z" }),
+        leaseRow({
+          id: "lease-soon",
+          extendedBySeconds: 3600,
+          extendedUntil: LEASE_END,
+        }),
+      ]);
+    }
+
+    beforeEach(() => {
+      jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
+    });
+
+    it("renders bit-table-v2 for every section instead of bit-table", () => {
+      populate();
+
+      createWithFlag(true);
+
+      expect(pendingTable().tagName).toBe("BIT-TABLE-V2");
+      expect(extensionTable().tagName).toBe("BIT-TABLE-V2");
+      expect(activeTable().tagName).toBe("BIT-TABLE-V2");
+      expect(query("bit-table")).toBeNull();
+    });
+
+    it("renders only the v1 tables with the flag off", () => {
+      populate();
+
+      createWithFlag(false);
+
+      expect(pendingTable().tagName).toBe("BIT-TABLE");
+      expect(extensionTable().tagName).toBe("BIT-TABLE");
+      expect(activeTable().tagName).toBe("BIT-TABLE");
+      expect(query("bit-table-v2")).toBeNull();
+    });
+
+    it("renders the same column headings, in the same order, as the v1 tables", () => {
+      populate();
+      createWithFlag(false);
+      const v1 = [headings(pendingTable()), headings(extensionTable()), headings(activeTable())];
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([
+        ["pamColumnItem", "pamColumnRequestedWindow", "pamColumnSubmitted", "pamColumnActions"],
+        ["pamColumnItem", "pamColumnRequestedWindow", "pamColumnSubmitted", "pamColumnActions"],
+        ["pamColumnItem", "pamColumnWindow", "pamColumnStatus", "pamColumnActions"],
+      ]);
+      expect([
+        headings(pendingTable()),
+        headings(extensionTable()),
+        headings(activeTable()),
+      ]).toEqual(v1);
+    });
+
+    it("keeps the Actions heading visually hidden but named, as v1 does", () => {
+      populate();
+
+      createWithFlag(true);
+
+      for (const table of [pendingTable(), extensionTable(), activeTable()]) {
+        const actionsHeading = queryAll(table, '[role="columnheader"]').at(-1)!;
+        expect(actionsHeading.querySelector(".tw-sr-only")?.textContent?.trim()).toBe(
+          "pamColumnActions",
+        );
+      }
+    });
+
+    it("renders one row per request and per held or granted access, as v1 does", () => {
+      populate();
+      createWithFlag(false);
+      const v1 = [rowCount(pendingTable()), rowCount(extensionTable()), rowCount(activeTable())];
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([2, 1, 4]);
+      expect([
+        rowCount(pendingTable()),
+        rowCount(extensionTable()),
+        rowCount(activeTable()),
+      ]).toEqual(v1);
+    });
+
+    it("offers the same row actions, in the same order and with the same labels, as v1", () => {
+      populate();
+      createWithFlag(false);
+      const v1 = [actions(pendingTable()), actions(extensionTable()), actions(activeTable())];
+
+      createWithFlag(true);
+
+      expect(v1[2]).toEqual([
+        { testId: "my-access-end-lease-soon", label: "pamEndLeaseButton" },
+        { testId: "my-access-end-lease-late", label: "pamEndLeaseButton" },
+        { testId: "my-access-approved-start-req-alpha", label: "pamStartLeaseButton" },
+        { testId: "my-access-approved-cancel-req-alpha", label: "cancel" },
+      ]);
+      expect([actions(pendingTable()), actions(extensionTable()), actions(activeTable())]).toEqual(
+        v1,
+      );
+    });
+
+    it("withholds Start and Cancel on a lapsed grant and badges it Expired", () => {
+      populate();
+
+      createWithFlag(true);
+
+      expect(query('[data-testid="my-access-approved-start-req-lapsed"]')).toBeNull();
+      expect(query('[data-testid="my-access-approved-cancel-req-lapsed"]')).toBeNull();
+      expect(query('[data-testid="my-access-approved-status-req-lapsed"]')!.textContent).toContain(
+        "pamStatusExpired",
+      );
+      const lapsedRow = query('[data-testid="my-access-approved-req-lapsed"]')!.closest("bit-row")!;
+      expect(lapsedRow.textContent).not.toContain("pamWindowUntil");
+    });
+
+    it("shows the same cell content as v1", () => {
+      populate();
+
+      createWithFlag(true);
+
+      const active = text(activeTable());
+      expect(active).toContain("Prod database");
+      expect(active).toContain("pamInboxInCollection Production");
+      expect(query('[data-testid="my-access-lease-extended-lease-soon"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-lease-extended-lease-late"]')).toBeNull();
+      expect(query('[data-testid="access-state-badge-ready"]')).not.toBeNull();
+      expect(activeTable().querySelectorAll("app-pam-access-state-badge")).toHaveLength(3);
+    });
+
+    it("links each item to its request with a real anchor", () => {
+      populate();
+
+      createWithFlag(true);
+
+      expect(
+        query('[data-testid="my-access-pending-req-pending-new"] a')?.getAttribute("href"),
+      ).toBe("/pam/requests/req-pending-new");
+      expect(query('[data-testid="my-access-extension-req-ext"] a')?.getAttribute("href")).toBe(
+        "/pam/requests/req-ext",
+      );
+      expect(query('[data-testid="my-access-lease-lease-late"] a')?.getAttribute("href")).toBe(
+        "/pam/requests/req-late",
+      );
+    });
+
+    it("describes Start by the activation deadline it renders", () => {
+      populate();
+
+      createWithFlag(true);
+
+      const start = query('[data-testid="my-access-approved-start-req-alpha"]')!;
+      const describedBy = start.getAttribute("aria-describedby")!;
+      expect(describedBy).toBe("my-access-approved-deadline-req-alpha");
+      expect(fixture.nativeElement.querySelector(`#${describedBy}`)).not.toBeNull();
+    });
+
+    it("sorts Pending newest submitted first by default, as v1 does", () => {
+      populate();
+      createWithFlag(false);
+      const v1 = rowIds(pendingTable());
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([
+        "my-access-pending-req-pending-new",
+        "my-access-pending-req-pending-old",
+      ]);
+      expect(rowIds(pendingTable())).toEqual(v1);
+    });
+
+    it("keeps held access soonest-ending first, ahead of grants, when unsorted, as v1 does", () => {
+      populate();
+      createWithFlag(false);
+      const v1 = rowIds(activeTable());
+
+      createWithFlag(true);
+
+      expect(v1).toEqual([
+        "my-access-lease-lease-soon",
+        "my-access-lease-lease-late",
+        "my-access-approved-req-lapsed",
+        "my-access-approved-req-alpha",
+      ]);
+      expect(rowIds(activeTable())).toEqual(v1);
+    });
+
+    it("keeps held access ahead of grants in both directions of the Item sort", () => {
+      pendingRows$.next([
+        requestRow({ id: "req-alpha", cipherName: "Alpha DB" }),
+        requestRow({ id: "req-zebra", cipherName: "Zebra DB" }),
+      ]);
+      leases$.next([leaseRow({ id: "lease-1", cipherName: "Prod database" })]);
+      createWithFlag(true);
+
+      clickSortHeader(activeTable(), "pamColumnItem");
+      expect(rowIds(activeTable())).toEqual([
+        "my-access-lease-lease-1",
+        "my-access-approved-req-alpha",
+        "my-access-approved-req-zebra",
+      ]);
+
+      clickSortHeader(activeTable(), "pamColumnItem");
+      expect(rowIds(activeTable())).toEqual([
+        "my-access-lease-lease-1",
+        "my-access-approved-req-zebra",
+        "my-access-approved-req-alpha",
+      ]);
+    });
+
+    it("leaves Window and Status unsortable, as v1 does", () => {
+      populate();
+
+      createWithFlag(true);
+
+      const sortable = queryAll(activeTable(), '[role="columnheader"]')
+        .filter((header) => header.querySelector("button") != null)
+        .map(text);
+      expect(sortable).toEqual(["pamColumnItem"]);
+      expect(
+        queryAll(pendingTable(), '[role="columnheader"]')
+          .filter((header) => header.querySelector("button") != null)
+          .map(text),
+      ).toEqual(["pamColumnItem", "pamColumnSubmitted"]);
+    });
+
+    it("applies the toolbar search to every v2 table", () => {
+      populate();
+      createWithFlag(true);
+
+      component["searchControl"].setValue("alpha");
+      fixture.detectChanges();
+
+      expect(sectionTable("pamMyRequestsPendingSection")).toBeNull();
+      expect(rowIds(activeTable())).toEqual(["my-access-approved-req-alpha"]);
+      expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
+    });
+
+    it("shows the Pending and Active empty states on the v2 path", () => {
+      createWithFlag(true);
+
+      expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-active-empty"]')).not.toBeNull();
+      expect(query("bit-table-v2")).toBeNull();
+    });
+
+    it("routes Start, Cancel and End through the same component actions as v1", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      populate();
+      createWithFlag(true);
+
+      query('[data-testid="my-access-approved-start-req-alpha"]')!.click();
+      query('[data-testid="my-access-pending-cancel-req-pending-new"]')!.click();
+      query('[data-testid="my-access-extension-cancel-req-ext"]')!.click();
+      query('[data-testid="my-access-end-lease-soon"]')!.click();
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(myAccess.activate).toHaveBeenCalledWith("req-alpha");
+      expect(myAccess.cancel).toHaveBeenCalledWith("req-pending-new");
+      expect(myAccess.cancel).toHaveBeenCalledWith("req-ext");
+      expect(myAccess.endLease).toHaveBeenCalledWith("lease-soon");
     });
   });
 });
