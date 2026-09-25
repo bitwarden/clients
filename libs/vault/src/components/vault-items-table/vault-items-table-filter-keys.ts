@@ -12,6 +12,7 @@ export const VAULT_FILTER_KEYS = Object.freeze({
   myItems: "myItems",
   sharedFolder: "sharedFolder",
   folder: "folder",
+  controlledAccess: "controlledAccess",
   search: "search",
 } as const);
 
@@ -33,4 +34,9 @@ export type VaultItemsTableFilters = {
   sharedFolder?: string[];
   /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
   folder?: string[];
+  /**
+   * The id of the selected `VAULT_CONTROLLED_ACCESS_FILTER` option. Single-select, and opaque to
+   * the table: only the host that supplied the option knows what it admits.
+   */
+  controlledAccess?: string;
 };
