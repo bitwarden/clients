@@ -33,20 +33,18 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
   ) {}
 
   /**
-   * `ids` and `user_handle` arrive as `number[]`, not `Uint8Array` — `serde_wasm_bindgen` does not
-   * emit a `Uint8Array` for a plain `Vec<u8>`. `user_handle` is ignored, as in the TypeScript path;
-   * filtering on it would change which credentials a relying party can see.
-   *
-   * `rip_id` is misspelled to match the SDK interface. Renaming it stops the object satisfying it.
+   * Finds the passkey ciphers for `rp_id`, limited to `ids` when given. `user_handle` is ignored,
+   * as in the TypeScript path, so a relying party sees the same credentials either way.
    */
   async find_credentials(
     ids: number[][] | undefined,
-    rip_id: string,
+    rp_id: string,
     user_handle: number[] | undefined,
   ): Promise<SdkCipherView[]> {
+    // `serde_wasm_bindgen` sends a `Vec<u8>` as `number[]`, not `Uint8Array`.
     const matching = await this.findCredentialCiphers(
       ids?.map((id) => new Uint8Array(id)),
-      rip_id,
+      rp_id,
     );
 
     return await this.reReadThroughSdk(matching);
