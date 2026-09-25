@@ -27,7 +27,10 @@ import {
   Fido2AuthenticatorService,
   PublicKeyCredentialDescriptor,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
-import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
+import {
+  Fido2UserInterfaceService,
+  Fido2UserInterfaceSession,
+} from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { SdkService, uuidAsString } from "../../abstractions/sdk/sdk.service";
@@ -68,36 +71,32 @@ export class SdkFido2AuthenticatorService<
     window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
-    const session = await this.userInterface.newSession(
+    return await this.withUnlockedSession(
       params.fallbackSupported,
       window,
       abortController,
+      async (session) => {
+        await this.syncBeforeCreation();
+
+        const result = await this.withAuthenticator(
+          new SdkFido2UserInterface(
+            session,
+            this.cipherService,
+            this.accountService,
+            this.logService,
+          ),
+          (authenticator) => authenticator.make_credential(toMakeCredentialRequest(params)),
+        );
+
+        return {
+          credentialId: new Uint8Array(result.credentialId),
+          attestationObject: new Uint8Array(result.attestationObject),
+          authData: new Uint8Array(result.authenticatorData),
+          publicKey: new Uint8Array(result.publicKey),
+          publicKeyAlgorithm: result.publicKeyAlgorithm,
+        };
+      },
     );
-
-    try {
-      await session.ensureUnlockedVault();
-      await this.syncBeforeCreation();
-
-      const result = await this.withAuthenticator(
-        new SdkFido2UserInterface(
-          session,
-          this.cipherService,
-          this.accountService,
-          this.logService,
-        ),
-        (authenticator) => authenticator.make_credential(toMakeCredentialRequest(params)),
-      );
-
-      return {
-        credentialId: new Uint8Array(result.credentialId),
-        attestationObject: new Uint8Array(result.attestationObject),
-        authData: new Uint8Array(result.authenticatorData),
-        publicKey: new Uint8Array(result.publicKey),
-        publicKeyAlgorithm: result.publicKeyAlgorithm,
-      };
-    } finally {
-      session.close();
-    }
   }
 
   async getAssertion(
@@ -105,35 +104,47 @@ export class SdkFido2AuthenticatorService<
     window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
-    const session = await this.userInterface.newSession(
+    return await this.withUnlockedSession(
       params.fallbackSupported,
       window,
       abortController,
-    );
+      async (session) => {
+        await this.syncBeforeAssertion(params);
 
+        const result = await this.withAuthenticator(
+          new SdkFido2UserInterface(
+            session,
+            this.cipherService,
+            this.accountService,
+            this.logService,
+            params.assumeUserPresence ?? false,
+          ),
+          (authenticator) => authenticator.get_assertion(toGetAssertionRequest(params)),
+        );
+
+        return {
+          selectedCredential: {
+            id: new Uint8Array(result.credentialId),
+            userHandle: new Uint8Array(result.userHandle),
+          },
+          authenticatorData: new Uint8Array(result.authenticatorData),
+          signature: new Uint8Array(result.signature),
+        };
+      },
+    );
+  }
+
+  /** Runs `operation` in a user interface session with the vault unlocked, then closes the session. */
+  private async withUnlockedSession<T>(
+    fallbackSupported: boolean,
+    window: ParentWindowReference,
+    abortController: AbortController | undefined,
+    operation: (session: Fido2UserInterfaceSession) => Promise<T>,
+  ): Promise<T> {
+    const session = await this.userInterface.newSession(fallbackSupported, window, abortController);
     try {
       await session.ensureUnlockedVault();
-      await this.syncBeforeAssertion(params);
-
-      const result = await this.withAuthenticator(
-        new SdkFido2UserInterface(
-          session,
-          this.cipherService,
-          this.accountService,
-          this.logService,
-          params.assumeUserPresence ?? false,
-        ),
-        (authenticator) => authenticator.get_assertion(toGetAssertionRequest(params)),
-      );
-
-      return {
-        selectedCredential: {
-          id: new Uint8Array(result.credentialId),
-          userHandle: new Uint8Array(result.userHandle),
-        },
-        authenticatorData: new Uint8Array(result.authenticatorData),
-        signature: new Uint8Array(result.signature),
-      };
+      return await operation(session);
     } finally {
       session.close();
     }
