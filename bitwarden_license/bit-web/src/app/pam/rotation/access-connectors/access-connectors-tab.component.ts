@@ -317,7 +317,8 @@ export class AccessConnectorsTabComponent {
 
   /**
    * Open the access connector registration dialog and refresh the shared list on success.
-   * Owned by the empty state; the shell's header button covers the non-empty list.
+   * Owned by the empty state; the non-empty list is covered by this tab's toolbar button on the
+   * VFO1 flag, and by the shell's header button off it.
    */
   protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
