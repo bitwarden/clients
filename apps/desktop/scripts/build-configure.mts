@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
 import ChromiumImporterBuildTask from "../desktop_native/chromium_importer/build-chromium-importer.mts";
+import ProcessIsolationBuildTask from "../desktop_native/process_isolation/build-process-isolation.mts";
 import DesktopProxyBuildTask from "../desktop_native/proxy/build-desktop-proxy.mts";
 import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
@@ -444,6 +445,12 @@ async function main() {
       tasks.push(ChromiumImporterBuildTask);
     }
     console.log("Chromium Importer Helper:", config.platform === "windows");
+
+    // Linux-specific
+    if (config.platform === "linux") {
+      tasks.push(ProcessIsolationBuildTask);
+    }
+    console.log("Process Isolation library:", config.platform === "linux");
 
     // Optional features
 

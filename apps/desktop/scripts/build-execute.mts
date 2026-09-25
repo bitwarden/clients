@@ -10,6 +10,7 @@ import { Logger } from "./build-support.mts";
 import WebpackBuildTask from "../build-app.mts";
 import BitwardenMacosProviderBuildTask from "../desktop_native/autofill_provider/build-macos-lib.mts";
 import ChromiumImporterBuildTask from "../desktop_native/chromium_importer/build-chromium-importer.mts";
+import ProcessIsolationBuildTask from "../desktop_native/process_isolation/build-process-isolation.mts";
 import DesktopProxyBuildTask from "../desktop_native/proxy/build-desktop-proxy.mts";
 import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
@@ -18,6 +19,7 @@ const ALL_TARGETS: BuildTask[] = [
   BitwardenMacosAutofillExtensionBuildTask,
   BitwardenMacosProviderBuildTask,
   ChromiumImporterBuildTask,
+  ProcessIsolationBuildTask,
   DesktopProxyBuildTask,
   NapiBuildTask,
   WebpackBuildTask,
