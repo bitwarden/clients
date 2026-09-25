@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, combineLatest, map, of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -46,6 +48,12 @@ function makeRow(
     "My Cipher",
     description,
   );
+}
+
+function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockReturnValue(of(enabled));
+  return configService;
 }
 
 function makeCipher(cipherId: CipherId, collectionIds: string[] = []): CipherView {
@@ -154,6 +162,7 @@ describe("ManagedCredentialsTabComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nFake },
+        { provide: ConfigService, useValue: vfo1ConfigService(false) },
       ],
     });
 
@@ -831,6 +840,7 @@ describe("ManagedCredentialsTabComponent", () => {
           { provide: ToastService, useValue: toastService },
           { provide: DialogService, useValue: dialogService },
           { provide: I18nService, useValue: i18nFake },
+          { provide: ConfigService, useValue: vfo1ConfigService(false) },
         ],
       });
 
@@ -921,6 +931,7 @@ describe("ManagedCredentialsTabComponent", () => {
           { provide: ToastService, useValue: toastService },
           { provide: DialogService, useValue: dialogService },
           { provide: I18nService, useValue: i18nFake },
+          { provide: ConfigService, useValue: vfo1ConfigService(false) },
         ],
       });
 
@@ -1150,6 +1161,452 @@ describe("ManagedCredentialsTabComponent", () => {
         "loading",
       );
       expect(el.querySelector("bit-skeleton")).toBeNull();
+    });
+  });
+});
+
+describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
+  let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
+  let configsService: ReturnType<typeof makeConfigsServiceStub>;
+  let dialogService: { openSimpleDialog: jest.Mock };
+  let router: Router;
+
+  const active = buildRotationConfigRow(
+    rotationConfig({
+      id: configId("1"),
+      targetSystemId: sysId("1"),
+      targetSystemName: "Prod Entra",
+      rotateOnAccessEnd: true,
+      lastRotationAt: "2026-03-01T10:00:00Z",
+      nextRotationAt: "2026-04-01T10:00:00Z",
+    }),
+    undefined,
+    "Prod DB service account",
+    rotationConfigDescription(),
+  );
+  const paused = buildRotationConfigRow(
+    rotationConfig({
+      id: configId("2"),
+      targetSystemId: sysId("2"),
+      targetSystemName: "Staging AD",
+      enabled: false,
+      lastRotationAt: "2026-01-15T10:00:00Z",
+    }),
+    undefined,
+    "Staging admin login",
+    rotationConfigDescription({
+      actions: rotationConfigActions({ canRotateNow: false, canPause: false, canResume: true }),
+    }),
+  );
+  const rotating = buildRotationConfigRow(
+    rotationConfig({ id: configId("3"), hasActiveJob: true }),
+    undefined,
+    "CI pipeline token",
+    rotationConfigDescription({
+      actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
+    }),
+  );
+  const manual = buildRotationConfigRow(
+    rotationConfig({
+      id: configId("4"),
+      targetSystemId: sysId("2"),
+      targetSystemName: "Staging AD",
+      targetSystemMethod: TargetSystemMethod.Manual,
+      awaitingManualRotation: true,
+    }),
+    undefined,
+    "Mainframe operator",
+    rotationConfigDescription({
+      actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
+    }),
+  );
+  const ROWS = [active, paused, rotating, manual];
+
+  function render(vfo1: boolean, rows: RotationConfigRow[] = ROWS): HTMLElement {
+    TestBed.resetTestingModule();
+    const targetSystemsService = makeTargetSystemsServiceStub();
+    configsService = makeConfigsServiceStub(targetSystemsService, rows);
+    dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(false) };
+
+    TestBed.configureTestingModule({
+      imports: [ManagedCredentialsTabComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
+        { provide: RotationConfigsService, useValue: configsService },
+        { provide: TargetSystemsService, useValue: targetSystemsService },
+        ...makeCipherCollectionProviders(),
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: DialogService, useValue: dialogService },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
+      ],
+    });
+
+    router = TestBed.inject(Router);
+    fixture = TestBed.createComponent(ManagedCredentialsTabComponent);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function text(el: Element): string {
+    return (el.textContent ?? "").replace(/\s+/g, " ").trim();
+  }
+
+  function isV2(el: HTMLElement): boolean {
+    return el.querySelector("bit-table-v2") != null;
+  }
+
+  function headings(el: HTMLElement): string[] {
+    const cells = isV2(el)
+      ? el.querySelectorAll('bit-table-v2 [role="columnheader"]')
+      : el.querySelectorAll("bit-table thead th");
+    return Array.from(cells).map(text);
+  }
+
+  function bodyRows(el: HTMLElement): Element[] {
+    return Array.from(
+      isV2(el)
+        ? el.querySelectorAll("bit-table-v2 bit-row")
+        : el.querySelectorAll("bit-table tbody tr"),
+    );
+  }
+
+  function cellTexts(el: HTMLElement): string[][] {
+    const cellSelector = isV2(el) ? '[role="cell"]' : "td";
+    return bodyRows(el).map((row) => Array.from(row.querySelectorAll(cellSelector)).map(text));
+  }
+
+  function rowNames(el: HTMLElement): string[] {
+    return bodyRows(el).map((row) => text(row.querySelector("button[bitLink]")!));
+  }
+
+  function sortButtonLabels(el: HTMLElement): string[] {
+    return isV2(el)
+      ? Array.from(el.querySelectorAll('bit-table-v2 [role="columnheader"] button')).map(text)
+      : Array.from(el.querySelectorAll("bit-table thead th[bitsortable]")).map(text);
+  }
+
+  function clickSort(el: HTMLElement, label: string): void {
+    const headers = isV2(el)
+      ? el.querySelectorAll<HTMLElement>('bit-table-v2 [role="columnheader"]')
+      : el.querySelectorAll<HTMLElement>("bit-table thead th");
+    Array.from(headers)
+      .find((header) => text(header) === label)!
+      .querySelector("button")!
+      .click();
+    fixture.detectChanges();
+  }
+
+  function renderedStatuses(el: HTMLElement): string[] {
+    return Array.from(
+      el.querySelectorAll<HTMLElement>('[id^="managed-credentials-tab_status_"]'),
+    ).map((cell) => cell.querySelector("span[bitbadge]")!.textContent!.trim());
+  }
+
+  function menuItems(el: HTMLElement, rowIndex: number): string[] {
+    el.querySelectorAll<HTMLButtonElement>('button[id^="managed-credentials-tab_menu-trigger_"]')[
+      rowIndex
+    ].click();
+    fixture.detectChanges();
+    const panels = document.querySelectorAll<HTMLElement>(".bit-menu-panel");
+    return Array.from(panels[panels.length - 1].querySelectorAll("[bitmenuitem]")).map(text);
+  }
+
+  function chip(key: string): FilterMenuComponent {
+    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
+  }
+
+  it("renders only the v1 table with the flag off", () => {
+    const el = render(false);
+
+    expect(el.querySelector("bit-table")).not.toBeNull();
+    expect(el.querySelector("bit-table-v2")).toBeNull();
+  });
+
+  it("renders only the v2 table with the flag on", () => {
+    const el = render(true);
+
+    expect(el.querySelector("bit-table-v2")).not.toBeNull();
+    expect(el.querySelector("bit-table")).toBeNull();
+  });
+
+  it("renders the same column headings, in the same order, as the v1 table", () => {
+    const v1 = headings(render(false));
+    const v2 = headings(render(true));
+
+    expect(v2).toEqual([
+      "pamRotationConfigColumnItem",
+      "pamRotationConfigColumnTargetSystem",
+      "status",
+      "pamRotationConfigColumnSchedule",
+      "pamRotationConfigColumnRotateOnAccessEnd",
+      "pamRotationConfigColumnLastRotated",
+      "pamRotationConfigColumnNextRotation",
+      "",
+    ]);
+    expect(v2).toEqual(v1);
+  });
+
+  it("renders the same rows, in the same order, as the v1 table", () => {
+    const v1 = rowNames(render(false));
+    const v2 = rowNames(render(true));
+
+    expect(v2).toHaveLength(ROWS.length);
+    expect(v2).toEqual(v1);
+  });
+
+  it("renders the same cell text in every row as the v1 table", () => {
+    const v1 = cellTexts(render(false));
+    const v2 = cellTexts(render(true));
+
+    expect(v2).toHaveLength(ROWS.length);
+    expect(v2.map((cells) => cells.length)).toEqual([8, 8, 8, 8]);
+    expect(v2[0].slice(0, 7)).toEqual([
+      "Prod DB service account",
+      "Prod Entra pamTargetSystemMethodAutomatic",
+      "pamRotationConfigStatusActive",
+      "pamRotationScheduleDaily",
+      "yes",
+      "Mar 1, 2026",
+      "Apr 1, 2026",
+    ]);
+    expect(v2).toEqual(v1);
+  });
+
+  it("offers the same row actions, in the same order and gating, as the v1 table", () => {
+    const v1El = render(false);
+    const v1 = ROWS.map((_, i) => menuItems(v1El, i));
+    const v2El = render(true);
+    const v2 = ROWS.map((_, i) => menuItems(v2El, i));
+
+    expect(v2).toEqual([
+      [
+        "pamRotationConfigEditCredential",
+        "pamRotationConfigRotateNow",
+        "pamRotationConfigPauseRotation",
+        "pamRotationConfigRemoveFromRotation",
+      ],
+      [
+        "pamRotationConfigEditCredential",
+        "pamRotationConfigRotateNow",
+        "pamRotationConfigResumeRotation",
+        "pamRotationConfigRemoveFromRotation",
+      ],
+      [
+        "pamRotationConfigEditCredential",
+        "pamRotationConfigRotateNow",
+        "pamRotationConfigPauseRotation",
+        "pamRotationConfigRemoveFromRotation",
+      ],
+      [
+        "pamRotationConfigEditCredential",
+        "pamRotationConfigMarkRotated",
+        "pamRotationConfigPauseRotation",
+        "pamRotationConfigRemoveFromRotation",
+      ],
+    ]);
+    expect(v2).toEqual(v1);
+  });
+
+  it("keeps the locked row actions focusable and described", () => {
+    const el = render(true);
+    menuItems(el, 2);
+
+    for (const prefix of [
+      "managed-credentials-tab_button_rotate-now-locked_",
+      "managed-credentials-tab_button_delete-locked_",
+    ]) {
+      const button = document.querySelector<HTMLButtonElement>(
+        `.bit-menu-panel [id^="${prefix}"]`,
+      )!;
+      expect(button.hasAttribute("disabled")).toBe(false);
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+      expect(button.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+    }
+  });
+
+  it("names the row menu trigger and keeps the credential name a focusable button", () => {
+    const el = render(true);
+    const trigger = el.querySelector<HTMLButtonElement>(
+      'bit-table-v2 button[id^="managed-credentials-tab_menu-trigger_"]',
+    )!;
+    const link = el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!;
+
+    expect(trigger.getAttribute("aria-label")).toBe("options");
+    expect(link.tagName).toBe("BUTTON");
+    expect(link.getAttribute("tabindex")).not.toBe("-1");
+    expect(link.classList).toContain("tw-text-fg-brand");
+  });
+
+  it("opens the edit page through the shared openEdit", () => {
+    const el = render(true);
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!.click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "managed-credentials", active.id],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  it("rotates now and confirms a removal from the v2 row menu", async () => {
+    const el = render(true);
+    menuItems(el, 0);
+    document
+      .querySelector<HTMLButtonElement>(
+        '.bit-menu-panel [id^="managed-credentials-tab_button_rotate-now_"]',
+      )!
+      .click();
+    await fixture.whenStable();
+
+    expect(configsService.rotateNow).toHaveBeenCalledWith(active.config);
+
+    menuItems(el, 0);
+    document
+      .querySelector<HTMLButtonElement>(
+        '.bit-menu-panel [id^="managed-credentials-tab_button_delete_"]',
+      )!
+      .click();
+    await fixture.whenStable();
+
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+      expect.objectContaining({ title: { key: "pamRotationConfigDeleteConfirmTitle" } }),
+    );
+    expect(configsService.delete).not.toHaveBeenCalled();
+  });
+
+  it("sorts on the same columns as the v1 table, and starts unsorted", () => {
+    const v1 = sortButtonLabels(render(false));
+    const el = render(true);
+
+    expect(sortButtonLabels(el)).toEqual([
+      "pamRotationConfigColumnItem",
+      "status",
+      "pamRotationConfigColumnLastRotated",
+      "pamRotationConfigColumnNextRotation",
+    ]);
+    expect(sortButtonLabels(el)).toEqual(v1);
+    expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
+  });
+
+  it("orders the status column by resolved status, and reverses on a second click", () => {
+    const el = render(true);
+
+    clickSort(el, "status");
+    expect(renderedStatuses(el)).toEqual([
+      "pamRotationConfigRotatingBadge",
+      "pamRotationConfigStatusPaused",
+      "pamRotationConfigRotationDueBadge",
+      "pamRotationConfigStatusActive",
+    ]);
+
+    clickSort(el, "status");
+    expect(renderedStatuses(el)).toEqual([
+      "pamRotationConfigStatusActive",
+      "pamRotationConfigRotationDueBadge",
+      "pamRotationConfigStatusPaused",
+      "pamRotationConfigRotatingBadge",
+    ]);
+  });
+
+  it("sorts every sortable column into the same order as the v1 table", () => {
+    const labels = [
+      "pamRotationConfigColumnItem",
+      "status",
+      "pamRotationConfigColumnLastRotated",
+      "pamRotationConfigColumnNextRotation",
+    ];
+    const orders = (vfo1: boolean): string[][] =>
+      labels.flatMap((label) => {
+        const el = render(vfo1);
+        clickSort(el, label);
+        const asc = rowNames(el);
+        clickSort(el, label);
+        return [asc, rowNames(el)];
+      });
+
+    expect(orders(true)).toEqual(orders(false));
+  });
+
+  it("narrows the rows with the same search and chips as the v1 table", () => {
+    const narrowed = (vfo1: boolean): string[] => {
+      const el = render(vfo1);
+      fixture.componentInstance["searchControl"].setValue("staging");
+      chip("status").toggle("pamRotationConfigRotationDueBadge");
+      fixture.detectChanges();
+      return rowNames(el);
+    };
+
+    expect(narrowed(true)).toEqual(["Mainframe operator"]);
+    expect(narrowed(true)).toEqual(narrowed(false));
+  });
+
+  it("shows the generic no-results message when the filters empty the table", () => {
+    const el = render(true);
+    chip("status").toggle("pamRotationConfigStatusPaused");
+    chip("targetSystem").toggle(sysId("1"));
+    fixture.detectChanges();
+
+    expect(bodyRows(el)).toHaveLength(0);
+    expect(text(el.querySelector("bit-table-v2")!)).toContain("pamRotationConfigNoResultsFiltered");
+  });
+
+  it("keeps the empty-state lockup, not an empty table, when there are no credentials", () => {
+    const el = render(true, []);
+
+    expect(el.querySelector("bit-table-v2")).toBeNull();
+    expect(el.textContent).toContain("pamRotationConfigEmptyState");
+  });
+
+  describe("loading skeleton", () => {
+    beforeEach(() => {
+      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
+    });
+
+    afterEach(() => jest.useRealTimers());
+
+    function renderSkeleton(): HTMLElement {
+      const el = render(true);
+      configsService.loading$.next(true);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+      return el;
+    }
+
+    it("stands a hidden v2 skeleton table in for the list, carrying the real columns", () => {
+      const loading = renderSkeleton().querySelector(
+        '[data-testid="managed-credentials-loading"]',
+      )!;
+
+      expect(loading.getAttribute("aria-hidden")).toBe("true");
+      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
+      expect(loading.querySelector("bit-table")).toBeNull();
+      expect(headings(loading as HTMLElement)).toEqual([
+        "pamRotationConfigColumnItem",
+        "pamRotationConfigColumnTargetSystem",
+        "status",
+        "pamRotationConfigColumnSchedule",
+        "pamRotationConfigColumnRotateOnAccessEnd",
+        "pamRotationConfigColumnLastRotated",
+        "pamRotationConfigColumnNextRotation",
+        "",
+      ]);
+      expect(loading.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(5);
+    });
+
+    it("replaces the skeleton with the real rows", () => {
+      const el = renderSkeleton();
+
+      configsService.loading$.next(false);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
+      expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
     });
   });
 });

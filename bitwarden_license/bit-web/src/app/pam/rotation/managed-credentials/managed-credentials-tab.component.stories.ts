@@ -6,10 +6,12 @@ import { of } from "rxjs";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { OrgCiphersService } from "../org-ciphers.service";
@@ -203,6 +205,15 @@ type Story = StoryObj<ManagedCredentialsTabComponent>;
 
 export const Default: Story = {
   decorators: [rotationServices(ROWS)],
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
+};
+
+/** {@link Default} with the VFO1 flag on, which draws the list with `bit-table-v2`. */
+export const FlagOn: Story = {
+  decorators: [rotationServices(ROWS)],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** Target systems exist, but no managed credential has been configured yet. */
