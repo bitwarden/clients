@@ -5,6 +5,7 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -156,6 +157,39 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const report = await firstValueFrom(service.report$);
       expect(report).toBeNull();
+    });
+
+    describe("with AccessIntelligencePerformanceAtScale enabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockImplementation((flag) =>
+          of(flag === FeatureFlag.AccessIntelligencePerformanceAtScale),
+        );
+        cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+      });
+
+      it("does not load ciphers when a report exists", async () => {
+        reportPersistenceService.loadLastReport$.mockReturnValue(
+          of({ report: testReport, hadLegacyBlobs: false }),
+        );
+
+        await firstValueFrom(service.initializeForOrganization$(orgId));
+
+        expect(cipherService.getAllFromApiForOrganization).not.toHaveBeenCalled();
+        expect(await firstValueFrom(service.report$)).toBe(testReport);
+        expect(await firstValueFrom(service.ciphers$)).toEqual([]);
+        expect(await firstValueFrom(service.loading$)).toBe(false);
+      });
+
+      it("loads ciphers when no report exists", async () => {
+        reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+
+        await firstValueFrom(service.initializeForOrganization$(orgId));
+
+        expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+        expect(await firstValueFrom(service.report$)).toBeNull();
+        expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
+        expect(await firstValueFrom(service.loading$)).toBe(false);
+      });
     });
   });
 
