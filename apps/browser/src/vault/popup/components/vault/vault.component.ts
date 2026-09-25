@@ -176,6 +176,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private readonly logService = inject(LogService);
   private readonly injector = inject(Injector);
+  private vaultRenderedMarked = false;
 
   /**
    * Indicates whether the vault is loading and not yet ready to be displayed.
@@ -192,11 +193,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
     tap((loading) => {
-      if (loading) {
+      // Only the first paint ends unlock/login perf traces. loading$ has several subscribers,
+      // and background syncs flip it back to loading.
+      if (loading || this.vaultRenderedMarked) {
         return;
       }
 
-      // Marks when the vault list is painted, the end point of unlock/login perf traces
+      this.vaultRenderedMarked = true;
       afterNextRender(() => this.logService.mark(VAULT_RENDERED_MARK), {
         injector: this.injector,
       });
