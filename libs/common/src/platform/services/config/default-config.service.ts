@@ -225,7 +225,11 @@ export class DefaultConfigService implements ConfigService {
     return new Date().getTime() - date.getTime() > RETRIEVAL_INTERVAL;
   }
 
-  /** Mirrors the flight recorder flag onto the log service. */
+  /**
+   * Pushes the flight recorder flag to `LogService`. `LogService` can't depend on this
+   * service without a cycle, since this service depends on it.
+   * Remove with `PM30935_FlightRecorderTsLogging`.
+   */
   private async gateLogRecorder(serverConfig: ServerConfig | null): Promise<void> {
     try {
       const overrides = await firstValueFrom(this.featureFlagOverrides$);
