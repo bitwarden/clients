@@ -178,6 +178,8 @@ export class DefaultConfigService implements ConfigService {
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
     return combineLatest([this.serverConfig$, this.featureFlagOverrides$]).pipe(
       map(([serverConfig, overrides]) => this.resolveFlag(serverConfig, overrides, key)),
+      // Config refreshes re-emit unchanged flags; consumers would restart their work each time.
+      distinctUntilChanged(),
     );
   }
 
