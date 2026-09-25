@@ -18,31 +18,52 @@
     </div>
 
     @if (vfo1Enabled()) {
-      <bit-table-v2>
-        <bit-header-row>
+      <bit-table-v2
+        [tableDef]="loadingTable"
+        [loading]="showSkeleton()"
+        [loadingRows]="skeletonRows.length"
+      >
+        <div slot="empty"></div>
+        <bit-column width="minmax(12rem, 2fr)">
           <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.name"></bit-cell>
+          <bit-cell *bitCellLoading
+            ><bit-skeleton-text class="tw-w-40"></bit-skeleton-text
+          ></bit-cell>
+        </bit-column>
+        <bit-column>
           <bit-header-cell>{{ "pamTargetSystemMethodColumn" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.methodLabel"></bit-cell>
+          <bit-cell *bitCellLoading>
+            <bit-skeleton class="tw-h-6 tw-w-20" edgeShape="circle"></bit-skeleton>
+          </bit-cell>
+        </bit-column>
+        <bit-column>
           <bit-header-cell>{{ "pamTargetSystemTypeColumn" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.kindLabel"></bit-cell>
+          <bit-cell *bitCellLoading
+            ><bit-skeleton-text class="tw-w-24"></bit-skeleton-text
+          ></bit-cell>
+        </bit-column>
+        <bit-column>
           <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.statusLabel"></bit-cell>
+          <bit-cell *bitCellLoading>
+            <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
+          </bit-cell>
+        </bit-column>
+        <bit-column>
           <bit-header-cell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</bit-header-cell>
+          <bit-cell *bitCellDef="loadingTable.columns.sessionTermination"></bit-cell>
+          <bit-cell *bitCellLoading>
+            <bit-skeleton class="tw-h-6 tw-w-12" edgeShape="circle"></bit-skeleton>
+          </bit-cell>
+        </bit-column>
+        <bit-column width="80px">
           <bit-header-cell></bit-header-cell>
-        </bit-header-row>
-        @for (skeletonRow of showSkeleton() ? skeletonRows : []; track skeletonRow) {
-          <bit-row>
-            <bit-cell><bit-skeleton-text class="tw-w-40"></bit-skeleton-text></bit-cell>
-            <bit-cell>
-              <bit-skeleton class="tw-h-6 tw-w-20" edgeShape="circle"></bit-skeleton>
-            </bit-cell>
-            <bit-cell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
-            <bit-cell>
-              <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
-            </bit-cell>
-            <bit-cell>
-              <bit-skeleton class="tw-h-6 tw-w-12" edgeShape="circle"></bit-skeleton>
-            </bit-cell>
-            <bit-cell></bit-cell>
-          </bit-row>
-        }
+          <bit-cell *bitCellDef="loadingTable.columns.actions"></bit-cell>
+          <bit-cell *bitCellLoading></bit-cell>
+        </bit-column>
       </bit-table-v2>
     } @else {
       <!-- remove this @else branch when the VFO1 flag is removed -->
@@ -192,7 +213,7 @@
         </bit-cell>
       </bit-column>
 
-      <bit-column width="72px">
+      <bit-column width="80px">
         <bit-header-cell></bit-header-cell>
         <bit-cell *bitCellDef="table.columns.actions; let r">
           <button

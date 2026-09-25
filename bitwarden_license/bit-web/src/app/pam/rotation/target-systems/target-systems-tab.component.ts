@@ -24,10 +24,9 @@ import {
   BadgeModule,
   BitCellComponent,
   BitCellDefDirective,
+  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
-  BitHeaderRowComponent,
-  BitRowComponent,
   BitTableV2Component,
   CopyClickDirective,
   DialogService,
@@ -134,10 +133,9 @@ export type TargetSystemRow = {
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
-    BitHeaderRowComponent,
-    BitRowComponent,
     BitCellComponent,
     BitCellDefDirective,
+    BitCellLoadingDirective,
     TooltipDirective,
     RotationLoadErrorComponent,
     RotationLoadingAnnouncerComponent,
@@ -212,6 +210,13 @@ export class TargetSystemsTabComponent {
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly table = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
     this.rows,
+  );
+  /**
+   * Model for the loading placeholder, which draws no data rows: while a load is in flight, rows
+   * already held from an earlier load would otherwise show through before the skeleton's delay.
+   */
+  protected readonly loadingTable = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
+    signal<TargetSystemRow[]>([]),
   );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 

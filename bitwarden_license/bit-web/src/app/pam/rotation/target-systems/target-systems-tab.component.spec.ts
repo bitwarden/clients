@@ -1823,5 +1823,31 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
       expect(loading.querySelectorAll("bit-row")).toHaveLength(0);
       expect(el.querySelector("bit-skeleton")).toBeNull();
     });
+
+    it("lays the skeleton out on the same column tracks as the loaded table", async () => {
+      const el = await render(true);
+      loading$.next(true);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+      const skeletonTracks = el.querySelector<HTMLElement>(
+        '[data-testid="target-systems-loading"] bit-header-row',
+      )!.style.gridTemplateColumns;
+      const skeletonRowTracks = el.querySelector<HTMLElement>(
+        '[data-testid="target-systems-loading"] bit-row',
+      )!.style.gridTemplateColumns;
+
+      loading$.next(false);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+      const loadedTracks = el.querySelector<HTMLElement>("bit-table-v2 bit-header-row")!.style
+        .gridTemplateColumns;
+
+      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
+      expect(loadedTracks).toBe("minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 80px");
+      expect(skeletonTracks).toBe(loadedTracks);
+      expect(skeletonRowTracks).toBe(loadedTracks);
+    });
   });
 });
