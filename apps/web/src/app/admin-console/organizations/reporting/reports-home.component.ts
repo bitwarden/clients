@@ -1,60 +1,64 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
-import { filter, map, Observable, startWith, concatMap, firstValueFrom, switchMap } from "rxjs";
+import { OverlayModule } from "@angular/cdk/overlay";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ActivatedRoute, NavigationEnd, Router, RouterModule } from "@angular/router";
+import { filter, map, startWith, firstValueFrom, switchMap } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
-import { ReportVariant, reports, ReportType, ReportEntry } from "../../../dirt/reports";
+import {
+  ReportVariant,
+  reports,
+  ReportType,
+  ReportEntry,
+  ReportsSharedModule,
+} from "../../../dirt/reports";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared/shared.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-reports-home",
   templateUrl: "reports-home.component.html",
-  standalone: false,
+  imports: [
+    SharedModule,
+    OverlayModule,
+    ReportsSharedModule,
+    HeaderModule,
+    Vfo1I18nPipe,
+    RouterModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReportsHomeComponent implements OnInit {
-  reports$: Observable<ReportEntry[]>;
-  homepage$: Observable<boolean>;
+export class ReportsHomeComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
+  private readonly configService = inject(ConfigService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private router: Router,
-    private configService: ConfigService,
-  ) {}
+  protected readonly homepage$ = this.router.events.pipe(
+    filter((event) => event instanceof NavigationEnd),
+    map((event) => this.isReportsHomepageRouteUrl((event as NavigationEnd).urlAfterRedirects)),
+    startWith(this.isReportsHomepageRouteUrl(this.router.url)),
+  );
 
-  async ngOnInit() {
-    this.homepage$ = this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
-      map((event) => this.isReportsHomepageRouteUrl((event as NavigationEnd).urlAfterRedirects)),
-      startWith(this.isReportsHomepageRouteUrl(this.router.url)),
-    );
+  private readonly organizations$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+  );
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+  protected readonly reports$ = this.route.params.pipe(
+    switchMap((params) => this.organizations$.pipe(getById(params.organizationId))),
+    switchMap((org) => this.buildReports(org?.productTierType)),
+  );
 
-    this.reports$ = this.route.params.pipe(
-      concatMap((params) =>
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(params.organizationId)),
-      ),
-      switchMap((org) => this.buildReports(org.productTierType)),
-    );
-  }
-
-  private async buildReports(productType: ProductTierType): Promise<ReportEntry[]> {
+  private async buildReports(productType: ProductTierType | undefined): Promise<ReportEntry[]> {
     const reportRequiresUpgrade =
       productType == ProductTierType.Free ? ReportVariant.RequiresUpgrade : ReportVariant.Enabled;
 

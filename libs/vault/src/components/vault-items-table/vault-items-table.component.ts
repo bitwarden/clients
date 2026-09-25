@@ -8,6 +8,7 @@ import {
   input,
   output,
   signal,
+  TrackByFunction,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -399,7 +400,18 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly selection: SelectionConfig<C> = {
     multiple: true,
     max: MAX_SELECTION_COUNT,
+    // No bulk action can operate on an item that failed to decrypt. `TableSelectionModel` enforces
+    // this on `select`, so select-all skips it too.
+    canSelect: (row) => !CipherViewLikeUtils.decryptionFailure(row),
   };
+
+  /**
+   * Keys rows by cipher id rather than object identity. `cipherListViews$` rebuilds every row
+   * on each emission (see {@link reconcileSelection}), so without this `bit-table-v2` would treat
+   * every unrelated row as new on any sync or edit and tear down and recreate its cells —
+   * including `app-vault-icon`, which is what actually caused the icon flicker.
+   */
+  protected readonly trackByCipherId: TrackByFunction<C> = (_, row) => String(row.id);
 
   /** The configured column set to display */
   protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);

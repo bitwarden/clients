@@ -163,6 +163,9 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
 
+  /** Emits the character count of the last generated value. */
+  protected readonly valueLength$ = this.value$.pipe(map((value) => value.length));
+
   /** Emits when a new credential is requested */
   private readonly generate$ = new Subject<GenerateRequest>();
 
