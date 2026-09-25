@@ -29,6 +29,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -38,6 +39,8 @@ import { StateProvider } from "@bitwarden/state";
 import {
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
+  NewExperienceDialogComponent,
+  NewExperienceDialogResult,
   VaultCopyButtonsService,
   VaultItemsTransferService,
   VaultNavService,
@@ -205,6 +208,10 @@ const autoConfirmDialogSpy = jest
   .spyOn(AutoConfirmExtensionSetupDialogComponent, "open")
   .mockImplementation((_: DialogService) => mockDialogRef as any);
 
+const newExperienceDialogSpy = jest
+  .spyOn(NewExperienceDialogComponent, "open")
+  .mockResolvedValue(NewExperienceDialogResult.Dismissed);
+
 jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
 jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
 
@@ -267,7 +274,10 @@ describe("VaultComponent", () => {
     openSimpleDialog: jest.fn().mockResolvedValue(false),
   } as Partial<DialogService>;
 
+  const introCarouselState$ = new BehaviorSubject<boolean>(true);
+
   const introSvc = {
+    introCarouselState$,
     setIntroCarouselDismissed: jest.fn().mockResolvedValue(undefined),
   } as Partial<IntroCarouselService>;
 
@@ -291,9 +301,12 @@ describe("VaultComponent", () => {
     hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
   };
 
+  const serverSettings$ = new BehaviorSubject<ServerSettings>(new ServerSettings());
+
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
     getFeatureFlag: jest.fn().mockResolvedValue(false),
+    serverSettings$,
   };
 
   const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
@@ -1212,6 +1225,92 @@ describe("VaultComponent", () => {
       tick();
 
       expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("NewExperienceDialog", () => {
+    function initVault() {
+      const fixture = TestBed.createComponent(VaultComponent);
+      void fixture.componentInstance.ngOnInit();
+      tick();
+    }
+
+    beforeEach(() => {
+      newExperienceDialogSpy.mockClear();
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
+        of(type === NudgeType.Vfo1NewExperience),
+      );
+      configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+      introCarouselState$.next(true);
+      serverSettings$.next(new ServerSettings());
+    });
+
+    afterEach(() => {
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
+      configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+    });
+
+    it("opens the dialog when the nudge is active and onboarding was already dismissed", fakeAsync(() => {
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          lightImgSrc: expect.stringContaining("new-experience.light.png"),
+          darkImgSrc: expect.stringContaining("new-experience.dark.png"),
+        }),
+      );
+    }));
+
+    it("dismisses the nudge once the dialog closes, so it does not return", fakeAsync(() => {
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, "user-1");
+    }));
+
+    it("does not open the dialog when the nudge is already dismissed", fakeAsync(() => {
+      nudgesSvc.showNudgeSpotlight$.mockImplementation((_type: NudgeType) => of(false));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog for a user who has not dismissed the onboarding welcome", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog when the server suppresses onboarding interstitials", fakeAsync(() => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open the dialog when the vfo1-foundation flag is off", fakeAsync(() => {
+      configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(false));
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("leaves the nudge undismissed when the dialog never opens", fakeAsync(() => {
+      introCarouselState$.next(false);
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
     }));
   });
 });
