@@ -274,12 +274,12 @@ describe("UserLayoutComponent", () => {
       });
     });
 
-    it("renders Add plan after Emergency access and before Export", () => {
+    it("renders Add plan after Appearance and before Domain rules", () => {
       const children = childText(expandGroup("settings"));
 
       expect(children).toContain("addPlan");
-      expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
-      expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
+      expect(children.indexOf("appearance")).toBeLessThan(children.indexOf("addPlan"));
+      expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("domainRules"));
     });
   });
 });
