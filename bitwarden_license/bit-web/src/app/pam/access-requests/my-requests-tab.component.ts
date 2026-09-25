@@ -14,6 +14,8 @@ import { RouterModule } from "@angular/router";
 import { EMPTY, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -21,6 +23,11 @@ import {
   AccordionComponent,
   AccordionGroupComponent,
   BadgeComponent,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   ButtonModule,
   DialogService,
   FILTER_CONTROL,
@@ -34,6 +41,7 @@ import {
   TableModule,
   ToastService,
   TypographyModule,
+  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -102,6 +110,11 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
     AccordionComponent,
     AccordionGroupComponent,
     BadgeComponent,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitTableV2Component,
     ButtonModule,
     FilterMenuComponent,
     FilterOptionComponent,
@@ -121,6 +134,13 @@ export class MyRequestsTabComponent {
   private readonly logService = inject(LogService);
   private readonly dialogService = inject(DialogService);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   /** Ids of approved requests currently being activated (prevents double-click). */
@@ -280,6 +300,17 @@ export class MyRequestsTabComponent {
   protected readonly pendingDataSource = new TableDataSource<MyAccessRequestRow>();
   protected readonly extensionDataSource = new TableDataSource<MyAccessRequestRow>();
   protected readonly activeAccessDataSource = new TableDataSource<ActiveAccessRow>();
+
+  protected readonly pendingTable = defineTable<MyAccessRequestRow, "window" | "actions">(
+    this.pendingRows,
+  );
+  protected readonly extensionTable = defineTable<MyAccessRequestRow, "window" | "actions">(
+    this.extensionRows,
+  );
+  protected readonly activeAccessTable = defineTable<
+    ActiveAccessRow,
+    "window" | "status" | "actions"
+  >(this.activeAccessRows);
 
   constructor() {
     effect(() => {
