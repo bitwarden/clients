@@ -622,7 +622,9 @@ export default class AutofillService implements AutofillServiceInterface {
       return { didAutofill: false };
     }
     const tabUrl = tab.url;
-    if (fromCommand) {
+    if (autoSubmitLogin) {
+      cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, false);
+    } else if (fromCommand) {
       cipher = await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId);
     } else {
       const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
@@ -647,7 +649,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (await this.isPasswordRepromptRequired(cipher, tab)) {
-      if (fromCommand) {
+      if (fromCommand && !autoSubmitLogin) {
         this.cipherService.updateLastUsedIndexForUrl(tabUrl);
       }
 
@@ -662,13 +664,13 @@ export default class AutofillService implements AutofillServiceInterface {
       skipUsernameOnlyFill: !fromCommand,
       onlyEmptyFields: !fromCommand,
       fillNewPassword: fromCommand,
-      allowUntrustedIframe: fromCommand,
-      allowTotpAutofill: fromCommand,
+      allowUntrustedIframe: fromCommand && !autoSubmitLogin,
+      allowTotpAutofill: fromCommand && !autoSubmitLogin,
       autoSubmitLogin,
     });
 
     // Update last used index as autofill has succeeded
-    if (fromCommand && result.didAutofill) {
+    if (fromCommand && !autoSubmitLogin && result.didAutofill) {
       this.cipherService.updateLastUsedIndexForUrl(tabUrl);
     }
 
@@ -1246,8 +1248,8 @@ export default class AutofillService implements AutofillServiceInterface {
         if (usernameVal != null) {
           AutofillService.fillByOpid(fillScript, focusedUsernameField, usernameVal);
         }
-        if (options.autoSubmitLogin && focusedUsernameField.form) {
-          fillScript.autosubmit = [focusedUsernameField.form];
+        if (options.autoSubmitLogin) {
+          fillScript.autosubmit = [focusedUsernameField.form ?? null];
         }
         return AutofillService.setFillScriptForFocus(
           { [focusedUsernameField.opid]: focusedUsernameField },
@@ -1386,6 +1388,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
+    let loginFieldFilled = false;
     const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
 
     usernamesToFill.forEach((u) => {
@@ -1398,6 +1401,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[uOpid] = u;
+      loginFieldFilled = true;
       const usernameVal = login.username;
       if (usernameVal != null) {
         AutofillService.fillByOpid(fillScript, u, usernameVal);
@@ -1418,6 +1422,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[pOpid] = p;
+      loginFieldFilled = true;
       if (login.password != null) {
         AutofillService.fillByOpid(fillScript, p, login.password);
       }
@@ -1426,8 +1431,8 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     });
 
-    if (options.autoSubmitLogin && formElementsSet.size) {
-      fillScript.autosubmit = Array.from(formElementsSet);
+    if (options.autoSubmitLogin && loginFieldFilled) {
+      fillScript.autosubmit = formElementsSet.size ? Array.from(formElementsSet) : [null];
     }
 
     if (typeof totpToFill === "string") {

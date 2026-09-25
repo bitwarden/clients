@@ -49,6 +49,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
    * If no details are found, we exit the auto-submit workflow.
    */
   async function startAutoSubmitLoginWorkflow() {
+    collectAutofillContentService.prepareForExplicitCollection(true);
     const pageDetails: AutofillPageDetails = await collectAutofillContentService.getPageDetails();
     if (!pageDetails?.fields.length) {
       endUpAutoSubmitLoginWorkflow();
@@ -64,6 +65,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
    */
   function endUpAutoSubmitLoginWorkflow() {
     clearAutoSubmitLoginTimeout();
+    chrome.runtime.onMessage.removeListener(handleExtensionMessage);
     updateIsFieldCurrentlyFilling(false);
   }
 
