@@ -3,7 +3,7 @@ import { mockReset, mock } from "jest-mock-extended";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { makeStaticByteArray } from "@bitwarden/common/spec";
-import { LogService, Measurement } from "@bitwarden/logging";
+import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -16,7 +16,7 @@ import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 
 describe("EncryptService", () => {
   const cryptoFunctionService = mock<CryptoFunctionService>();
-  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
+  const logService = mock<LogService>();
 
   let encryptService: EncryptServiceImplementation;
 
