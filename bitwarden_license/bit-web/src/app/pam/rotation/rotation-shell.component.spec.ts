@@ -105,6 +105,12 @@ describe("RotationShellComponent", () => {
     ]);
   });
 
+  it("renders the page description in the header's subtitle slot", async () => {
+    await init();
+    const subtitle = (fixture.nativeElement as HTMLElement).querySelector('[slot="subtitle"]');
+    expect(subtitle?.textContent?.trim()).toBe("pamRotationSubtitle");
+  });
+
   it("calls load on RotationConfigsService with the organization id on init", async () => {
     await init();
     expect(loadMock).toHaveBeenCalledWith(ORG_ID);
@@ -277,6 +283,17 @@ describe("RotationShellComponent (real router)", () => {
     )) as unknown as { activeTab: () => string | null };
     expect(shell.activeTab()).toBe("access-connectors");
   });
+
+  it.each(["access-connectors", "target-systems", "managed-credentials"])(
+    "keeps the page description on the %s tab",
+    async (tab) => {
+      await harness.navigateByUrl(`/rotation/${tab}`, RotationShellComponent);
+      harness.detectChanges();
+
+      const subtitle = harness.routeNativeElement?.querySelector('[slot="subtitle"]');
+      expect(subtitle?.textContent?.trim()).toBe("pamRotationSubtitle");
+    },
+  );
 
   it("navigates from the shell to the sibling create page", async () => {
     const shell = (await harness.navigateByUrl(

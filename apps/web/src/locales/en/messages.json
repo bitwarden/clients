@@ -18713,8 +18713,11 @@
   "pamHistoryScopeLabel": {
     "message": "History scope"
   },
-  "pamHistoryEmpty": {
-    "message": "No request history to display"
+  "pamHistoryEmptyTitle": {
+    "message": "Nothing to show yet"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "Activity around requests and approvals will display here once actions are taken."
   },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
@@ -18885,6 +18888,9 @@
   },
   "pamRotationTitle": {
     "message": "Rotation"
+  },
+  "pamRotationSubtitle": {
+    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
   },
   "pamRotationTabManagedCredentials": {
     "message": "Managed credentials"
