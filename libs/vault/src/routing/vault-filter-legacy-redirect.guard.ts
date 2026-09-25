@@ -44,10 +44,11 @@ const LEGACY_KEYS = new Set([
   "vaultId",
   "organizationId",
   "search",
+  "controlledAccess",
 ]);
 
 /**
- * Extracts the five legacy filter params from a query-param map.
+ * Extracts the six legacy filter params from a query-param map.
  * Returns null for each dimension that isn't present.
  */
 function extractLegacyParams(params: ParamMap) {
@@ -57,6 +58,7 @@ function extractLegacyParams(params: ParamMap) {
     sharedFolderId: params.get("sharedFolderId") ?? params.get("collectionId"),
     organizationId: params.get("vaultId") ?? params.get("organizationId"),
     search: params.get("search"),
+    controlledAccess: params.get("controlledAccess"),
   };
 }
 
@@ -90,6 +92,9 @@ function buildRedirectPatch(
   }
   if (legacy.search != null) {
     patch[`${ns}.${keys.search}`] = legacy.search;
+  }
+  if (legacy.controlledAccess != null) {
+    patch[`${ns}.${keys.controlledAccess}`] = legacy.controlledAccess;
   }
 
   return patch;
