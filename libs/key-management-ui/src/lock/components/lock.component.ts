@@ -52,6 +52,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { measured } from "@bitwarden/logging";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -83,11 +84,7 @@ type AfterUnlockActions = {
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 
 const PERF_TRACK_GROUP = "Unlock";
-
-/** DevTools track per unlock method, e.g. "Unlock with MasterPassword". */
-function unlockTrack(method: UnlockMethod): string {
-  return `Unlock with ${method.charAt(0).toUpperCase()}${method.slice(1)}`;
-}
+const PERF_TRACK = "Lock Component";
 
 const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
   BiometricsStatus.HardwareUnavailable,
@@ -313,9 +310,9 @@ export class LockComponent implements OnInit, OnDestroy {
         takeUntil(this.activeAccountChange$),
         takeUntil(this.destroy$),
       )
-      .subscribe((unlock) => {
+      .subscribe(() => {
         this.ngZone.run((): void => {
-          void this.continueAfterSettingUserKey(unlock.method);
+          void this.continueAfterSettingUserKey();
         });
       });
 
@@ -535,7 +532,7 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.continueAfterSettingUserKey(UnlockMethod.MasterPassword, {
+    await this.continueAfterSettingUserKey({
       passwordEvaluation: {
         masterPassword: event.masterPassword,
       },
@@ -547,8 +544,8 @@ export class LockComponent implements OnInit, OnDestroy {
    * {@link UnlockService.unlocked$} rather than called by each unlock method, so that an unlock
    * performed elsewhere continues the same way as one performed here.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   protected async continueAfterSettingUserKey(
-    method: UnlockMethod,
     afterUnlockActions: AfterUnlockActions = {},
   ): Promise<void> {
     if (this.activeAccount == null) {
@@ -557,44 +554,26 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // Add a mark to indicate that the user has unlocked their vault. A good starting point for measuring unlock performance.
     this.logService.mark("Vault unlocked");
-    const continueMeasurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      unlockTrack(method),
-      "continueAfterUnlock",
-    );
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
-    const trustMeasurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      unlockTrack(method),
-      "trustDeviceIfRequired",
-    );
     await this.deviceTrustService.trustDeviceIfRequired(this.activeAccount.id);
-    trustMeasurement.finish();
 
-    await this.doContinue(method, afterUnlockActions);
-    continueMeasurement.finish();
+    await this.doContinue(afterUnlockActions);
   }
 
-  private async doContinue(method: UnlockMethod, afterUnlockActions: AfterUnlockActions) {
+  private async doContinue(afterUnlockActions: AfterUnlockActions) {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
 
     await this.biometricStateService.resetUserPromptCancelled(this.activeAccount.id);
 
-    const migrationsMeasurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      unlockTrack(method),
-      "runMigrations",
-    );
     try {
       await this.encryptedMigrator.runMigrations(
         this.activeAccount.id,
         afterUnlockActions.passwordEvaluation?.masterPassword ?? null,
       );
-      migrationsMeasurement.finish();
     } catch {
       // Don't block login success on migration failure
     }
@@ -638,14 +617,8 @@ export class LockComponent implements OnInit, OnDestroy {
       void this.syncService.fullSync(false);
     }
 
-    const regenerationMeasurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      unlockTrack(method),
-      "regenerateIfNeeded",
-    );
     // TODO: This should probably not be blocking
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
-    regenerationMeasurement.finish();
 
     if (this.clientType === "browser") {
       const previousUrl = this.lockComponentService.getPreviousUrl();

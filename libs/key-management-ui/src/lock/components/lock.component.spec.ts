@@ -44,7 +44,6 @@ import {
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { Measurement } from "@bitwarden/logging";
 import { UnlockEvent, UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -74,7 +73,7 @@ describe("LockComponent", () => {
   const mockBiometricStateService = mock<BiometricStateService>();
   const mockI18nService = mock<I18nService>();
   const mockMasterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
-  const mockLogService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
+  const mockLogService = mock<LogService>();
   const mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
   const mockSyncService = mock<SyncService>();
   const mockPolicyService = mock<InternalPolicyService>();

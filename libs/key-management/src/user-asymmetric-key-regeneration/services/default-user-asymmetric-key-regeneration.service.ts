@@ -5,9 +5,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { measured } from "@bitwarden/logging";
 
 import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationService } from "../abstractions/user-asymmetric-key-regeneration.service";
+
+const PERF_TRACK_GROUP = "Unlock";
+const PERF_TRACK = "Key Regeneration";
 
 export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmetricKeysRegenerationService {
   constructor(
@@ -17,6 +21,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     private configService: ConfigService,
   ) {}
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async regenerateIfNeeded(userId: UserId): Promise<void> {
     try {
       const privateKeyRegenerationFlag = await this.configService.getFeatureFlag(

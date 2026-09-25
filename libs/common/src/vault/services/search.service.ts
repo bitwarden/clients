@@ -1,5 +1,7 @@
 import { BehaviorSubject, Observable } from "rxjs";
 
+import { measured } from "@bitwarden/logging";
+
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
@@ -12,6 +14,9 @@ import { LunrSearchService } from "./lunr-search.service";
 
 // Time to wait before performing a search after the user stops typing.
 export const SearchTextDebounceInterval = 100; // milliseconds
+
+const PERF_TRACK_GROUP = "Search";
+const PERF_TRACK = "Basic";
 
 export class SearchService implements SearchServiceAbstraction {
   private readonly immediateSearchLocales: string[] = ["zh-CN", "zh-TW", "ja", "ko", "vi"];
@@ -74,7 +79,6 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     this._isCipherSearching$.next(true);
-    const searchMeasurement = this.logService.startMeasurement("Search", "Basic", "search ciphers");
     query = normalizeSearchQuery(query.trim().toLowerCase());
     if (!(await this.isSearchable(query))) {
       this._isCipherSearching$.next(false);
@@ -95,12 +99,12 @@ export class SearchService implements SearchServiceAbstraction {
     } else {
       // Use basic search if the query is not a lunr query
       const basicResults = this.searchCiphersBasic(ciphers, query);
-      searchMeasurement.finish();
       this._isCipherSearching$.next(false);
       return basicResults;
     }
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
     // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
     // A vault item consists of targets. A target is extracted from the various information in the vault item, such as name, notes.
