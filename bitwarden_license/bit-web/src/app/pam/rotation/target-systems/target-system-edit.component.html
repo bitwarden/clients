@@ -345,27 +345,48 @@
 
       <!-- Assigned access connectors -->
       @if (isAutomatic()) {
-        <ng-template #connectorRow let-row>
-          <td bitCell>
-            <div class="tw-flex tw-items-center tw-gap-2">
+        <ng-template #connectorRow let-row let-vfo1="vfo1">
+          @if (vfo1) {
+            <bit-cell>
               <span [class.tw-line-through]="row.removing" [class.tw-text-muted]="row.removing">{{
                 row.connector.name
               }}</span>
               @if (row.stagedLabelKey !== null) {
-                <span bitBadge variant="subtle">{{ row.stagedLabelKey | i18n }}</span>
+                <span slot="end" bitBadge variant="subtle">{{ row.stagedLabelKey | i18n }}</span>
               }
-            </div>
-          </td>
-          <td bitCell>
-            <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">{{
-              row.statusLabelKey | i18n
-            }}</span>
-          </td>
-          <td bitCell>
-            <span bitBadge [variant]="row.connector.isConnected ? 'success' : 'secondary'">{{
-              row.connectionLabelKey | i18n
-            }}</span>
-          </td>
+            </bit-cell>
+            <bit-cell>
+              <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">{{
+                row.statusLabelKey | i18n
+              }}</span>
+            </bit-cell>
+            <bit-cell>
+              <span bitBadge [variant]="row.connector.isConnected ? 'success' : 'secondary'">{{
+                row.connectionLabelKey | i18n
+              }}</span>
+            </bit-cell>
+          } @else {
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <span [class.tw-line-through]="row.removing" [class.tw-text-muted]="row.removing">{{
+                  row.connector.name
+                }}</span>
+                @if (row.stagedLabelKey !== null) {
+                  <span bitBadge variant="subtle">{{ row.stagedLabelKey | i18n }}</span>
+                }
+              </div>
+            </td>
+            <td bitCell>
+              <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">{{
+                row.statusLabelKey | i18n
+              }}</span>
+            </td>
+            <td bitCell>
+              <span bitBadge [variant]="row.connector.isConnected ? 'success' : 'secondary'">{{
+                row.connectionLabelKey | i18n
+              }}</span>
+            </td>
+          }
         </ng-template>
 
         <pam-assignment-picker

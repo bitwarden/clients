@@ -12,6 +12,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
+  BitCellComponent,
   ButtonModule,
   CardComponent,
   CheckboxModule,
@@ -103,6 +104,7 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     AssignmentPickerComponent,
     AsyncActionsModule,
     BadgeModule,
+    BitCellComponent,
     DetailBreadcrumbComponent,
     ButtonModule,
     CardComponent,
