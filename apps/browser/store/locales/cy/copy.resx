@@ -124,49 +124,47 @@
     <value>Gartref, yn y gweithle, neu ar fynd, mae Bitwarden yn diogelu eich holl gyfrineiriau a gwybodaeth sensitif.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Cydnabyddir fel y rheolwr cyfrinair gorau gan PCMag, WIRED, The Verge, CNET, G2, a mwy!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+DIOGELU EICH BYWYD DIGIDOL
+Diogelwch eich bywyd digidol ac amddiffyn rhag tor-data trwy gynhyrchu ac arbed cyfrineiriau unigryw, cryf ar gyfer pob cyfrif. Cadwch bopeth mewn celva cyfrinair wedi'i amgryptio o'r dechrau i'r diwedd na all neb ond chi gael mynediad iddo.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+CAEL MYNEDIAD I'CH DATA, UNRHYW LE, UNRHYW BRYD, AR UNRHYW DDYFAIS
+Rheolwch, storiwch, diogelwch a rhannwch gyfrineiriau diderfyn yn hawdd ar draws dyfeisiau diderfyn heb gyfyngiadau.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+DYLAI PAWB GAEL Y TECLYNAU I AROS YN DDIOGEL AR-LEIN
+Defnyddiwch Bitwarden am ddim heb hysbysebion na gwerthu data. Mae Bitwarden yn credu y dylai pawb allu aros yn ddiogel ar-lein. Mae cynlluniau Premiwm yn cynnig mynediad at nodweddion uwch.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+GALLUOGI EICH TIMAU GYDA BITWARDEN
+Mae cynlluniau ar gyfer Timau a Menter yn dod â nodweddion busnes proffesiynol. Mae rhai enghreifftiau'n cynnwys integreiddio SSO, hunangynhaliaeth, integreiddio cyfeiriadur a darpariaeth SCIM, polisïau byd-eang, mynediad API, cofnodion digwyddiadau, a mwy.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Defnyddiwch Bitwarden i ddiogelu eich gweithlu a rhannu gwybodaeth sensitif gyda chydweithwyr.
 
+Mwy o resymau i ddewis Bitwarden:
 
-More reasons to choose Bitwarden:
+Amgryptio o'r Dosbarth Gorau
+Mae cyfrineiriau'n cael eu hamddiffyn ag amgryptio uwch o'r dechrau i'r diwedd (AES-256 bit, hasio â halen, a PBKDF2 SHA-256) fel bod eich data'n aros yn ddiogel ac yn breifat.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Archwiliadau Trydydd Parti
+Mae Bitwarden yn cynnal archwiliadau diogelwch trydydd parti cynhwysfawr yn rheolaidd gyda ffyrmiau diogelwch nodedig. Mae'r archwiliadau blynyddol hyn yn cynnwys asesiadau cod ffynhonnell a phrofi treiddiad ar draws IPs, gweinyddwyr a gwefannau Bitwarden.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA Uwch
+Diogelwch eich mewngofnodi gyda dilysydd trydydd parti, codau e-bost, neu gymwysterau FIDO2 WebAuthn fel allwedd diogelwch caledwedd neu basgiv.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Trosglwyddwch ddata'n uniongyrchol i eraill wrth gynnal diogelwch wedi'i amgryptio o'r dechrau i'r diwedd a chyfyngu ar amlygiad.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Cynhyrchydd Integredig
+Crëwch gyfrineiriau hir, cymhleth ac unigryw ac enwau defnyddwyr unigryw ar gyfer pob safle yr ymwelwch ag ef. Integreiddiwch â darparwyr alias e-bost ar gyfer preifatrwydd ychwanegol.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Cyfieithiadau Byd-eang
+Mae cyfieithiadau Bitwarden ar gael ar gyfer mwy na 60 o ieithoedd, wedi'u cyfieithu gan y gymuned fyd-eang trwy Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Ceisiadau Traws-Blatfform
+Diogelwch a rhannwch ddata sensitif o fewn eich Celva Bitwarden o unrhyw borwr, dyfais symudol, neu OS bwrdd gwaith, a mwy.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Mae Bitwarden yn diogelu mwy na chyfrineiriau'n unig
+Mae atebion rheoli cymwysterau wedi'u hamgryptio o'r dechrau i'r diwedd gan Bitwarden yn galluogi sefydliadau i ddiogelu popeth, gan gynnwys cyfrinachau datblygwyr a phrofiadau pasgiv. Ewch i Bitwarden.com i ddysgu mwy am Bitwarden Secrets Manager a Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>Gartref, yn y gweithle, neu ar fynd, mae Bitwarden yn diogelu eich holl gyfrineiriau a gwybodaeth sensitif.</value>

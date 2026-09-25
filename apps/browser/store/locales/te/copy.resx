@@ -118,75 +118,74 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden పాస్‌వర్డ్ మేనేజర్</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>ఇంట్లో, పనిలో లేదా ప్రయాణంలో, Bitwarden మీ పాస్‌వర్డ్‌లు, పాస్‌కీలు మరియు సున్నితమైన సమాచారాన్ని సులభంగా భద్రపరుస్తుంది.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 మరియు మరిన్నింటి ద్వారా ఉత్తమ పాస్‌వర్డ్ మేనేజర్‌గా గుర్తించబడింది!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+మీ డిజిటల్ జీవితాన్ని సురక్షితం చేసుకోండి
+ప్రతి ఖాతా కోసం ప్రత్యేకమైన, బలమైన పాస్‌వర్డ్‌లను జనరేట్ చేయడం మరియు సేవ్ చేయడం ద్వారా మీ డిజిటల్ జీవితాన్ని సురక్షితం చేసుకోండి మరియు డేటా ఉల్లంఘనల నుండి రక్షించుకోండి. మీరు మాత్రమే యాక్సెస్ చేయగల ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్టెడ్ పాస్‌వర్డ్ వాల్ట్‌లో ప్రతిదీ నిర్వహించండి.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+మీ డేటాను ఎక్కడైనా, ఎప్పుడైనా, ఏ పరికరంలోనైనా యాక్సెస్ చేయండి
+పరిమితులు లేకుండా అపరిమిత పరికరాలలో అపరిమిత పాస్‌వర్డ్‌లను సులభంగా నిర్వహించండి, నిల్వ చేయండి, సురక్షితం చేయండి మరియు పంచుకోండి.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ఆన్‌లైన్‌లో సురక్షితంగా ఉండడానికి ప్రతి ఒక్కరూ సాధనాలను కలిగి ఉండాలి
+ప్రకటనలు లేదా డేటా విక్రయం లేకుండా Bitwardenను ఉచితంగా ఉపయోగించండి. ఆన్‌లైన్‌లో సురక్షితంగా ఉండే సామర్థ్యం ప్రతి ఒక్కరికీ ఉండాలని Bitwarden విశ్వసిస్తుంది. ప్రీమియం ప్లాన్‌లు అధునాతన ఫీచర్లకు యాక్సెస్‌ను అందిస్తాయి.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+Bitwardenతో మీ బృందాలను శక్తివంతం చేయండి
+Teams మరియు Enterprise కోసం ప్లాన్‌లు వృత్తిపరమైన వ్యాపార ఫీచర్లతో వస్తాయి. కొన్ని ఉదాహరణలలో SSO ఇంటిగ్రేషన్, సెల్ఫ్-హోస్టింగ్, డైరెక్టరీ ఇంటిగ్రేషన్ మరియు SCIM ప్రొవిజనింగ్, గ్లోబల్ పాలసీలు, API యాక్సెస్, ఈవెంట్ లాగ్‌లు మరియు మరిన్ని ఉన్నాయి.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+మీ కార్యబలాన్ని సురక్షితం చేయడానికి మరియు సహోద్యోగులతో సున్నితమైన సమాచారాన్ని పంచుకోవడానికి Bitwardenను ఉపయోగించండి.
 
 
-More reasons to choose Bitwarden:
+Bitwardenను ఎంచుకోవడానికి మరిన్ని కారణాలు:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+ప్రపంచ-స్థాయి ఎన్‌క్రిప్షన్
+పాస్‌వర్డ్‌లు అధునాతన ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్షన్ (AES-256 బిట్, సాల్టెడ్ హాషింగ్ మరియు PBKDF2 SHA-256)తో రక్షించబడతాయి, తద్వారా మీ డేటా సురక్షితంగా మరియు ప్రైవేట్‌గా ఉంటుంది.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+3వ-పక్ష ఆడిట్‌లు
+Bitwarden క్రమం తప్పకుండా ప్రముఖ భద్రతా సంస్థలతో సమగ్ర తృతీయ-పక్ష భద్రతా ఆడిట్‌లను నిర్వహిస్తుంది. ఈ వార్షిక ఆడిట్‌లలో Bitwarden IPలు, సర్వర్‌లు మరియు వెబ్ అప్లికేషన్‌లలో సోర్స్ కోడ్ అసెస్‌మెంట్‌లు మరియు పెనెట్రేషన్ టెస్టింగ్ ఉంటాయి.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+అధునాతన 2FA
+తృతీయ-పక్ష ప్రామాణీకరణ, ఇమెయిల్ చేసిన కోడ్‌లు లేదా FIDO2 WebAuthn ఆధారాలు (హార్డ్‌వేర్ భద్రతా కీ లేదా పాస్‌కీ వంటివి)తో మీ లాగిన్‌ను సురక్షితం చేయండి.
 
-Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Bitwarden సెండ్
+ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్టెడ్ భద్రతను నిర్వహిస్తూనే మరియు బహిర్గతత్వాన్ని పరిమితం చేస్తూనే ఇతరులకు నేరుగా డేటాను ప్రసారం చేయండి.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+అంతర్నిర్మిత జనరేటర్
+మీరు సందర్శించే ప్రతి సైట్ కోసం పొడవైన, సంక్లిష్టమైన మరియు విభిన్న పాస్‌వర్డ్‌లు మరియు ప్రత్యేక వినియోగదారు పేర్లను సృష్టించండి. అదనపు గోప్యత కోసం ఇమెయిల్ అలియాస్ ప్రొవైడర్‌లతో ఇంటిగ్రేట్ చేయండి.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+ప్రపంచ అనువాదాలు
+Bitwarden అనువాదాలు 60 కంటే ఎక్కువ భాషలకు ఉన్నాయి, వాటిని Crowdin ద్వారా ప్రపంచ సమాజం అనువదించింది.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+క్రాస్-ప్లాట్‌ఫారమ్ అప్లికేషన్‌లు
+ఏ బ్రౌజర్, మొబైల్ పరికరం లేదా డెస్క్‌టాప్ OS నుండైనా మీ Bitwarden వాల్ట్‌లో సున్నితమైన డేటాను సురక్షితం చేయండి మరియు పంచుకోండి.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden పాస్‌వర్డ్‌లను మాత్రమే కాకుండా మరిన్నింటిని సురక్షితం చేస్తుంది
+Bitwarden నుండి ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్టెడ్ ఆధారాల నిర్వహణ పరిష్కారాలు సంస్థలను డెవలపర్ రహస్యాలు మరియు పాస్‌కీ అనుభవాలతో సహా ప్రతిదీ సురక్షితం చేయడానికి శక్తివంతం చేస్తాయి. Bitwarden సీక్రెట్స్ మేనేజర్ మరియు Bitwarden Passwordless.dev గురించి మరింత తెలుసుకోవడానికి Bitwarden.comని సందర్శించండి!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>ఇంట్లో, పనిలో లేదా ప్రయాణంలో, Bitwarden మీ పాస్‌వర్డ్‌లు, పాస్‌కీలు మరియు సున్నితమైన సమాచారాన్ని సులభంగా భద్రపరుస్తుంది.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>బహుళ పరికరాల నుండి మీ వాల్ట్‌ను సింక్ చేయండి మరియు యాక్సెస్ చేయండి</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>సురక్షిత వాల్ట్ నుండి మీ అన్ని లాగిన్‌లు మరియు పాస్‌వర్డ్‌లను నిర్వహించండి</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>మీరు సందర్శించే ఏ వెబ్‌సైట్‌లోనైనా మీ లాగిన్ ఆధారాలను త్వరగా ఆటోఫిల్ చేయండి</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>మీ వాల్ట్ కుడి-క్లిక్ మెనూ నుండి కూడా సౌకర్యవంతంగా యాక్సెస్ చేయగలదు</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>బలమైన, యాదృచ్ఛిక మరియు సురక్షిత పాస్‌వర్డ్‌లను స్వయంచాలకంగా జనరేట్ చేయండి</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>మీ సమాచారం AES-256 బిట్ ఎన్‌క్రిప్షన్ ఉపయోగించి సురక్షితంగా నిర్వహించబడుతుంది</value>
   </data>
 </root>
