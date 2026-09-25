@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from "@an
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -34,6 +34,8 @@ import {
   ButtonModule,
   DialogService,
   FilterControl,
+  FilterMenuComponent,
+  MenuTriggerForDirective,
   SelectionConfig,
 } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
@@ -2062,6 +2064,7 @@ describe("VaultItemsTableComponent", () => {
     ];
 
     let hostFixture: ComponentFixture<ControlledAccessHostComponent>;
+    let narrow: jest.SpyInstance;
 
     afterEach(() => {
       controlledAccessFilter = undefined;
@@ -2093,10 +2096,10 @@ describe("VaultItemsTableComponent", () => {
         privileged: ["a"],
         "my-requests": ["b", "c"],
       });
+      narrow = jest.spyOn(controlledAccessFilter, "narrow$");
       hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
       hostFixture.componentInstance.ciphers.set(ROWS());
       hostFixture.detectChanges();
-      // The narrowing resolves through `toObservable`, which flushes on the pass after the first.
       hostFixture.detectChanges();
     }
 
@@ -2119,6 +2122,17 @@ describe("VaultItemsTableComponent", () => {
       expect(filteredNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
+    /**
+     * Lets a pending resolution land: the request is delivered on a microtask, and the narrowing
+     * resolves through `toObservable`, which flushes on the pass after.
+     */
+    async function settle(): Promise<void> {
+      hostFixture.detectChanges();
+      await Promise.resolve();
+      hostFixture.detectChanges();
+      hostFixture.detectChanges();
+    }
+
     it("renders a chip carrying the host's options once one is provided", () => {
       renderHost();
 
@@ -2127,38 +2141,88 @@ describe("VaultItemsTableComponent", () => {
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
-    it("narrows the rows to the selected option", () => {
+    it("asks the host nothing while the chip is untouched", async () => {
+      renderHost();
+      await settle();
+
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      await settle();
+
+      expect(narrow).not.toHaveBeenCalled();
+    });
+
+    it("narrows the rows to the selected option", async () => {
       renderHost();
 
       hostControl("controlledAccess")!.setValue("privileged");
-      hostFixture.detectChanges();
+      await settle();
 
       expect(hostNames()).toEqual(["Amazon"]);
     });
 
-    it("counts each option against what the host admits for it, not just the selection", () => {
+    it("resolves every option's count once the chip's menu is opened", async () => {
       renderHost();
+      const chip = hostFixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((menu) => menu.componentInstance.key() === "controlledAccess")!;
 
+      chip.query(By.directive(MenuTriggerForDirective)).nativeElement.click();
+      await settle();
+
+      expect(narrow).toHaveBeenCalledWith("privileged", expect.anything());
+      expect(narrow).toHaveBeenCalledWith("my-requests", expect.anything());
       expect(hostTable().optionCount("controlledAccess", "privileged")).toBe(1);
       expect(hostTable().optionCount("controlledAccess", "my-requests")).toBe(2);
     });
 
-    it("keeps every row for an option the host no longer offers", () => {
+    it("keeps resolving on new rows once requested", async () => {
+      renderHost();
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+      narrow.mockClear();
+
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      await settle();
+
+      expect(narrow).toHaveBeenCalledTimes(OPTIONS.length);
+    });
+
+    it("keeps the rows narrowed while new rows are still resolving", async () => {
+      renderHost();
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+      expect(hostNames()).toEqual(["Amazon"]);
+
+      const pending = new Subject<CipherViewLike[]>();
+      narrow.mockReturnValue(pending);
+      const rows = ROWS();
+      hostFixture.componentInstance.ciphers.set(rows);
+      await settle();
+
+      expect(hostNames()).toEqual(["Amazon"]);
+
+      pending.next([rows[1]]);
+      hostFixture.detectChanges();
+
+      expect(hostNames()).toEqual(["Bank"]);
+    });
+
+    it("keeps every row for an option the host no longer offers", async () => {
       renderHost();
 
       hostControl("controlledAccess")!.setValue("retired");
-      hostFixture.detectChanges();
+      await settle();
 
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
-    it("resets when Clear all is clicked", () => {
+    it("resets when Clear all is clicked", async () => {
       renderHost();
       hostControl("controlledAccess")!.setValue("privileged");
-      hostFixture.detectChanges();
+      await settle();
       expect(hostNames()).toEqual(["Amazon"]);
 
-      hostFixture.nativeElement
+      (hostFixture.nativeElement as HTMLElement)
         .querySelector<HTMLButtonElement>("#bit-table-toolbar_button_clear-all")!
         .click();
       hostFixture.detectChanges();

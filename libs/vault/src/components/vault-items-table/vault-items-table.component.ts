@@ -15,7 +15,17 @@ import {
   viewChild,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, concat, map, Observable, of, switchMap } from "rxjs";
+import {
+  asapScheduler,
+  combineLatest,
+  map,
+  Observable,
+  observeOn,
+  of,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -879,6 +889,25 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
+   * Whether anything has asked the predicate about a Controlled access option yet: a selection, or
+   * the chip's faceted counts, which `bit-filter-menu` only reads while its options are rendered.
+   * Until then {@link controlledAccessMatches} resolves nothing, so a vault that never touches the
+   * chip issues no `narrow$` calls. Once set it stays set.
+   *
+   * Fed from {@link matchesControlledAccess} and delivered on a microtask: the predicate runs
+   * inside `bit-table-v2`'s computeds, where writing a signal throws.
+   */
+  private readonly controlledAccessRequests = new Subject<void>();
+  private readonly controlledAccessRequested = toSignal(
+    this.controlledAccessRequests.pipe(
+      take(1),
+      observeOn(asapScheduler),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  /**
    * The ids of the rows each offered Controlled access option admits, keyed by option id.
    *
    * `narrow$` is asynchronous and set-based — the same shape of problem as the search — so it is
@@ -888,16 +917,21 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * option's count by re-running the predicate with that option pinned, so a map holding only the
    * selection would report every other option's count as unfiltered.
    *
-   * Each change re-emits `undefined` before the new sets land, so a set resolved for an earlier
-   * row collection never outlives it.
+   * A change keeps the previous map until the new one lands, as {@link cipherSearchMatches} does:
+   * the sets are keyed by id, so they still apply to fresh objects for the same ciphers, and
+   * dropping them would un-narrow the table while the chip still shows its selection.
    */
   private readonly controlledAccessMatches: Signal<Map<string, Set<string>> | undefined> = toSignal(
     toObservable(
-      computed(() => ({ options: this.controlledAccessOptions(), ciphers: this.ciphers() })),
+      computed(() => ({
+        requested: this.controlledAccessRequested(),
+        options: this.controlledAccessOptions(),
+        ciphers: this.ciphers(),
+      })),
     ).pipe(
-      switchMap(({ options, ciphers }) => {
+      switchMap(({ requested, options, ciphers }) => {
         const provider = this.controlledAccessFilter;
-        if (provider == null || options.length === 0) {
+        if (!requested || provider == null || options.length === 0) {
           return of<Map<string, Set<string>> | undefined>(undefined);
         }
 
@@ -908,11 +942,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
             .pipe(map((matched) => new Set(matched.map((cipher) => String(cipher.id)))));
         }
 
-        return concat(
-          of<Map<string, Set<string>> | undefined>(undefined),
-          combineLatest(perOption).pipe(
-            map((byOption) => new Map<string, Set<string>>(Object.entries(byOption))),
-          ),
+        return combineLatest(perOption).pipe(
+          map((byOption) => new Map<string, Set<string>>(Object.entries(byOption))),
         );
       }),
     ),
@@ -959,6 +990,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     if (optionId == null) {
       return true;
     }
+    this.controlledAccessRequests.next();
     const matches = this.controlledAccessMatches()?.get(optionId);
     return matches === undefined || matches.has(String(cipher.id));
   }
