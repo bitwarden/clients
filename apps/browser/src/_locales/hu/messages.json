@@ -1540,6 +1540,40 @@
     "message": "Importálás",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Forrás kiválasztása"
+  },
+  "importSourceSelectTitle": {
+    "message": "Válasszuk ki a forrást."
+  },
+  "importSourceSelectDescription": {
+    "message": "Válasszuk ki azt a jelszókezelőt vagy böngészőt, amelyből importálunk."
+  },
+  "importSourceBrowsers": {
+    "message": "Böngészők"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Jelszókezelők"
+  },
+  "importSourceShowAll": {
+    "message": "Összes megjelenítése"
+  },
+  "importSourceShowLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "importSourceStepCount": {
+    "message": "$CURRENT$ / $TOTAL$ lépés",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "Elemek importálása"
   },
@@ -5142,7 +5176,7 @@
     "message": "Gyűjtemény kiválasztása"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Megosztott mappa kiválasztása"
   },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
@@ -5151,7 +5185,7 @@
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy megosztott mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."

@@ -1540,6 +1540,40 @@
     "message": "导入",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "选择源"
+  },
+  "importSourceSelectTitle": {
+    "message": "选择您的源"
+  },
+  "importSourceSelectDescription": {
+    "message": "选择您要从中导入数据的密码管理器或浏览器。"
+  },
+  "importSourceBrowsers": {
+    "message": "浏览器"
+  },
+  "importSourcePasswordManagers": {
+    "message": "密码管理器"
+  },
+  "importSourceShowAll": {
+    "message": "显示全部"
+  },
+  "importSourceShowLess": {
+    "message": "显示更少"
+  },
+  "importSourceStepCount": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "导入项目"
   },
@@ -4063,24 +4097,24 @@
     "message": "获取自动填充数据时出错"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden 无法解密下面列出的密码库项目。请联系 Bitwarden 客户支持并提供下面的项目 ID，以查看它是否可以恢复。"
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden 无法解密下面列出的密码库项目。请联系 Bitwarden 客户支持并提供下面的项目 ID，以查看它们是否可以恢复。"
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "项目 ID",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "项目 ID",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "复制 ID"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "复制所有 ID"
   },
   "generateUsername": {
     "message": "生成用户名"
@@ -5142,7 +5176,7 @@
     "message": "选择一个集合"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "选择共享文件夹"
   },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
@@ -5151,7 +5185,7 @@
     "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "如果希望将导入的文件内容移动到共享文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -8146,55 +8180,55 @@
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "分享此链接后，接收者需要使用验证码验证他们的电子邮箱才能查看此项目。",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "此链接将在该日期后过期，但接收者可能会保留此前已共享的信息。重新生成凭据以撤销访问权限。",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "链接过期时间",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "一次性共享",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "活动链接",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "链接已复制到剪贴板",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "无法创建共享链接",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "链接已保存并复制到剪贴板",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "复制共享链接到剪贴板失败",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "共享链接已删除",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "删除共享链接失败",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "通过链接共享",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "共享密码库项目 $ITEM$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -8203,18 +8237,18 @@
     }
   },
   "share": {
-    "message": "Share",
+    "message": "共享",
     "description": "Page title for the share vault item panel"
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "到期",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "到期",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   }
 }

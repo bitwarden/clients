@@ -1540,6 +1540,40 @@
     "message": "Importação",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Selecionar origem"
+  },
+  "importSourceSelectTitle": {
+    "message": "Selecionar a origem"
+  },
+  "importSourceSelectDescription": {
+    "message": "Escolha o gestor de palavras-passe ou navegador do qual está a importar."
+  },
+  "importSourceBrowsers": {
+    "message": "Navegadores"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestores de palavras-passe"
+  },
+  "importSourceShowAll": {
+    "message": "Mostrar tudo"
+  },
+  "importSourceShowLess": {
+    "message": "Mostrar menos"
+  },
+  "importSourceStepCount": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "Importar itens"
   },
