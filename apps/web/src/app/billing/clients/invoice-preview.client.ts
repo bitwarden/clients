@@ -90,7 +90,7 @@ export class InvoicePreviewClient {
   ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
-      "/account/billing/subscriptions/organizations/invoice/preview",
+      "/account/billing/subscription/purchase/organization/preview",
       request,
       true,
       true,

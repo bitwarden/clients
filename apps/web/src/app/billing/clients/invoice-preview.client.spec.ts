@@ -91,7 +91,7 @@ describe("InvoicePreviewClient", () => {
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
-        "/account/billing/subscriptions/organizations/invoice/preview",
+        "/account/billing/subscription/purchase/organization/preview",
         organizationPurchase,
         true,
         true,
