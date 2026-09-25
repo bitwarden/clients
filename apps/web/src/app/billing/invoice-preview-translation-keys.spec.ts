@@ -78,7 +78,7 @@ describe("cart preview translation keys", () => {
         "additionalStorageGbLower",
         "additionalServiceAccountsLower",
         "premiumSubscriptionCredit",
-        "appliedSubscriptionCredits",
+        "appliedProrationCredits",
         "passwordManagerProratedCharge",
         "storageProratedCharge",
         "secretsManagerProratedCharge",

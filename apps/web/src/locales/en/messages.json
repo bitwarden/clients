@@ -16738,6 +16738,9 @@
   "appliedSubscriptionCredits": {
     "message": "Applied subscription credits"
   },
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
+  },
   "enterpriseMembership": {
     "message": "Enterprise membership"
   },
