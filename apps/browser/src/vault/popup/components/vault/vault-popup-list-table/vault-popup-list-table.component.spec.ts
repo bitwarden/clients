@@ -17,7 +17,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,7 +25,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -92,7 +90,6 @@ describe("VaultPopupListTableComponent", () => {
   let component: VaultPopupListTableComponent;
   let router: Router;
 
-  const featureFlag$ = new BehaviorSubject<boolean>(false);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   const autoFillCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const favoriteCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
@@ -105,15 +102,9 @@ describe("VaultPopupListTableComponent", () => {
   const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const liveAnnouncer = mock<LiveAnnouncer>();
-  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
   const configService = {
-    getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-        return featureFlag$.asObservable();
-      }
-      return of(false);
-    }),
+    getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
     getFeatureFlag: jest.fn().mockResolvedValue(false),
   };
 
@@ -222,7 +213,6 @@ describe("VaultPopupListTableComponent", () => {
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
-    featureFlag$.next(false);
     currentTabIsOnBlocklist$.next(false);
     autoFillCiphers$.next([]);
     favoriteCiphers$.next([]);
@@ -240,7 +230,6 @@ describe("VaultPopupListTableComponent", () => {
     organizationNames$.next(new Map());
     collections$.next([]);
     folders$.next([]);
-    clickItemsToAutofillVaultView$.next(true);
     nav$.next({ vaults: [], organizationDataOwnership: false });
     vaultNavService.viewModel$.mockReturnValue(nav$.asObservable());
     liveAnnouncer.announce.mockClear();
@@ -283,16 +272,7 @@ describe("VaultPopupListTableComponent", () => {
           },
         },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
-        {
-          provide: VaultSettingsService,
-          useValue: {
-            clickItemsToAutofillVaultView$: clickItemsToAutofillVaultView$.asObservable(),
-          },
-        },
-        {
-          provide: PlatformUtilsService,
-          useValue: { getAutofillKeyboardShortcut: async () => "" },
-        },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ToastService, useValue: {} },
         { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
         {

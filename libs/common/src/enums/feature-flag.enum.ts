@@ -100,7 +100,6 @@ export enum FeatureFlag {
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
-  PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
@@ -151,7 +150,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
-  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
