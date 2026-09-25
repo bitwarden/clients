@@ -18,7 +18,7 @@ import {
   ProviderKey,
 } from "@bitwarden/common/types/key";
 import type { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { LogService, Measurement } from "@bitwarden/logging";
+import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -37,7 +37,7 @@ describe("legacyCompatKeyService", () => {
   const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
-  const logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
+  const logService = mock<LogService>();
   const kdfConfigService = mock<KdfConfigService>();
   const keyService = mock<KeyService>();
 

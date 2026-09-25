@@ -2,6 +2,7 @@ import { LogLevel } from "./log-level";
 import { LogRecorder } from "./log-recorder";
 import { LogService } from "./log.service";
 import { Measurement } from "./measurement";
+import { recordTrackEntry } from "./track-entry";
 
 export class ConsoleLogService implements LogService {
   protected timersMap: Map<string, [number, number]> = new Map();
@@ -93,17 +94,7 @@ export class ConsoleLogService implements LogService {
     track: string,
     properties?: [string, any][],
   ): PerformanceMeasure {
-    const measure = performance.measure(entryName, {
-      start: start,
-      detail: {
-        devtools: {
-          dataType: "track-entry",
-          track,
-          trackGroup,
-          properties,
-        },
-      },
-    });
+    const measure = recordTrackEntry(entryName, start, trackGroup, track, properties);
 
     this.debug(`[${track}]: ${entryName} took ${measure.duration}`, properties);
     return measure;

@@ -9,7 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 // Type-only: @bitwarden/key-management re-exports this package, so a value import would be circular.
 import type { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
+import { LogService, measured } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -36,41 +36,39 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     private keyService: KeyService,
   ) {}
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
-    return this.measured("makeUserKey", async () => {
-      if (!masterKey) {
-        throw new Error("MasterKey is required");
-      }
+    if (!masterKey) {
+      throw new Error("MasterKey is required");
+    }
 
-      await SdkLoadService.Ready;
-      const newUserKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
-      return this.buildProtectedSymmetricKey(masterKey, newUserKey);
-    });
+    await SdkLoadService.Ready;
+    const newUserKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+    return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
   /**
    * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async deriveMasterKeyForUser(password: string, userId: UserId): Promise<MasterKey> {
-    return this.measured("deriveMasterKeyForUser", async () => {
-      if (userId == null) {
-        throw new Error("User ID is required.");
-      }
+    if (userId == null) {
+      throw new Error("User ID is required.");
+    }
 
-      const email = await firstValueFrom(
-        this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
-      );
-      if (email == null) {
-        throw new Error("No email found for user " + userId);
-      }
+    const email = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
+    );
+    if (email == null) {
+      throw new Error("No email found for user " + userId);
+    }
 
-      const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
-      if (kdf == null) {
-        throw new Error("No kdf found for user " + userId);
-      }
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user " + userId);
+    }
 
-      return await this.makeMasterKey(password, email, kdf);
-    });
+    return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
@@ -81,137 +79,129 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
-    return this.measured("makeMasterKey", async () => {
-      const start = new Date().getTime();
-      email = email.trim().toLowerCase();
-      const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
-        password,
-        email,
-        kdfConfig,
-      )) as MasterKey;
-      const end = new Date().getTime();
-      this.logService.info(`[LegacyCompatKeyService] Deriving master key took ${end - start}ms`);
+    const start = new Date().getTime();
+    email = email.trim().toLowerCase();
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      email,
+      kdfConfig,
+    )) as MasterKey;
+    const end = new Date().getTime();
+    this.logService.info(`[LegacyCompatKeyService] Deriving master key took ${end - start}ms`);
 
-      return masterKey;
-    });
+    return masterKey;
   }
 
   /**
    * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey: UserKey,
   ): Promise<[UserKey, EncString]> {
-    return this.measured("encryptUserKeyWithMasterKey", async () => {
-      if (masterKey == null) {
-        throw new Error("masterKey is required.");
-      }
-      if (userKey == null) {
-        throw new Error("userKey is required.");
-      }
+    if (masterKey == null) {
+      throw new Error("masterKey is required.");
+    }
+    if (userKey == null) {
+      throw new Error("userKey is required.");
+    }
 
-      return await this.buildProtectedSymmetricKey(masterKey, userKey);
-    });
+    return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
   /**
    * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async hashMasterKey(password: string, key: MasterKey): Promise<string> {
-    return this.measured("hashMasterKey", async () => {
-      if (password == null) {
-        throw new Error("password is required.");
-      }
-      if (key == null) {
-        throw new Error("key is required.");
-      }
+    if (password == null) {
+      throw new Error("password is required.");
+    }
+    if (key == null) {
+      throw new Error("key is required.");
+    }
 
-      // Server authorization always uses one iteration
-      const iterations = 1;
-      const hash = await this.cryptoFunctionService.pbkdf2(
-        key.inner().encryptionKey,
-        password,
-        "sha256",
-        iterations,
-      );
-      return Utils.fromBufferToB64(hash);
-    });
+    // Server authorization always uses one iteration
+    const iterations = 1;
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
+    return Utils.fromBufferToB64(hash);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeDataEncKey<T extends OrgKey | UserKey>(
     key: T,
   ): Promise<[SymmetricCryptoKey, EncString]> {
-    return this.measured("makeDataEncKey", async () => {
-      if (key == null) {
-        throw new Error("No key provided");
-      }
+    if (key == null) {
+      throw new Error("No key provided");
+    }
 
-      // Content encryption key is AES256_CBC_HMAC
-      await SdkLoadService.Ready;
-      const cek = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
-      const wrappedCek = await this.encryptService.wrapSymmetricKey(cek, key);
-      return [cek, wrappedCek];
-    });
+    // Content encryption key is AES256_CBC_HMAC
+    await SdkLoadService.Ready;
+    const cek = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+    const wrappedCek = await this.encryptService.wrapSymmetricKey(cek, key);
+    return [cek, wrappedCek];
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]> {
-    return this.measured("makeOrgKey", async () => {
-      if (userId == null) {
-        throw new Error("UserId is required");
-      }
+    if (userId == null) {
+      throw new Error("UserId is required");
+    }
 
-      const publicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
-      if (publicKey == null) {
-        throw new Error("No public key found for user " + userId);
-      }
+    const publicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+    if (publicKey == null) {
+      throw new Error("No public key found for user " + userId);
+    }
 
-      await SdkLoadService.Ready;
-      const shareKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
-      const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
-      return [encShareKey, shareKey as T];
-    });
+    await SdkLoadService.Ready;
+    const shareKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+    const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
+    return [encShareKey, shareKey as T];
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]> {
-    return this.measured("getFingerprint", async () => {
-      if (publicKey == null) {
-        throw new Error("Public key is required to generate a fingerprint.");
-      }
+    if (publicKey == null) {
+      throw new Error("Public key is required to generate a fingerprint.");
+    }
 
-      const keyFingerprint = await this.cryptoFunctionService.hash(publicKey, "sha256");
-      const userFingerprint = await this.cryptoFunctionService.hkdfExpand(
-        keyFingerprint,
-        fingerprintMaterial,
-        32,
-        "sha256",
-      );
-      return this.hashPhrase(userFingerprint);
-    });
+    const keyFingerprint = await this.cryptoFunctionService.hash(publicKey, "sha256");
+    const userFingerprint = await this.cryptoFunctionService.hkdfExpand(
+      keyFingerprint,
+      fingerprintMaterial,
+      32,
+      "sha256",
+    );
+    return this.hashPhrase(userFingerprint);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]> {
-    return this.measured("makeKeyPair", async () => {
-      if (key == null) {
-        throw new Error("'key' is a required parameter and must be non-null.");
-      }
+    if (key == null) {
+      throw new Error("'key' is a required parameter and must be non-null.");
+    }
 
-      const keyPair = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
-      const publicB64 = Utils.fromBufferToB64(keyPair[0]);
-      const privateEnc = await this.encryptService.wrapDecapsulationKey(keyPair[1], key);
-      return [publicB64, privateEnc];
-    });
+    const keyPair = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
+    const publicB64 = Utils.fromBufferToB64(keyPair[0]);
+    const privateEnc = await this.encryptService.wrapDecapsulationKey(keyPair[1], key);
+    return [publicB64, privateEnc];
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
-    return this.measured("makeSendKey", async () => {
-      return await this.keyGenerationService.deriveKeyFromMaterial(
-        keyMaterial,
-        "bitwarden-send",
-        "send",
-      );
-    });
+    return await this.keyGenerationService.deriveKeyFromMaterial(
+      keyMaterial,
+      "bitwarden-send",
+      "send",
+    );
   }
 
   private async hashPhrase(hash: Uint8Array, minimumEntropy = 64) {
@@ -255,15 +245,5 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
       throw new Error("Invalid key size.");
     }
     return [newSymKey as T, protectedSymKey];
-  }
-
-  /** Records `operation` on the DevTools "LegacyCrypto" track. */
-  private async measured<T>(operation: string, fn: () => Promise<T>): Promise<T> {
-    const measurement = this.logService.startMeasurement(PERF_TRACK_GROUP, PERF_TRACK, operation);
-    try {
-      return await fn();
-    } finally {
-      measurement.finish();
-    }
   }
 }
