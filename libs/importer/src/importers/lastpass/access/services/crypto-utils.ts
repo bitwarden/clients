@@ -94,11 +94,11 @@ export class CryptoUtils {
       return "";
     }
     if (mode === "ecb") {
-      return Utils.fromArrayToByteString(
+      return Utils.fromArrayToUtf8(
         DANGEROUS_aesEcbDecryptLastpassImport(data, encryptionKey),
       );
     } else {
-      return Utils.fromArrayToByteString(
+      return Utils.fromArrayToUtf8(
         DANGEROUS_aesCbcDecryptLastpassImport(data, encryptionKey, iv),
       );
     }
