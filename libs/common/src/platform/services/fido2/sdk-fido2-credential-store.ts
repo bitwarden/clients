@@ -41,7 +41,6 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     rp_id: string,
     user_handle: number[] | undefined,
   ): Promise<SdkCipherView[]> {
-    // `serde_wasm_bindgen` sends a `Vec<u8>` as `number[]`, not `Uint8Array`.
     const matching = await this.findCredentialCiphers(
       ids?.map((id) => new Uint8Array(id)),
       rp_id,
@@ -50,17 +49,14 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     return await this.reReadThroughSdk(matching);
   }
 
-  /**
-   * Re-reads each match as an SDK `CipherView`, through the SDK's own decrypt.
-   *
-   * `CipherView.toSdkCipherView()` must not be used here: it sets `login.fido2Credentials` to
-   * `undefined` (`login.view.ts:151`), because clients holds passkeys decrypted while the SDK's
-   * field wants `EncString`s. Every cipher would reach the authenticator with no passkeys on it.
-   */
+  /** Returns each cipher as an SDK `CipherView`, decrypted by the SDK. */
   private async reReadThroughSdk(ciphers: CipherView[]): Promise<SdkCipherView[]> {
     if (ciphers.length === 0) {
       return [];
     }
+
+    // Not `CipherView.toSdkCipherView()`: it sets `login.fido2Credentials` to `undefined`, so every
+    // cipher would reach the authenticator with no passkeys on it.
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const records = await firstValueFrom(this.cipherService.ciphers$(userId));
@@ -70,7 +66,6 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
       .filter((data) => data !== undefined)
       .map((data) => new Cipher(data, undefined).toSdkCipher());
 
-    // The client is only valid inside the subscription — see the warning on `userClient$`.
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -86,10 +81,7 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     );
   }
 
-  /**
-   * Public so callers needing a decrypted `CipherView` — `SdkFido2AuthenticatorService`, which
-   * reads `counter` — do not carry a second copy of the filter rules.
-   */
+  /** Finds the passkey ciphers for `rpId`, limited to `ids` when given, as vault `CipherView`s. */
   async findCredentialCiphers(
     ids: Uint8Array<ArrayBuffer>[] | undefined,
     rpId: string,
@@ -104,10 +96,7 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
         );
   }
 
-  /**
-   * Every cipher, unfiltered — the SDK does its own passkey filtering on the result. Converting
-   * through the SDK is forced: `CipherListView` only comes out of `decrypt_list`.
-   */
+  /** Returns every cipher, unfiltered: the SDK filters for passkeys itself. */
   async all_credentials(): Promise<CipherListView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await firstValueFrom(
@@ -119,7 +108,6 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     );
     const sdkCiphers = ciphers.map((cipher) => cipher.toSdkCipher());
 
-    // The client is only valid inside the subscription — see the warning on `userClient$`.
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -133,16 +121,7 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     );
   }
 
-  /**
-   * The SDK hands over an already-encrypted cipher, but it is decrypted and re-saved through the
-   * clients write path until the key-rotation corruption investigation (PM-40277) closes.
-   *
-   * `lastUsedDate` is stamped here because the SDK owns neither `localData` nor the distinction
-   * between the two reasons it saves: registration and a counter update after an assertion. The
-   * TypeScript path stamps only on assertion (`fido2-authenticator.service.ts`), so a newly
-   * registered passkey gets a `lastUsedDate` it would not have had — it was just used to register,
-   * and the alternative is counter-bearing passkeys never refreshing theirs.
-   */
+  /** Saves the cipher the SDK created or updated, and stamps its `localData.lastUsedDate`. */
   async save_credential(cred: EncryptionContext): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
@@ -151,7 +130,11 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
       throw new Error("Cannot save FIDO2 credential: the SDK returned an unreadable cipher.");
     }
 
+    // Re-saved through the clients write path, not as the SDK encrypted it, until the key-rotation
+    // corruption investigation (PM-40277) closes.
     const decrypted = await this.cipherService.decrypt(encrypted, userId);
+    // The SDK doesn't say whether this save is a registration or a counter update, so the stamp is
+    // unconditional. The TypeScript path stamps only on assertion.
     decrypted.localData = { ...decrypted.localData, lastUsedDate: new Date().getTime() };
 
     await this.cipherService.updateWithServer(decrypted, userId);
@@ -173,7 +156,6 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
   }
 
   private hasAnyCredentialId(cipher: CipherView, ids: Uint8Array<ArrayBuffer>[]): boolean {
-    // One bad stored id must not fail the whole lookup.
     const credentialId = parseCredentialId(cipher.login.fido2Credentials[0].credentialId);
     if (credentialId === undefined) {
       return false;

@@ -18,9 +18,6 @@ import { LogService } from "../../abstractions/log.service";
  * becomes the selected credential — there is no value that picks nothing.
  */
 export class NoopSdkFido2UserInterface implements Fido2UserInterface {
-  // Unused on the silent path; `true` is the value that does not downgrade verification.
-  readonly is_verification_enabled = true;
-
   constructor(private logService: LogService) {}
 
   async check_user(): Promise<CheckUserResult> {

@@ -31,51 +31,19 @@ const DECLINED: CheckUserResult = { userPresent: false, userVerified: false };
  *
  * **One instance per ceremony.** The SDK's callbacks carry no session identity, so binding the
  * adapter to a single session supplies it; reusing an instance drives the wrong window.
- *
- * Construct with {@link create}, not `new` — the session is opened asynchronously, but
- * `is_verification_enabled` must be readable synchronously.
- *
- * Cipher ids cross through {@link uuidAsString} because the SDK declares `Uuid` as `unknown`
- * (`custom_types.rs:13`), which neither compares against nor assigns to the session's `string[]`.
  */
 export class SdkFido2UserInterface implements Fido2UserInterface {
   /**
-   * Always `true`, and deliberately not derived from the request.
-   *
-   * The SDK uses it for one decision: whether `UV::Preferred` counts as required. Clients already
-   * folds `"preferred"` and the WebAuthn default into `true` (`fido2-client.service.ts:537-540`),
-   * so `false` here would downgrade verification for every request but `"discouraged"`.
+   * @param assumeUserPresence Set only on the mediated conditional path, after the user picked a
+   *   credential in the inline menu; the sessions use it to skip prompting again.
    */
-  readonly is_verification_enabled = true;
-
-  private constructor(
+  constructor(
     private session: Fido2UserInterfaceSession,
     private cipherService: CipherService,
     private accountService: AccountService,
     private logService?: LogService,
     private assumeUserPresence: boolean = false,
   ) {}
-
-  /**
-   * @param assumeUserPresence Set only on the mediated conditional path, after the user picked a
-   *   credential in the inline menu; the sessions use it to skip prompting again. No CTAP field
-   *   carries it, so it lives on this per-ceremony adapter.
-   */
-  static create(
-    session: Fido2UserInterfaceSession,
-    cipherService: CipherService,
-    accountService: AccountService,
-    logService?: LogService,
-    assumeUserPresence: boolean = false,
-  ): SdkFido2UserInterface {
-    return new SdkFido2UserInterface(
-      session,
-      cipherService,
-      accountService,
-      logService,
-      assumeUserPresence,
-    );
-  }
 
   /**
    * The two `inform*` hints are terminal: the user is being told why the ceremony stopped, so they
@@ -128,9 +96,8 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
   }
 
   /**
-   * The SDK wants a cipher back and the session returns an id, so the choice is resolved against
-   * the list the SDK already supplied rather than re-read from the vault. Verification is not
-   * passed here; the SDK asks for it separately via `check_user`.
+   * Returns the cipher the user picked from `available_credentials`. It doesn't verify the user;
+   * the SDK asks for that separately through `check_user`.
    */
   async pick_credential_for_authentication(
     available_credentials: CipherView[],
@@ -184,9 +151,8 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
 
     const cipher = await this.awaitCipher(response.cipherId as CipherId);
     return {
-      // `toSdkCipherView()` drops `login.fido2Credentials`, which is safe only here: the SDK
-      // overwrites them with the new credential before any read (`authenticator.rs`,
-      // `set_new_fido2_credentials`). On the lookup paths it is a bug — see `reReadThroughSdk`.
+      // `toSdkCipherView()` drops `login.fido2Credentials`. That's safe only here, because the SDK
+      // replaces them with the new credential before reading them.
       cipher: cipher.toSdkCipherView(),
       checkUserResult: {
         userPresent: true,
@@ -200,12 +166,8 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
   }
 
   /**
-   * Whether any candidate cipher is protected by a master password reprompt.
-   *
-   * Both sessions use it to refuse their silent-selection shortcut. Desktop's `canRetrieveSilently`
-   * is `cipherIds.length === 1 && !masterPasswordRepromptRequired`
-   * (`desktop-fido2-user-interface.service.ts:298-299`) and does *not* also require
-   * `assumeUserPresence`, so omitting this would return a reprompt-protected credential unprompted.
+   * Whether any candidate cipher is protected by a master password reprompt. Both sessions use it
+   * to skip their silent-selection shortcut, so it must be passed on every pick.
    */
   private requiresReprompt(ciphers: CipherView[]): boolean {
     return ciphers.some((cipher) => cipher.reprompt !== CipherRepromptType.None);

@@ -48,17 +48,7 @@ describe("SdkFido2UserInterface", () => {
     cipherService = mock<CipherService>();
     accountService = mockAccountServiceWith(USER_ID);
     logService = mock<LogService>();
-    ui = SdkFido2UserInterface.create(session, cipherService, accountService, logService);
-  });
-
-  describe("is_verification_enabled", () => {
-    it("is a property, not a method, because the SDK reads it once at construction", () => {
-      expect(typeof ui.is_verification_enabled).toBe("boolean");
-    });
-
-    it("reports true, so UV::Preferred stays required as it is today", () => {
-      expect(ui.is_verification_enabled).toBe(true);
-    });
+    ui = new SdkFido2UserInterface(session, cipherService, accountService, logService);
   });
 
   describe("check_user", () => {
@@ -184,13 +174,7 @@ describe("SdkFido2UserInterface", () => {
      * dropping it on either one turns the mediated conditional path back into a second prompt.
      */
     function uiAssuming(present: boolean): SdkFido2UserInterface {
-      return SdkFido2UserInterface.create(
-        session,
-        cipherService,
-        accountService,
-        logService,
-        present,
-      );
+      return new SdkFido2UserInterface(session, cipherService, accountService, logService, present);
     }
 
     beforeEach(() => {
@@ -292,7 +276,7 @@ describe("SdkFido2UserInterface", () => {
   describe("ceremony isolation", () => {
     it("keeps concurrent ceremonies on their own sessions", async () => {
       const otherSession = mock<Fido2UserInterfaceSession>();
-      SdkFido2UserInterface.create(otherSession, cipherService, accountService, logService);
+      new SdkFido2UserInterface(otherSession, cipherService, accountService, logService);
 
       await ui.check_user(DISCOURAGED, "informNoCredentialsFound");
 

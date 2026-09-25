@@ -13,10 +13,6 @@ describe("NoopSdkFido2UserInterface", () => {
     userInterface = new NoopSdkFido2UserInterface(logService);
   });
 
-  it("reports verification as enabled, matching the prompting adapter", () => {
-    expect(userInterface.is_verification_enabled).toBe(true);
-  });
-
   it("declines check_user and warns", async () => {
     await expect(userInterface.check_user()).resolves.toEqual({
       userPresent: false,

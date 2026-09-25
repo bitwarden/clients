@@ -116,8 +116,6 @@ export class SdkFido2AuthenticatorService<
     window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
-    // The session owns the popup and the caller's `AbortController`, neither of which the SDK
-    // knows about. Opened here, not in the adapter, so the `finally` below always closes it.
     const session = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
@@ -129,7 +127,7 @@ export class SdkFido2AuthenticatorService<
       await this.syncBeforeCreation();
 
       const result = await this.withAuthenticator(
-        SdkFido2UserInterface.create(
+        new SdkFido2UserInterface(
           session,
           this.cipherService,
           this.accountService,
@@ -166,7 +164,7 @@ export class SdkFido2AuthenticatorService<
       await this.syncBeforeAssertion(params);
 
       const result = await this.withAuthenticator(
-        SdkFido2UserInterface.create(
+        new SdkFido2UserInterface(
           session,
           this.cipherService,
           this.accountService,
@@ -201,17 +199,14 @@ export class SdkFido2AuthenticatorService<
     }
   }
 
-  /**
-   * Syncs unless the credential is already here and has never been used: a non-zero counter means
-   * it is asserted from more than one place, so the local copy may be behind. No re-read after —
-   * the SDK looks up again through {@link SdkFido2CredentialStore} once the ceremony starts.
-   */
+  /** Syncs unless every matching passkey is already here and has never been used. */
   private async syncBeforeAssertion(params: Fido2AuthenticatorGetAssertionParams): Promise<void> {
     const found = await this.credentialStore.findCredentialCiphers(
       params.allowCredentialDescriptorList?.map((descriptor) => descriptor.id),
       params.rpId,
     );
 
+    // A non-zero counter means the passkey may have been used elsewhere since the last sync.
     const stale = found.some((cipher) =>
       cipher.login.fido2Credentials.some((credential) => credential.counter > 0),
     );
@@ -244,8 +239,6 @@ export class SdkFido2AuthenticatorService<
   private async silentCredentialDiscoveryUsingSdk(rpId: string): Promise<Fido2CredentialView[]> {
     const discovered = await this.withAuthenticator(
       new NoopSdkFido2UserInterface(this.logService),
-      // No user handle: the request carries none. Note this argument is a `Uint8Array` while the
-      // same bytes come back from the callbacks as `number[]`; both boundaries are correct.
       (authenticator) => authenticator.silently_discover_credentials(rpId, undefined),
     );
 
@@ -253,16 +246,11 @@ export class SdkFido2AuthenticatorService<
     return await this.toCredentialViews(discovered, userId);
   }
 
-  /**
-   * Runs one operation against an SDK authenticator built on the given user interface. Disposal
-   * matters: the authenticator owns JavaScript callbacks on the WebAssembly heap, and the client
-   * reference is only valid inside the subscription — see the warning on `userClient$`.
-   */
+  /** Runs one operation against an SDK authenticator built on the given user interface. */
   private async withAuthenticator<T>(
     userInterface: Fido2UserInterface,
     operation: (authenticator: Fido2Authenticator) => Promise<T>,
   ): Promise<T> {
-    // No FIDO2 path awaits this today. In a freshly woken MV3 worker it is a real WASM init.
     await SdkLoadService.Ready;
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -285,16 +273,7 @@ export class SdkFido2AuthenticatorService<
     );
   }
 
-  /**
-   * Resolves what the SDK discovered back onto the vault's own view models.
-   *
-   * {@link Fido2CredentialAutofillView} carries no `keyValue`, `counter` or `creationDate`, so
-   * re-reading from the vault is what avoids inventing them: the SDK decides *which* credentials
-   * match, while the view model stays the fully populated one every consumer expects.
-   *
-   * Matching on the credential id, not just the cipher, differs from the TypeScript path's
-   * `fido2Credentials[0]`: a cipher may hold two passkeys for one relying party.
-   */
+  /** Returns the vault's own view of each credential the SDK discovered. */
   private async toCredentialViews(
     discovered: Fido2CredentialAutofillView[],
     userId: UserId,
@@ -303,6 +282,7 @@ export class SdkFido2AuthenticatorService<
       return [];
     }
 
+    // `Fido2CredentialAutofillView` lacks `keyValue`, `counter` and `creationDate`.
     const ciphers = await this.cipherService.getAllDecrypted(userId);
     const ciphersById = new Map<string, CipherView>(
       ciphers.filter((cipher) => cipher.id != null).map((cipher) => [cipher.id, cipher]),
@@ -312,7 +292,6 @@ export class SdkFido2AuthenticatorService<
     for (const credential of discovered) {
       const view = this.findCredential(credential, ciphersById);
       if (view === undefined) {
-        // Only reachable if the vault changed between the SDK's read and this one.
         this.logService.warning(
           "[SdkFido2AuthenticatorService] Discarding a discovered credential that is no longer in the vault.",
         );
@@ -333,6 +312,7 @@ export class SdkFido2AuthenticatorService<
       return undefined;
     }
 
+    // A cipher may hold two passkeys for one relying party.
     const discoveredId = new Uint8Array(credential.credentialId);
     return cipher.login.fido2Credentials.find((view) => {
       const id = parseCredentialId(view.credentialId);
@@ -341,18 +321,12 @@ export class SdkFido2AuthenticatorService<
   }
 }
 
-/**
- * The creation request, in the shape the SDK's CTAP layer expects. Two fields are dropped on
- * purpose: `fallbackSupported`, an argument to `newSession` rather than a CTAP concept, and
- * `enterpriseAttestationPossible`, which Bitwarden ignores today.
- */
+/** Converts a creation request to the SDK's `MakeCredentialRequest`. */
 function toMakeCredentialRequest(
   params: Fido2AuthenticatorMakeCredentialsParams,
 ): MakeCredentialRequest {
   const rpId = params.rpEntity.id;
   if (rpId === undefined) {
-    // Unreachable today: the client layer defaults this from the origin
-    // (`fido2-client.service.ts:148`). Guarded so a future caller that skips it fails here.
     throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
   }
 
@@ -361,7 +335,6 @@ function toMakeCredentialRequest(
     rp: { id: rpId, name: params.rpEntity.name },
     user: {
       id: Array.from(params.userEntity.id),
-      // Optional here, required by the SDK. Empty is what the prompt already shows.
       name: params.userEntity.name ?? "",
       displayName: params.userEntity.displayName ?? "",
     },
@@ -371,8 +344,7 @@ function toMakeCredentialRequest(
     })),
     excludeList: params.excludeCredentialDescriptorList?.map(toSdkDescriptor),
     options: { rk: params.requireResidentKey, uv: toSdkUv(params.requireUserVerification) },
-    // No overlap: the abstraction carries `appid`, `appidExclude`, `credProps` and `uvm`, the SDK
-    // only `prf`. `credProps` is answered by the client layer from its own params.
+    // The SDK only supports `prf`, which this request never carries.
     extensions: undefined,
   };
 }
@@ -382,8 +354,7 @@ function toGetAssertionRequest(params: Fido2AuthenticatorGetAssertionParams): Ge
     rpId: params.rpId,
     clientDataHash: Array.from(Fido2Utils.bufferSourceToUint8Array(params.hash)),
     allowList: params.allowCredentialDescriptorList?.map(toSdkDescriptor),
-    // `rk` carries no meaning for CTAP `get_assertion` — passkey-rs only checks it against
-    // `get_info` on the creation path — so `false` is the honest value, not a dropped field.
+    // `rk` has no meaning for `get_assertion`.
     options: { rk: false, uv: toSdkUv(params.requireUserVerification) },
     extensions: undefined,
   };
@@ -399,11 +370,9 @@ function toSdkDescriptor(
   };
 }
 
-/**
- * `true` becomes `required`, not `preferred`. The two behave identically today, but `required` is
- * what the boolean means: the client layer already folded `"preferred"` and the WebAuthn default
- * into `true` (`fido2-client.service.ts:536-539`) before the authenticator sees it.
- */
+/** Converts the client's user verification flag to the SDK's `UV`. */
 function toSdkUv(requireUserVerification: boolean): UV {
+  // The client layer has already folded `"preferred"` and the WebAuthn default into `true`, so
+  // `true` means `required`.
   return requireUserVerification ? "required" : "discouraged";
 }
