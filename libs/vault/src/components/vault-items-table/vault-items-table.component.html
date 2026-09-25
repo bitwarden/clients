@@ -103,6 +103,21 @@
         <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
       }
     </bit-filter-menu>
+
+    @if (controlledAccessOptions().length > 0) {
+      <bit-filter-menu
+        [key]="filterKeys.controlledAccess"
+        [placeholderText]="'controlledAccess' | i18n"
+      >
+        @for (option of controlledAccessOptions(); track option.id) {
+          <bit-filter-option
+            [value]="option.id"
+            [iconTile]="controlledAccessTiles().get(option.id)"
+            >{{ option.name }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
 
   <vault-empty-vault

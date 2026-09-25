@@ -127,6 +127,11 @@ export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
 export { GATED_CIPHER_RELOADER } from "./tokens/gated-cipher-reloader.token";
 export { ITEM_DETAILS_STATE_BADGE } from "./tokens/item-details-state-badge.token";
 export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";
+export {
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "./tokens/vault-controlled-access-filter.token";
+export type { ControlledAccessFilterOption } from "./tokens/vault-controlled-access-filter.token";
 
 export {
   COLLECTION_DIALOG,
