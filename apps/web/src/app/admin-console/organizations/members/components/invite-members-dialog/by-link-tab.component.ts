@@ -26,8 +26,7 @@ import {
   switchMap,
 } from "rxjs";
 
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
-import { OrganizationDomainMiniResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-mini.response";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
@@ -104,7 +103,7 @@ export class ByLinkTabComponent {
   private readonly injector = inject(Injector);
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
-  private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
+  private readonly organizationDomainsService = inject(OrganizationDomainsService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
@@ -257,22 +256,22 @@ export class ByLinkTabComponent {
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
-    let allDomains: OrganizationDomainMiniResponse[];
+    let verifiedDomainNames: string[];
     try {
-      // Use the mini endpoint, not getAllByOrgId: the full domains endpoint requires Manage SSO,
-      // and calling it without that permission returns a 401 that the api service treats as an
+      // Goes through the SDK rather than the full domains endpoint, which requires Manage SSO:
+      // calling that without the permission returns a 401 that the api service treats as an
       // invalid access token, logging the user out of the vault entirely.
-      allDomains = await this.orgDomainApiService.getAllMiniByOrgId(this.organizationId());
+      const userId = await firstValueFrom(this.userId$);
+      verifiedDomainNames = await this.organizationDomainsService.verifiedDomains(
+        userId,
+        this.organizationId(),
+      );
     } catch (e) {
       // Prefilling is a convenience, so a failure here should leave the field empty rather than
       // surface an error. Servers older than this endpoint answer with a 404.
       this.logService.error("Failed to prefill invite link domains from org domains.", e);
       return;
     }
-
-    const verifiedDomainNames = allDomains
-      .filter((d) => d.verifiedDate != null)
-      .map((d) => d.domainName);
 
     if (verifiedDomainNames.length > 0) {
       this.form.controls.domains.setValue(verifiedDomainNames.join(", "));
