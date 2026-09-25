@@ -206,13 +206,9 @@ export const FlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** Nothing resolved yet, in any scope: no chip over it, whether or not the caller can approve. */
+/** Nothing resolved yet. */
 export const Empty: Story = {
   decorators: [history({ mine: [] })],
-};
-
-export const EmptyForAnApprover: Story = {
-  decorators: [history({ mine: [], canApprove: true })],
 };
 
 /**
@@ -230,7 +226,20 @@ export const WithManagedHistoryFlagOn: Story = {
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
-/** An approver with nothing decided yet: the chip is offered over their own rows alone. */
+/**
+ * The scope chip in force on the `bit-table-v2` path: the applied-filter styling and the toolbar's
+ * clear-all button only show once a scope is picked, and the whole toolbar sits inside the
+ * table's border.
+ */
+export const FlagOnFiltered: Story = {
+  decorators: [history({ managed: managedRows })],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+  play: async ({ canvasElement }) => {
+    await selectHistoryScope(canvasElement, "For my collections");
+  },
+};
+
+/** An approver with nothing decided yet: the filters are offered before there is anything to narrow. */
 export const ApproverWithoutManagedHistory: Story = {
   decorators: [history({ canApprove: true })],
 };
@@ -243,14 +252,6 @@ export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
   play: async ({ canvasElement }) => {
     await selectHistoryScope(canvasElement, "For my collections");
-  },
-};
-
-/** The same approver on Raised by me, the one scope they have nothing in: the chip stays. */
-export const MineFilterWithNothingRaised: Story = {
-  decorators: [history({ mine: [], managed: managedRows })],
-  play: async ({ canvasElement }) => {
-    await selectHistoryScope(canvasElement, "Raised by me");
   },
 };
 
