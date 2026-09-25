@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
@@ -71,16 +71,6 @@ export class VaultPopupListTableFiltersService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly configService = inject(ConfigService);
   private readonly avatarService = inject(AvatarService);
-
-  /**
-   * Ids of the currently-selected organizations (plus {@link MY_VAULT}); drives {@link folders$}
-   * and {@link collections$} narrowing. Update this whenever the organization chip selection
-   * changes.
-   */
-  readonly selectedOrganizations = signal<string[]>([]);
-
-  /** Observable mirror of {@link selectedOrganizations} for use in RxJS pipelines. */
-  private readonly selectedOrganizations$ = toObservable(this.selectedOrganizations);
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -162,7 +152,6 @@ export class VaultPopupListTableFiltersService {
   /** Clears all persisted filter state. Called when the active account changes. */
   private clearFilters(): void {
     this._cachedFilters.set({});
-    this.selectedOrganizations.set([]);
   }
 
   private fullCipherListViews$ = this.activeUserId$.pipe(
@@ -195,7 +184,6 @@ export class VaultPopupListTableFiltersService {
       folderIds: values.folder ?? [],
       cipherType: values.cipherType ?? null,
     });
-    this.selectedOrganizations.set(values.organization ?? []);
   }
 
   /**
@@ -209,7 +197,6 @@ export class VaultPopupListTableFiltersService {
       folderIds: [],
       cipherType: this.cachedFilters().cipherType ?? null,
     });
-    this.selectedOrganizations.set([]);
     this.vaultScopedFiltersCleared.next();
   }
 
@@ -385,78 +372,36 @@ export class VaultPopupListTableFiltersService {
 
   /**
    * Folders, structured for `bit-filter-menu`.
-   * Narrows to folders that have ciphers in the selected organization(s) when an org
-   * filter is active.
    */
   folders$: Observable<ChipFilterOption<FolderView>[]> = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      return combineLatest([
-        this.selectedOrganizations$,
-        this.folderService.folderViews$(userId),
-        this.fullCipherListViews$.pipe(map((ciphers) => ciphers ?? [])),
-      ]).pipe(
-        map(([selectedOrgs, folders, cipherViews]) => {
-          if (folders.length === 1 && !folders[0].id) {
-            return [selectedOrgs, [] as FolderView[], cipherViews] as const;
-          }
-
-          return [selectedOrgs, folders, cipherViews] as const;
-        }),
-        map(([selectedOrgs, folders, cipherViews]) => {
-          const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
-
-          // No org filter active — show all folders.
-          if (!selectedOrgIds.length) {
-            return folders;
-          }
-
-          const orgCiphers = cipherViews.filter(
-            (c) => c.organizationId != null && selectedOrgIds.includes(idString(c.organizationId)!),
-          );
-
-          return folders.filter((f) => {
-            if (!f.id) {
-              return orgCiphers.some((oc) => !oc.folderId);
-            }
-            return orgCiphers.some((oc) => idString(oc.folderId) === f.id);
-          });
-        }),
+    switchMap((userId) =>
+      this.folderService.folderViews$(userId).pipe(
+        map((folders) => (folders.length === 1 && !folders[0].id ? ([] as FolderView[]) : folders)),
         map((folders) => {
           const nested = getNestedFolderTree(folders, this.i18nService);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
         map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
-      );
-    }),
+      ),
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
    * Collections, structured for `bit-filter-menu`.
-   * Narrows to collections in the selected organization(s) when an org filter is active.
    */
   collections$: Observable<ChipFilterOption<CollectionView>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
         combineLatest([
-          this.selectedOrganizations$,
           this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
         ]),
       ),
-      map(([selectedOrgs, allCollections, orgs]) => {
-        const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
-
-        const filtered = selectedOrgIds.length
-          ? allCollections.filter(
-              (c) =>
-                c.organizationId != null && selectedOrgIds.includes(idString(c.organizationId)!),
-            )
-          : allCollections;
-
-        return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
-      }),
+      map(([allCollections, orgs]) =>
+        sortDefaultCollections(allCollections, orgs, this.i18nService.collator),
+      ),
       map(
         (fullList) =>
           new DynamicTreeNode<CollectionView>({
