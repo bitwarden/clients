@@ -77,8 +77,8 @@ export class ConsoleLogService implements LogService {
 
   startMeasurement(trackGroup: string, track: string, measureName: string): Measurement {
     // The DevTools track already shows the track, so the entry keeps the bare name
-    return new Measurement((start, properties) =>
-      this.recordMeasure(measureName, start, trackGroup, track, properties),
+    return new Measurement((start, properties, duration) =>
+      this.recordMeasure(measureName, start, trackGroup, track, properties, duration),
     );
   }
 
@@ -86,6 +86,7 @@ export class ConsoleLogService implements LogService {
    * Records a DevTools track entry and debug-logs it.
    *
    * @param entryName Name of the performance entry shown in DevTools.
+   * @param duration Fixed duration in ms; when omitted, the entry ends now.
    */
   private recordMeasure(
     entryName: string,
@@ -93,8 +94,9 @@ export class ConsoleLogService implements LogService {
     trackGroup: string,
     track: string,
     properties?: [string, any][],
+    duration?: number,
   ): PerformanceMeasure {
-    const measure = recordTrackEntry(entryName, start, trackGroup, track, properties);
+    const measure = recordTrackEntry(entryName, start, trackGroup, track, properties, duration);
 
     this.debug(`[${track}]: ${entryName} took ${measure.duration}`, properties);
     return measure;

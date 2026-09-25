@@ -12,17 +12,22 @@
  * measurement.finish([["Items", folders.length]]);
  * ```
  */
+/** Duration given to instant events so they stay visible on the DevTools timeline. */
+const DEFAULT_DURATION_MS = 50;
+
 export class Measurement {
   private readonly start = performance.now();
 
   /**
-   * @param record Records the DevTools track entry from `start` until now, bound to the
-   * track group, track and entry name given to `LogService.startMeasurement`.
+   * @param record Records the DevTools track entry from `start` until now, or for `duration` ms
+   * when given, bound to the track group, track and entry name given to
+   * `LogService.startMeasurement`.
    */
   constructor(
     private readonly record: (
       start: DOMHighResTimeStamp,
       properties?: [string, any][],
+      duration?: number,
     ) => PerformanceMeasure,
   ) {}
 
@@ -33,5 +38,16 @@ export class Measurement {
    */
   finish(properties?: [string, any][]): PerformanceMeasure {
     return this.record(this.start, properties);
+  }
+
+  /**
+   * Records a DevTools track entry like {@link finish}, but the actual measurement time is
+   * replaced by a default value. Use it to track instant events on the timeline, which would
+   * otherwise be too short to see, e.g. an incoming notification.
+   *
+   * @param properties Additional properties to include.
+   */
+  finishWithDefaultTime(properties?: [string, any][]): PerformanceMeasure {
+    return this.record(this.start, properties, DEFAULT_DURATION_MS);
   }
 }
