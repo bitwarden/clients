@@ -1561,6 +1561,60 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
     expect(el.textContent).toContain("pamRotationConfigEmptyState");
   });
 
+  describe("create action placement", () => {
+    const BUTTON_ID = "#rotation-shell_button_new-managed-credential";
+
+    function endSlot(el: HTMLElement): Element {
+      const toolbar = el.querySelector("bit-table-v2 bit-table-toolbar")!;
+      return toolbar.querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
+    }
+
+    it("puts the create action in the end slot, not in the rotation shell header", () => {
+      const el = render(true);
+
+      expect(endSlot(el).children).toHaveLength(1);
+      const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
+      expect(button).not.toBeNull();
+      expect(text(button!)).toBe("pamRotationConfigNew");
+      expect(button!.getAttribute("type")).toBe("button");
+    });
+
+    it("leaves the create action to the rotation shell header with the flag off", () => {
+      const el = render(false);
+
+      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+    });
+
+    it("leaves the create action to the empty state when there are no credentials", () => {
+      const el = render(true, []);
+
+      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+      expect(el.querySelector("#managed-credentials-tab_button_new-empty")).not.toBeNull();
+    });
+
+    it("leaves the create action to the empty state with the flag off too", () => {
+      const el = render(false, []);
+
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+      expect(el.querySelector("#managed-credentials-tab_button_new-empty")).not.toBeNull();
+    });
+
+    it("navigates to the create page from the end slot button", async () => {
+      const el = render(true);
+      const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
+      await fixture.whenStable();
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ["..", "managed-credentials", "new"],
+        expect.objectContaining({ relativeTo: expect.anything() }),
+      );
+    });
+  });
+
   describe("toolbar", () => {
     function toolbar(el: HTMLElement): HTMLElement {
       return el.querySelector("bit-table-v2 bit-table-toolbar")!;

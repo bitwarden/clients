@@ -1440,6 +1440,78 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
   }
 
+  function endSlot(el: HTMLElement): Element {
+    const toolbar = el.querySelector("bit-table-v2 bit-table-toolbar")!;
+    return toolbar.querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
+  }
+
+  describe("create action placement", () => {
+    const BUTTON_ID = "#rotation-shell_button_new-access-connector";
+
+    it("puts the register action in the end slot, not in the rotation shell header", () => {
+      const el = render(true);
+
+      expect(endSlot(el).children).toHaveLength(1);
+      const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
+      expect(button).not.toBeNull();
+      expect(text(button!)).toBe("pamAccessConnectorNew");
+      expect(button!.getAttribute("type")).toBe("button");
+    });
+
+    it("leaves the register action to the rotation shell header with the flag off", () => {
+      const el = render(false);
+
+      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+    });
+
+    it("leaves the register action to the empty state when there are no connectors", () => {
+      const el = render(true, []);
+
+      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+      expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
+    });
+
+    it("leaves the register action to the empty state with the flag off too", () => {
+      const el = render(false, []);
+
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+      expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
+    });
+
+    it("opens the register dialog, refreshes the list and toasts from the end slot button", async () => {
+      const el = render(true);
+      dialogService.open.mockReturnValue({ closed: of(true) });
+      const service = TestBed.inject(AccessConnectorsService);
+      const toastService = TestBed.inject(ToastService);
+
+      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalled();
+      expect(service.registerCompleted).toHaveBeenCalledWith(ORGANIZATION_ID);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: "success",
+          message: "pamAccessConnectorRegistered",
+        }),
+      );
+    });
+
+    it("refreshes nothing when the register dialog is dismissed", async () => {
+      const el = render(true);
+      const service = TestBed.inject(AccessConnectorsService);
+      const toastService = TestBed.inject(ToastService);
+
+      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
+      await fixture.whenStable();
+
+      expect(service.registerCompleted).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
+  });
+
   it("renders only the v1 table with the flag off", () => {
     const el = render(false);
 
