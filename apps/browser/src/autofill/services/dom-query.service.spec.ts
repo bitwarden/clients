@@ -1,3 +1,5 @@
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import { flushPromises, mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 
 import { DomQueryService } from "./dom-query.service";
@@ -51,7 +53,7 @@ describe("DomQueryService", () => {
     );
   });
 
-  describe("deepQueryElements", () => {
+  describe("query — shadow-piercing collection", () => {
     it("queries form field elements that are nested within a ShadowDOM", () => {
       const root = document.createElement("div");
       const shadowRoot = root.attachShadow({ mode: "open" });
@@ -94,7 +96,8 @@ describe("DomQueryService", () => {
       expect(formFieldElements).toStrictEqual([input]);
     });
 
-    it("will fallback to using the TreeWalker API if a depth larger than 4 ShadowDOM elements is encountered", () => {
+    it("collects a field nested deeper than the shadow recursion cap", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
@@ -114,13 +117,118 @@ describe("DomQueryService", () => {
       shadowRoot3.appendChild(root4);
       shadowRoot2.appendChild(root3);
       shadowRoot1.appendChild(root2);
-      const treeWalkerCallback = jest
-        .fn()
-        .mockImplementation(() => (element: Element) => element.tagName === "INPUT");
+      // Five levels, one past MAX_DEEP_QUERY_RECURSION_DEPTH, so the walk cannot rely on any
+      // bounded recursion to reach the field.
+      const formFieldElements = domQueryService.query(
+        shadowRoot1,
+        "input",
+        (element: Element) => element.tagName === "INPUT",
+        mutationObserver,
+      );
 
-      domQueryService.query(shadowRoot1, "input", treeWalkerCallback, mutationObserver);
+      expect(formFieldElements).toStrictEqual([input]);
+    });
 
-      expect(treeWalkerCallback).toHaveBeenCalled();
+    describe("shadow root observer options", () => {
+      const isInput = (element: Element) => element.tagName === "INPUT";
+
+      it("observes every shadow root with the shared field-scoped options", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(document.createElement("input"));
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        // Asserts filter matches light-DOM observer (cannot drift apart).
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, {
+          attributes: true,
+          attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+          childList: true,
+          subtree: true,
+        });
+      });
+
+      it("observes a field-less shadow root with childList + subtree (no attributes)", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(document.createElement("div"));
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        // Field-less roots: subtree required for deep injection, but no attribute filter.
+        // Relevance is gated in shadowMutationsCouldAffectFields.
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, { childList: true, subtree: true });
+      });
+
+      // Regression: `subtree` required; collection cache-first, mutations are only trigger.
+      it("delivers a record when a field is injected below a shadow root's direct children", async () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const callback = jest.fn();
+        const observer = new MutationObserver(callback);
+        const host = document.createElement("div");
+        document.body.appendChild(host);
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        const wrapper = document.createElement("div");
+        const inner = document.createElement("div");
+        wrapper.appendChild(inner);
+        shadowRoot.appendChild(wrapper);
+
+        domQueryService.query(host, "input", isInput, observer);
+
+        // Two levels below the root, so a watch without `subtree` never sees it.
+        inner.appendChild(document.createElement("input"));
+        await Promise.resolve();
+
+        expect(callback).toHaveBeenCalled();
+        observer.disconnect();
+        host.remove();
+      });
+
+      it("scopes observation by the registered field predicate, not the caller's query", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        // The collector honors `span[data-bwautofill]`; a bare `input, select, textarea` guess
+        // does not, so a root holding only such a span must still be watched for attributes.
+        domQueryService.setFieldPredicate(
+          (root) => root.querySelector("span[data-bwautofill]") != null,
+        );
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        const span = document.createElement("span");
+        span.setAttribute("data-bwautofill", "true");
+        shadowRoot.appendChild(span);
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        expect(observeSpy).toHaveBeenCalledWith(shadowRoot, {
+          attributes: true,
+          attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+          childList: true,
+          subtree: true,
+        });
+      });
+
+      // `observe()` replaces a target's options, so a re-enrollment that read the root
+      // differently would strip attribute observation the root already had.
+      it("never downgrades a field-bearing root to the shallow options", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const host = document.createElement("div");
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(document.createElement("input"));
+
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        // Field definition narrows underneath us — settings change, or a differing filter.
+        domQueryService.setFieldPredicate(() => false);
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+        domQueryService.query(host, "input", isInput, mutationObserver);
+
+        expect(observeSpy).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -149,8 +257,8 @@ describe("DomQueryService", () => {
     });
   });
 
-  describe("checkMutationsInShadowRoots", () => {
-    it("returns true when a mutation occurred within a shadow root", () => {
+  describe("shadowRootMutations", () => {
+    it("keeps a mutation that occurred within a shadow root", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
@@ -169,12 +277,12 @@ describe("DomQueryService", () => {
         target: input,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+      const result = domQueryService.shadowRootMutations([mutationRecord]);
 
-      expect(result).toBe(true);
+      expect(result).toEqual([mutationRecord]);
     });
 
-    it("returns false when mutations occurred in the light DOM", () => {
+    it("drops mutations that occurred in the light DOM", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const div = document.createElement("div");
       document.body.appendChild(div);
@@ -191,12 +299,14 @@ describe("DomQueryService", () => {
         target: div,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+      const result = domQueryService.shadowRootMutations([mutationRecord]);
 
-      expect(result).toBe(false);
+      expect(result).toEqual([]);
     });
 
-    it("returns true if any mutation in the array is in a shadow root", () => {
+    // The gate downstream reads the attribute branch first, so a light-DOM record left in the
+    // batch would vouch for unrelated shadow churn sharing it.
+    it("keeps only the shadow records when a batch mixes both", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
@@ -230,12 +340,12 @@ describe("DomQueryService", () => {
         target: lightDiv,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([lightMutation, shadowMutation]);
+      const result = domQueryService.shadowRootMutations([lightMutation, shadowMutation]);
 
-      expect(result).toBe(true);
+      expect(result).toEqual([shadowMutation]);
     });
 
-    it("returns false without walking targets when pageContainsShadowDom is false", () => {
+    it("returns nothing without walking targets when pageContainsShadowDom is false", () => {
       domQueryService["pageContainsShadowDom"] = false;
       const target = document.createElement("div");
       document.body.appendChild(target);
@@ -252,9 +362,9 @@ describe("DomQueryService", () => {
         target,
       };
 
-      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+      const result = domQueryService.shadowRootMutations([mutationRecord]);
 
-      expect(result).toBe(false);
+      expect(result).toEqual([]);
       expect(getRootNodeSpy).not.toHaveBeenCalled();
     });
 
@@ -276,11 +386,11 @@ describe("DomQueryService", () => {
         target: shadowInput,
       };
 
-      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(false);
+      expect(domQueryService.shadowRootMutations([mutationRecord])).toEqual([]);
 
       domQueryService["markShadowDomPresent"]();
 
-      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(true);
+      expect(domQueryService.shadowRootMutations([mutationRecord])).toEqual([mutationRecord]);
     });
   });
 
@@ -332,6 +442,23 @@ describe("DomQueryService", () => {
       expect(domQueryService.checkForNewShadowRoots([host]).foundNewRoot).toBe(false);
     });
 
+    it("does not enroll an owned host's root during a collection walk", () => {
+      const owned = document.createElement("div");
+      const ownedRoot = owned.attachShadow({ mode: "open" });
+      document.body.appendChild(owned);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === owned);
+      const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+      domQueryService.queryWithUnresolvedShadowHosts(
+        document.documentElement,
+        () => false,
+        mutationObserver,
+      );
+
+      expect(domQueryService["knownShadowRoots"].has(ownedRoot)).toBe(false);
+      expect(observeSpy).not.toHaveBeenCalledWith(ownedRoot, expect.anything());
+    });
+
     it("detects a different host of the same tag — matched by identity, not tag name", () => {
       const owned = document.createElement("div");
       owned.attachShadow({ mode: "open" });
@@ -350,7 +477,7 @@ describe("DomQueryService", () => {
       domQueryService.setOwnedShadowHostPredicate((el) => el === host);
 
       const mutation = { target: inner } as unknown as MutationRecord;
-      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
+      expect(domQueryService.shadowRootMutations([mutation])).toEqual([]);
     });
 
     it("still flags mutations inside a non-owned shadow host", () => {
@@ -360,7 +487,7 @@ describe("DomQueryService", () => {
       domQueryService.setOwnedShadowHostPredicate(() => false);
 
       const mutation = { target: inner } as unknown as MutationRecord;
-      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);
+      expect(domQueryService.shadowRootMutations([mutation])).toEqual([mutation]);
     });
   });
 
@@ -393,6 +520,7 @@ describe("DomQueryService", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
+      shadowRoot.appendChild(document.createElement("input"));
       document.body.appendChild(customElement);
       const observeSpy = jest.spyOn(mutationObserver, "observe");
 
@@ -676,10 +804,7 @@ describe("DomQueryService", () => {
         expect(unresolvedHosts).toEqual(new Set([pending]));
         // A root is recorded as known only paired with an observer watching it.
         expect(domQueryService["knownShadowRoots"].has(hydratedRoot)).toBe(true);
-        expect(observeSpy).toHaveBeenCalledWith(
-          hydratedRoot,
-          expect.objectContaining({ attributes: true, childList: true, subtree: true }),
-        );
+        expect(observeSpy).toHaveBeenCalledWith(hydratedRoot, { childList: true, subtree: true });
       });
     });
 
@@ -820,6 +945,18 @@ describe("DomQueryService", () => {
         const roots = domQueryService["suppressDescendantsInBatch"]([a, b]);
 
         expect(roots).toEqual([a, b]);
+      });
+
+      it("drops a descendant whose only batch ancestor is a transitive (non-parent) ancestor", () => {
+        const grandparent = document.createElement("section");
+        const parent = document.createElement("div");
+        const child = document.createElement("span");
+        grandparent.appendChild(parent);
+        parent.appendChild(child);
+
+        const roots = domQueryService["suppressDescendantsInBatch"]([grandparent, child]);
+
+        expect(roots).toEqual([grandparent]);
       });
     });
 

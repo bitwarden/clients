@@ -6,7 +6,6 @@ export interface DomQueryService {
     queryString: string,
     treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
-    forceDeepQueryAttempt?: boolean,
   ): T[];
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,
@@ -15,12 +14,13 @@ export interface DomQueryService {
   ): { elements: T[]; unresolvedHosts: Set<Element> };
   updatePageContainsShadowDom(): boolean;
   refreshShadowDomStateForUserRequest(): void;
-  checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
+  shadowRootMutations(mutations: MutationRecord[]): MutationRecord[];
   checkForNewShadowRoots(
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
   ): ShadowRootScanResult;
   setOwnedShadowHostPredicate(predicate: (host: Element) => boolean): void;
+  setFieldPredicate(predicate: (root: ParentNode) => boolean): void;
   resetObservedShadowRoots(): void;
   purgeDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;

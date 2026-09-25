@@ -19,6 +19,7 @@ import {
   elementIsSelectElement,
   elementIsSpanElement,
   nodeIsElement,
+  isCustomElement,
   elementIsTextAreaElement,
   sendExtensionMessage,
   getAttributeBoolean,
@@ -87,7 +88,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly overlaySetupDelayMs = 100;
   // Constructed in the constructor body, not here: it closes over a field declared further down.
   private readonly shadowTracker: ShadowHostHydrationTracker;
-  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
@@ -143,6 +143,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // over-exclude same-tag page elements and is spoofable by the page.
     this.domQueryService.setOwnedShadowHostPredicate(
       (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
+    );
+
+    // Read lazily, not captured: `formFieldQueryString` is rebuilt whenever autofill settings
+    // change, and observation scope has to follow the definition currently in force.
+    this.domQueryService.setFieldPredicate(
+      (root) => root.querySelector(this.formFieldQueryString) != null,
     );
 
     this.shadowTracker = new ShadowHostHydrationTracker(
@@ -477,6 +483,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.getFormattedAutofillFormsData(),
         this.getFormattedAutofillFieldsData(),
       );
+      this.setupOverlayListeners(cachedPageDetails);
       void this.sendExtensionMessage("collectPageDetailsResponse", {
         details: cachedPageDetails,
         sender: "autofillInit",
@@ -1519,9 +1526,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
     this.purgeDetachedNodesIfDue();
 
-    const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
+    // Judge relevance against the shadow records alone. Handing the whole batch to the gate lets
+    // any watched light-DOM attribute change — `aria-hidden`, `tabindex`, `title` — vouch for
+    // cosmetic shadow churn sharing its batch, which on a chatty page is every batch.
+    const shadowRootMutations = this.domQueryService.shadowRootMutations(mutations);
 
-    if (hasMutationsInShadowRoot) {
+    if (this.shadowMutationsCouldAffectFields(shadowRootMutations)) {
       this.debouncedRequirePageDetailsUpdate();
     }
 
@@ -1738,29 +1748,66 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return false;
   }
 
-  private setupTopLayerCandidateListener = (element: Element) => {
-    const overlayService = this.autofillOverlayContentService;
-    if (overlayService !== undefined) {
-      const ownedTags = overlayService.getOwnedInlineMenuTagNames() || [];
-      this.ownedExperienceTagNames = ownedTags;
+  /**
+   * Pass only records whose target is inside a shadow root — a light-DOM record would pass the
+   * attribute branch below and defeat the gate.
+   *
+   * Attribute records are relevant by construction: the observer's `attributeFilter` already
+   * narrowed them to autofill-relevant names.
+   *
+   * Narrow on purpose: re-collecting for cosmetic churn in field-less shadows is the cost this
+   * avoids. Fields nested in light DOM are covered by {@link nodeListContainsFormField}, a host
+   * under a plain wrapper by {@link ShadowHostHydrationTracker}. Covered nowhere: a childless
+   * plain element with a closed root, which reads as `node.shadowRoot === null` to both.
+   */
+  private shadowMutationsCouldAffectFields(mutations: MutationRecord[]): boolean {
+    for (const mutation of mutations) {
+      if (mutation.type === "attributes") {
+        return true;
+      }
 
-      if (!ownedTags.includes(element.tagName)) {
-        if (!this.topLayerListenedElements.has(element)) {
-          this.topLayerListenedElements.add(element);
-          const toggleListener = (event: Event) => {
-            if ((event as ToggleEvent).newState === "open") {
-              // Add a slight delay (but faster than a user's reaction), to ensure the layer
-              // positioning happens after any triggered toggle has completed.
-              setTimeout(() => {
-                overlayService.refreshMenuLayerPosition();
-              }, 100);
-            }
-          };
-          element.addEventListener("toggle", toggleListener);
+      if (mutation.type !== "childList") {
+        continue;
+      }
+
+      // Cheaper than the `querySelector` walk below, so it runs first. Removed nodes count too: a
+      // removed host can carry fields no querySelector of ours could see through its boundary.
+      for (const nodes of [mutation.addedNodes, mutation.removedNodes]) {
+        for (const node of nodes ?? []) {
+          if (nodeIsElement(node) && (node.shadowRoot != null || isCustomElement(node))) {
+            return true;
+          }
         }
-        overlayService.refreshMenuLayerPosition();
+      }
+
+      if (this.mutationAddsOrRemovesFormField(mutation)) {
+        return true;
       }
     }
+
+    return false;
+  }
+
+  private setupTopLayerCandidateListener = (element: Element) => {
+    const overlayService = this.autofillOverlayContentService;
+    if (overlayService === undefined || overlayService.isElementInlineMenu(element)) {
+      return;
+    }
+
+    if (!this.topLayerListenedElements.has(element)) {
+      this.topLayerListenedElements.add(element);
+      const toggleListener = (event: Event) => {
+        if ((event as ToggleEvent).newState === "open") {
+          // Add a slight delay (but faster than a user's reaction), to ensure the layer
+          // positioning happens after any triggered toggle has completed.
+          setTimeout(() => {
+            overlayService.refreshMenuLayerPosition();
+          }, 100);
+        }
+      };
+      element.addEventListener("toggle", toggleListener);
+    }
+    overlayService.refreshMenuLayerPosition();
   };
 
   private isPopoverAttribute = (attr: string | null) => {
@@ -1771,7 +1818,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   private shouldListenToTopLayerCandidate = (element: Element) => {
     return (
-      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      !this.autofillOverlayContentService?.isElementInlineMenu(element) &&
       (element.tagName === "DIALOG" ||
         Array.from(element.attributes || []).some((attribute) =>
           this.isPopoverAttribute(attribute.name),

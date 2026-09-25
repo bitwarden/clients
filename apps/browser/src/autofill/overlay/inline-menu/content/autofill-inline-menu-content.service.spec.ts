@@ -1055,38 +1055,12 @@ describe("AutofillInlineMenuContentService", () => {
     });
   });
 
-  describe("getOwnedTagNames", () => {
-    it("returns an empty array when no elements are created", () => {
-      expect(autofillInlineMenuContentService.getOwnedTagNames()).toEqual([]);
-    });
-
-    it("returns the button element tag name", () => {
-      const buttonElement = document.createElement("div");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-
-      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
-
-      expect(tagNames).toContain("DIV");
-    });
-
-    it("returns both button and list element tag names", () => {
-      const buttonElement = document.createElement("div");
-      const listElement = document.createElement("span");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-      autofillInlineMenuContentService["listElement"] = listElement;
-
-      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
-
-      expect(tagNames).toEqual(["DIV", "SPAN"]);
-    });
-  });
-
   describe("getUnownedTopLayerItems", () => {
     beforeEach(() => {
       document.body.innerHTML = "";
     });
 
-    it("returns the tag names from button and list elements", () => {
+    it("excludes the inline menu's own elements by identity, not by tag name", () => {
       const buttonElement = document.createElement("div");
       buttonElement.setAttribute("popover", "manual");
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
@@ -1095,15 +1069,19 @@ describe("AutofillInlineMenuContentService", () => {
       listElement.setAttribute("popover", "manual");
       autofillInlineMenuContentService["listElement"] = listElement;
 
+      const pageDialog = document.createElement("dialog");
+      // Shares the button's tag name; a tag-name exclusion would wrongly drop it.
+      const impostor = document.createElement("div");
+      impostor.setAttribute("popover", "manual");
+
       /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
-      const querySelectorAllSpy = jest
+      jest
         .spyOn(globalThis.document, "querySelectorAll")
-        .mockReturnValue([] as any);
+        .mockReturnValue([buttonElement, listElement, pageDialog, impostor] as any);
 
-      const items = autofillInlineMenuContentService.getUnownedTopLayerItems();
+      const items = autofillInlineMenuContentService.getUnownedTopLayerItems(true);
 
-      expect(querySelectorAllSpy).toHaveBeenCalled();
-      expect(items.length).toBe(0);
+      expect(items).toEqual([pageDialog, impostor]);
     });
 
     it("calls querySelectorAll with correct selector when includeCandidates is false", () => {
@@ -1128,7 +1106,8 @@ describe("AutofillInlineMenuContentService", () => {
       autofillInlineMenuContentService.getUnownedTopLayerItems(true);
 
       const calledSelector = querySelectorAllSpy.mock.calls[0][0];
-      expect(calledSelector).toContain("[popover], dialog");
+      expect(calledSelector).toContain("[popover]");
+      expect(calledSelector).toContain("dialog");
     });
   });
 
