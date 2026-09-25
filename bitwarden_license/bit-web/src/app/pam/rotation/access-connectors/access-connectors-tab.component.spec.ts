@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
@@ -17,6 +18,12 @@ import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing
 
 import { AccessConnectorsTabComponent } from "./access-connectors-tab.component";
 import { AccessConnectorsService, AccessConnectorRow } from "./access-connectors.service";
+
+function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockReturnValue(of(enabled));
+  return configService;
+}
 
 describe("AccessConnectorsTabComponent", () => {
   let fixture: ComponentFixture<AccessConnectorsTabComponent>;
@@ -66,6 +73,7 @@ describe("AccessConnectorsTabComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1022,6 +1030,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1160,6 +1169,7 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
             t: (key: string, p1?: string | number) => (p1 == null ? key : `${key}:${p1}`),
           },
         },
+        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1237,5 +1247,458 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
     fixture.detectChanges();
 
     expect(button.getAttribute("aria-expanded")).toBe("true");
+  });
+});
+
+describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
+  let fixture: ComponentFixture<AccessConnectorsTabComponent>;
+  let rows$: BehaviorSubject<AccessConnectorRow[]>;
+  let loading$: BehaviorSubject<boolean>;
+  let accessConnectorsService: { setEnabled: jest.Mock; delete: jest.Mock };
+  let dialogService: { openSimpleDialog: jest.Mock; open: jest.Mock };
+  let overlayContainer: OverlayContainer;
+
+  const eligibleSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
+
+  function makeRow(
+    id: string,
+    name: string,
+    {
+      enabled = true,
+      isConnected = true,
+      assignmentNames = [] as string[],
+      assignedTargetSystemIds = [] as TargetSystemId[],
+    } = {},
+  ): AccessConnectorRow {
+    return {
+      id: connectorId(id),
+      name,
+      statusLabelKey: enabled
+        ? "pamAccessConnectorStatusActive"
+        : "pamAccessConnectorStatusInactive",
+      isConnected,
+      assignmentNames,
+      enabled,
+      canAssign: enabled,
+      accessConnector: accessConnector({
+        id: connectorId(id),
+        name,
+        status: enabled ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled,
+        isConnected,
+        assignedTargetSystemIds,
+      }),
+    };
+  }
+
+  const ROWS = [
+    makeRow("c-1", "Prod on-prem", { assignmentNames: ["Prod DB"] }),
+    makeRow("c-2", "EU region", {
+      isConnected: false,
+      assignmentNames: ["Prod DB", "Reporting SQL"],
+      assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")],
+    }),
+    makeRow("c-3", "Staging", { enabled: false, isConnected: false }),
+  ];
+
+  function render(vfo1: boolean, rows: AccessConnectorRow[] = ROWS, loading = false): HTMLElement {
+    TestBed.resetTestingModule();
+    rows$ = new BehaviorSubject<AccessConnectorRow[]>(rows);
+    loading$ = new BehaviorSubject<boolean>(loading);
+    accessConnectorsService = {
+      setEnabled: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+    };
+    dialogService = {
+      openSimpleDialog: jest.fn().mockResolvedValue(false),
+      open: jest.fn().mockReturnValue({ closed: of(undefined) }),
+    };
+
+    TestBed.configureTestingModule({
+      imports: [AccessConnectorsTabComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        {
+          provide: AccessConnectorsService,
+          useValue: {
+            loading$,
+            loadError$: new BehaviorSubject<unknown | null>(null),
+            rows$,
+            load: jest.fn().mockResolvedValue(undefined),
+            registerCompleted: jest.fn().mockResolvedValue(undefined),
+            assign: jest.fn().mockResolvedValue(undefined),
+            unassign: jest.fn().mockResolvedValue(undefined),
+            ...accessConnectorsService,
+          },
+        },
+        {
+          provide: TargetSystemsService,
+          useValue: {
+            automaticSystems$: of([eligibleSystem]),
+            loading$: of(false),
+            loadError$: new BehaviorSubject<unknown | null>(null),
+            load: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        { provide: DialogService, useValue: dialogService },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string, p1?: string | number) => (p1 == null ? key : `${key}:${p1}`),
+          },
+        },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+        },
+      ],
+    });
+
+    fixture = TestBed.createComponent(AccessConnectorsTabComponent);
+    overlayContainer = TestBed.inject(OverlayContainer);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  afterEach(() => {
+    overlayContainer?.ngOnDestroy();
+  });
+
+  function text(el: Element): string {
+    return (el.textContent ?? "").replace(/\s+/g, " ").trim();
+  }
+
+  function isV2(el: HTMLElement): boolean {
+    return el.querySelector("bit-table-v2") != null;
+  }
+
+  function headers(el: HTMLElement): HTMLElement[] {
+    return Array.from(
+      isV2(el)
+        ? el.querySelectorAll<HTMLElement>('bit-table-v2 [role="columnheader"]')
+        : el.querySelectorAll<HTMLElement>("bit-table thead th"),
+    );
+  }
+
+  function bodyRows(el: HTMLElement): Element[] {
+    return Array.from(
+      isV2(el)
+        ? el.querySelectorAll("bit-table-v2 bit-row")
+        : el.querySelectorAll("bit-table tbody tr"),
+    );
+  }
+
+  function cellTexts(el: HTMLElement): string[][] {
+    const cellSelector = isV2(el) ? '[role="cell"]' : "td";
+    return bodyRows(el).map((row) => Array.from(row.querySelectorAll(cellSelector)).map(text));
+  }
+
+  function rowNames(el: HTMLElement): string[] {
+    return Array.from(
+      el.querySelectorAll('button[id^="access-connectors-tab_button_detail-"]'),
+    ).map(text);
+  }
+
+  function sortableHeadings(el: HTMLElement): string[] {
+    return isV2(el)
+      ? headers(el)
+          .filter((header) => header.querySelector("button") != null)
+          .map(text)
+      : Array.from(el.querySelectorAll("bit-table thead th[bitsortable]")).map(text);
+  }
+
+  function clickSort(el: HTMLElement, label: string): void {
+    const header = headers(el).find((h) => text(h) === label)!;
+    header.querySelector("button")!.click();
+    fixture.detectChanges();
+  }
+
+  function ariaSort(el: HTMLElement, label: string): string | null {
+    return headers(el)
+      .find((h) => text(h) === label)!
+      .getAttribute("aria-sort");
+  }
+
+  function openMenu(el: HTMLElement, rowIndex: number): HTMLElement {
+    el.querySelectorAll<HTMLButtonElement>('button[id^="access-connectors-tab_button_menu-"]')[
+      rowIndex
+    ].click();
+    fixture.detectChanges();
+    const panels = document.querySelectorAll<HTMLElement>(".bit-menu-panel");
+    return panels[panels.length - 1];
+  }
+
+  function menuItems(el: HTMLElement, rowIndex: number): string[] {
+    const items = Array.from(openMenu(el, rowIndex).querySelectorAll("[bitmenuitem]")).map(text);
+    document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    overlayContainer.getContainerElement().innerHTML = "";
+    return items;
+  }
+
+  function chip(key: string): FilterMenuComponent {
+    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
+  }
+
+  it("renders only the v1 table with the flag off", () => {
+    const el = render(false);
+
+    expect(el.querySelector("bit-table")).not.toBeNull();
+    expect(el.querySelector("bit-table-v2")).toBeNull();
+  });
+
+  it("renders only the v2 table with the flag on", () => {
+    const el = render(true);
+
+    expect(el.querySelector("bit-table-v2")).not.toBeNull();
+    expect(el.querySelector("bit-table")).toBeNull();
+  });
+
+  it("renders the same column headings, in the same order, as the v1 table", () => {
+    const v1 = headers(render(false)).map(text);
+    const v2 = headers(render(true)).map(text);
+
+    expect(v2.slice(0, 4)).toEqual([
+      "name",
+      "status",
+      "pamAccessConnectorConnection",
+      "pamAccessConnectorAssignments",
+    ]);
+    expect(v2.slice(0, 4)).toEqual(v1.slice(0, 4));
+    expect(v2).toHaveLength(v1.length);
+  });
+
+  it("gives the actions column a screen-reader-only heading", () => {
+    const actionsHeader = headers(render(true))[4];
+    const label = actionsHeader.querySelector(".tw-sr-only");
+
+    expect(text(actionsHeader)).toBe("options");
+    expect(label).not.toBeNull();
+    expect(text(label as HTMLElement)).toBe("options");
+  });
+
+  it("renders the same rows and cells as the v1 table", () => {
+    const v1 = cellTexts(render(false));
+    const v2 = cellTexts(render(true));
+
+    expect(v2).toHaveLength(ROWS.length);
+    expect(v2).toEqual(v1);
+  });
+
+  it("offers the same row actions, in the same order, as the v1 table", () => {
+    const v1El = render(false);
+    const v1 = ROWS.map((_, i) => menuItems(v1El, i));
+    const v2El = render(true);
+    const v2 = ROWS.map((_, i) => menuItems(v2El, i));
+
+    expect(v2[1]).toEqual([
+      "pamAccessConnectorViewDetails",
+      "pamAccessConnectorAssignTargets",
+      "pamAccessConnectorUnassign:Prod DB",
+      "pamAccessConnectorUnassign:Reporting SQL",
+      "pamAccessConnectorDeactivate",
+      "pamAccessConnectorDeleteAccessConnector",
+    ]);
+    expect(v2).toEqual(v1);
+  });
+
+  it("gates the assign action the same way, keeping it aria-disabled for a disabled connector", () => {
+    const el = render(true);
+    const item = openMenu(el, 2).querySelector<HTMLButtonElement>(
+      '[id^="access-connectors-tab_button_assign-"]',
+    )!;
+
+    expect(item.id).toBe(`access-connectors-tab_button_assign-locked-${connectorId("c-3")}`);
+    expect(item.getAttribute("aria-disabled")).toBe("true");
+    expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+  });
+
+  it("routes a row action through the shared component method", async () => {
+    const el = render(true);
+    openMenu(el, 0)
+      .querySelector<HTMLButtonElement>('[id^="access-connectors-tab_button_assign-"]')!
+      .click();
+    await fixture.whenStable();
+
+    expect(dialogService.open).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigates to the detail page from the name link", () => {
+    const el = render(true);
+    const navigateSpy = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    el.querySelector<HTMLButtonElement>(
+      'button[id^="access-connectors-tab_button_detail-"]',
+    )!.click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "access-connectors", connectorId("c-1")],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  it("sorts only by name, unsorted until asked, as the v1 table does", () => {
+    const shuffled = [ROWS[2], ROWS[0], ROWS[1]];
+    const v1El = render(false, shuffled);
+    const v1 = [rowNames(v1El), ariaSort(v1El, "name")];
+    expect(sortableHeadings(v1El)).toEqual(["name"]);
+    clickSort(v1El, "name");
+    v1.push(rowNames(v1El), ariaSort(v1El, "name"));
+    clickSort(v1El, "name");
+    v1.push(rowNames(v1El), ariaSort(v1El, "name"));
+
+    const v2El = render(true, shuffled);
+    const v2 = [rowNames(v2El), ariaSort(v2El, "name")];
+    expect(sortableHeadings(v2El)).toEqual(["name"]);
+    clickSort(v2El, "name");
+    v2.push(rowNames(v2El), ariaSort(v2El, "name"));
+    clickSort(v2El, "name");
+    v2.push(rowNames(v2El), ariaSort(v2El, "name"));
+
+    expect(v2[0]).toEqual(["Staging", "Prod on-prem", "EU region"]);
+    expect(v2[2]).toEqual(["EU region", "Prod on-prem", "Staging"]);
+    expect(v2[4]).toEqual(["Staging", "Prod on-prem", "EU region"]);
+    expect(v2[3]).toBe("ascending");
+    expect(v2[5]).toBe("descending");
+    expect(v2).toEqual(v1);
+  });
+
+  it("filters by search text and both chips with the same predicate as the v1 table", () => {
+    const component = (): { searchControl: { setValue: (value: string) => void } } =>
+      fixture.componentInstance as unknown as {
+        searchControl: { setValue: (value: string) => void };
+      };
+
+    const v1El = render(false);
+    component().searchControl.setValue("r");
+    chip("connection").toggle(false);
+    chip("status").toggle("pamAccessConnectorStatusActive");
+    fixture.detectChanges();
+    const v1 = rowNames(v1El);
+
+    const v2El = render(true);
+    component().searchControl.setValue("r");
+    chip("connection").toggle(false);
+    chip("status").toggle("pamAccessConnectorStatusActive");
+    fixture.detectChanges();
+
+    expect(rowNames(v2El)).toEqual(["EU region"]);
+    expect(rowNames(v2El)).toEqual(v1);
+  });
+
+  it("shows the same no-results message when the filters empty the table", () => {
+    const el = render(true, [ROWS[0]]);
+    chip("connection").toggle(false);
+    fixture.detectChanges();
+
+    expect(bodyRows(el)).toHaveLength(0);
+    expect(text(el.querySelector("bit-table-v2 [slot=empty]")!)).toBe(
+      "pamAccessConnectorNoResults",
+    );
+  });
+
+  it("keeps the no-connectors empty state outside the table", () => {
+    const el = render(true, []);
+
+    expect(el.querySelector("bit-table-v2")).toBeNull();
+    expect(el.textContent).toContain("pamAccessConnectorEmptyStateTitle");
+  });
+
+  it("follows a live connection change from the rows signal", () => {
+    const el = render(true, [ROWS[0]]);
+    expect(cellTexts(el)[0][2]).toBe("pamAccessConnectorConnected");
+
+    rows$.next([{ ...ROWS[0], isConnected: false }]);
+    fixture.detectChanges();
+
+    expect(cellTexts(el)[0][2]).toBe("pamAccessConnectorDisconnected");
+  });
+
+  it("gives the row menu trigger and the count disclosure the same accessible names", () => {
+    const v1El = render(false);
+    const v1Trigger = v1El.querySelector('button[id^="access-connectors-tab_button_menu-"]')!;
+    const v1Label = v1Trigger.getAttribute("aria-label");
+    const v2El = render(true);
+    const v2Trigger = v2El.querySelector('button[id^="access-connectors-tab_button_menu-"]')!;
+    const count = v2El.querySelector<HTMLButtonElement>(
+      'button[id^="access-connectors-tab_button_assignments-"]',
+    )!;
+
+    expect(v2Trigger.getAttribute("aria-label")).toBe("options");
+    expect(v2Trigger.getAttribute("aria-label")).toBe(v1Label);
+    expect(count.getAttribute("aria-expanded")).toBe("false");
+    count.click();
+    fixture.detectChanges();
+    expect(count.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  describe("loading", () => {
+    beforeEach(() => {
+      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    function advance(ms: number): void {
+      fixture.detectChanges();
+      jest.advanceTimersByTime(ms);
+      fixture.detectChanges();
+    }
+
+    function placeholder(): HTMLElement {
+      return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        '[data-testid="access-connectors-loading"]',
+      )!;
+    }
+
+    it("stands a hidden v2 skeleton in for the list, carrying the real columns", () => {
+      render(true, [], true);
+      advance(1000);
+
+      expect(placeholder().getAttribute("aria-hidden")).toBe("true");
+      expect(placeholder().querySelector("bit-table-v2")).not.toBeNull();
+      expect(placeholder().querySelector("bit-table")).toBeNull();
+      expect(headers(placeholder()).map(text)).toEqual([
+        "name",
+        "status",
+        "pamAccessConnectorConnection",
+        "pamAccessConnectorAssignments",
+        "",
+      ]);
+      expect(placeholder().querySelectorAll("bit-row")).toHaveLength(5);
+      expect(placeholder().querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
+    });
+
+    it("draws the headers alone, with no skeleton or empty state, before the delay is up", () => {
+      render(true, [], true);
+      advance(999);
+
+      expect(headers(placeholder()).map(text)).toContain("pamAccessConnectorConnection");
+      expect(placeholder().querySelector("bit-skeleton")).toBeNull();
+      expect(placeholder().querySelector("bit-skeleton-text")).toBeNull();
+      expect(placeholder().querySelector("bit-status-lockup")).toBeNull();
+    });
+
+    it("draws no held rows in the placeholder while a reload is in flight", () => {
+      render(true, [ROWS[0]], true);
+      advance(1000);
+
+      expect(
+        placeholder().querySelector('[id^="access-connectors-tab_button_detail-"]'),
+      ).toBeNull();
+    });
+
+    it("replaces the skeleton with the real rows once the load lands", () => {
+      render(true, [], true);
+      advance(1000);
+      rows$.next(ROWS);
+      loading$.next(false);
+      advance(1000);
+
+      expect(placeholder()).toBeNull();
+      expect(rowNames(fixture.nativeElement as HTMLElement)).toEqual(ROWS.map((r) => r.name));
+    });
   });
 });
