@@ -89,11 +89,12 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(userId);
 
-    return ids === undefined || ids.length === 0
-      ? ciphers.filter((cipher) => this.isDiscoverablePasskeyFor(cipher, rpId))
-      : ciphers.filter(
-          (cipher) => this.isPasskeyFor(cipher, rpId) && this.hasAnyCredentialId(cipher, ids),
-        );
+    const matches: (cipher: CipherView) => boolean =
+      ids === undefined || ids.length === 0
+        ? (cipher) => this.isDiscoverablePasskeyFor(cipher, rpId)
+        : (cipher) => this.isPasskeyFor(cipher, rpId) && this.hasAnyCredentialId(cipher, ids);
+
+    return ciphers.filter(matches);
   }
 
   /** Returns every cipher, unfiltered: the SDK filters for passkeys itself. */
