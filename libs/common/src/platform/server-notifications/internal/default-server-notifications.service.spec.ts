@@ -463,7 +463,7 @@ describe("NotificationsService", () => {
         },
       );
 
-      it("should skip logout when receiving KDF change reason regardless of feature flags", async () => {
+      it("should skip logout when receiving KDF change reason", async () => {
         configService.getFeatureFlag$.mockReturnValue(of(false));
 
         const notification = new NotificationResponse({
