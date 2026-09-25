@@ -59,35 +59,25 @@ describe("PolicyService", () => {
   });
 
   it("upsert", async () => {
-    singleUserState.nextState(
-      arrayToRecord([
-        policyData("1", "test-organization", PolicyType.MaximumVaultTimeout, true, { minutes: 14 }),
-      ]),
-    );
-
-    await policyService.upsert(
-      policyData("99", "test-organization", PolicyType.DisableSend, true),
-      userId,
-    );
-
-    expect(await firstValueFrom(policyService.policies$(userId))).toEqual([
+    const existingPolicy = policyData(
+      "1",
+      "test-organization",
+      PolicyType.MaximumVaultTimeout,
+      true,
       {
-        id: "1",
-        organizationId: "test-organization",
-        type: PolicyType.MaximumVaultTimeout,
-        enabled: true,
-        data: { minutes: 14 },
-        revisionDate: expect.any(Date),
+        minutes: 14,
       },
-      {
-        id: "99",
-        organizationId: "test-organization",
-        type: PolicyType.DisableSend,
-        enabled: true,
-        data: undefined,
-        revisionDate: expect.any(Date),
-      },
-    ]);
+    );
+    const newPolicy = policyData("99", "test-organization", PolicyType.DisableSend, true);
+    singleUserState.nextState(arrayToRecord([existingPolicy]));
+
+    await policyService.upsert(newPolicy, userId);
+
+    // upsert writes to the confirmed-only POLICIES state; assert against it directly since
+    // policies$ now reads from the accepted-or-confirmed state.
+    expect(await firstValueFrom(singleUserState.state$)).toEqual(
+      arrayToRecord([existingPolicy, newPolicy]),
+    );
   });
 
   it("replace", async () => {
@@ -97,23 +87,12 @@ describe("PolicyService", () => {
       ]),
     );
 
-    await policyService.replace(
-      {
-        "2": policyData("2", "test-organization", PolicyType.DisableSend, true),
-      },
-      userId,
-    );
+    const replacementPolicy = policyData("2", "test-organization", PolicyType.DisableSend, true);
+    await policyService.replace({ "2": replacementPolicy }, userId);
 
-    expect(await firstValueFrom(policyService.policies$(userId))).toEqual([
-      {
-        id: "2",
-        organizationId: "test-organization",
-        type: PolicyType.DisableSend,
-        enabled: true,
-        data: undefined,
-        revisionDate: expect.any(Date),
-      },
-    ]);
+    // replace writes to the confirmed-only POLICIES state; assert against it directly since
+    // policies$ now reads from the accepted-or-confirmed state.
+    expect(await firstValueFrom(singleUserState.state$)).toEqual({ "2": replacementPolicy });
   });
 
   describe("masterPasswordPolicyOptions", () => {
@@ -363,56 +342,20 @@ describe("PolicyService", () => {
   });
 
   describe("policies$", () => {
-    it("returns all policies from state", async () => {
-      singleUserState.nextState(
-        arrayToRecord([
-          policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
-          policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
-          policyData("policy3", "org5", PolicyType.DisablePersonalVaultExport, false),
-          policyData("policy4", "org1", PolicyType.DisablePersonalVaultExport, true),
-        ]),
-      );
+    it("returns policies from the accepted-or-confirmed state", async () => {
+      const policies = [
+        new Policy(policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true)),
+        new Policy(policyData("policy2", "org1", PolicyType.ActivateAutofill, true)),
+      ];
+      newPolicyService.policies$.calledWith(userId).mockReturnValue(of(policies));
 
       const result = await firstValueFrom(policyService.policies$(userId));
 
-      expect(result).toEqual([
-        {
-          id: "policy1",
-          organizationId: "org4",
-          type: PolicyType.DisablePersonalVaultExport,
-          enabled: true,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-        {
-          id: "policy2",
-          organizationId: "org1",
-          type: PolicyType.ActivateAutofill,
-          enabled: true,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-        {
-          id: "policy3",
-          organizationId: "org5",
-          type: PolicyType.DisablePersonalVaultExport,
-          enabled: false,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-        {
-          id: "policy4",
-          organizationId: "org1",
-          type: PolicyType.DisablePersonalVaultExport,
-          enabled: true,
-          data: undefined,
-          revisionDate: expect.any(Date),
-        },
-      ]);
+      expect(result).toEqual(policies);
     });
 
-    it("returns an empty array when there is no state", async () => {
-      singleUserState.nextState(null);
+    it("returns an empty array when there are no policies", async () => {
+      newPolicyService.policies$.calledWith(userId).mockReturnValue(of([]));
 
       const result = await firstValueFrom(policyService.policies$(userId));
 
