@@ -3,9 +3,17 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
+import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SelectItemView, TableModule, TooltipDirective } from "@bitwarden/components";
+import {
+  BitCellComponent,
+  SelectItemView,
+  TableModule,
+  TooltipDirective,
+} from "@bitwarden/components";
 
 import {
   AssignmentPickerColumn,
@@ -36,6 +44,12 @@ const COLUMNS: AssignmentPickerColumn[] = [
   { headerKey: "colKind", headerClass: "tw-text-muted" },
 ];
 
+function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockReturnValue(of(enabled));
+  return configService;
+}
+
 function option(id: string, name: string): SelectItemView {
   return { id, listName: name, labelName: name };
 }
@@ -47,7 +61,7 @@ function row(id: string, label: string, kind = "kindEntra"): TestRow {
 @Component({
   selector: "app-assignment-picker-host",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AssignmentPickerComponent, TableModule],
+  imports: [AssignmentPickerComponent, BitCellComponent, TableModule],
   template: `
     <pam-assignment-picker
       idPrefix="host"
@@ -69,9 +83,14 @@ function row(id: string, label: string, kind = "kindEntra"): TestRow {
       [goToRoute]="goToRoute"
       [goToLabelKey]="goToLabelKey"
     />
-    <ng-template #rowTemplate let-row>
-      <td bitCell data-testid="cell-label">{{ row.label }}</td>
-      <td bitCell data-testid="cell-kind">{{ row.kind }}</td>
+    <ng-template #rowTemplate let-row let-vfo1="vfo1">
+      @if (vfo1) {
+        <bit-cell data-testid="cell-label">{{ row.label }}</bit-cell>
+        <bit-cell data-testid="cell-kind">{{ row.kind }}</bit-cell>
+      } @else {
+        <td bitCell data-testid="cell-label">{{ row.label }}</td>
+        <td bitCell data-testid="cell-kind">{{ row.kind }}</td>
+      }
     </ng-template>
   `,
 })
@@ -165,7 +184,11 @@ describe("AssignmentPickerComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AssignmentPickerHostComponent, NoopAnimationsModule],
-      providers: [provideRouter([]), { provide: I18nService, useValue: i18nFake }],
+      providers: [
+        provideRouter([]),
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ConfigService, useValue: vfo1ConfigService(false) },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AssignmentPickerHostComponent);
@@ -544,5 +567,161 @@ describe("AssignmentPickerComponent", () => {
       expect(picker.hintKey()).toBe("hintLoadError");
       expect(el("#host_anchor_go-to")).toBeNull();
     });
+  });
+});
+
+describe("AssignmentPickerComponent with the VFO1 flag on", () => {
+  let fixture: ComponentFixture<AssignmentPickerHostComponent>;
+  let host: AssignmentPickerHostComponent;
+
+  async function render(): Promise<void> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  function root(): HTMLElement {
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function el<T extends HTMLElement>(selector: string): T | null {
+    return root().querySelector<T>(selector);
+  }
+
+  function texts(selector: string): string[] {
+    return [...root().querySelectorAll(selector)].map((node) => node.textContent?.trim() ?? "");
+  }
+
+  async function click(selector: string): Promise<void> {
+    el<HTMLElement>(selector)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AssignmentPickerHostComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ConfigService, useValue: vfo1ConfigService(true) },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AssignmentPickerHostComponent);
+    host = fixture.componentInstance;
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it("draws the assigned rows with bit-table-v2 instead of bit-table", async () => {
+    await render();
+
+    expect(el("bit-table-v2")).not.toBeNull();
+    expect(el("bit-table")).toBeNull();
+  });
+
+  it("heads the table with the caller's columns in order, then the options column", async () => {
+    await render();
+
+    expect(texts("bit-table-v2 [role=columnheader]")).toEqual(["colName", "colKind", "options"]);
+    expect(el("bit-table-v2 [role=columnheader] .tw-sr-only")?.textContent?.trim()).toBe("options");
+  });
+
+  it("carries a column's header classes alongside the header cell's own", async () => {
+    await render();
+
+    const kindHeader = root().querySelectorAll("bit-table-v2 bit-header-cell")[1];
+
+    expect(kindHeader.classList).toContain("tw-text-muted");
+    expect(kindHeader.classList).toContain("tw-contents");
+  });
+
+  it("renders the caller's cells for every assigned row", async () => {
+    host.assignments = [row("row-1", "Prod MSSQL", "kindMssql"), row("row-2", "Staging Entra")];
+    await render();
+
+    expect(root().querySelectorAll("bit-table-v2 bit-row")).toHaveLength(2);
+    expect(texts('bit-table-v2 [data-testid="cell-label"]')).toEqual([
+      "Prod MSSQL",
+      "Staging Entra",
+    ]);
+    expect(texts('bit-table-v2 [data-testid="cell-kind"]')).toEqual(["kindMssql", "kindEntra"]);
+  });
+
+  it("exposes every cell of an assigned row as a cell, the caller's included", async () => {
+    host.assignments = [row("row-1", "Prod MSSQL", "kindMssql"), row("row-2", "Staging Entra")];
+    await render();
+
+    const rows = [...root().querySelectorAll("bit-table-v2 bit-row")];
+    expect(rows).toHaveLength(2);
+    for (const bitRow of rows) {
+      expect(bitRow.querySelectorAll("[role=cell]")).toHaveLength(COLUMNS.length + 1);
+      expect(bitRow.querySelectorAll("td")).toHaveLength(0);
+    }
+  });
+
+  it("names the row in the remove control, which is all a screen reader gets", async () => {
+    await render();
+
+    expect(el("#host_button_unassign-row-1")?.getAttribute("aria-label")).toBe(
+      "unassignLabel:Prod MSSQL",
+    );
+    expect(el("bit-table-v2 bit-row [role=cell] #host_button_unassign-row-1")).not.toBeNull();
+  });
+
+  it("stands an empty row in for no assignments, spanning every column", async () => {
+    host.assignments = [];
+    await render();
+
+    const empty = el("bit-table-v2 bit-row [role=cell]");
+    expect(root().querySelectorAll("bit-table-v2 bit-row")).toHaveLength(1);
+    expect(empty?.textContent?.trim()).toBe("emptyRow");
+    expect(empty?.getAttribute("aria-colspan")).toBe("3");
+    expect(el("#host_button_unassign-row-1")).toBeNull();
+  });
+
+  it("hands the row to the caller and returns focus to Assign", async () => {
+    await render();
+
+    await click("#host_button_unassign-row-1");
+
+    expect(host.unassign).toHaveBeenCalledWith(row("row-1", "Prod MSSQL", "kindMssql"));
+    expect(document.activeElement).toBe(el("#host_button_assign"));
+  });
+
+  it("leaves focus alone when the caller reports nothing was removed", async () => {
+    host.unassign = jest.fn(() => Promise.resolve(false));
+    await render();
+
+    await click("#host_button_unassign-row-1");
+
+    expect(document.activeElement).not.toBe(el("#host_button_assign"));
+  });
+
+  it("holds every remove control while one removal is in flight", async () => {
+    let release: () => void = () => {};
+    host.unassign = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+    host.assignments = [row("row-1", "Prod MSSQL"), row("row-2", "Staging Entra")];
+    await render();
+
+    el<HTMLElement>("#host_button_unassign-row-1")?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el("#host_button_unassign-row-2")?.getAttribute("aria-disabled")).toBe("true");
+    el<HTMLElement>("#host_button_unassign-row-2")?.click();
+    expect(host.unassign).toHaveBeenCalledTimes(1);
+
+    release();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el("#host_button_unassign-row-2")?.hasAttribute("aria-disabled")).toBe(false);
   });
 });
