@@ -81,8 +81,8 @@ class JsTokenProvider implements TokenProvider {
   }
 }
 
-const PERF_TRACK_GROUP = "SDK";
-const PERF_TRACK = "Lifetime";
+const LIFETIME_TRACK_GROUP = "SDK";
+const LIFETIME_TRACK = "Lifetime";
 const CRYPTO_TRACK_GROUP = "Unlock";
 const CRYPTO_TRACK = "Crypto";
 
@@ -233,9 +233,9 @@ export class DefaultSdkService implements SdkService {
               const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
 
               const createMeasurement = this.logService.startMeasurement(
-                PERF_TRACK_GROUP,
-                PERF_TRACK,
-                "createSdkClient",
+                LIFETIME_TRACK_GROUP,
+                LIFETIME_TRACK,
+                "create",
               );
               const client = await this.sdkClientFactory.createSdkClient(
                 new JsTokenProvider(this.apiService, userId),
@@ -279,13 +279,13 @@ export class DefaultSdkService implements SdkService {
                 return;
               }
 
-              const deleteMeasurement = this.logService.startMeasurement(
-                PERF_TRACK_GROUP,
-                PERF_TRACK,
-                "delete",
+              const disposeMeasurement = this.logService.startMeasurement(
+                LIFETIME_TRACK_GROUP,
+                LIFETIME_TRACK,
+                "dispose",
               );
               client.markForDisposal();
-              deleteMeasurement.finish();
+              disposeMeasurement.finish();
             };
           });
         },

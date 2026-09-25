@@ -1,3 +1,4 @@
+import { measured } from "@bitwarden/logging";
 import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
@@ -7,28 +8,6 @@ export class SdkLoadFailedError extends Error {
   constructor(error: unknown) {
     super(`SDK loading failed: ${error}`);
   }
-}
-
-/**
- * Records WASM load + init in the DevTools "SDK" track. Calls `performance.measure` directly
- * since this runs before DI, so `LogService.measure` is unavailable.
- */
-function measureLoad(start: DOMHighResTimeStamp) {
-  // Some runtimes (e.g. jsdom) lack `performance.measure`; instrumentation must never fail loading.
-  if (typeof performance.measure !== "function") {
-    return;
-  }
-
-  performance.measure("[SdkLoadService]: loadAndInit", {
-    start,
-    detail: {
-      devtools: {
-        dataType: "track-entry",
-        track: "SdkLoadService",
-        trackGroup: "SDK",
-      },
-    },
-  });
 }
 
 export abstract class SdkLoadService {
@@ -61,13 +40,12 @@ export abstract class SdkLoadService {
    * This method should be called once at the start of the application.
    * Raw functions and classes from the SDK can be used after this method resolves.
    */
+  @measured("SDK", "Load")
   async loadAndInit(): Promise<void> {
     try {
-      const start = performance.now();
       await this.load();
       init_sdk(SdkLoadService.logLevel);
       SdkLoadService.markAsReady();
-      measureLoad(start);
     } catch (error) {
       SdkLoadService.markAsFailed(error);
     }
