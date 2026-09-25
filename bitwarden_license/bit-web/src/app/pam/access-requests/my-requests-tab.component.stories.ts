@@ -173,9 +173,7 @@ export const FlagOnFiltered: Story = {
   decorators: [myAccess()],
   globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
-    const trigger = canvasElement.querySelector<HTMLButtonElement>(
-      'bit-filter-menu button[title^="Collection"]',
-    )!;
+    const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
     await userEvent.click(trigger);
     await userEvent.click(await within(document.body).findByText("Production"));
     await userEvent.keyboard("{Escape}");
