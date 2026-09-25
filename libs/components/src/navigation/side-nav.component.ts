@@ -64,6 +64,8 @@ export class SideNavComponent {
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
+  private readonly headerWrapper = viewChild<ElementRef<HTMLElement>>("headerWrapper");
+
   private readonly footerWrapper = viewChild<ElementRef<HTMLElement>>("footerWrapper");
 
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -139,22 +141,26 @@ export class SideNavComponent {
 
   protected scrollFocusedIntoView(event: FocusEvent) {
     const scrollContainer = event.currentTarget as HTMLElement;
-    const footerWrapper = this.footerWrapper()?.nativeElement;
-    if (!footerWrapper) {
-      return;
-    }
-
     const target = event.target as HTMLElement;
-    // Focus inside the footer can never be occluded by it.
-    if (footerWrapper.contains(target)) {
-      return;
+    const targetRect = target.getBoundingClientRect();
+
+    // Focus inside a sticky band can never be occluded by that band.
+    const headerWrapper = this.headerWrapper()?.nativeElement;
+    const footerWrapper = this.footerWrapper()?.nativeElement;
+
+    if (footerWrapper && !footerWrapper.contains(target)) {
+      const overlap = targetRect.bottom - footerWrapper.getBoundingClientRect().top;
+      if (overlap > 0) {
+        scrollContainer.scrollBy({ top: overlap, behavior: "instant" });
+        return;
+      }
     }
 
-    const overlap =
-      target.getBoundingClientRect().bottom - footerWrapper.getBoundingClientRect().top;
-
-    if (overlap > 0) {
-      scrollContainer.scrollBy({ top: overlap, behavior: "instant" });
+    if (headerWrapper && !headerWrapper.contains(target)) {
+      const overlap = headerWrapper.getBoundingClientRect().bottom - targetRect.top;
+      if (overlap > 0) {
+        scrollContainer.scrollBy({ top: -overlap, behavior: "instant" });
+      }
     }
   }
 
