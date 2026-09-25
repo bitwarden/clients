@@ -172,7 +172,7 @@ describe("MembersComponent", () => {
     mockFileDownloadService = mock<FileDownloadService>();
 
     await TestBed.configureTestingModule({
-      declarations: [MembersComponent],
+      imports: [MembersComponent],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: I18nService, useValue: mockI18nService },
@@ -212,8 +212,7 @@ describe("MembersComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     })
       .overrideComponent(MembersComponent, {
-        remove: { imports: [] },
-        add: { template: "<div></div>" },
+        set: { imports: [], template: "<div></div>" },
       })
       .compileComponents();
 

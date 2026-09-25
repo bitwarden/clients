@@ -45,7 +45,7 @@ const routes: Routes = [
       },
       {
         path: "members",
-        loadChildren: () => import("./members").then((m) => m.MembersModule),
+        loadChildren: () => import("./members").then((m) => m.membersRoutes),
       },
       {
         component: GroupsComponent,
