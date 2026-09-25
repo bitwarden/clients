@@ -41,7 +41,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
     private session: Fido2UserInterfaceSession,
     private cipherService: CipherService,
     private accountService: AccountService,
-    private logService?: LogService,
+    private logService: LogService,
     private assumeUserPresence: boolean = false,
   ) {}
 
@@ -50,7 +50,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
    * report neither presence nor verification and the authenticator aborts.
    */
   async check_user(options: CheckUserOptions, hint: Fido2UiHint): Promise<CheckUserResult> {
-    this.logService?.mark("[SDK FIDO2] check_user");
+    this.logService.mark("[SDK FIDO2] check_user");
 
     // The unit variant crosses as a bare string, not an object, so it has to be tested first.
     if (hint === "informNoCredentialsFound") {
@@ -102,7 +102,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
   async pick_credential_for_authentication(
     available_credentials: CipherView[],
   ): Promise<CipherView> {
-    this.logService?.mark("[SDK FIDO2] pick_credential_for_authentication");
+    this.logService.mark("[SDK FIDO2] pick_credential_for_authentication");
 
     const response = await this.session.pickCredential({
       cipherIds: available_credentials
@@ -118,7 +118,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
       (cipher) => cipher.id !== undefined && uuidAsString(cipher.id) === response.cipherId,
     );
     if (selected === undefined) {
-      this.logService?.error(
+      this.logService.error(
         "[SdkFido2UserInterface] Aborting because the selected credential could not be found.",
       );
       throw new Error("The selected credential could not be found.");
@@ -131,7 +131,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
     options: CheckUserOptions,
     new_credential: Fido2CredentialNewView,
   ): Promise<CheckUserAndPickCredentialForCreationResult> {
-    this.logService?.mark("[SDK FIDO2] check_user_and_pick_credential_for_creation");
+    this.logService.mark("[SDK FIDO2] check_user_and_pick_credential_for_creation");
 
     const response = await this.session.confirmNewCredential({
       credentialName: new_credential.rpName ?? new_credential.rpId,
@@ -143,7 +143,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
     });
 
     if (response.cipherId === undefined) {
-      this.logService?.warning(
+      this.logService.warning(
         "[SdkFido2UserInterface] Aborting because user confirmation was not received.",
       );
       throw new Error("User confirmation was not received.");
@@ -188,7 +188,7 @@ export class SdkFido2UserInterface implements Fido2UserInterface {
         timeout({
           first: CIPHER_APPEARANCE_TIMEOUT_MS,
           with: () => {
-            this.logService?.error(
+            this.logService.error(
               `[SdkFido2UserInterface] Cipher ${cipherId} did not appear within the timeout.`,
             );
             throw new Error(`Cipher ${cipherId} could not be found.`);

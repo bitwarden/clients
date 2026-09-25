@@ -33,13 +33,13 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
   ) {}
 
   /**
-   * Finds the passkey ciphers for `rp_id`, limited to `ids` when given. `user_handle` is ignored,
+   * Finds the passkey ciphers for `rp_id`, limited to `ids` when given. The user handle is ignored,
    * as in the TypeScript path, so a relying party sees the same credentials either way.
    */
   async find_credentials(
     ids: number[][] | undefined,
     rp_id: string,
-    user_handle: number[] | undefined,
+    _user_handle: number[] | undefined,
   ): Promise<SdkCipherView[]> {
     const matching = await this.findCredentialCiphers(
       ids?.map((id) => new Uint8Array(id)),
@@ -55,12 +55,11 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
       return [];
     }
 
-    // Not `CipherView.toSdkCipherView()`: it sets `login.fido2Credentials` to `undefined`, so every
-    // cipher would reach the authenticator with no passkeys on it.
-
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const records = await firstValueFrom(this.cipherService.ciphers$(userId));
 
+    // Not `CipherView.toSdkCipherView()`: it sets `login.fido2Credentials` to `undefined`, so every
+    // cipher would reach the authenticator with no passkeys on it.
     const sdkCiphers = ciphers
       .map((cipher) => (cipher.id == null ? undefined : records?.[cipher.id as CipherId]))
       .filter((data) => data !== undefined)
