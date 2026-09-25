@@ -8,9 +8,8 @@ export abstract class LogService {
   abstract write(level: LogLevel, message?: any, ...optionalParams: any[]): void;
 
   /**
-   * Decides whether the log recorder records, once the feature flag gating it
-   * resolves. The first call wins, so the decision holds for the life of the
-   * process. A no-op for services with no recorder wired up.
+   * Enables or disables the attached recorder. Only the first call has an effect.
+   * No-op if no recorder is attached.
    */
   enableRecorder(enabled: boolean): void {
     // Nothing to record into by default.

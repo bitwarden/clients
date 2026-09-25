@@ -36,23 +36,19 @@ interface QueuedRecord {
 /**
  * A {@link LogRecorder} that forwards log events into the SDK Flight Recorder buffer.
  *
- * Two things gate a record: the WASM buffer, which loads asynchronously, and the
- * feature flag, which arrives with the server config. Until both settle, records
- * are held in a bounded in-memory queue and replayed in order once they do.
- * Timestamps are captured when the event is recorded, not when it is written, so
- * replayed records keep their original ordering.
- *
- * The flag is decided once per process; see {@link setEnabled}.
+ * Records are queued until the SDK has loaded and {@link setEnabled} has been
+ * called, then written in order. Each record keeps the timestamp from when it was
+ * logged.
  */
 export class FlightRecorderLogRecorder implements LogRecorder {
   private client: FlightRecorderClient | null = null;
   private queue: QueuedRecord[] = [];
-  /** `null` until the flag is known; queue-and-wait rather than record or drop. */
+  /** `null` until {@link setEnabled} is called. */
   private enabled: boolean | null = null;
 
   /**
    * @param sdkReady Resolves once the SDK WASM is loaded. If it rejects, or the
-   *   client cannot be constructed, the recorder shuts down.
+   *   client cannot be created, the recorder is disabled.
    * @param target The target recorded alongside each event, mirroring the Rust
    *   module path on SDK-origin events.
    */
@@ -68,18 +64,12 @@ export class FlightRecorderLogRecorder implements LogRecorder {
           this.flush();
         },
         () => {
-          // Not a flag decision, so it bypasses the one-shot guard in setEnabled.
           this.enabled = false;
           this.queue = [];
         },
       );
   }
 
-  /**
-   * Decides whether to record, replaying or dropping whatever queued up first.
-   * The first call wins; later ones are ignored, so the flag holds for the life of
-   * the process and flipping it takes a restart.
-   */
   setEnabled(enabled: boolean): void {
     if (this.enabled != null) {
       return;

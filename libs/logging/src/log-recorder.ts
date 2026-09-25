@@ -16,8 +16,8 @@ export interface LogRecorder {
   record(level: LogLevel, message?: any, ...optionalParams: any[]): void;
 
   /**
-   * Decides whether to record. Events from before the first call are held until it
-   * arrives, so a recorder that is never told records nothing. The first call wins.
+   * Enables or disables recording. Only the first call has an effect. Events are
+   * queued until then, so a recorder that is never enabled records nothing.
    */
   setEnabled(enabled: boolean): void;
 }
