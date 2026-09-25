@@ -1,4 +1,4 @@
-import { filter, from, map, mergeMap, Observable, toArray } from "rxjs";
+import { catchError, filter, from, map, mergeMap, Observable, of, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -21,6 +21,10 @@ export class PasswordHealthService {
   /**
    * Finds exposed passwords in a list of ciphers.
    *
+   * A failed lookup is contained to its own cipher, which is then reported as not exposed. The
+   * alternative is losing the whole report to one transient failure, since the caller treats an
+   * error here as a failed generation.
+   *
    * @param ciphers The list of ciphers to check.
    * @returns An observable that emits an array of ExposedPasswordDetail.
    */
@@ -28,9 +32,10 @@ export class PasswordHealthService {
     return from(ciphers).pipe(
       filter((cipher) => this.isValidCipher(cipher)),
       mergeMap((cipher) =>
-        this.auditService
-          .passwordLeaked(cipher.login.password!)
-          .then((exposedCount) => ({ cipher, exposedCount })),
+        from(this.auditService.passwordLeaked(cipher.login.password!)).pipe(
+          map((exposedCount) => ({ cipher, exposedCount })),
+          catchError(() => of({ cipher, exposedCount: 0 })),
+        ),
       ),
       // [FIXME] ExposedDetails is can still return a null
       filter(({ exposedCount }) => exposedCount > 0),
