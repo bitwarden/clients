@@ -52,7 +52,7 @@ describe("InvoicePreviewClient", () => {
       );
     });
 
-    it("should POST premium org upgrade previews to the premium upgrade route", async () => {
+    it("should GET premium org upgrade previews from the upgrade preview route with query params", async () => {
       const request: PremiumOrgUpgradePreviewRequest = {
         targetProductTierType: ProductTierType.Teams,
         billingAddress: { country: "US", postalCode: "12345" },
@@ -61,11 +61,9 @@ describe("InvoicePreviewClient", () => {
       await sut.previewPremiumOrgUpgrade(request);
 
       expect(mockApiService.send).toHaveBeenCalledWith(
-        "POST",
-        // Singular "subscription": the host mounts the user group at
-        // /account/billing/subscription/premium.
-        "/account/billing/subscription/premium/upgrade/invoice/preview",
-        request,
+        "GET",
+        `/account/billing/subscription/upgrade/preview?targetProductTierType=${ProductTierType.Teams}&country=US&postalCode=12345`,
+        null,
         true,
         true,
       );

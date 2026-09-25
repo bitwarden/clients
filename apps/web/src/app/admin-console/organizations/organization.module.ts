@@ -1,13 +1,7 @@
-import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
-import { CopyClickDirective, ScrollLayoutDirective, IconModule } from "@bitwarden/components";
-import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
-
-import { HeaderModule } from "../../layouts/header/header.module";
-
 import { CoreOrganizationModule } from "./core";
-import { GroupAddEditComponent } from "./manage/group-add-edit.component";
+import { GroupAddDialogComponent, GroupEditDialogComponent } from "./manage/group-add-edit";
 import { GroupsComponent } from "./manage/groups.component";
 import { OrganizationsRoutingModule } from "./organization-routing.module";
 import { SharedOrganizationModule } from "./shared";
@@ -19,14 +13,9 @@ import { AccessSelectorModule } from "./shared/components/access-selector";
     AccessSelectorModule,
     CoreOrganizationModule,
     OrganizationsRoutingModule,
-    HeaderModule,
-    ScrollingModule,
-    ScrollLayoutDirective,
-    CopyClickDirective,
-    IconModule,
-    Vfo1IconPipe,
-    Vfo1I18nPipe,
+    GroupsComponent,
+    GroupAddDialogComponent,
+    GroupEditDialogComponent,
   ],
-  declarations: [GroupsComponent, GroupAddEditComponent],
 })
 export class OrganizationModule {}

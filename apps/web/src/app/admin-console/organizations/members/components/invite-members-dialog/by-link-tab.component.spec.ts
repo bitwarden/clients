@@ -61,9 +61,10 @@ async function createComponent(
     autoConfirmEnabled?: boolean;
     domains?: OrganizationDomainMiniResponse[];
     domainsError?: unknown;
+    showCoachMarks?: boolean;
   } = {},
 ): Promise<Harness> {
-  const { initialLink, autoConfirmEnabled = true } = options;
+  const { initialLink, autoConfirmEnabled = true, showCoachMarks = false } = options;
 
   const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
 
@@ -115,6 +116,7 @@ async function createComponent(
 
   const fixture = TestBed.createComponent(ByLinkTabComponent);
   fixture.componentRef.setInput("organizationId", ORG_ID);
+  fixture.componentRef.setInput("showCoachMarks", showCoachMarks);
   fixture.detectChanges();
   await fixture.whenStable();
 
@@ -314,6 +316,162 @@ describe("ByLinkTabComponent", () => {
       await new Promise(process.nextTick);
 
       expect(component.form.dirty).toBe(false);
+    });
+
+    // The step 1 coachmark popover's backdrop blocks clicks into the page, so a click-driven
+    // refocus of the invalid field isn't possible while it's open.
+    it("refocuses the domains field when the form is invalid", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+
+      component.form.controls.domains.setValue("");
+      await component.save();
+
+      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(focus).toHaveBeenCalled();
+    });
+
+    it("refocuses the domains field when advancing the tour with an invalid form", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+
+      component.form.controls.domains.setValue("");
+      await component.saveAndAdvanceToStep2();
+
+      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(component.tourStep()).not.toBe(2);
+      expect(focus).toHaveBeenCalled();
+    });
+
+    // Angular's `Validators.required` only rejects an empty string, so comma/whitespace-only
+    // input (e.g. ",  ,") passes form validation yet parses down to zero domains. Without this,
+    // the empty array reached the service layer, which threw "At least one allowed domain is
+    // required." — an error the refocus logic never saw because it lived past the form-validity
+    // check.
+    it("treats comma/whitespace-only input as empty, without calling the service", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+
+      component.form.controls.domains.setValue(" , , ");
+      expect(component.form.valid).toBe(true);
+      expect(component.domainsEmpty()).toBe(true);
+
+      await component.save();
+
+      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.updateAllowedDomains).not.toHaveBeenCalled();
+      expect(focus).toHaveBeenCalled();
+    });
+
+    // The server can reject domains that pass client-side parsing (e.g. malformed or duplicate
+    // domains). The rejection is only visible to `[bitAction]`'s generic error toast, which has
+    // no way to reach into the component to refocus the field — save() has to do it itself.
+    it("refocuses the domains field and rethrows when the server rejects the save", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+      const failure = new Error("At least one allowed domain is required.");
+      inviteLinkService.createInviteLink.mockRejectedValue(failure);
+
+      component.form.controls.domains.setValue("example.com");
+
+      await expect(component.save()).rejects.toThrow(failure);
+      expect(focus).toHaveBeenCalled();
+    });
+  });
+
+  // TODO(coachmark cleanup): remove this describe block with the rest of the guided tour.
+  describe("guided tour", () => {
+    function saveButtonDisabled(fixture: ComponentFixture<ByLinkTabComponent>): boolean {
+      const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="saveDomains"]',
+      );
+      // bitButton aria-disables rather than setting the native `disabled` attribute (see
+      // ariaDisableElement in @bitwarden/components), so check aria-disabled instead.
+      return button.getAttribute("aria-disabled") === "true";
+    }
+
+    it("enables the save button when the tour is not running", async () => {
+      const { fixture, component } = await createComponent({ showCoachMarks: false });
+      component.form.controls.domains.setValue("example.com");
+      fixture.detectChanges();
+
+      expect(saveButtonDisabled(fixture)).toBe(false);
+    });
+
+    it("disables the save button once the tour starts, even with valid domains", async () => {
+      const { fixture, component } = await createComponent({ showCoachMarks: true });
+      component.form.controls.domains.setValue("example.com");
+
+      component.tourStep.set(1);
+      fixture.detectChanges();
+
+      expect(saveButtonDisabled(fixture)).toBe(true);
+    });
+
+    it("re-enables the save button once the tour finishes", async () => {
+      const { fixture, component } = await createComponent({ showCoachMarks: true });
+      component.form.controls.domains.setValue("example.com");
+
+      component.tourStep.set(1);
+      fixture.detectChanges();
+      expect(saveButtonDisabled(fixture)).toBe(true);
+
+      component.tourStep.set(0);
+      fixture.detectChanges();
+
+      expect(saveButtonDisabled(fixture)).toBe(false);
+    });
+  });
+
+  describe("guided tour", () => {
+    // The tour's opening step is delayed via setTimeout so the popover doesn't anchor to a
+    // stale rect; wait it out with real timers rather than faking them, since fake timers
+    // deadlock the component's `await fixture.whenStable()` setup above.
+    const waitForTourStart = () => new Promise((resolve) => setTimeout(resolve, 300));
+
+    it("starts the tour when the org has no invite link yet", async () => {
+      const { component } = await createComponent({
+        showCoachMarks: true,
+      });
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(1);
+    });
+
+    it("does not start the tour when showCoachMarks is false", async () => {
+      const { component } = await createComponent({});
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(0);
+    });
+
+    // The callout that offers the tour is only shown to orgs without a link configured yet
+    // (see InviteLinkCalloutService.showIfEligible), so showCoachMarks=true alongside an
+    // existing link shouldn't happen in practice — but the tour must not start in that case,
+    // since its first step targets state that only exists pre-link.
+    it("does not start the tour when the org already has an invite link configured", async () => {
+      const { component } = await createComponent({
+        initialLink: makeInviteLink(true),
+        showCoachMarks: true,
+      });
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(0);
     });
   });
 

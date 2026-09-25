@@ -49,6 +49,7 @@ import {
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
+import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
@@ -269,7 +270,9 @@ describe("VaultComponent", () => {
     dismissNudge: jest.fn().mockResolvedValue(undefined),
   };
 
-  const dialogSvc = {} as Partial<DialogService>;
+  const dialogSvc = {
+    openSimpleDialog: jest.fn().mockResolvedValue(false),
+  } as Partial<DialogService>;
 
   const introCarouselState$ = new BehaviorSubject<boolean>(true);
 
@@ -302,8 +305,11 @@ describe("VaultComponent", () => {
 
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
+    getFeatureFlag: jest.fn().mockResolvedValue(false),
     serverSettings$,
   };
+
+  const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
 
   const premiumUpsellSvc = {
     showUpsell: jest.fn().mockReturnValue(false),
@@ -384,6 +390,10 @@ describe("VaultComponent", () => {
         {
           provide: ConfigService,
           useValue: configSvc,
+        },
+        {
+          provide: ImportUpgradeNavigationService,
+          useValue: importUpgradeNavigationSvc,
         },
         {
           provide: SearchService,
@@ -789,6 +799,7 @@ describe("VaultComponent", () => {
   });
 
   it("navigateToImport navigates to import route", fakeAsync(async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(false);
     const ngRouter = TestBed.inject(Router);
     jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
 
@@ -796,6 +807,17 @@ describe("VaultComponent", () => {
 
     expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
   }));
+
+  it("navigateToImport opens the import picker's own extension tab immediately, with no confirmation, when the import upgrade flag is on", async () => {
+    configSvc.getFeatureFlag.mockResolvedValue(true);
+    const ngRouter = TestBed.inject(Router);
+    jest.spyOn(ngRouter, "navigate");
+
+    await component["navigateToImport"]();
+
+    expect(importUpgradeNavigationSvc.openImportSourceSelectTab).toHaveBeenCalled();
+    expect(ngRouter.navigate).not.toHaveBeenCalled();
+  });
 
   it("ngOnInit dismisses intro carousel and opens decryption dialog for non-deleted failures", fakeAsync(() => {
     (cipherSvc.failedToDecryptCiphers$ as any).mockReturnValue(
