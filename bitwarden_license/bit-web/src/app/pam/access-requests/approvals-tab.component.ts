@@ -15,13 +15,22 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   AccordionComponent,
   AccordionGroupComponent,
   BadgeComponent,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitCellLoadingDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitTableV2Component,
   ButtonModule,
+  ColumnName,
   FILTER_CONTROL,
   FilterControl,
   FilterMenuComponent,
@@ -31,10 +40,13 @@ import {
   SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
+  SortState,
   TableDataSource,
   TableModule,
   TooltipDirective,
   TypographyModule,
+  defineTable,
+  isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -53,6 +65,9 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
 
 /** An option offered by a `bit-filter-menu` chip. */
 type FilterOption = { label: string; value: string };
+
+type ApprovalColumn = ColumnName<ApprovalRow, "window" | "actions">;
+type LeaseColumn = ColumnName<ManagedLeaseRow, "window" | "actions">;
 
 /**
  * "Approvals" tab: requests awaiting the caller's decision, oldest first, plus the access
@@ -76,6 +91,12 @@ type FilterOption = { label: string; value: string };
     AccordionComponent,
     AccordionGroupComponent,
     BadgeComponent,
+    BitCellComponent,
+    BitCellDefDirective,
+    BitCellLoadingDirective,
+    BitColumnComponent,
+    BitHeaderCellComponent,
+    BitTableV2Component,
     ButtonModule,
     DurationShortPipe,
     FilterMenuComponent,
@@ -99,6 +120,13 @@ export class ApprovalsTabComponent {
   private readonly inbox = inject(ApproverInboxService);
   private readonly approverActions = inject(ApproverActionsService);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   /** Ids currently being decided, so a second click on the same row is a no-op. */
   private readonly deciding = signal<Set<string>>(new Set());
@@ -257,6 +285,43 @@ export class ApprovalsTabComponent {
 
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
+
+  protected readonly table = defineTable<ApprovalRow, "window" | "actions">(this.rows);
+
+  /**
+   * Seeded here rather than left to the column's `defaultSort`: bit-table-v2 seeds that once, from
+   * the displayed columns only, so opening below the lg breakpoint would leave the table unsorted.
+   */
+  protected readonly pendingSort = signal<SortState<ApprovalColumn>>({
+    column: "submittedAtMs",
+    direction: "asc",
+  });
+  protected readonly leasesTable = defineTable<ManagedLeaseRow, "window" | "actions">(
+    this.leaseRows,
+  );
+
+  private readonly atLeastLg = isAtOrLargerThanBreakpointSignal("lg");
+  private readonly atLeastXl = isAtOrLargerThanBreakpointSignal("xl");
+
+  /**
+   * A v2 column is a grid track, so a breakpoint class on its cells would leave an empty track
+   * behind; the narrow-viewport hiding v1 does with `tw-hidden` is done by omission instead.
+   */
+  protected readonly displayedColumns = computed<ApprovalColumn[]>(() => [
+    "cipherName",
+    "requester",
+    ...(this.atLeastXl() ? (["window", "reason"] as const) : []),
+    ...(this.atLeastLg() ? (["submittedAtMs"] as const) : []),
+    "actions",
+  ]);
+
+  protected readonly leaseDisplayedColumns = computed<LeaseColumn[]>(() => [
+    "cipherName",
+    "requester",
+    ...(this.atLeastXl() ? (["window"] as const) : []),
+    "endsAtMs",
+    "actions",
+  ]);
 
   /**
    * Badge state is memoised per lease so the `[state]` input keeps identity across change

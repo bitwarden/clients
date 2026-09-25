@@ -2,7 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
@@ -156,6 +158,20 @@ type Story = StoryObj<ApprovalsTabComponent>;
 /** Both sections populated: decisions to make, and access already running. */
 export const Default: Story = {
   decorators: [inbox({ leases: activeLeases })],
+  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
+};
+
+/** {@link Default} on the `bit-table-v2` path the VFO1 flag selects. */
+export const FlagOn: Story = {
+  decorators: [inbox({ leases: activeLeases })],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+};
+
+/** The skeleton on the `bit-table-v2` path, delayed past the hold-back as {@link Loading} is. */
+export const LoadingFlagOn: Story = {
+  decorators: [inbox({ rows: [], loading: true })],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+  parameters: { chromatic: { delay: 1500 } },
 };
 
 /** Nothing left to decide, but the access the operator granted is still live and can be ended. */
