@@ -1,0 +1,98 @@
+import { copyFileSync, readFileSync, utimesSync, statSync, writeFileSync, appendFileSync, existsSync } from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+import { runCargoBuild, rustTargetsFor } from "../../scripts/build-support-rust.mts";
+import { BuildError, type BuildConfig, type BuildTask } from "../../scripts/build-config.mts";
+import { addDepFileEntry, Logger, processDepFile, runCommand, withExt, withStemSuffix } from "../../scripts/build-support.mts";
+
+const SOURCE_DIR = path.dirname(fileURLToPath(import.meta.url));
+const CRATE_PACKAGE_NAME = "bitwarden_chromium_import_helper";
+
+const ChromiumImporterBuildTask: BuildTask = {
+  targetName: "ChromiumImporterBuildTask",
+  sourceDir: SOURCE_DIR,
+  dependencies: [],
+
+  async validate(config: BuildConfig): Promise<void> {
+    const validationErrors: BuildError[] = [];
+
+    if (!config.platform) {
+      validationErrors.push(new BuildError("Platform not set"));
+    }
+
+    if (!config.profile) {
+      validationErrors.push(new BuildError("Profile not set"));
+    }
+
+    if (!config.toolchains.cargo.bin) {
+      validationErrors.push(new BuildError("Path to Cargo binary not set"));
+    }
+
+    if (validationErrors.length > 0) {
+      throw new AggregateError(validationErrors, `Build configuration of ${this.targetName} failed validation`);
+    }
+  },
+
+  async configure(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {},
+
+  async build(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
+    const taskDepFilePath = path.join(privateDir, `${this.targetName}.d`);
+    const isStale = !existsSync(taskDepFilePath) || processDepFile(taskDepFilePath).isStale;
+    if (!isStale) {
+      Logger.debug(`${this.targetName} is up to date, skipping build`);
+      return;
+    }
+    const { platform, profile, toolchains: { cargo: { bin: cargoBin } } } = config;
+    const rustTargets = rustTargetsFor(config.platform, config.architecture);
+    const artifacts = [];
+    const artifactBasename = `${CRATE_PACKAGE_NAME}${ platform == "windows" ? ".exe" : ""}`;
+    for (const target of rustTargets) {
+      const cargoResult = await runCargoBuild(cargoBin, CRATE_PACKAGE_NAME, [], target, profile);
+
+      if (!cargoResult.filenames) {
+        throw new BuildError("Cargo did not output expected files");
+      }
+
+      Logger.debug({ filenames: cargoResult.filenames, depFiles: cargoResult.depFiles });
+      const artifactPath = cargoResult.filenames.find(l => path.basename(l) == artifactBasename)!;
+      // Copy the executable, preserving the modification times.
+      const stat = statSync(artifactPath);
+      const destPath = path.resolve(privateDir, withStemSuffix(path.basename(artifactPath), `-${target}`));
+      copyFileSync(artifactPath, destPath);
+      utimesSync(destPath, stat.atime, stat.mtime);
+      artifacts.push(destPath);
+
+      // Copy the related dependency file.
+      const cargoDepFilePath = cargoResult.depFiles!.find(d => path.basename(d) == withExt(CRATE_PACKAGE_NAME, ".d"))!;
+      const cargoDepFile = readFileSync(cargoDepFilePath, { encoding: "utf-8" });
+      const newDepFile = cargoDepFile.replace(artifactPath, destPath)
+      const newDepFilePath = path.resolve(privateDir, withStemSuffix(withExt(path.basename(artifactPath), ".d"), `-${target}`));
+      writeFileSync(newDepFilePath, newDepFile);
+    }
+    let artifact: string;
+    const artifactOutputPath = path.resolve(outputDir, artifactBasename)
+    // Combine artifacts into a universal artifact, if necessary.
+    if (platform === "macos" && artifacts.length > 1) {
+      const privArtifactPath = path.join(privateDir, artifactBasename);
+      Logger.log(`Creating universal artifact\n  from: ${artifacts}\n  to:   ${privArtifactPath}`)
+      await runCommand("lipo", ["-create", ...artifacts, "-output", privArtifactPath], { timing: true });
+      artifact = privArtifactPath;
+    } else {
+      // Other platforms just produce a single artifact;
+      artifact = artifacts[0];
+    }
+    copyFileSync(artifact, artifactOutputPath);
+
+    // Create a depfile for the output task, including the transitive dependencies from Cargo.
+    writeFileSync(taskDepFilePath, "", { flag: "w"});
+    addDepFileEntry(taskDepFilePath, artifactOutputPath, artifacts);
+    for (const artifact of artifacts) {
+      const privDepFile = `${artifact}.d`
+      const contents = readFileSync(privDepFile);
+      appendFileSync(taskDepFilePath, contents);
+    }
+  },
+}
+
+export default ChromiumImporterBuildTask;
