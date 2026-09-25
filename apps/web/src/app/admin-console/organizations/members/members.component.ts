@@ -45,7 +45,10 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
-import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
+import {
+  BillingConstraintService,
+  SeatLimitAction,
+} from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
@@ -65,7 +68,10 @@ import {
 } from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "./services/member-actions/member-actions.service";
-import { MemberActionResult } from "./services/member-actions/member-actions.types";
+import {
+  MemberActionResult,
+  OrganizationUserBulkResult,
+} from "./services/member-actions/member-actions.types";
 
 interface BulkMemberFlags {
   showBulkRestoreUsers: boolean;
@@ -73,7 +79,8 @@ interface BulkMemberFlags {
   showBulkRemoveUsers: boolean;
   showBulkDeleteUsers: boolean;
   showBulkConfirmUsers: boolean;
-  showBulkReinviteUsers: boolean;
+  showBulkSendInvite: boolean;
+  bulkSendInviteLabel: string;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -127,16 +134,6 @@ export class MembersComponent {
   protected showConfirmBanner$ = this.dataSource()
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
-
-  protected selectedInvitedCount$ = this.dataSource()
-    .usersUpdated()
-    .pipe(
-      map(
-        (members) => members.filter((m) => m.status === OrganizationUserStatusType.Invited).length,
-      ),
-    );
-
-  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
 
   protected isProcessing = this.memberActionsService.isProcessing;
 
@@ -291,8 +288,22 @@ export class MembersComponent {
   }
 
   async reinvite(user: OrganizationUserView, organization: Organization) {
-    const result = await this.memberActionsService.reinviteUser(organization, user.id);
+    const result = await firstValueFrom(
+      this.memberActionsService.reinviteUser(organization, user.id),
+    );
     await this.handleMemberActionResult(result, "hasBeenReinvited", user);
+  }
+
+  async sendInvite(user: OrganizationUserView, organization: Organization) {
+    if (await this.seatLimitBlocks(organization)) {
+      return;
+    }
+
+    const sideEffect = async () => await this.load(organization);
+    const result = await firstValueFrom(
+      this.memberActionsService.sendInvite(organization, user.id),
+    );
+    await this.handleMemberActionResult(result, "hasBeenInvited", user, sideEffect);
   }
 
   async confirm(user: OrganizationUserView, organization: Organization) {
@@ -321,9 +332,7 @@ export class MembersComponent {
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
-    const billingMetadata = await firstValueFrom(this.billingMetadata$);
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
-    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+    if (await this.seatLimitBlocks(organization, "restore")) {
       return;
     }
 
@@ -418,12 +427,8 @@ export class MembersComponent {
   }
 
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
-    if (!isRevoking) {
-      const billingMetadata = await firstValueFrom(this.billingMetadata$);
-      const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
-      if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
-        return;
-      }
+    if (!isRevoking && (await this.seatLimitBlocks(organization, "restore"))) {
+      return;
     }
 
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
@@ -431,18 +436,18 @@ export class MembersComponent {
     await this.load(organization);
   }
 
-  async bulkReinvite(organization: Organization) {
-    let users: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      users = this.dataSource().getCheckedUsersInVisibleOrder();
-    } else {
-      users = this.dataSource().getCheckedUsers();
-    }
+  async bulkSendInvite(organization: Organization) {
+    const users = this.dataSource().isIncreasedBulkLimitEnabled()
+      ? this.dataSource().getCheckedUsersInVisibleOrder()
+      : this.dataSource().getCheckedUsers();
 
-    const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
-    const invitedCount = allInvitedUsers.length;
+    const stagedUsers = this.dataSource().limitAndUncheckExcess(
+      users.filter((u) => u.canSendInvite),
+      MaxCheckedCount,
+    );
+    const invitedUsers = users.filter((u) => u.canReinvite);
 
-    if (invitedCount <= 0) {
+    if (stagedUsers.length === 0 && invitedUsers.length === 0) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -451,31 +456,101 @@ export class MembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(organization, allInvitedUsers);
-
-    if (result.successful.length === 0) {
-      this.validationService.showError(result.failed);
+    // Only the staged half consumes seats; a pure resend must not be blocked by the seat limit.
+    if (stagedUsers.length > 0 && (await this.seatLimitBlocks(organization))) {
+      return;
     }
 
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+    const invited = await this.sendStagedInvites(organization, stagedUsers);
+    const reinvited = await this.resendInvites(organization, invitedUsers);
+    const sentCount = invited.length + reinvited.length;
+
+    if (sentCount > 0) {
       this.toastService.showToast({
         variant: "success",
         message:
-          invitedCount === 1
+          sentCount === 1
             ? this.i18nService.t("reinviteSuccessToast")
-            : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
+            : this.i18nService.t("bulkReinviteSentToast", sentCount.toString()),
       });
-    } else {
-      // In self-hosted environments, show legacy dialog
+    }
+
+    // Self-hosted keeps the per-user status dialog for the resend portion.
+    if (!this.dataSource().isIncreasedBulkLimitEnabled() && invitedUsers.length > 0) {
       await this.memberDialogManager.openBulkStatusDialog(
-        users,
-        allInvitedUsers,
-        Promise.resolve(result.successful),
+        invitedUsers,
+        invitedUsers,
+        Promise.resolve(reinvited),
         this.i18nService.t("bulkReinviteMessage"),
       );
     }
 
     this.dataSource().uncheckAllUsers();
+    await this.load(organization);
+  }
+
+  /**
+   * Prompts to upgrade when the organization has no seat available and its plan cannot autoscale.
+   * Gates every action that moves a member into a seat-occupying status: inviting a staged member,
+   * and restoring a revoked one.
+   */
+  private async seatLimitBlocks(
+    organization: Organization,
+    action: SeatLimitAction = "invite",
+  ): Promise<boolean> {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    return await this.billingConstraint.seatLimitReached(seatLimitResult, organization, action);
+  }
+
+  /**
+   * Promotes staged members to invited.
+   *
+   * @returns The responses for the members that were successfully invited.
+   */
+  private async sendStagedInvites(
+    organization: Organization,
+    stagedUsers: OrganizationUserView[],
+  ): Promise<OrganizationUserBulkResult[]> {
+    if (stagedUsers.length === 0) {
+      return [];
+    }
+
+    const result = await firstValueFrom(
+      this.memberActionsService.bulkSendInvite(
+        organization,
+        stagedUsers.map((u) => u.id),
+      ),
+    );
+
+    if (result.failed.length > 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: [...new Set(result.failed.map((failure) => failure.error))],
+      });
+    }
+
+    return result.successful;
+  }
+
+  private async resendInvites(
+    organization: Organization,
+    invitedUsers: OrganizationUserView[],
+  ): Promise<OrganizationUserBulkResult[]> {
+    if (invitedUsers.length === 0) {
+      return [];
+    }
+
+    const result = await firstValueFrom(
+      this.memberActionsService.bulkReinvite(organization, invitedUsers),
+    );
+
+    if (result.successful.length === 0) {
+      this.validationService.showError(result.failed);
+    }
+
+    return result.successful;
   }
 
   async bulkConfirm(organization: Organization) {
@@ -574,9 +649,21 @@ export class MembersComponent {
       OrganizationUserStatusType.Revoked,
     ];
 
+    const invitedCount = members.filter((m) => m.canReinvite).length;
+    const hasStagedMembers = members.some((m) => m.canSendInvite);
+
+    // A selection containing staged members is a first invitation; a purely invited
+    // selection keeps the existing resend wording.
+    let bulkSendInviteLabel = "sendInvites";
+    if (!hasStagedMembers) {
+      bulkSendInviteLabel = invitedCount === 1 ? "resendInvitation" : "reinviteSelected";
+    }
+
     const result = {
       showBulkConfirmUsers: members.every((m) => m.canConfirm),
-      showBulkReinviteUsers: members.every((m) => m.canReinvite),
+      showBulkSendInvite:
+        members.length > 0 && members.every((m) => m.canSendInvite || m.canReinvite),
+      bulkSendInviteLabel,
       showBulkRestoreUsers: members.every((m) => m.canRestore),
       showBulkRevokeUsers: members.every((m) => m.canRevoke),
       showBulkRemoveUsers: members.every((m) => m.canRemove),

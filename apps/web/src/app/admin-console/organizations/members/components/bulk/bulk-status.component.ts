@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
-import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import {
   OrganizationUserStatusType,
   ProviderUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
-import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -47,10 +45,19 @@ type BulkStatusEntry = {
   message: string;
 };
 
+/**
+ * The outcome of a bulk operation for one member. The API reports success as an empty error and
+ * the SDK by omitting it, so both mean the member succeeded.
+ */
+export type BulkStatusResult = {
+  id: string;
+  error?: string;
+};
+
 type BulkStatusDialogData = {
   users: Array<OrganizationUserView | ProviderUserUserDetailsResponse>;
   filteredUsers: Array<OrganizationUserView | ProviderUserUserDetailsResponse>;
-  request: Promise<OrganizationUserBulkResponse[] | ProviderUserBulkResponse[]>;
+  request: Promise<BulkStatusResult[]>;
   successfulMessage: string;
 };
 
@@ -87,7 +94,7 @@ export class BulkStatusComponent {
     try {
       const response = await data.request;
       const keyedErrors: Record<string, string> = (response ?? [])
-        .filter((r) => r.error !== "")
+        .filter((r) => r.error !== undefined && r.error !== "")
         .reduce((a, x) => ({ ...a, [x.id]: x.error }), {});
       const keyedFilteredUsers: Record<
         string,

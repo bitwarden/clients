@@ -96,24 +96,6 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
-   * Re-invite the specified organization user
-   * @param organizationId - Identifier for the user's organization
-   * @param id - Organization user identifier
-   */
-  abstract postOrganizationUserReinvite(organizationId: string, id: string): Promise<any>;
-
-  /**
-   * Re-invite many organization users for the specified organization
-   * @param organizationId - Identifier for the organization
-   * @param ids - A list of organization user identifiers
-   * @return List of user ids, including both those that were successfully re-invited and those that had an error
-   */
-  abstract postManyOrganizationUserReinvite(
-    organizationId: string,
-    ids: string[],
-  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
-
-  /**
    * Accept an invitation to initialize and join an organization created via the Admin Portal **only**.
    * This is only used once for the initial Owner, because it also creates the organization's encryption keys.
    * This should not be used for organizations created via the Web client.
