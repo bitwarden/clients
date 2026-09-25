@@ -219,6 +219,9 @@ export class SdkFido2AuthenticatorService<
     const sync = found.length === 0 || stale;
     this.logService.mark(`[SDK FIDO2] Assertion sync ${sync ? "started" : "skipped"}`);
 
+    // FIXME: A full sync of a large vault mid-login can look like a hang. A counter passkey that is
+    // already here could refresh just its own cipher; one created on another device has no local id
+    // to fetch, so that case still needs a full sync.
     if (sync) {
       await this.syncService.fullSync(false);
     }
