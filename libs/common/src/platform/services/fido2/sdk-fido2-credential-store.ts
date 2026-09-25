@@ -1,4 +1,4 @@
-import { firstValueFrom, map, switchMap } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   CipherListView,
@@ -17,6 +17,7 @@ import { CipherView } from "../../../vault/models/view/cipher.view";
 import { SdkService } from "../../abstractions/sdk/sdk.service";
 
 import { compareCredentialIds, parseCredentialId } from "./credential-id-utils";
+import { withSdkClient } from "./with-sdk-client";
 
 /**
  * Satisfies the SDK's `Fido2CredentialStore` using the clients vault.
@@ -65,19 +66,10 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
       .filter((data) => data !== undefined)
       .map((data) => new Cipher(data, undefined).toSdkCipher());
 
-    return await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("Cannot read FIDO2 credentials: the SDK client is unavailable.");
-          }
-          using ref = sdk.take();
-          const ciphersClient = ref.value.vault().ciphers();
-
-          return await Promise.all(sdkCiphers.map((cipher) => ciphersClient.decrypt(cipher)));
-        }),
-      ),
-    );
+    return await withSdkClient(this.sdkService, userId, async (client) => {
+      const ciphersClient = client.vault().ciphers();
+      return await Promise.all(sdkCiphers.map((cipher) => ciphersClient.decrypt(cipher)));
+    });
   }
 
   /** Finds the passkey ciphers for `rpId`, limited to `ids` when given, as vault `CipherView`s. */
@@ -108,16 +100,8 @@ export class SdkFido2CredentialStore implements Fido2CredentialStore {
     );
     const sdkCiphers = ciphers.map((cipher) => cipher.toSdkCipher());
 
-    return await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("Cannot list FIDO2 credentials: the SDK client is unavailable.");
-          }
-          using ref = sdk.take();
-          return await ref.value.vault().ciphers().decrypt_list(sdkCiphers);
-        }),
-      ),
+    return await withSdkClient(this.sdkService, userId, (client) =>
+      client.vault().ciphers().decrypt_list(sdkCiphers),
     );
   }
 

@@ -1,4 +1,4 @@
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import {
   Fido2CredentialAutofillView,
@@ -39,6 +39,7 @@ import { Fido2Utils } from "./fido2-utils";
 import { NoopSdkFido2UserInterface } from "./noop-sdk-fido2-user-interface";
 import { SdkFido2CredentialStore } from "./sdk-fido2-credential-store";
 import { SdkFido2UserInterface } from "./sdk-fido2-user-interface";
+import { withSdkClient } from "./with-sdk-client";
 
 /**
  * How stale the vault may be before a creation ceremony syncs it. The sync exists only so the
@@ -255,22 +256,13 @@ export class SdkFido2AuthenticatorService<
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    return await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("Cannot run the FIDO2 operation: the SDK client is unavailable.");
-          }
-          using ref = sdk.take();
-          using authenticator = ref.value
-            .platform()
-            .fido2()
-            .authenticator(userInterface, this.credentialStore);
-
-          return await operation(authenticator);
-        }),
-      ),
-    );
+    return await withSdkClient(this.sdkService, userId, async (client) => {
+      using authenticator = client
+        .platform()
+        .fido2()
+        .authenticator(userInterface, this.credentialStore);
+      return await operation(authenticator);
+    });
   }
 
   /** Returns the vault's own view of each credential the SDK discovered. */
