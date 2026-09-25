@@ -488,6 +488,48 @@ describe("EnvironmentService", () => {
     });
   });
 
+  describe("ssoOnly$", () => {
+    it("emits false when the flag is absent from global state", async () => {
+      setGlobalData(Region.SelfHosted, new EnvironmentUrls());
+
+      expect(await firstValueFrom(sut.ssoOnly$)).toBe(false);
+    });
+
+    it("emits the stored value when the flag is set in global state", async () => {
+      stateProvider.global.getFake(GLOBAL_ENVIRONMENT_KEY).stateSubject.next({
+        region: Region.SelfHosted,
+        urls: new EnvironmentUrls(),
+        ssoOnly: true,
+      });
+
+      expect(await firstValueFrom(sut.ssoOnly$)).toBe(true);
+    });
+  });
+
+  describe("setSsoOnly", () => {
+    it("persists the flag so it is observable on ssoOnly$", async () => {
+      setGlobalData(Region.SelfHosted, new EnvironmentUrls());
+
+      await sut.setSsoOnly(true);
+      await awaitAsync();
+
+      expect(await firstValueFrom(sut.ssoOnly$)).toBe(true);
+    });
+
+    it("clears the flag when the region is later switched to a cloud region", async () => {
+      setGlobalData(Region.SelfHosted, new EnvironmentUrls());
+      await sut.setSsoOnly(true);
+      await awaitAsync();
+      expect(await firstValueFrom(sut.ssoOnly$)).toBe(true);
+
+      // setEnvironment replaces the whole global state, so the flag does not survive a region change
+      await sut.setEnvironment(Region.US);
+      await awaitAsync();
+
+      expect(await firstValueFrom(sut.ssoOnly$)).toBe(false);
+    });
+  });
+
   describe("cloudWebVaultUrl$", () => {
     it("no extra initialization, returns US vault", async () => {
       expect(await firstValueFrom(sut.cloudWebVaultUrl$)).toBe("https://vault.bitwarden.com");
