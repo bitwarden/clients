@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "ကျွန်ုပ်၏ဖိုလ်ဒါ"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "စုစည်းမှုတစ်ခုရွေးချယ်ပါ"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "တင်သွင်းထားသောဖိုင်အကြောင်းအရာကို စုစည်းမှုတစ်ခုသို့ ပြောင်းရွှေ့လိုပါက ဤရွေးချယ်မှုကို ရွေးချယ်ပါ"
   },
   "importTargetHintFolder": {
     "message": "တင်သွင်းထားသောဖိုင်အကြောင်းအရာကို ဖိုလ်ဒါတစ်ခုသို့ ပြောင်းရွှေ့လိုပါက ဤရွေးချယ်မှုကို ရွေးချယ်ပါ"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "ဖိုင်တွင် မသတ်မှတ်ရသေးသော ပစ္စည်းများပါရှိသည်။"
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "တင်သွင်းဖိုင်ကို ရွေးချယ်ပါ"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "ဖိုင်ရွေးချယ်ရန်"
