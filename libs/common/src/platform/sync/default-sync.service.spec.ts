@@ -14,8 +14,6 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
@@ -366,10 +364,6 @@ describe("DefaultSyncService", () => {
         }),
       );
       await sut.fullSync(true);
-      expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString("encryptedUserKey"),
-        user1,
-      );
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -416,10 +410,6 @@ describe("DefaultSyncService", () => {
         }),
       );
       await sut.fullSync(true);
-      expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString("encryptedUserKey"),
-        user1,
-      );
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -630,12 +620,12 @@ describe("DefaultSyncService", () => {
         );
       });
 
-      it("does not call newPolicyService.replace when both policiesNew and policies are absent", async () => {
+      it("clears policiesNew state when the response contains no policies", async () => {
         apiService.getSync.mockResolvedValue(emptySyncResponse);
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).not.toHaveBeenCalled();
+        expect(newPolicyService.replace).toHaveBeenCalledWith({}, user1);
       });
 
       it("calls newPolicyService.replace when policiesNew is present in the response", async () => {

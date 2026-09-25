@@ -32,6 +32,9 @@ import { CoachmarkService } from "./coachmark.service";
   templateUrl: "coachmark.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   exportAs: "coachmark",
+  // The popover is portaled into a CDK overlay, so the host renders nothing inline. Hiding it keeps
+  // the empty element from counting as a flex/grid item and adding a stray gap at every call site.
+  host: { class: "tw-hidden" },
 })
 export class CoachmarkComponent {
   /** Which coachmark step this instance represents */

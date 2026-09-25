@@ -75,7 +75,7 @@ jobs:
             artifact: jest-coverage-web
             junit: junit-web.xml
           - name: Desktop
-            paths: apps/desktop
+            paths: apps/desktop bitwarden_license/bit-desktop
             artifact: jest-coverage-desktop
             junit: junit-desktop.xml
           - name: CLI

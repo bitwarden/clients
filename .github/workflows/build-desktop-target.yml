@@ -14,6 +14,8 @@ on:
       - main
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
       - '!*.md'
