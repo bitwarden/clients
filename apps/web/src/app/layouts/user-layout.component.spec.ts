@@ -8,6 +8,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -94,6 +95,7 @@ describe("UserLayoutComponent", () => {
 
   const canArchive$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  const organizations$ = new BehaviorSubject<{ usePam: boolean }[]>([]);
 
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
@@ -138,9 +140,13 @@ describe("UserLayoutComponent", () => {
 
     canArchive$.next(true);
     archivedCiphers$.next([]);
+    organizations$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
-    configService.getFeatureFlag$.mockReturnValue(flag$);
+    // Keep PAM on in both blocks so the Access requests assertions exercise the nav placement.
+    configService.getFeatureFlag$.mockImplementation((flag) =>
+      flag === FeatureFlag.Pam ? of(true) : flag$,
+    );
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
@@ -158,7 +164,7 @@ describe("UserLayoutComponent", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         // This layout renders PamUserNavSlotComponent, which reads the user's organizations to
         // decide whether to show the PAM link.
-        { provide: OrganizationService, useValue: { organizations$: () => of([]) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
         {
           provide: PremiumSubscriptionRoutingService,
@@ -203,6 +209,16 @@ describe("UserLayoutComponent", () => {
         expect.arrayContaining(["generator", "importNoun", "exportNoun"]),
       );
     });
+
+    it("keeps Access requests above Tools", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+
+      expect(text).toContain("pamAccessRequestsTitle");
+      expect(text.indexOf("pamAccessRequestsTitle")).toBeLessThan(text.indexOf("tools"));
+    });
   });
 
   describe("flag on", () => {
@@ -224,6 +240,34 @@ describe("UserLayoutComponent", () => {
       expect(text).toEqual(
         expect.arrayContaining(["manage", "myFolders", "archiveNoun", "trash", "settings"]),
       );
+    });
+
+    it("renders Access requests inside Manage, after Trash and before Settings", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+      const manage = text.indexOf("manage");
+      const trash = text.indexOf("trash");
+      const accessRequests = text.indexOf("pamAccessRequestsTitle");
+      const settings = text.indexOf("settings");
+
+      expect(accessRequests).toBeGreaterThan(manage);
+      expect(accessRequests).toBeGreaterThan(trash);
+      expect(accessRequests).toBeLessThan(settings);
+    });
+
+    it("no longer renders Access requests above Tools", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+
+      expect(text.indexOf("pamAccessRequestsTitle")).toBeGreaterThan(text.indexOf("tools"));
+    });
+
+    it("omits Access requests entirely without a PAM organization", () => {
+      expect(navText()).not.toContain("pamAccessRequestsTitle");
     });
 
     it("renders Export as the last Settings child", () => {

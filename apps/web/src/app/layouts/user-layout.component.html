@@ -5,8 +5,6 @@
     @if (vfo1Enabled()) {
       <vault-nav-section />
 
-      <app-pam-user-nav-slot />
-
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item icon="bwi-file-text" [text]="'reports' | i18n" route="reports"></bit-nav-item>
         @if (sendEnabled$ | async) {
@@ -21,6 +19,7 @@
 
       <bit-nav-section [label]="'manage' | i18n">
         <vault-manage-nav />
+        <app-pam-user-nav-slot />
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
