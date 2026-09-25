@@ -83,18 +83,20 @@ describe("InvoicePreviewClient", () => {
       );
     });
 
-    it("should POST plan change previews to the organization-scoped plan-change route", async () => {
+    it("should GET plan change previews from the organization-scoped plan-change route with query params", async () => {
       const request: OrganizationPlanChangePreviewRequest = {
-        planTier: "enterprise",
+        tier: "enterprise",
         cadence: "annually",
+        country: "US",
+        postalCode: "12345",
       };
 
       await sut.previewOrganizationPlanChange("org-id-123", request);
 
       expect(mockApiService.send).toHaveBeenCalledWith(
-        "POST",
-        "/organizations/org-id-123/billing/subscription/plan-change/invoice/preview",
-        request,
+        "GET",
+        "/organizations/org-id-123/billing/subscription/plan-change/preview?tier=enterprise&cadence=annually&country=US&postalCode=12345",
+        null,
         true,
         true,
       );

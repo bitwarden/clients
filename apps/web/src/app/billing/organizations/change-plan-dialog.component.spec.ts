@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -10,6 +11,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -25,15 +27,23 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 
 import { ChangePlanDialogComponent } from "./change-plan-dialog.component";
 
 describe("ChangePlanDialogComponent (additional service accounts)", () => {
   let component: ChangePlanDialogComponent;
   let vfo1Enabled: jest.Mock<boolean, []>;
+  let previewCartFlag$: BehaviorSubject<boolean>;
+  let invoicePreviewService: jest.Mocked<InvoicePreviewService>;
 
   beforeEach(() => {
     vfo1Enabled = jest.fn<boolean, []>().mockReturnValue(false);
+    previewCartFlag$ = new BehaviorSubject<boolean>(false);
+
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(previewCartFlag$);
+    invoicePreviewService = mock<InvoicePreviewService>();
 
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -61,6 +71,8 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: PreviewInvoiceClient, useValue: mock<PreviewInvoiceClient>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
+        { provide: ConfigService, useValue: configService },
+        { provide: InvoicePreviewService, useValue: invoicePreviewService },
       ],
     });
 
@@ -252,6 +264,116 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("no longer exposes the client-side applied-discount calculation the provider-discount rows used", () => {
       expect((component as any).calculateTotalAppliedDiscount).toBeUndefined();
+    });
+  });
+
+  describe("preview-driven cart", () => {
+    const address = { country: "US", postalCode: "12345" } as any;
+
+    const selectEnterpriseAnnual = () => {
+      component.organizationId = "organization-id";
+      component.selectedPlan = { type: PlanType.EnterpriseAnnually } as any;
+      component.billingAddress = address;
+    };
+
+    it("builds the plan-change request from the selected plan and saved billing address", () => {
+      selectEnterpriseAnnual();
+
+      const request = (component as any).buildPlanChangePreviewRequest();
+
+      expect(request).toEqual({
+        tier: "enterprise",
+        cadence: "annually",
+        country: "US",
+        postalCode: "12345",
+      });
+    });
+
+    it("returns no request when the address form is invalid and none is saved", () => {
+      component.selectedPlan = { type: PlanType.TeamsAnnually } as any;
+      component.billingAddress = null;
+
+      expect((component as any).buildPlanChangePreviewRequest()).toBeUndefined();
+    });
+
+    it("refreshCostSummary sets the preview request from the selection when the flag is on", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      const previewTax = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+
+      await (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toEqual({
+        tier: "enterprise",
+        cadence: "annually",
+        country: "US",
+        postalCode: "12345",
+      });
+      // The legacy tax path is not used when the preview cart is on.
+      expect(previewTax).not.toHaveBeenCalled();
+    });
+
+    it("refreshCostSummary uses the legacy tax path and leaves the request signal untouched when the flag is off", async () => {
+      selectEnterpriseAnnual();
+      const previewTax = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+      previewTax.mockResolvedValue({ tax: 0, total: 0 });
+
+      await (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toBeUndefined();
+      expect(previewTax).toHaveBeenCalled();
+    });
+
+    it("fetches the preview cart when the flag is on and a selection exists", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      const request = (component as any).buildPlanChangePreviewRequest();
+      (component as any).planChangeRequest.set(request);
+
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledWith(
+        "organization-id",
+        request,
+      );
+    });
+
+    it("does not fetch the preview while the flag is off", () => {
+      selectEnterpriseAnnual();
+      (component as any).planChangeRequest.set((component as any).buildPlanChangePreviewRequest());
+
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    });
+
+    it("does not refetch when a rebuilt request is identical", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
+    });
+
+    it("refetches when the request changes", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockResolvedValue({} as any);
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      component.selectedPlan = { type: PlanType.TeamsAnnually } as any;
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
     });
   });
 
