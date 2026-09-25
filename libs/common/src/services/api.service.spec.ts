@@ -143,6 +143,36 @@ describe("ApiService", () => {
       expect(response).toEqual({ hello: "world" });
     });
 
+    it("returns the body as text for a text/plain response", async () => {
+      environmentService.getEnvironment$.mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+
+      nativeFetch.mockImplementation((request) => {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          text: () => Promise.resolve("CDDEEFF:4\nDDEEFF:2"),
+          headers: new Headers({
+            "content-type": "text/plain",
+          }),
+        } satisfies Partial<Response> as Response);
+      });
+
+      sut.nativeFetch = nativeFetch;
+
+      const response = await sut.send("GET", "/something", null, true, true, null, null);
+
+      expect(response).toBe("CDDEEFF:4\nDDEEFF:2");
+    });
+
     it("authenticates with non-active user when user is passed in", async () => {
       environmentService.environment$ = of({
         getApiUrl: () => "https://example.com",

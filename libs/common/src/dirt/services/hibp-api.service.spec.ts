@@ -57,4 +57,15 @@ describe("HibpApiService", () => {
       expect(result).toHaveLength(0);
     });
   });
+
+  describe("getHibpRange", () => {
+    it("should request the range for the given hash prefix", async () => {
+      apiService.send.mockResolvedValue("CDDEEFF:4\nDDEEFF:2");
+
+      const result = await sut.getHibpRange("AABBC");
+
+      expect(apiService.send).toHaveBeenCalledWith("GET", "/hibp/range/AABBC", null, true, true);
+      expect(result).toBe("CDDEEFF:4\nDDEEFF:2");
+    });
+  });
 });

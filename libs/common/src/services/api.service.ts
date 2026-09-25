@@ -1662,6 +1662,7 @@ export class ApiService implements ApiServiceAbstraction {
     const responseType = response.headers.get("content-type");
     const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    const responseIsText = responseType != null && responseType.indexOf("text/plain") !== -1;
     const responseIsBlob =
       responseType != null && responseType.indexOf("application/octet-stream") !== -1;
     const responseIsSuccess =
@@ -1669,7 +1670,7 @@ export class ApiService implements ApiServiceAbstraction {
     if (hasResponse && responseIsSuccess && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
-    } else if (hasResponse && responseIsSuccess && responseIsCsv) {
+    } else if (hasResponse && responseIsSuccess && (responseIsCsv || responseIsText)) {
       return await response.text();
     } else if (hasResponse && responseIsSuccess && responseIsBlob) {
       const disposition = response.headers.get("Content-Disposition") ?? "";

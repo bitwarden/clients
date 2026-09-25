@@ -1369,11 +1369,7 @@ export default class MainBackground {
       () => this.updateOverlayCiphers(),
       this.logService,
     );
-    this.auditService = new AuditService(
-      this.cryptoFunctionService,
-      this.apiService,
-      this.hibpApiService,
-    );
+    this.auditService = new AuditService(this.cryptoFunctionService, this.hibpApiService);
 
     this.importApiService = new ImportApiService(this.apiService);
 
