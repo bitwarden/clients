@@ -5,6 +5,7 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -102,6 +103,7 @@ describe("ApprovalsTabComponent", () => {
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let configService: MockProxy<ConfigService>;
 
   function create(): void {
     fixture = TestBed.createComponent(ApprovalsTabComponent);
@@ -127,6 +129,8 @@ describe("ApprovalsTabComponent", () => {
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [ApprovalsTabComponent, NoopAnimationsModule],
@@ -135,6 +139,7 @@ describe("ApprovalsTabComponent", () => {
         { provide: ApproverInboxService, useValue: inbox },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           // Echoes the key plus params, since I18nMockService throws on any key not given.
@@ -699,6 +704,389 @@ describe("ApprovalsTabComponent", () => {
         variant: "error",
         message: "pamInboxRevokeFailed",
       });
+    });
+  });
+
+  describe("with the VFO1 flag on", () => {
+    let viewportWidth: number;
+    let mediaListeners: Array<() => void>;
+
+    function matchesWidth(query: string): boolean {
+      return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
+    }
+
+    /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
+    function stubMatchMedia(): void {
+      Object.defineProperty(window, "matchMedia", {
+        configurable: true,
+        writable: true,
+        value: (query: string) => ({
+          matches: matchesWidth(query),
+          media: query,
+          addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
+            mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
+          ),
+          removeEventListener: jest.fn(),
+        }),
+      });
+    }
+
+    function resizeTo(width: number): void {
+      viewportWidth = width;
+      mediaListeners.forEach((notify) => notify());
+      fixture.detectChanges();
+    }
+
+    function createWithFlag(enabled: boolean): void {
+      fixture?.destroy();
+      configService.getFeatureFlag$.mockReturnValue(of(enabled));
+      create();
+    }
+
+    function queryAll(root: ParentNode, selector: string): HTMLElement[] {
+      return Array.from(root.querySelectorAll<HTMLElement>(selector));
+    }
+
+    function text(element: Element): string {
+      return (element.textContent ?? "").replace(/\s+/g, " ").trim();
+    }
+
+    function pendingTable(): HTMLElement {
+      return queryAll(fixture.nativeElement, "bit-accordion")[0].querySelector(
+        "bit-table, bit-table-v2",
+      ) as HTMLElement;
+    }
+
+    function leaseTable(): HTMLElement {
+      return queryAll(fixture.nativeElement, "bit-accordion")[1].querySelector(
+        "bit-table, bit-table-v2",
+      ) as HTMLElement;
+    }
+
+    function headings(table: HTMLElement): string[] {
+      return queryAll(table, 'th, [role="columnheader"]').map(text);
+    }
+
+    function pendingOrder(): string[] {
+      return queryAll(pendingTable(), '[data-testid^="approvals-approve-"]').map((button) =>
+        (button.getAttribute("data-testid") ?? "").replace("approvals-approve-", ""),
+      );
+    }
+
+    beforeEach(() => {
+      viewportWidth = 1440;
+      mediaListeners = [];
+      stubMatchMedia();
+    });
+
+    afterEach(() => {
+      delete (window as { matchMedia?: unknown }).matchMedia;
+    });
+
+    it("renders bit-table-v2 for both sections instead of bit-table", () => {
+      inbox.inboxRows$.next([row()]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(true);
+
+      expect(pendingTable().tagName).toBe("BIT-TABLE-V2");
+      expect(leaseTable().tagName).toBe("BIT-TABLE-V2");
+      expect(query("bit-table")).toBeNull();
+    });
+
+    it("renders the v1 table, and no v2 table, with the flag off", () => {
+      inbox.inboxRows$.next([row()]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(false);
+
+      expect(pendingTable().tagName).toBe("BIT-TABLE");
+      expect(leaseTable().tagName).toBe("BIT-TABLE");
+      expect(query("bit-table-v2")).toBeNull();
+    });
+
+    it("renders the same column headings, in the same order, as the v1 tables", () => {
+      inbox.inboxRows$.next([row()]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(false);
+      const v1Pending = headings(pendingTable());
+      const v1Leases = headings(leaseTable());
+
+      createWithFlag(true);
+
+      expect(v1Pending).toEqual([
+        "pamColumnItem",
+        "pamInboxRequester",
+        "pamInboxWindow",
+        "pamInboxReason",
+        "pamColumnSubmitted",
+        "pamColumnActions",
+      ]);
+      expect(headings(pendingTable())).toEqual(v1Pending);
+      expect(v1Leases).toEqual([
+        "pamColumnItem",
+        "pamInboxRequester",
+        "pamColumnWindow",
+        "pamColumnRemaining",
+        "pamColumnActions",
+      ]);
+      expect(headings(leaseTable())).toEqual(v1Leases);
+    });
+
+    it.each([
+      [1100, ["pamColumnItem", "pamInboxRequester", "pamColumnSubmitted", "pamColumnActions"]],
+      [800, ["pamColumnItem", "pamInboxRequester", "pamColumnActions"]],
+    ])("drops the columns v1 hides below its breakpoints at %ipx", (width, expectedPending) => {
+      viewportWidth = width;
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(true);
+
+      expect(headings(pendingTable())).toEqual(expectedPending);
+      expect(query('[data-testid="approvals-cell-window-req-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-cell-reason-req-1"]')).toBeNull();
+      expect(headings(leaseTable())).toEqual([
+        "pamColumnItem",
+        "pamInboxRequester",
+        "pamColumnRemaining",
+        "pamColumnActions",
+      ]);
+    });
+
+    it("renders one row per pending request and per live lease, as v1 does", () => {
+      inbox.inboxRows$.next([row({ id: "req-1" }), row({ id: "req-2" }), row({ id: "req-3" })]);
+      inbox.activeLeaseRows$.next([
+        leaseRow({ producedLeaseId: "lease-1" }),
+        leaseRow({ id: "req-4", producedLeaseId: "lease-2" }),
+      ]);
+
+      createWithFlag(false);
+      const v1PendingRows = queryAll(pendingTable(), "tr[bitRow]").length;
+      const v1LeaseRows = queryAll(leaseTable(), "tr[bitRow]").length;
+
+      createWithFlag(true);
+
+      expect(v1PendingRows).toBe(3);
+      expect(queryAll(pendingTable(), "bit-row")).toHaveLength(v1PendingRows);
+      expect(v1LeaseRows).toBe(2);
+      expect(queryAll(leaseTable(), "bit-row")).toHaveLength(v1LeaseRows);
+    });
+
+    it("shows the same cell content as v1", () => {
+      const pending = row({ id: "req-1" });
+      inbox.inboxRows$.next([pending]);
+      inbox.activeLeaseRows$.next([
+        leaseRow(
+          { producedLeaseId: "lease-1" },
+          { addedSeconds: 3600, latestEndMs: Date.parse("2026-08-17T14:00:00.000Z") },
+        ),
+      ]);
+
+      createWithFlag(true);
+
+      const pendingText = text(pendingTable());
+      expect(pendingText).toContain("Prod database");
+      expect(pendingText).toContain("pamInboxInCollection Production");
+      expect(pendingText).toContain("Grace");
+      expect(pendingText).toContain("grace@example.com");
+      expect(pendingText).toContain("pamInboxDuration1Hour");
+      expect(pendingText).toContain("prod incident");
+      expect(query('[data-testid="approvals-cell-item-req-1"] a')?.getAttribute("href")).toBe(
+        "/pam/requests/req-1",
+      );
+      expect(query('[data-testid="approvals-cell-window-req-1"] span')?.title).toBe(
+        pending.exactWindow,
+      );
+      expect(query('[data-testid="approvals-cell-reason-req-1"] [title]')?.title).toBe(
+        pending.reason,
+      );
+      expect(query('[data-testid="approvals-lease-extended-lease-1"]')).not.toBeNull();
+      expect(leaseTable().querySelector("app-pam-access-state-badge")).not.toBeNull();
+    });
+
+    it("says so explicitly when a request carries no reason", () => {
+      inbox.inboxRows$.next([row({ reason: undefined })]);
+
+      createWithFlag(true);
+
+      expect(text(pendingTable())).toContain("pamInboxReasonMissing");
+    });
+
+    it("sorts by submitted time, oldest first, by default, as v1 does", () => {
+      inbox.inboxRows$.next([
+        row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
+        row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
+        row({ id: "middle", submittedAt: "2026-08-17T11:00:00.000Z" }),
+      ]);
+
+      createWithFlag(false);
+      const v1Order = pendingOrder();
+
+      createWithFlag(true);
+
+      expect(v1Order).toEqual(["oldest", "middle", "newest"]);
+      expect(pendingOrder()).toEqual(v1Order);
+      const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
+        (header) => text(header) === "pamColumnSubmitted",
+      );
+      expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
+    });
+
+    it("keeps the default sort when opened below lg and widened, as v1 does", () => {
+      viewportWidth = 800;
+      inbox.inboxRows$.next([
+        row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
+        row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
+      ]);
+
+      createWithFlag(true);
+      resizeTo(1440);
+
+      const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
+        (header) => text(header) === "pamColumnSubmitted",
+      );
+      expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
+      expect(pendingOrder()).toEqual(["oldest", "newest"]);
+    });
+
+    it("sorts on the same three columns as v1 in each section", () => {
+      inbox.inboxRows$.next([row()]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(true);
+
+      const sortable = (table: HTMLElement) =>
+        queryAll(table, '[role="columnheader"]')
+          .filter((header) => header.querySelector("button") != null)
+          .map(text);
+      expect(sortable(pendingTable())).toEqual([
+        "pamColumnItem",
+        "pamInboxRequester",
+        "pamColumnSubmitted",
+      ]);
+      expect(sortable(leaseTable())).toEqual([
+        "pamColumnItem",
+        "pamInboxRequester",
+        "pamColumnRemaining",
+      ]);
+    });
+
+    it("re-sorts by item when its header is clicked", () => {
+      inbox.inboxRows$.next([
+        row({ id: "b", cipherId: "cipher-b" }),
+        row({ id: "a", cipherId: "cipher-a" }),
+      ]);
+
+      createWithFlag(true);
+
+      const itemSort = queryAll(pendingTable(), '[role="columnheader"] button').find(
+        (button) => text(button) === "pamColumnItem",
+      );
+      itemSort?.click();
+      fixture.detectChanges();
+
+      expect(pendingOrder()).toEqual(["a", "b"]);
+    });
+
+    it("offers approve then deny on each pending row, and revoke on each lease", () => {
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(true);
+
+      expect(
+        queryAll(
+          query('[data-testid="approvals-cell-actions-req-1"]') as HTMLElement,
+          "button",
+        ).map(text),
+      ).toEqual(["pamInboxApprove", "pamInboxDeny"]);
+      expect(text(query('[data-testid="approvals-revoke-lease-1"]') as HTMLElement)).toBe(
+        "pamInboxRevoke",
+      );
+    });
+
+    it("disables both decisions on the caller's own request", () => {
+      inbox.inboxRows$.next([row({ id: "mine" }, false)]);
+
+      createWithFlag(true);
+
+      expect(query('[data-testid="approvals-approve-mine"]')?.getAttribute("aria-disabled")).toBe(
+        "true",
+      );
+      expect(query('[data-testid="approvals-deny-mine"]')?.getAttribute("aria-disabled")).toBe(
+        "true",
+      );
+    });
+
+    it("opens the decide dialog from the approve and deny buttons", () => {
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
+
+      createWithFlag(true);
+
+      query('[data-testid="approvals-approve-req-1"]')?.click();
+      query('[data-testid="approvals-deny-req-1"]')?.click();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(2);
+    });
+
+    it("confirms before revoking from the revoke button", () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(true);
+
+      query('[data-testid="approvals-revoke-lease-1"]')?.click();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+    });
+
+    it("applies the toolbar filters to the v2 rows", () => {
+      inbox.inboxRows$.next([
+        row({ id: "keep" }),
+        row({ id: "drop", requesterName: "Someone", requesterEmail: undefined }),
+      ]);
+      createWithFlag(true);
+
+      component["searchControl"].setValue("grace");
+      fixture.detectChanges();
+
+      expect(pendingOrder()).toEqual(["keep"]);
+    });
+
+    it("keeps the section empty states outside the table", () => {
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      createWithFlag(true);
+
+      expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
+      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(1);
+    });
+
+    it("shows a v2 skeleton, hidden from assistive tech, once loading has run for a second", () => {
+      inbox.loading$.next(true);
+
+      createWithFlag(true);
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      const skeleton = query('[data-testid="approvals-loading"]');
+      const table = skeleton?.querySelector("bit-table-v2");
+      expect(table?.getAttribute("aria-hidden")).toBe("true");
+      expect(skeleton?.querySelector("bit-table")).toBeNull();
+      expect(queryAll(table as HTMLElement, "bit-row")).toHaveLength(5);
+      expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
+      expect(headings(table as HTMLElement)).toEqual([
+        "pamColumnItem",
+        "pamInboxRequester",
+        "pamInboxWindow",
+        "pamInboxReason",
+        "pamColumnSubmitted",
+        "pamColumnActions",
+      ]);
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
     });
   });
 });
