@@ -141,6 +141,18 @@ describe("ConsoleLogService", () => {
     );
   });
 
+  it("records a measurement finished with the default time for a fixed duration", () => {
+    const service = new ConsoleLogService(true, null, recorder);
+    const measureSpy = jest.spyOn(performance, "measure");
+
+    service.startMeasurement("group", "track", "name").finishWithDefaultTime();
+
+    expect(measureSpy).toHaveBeenCalledWith(
+      "name",
+      expect.objectContaining({ start: expect.any(Number), duration: 50 }),
+    );
+  });
+
   it("does not tee prod debug logs, which return before write", () => {
     const service = new ConsoleLogService(false, null, recorder);
 
