@@ -240,6 +240,19 @@ export class Organization {
     );
   }
 
+  /**
+   * Whether the user can assign collection access to a group. Members with the Manage Groups
+   * custom permission can only do so when collection management settings permit admin access to
+   * all collection items; users who can edit any collection outright are unaffected by that
+   * setting.
+   */
+  get canAssignAccessToAnyCollection() {
+    return (
+      this.canEditAnyCollection ||
+      (this.permissions.manageGroups && this.allowAdminAccessToAllCollectionItems)
+    );
+  }
+
   get canEditUnmanagedCollections() {
     // Any admin or custom user with editAnyCollection permission can edit unmanaged collections
     return this.isAdmin || this.permissions.editAnyCollection;
