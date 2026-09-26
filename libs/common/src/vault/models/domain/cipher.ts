@@ -495,7 +495,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       bankAccount: undefined,
       driversLicense: undefined,
       passport: undefined,
-      data: this.data,
+      // The legacy `data` field is a JSON string in the SDK type, but some sources
+      // (e.g. Vaultwarden) persist it as a deserialized object. The SDK's serde
+      // layer rejects objects where it expects a string, so normalize it here.
+      data:
+        this.data == null
+          ? undefined
+          : typeof this.data === "string"
+            ? this.data
+            : JSON.stringify(this.data),
     };
 
     switch (this.type) {
