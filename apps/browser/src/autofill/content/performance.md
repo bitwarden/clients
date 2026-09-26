@@ -162,6 +162,10 @@ For a meter named `"foo"`:
 
 - `foo:meter:autofill:bw` — a `performance.mark` at each call, with `detail` containing the registered field names mapped to the call's positional values
 
+When instrumentation is enabled, the module also emits a one-time
+`perf:enabled:autofill:bw` mark at load, before any measured code runs, so a
+consumer can confirm an instrumented build.
+
 These can be queried directly via `performance.getEntriesByName()` and `performance.getEntriesByType()`, and cleared via `performance.clearMarks()` and `performance.clearMeasures()`.
 
 ### BIT integration
