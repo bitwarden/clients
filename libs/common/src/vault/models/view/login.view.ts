@@ -5,6 +5,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { LoginLinkedId as LinkedId } from "../../enums";
 import { linkedFieldOption } from "../../linked-field-option.decorator";
+import { UriRegexMatcher } from "../../utils/uri-regex-matcher";
 import { Login } from "../domain/login";
 
 import { Fido2CredentialView } from "./fido2-credential.view";
@@ -79,6 +80,7 @@ export class LoginView extends ItemView {
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
+    regexMatcher: UriRegexMatcher,
     defaultUriMatch?: UriMatchStrategySetting,
     /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
     overrideNeverMatchStrategy?: true,
@@ -88,7 +90,13 @@ export class LoginView extends ItemView {
     }
 
     return this.uris.some((uri) =>
-      uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
+      uri.matchesUri(
+        targetUri,
+        equivalentDomains,
+        regexMatcher,
+        defaultUriMatch,
+        overrideNeverMatchStrategy,
+      ),
     );
   }
 

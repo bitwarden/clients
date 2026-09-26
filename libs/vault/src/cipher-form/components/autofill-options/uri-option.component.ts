@@ -13,12 +13,16 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
+  AbstractControl,
   ControlValueAccessor,
   FormBuilder,
+  NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
+  ValidationErrors,
+  Validator,
 } from "@angular/forms";
-import { concatMap, pairwise } from "rxjs";
+import { concatMap, map, pairwise, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -26,6 +30,11 @@ import {
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  SdkUriRegexMatcher,
+  UriRegexValidationError,
+} from "@bitwarden/common/vault/utils/uri-regex-matcher";
 import {
   DialogService,
   FormFieldModule,
@@ -37,6 +46,13 @@ import {
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
+
+/** i18n keys for why a regular expression can't be saved. */
+const regexErrorMessageKeys: Partial<Record<UriRegexValidationError, string>> = {
+  PatternTooLong: "uriRegexTooLong",
+  PatternTooComplex: "uriRegexTooComplex",
+  UnsupportedConstruct: "uriRegexUnsupported",
+};
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -53,6 +69,7 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
       useExisting: forwardRef(() => UriOptionComponent),
       multi: true,
     },
+    { provide: NG_VALIDATORS, useExisting: forwardRef(() => UriOptionComponent), multi: true },
   ],
   imports: [
     DragDropModule,
@@ -63,7 +80,7 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
     SelectModule,
   ],
 })
-export class UriOptionComponent implements ControlValueAccessor {
+export class UriOptionComponent implements ControlValueAccessor, Validator {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("uriInput")
@@ -74,8 +91,10 @@ export class UriOptionComponent implements ControlValueAccessor {
   @ViewChild("matchDetectionSelect")
   private matchDetectionSelect: SelectComponent<UriMatchStrategySetting>;
 
+  private regexMatcher?: SdkUriRegexMatcher;
+
   protected uriForm = this.formBuilder.group({
-    uri: [null as string],
+    uri: [null as string, (control: AbstractControl<string>) => this.validateRegex(control.value)],
     matchDetection: [null as UriMatchStrategySetting],
   });
 
@@ -196,6 +215,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   // NG_VALUE_ACCESSOR implementation
   private onChange: any = () => {};
   private onTouched: any = () => {};
+  private onValidatorChange = () => {};
 
   protected handleKeydown(event: KeyboardEvent) {
     this.onKeydown.emit(event);
@@ -205,7 +225,23 @@ export class UriOptionComponent implements ControlValueAccessor {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
+    sdkService: SdkService,
   ) {
+    sdkService.client$
+      .pipe(
+        take(1),
+        map((sdk) => new SdkUriRegexMatcher(sdk.vault().uri_matcher())),
+        takeUntilDestroyed(),
+      )
+      .subscribe((matcher) => {
+        this.regexMatcher = matcher;
+        this.revalidateUri();
+      });
+
+    this.uriForm.controls.matchDetection.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.revalidateUri());
+
     this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.onChange(value);
     });
@@ -265,6 +301,8 @@ export class UriOptionComponent implements ControlValueAccessor {
         },
         { emitEvent: false },
       );
+      // `setValue` validates `uri` before `matchDetection` changes.
+      this.revalidateUri();
     }
   }
 
@@ -274,6 +312,34 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
+  }
+
+  validate(): ValidationErrors | null {
+    return this.uriForm.controls.uri.errors;
+  }
+
+  registerOnValidatorChange(fn: () => void): void {
+    this.onValidatorChange = fn;
+  }
+
+  /** Rejects regular expressions the SDK won't evaluate, so they can't be saved. */
+  private validateRegex(pattern: string | null): ValidationErrors | null {
+    const strategy = this.uriForm?.controls.matchDetection.value;
+    if (strategy !== UriMatchStrategy.RegularExpression || !pattern || !this.regexMatcher) {
+      return null;
+    }
+
+    const error = this.regexMatcher.validate(pattern);
+    if (error == null) {
+      return null;
+    }
+    const key = regexErrorMessageKeys[error] ?? "uriRegexInvalid";
+    return { invalidRegex: { message: this.i18nService.t(key) } };
+  }
+
+  private revalidateUri() {
+    this.uriForm.controls.uri.updateValueAndValidity({ emitEvent: false });
+    this.onValidatorChange();
   }
 
   setDisabledState?(isDisabled: boolean): void {
