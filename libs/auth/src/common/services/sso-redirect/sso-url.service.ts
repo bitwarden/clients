@@ -23,9 +23,65 @@ export class SsoUrlService {
     email?: string,
     orgSsoIdentifier?: string,
   ): string {
-    let url =
+    return (
       webAppUrl +
-      "/#/sso?clientId=" +
+      "/#/sso?" +
+      this.buildSsoQueryParams(
+        clientType,
+        redirectUri,
+        state,
+        codeChallenge,
+        email,
+        orgSsoIdentifier,
+      )
+    );
+  }
+
+  /**
+   * Builds a URL that starts SSO via the web app's `sso-launch-connector.html` page rather than
+   * navigating the browser directly to the `/#/sso` hash route.
+   *
+   * The connector is a real path + query page, so the launch URL survives the sign-in roundtrip of
+   * a pre-authenticating reverse proxy, which can neither observe nor restore a URL fragment. Use
+   * this variant for native clients (e.g. desktop) launching the system browser against a server
+   * that sits behind such a proxy. For every other case {@link buildSsoUrl} is sufficient.
+   *
+   * The parameters are identical to {@link buildSsoUrl}; the connector forwards them verbatim to the
+   * SSO hash route once the proxy challenge has been satisfied.
+   */
+  buildSsoLaunchConnectorUrl(
+    webAppUrl: string,
+    clientType: ClientType,
+    redirectUri: string,
+    state: string,
+    codeChallenge: string,
+    email?: string,
+    orgSsoIdentifier?: string,
+  ): string {
+    return (
+      webAppUrl +
+      "/sso-launch-connector.html?" +
+      this.buildSsoQueryParams(
+        clientType,
+        redirectUri,
+        state,
+        codeChallenge,
+        email,
+        orgSsoIdentifier,
+      )
+    );
+  }
+
+  private buildSsoQueryParams(
+    clientType: ClientType,
+    redirectUri: string,
+    state: string,
+    codeChallenge: string,
+    email?: string,
+    orgSsoIdentifier?: string,
+  ): string {
+    let params =
+      "clientId=" +
       clientType +
       "&redirectUri=" +
       encodeURIComponent(redirectUri) +
@@ -35,13 +91,13 @@ export class SsoUrlService {
       codeChallenge;
 
     if (email) {
-      url += "&email=" + encodeURIComponent(email);
+      params += "&email=" + encodeURIComponent(email);
     }
 
     if (orgSsoIdentifier) {
-      url += "&identifier=" + encodeURIComponent(orgSsoIdentifier);
+      params += "&identifier=" + encodeURIComponent(orgSsoIdentifier);
     }
 
-    return url;
+    return params;
   }
 }
