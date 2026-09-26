@@ -106,6 +106,27 @@ describe("validate", () => {
     );
   });
 
+  it("rejects a glibc version that is not a version", () => {
+    expect(
+      validateArgs([
+        "--build-dir",
+        "b",
+        "--architecture",
+        "x64",
+        "--distribution-channel",
+        "deb",
+        "--glibc",
+        "oldest",
+      ]),
+    ).toEqual([expect.stringContaining("--glibc must look like 2.35")]);
+  });
+
+  it("rejects --glibc outside a Linux build", () => {
+    expect(validateArgs([...MAC_ARGS, "--glibc", "2.35"])).toEqual([
+      expect.stringContaining("--glibc is only available on linux"),
+    ]);
+  });
+
   it("rejects an unknown profile", () => {
     expect(validateArgs([...MAC_ARGS, "--profile", "fast"])).toEqual([
       expect.stringContaining("Unknown --profile 'fast'. Expected one of: debug, release."),
@@ -341,6 +362,35 @@ describe("toBuildConfig", () => {
 
     expect(config.dependencies).toEqual({ safariExtension: { path: "../../out/safari.appex" } });
     expect(config.intermediates).not.toHaveProperty("safariExtension");
+  });
+
+  it("gives Linux builds a glibc floor, and no one else one", () => {
+    const linux = toBuildConfigFromArgs([
+      "--build-dir",
+      "build-lin",
+      "--architecture",
+      "x64",
+      "--distribution-channel",
+      "deb",
+    ]);
+
+    expect(linux.linux).toEqual({ glibc: "2.35" });
+    expect(toBuildConfigFromArgs(MAC_ARGS)).not.toHaveProperty("linux");
+  });
+
+  it("takes a glibc floor from the caller", () => {
+    const config = toBuildConfigFromArgs([
+      "--build-dir",
+      "build-lin",
+      "--architecture",
+      "x64",
+      "--distribution-channel",
+      "deb",
+      "--glibc",
+      "2.31",
+    ]);
+
+    expect(config.linux).toEqual({ glibc: "2.31" });
   });
 
   it("builds with the debug profile unless asked otherwise", () => {
