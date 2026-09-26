@@ -35,7 +35,7 @@
         @if (
           supportsBiometric() &&
           form.value.biometric &&
-          isWindows &&
+          (isWindows || isLinux) &&
           (userHasMasterPassword() || (form.value.pin && userHasPinSet()))
         ) {
           <bit-form-control class="tw-ms-5">
@@ -51,7 +51,14 @@
                 {{ "requireMasterPasswordOnAppRestart" | i18n }}
               }
             </bit-label>
+            <bit-hint>{{ "requireMasterPasswordOnAppRestartDesc" | i18n }}</bit-hint>
           </bit-form-control>
+
+          @if (!form.value.requireMasterPasswordOnAppRestart) {
+            <bit-callout type="warning" [title]="null" class="tw-block tw-ms-5">
+              {{ "requireMasterPasswordOnAppRestartWarning" | i18n }}
+            </bit-callout>
+          }
         }
 
         @if (supportsBiometric() && form.value.biometric && isMac) {
