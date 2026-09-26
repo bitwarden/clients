@@ -35,12 +35,13 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
     encFileName: EncString,
     encData: EncArrayBuffer,
     admin: boolean,
-    dataEncKey: [SymmetricCryptoKey, EncString],
+    dataEncKey: [SymmetricCryptoKey, EncString] | null,
     userId: UserId,
     options?: UploadOptions,
   ): Promise<CipherResponse> {
     const request: AttachmentRequest = {
-      key: dataEncKey[1].encryptedString,
+      // A null key produces an attachment in the legacy format, encrypted with the vault key.
+      key: dataEncKey?.[1].encryptedString,
       fileName: encFileName.encryptedString,
       fileSize: encData.buffer.byteLength,
       adminRequest: admin,
