@@ -39,6 +39,7 @@ import { ImportRecordError } from "../../models/import-record-error";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
 import { keeperImportGate, shouldSubmitAfterDialog } from "./keeper-import-gate";
+import { KEEPER_REGION_OPTIONS } from "./keeper-region-options";
 import {
   PartialImportDialogComponent,
   PartialImportDialogData,
@@ -92,14 +93,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     { value: "json", label: "json" },
   ];
 
-  protected readonly regions = [
-    { value: KeeperRegion.Us, label: "US" },
-    { value: KeeperRegion.Eu, label: "EU" },
-    { value: KeeperRegion.Au, label: "AU" },
-    { value: KeeperRegion.Ca, label: "CA" },
-    { value: KeeperRegion.Jp, label: "JP" },
-    { value: KeeperRegion.UsGov, label: "US (GOV)" },
-  ];
+  protected readonly regions = KEEPER_REGION_OPTIONS;
 
   protected readonly formGroup = this.formBuilder.group(
     {

@@ -1,0 +1,302 @@
+<bit-progress-bar
+  [hideStartHint]="true"
+  [value]="progressValue()"
+  [accessibleName]="stepText()"
+  [ariaValueText]="stepText()"
+></bit-progress-bar>
+<p
+  bitTypography="helper"
+  noMargin
+  aria-hidden="true"
+  class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
+>
+  {{ stepText() }}
+</p>
+<form [formGroup]="formGroup" [bitSubmit]="submit" [allowDisabledFormSubmit]="true">
+  <bit-card-segmented>
+    <bit-card-content>
+      @if (capabilitiesPending()) {
+        <div class="tw-flex tw-justify-center tw-py-8">
+          <bit-spinner size="lg"></bit-spinner>
+        </div>
+      } @else if (primaryMode() === "direct") {
+        @if (directStep() === "intro") {
+          <h2 bitTypography="h2" noMargin>
+            {{ "importDataDirectTitle" | i18n }}
+            <span class="tw-ml-2 tw-align-middle tw-text-fg-success tw-text-xs">{{
+              "fastest" | i18n
+            }}</span>
+          </h2>
+          <p bitTypography="body1" class="tw-text-fg-body-subtle">
+            {{ "importDataDirectSubtitle" | i18n: vendorName() }}
+          </p>
+
+          <div class="tw-flex tw-gap-3 tw-mb-2">
+            <bit-icon name="bwi-lock" aria-hidden="true"></bit-icon>
+            <div>
+              <p bitTypography="body2" noMargin class="tw-font-semibold">
+                {{ "importDataSecureByDesignTitle" | i18n }}
+              </p>
+              <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
+                {{ "importDataSecureByDesignBody" | i18n: vendorName() }}
+              </p>
+            </div>
+          </div>
+          <div class="tw-flex tw-gap-3 tw-mb-2">
+            <bit-icon name="bwi-eye" aria-hidden="true"></bit-icon>
+            <div>
+              <p bitTypography="body2" noMargin class="tw-font-semibold">
+                {{ "importDataLoginInfoTitle" | i18n }}
+              </p>
+              <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
+                {{ "importDataLoginInfoBody" | i18n: vendorName() }}
+              </p>
+            </div>
+          </div>
+          <div class="tw-flex tw-gap-3">
+            <bit-icon name="bwi-download" aria-hidden="true"></bit-icon>
+            <div>
+              <p bitTypography="body2" noMargin class="tw-font-semibold">
+                {{ "importDataEverythingTransfersTitle" | i18n }}
+              </p>
+              <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
+                {{ "importDataEverythingTransfersBody" | i18n }}
+              </p>
+            </div>
+          </div>
+        } @else {
+          <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
+          <p bitTypography="body1" class="tw-text-fg-body-subtle">
+            {{ "importDataLoginSubtitle" | i18n }}
+          </p>
+
+          @if (isKeeper()) {
+            <bit-form-field>
+              <bit-label>{{ "keeperEmail" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                formControlName="keeperEmail"
+                id="importer-controls_input_keeper-email"
+              />
+            </bit-form-field>
+            <bit-form-field>
+              <bit-label>{{ "dataCenterLocation" | i18n }}</bit-label>
+              <bit-select
+                formControlName="keeperRegion"
+                id="importer-controls_select_keeper-region"
+              >
+                @for (region of keeperRegions; track region.value) {
+                  <bit-option [value]="region.value" [label]="region.label" />
+                }
+              </bit-select>
+            </bit-form-field>
+          } @else if (isLastPass()) {
+            <bit-form-field>
+              <bit-label>{{ "lastPassEmail" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                formControlName="lastPassEmail"
+                id="importer-controls_input_lastpass-email"
+              />
+            </bit-form-field>
+            <bit-form-control>
+              <input
+                bitCheckbox
+                type="checkbox"
+                formControlName="includeSharedFolders"
+                id="importer-controls_input_include-shared-folders"
+              />
+              <bit-label>{{ "includeSharedFolders" | i18n }}</bit-label>
+            </bit-form-control>
+          }
+        }
+      } @else if (primaryMode() === "chromium") {
+        <h2 bitTypography="h2" noMargin>{{ "importDataTitle" | i18n }}</h2>
+        <p bitTypography="body1" class="tw-text-fg-body-subtle">
+          {{ "importDataChromiumSubtitle" | i18n }}
+        </p>
+
+        @if (vendor().instructionKey || vendor().instructionLink) {
+          <bit-callout type="info">
+            @if (vendor().instructionKey; as key) {
+              {{ key | i18n }}
+            }
+            @if (vendor().instructionLink; as link) {
+              {{ "importHelpCenterInstructions" | i18n: vendorName() }}
+              <a
+                bitLink
+                linkType="primary"
+                target="_blank"
+                rel="noreferrer"
+                [href]="link"
+                endIcon="bwi-external-link"
+                >{{ "importHelpCenterLinkText" | i18n }}</a
+              >.
+            }
+          </bit-callout>
+        }
+
+        <bit-form-field>
+          <bit-label>{{ "profile" | i18n }}</bit-label>
+          <bit-select formControlName="profile" id="importer-controls_select_profile"> </bit-select>
+        </bit-form-field>
+      } @else {
+        <h2 bitTypography="h2" noMargin>{{ "importDataTitle" | i18n }}</h2>
+        <p bitTypography="body1" class="tw-text-fg-body-subtle">
+          {{ "importDataManualSubtitle" | i18n: vendorName() }}
+        </p>
+
+        @if (activeInstructions().instructionKey || activeInstructions().instructionLink) {
+          <bit-callout type="info">
+            @if (activeInstructions().instructionKey; as key) {
+              {{ key | i18n }}
+            }
+            @if (activeInstructions().instructionLink; as link) {
+              {{ "importHelpCenterInstructions" | i18n: vendorName() }}
+              <a
+                bitLink
+                linkType="primary"
+                target="_blank"
+                rel="noreferrer"
+                [href]="link"
+                endIcon="bwi-external-link"
+                >{{ "importHelpCenterLinkText" | i18n }}</a
+              >.
+            }
+          </bit-callout>
+        }
+
+        <bit-radio-group formControlName="method">
+          <bit-label>{{ "method" | i18n }}</bit-label>
+          <bit-radio-button class="tw-block" value="file" id="importer-controls_radio_file">
+            <bit-label>{{ "uploadFile" | i18n }}</bit-label>
+          </bit-radio-button>
+          <bit-radio-button class="tw-block" value="paste" id="importer-controls_radio_paste">
+            <bit-label>{{ "pasteAsPlainText" | i18n }}</bit-label>
+          </bit-radio-button>
+        </bit-radio-group>
+
+        @if (method() === "file") {
+          <bit-file-upload
+            formControlName="file"
+            id="importer-controls_input_file"
+            [accept]="fileAccept()"
+          >
+            <bit-label>{{ "uploadFile" | i18n }}</bit-label>
+            <bit-hint>{{ "importAcceptedFormats" | i18n: acceptedFileTypesHint() }}</bit-hint>
+          </bit-file-upload>
+        } @else {
+          <bit-form-field disableMargin>
+            <bit-label>{{ "plainText" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              formControlName="fileContents"
+              id="importer-controls_textarea_file-contents"
+            ></textarea>
+            <bit-hint>{{ "importAcceptedFormats" | i18n: pasteFormatsHint() }}</bit-hint>
+          </bit-form-field>
+        }
+
+        @if (needsFormatDisambiguation()) {
+          <bit-radio-group formControlName="formatChoice" class="tw-mt-4">
+            <bit-label>{{ "importWhichFormat" | i18n }}</bit-label>
+            @for (candidate of candidateFormats(); track candidate.id) {
+              <bit-radio-button
+                class="tw-block"
+                [value]="candidate.id"
+                [id]="'importer-controls_radio_format-' + candidate.id"
+              >
+                <bit-label>{{ candidate.name }}</bit-label>
+              </bit-radio-button>
+            }
+          </bit-radio-group>
+        }
+
+        @if (needsKdbxCredentials()) {
+          <bit-form-field>
+            <bit-label>{{ "keePassMasterPassword" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="password"
+              formControlName="kdbxPassword"
+              id="importer-controls_input_kdbx-password"
+            />
+            <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+          </bit-form-field>
+
+          @if (showKeyFile()) {
+            <bit-file-upload formControlName="keyFile" id="importer-controls_input_key-file">
+              <bit-label>{{ "keyFileUpload" | i18n }}</bit-label>
+            </bit-file-upload>
+          } @else {
+            <button
+              type="button"
+              bitLink
+              linkType="primary"
+              startIcon="bwi-plus"
+              (click)="addKeyFile()"
+              id="importer-controls_button_add-key-file"
+            >
+              {{ "addKeyFile" | i18n }}
+            </button>
+          }
+        }
+      }
+    </bit-card-content>
+
+    <bit-card-content>
+      <div class="tw-flex tw-justify-between tw-items-center">
+        @if (hasAlternate()) {
+          @if (primaryMode() === "manual") {
+            <button
+              type="button"
+              bitLink
+              linkType="primary"
+              (click)="toggleToAlternate()"
+              id="importer-controls_button_directly-import-instead"
+            >
+              {{ "directlyImportInstead" | i18n }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              bitLink
+              linkType="primary"
+              (click)="toggleToManual()"
+              id="importer-controls_button_import-manually-instead"
+            >
+              {{ "importManuallyInstead" | i18n }}
+            </button>
+          }
+        } @else {
+          <span></span>
+        }
+
+        <div class="tw-flex tw-gap-2">
+          <button
+            type="button"
+            bitButton
+            bitFormButton
+            buttonType="secondary"
+            (click)="onBack()"
+            id="importer-controls_button_back"
+          >
+            {{ "back" | i18n }}
+          </button>
+          <button
+            type="submit"
+            bitButton
+            bitFormButton
+            buttonType="primary"
+            [disabled]="capabilitiesPending()"
+            id="importer-controls_button_continue"
+          >
+            {{ "continue" | i18n }}
+          </button>
+        </div>
+      </div>
+    </bit-card-content>
+  </bit-card-segmented>
+</form>

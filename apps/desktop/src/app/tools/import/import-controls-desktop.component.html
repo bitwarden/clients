@@ -1,0 +1,10 @@
+<div class="tw-m-4 tw-p-4">
+  <app-header></app-header>
+  <div class="tw-max-w-6xl">
+    <importer-controls
+      [importType]="importType()"
+      (back)="onBack()"
+      (continue)="onContinue()"
+    ></importer-controls>
+  </div>
+</div>
