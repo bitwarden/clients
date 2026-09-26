@@ -572,6 +572,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       expect(organizationUserApiService.postOrganizationUsersPublicKey).toHaveBeenCalledWith(
         mockOrganizationId,
         [mockPendingOrgUserId],
+        mockUserId,
       );
       expect(organizationUserService.buildConfirmRequest).toHaveBeenCalledWith(
         mockOrganization,
@@ -587,6 +588,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       expect(organizationUserApiService.postBulkOrganizationUserAutoConfirm).toHaveBeenCalledWith(
         mockOrganizationId,
         expect.any(OrganizationUserBulkConfirmRequest),
+        mockUserId,
       );
 
       const calledWith = (
@@ -617,6 +619,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       expect(organizationUserApiService.postOrganizationUsersPublicKey).toHaveBeenCalledWith(
         mockOrganizationId,
         [mockPendingOrgUserId, secondOrgUserId],
+        mockUserId,
       );
       expect(organizationUserService.buildConfirmRequest).toHaveBeenCalledTimes(2);
 
