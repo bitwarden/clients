@@ -18,6 +18,9 @@
   "dependencies": {
     "@bitwarden/desktop-napi": "file:desktop_native/napi"
   },
+  "bin": {
+    "bw-task": "scripts/bw-task.mts"
+  },
   "scripts": {
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
