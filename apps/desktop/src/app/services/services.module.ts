@@ -673,6 +673,7 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       DesktopAutotypeDefaultSettingPolicy,
       LogService,
+      IpcService,
     ],
   }),
   safeProvider({

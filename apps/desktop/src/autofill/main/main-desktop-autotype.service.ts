@@ -1,8 +1,11 @@
 import { globalShortcut } from "electron";
 
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { LogService } from "@bitwarden/logging";
+import { autotypeRegisterSetEnabledHandler } from "@bitwarden/sdk-internal";
 
 import { WindowMain } from "../../main/window.main";
+import { AutotypeSetEnabledDriver } from "../ipc-drivers/autotype-set-enabled-driver";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
@@ -11,21 +14,42 @@ export class MainDesktopAutotypeService {
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
+    private ipcService: IpcService,
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
+  }
+
+  async init() {
+    // Attempt to register the Autotype SetEnabledHandler
+    try {
+      await autotypeRegisterSetEnabledHandler(
+        this.ipcService.client,
+        new AutotypeSetEnabledDriver(this, this.logService),
+      );
+    } catch (e) {
+      this.logService.error("Failed to register the Autotype set-enabled IPC handler.", e);
+    }
+  }
+
+  // Apply the requested enabled state, returning whether it was applied.
+  setAutotypeEnabled(enabled: boolean): boolean {
+    return enabled ? this.enableAutotype() : this.disableAutotype();
   }
 
   // Enabling Autotype will:
   //   - Register the keyboard shortcut, if it's not registered
   //   - Define the function that executes the Autotype when the
   //     keyboard shortcut is pressed (if the keyboard shortcut isn't registered already)
-  private enableAutotype() {
+  // Returns:
+  //   - If Autotype was enabled successfully or not
+  private enableAutotype(): boolean {
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
     if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
       this.logService.debug(
         "Autotype is already enabled with this keyboard shortcut: " + formattedKeyboardShortcut,
       );
-      return;
+
+      return true;
     }
 
     const result = globalShortcut.register(
@@ -53,11 +77,16 @@ export class MainDesktopAutotypeService {
     result
       ? this.logService.debug("Autotype enabled.")
       : this.logService.error("Failed to enable Autotype.");
+
+    return result;
   }
 
   // Disabling Autotype will:
   //   - Deregister the keyboard shortcut, if it's registered
-  disableAutotype() {
+  //
+  // Returns:
+  //   - If disabling Autotype was successful (is currently always true)
+  disableAutotype(): boolean {
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
 
     if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
@@ -66,6 +95,8 @@ export class MainDesktopAutotypeService {
     } else {
       this.logService.debug("Autotype is not registered, implicitly disabled.");
     }
+
+    return true;
   }
 
   dispose() {

@@ -366,6 +366,7 @@ export class Main {
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,
       this.windowMain,
+      this.ipcService,
     );
 
     app.on("will-quit", () => {
@@ -469,6 +470,7 @@ export class Main {
 
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
+        await this.mainDesktopAutotypeService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
