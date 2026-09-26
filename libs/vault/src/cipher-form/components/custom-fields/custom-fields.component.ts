@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
+import { CdkDragDrop, DragDropModule } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -309,10 +309,11 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Reorder the controls to match the new order after a "drop" event */
   drop(event: CdkDragDrop<HTMLDivElement>) {
-    // Alter the order of the fields array in place
-    moveItemInArray(this.fields.controls, event.previousIndex, event.currentIndex);
+    const control = this.fields.at(event.previousIndex);
+    this.fields.removeAt(event.previousIndex, { emitEvent: false });
+    this.fields.insert(event.currentIndex, control, { emitEvent: false });
 
-    this.updateCipher(this.fields.controls.map((control) => control.value));
+    this.updateCipher(this.fields.getRawValue());
   }
 
   /** Move a custom field up or down in the list order */
