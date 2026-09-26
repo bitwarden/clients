@@ -497,11 +497,22 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           ["orgMemberCount", apiUsers.data.length],
         ]),
       ),
-      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)).pipe(
-        measureFlowStep(this.logService, "Load: org collections fetched", (collections) => [
-          ["collectionCount", collections.data.length],
-        ]),
-      ),
+      collections: this.configService
+        .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+        .pipe(
+          first(),
+          switchMap((useNewEndpoint) =>
+            from(
+              useNewEndpoint
+                ? this.apiService.getManyCollectionsWithOrganizationDetails(orgId)
+                : this.apiService.getManyCollectionsWithAccessDetails(orgId),
+            ).pipe(
+              measureFlowStep(this.logService, "Load: org collections fetched", (collections) => [
+                ["collectionCount", collections.data.length],
+              ]),
+            ),
+          ),
+        ),
     });
   }
 

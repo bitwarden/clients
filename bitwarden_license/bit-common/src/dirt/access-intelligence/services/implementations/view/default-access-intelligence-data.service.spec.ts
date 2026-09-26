@@ -5,6 +5,7 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -43,6 +44,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     // Create mocks
     apiService = {
       getManyCollectionsWithAccessDetails: jest.fn().mockResolvedValue({ data: [] }),
+      getManyCollectionsWithOrganizationDetails: jest.fn().mockResolvedValue({ data: [] }),
     } as any;
 
     cipherService = {
@@ -545,6 +547,39 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       error = await firstValueFrom(service.error$);
       expect(error).toBeNull();
+    });
+  });
+
+  describe("Collection Endpoint Feature Flag", () => {
+    beforeEach(() => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of({
+          id: "report-id-123" as OrganizationReportId,
+          contentEncryptionKey: new EncString(""),
+        }),
+      );
+    });
+
+    it("should call getManyCollectionsWithAccessDetails when flag is off", async () => {
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(apiService.getManyCollectionsWithAccessDetails).toHaveBeenCalledWith(orgId);
+      expect(apiService.getManyCollectionsWithOrganizationDetails).not.toHaveBeenCalled();
+    });
+
+    it("should call getManyCollectionsWithOrganizationDetails when flag is on", async () => {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        flag === FeatureFlag.AccessIntelligencePerformanceAtScale ? of(true) : of(false),
+      );
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(apiService.getManyCollectionsWithOrganizationDetails).toHaveBeenCalledWith(orgId);
+      expect(apiService.getManyCollectionsWithAccessDetails).not.toHaveBeenCalled();
     });
   });
 
