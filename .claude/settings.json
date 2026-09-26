@@ -10,5 +10,12 @@
         "repo": "bitwarden/ai-plugins"
       }
     }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:9222/json/version)",
+      "Bash(curl -s http://localhost:9200/json/version)",
+      "Write(.debug/**)"
+    ]
   }
 }
