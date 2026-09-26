@@ -64,173 +64,83 @@ import {
 
 import { ImportType } from "../../models";
 
-/** Picker-only presentation data per vendor, keyed here (in the UI layer) rather than on
- *  `ImportOption` itself, so importing vendor metadata (`@bitwarden/importer-core`, used by the
- *  CLI) never pulls in icon assets or picker-specific copy. Only consumers that actually render
- *  `ImportSourceSelectComponent` pay for this.
- *
- *  This table is also the single source of truth for which ids the picker shows at all: an id
- *  with no entry here — a legacy duplicate (Keeper's old `keepercsv`/`keeperjson`) or a
- *  non-primary format variant of an already-represented vendor (e.g. 1Password's `1password1pif`,
- *  `1passwordwincsv`, `1passwordmaccsv` — all four accepted formats resolve to one "1Password"
- *  card) — is simply absent, not separately tracked and filtered out. `ImportOption.name` keeps
- *  every variant for the CLI and the existing format dropdown (`ImportComponent`); this table
- *  only controls the picker's one-card-per-vendor grid. */
-interface PickerVendorMetadata {
+/** Picker vendor icons, kept in their own icon-importing module — deliberately separate from
+ *  `picker-vendor-data.ts` (displayName/formats/`isPickerVendor`), so that consumers which don't
+ *  render an icon (e.g. `canActivateImportType`, wired into every client's eagerly-loaded root
+ *  routing module) can import `picker-vendor-data.ts` directly and never pull the vendor icon set
+ *  into their bundle. No re-export here in either direction — `ImportSourceSelectComponent` (the
+ *  only consumer of this module) imports both modules directly. */
+interface PickerVendorIcon {
   /** Vendor logo. Absent ids fall back to a generic icon tile in the picker. */
   icon?: BitSvg;
   /** Dark-theme variant of `icon`, for vendors whose mark is a single fixed color that would be
    *  low-contrast against a dark background (e.g. a navy wordmark meant for a light card). Only
    *  set where the vendor actually supplied one — most marks are full-color and theme-agnostic. */
   darkIcon?: BitSvg;
-  /** Clean vendor name for the picker's one-card-per-vendor grid — e.g. "Dashlane", not
-   *  `ImportOption.name`'s "Dashlane (csv)". `ImportOption.name` keeps its format/version suffix
-   *  for the CLI and the existing format dropdown.  */
-  displayName: string;
 }
 
-const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> = {
-  bitwardenjson: { icon: ImportBitwardenIcon, displayName: "Bitwarden" },
-  chromecsv: { icon: ImportChromeIcon, displayName: "Chrome" },
-  dashlanecsv: {
-    icon: ImportDashlaneIcon,
-    darkIcon: ImportDashlaneDarkIcon,
-    displayName: "Dashlane",
-  },
-  firefoxcsv: { icon: ImportFirefoxIcon, displayName: "Firefox" },
-  keepass2xml: { icon: ImportKeepassIcon, displayName: "KeePass" },
-  keepassxcsv: { icon: ImportKeepassIcon, displayName: "KeePassX" },
-  keeper: { icon: ImportKeeperIcon, displayName: "Keeper" },
-  lastpasscsv: { icon: ImportLastpassIcon, displayName: "LastPass" },
-  safaricsv: { icon: ImportSafariIcon, displayName: "Safari" },
-  "1password1pux": {
-    icon: Import1PasswordIcon,
-    darkIcon: Import1PasswordDarkIcon,
-    displayName: "1Password",
-  },
-  roboformcsv: { icon: ImportRoboformIcon, displayName: "RoboForm" },
-  enpasscsv: { icon: ImportEnpassIcon, displayName: "Enpass" },
-  protonpass: { icon: ImportProtonpassIcon, displayName: "Proton Pass" },
-  safeincloudxml: { icon: ImportSafeincloudIcon, displayName: "SafeInCloud" },
-  pwsafexml: { icon: ImportPasswordSafeIcon, displayName: "Password Safe" },
-  stickypasswordxml: { icon: ImportStickyPasswordIcon, displayName: "Sticky Password" },
-  msecurecsv: { icon: ImportMsecureIcon, displayName: "mSecure" },
-  truekeycsv: { icon: ImportTruekeyIcon, displayName: "True Key" },
-  passwordbossjson: { icon: ImportPasswordBossIcon, displayName: "Password Boss" },
-  zohovaultcsv: { icon: ImportZohoIcon, displayName: "Zoho Vault" },
-  splashidcsv: { icon: ImportSplashidIcon, displayName: "SplashID" },
-  padlockcsv: { icon: ImportPadlockIcon, displayName: "Padlock" },
-  passboltcsv: { icon: ImportPassboltIcon, displayName: "Passbolt" },
-  clipperzhtml: { icon: ImportClipperzIcon, displayName: "Clipperz" },
-  aviracsv: { icon: ImportAviraIcon, displayName: "Avira" },
-  saferpasscsv: { icon: ImportSaferpassIcon, displayName: "SaferPass" },
-  ascendocsv: { icon: ImportAscendoIcon, displayName: "Ascendo" },
-  passkeepcsv: { icon: ImportPasskeepIcon, displayName: "PassKeep" },
-  arccsv: { icon: ImportArcIcon, displayName: "Arc" },
-  edgecsv: { icon: ImportEdgeIcon, displayName: "Edge" },
-  operacsv: { icon: ImportOperaIcon, displayName: "Opera" },
-  vivaldicsv: { icon: ImportVivaldiIcon, displayName: "Vivaldi" },
-  bravecsv: { icon: ImportBraveIcon, displayName: "Brave" },
-  passwordagentcsv: { icon: ImportPasswordAgentIcon, displayName: "Password Agent" },
-  passpackcsv: {
-    icon: ImportPasspackIcon,
-    darkIcon: ImportPasspackDarkIcon,
-    displayName: "Passpack",
-  },
-  passmanjson: { icon: ImportPassmanIcon, displayName: "Passman" },
-  avastcsv: { icon: ImportAvastIcon, displayName: "Avast" },
-  fsecurefsk: { icon: ImportFSecureIcon, displayName: "F-Secure" },
-  kasperskytxt: { icon: ImportKasperskyIcon, displayName: "Kaspersky" },
-  securesafecsv: { icon: ImportSecuresafeIcon, displayName: "SecureSafe" },
-  blackberrycsv: {
-    icon: ImportBlackberryIcon,
-    darkIcon: ImportBlackberryDarkIcon,
-    displayName: "BlackBerry",
-  },
-  buttercupcsv: { icon: ImportButtercupIcon, displayName: "Buttercup" },
-  codebookcsv: { icon: ImportCodebookIcon, displayName: "Codebook" },
-  yoticsv: { icon: ImportYotiIcon, displayName: "Yoti" },
-  nordpasscsv: { icon: ImportNordpassIcon, displayName: "NordPass" },
-  psonojson: { icon: ImportPsonoIcon, displayName: "Psono" },
-  passkyjson: { icon: ImportPasskyIcon, displayName: "Passky" },
-  passwordxpcsv: { icon: ImportPasswordXpIcon, displayName: "Password XP" },
-  netwrixpasswordsecure: { icon: ImportNetwrixIcon, displayName: "Netwrix" },
-  passworddepot17xml: { icon: ImportPasswordDepotIcon, displayName: "Password Depot" },
-  delineaxml: { icon: ImportDelineaIcon, darkIcon: ImportDelineaDarkIcon, displayName: "Delinea" },
-  gnomejson: { icon: ImportGnomeIcon, displayName: "GNOME" },
-  blurcsv: { icon: ImportBlurIcon, displayName: "Blur" },
-  remembearcsv: { icon: ImportRemembearIcon, displayName: "RememBear" },
-  mykicsv: { icon: ImportMykiIcon, displayName: "Myki" },
-  encryptrcsv: { icon: ImportEncryptrIcon, displayName: "Encryptr" },
-
-  // No vendor art supplied for these — generic icon tile, vendor-only name still required.
-  passworddragonxml: { displayName: "Password Dragon" },
-  upmcsv: { displayName: "Universal Password Manager" },
-  meldiumcsv: { displayName: "Meldium" },
-  passwordwallettxt: { displayName: "PasswordWallet" },
-  logmeoncecsv: { displayName: "LogMeOnce" },
+const PICKER_VENDOR_ICONS: Partial<Record<ImportType, PickerVendorIcon>> = {
+  bitwardenjson: { icon: ImportBitwardenIcon },
+  chromecsv: { icon: ImportChromeIcon },
+  dashlanecsv: { icon: ImportDashlaneIcon, darkIcon: ImportDashlaneDarkIcon },
+  firefoxcsv: { icon: ImportFirefoxIcon },
+  keepass2xml: { icon: ImportKeepassIcon },
+  keepassxcsv: { icon: ImportKeepassIcon },
+  keeper: { icon: ImportKeeperIcon },
+  lastpasscsv: { icon: ImportLastpassIcon },
+  safaricsv: { icon: ImportSafariIcon },
+  "1password1pux": { icon: Import1PasswordIcon, darkIcon: Import1PasswordDarkIcon },
+  roboformcsv: { icon: ImportRoboformIcon },
+  enpasscsv: { icon: ImportEnpassIcon },
+  protonpass: { icon: ImportProtonpassIcon },
+  safeincloudxml: { icon: ImportSafeincloudIcon },
+  pwsafexml: { icon: ImportPasswordSafeIcon },
+  stickypasswordxml: { icon: ImportStickyPasswordIcon },
+  msecurecsv: { icon: ImportMsecureIcon },
+  truekeycsv: { icon: ImportTruekeyIcon },
+  passwordbossjson: { icon: ImportPasswordBossIcon },
+  zohovaultcsv: { icon: ImportZohoIcon },
+  splashidcsv: { icon: ImportSplashidIcon },
+  padlockcsv: { icon: ImportPadlockIcon },
+  passboltcsv: { icon: ImportPassboltIcon },
+  clipperzhtml: { icon: ImportClipperzIcon },
+  aviracsv: { icon: ImportAviraIcon },
+  saferpasscsv: { icon: ImportSaferpassIcon },
+  ascendocsv: { icon: ImportAscendoIcon },
+  passkeepcsv: { icon: ImportPasskeepIcon },
+  arccsv: { icon: ImportArcIcon },
+  edgecsv: { icon: ImportEdgeIcon },
+  operacsv: { icon: ImportOperaIcon },
+  vivaldicsv: { icon: ImportVivaldiIcon },
+  bravecsv: { icon: ImportBraveIcon },
+  passwordagentcsv: { icon: ImportPasswordAgentIcon },
+  passpackcsv: { icon: ImportPasspackIcon, darkIcon: ImportPasspackDarkIcon },
+  passmanjson: { icon: ImportPassmanIcon },
+  avastcsv: { icon: ImportAvastIcon },
+  fsecurefsk: { icon: ImportFSecureIcon },
+  kasperskytxt: { icon: ImportKasperskyIcon },
+  securesafecsv: { icon: ImportSecuresafeIcon },
+  blackberrycsv: { icon: ImportBlackberryIcon, darkIcon: ImportBlackberryDarkIcon },
+  buttercupcsv: { icon: ImportButtercupIcon },
+  codebookcsv: { icon: ImportCodebookIcon },
+  yoticsv: { icon: ImportYotiIcon },
+  nordpasscsv: { icon: ImportNordpassIcon },
+  psonojson: { icon: ImportPsonoIcon },
+  passkyjson: { icon: ImportPasskyIcon },
+  passwordxpcsv: { icon: ImportPasswordXpIcon },
+  netwrixpasswordsecure: { icon: ImportNetwrixIcon },
+  passworddepot17xml: { icon: ImportPasswordDepotIcon },
+  delineaxml: { icon: ImportDelineaIcon, darkIcon: ImportDelineaDarkIcon },
+  gnomejson: { icon: ImportGnomeIcon },
+  blurcsv: { icon: ImportBlurIcon },
+  remembearcsv: { icon: ImportRemembearIcon },
+  mykicsv: { icon: ImportMykiIcon },
+  encryptrcsv: { icon: ImportEncryptrIcon },
+  // No vendor art supplied for: passworddragonxml, upmcsv, meldiumcsv, passwordwallettxt,
+  // logmeoncecsv — generic icon tile in the picker.
 };
 
 export function pickerIconFor(id: string, isDark: boolean): BitSvg | undefined {
-  const metadata = PICKER_VENDOR_METADATA[id as ImportType];
-  return (isDark ? metadata?.darkIcon : undefined) ?? metadata?.icon;
-}
-
-/** Only ever called for ids the caller has already confirmed with `isPickerVendor` — the picker
- *  never has a card to put a raw `ImportOption.name` fallback on in the first place. */
-export function pickerDisplayNameFor(id: string): string {
-  return PICKER_VENDOR_METADATA[id as ImportType]!.displayName;
-}
-
-/** Whether `ImportSourceSelectComponent`'s grid shows a card for this id at all. Every vendor the
- *  picker displays has an entry in `PICKER_VENDOR_METADATA`; ids with none — legacy duplicates,
- *  non-primary format variants — are simply absent from it, not separately tracked as hidden. */
-export function isPickerVendor(id: string): boolean {
-  return id in PICKER_VENDOR_METADATA;
-}
-
-/** Display order for the Browsers section */
-export const PICKER_BROWSER_ORDER: readonly ImportType[] = [
-  "chromecsv",
-  "safaricsv",
-  "firefoxcsv",
-  "edgecsv",
-  "bravecsv",
-  "operacsv",
-  "vivaldicsv",
-  "arccsv",
-];
-
-/** Display order for the featured Password managers section */
-export const PICKER_FEATURED_PASSWORD_MANAGER_ORDER: readonly ImportType[] = [
-  "1password1pux",
-  "dashlanecsv",
-  "keepass2xml",
-  "keeper",
-  "lastpasscsv",
-  "protonpass",
-  "nordpasscsv",
-  "roboformcsv",
-];
-
-/** Whether `id` is one of the 8 featured password managers shown by default in the source-select
- *  grid, ahead of the "Show all" disclosure. Derived from `PICKER_FEATURED_PASSWORD_MANAGER_ORDER`
- *  rather than tracked as a second, separately-maintained flag — a vendor's featured status and
- *  its position in that list are the same fact. */
-export function isFeaturedPasswordManager(id: string): boolean {
-  return (PICKER_FEATURED_PASSWORD_MANAGER_ORDER as readonly string[]).includes(id);
-}
-
-/** Sorts `ids` by their position in `order`; anything absent from `order` sorts after everything
- *  present, in its original relative order. Used to pin the Browsers/featured Password managers
- *  sections to the design's order instead of `ImportOption`'s declaration order in the
- *  CLI-shared data file, which carries no intentional display sequence. */
-export function sortByPickerOrder<T extends { id: string }>(
-  items: readonly T[],
-  order: readonly ImportType[],
-): T[] {
-  const rank = new Map<string, number>(order.map((id, index) => [id, index]));
-  return [...items].sort(
-    (a, b) => (rank.get(a.id) ?? order.length) - (rank.get(b.id) ?? order.length),
-  );
+  const icons = PICKER_VENDOR_ICONS[id as ImportType];
+  return (isDark ? icons?.darkIcon : undefined) ?? icons?.icon;
 }

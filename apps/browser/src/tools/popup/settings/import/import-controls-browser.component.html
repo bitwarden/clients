@@ -1,0 +1,19 @@
+<popup-page disablePadding>
+  <div class="tw-min-h-full tw-bg-bg-primary">
+    <bit-svg
+      [content]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+      class="tw-mb-2 tw-block tw-w-40 tw-pl-4 tw-pt-4"
+    ></bit-svg>
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4 tw-py-0">
+      <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
+    </div>
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4">
+      <importer-controls
+        [importType]="importType()"
+        (back)="onBack()"
+        (continue)="onContinue()"
+      ></importer-controls>
+    </div>
+  </div>
+</popup-page>

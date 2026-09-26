@@ -35,15 +35,15 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ImportOption, importOptions, ImportType } from "../../models";
 
+import { pickerIconFor } from "./import-source-picker-metadata";
 import {
   isFeaturedPasswordManager,
   isPickerVendor,
   pickerDisplayNameFor,
-  pickerIconFor,
   PICKER_BROWSER_ORDER,
   PICKER_FEATURED_PASSWORD_MANAGER_ORDER,
   sortByPickerOrder,
-} from "./import-source-picker-metadata";
+} from "./picker-vendor-data";
 
 @Component({
   selector: "importer-source-select",
@@ -72,7 +72,7 @@ export class ImportSourceSelectComponent {
   private readonly themingService = inject(AbstractThemingService);
 
   /** A handful of vendor marks are a single fixed color and need a swapped variant against a dark
-   *  background — see `PickerVendorMetadata.darkIcon`. */
+   *  background — see `PickerVendorIcon.darkIcon`. */
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
     { initialValue: false },
