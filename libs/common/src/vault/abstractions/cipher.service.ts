@@ -18,6 +18,7 @@ import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
+import { UriRegexMatcher } from "../utils/uri-regex-matcher";
 
 export type EncryptionContext = {
   cipher: Cipher;
@@ -97,6 +98,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     /** When true, will override the match strategy for the cipher if it is Never. */
     overrideNeverMatchStrategy?: true,
   ): Promise<C[]>;
+  /**
+   * Returns a matcher for `RegularExpression` URI rules. If the SDK is unavailable, those rules
+   * never match.
+   */
+  abstract getUriRegexMatcher(): Promise<UriRegexMatcher>;
   abstract getAllFromApiForOrganization(
     organizationId: string,
     includeMemberItems?: boolean,

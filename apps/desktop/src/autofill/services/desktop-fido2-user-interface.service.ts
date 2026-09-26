@@ -563,12 +563,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       this.domainSettingsService.getUrlEquivalentDomains(rpId),
     );
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const regexMatcher = await this.cipherService.getUriRegexMatcher();
 
     return ciphers.filter(
       (cipher) =>
         cipher != null &&
         cipher.type === CipherType.Login &&
-        (cipher.login?.matchesUri(rpId, equivalentDomains) ||
+        (cipher.login?.matchesUri(rpId, equivalentDomains, regexMatcher) ||
           cipher.login?.fido2Credentials?.some((cred) => cred.rpId === rpId)) &&
         Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
         !cipher.deletedDate,
