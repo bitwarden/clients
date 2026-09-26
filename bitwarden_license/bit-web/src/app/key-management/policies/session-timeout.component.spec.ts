@@ -36,6 +36,7 @@ class MockDialogRef extends DialogRef {
   componentInstance: unknown | null;
   disableClose: boolean | undefined;
   isDrawer: boolean = false;
+  isBottomSheet: boolean = false;
 }
 
 describe("SessionTimeoutPolicyComponent", () => {
