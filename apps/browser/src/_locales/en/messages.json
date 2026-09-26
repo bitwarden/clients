@@ -3675,14 +3675,14 @@
     "message": "Copy Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Remove Password"
+  "removeAuth": {
+    "message": "Remove Password or Email Verification"
   },
   "delete": {
     "message": "Delete"
   },
-  "removedPassword": {
-    "message": "Password removed"
+  "removedAuth": {
+    "message": "Password or email verification removed"
   },
   "deletedSend": {
     "message": "Send deleted",
@@ -3695,8 +3695,8 @@
   "disabled": {
     "message": "Disabled"
   },
-  "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
   },
   "deleteSend": {
     "message": "Delete Send",

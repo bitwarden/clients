@@ -17,14 +17,28 @@ export abstract class SendApiService {
     apiUrl?: string,
   ): Promise<SendAccessResponse>;
   abstract getSends(): Promise<ListResponse<SendResponse>>;
-  abstract putSendRemovePassword(id: string): Promise<SendResponse>;
+  /**
+   * Removes all authentication from a send — a password or an email-verification
+   * requirement — and returns the updated wire-encrypted send.
+   *
+   * The route is still `PUT /sends/{id}/remove-password` for compatibility, but the server
+   * collapsed the password-only behavior into remove-all-auth (PM-31497), so the name here
+   * reflects what it actually does.
+   *
+   * @remarks Prefer {@link removeAuth}, which also refreshes local send state.
+   */
+  abstract putSendRemoveAuth(id: string): Promise<SendResponse>;
   abstract deleteSend(id: string): Promise<any>;
   abstract getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse>;
-  abstract removePassword(id: string): Promise<any>;
+  /**
+   * Removes all authentication from a send — a password or an email-verification
+   * requirement — and updates local send state with the result.
+   */
+  abstract removeAuth(id: string): Promise<any>;
   abstract delete(id: string): Promise<any>;
   /**
    * Persists a send.
