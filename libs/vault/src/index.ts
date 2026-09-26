@@ -124,6 +124,7 @@ export {
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
 export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
+export { CIPHER_VIEW_FOOTER_ACTIONS } from "./tokens/cipher-view-footer-actions.token";
 export { GATED_CIPHER_RELOADER } from "./tokens/gated-cipher-reloader.token";
 export { ITEM_DETAILS_STATE_BADGE } from "./tokens/item-details-state-badge.token";
 export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";

@@ -37,6 +37,7 @@ import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service"
 import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
+import { CipherViewFooterActionsComponent } from "../cipher-view-footer-actions/cipher-view-footer-actions.component";
 import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item-details-state-badge.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import {
@@ -146,7 +147,11 @@ function provideStoryCipherView() {
  */
 function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
-    imports: [CipherViewBannerComponent, ItemDetailsStateBadgeComponent],
+    imports: [
+      CipherViewBannerComponent,
+      ItemDetailsStateBadgeComponent,
+      CipherViewFooterActionsComponent,
+    ],
     providers: [
       { provide: CIPHER_VIEW_BANNER, useValue: CipherViewBannerComponent },
       { provide: ITEM_DETAILS_STATE_BADGE, useValue: ItemDetailsStateBadgeComponent },
@@ -200,9 +205,21 @@ export default {
 
 type Story = StoryObj<CipherViewComponent>;
 
-/** The resting state: the "Privileged" badge on the name row, the access card under the identity. */
+/**
+ * The resting state: the "Privileged" badge on the name row, the access card under the identity,
+ * and the footer actions below it standing in for the dialog footer that hosts them.
+ */
 export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <app-cipher-view [cipher]="cipher"></app-cipher-view>
+      <div class="tw-mt-4 tw-flex tw-items-center tw-gap-2">
+        <app-pam-cipher-view-footer-actions [cipher]="cipher"></app-pam-cipher-view-footer-actions>
+      </div>
+    `,
+  }),
 };
 
 function pendingState() {

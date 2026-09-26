@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+import { CommonModule, NgComponentOutlet } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -8,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   Optional,
+  Type,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -68,6 +69,7 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+import { CIPHER_VIEW_FOOTER_ACTIONS } from "../tokens/cipher-view-footer-actions.token";
 import { GATED_CIPHER_RELOADER, GatedCipherReloader } from "../tokens/gated-cipher-reloader.token";
 import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
@@ -139,6 +141,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CipherViewComponent,
     DialogModule,
     CommonModule,
+    NgComponentOutlet,
     CipherFormModule,
     AsyncActionsModule,
     ChipActionComponent,
@@ -366,6 +369,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     @Optional()
     @Inject(GATED_CIPHER_RELOADER)
     private gatedCipherReloader: GatedCipherReloader | null,
+    /**
+     * Optional host-provided footer actions rendered in the dialog footer, bottom left. Only a
+     * host surfacing a privileged-access feature provides one; elsewhere this is null and the
+     * footer renders unchanged. See {@link CIPHER_VIEW_FOOTER_ACTIONS}.
+     */
+    @Optional()
+    @Inject(CIPHER_VIEW_FOOTER_ACTIONS)
+    protected footerActionsComponent: Type<unknown> | null,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$

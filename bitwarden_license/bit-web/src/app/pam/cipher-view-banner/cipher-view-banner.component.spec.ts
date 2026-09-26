@@ -33,6 +33,8 @@ import { DefaultAccessRefreshService } from "../services/default-access-refresh.
 import { MyLeasesService } from "../services/my-leases.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
+import type { RequestAccessFooterActions } from "./request-access-footer.bridge";
+import { RequestAccessFooterBridge } from "./request-access-footer.bridge";
 import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
 
 /**
@@ -177,6 +179,16 @@ describe("CipherViewBannerComponent", () => {
 
   function queryAll(selector: string): HTMLElement[] {
     return Array.from(fixture.nativeElement.querySelectorAll(selector)) as HTMLElement[];
+  }
+
+  /** The handle this component published for the footer, or null if none is currently published. */
+  function footerActions(): RequestAccessFooterActions | null {
+    return TestBed.inject(RequestAccessFooterBridge).actions();
+  }
+
+  /** The fold-out `role="group"` element itself — what focus lands on when the form opens. */
+  function foldOut(): HTMLElement | null {
+    return query('[role="group"]');
   }
 
   /**
@@ -427,11 +439,13 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("state rendering", () => {
-    it("offers Request access for a gated cipher with nothing in play", async () => {
+    it("offers Request access for a gated cipher with nothing in play, publishing a visible handle for the footer", async () => {
       await create(gatedCipher());
 
       expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(footerActions()?.cipherId).toBe("cipher-1");
+      expect(footerActions()?.visible()).toBe(true);
+      expect(footerActions()?.expanded()).toBe(false);
       expect(text()).toContain("pamRequestAccessBannerHeading");
       expect(text()).toContain("pamRequestAccessBannerBody");
     });
@@ -805,6 +819,109 @@ describe("CipherViewBannerComponent", () => {
     );
   });
 
+  describe("the request-access footer bridge", () => {
+    // The shared `gatedCipher()` leaves organizationId unset; the licensing case below needs one
+    // to resolve against `organizations$`.
+    function orgGatedCipher(overrides: Partial<CipherView> = {}): CipherView {
+      return gatedCipher({ organizationId: ORGANIZATION_ID, ...overrides });
+    }
+
+    it("publishes a handle for the open cipher", async () => {
+      await create(gatedCipher());
+
+      expect(footerActions()?.cipherId).toBe("cipher-1");
+    });
+
+    it("withdraws the handle on destroy", async () => {
+      await create(gatedCipher());
+      expect(footerActions()).not.toBeNull();
+
+      fixture.destroy();
+
+      expect(footerActions()).toBeNull();
+    });
+
+    it("publishes visible() false while the unlicensed block is showing", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+
+      await create(orgGatedCipher());
+
+      expect(footerActions()?.visible()).toBe(false);
+    });
+
+    it("publishes visible() false while the active-lease card is showing", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(accessState({ activeLease: leaseView() }));
+
+      await create(orgGatedCipher());
+
+      expect(footerActions()?.visible()).toBe(false);
+    });
+
+    it("publishes visible() false while the approved-request card is showing", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+
+      await create(orgGatedCipher());
+
+      expect(footerActions()?.visible()).toBe(false);
+    });
+
+    it("publishes visible() false while the pending-request card is showing", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+
+      await create(orgGatedCipher());
+
+      expect(footerActions()?.visible()).toBe(false);
+    });
+
+    it("publishes submittable() false while the pre-check is still running", async () => {
+      await create(gatedCipher());
+
+      let resolvePreCheck!: (value: AccessPreCheckView) => void;
+      requestsApi.preCheck.mockReturnValueOnce(
+        new Promise<AccessPreCheckView>((resolve) => (resolvePreCheck = resolve)),
+      );
+
+      const opened = component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(footerActions()?.submittable()).toBe(false);
+
+      resolvePreCheck(preCheck({ approvalMode: "automatic" }));
+      await opened;
+      fixture.detectChanges();
+
+      expect(footerActions()?.submittable()).toBe(true);
+    });
+
+    it("publishes submittable() false when the pre-check comes back without a form to submit", async () => {
+      requestsApi.preCheck.mockRejectedValue(new Error("boom"));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(footerActions()?.submittable()).toBe(false);
+    });
+
+    it("tracks the fold-out through expanded()", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+      expect(footerActions()?.expanded()).toBe(false);
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      expect(footerActions()?.expanded()).toBe(true);
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      expect(footerActions()?.expanded()).toBe(false);
+    });
+  });
+
   describe("the rule's terms, before the form is opened", () => {
     const MAX_DURATION = '[data-testid="cipher-view-banner-max-duration"]';
 
@@ -875,54 +992,50 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_input_date")).toBeNull();
     });
 
-    it("moves Cancel down beside Request access once the form is open", async () => {
+    it("publishes an expanded, submittable footer handle once the form is open", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
       await component["toggleRequestForm"]();
       fixture.detectChanges();
 
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
-      const cancel = query("#pam-cipher-view-banner_button_request-cancel");
-      expect(cancel).not.toBeNull();
-      expect(cancel?.closest("div")).toBe(
-        query("#pam-cipher-view-banner_button_request-submit")?.closest("div"),
-      );
+      expect(footerActions()?.expanded()).toBe(true);
+      expect(footerActions()?.submittable()).toBe(true);
     });
 
-    it("collapses the form from the Cancel beside Request access", async () => {
+    it("collapses the form when the footer's published toggle is invoked again", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
       await component["toggleRequestForm"]();
       fixture.detectChanges();
 
-      query("#pam-cipher-view-banner_button_request-cancel")?.click();
+      await footerActions()!.toggle();
       fixture.detectChanges();
 
       expect(component["requestFormExpanded"]()).toBe(false);
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_request-cancel")).toBeNull();
+      expect(footerActions()?.expanded()).toBe(false);
+      expect(foldOut()).toBeNull();
     });
 
-    it("still offers Cancel when the pre-check leaves the fold-out without a form", async () => {
+    it("still allows collapsing, through the published handle, when the pre-check leaves the fold-out without a form", async () => {
       requestsApi.preCheck.mockRejectedValue(new Error("boom"));
       await create(gatedCipher());
 
       await component["toggleRequestForm"]();
       fixture.detectChanges();
 
-      expect(query("#pam-cipher-view-banner_button_request-submit")).toBeNull();
+      expect(footerActions()?.submittable()).toBe(false);
       expect(query('[data-testid="request-error"]')).not.toBeNull();
 
-      query("#pam-cipher-view-banner_button_request-cancel")?.click();
+      await footerActions()!.toggle();
       fixture.detectChanges();
 
       expect(component["requestFormExpanded"]()).toBe(false);
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(footerActions()?.visible()).toBe(true);
     });
 
-    it("moves focus into the fold-out when opening unmounts the toggle", async () => {
+    it("moves focus into the fold-out when the form opens", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
@@ -931,26 +1044,13 @@ describe("CipherViewBannerComponent", () => {
 
       const focused = document.activeElement as HTMLElement | null;
       expect(focused).not.toBe(document.body);
-      expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
+      expect(focused).toBe(foldOut());
       // Announceable only if the element it lands on has its own name.
       expect(focused?.getAttribute("role")).toBe("group");
       expect(focused?.getAttribute("aria-label")?.trim()).toBe("pamRequestAccessButton");
     });
 
-    it("returns focus to the toggle when Cancel unmounts itself", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
-      await create(gatedCipher());
-
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-
-      query("#pam-cipher-view-banner_button_request-cancel")?.click();
-      fixture.detectChanges();
-
-      expect(document.activeElement).toBe(query("#pam-cipher-view-banner_button_request-toggle"));
-    });
-
-    it("leaves focus where it is when the toggle remounts on its own", async () => {
+    it("leaves focus where it is across a state change, whatever the handle's visibility does", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
@@ -962,13 +1062,14 @@ describe("CipherViewBannerComponent", () => {
       document.body.appendChild(elsewhere);
       elsewhere.focus();
 
-      // The request is approved and started, so the resting card and its toggle unmount...
+      // The request is approved and started, so the resting card unmounts and the handle stops
+      // being visible...
       await refreshTo(accessState({ activeLease: leaseView() }));
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      expect(footerActions()?.visible()).toBe(false);
 
-      // The lapsing lease brings both back, with the requester editing elsewhere.
+      // The lapsing lease brings it back, with the requester editing elsewhere.
       await refreshTo(accessState());
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(footerActions()?.visible()).toBe(true);
 
       expect(document.activeElement).toBe(elsewhere);
       elsewhere.remove();
@@ -990,7 +1091,7 @@ describe("CipherViewBannerComponent", () => {
 
       const focused = document.activeElement as HTMLElement | null;
       expect(focused).not.toBe(document.body);
-      expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
+      expect(focused).toBe(foldOut());
     });
 
     it("drops a toggle's pending focus when the card unmounts before either target renders", async () => {
@@ -1009,7 +1110,8 @@ describe("CipherViewBannerComponent", () => {
       elsewhere.focus();
 
       await refreshTo(accessState());
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+      expect(footerActions()?.visible()).toBe(true);
 
       expect(document.activeElement).toBe(elsewhere);
       elsewhere.remove();
@@ -1020,7 +1122,8 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await component["toggleRequestForm"]();
       fixture.detectChanges();
-      expect(query("#pam-cipher-view-banner_button_request-submit")).not.toBeNull();
+      expect(foldOut()).not.toBeNull();
+      expect(footerActions()?.expanded()).toBe(true);
 
       await refreshTo(accessState({ activeLease: leaseView() }));
       expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
@@ -1028,8 +1131,9 @@ describe("CipherViewBannerComponent", () => {
       await refreshTo(accessState());
 
       expect(component["requestFormExpanded"]()).toBe(false);
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_request-submit")).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+      expect(foldOut()).toBeNull();
+      expect(footerActions()?.expanded()).toBe(false);
     });
 
     it("shapes the form from the pre-check's human path and seeds the window", async () => {
@@ -1324,9 +1428,7 @@ describe("CipherViewBannerComponent", () => {
 
         // An approved request is still worth holding: it can be started the moment the slot frees.
         expect(query("#pam-cipher-view-banner_select_duration")).not.toBeNull();
-        const submit = query("#pam-cipher-view-banner_button_request-submit");
-        expect(submit).not.toBeNull();
-        expect(submit?.hasAttribute("disabled")).toBe(false);
+        expect(footerActions()?.submittable()).toBe(true);
       });
 
       it("stays quiet on the human path, whose window is not now", async () => {
