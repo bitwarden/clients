@@ -37,7 +37,7 @@ import { ConfigService } from "../../platform/abstractions/config/config.service
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
-import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { MessageSender } from "../../platform/messaging";
 import Domain from "../../platform/models/domain/domain-base";
@@ -77,6 +77,7 @@ import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 import { hydrateCiphersWithLocalData } from "../utils/hydrate-ciphers-with-local-data";
+import { NO_REGEX_MATCHES, SdkUriRegexMatcher, UriRegexMatcher } from "../utils/uri-regex-matcher";
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
@@ -130,6 +131,7 @@ export class CipherService implements CipherServiceAbstraction {
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
     private cipherSdkService: CipherSdkService,
+    private sdkService: SdkService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -510,6 +512,7 @@ export class CipherService implements CipherServiceAbstraction {
     defaultMatch ??= await firstValueFrom(
       this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
+    const regexMatcher = await this.getPrimedUriRegexMatcher(ciphers, url, defaultMatch);
 
     return ciphers.filter((cipher) => {
       const type = CipherViewLikeUtils.getType(cipher);
@@ -533,6 +536,7 @@ export class CipherService implements CipherServiceAbstraction {
           cipher,
           url,
           equivalentDomains,
+          regexMatcher,
           defaultMatch,
           overrideNeverMatchStrategy,
         );
@@ -540,6 +544,41 @@ export class CipherService implements CipherServiceAbstraction {
 
       return false;
     });
+  }
+
+  async getUriRegexMatcher(): Promise<UriRegexMatcher> {
+    return (await this.createSdkUriRegexMatcher()) ?? NO_REGEX_MATCHES;
+  }
+
+  /** Evaluates every regular-expression URI in one SDK call; skips the SDK when there are none. */
+  private async getPrimedUriRegexMatcher(
+    ciphers: CipherViewLike[],
+    url: string,
+    defaultMatch: UriMatchStrategySetting,
+  ): Promise<UriRegexMatcher> {
+    const patterns = ciphers
+      .filter((c) => !CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isArchived(c))
+      .flatMap((c) => CipherViewLikeUtils.getRegexUriPatterns(c, defaultMatch));
+    if (url == null || patterns.length === 0) {
+      return NO_REGEX_MATCHES;
+    }
+
+    const matcher = await this.createSdkUriRegexMatcher();
+    if (matcher == null) {
+      return NO_REGEX_MATCHES;
+    }
+    matcher.prime(patterns, url);
+    return matcher;
+  }
+
+  private async createSdkUriRegexMatcher(): Promise<SdkUriRegexMatcher | undefined> {
+    try {
+      return await SdkUriRegexMatcher.create(this.sdkService);
+    } catch {
+      // The error isn't logged in case it carries vault data.
+      this.logService.error("SDK unavailable; regular expression URIs will not match.");
+      return undefined;
+    }
   }
 
   private async getAllDecryptedCiphersOfType(

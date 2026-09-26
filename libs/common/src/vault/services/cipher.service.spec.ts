@@ -1,5 +1,14 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwError } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  defer,
+  filter,
+  firstValueFrom,
+  map,
+  of,
+  throwError,
+} from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -13,7 +22,7 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { MessageSender } from "@bitwarden/messaging";
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -22,10 +31,11 @@ import { ApiService } from "../../abstractions/api.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag, FeatureFlagValueType } from "../../enums/feature-flag.enum";
-import { UriMatchStrategy } from "../../models/domain/domain-service";
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
 import { ContainerService } from "../../platform/services/container.service";
@@ -47,6 +57,8 @@ import { CipherRequest } from "../models/request/cipher.request";
 import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
+import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
 import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
@@ -114,6 +126,7 @@ describe("Cipher Service", () => {
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
   const cipherSdkService = mock<CipherSdkService>();
+  const sdkService = mock<SdkService>();
 
   const userId = "TestUserId" as UserId;
   const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
@@ -182,6 +195,7 @@ describe("Cipher Service", () => {
       cipherEncryptionService,
       messageSender,
       cipherSdkService,
+      sdkService,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };
@@ -189,6 +203,87 @@ describe("Cipher Service", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  describe("filterCiphersForUrl", () => {
+    const url = "https://www.example.com/login";
+    const uriMatcher = { matches: jest.fn(), matches_batch: jest.fn(), validate: jest.fn() };
+
+    const loginCipher = (uri: string, match: UriMatchStrategySetting) => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      const loginUri = new LoginUriView();
+      loginUri.uri = uri;
+      loginUri.match = match;
+      cipher.login.uris = [loginUri];
+      return cipher;
+    };
+
+    beforeEach(() => {
+      domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
+      sdkService.client$ = of({
+        vault: () => ({ uri_matcher: () => uriMatcher }),
+      } as unknown as PasswordManagerClient);
+    });
+
+    it("does not load the SDK when no cipher has a regular expression URI", async () => {
+      const loadSdk = jest.fn(() => of({} as PasswordManagerClient));
+      sdkService.client$ = defer(loadSdk);
+      const ciphers = [loginCipher("example.com", UriMatchStrategy.Domain)];
+
+      const result = await cipherService.filterCiphersForUrl(
+        ciphers,
+        url,
+        undefined,
+        UriMatchStrategy.Domain,
+      );
+
+      expect(result).toEqual(ciphers);
+      expect(loadSdk).not.toHaveBeenCalled();
+    });
+
+    it("evaluates every regular expression URI in one SDK call", async () => {
+      const matching = loginCipher(
+        "^https://www\\.example\\.com/",
+        UriMatchStrategy.RegularExpression,
+      );
+      const notMatching = loginCipher("^https://other\\.com/", UriMatchStrategy.RegularExpression);
+      uriMatcher.matches_batch.mockReturnValue([true, false]);
+
+      const result = await cipherService.filterCiphersForUrl(
+        [matching, notMatching],
+        url,
+        undefined,
+        UriMatchStrategy.Domain,
+      );
+
+      expect(result).toEqual([matching]);
+      expect(uriMatcher.matches_batch).toHaveBeenCalledTimes(1);
+      expect(uriMatcher.matches_batch).toHaveBeenCalledWith(
+        ["^https://www\\.example\\.com/", "^https://other\\.com/"],
+        url,
+      );
+      expect(uriMatcher.matches).not.toHaveBeenCalled();
+    });
+
+    it("does not match regular expression URIs when the SDK is unavailable", async () => {
+      sdkService.client$ = throwError(() => new Error("sdk failed"));
+      const regexCipher = loginCipher(".*", UriMatchStrategy.RegularExpression);
+      const domainCipher = loginCipher("example.com", UriMatchStrategy.Domain);
+
+      const result = await cipherService.filterCiphersForUrl(
+        [regexCipher, domainCipher],
+        url,
+        undefined,
+        UriMatchStrategy.Domain,
+      );
+
+      expect(result).toEqual([domainCipher]);
+      expect(logService.error).toHaveBeenCalledWith(
+        "SDK unavailable; regular expression URIs will not match.",
+      );
+    });
   });
 
   describe("saveAttachmentRawWithServer()", () => {

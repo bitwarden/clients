@@ -4,15 +4,23 @@ import { of } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 import { UriOptionComponent } from "./uri-option.component";
 
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  isUriMatcherError: (error: unknown) => (error as Error)?.name === "UriMatcherError",
+}));
+
 describe("UriOptionComponent", () => {
   let component: UriOptionComponent;
+  const uriMatcher = { matches: jest.fn(), matches_batch: jest.fn(), validate: jest.fn() };
   let fixture: ComponentFixture<UriOptionComponent>;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let dialogRefMock: jest.Mocked<DialogRef<boolean>>;
@@ -50,6 +58,14 @@ describe("UriOptionComponent", () => {
           provide: I18nService,
           useValue: { t: (...keys: string[]) => keys.filter(Boolean).join(" ") },
         },
+        {
+          provide: SdkService,
+          useValue: {
+            client$: of({
+              vault: () => ({ uri_matcher: () => uriMatcher }),
+            } as unknown as PasswordManagerClient),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -66,6 +82,73 @@ describe("UriOptionComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("regular expression validation", () => {
+    beforeEach(() => {
+      uriMatcher.validate.mockReset();
+    });
+
+    const rejectWith = (variant: string) =>
+      uriMatcher.validate.mockImplementation(() => {
+        throw Object.assign(new Error("Pattern is not usable"), {
+          name: "UriMatcherError",
+          variant,
+        });
+      });
+
+    it("shows the SDK's reason when a regular expression can't be saved", () => {
+      rejectWith("UnsupportedConstruct");
+
+      component.writeValue({
+        uri: "x(?!.*logout)",
+        matchDetection: UriMatchStrategy.RegularExpression,
+      });
+
+      expect(uriMatcher.validate).toHaveBeenCalledWith("x(?!.*logout)");
+      expect(component["uriForm"].controls.uri.errors).toEqual({
+        invalidRegex: { message: "uriRegexUnsupported" },
+      });
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexUnsupported" } });
+    });
+
+    it("uses a generic message for invalid patterns", () => {
+      rejectWith("InvalidPattern");
+
+      component.writeValue({ uri: "(", matchDetection: UriMatchStrategy.RegularExpression });
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexInvalid" } });
+    });
+
+    it("accepts regular expressions the SDK can evaluate", () => {
+      component.writeValue({
+        uri: "^https://example\\.com/",
+        matchDetection: UriMatchStrategy.RegularExpression,
+      });
+
+      expect(component.validate()).toBeNull();
+    });
+
+    it("does not validate URIs using other match strategies", () => {
+      rejectWith("InvalidPattern");
+
+      component.writeValue({ uri: "(", matchDetection: UriMatchStrategy.Domain });
+
+      expect(uriMatcher.validate).not.toHaveBeenCalled();
+      expect(component.validate()).toBeNull();
+    });
+
+    it("revalidates when the match strategy changes", () => {
+      rejectWith("PatternTooLong");
+      component.writeValue({ uri: "a", matchDetection: UriMatchStrategy.Domain });
+      const onValidatorChange = jest.fn();
+      component.registerOnValidatorChange(onValidatorChange);
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.RegularExpression);
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexTooLong" } });
+      expect(onValidatorChange).toHaveBeenCalled();
+    });
   });
 
   it("should not update the default uri match strategy label when it is null", () => {

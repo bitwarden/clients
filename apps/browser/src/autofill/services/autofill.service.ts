@@ -44,6 +44,7 @@ import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
+import { NO_REGEX_MATCHES, UriRegexMatcher } from "@bitwarden/common/vault/utils/uri-regex-matcher";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
@@ -852,6 +853,10 @@ export default class AutofillService implements AutofillServiceInterface {
         }
       });
 
+      const regexMatcher = fieldNames.some((name) => name.includes("regex="))
+        ? await this.cipherService.getUriRegexMatcher()
+        : NO_REGEX_MATCHES;
+
       pageDetails.fields.forEach((field) => {
         const fieldOpid = field.opid;
         if (fieldOpid == null) {
@@ -870,7 +875,7 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        const matchingIndex = this.findMatchingFieldIndex(field, fieldNames);
+        const matchingIndex = this.findMatchingFieldIndex(field, fieldNames, regexMatcher);
         if (matchingIndex > -1) {
           const matchingField: FieldView = fields[matchingIndex];
           let val: string;
@@ -1696,9 +1701,11 @@ export default class AutofillService implements AutofillServiceInterface {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(pageUrl),
     );
+    const regexMatcher = await this.cipherService.getUriRegexMatcher();
     const matchesUri = options.cipher.login.matchesUri(
       pageUrl,
       equivalentDomains,
+      regexMatcher,
       options.defaultUriMatch,
     );
     return !matchesUri;
@@ -3089,10 +3096,12 @@ export default class AutofillService implements AutofillServiceInterface {
         totpField = f;
 
         if (
-          this.findMatchingFieldIndex(f, [
-            ...AutoFillConstants.TotpFieldNames,
-            ...AutoFillConstants.AmbiguousTotpFieldNames,
-          ]) > -1 ||
+          // Built-in field names contain no `regex=` rules.
+          this.findMatchingFieldIndex(
+            f,
+            [...AutoFillConstants.TotpFieldNames, ...AutoFillConstants.AmbiguousTotpFieldNames],
+            NO_REGEX_MATCHES,
+          ) > -1 ||
           f.autoCompleteType === "one-time-code"
         ) {
           // We found an exact match. No need to keep looking.
@@ -3109,54 +3118,69 @@ export default class AutofillService implements AutofillServiceInterface {
    * present in a list of attribute names.
    * @param {AutofillField} field
    * @param {string[]} names
+   * @param regexMatcher Evaluates names that start with "regex=".
    * @returns {number}
    * @private
    */
-  private findMatchingFieldIndex(field: AutofillField, names: string[]): number {
+  private findMatchingFieldIndex(
+    field: AutofillField,
+    names: string[],
+    regexMatcher: UriRegexMatcher,
+  ): number {
     for (let i = 0; i < names.length; i++) {
       if (names[i].indexOf("=") > -1) {
-        if (this.fieldPropertyIsPrefixMatch(field, "htmlID", names[i], "id")) {
+        if (this.fieldPropertyIsPrefixMatch(field, "htmlID", names[i], "id", regexMatcher)) {
           return i;
         }
-        if (this.fieldPropertyIsPrefixMatch(field, "htmlName", names[i], "name")) {
+        if (this.fieldPropertyIsPrefixMatch(field, "htmlName", names[i], "name", regexMatcher)) {
           return i;
         }
-        if (this.fieldPropertyIsPrefixMatch(field, "label-left", names[i], "label")) {
+        if (this.fieldPropertyIsPrefixMatch(field, "label-left", names[i], "label", regexMatcher)) {
           return i;
         }
-        if (this.fieldPropertyIsPrefixMatch(field, "label-right", names[i], "label")) {
+        if (
+          this.fieldPropertyIsPrefixMatch(field, "label-right", names[i], "label", regexMatcher)
+        ) {
           return i;
         }
-        if (this.fieldPropertyIsPrefixMatch(field, "label-tag", names[i], "label")) {
+        if (this.fieldPropertyIsPrefixMatch(field, "label-tag", names[i], "label", regexMatcher)) {
           return i;
         }
-        if (this.fieldPropertyIsPrefixMatch(field, "label-aria", names[i], "label")) {
+        if (this.fieldPropertyIsPrefixMatch(field, "label-aria", names[i], "label", regexMatcher)) {
           return i;
         }
-        if (this.fieldPropertyIsPrefixMatch(field, "placeholder", names[i], "placeholder")) {
+        if (
+          this.fieldPropertyIsPrefixMatch(
+            field,
+            "placeholder",
+            names[i],
+            "placeholder",
+            regexMatcher,
+          )
+        ) {
           return i;
         }
       }
 
-      if (this.fieldPropertyIsMatch(field, "htmlID", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "htmlID", names[i], regexMatcher)) {
         return i;
       }
-      if (this.fieldPropertyIsMatch(field, "htmlName", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "htmlName", names[i], regexMatcher)) {
         return i;
       }
-      if (this.fieldPropertyIsMatch(field, "label-left", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "label-left", names[i], regexMatcher)) {
         return i;
       }
-      if (this.fieldPropertyIsMatch(field, "label-right", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "label-right", names[i], regexMatcher)) {
         return i;
       }
-      if (this.fieldPropertyIsMatch(field, "label-tag", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "label-tag", names[i], regexMatcher)) {
         return i;
       }
-      if (this.fieldPropertyIsMatch(field, "label-aria", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "label-aria", names[i], regexMatcher)) {
         return i;
       }
-      if (this.fieldPropertyIsMatch(field, "placeholder", names[i])) {
+      if (this.fieldPropertyIsMatch(field, "placeholder", names[i], regexMatcher)) {
         return i;
       }
     }
@@ -3171,6 +3195,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param {string} property
    * @param {string} name
    * @param {string} prefix
+   * @param regexMatcher Evaluates names that start with "regex=".
    * @param {string} separator
    * @returns {boolean}
    * @private
@@ -3180,12 +3205,13 @@ export default class AutofillService implements AutofillServiceInterface {
     property: string,
     name: string,
     prefix: string,
+    regexMatcher: UriRegexMatcher,
     separator = "=",
   ): boolean {
     if (name.indexOf(prefix + separator) === 0) {
       const sepIndex = name.indexOf(separator);
       const val = name.substring(sepIndex + 1);
-      return val != null && this.fieldPropertyIsMatch(field, property, val);
+      return val != null && this.fieldPropertyIsMatch(field, property, val, regexMatcher);
     }
     return false;
   }
@@ -3199,10 +3225,16 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param field
    * @param {string} property
    * @param {string} name
+   * @param regexMatcher Evaluates names that start with "regex=".
    * @returns {boolean}
    * @private
    */
-  private fieldPropertyIsMatch(field: any, property: string, name: string): boolean {
+  private fieldPropertyIsMatch(
+    field: any,
+    property: string,
+    name: string,
+    regexMatcher: UriRegexMatcher,
+  ): boolean {
     let fieldVal = field[property] as string;
     if (!AutofillService.hasValue(fieldVal)) {
       return false;
@@ -3210,14 +3242,9 @@ export default class AutofillService implements AutofillServiceInterface {
 
     fieldVal = fieldVal.trim().replace(/(?:\r\n|\r|\n)/g, "");
     if (name.startsWith("regex=")) {
-      try {
-        const regexParts = name.split("=", 2);
-        if (regexParts.length === 2) {
-          const regex = new RegExp(regexParts[1], "i");
-          return regex.test(fieldVal);
-        }
-      } catch (e) {
-        this.logService.error(e);
+      const regexParts = name.split("=", 2);
+      if (regexParts.length === 2) {
+        return regexMatcher.matches(regexParts[1], fieldVal);
       }
     } else if (name.startsWith("csv=")) {
       const csvParts = name.split("=", 2);

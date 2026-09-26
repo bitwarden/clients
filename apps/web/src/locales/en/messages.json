@@ -13476,6 +13476,22 @@
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
+  "uriRegexInvalid": {
+    "message": "This is not a valid regular expression.",
+    "description": "Form error shown when a website URI using the 'regular expression' match detection is not a valid regular expression."
+  },
+  "uriRegexTooLong": {
+    "message": "This regular expression is too long. Use 1000 characters or fewer.",
+    "description": "Form error shown when a website URI using the 'regular expression' match detection exceeds the maximum length."
+  },
+  "uriRegexTooComplex": {
+    "message": "This regular expression is too complex. Simplify it or use fewer lookarounds and back-references.",
+    "description": "Form error shown when a website URI using the 'regular expression' match detection is too large or complex to evaluate safely."
+  },
+  "uriRegexUnsupported": {
+    "message": "This regular expression uses a feature that isn't supported for URI matching, such as a word boundary, a long or nested lookaround, or a lookaround inside a repeat.",
+    "description": "Form error shown when a website URI using the 'regular expression' match detection uses a construct whose matching cost can't be bounded."
+  },
   "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"

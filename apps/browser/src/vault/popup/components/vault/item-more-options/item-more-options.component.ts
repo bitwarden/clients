@@ -252,7 +252,15 @@ export class ItemMoreOptionsComponent {
       this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
 
-    return CipherViewLikeUtils.matchesUri(this.cipher, url, equivalentDomains, defaultMatch);
+    const regexMatcher = await this.cipherService.getUriRegexMatcher();
+
+    return CipherViewLikeUtils.matchesUri(
+      this.cipher,
+      url,
+      equivalentDomains,
+      regexMatcher,
+      defaultMatch,
+    );
   }
 
   async onView() {
