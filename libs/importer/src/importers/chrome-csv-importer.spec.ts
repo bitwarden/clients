@@ -4,6 +4,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { ChromeCsvImporter } from "./chrome-csv-importer";
 import { data as androidData } from "./spec-data/chrome-csv/android-data.csv";
+import { data as notesData } from "./spec-data/chrome-csv/note-data.csv";
 import { data as simplePasswordData } from "./spec-data/chrome-csv/simple-password-data.csv";
 
 const CipherData = [
@@ -29,6 +30,24 @@ const CipherData = [
     csv: simplePasswordData,
     expected: Object.assign(new CipherView(), {
       name: "www.example.com",
+      login: Object.assign(new LoginView(), {
+        username: "username@example.com",
+        password: "wpC9qFvsbWQK5Z",
+        uris: [
+          Object.assign(new LoginUriView(), {
+            uri: "https://www.example.com/",
+          }),
+        ],
+      }),
+      type: 1,
+    }),
+  },
+  {
+    title: "should parse note",
+    csv: notesData,
+    expected: Object.assign(new CipherView(), {
+      name: "www.example.com",
+      notes: 'First line, with a comma\nSecond line with "quotes"',
       login: Object.assign(new LoginView(), {
         username: "username@example.com",
         password: "wpC9qFvsbWQK5Z",
