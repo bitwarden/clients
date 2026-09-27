@@ -1,3 +1,4 @@
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import {
@@ -5,15 +6,22 @@ import {
   ImportOptionData,
   DefaultImportMetadataService,
   ImportMetadataServiceAbstraction,
+  ImporterProfile,
   DataLoader,
   Loader,
+  chromiumBrowserNameFor,
 } from "@bitwarden/importer-core";
+
+import { loadChromiumProfiles } from "./chromium-profile-loader";
 
 export class DesktopImportMetadataService
   extends DefaultImportMetadataService
   implements ImportMetadataServiceAbstraction
 {
-  constructor(system: SystemServiceProvider) {
+  constructor(
+    system: SystemServiceProvider,
+    private i18nService: I18nService,
+  ) {
     super(system);
   }
 
@@ -56,5 +64,9 @@ export class DesktopImportMetadataService
       default:
         throw new Error(`Unknown loader from native module: ${name}`);
     }
+  }
+
+  async getAvailableProfiles(type: ImportType): Promise<ImporterProfile[]> {
+    return loadChromiumProfiles(chromiumBrowserNameFor(type), this.i18nService);
   }
 }

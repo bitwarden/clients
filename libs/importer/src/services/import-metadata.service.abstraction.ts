@@ -11,9 +11,15 @@ export type ImporterCapabilities = {
   loaders: DataLoader[];
 };
 
+export type ImporterProfile = { id: string; name: string };
+
 export abstract class ImportMetadataServiceAbstraction {
   abstract init(): Promise<void>;
 
   /** describes the loaders available for a format on this client/machine */
   abstract metadata$: (type$: Observable<ImportType>) => Observable<ImporterCapabilities>;
+
+  /** Local browser profiles available for a chromium-family vendor's installed browser. Only
+   *  available on Desktop. */
+  abstract getAvailableProfiles(type: ImportType): Promise<ImporterProfile[]>;
 }

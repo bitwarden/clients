@@ -1,14 +1,20 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { map, Observable } from "rxjs";
+import { action } from "storybook/actions";
 
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { I18nMockService } from "@bitwarden/components";
 
 import { DataLoader, Loader } from "../../metadata";
 import { ImportOption, ImportType } from "../../models";
-import { ImportMetadataServiceAbstraction, ImportServiceAbstraction } from "../../services";
+import {
+  ImporterCapabilities,
+  ImportMetadataServiceAbstraction,
+  ImportServiceAbstraction,
+} from "../../services";
 
 import { ImportControlsComponent } from "./import-controls.component";
 
@@ -124,22 +130,52 @@ const importServiceStub: Partial<ImportServiceAbstraction> = {
   getImportOption: (id: ImportType) => options[id],
 };
 
-function metadataService(loaders: readonly DataLoader[] = [Loader.file]) {
+function metadataService(
+  loaders: readonly DataLoader[] = [Loader.file],
+): ImportMetadataServiceAbstraction {
   return {
     init: () => Promise.resolve(),
-    metadata$: (type$: Observable<ImportType>) => type$.pipe(map((type) => ({ type, loaders }))),
-  } as unknown as ImportMetadataServiceAbstraction;
+    metadata$: (type$: Observable<ImportType>) =>
+      type$.pipe(map((type): ImporterCapabilities => ({ type, loaders: [...loaders] }))),
+    getAvailableProfiles: () =>
+      Promise.resolve([
+        { id: "Default", name: "Default" },
+        { id: "Profile 1", name: "Work" },
+      ]),
+  };
 }
 
-function decoratorsFor(clientType: ClientType, loaders: readonly DataLoader[] = [Loader.file]) {
+function metadataServiceNoProfiles(): ImportMetadataServiceAbstraction {
+  return {
+    init: () => Promise.resolve(),
+    metadata$: (type$: Observable<ImportType>) =>
+      type$.pipe(
+        map((type): ImporterCapabilities => ({ type, loaders: [Loader.file, Loader.chromium] })),
+      ),
+    getAvailableProfiles: () => Promise.resolve([]),
+  };
+}
+
+function decoratorsFor(
+  clientType: ClientType,
+  loaders: readonly DataLoader[] = [Loader.file],
+  metadataServiceOverride?: ImportMetadataServiceAbstraction,
+) {
   return [
     moduleMetadata({
       providers: [
         { provide: ImportServiceAbstraction, useValue: importServiceStub },
-        { provide: ImportMetadataServiceAbstraction, useValue: metadataService(loaders) },
+        {
+          provide: ImportMetadataServiceAbstraction,
+          useValue: metadataServiceOverride ?? metadataService(loaders),
+        },
         {
           provide: PlatformUtilsService,
           useValue: { getClientType: () => clientType } as Partial<PlatformUtilsService>,
+        },
+        {
+          provide: LogService,
+          useValue: { error: action("LogService.error") } as Partial<LogService>,
         },
         {
           provide: I18nService,
@@ -148,6 +184,40 @@ function decoratorsFor(clientType: ClientType, loaders: readonly DataLoader[] = 
               back: "Back",
               continue: "Continue",
               method: "Method",
+              // bit-callout resolves these unconditionally (close button label, its default
+              // landmark name when untitled) and bit-form-field resolves "required" whenever a
+              // control has Validators.required — every story here hits both.
+              close: "Close",
+              callout: "Callout",
+              required: "required",
+              error: "Error",
+              // bit-spinner resolves this as its default aria title — hit by the Chromium story
+              // specifically, which briefly shows the spinner while capabilities resolve.
+              loading: "Loading",
+              // bit-file-upload resolves both of these unconditionally (button label, and the
+              // "no file chosen yet" placeholder shown by default) — hit by every story that
+              // defaults to manual/file mode. fileChosen is the same status readout once a file
+              // is actually picked — hit by choosing a file in VendorFormatGrouping/KdbxCredentials,
+              // per those stories' own doc comments.
+              chooseFile: "Choose file",
+              noFileSelected: "No file selected",
+              fileChosen: (name?: string) => `${name} chosen`,
+              // bit-select resolves this as its default placeholder — hit by the Chromium story's
+              // profile select.
+              selectPlaceholder: "-- Select --",
+              // bitPasswordInputToggle resolves this unconditionally at construction — hit by
+              // KdbxCredentials' master-password field. inputRequired is bit-form-field's default
+              // "required" validation message, resolved on blur of any empty required field
+              // (Chromium's profile select, KdbxCredentials' master password, VendorDirect's
+              // Keeper email).
+              toggleVisibility: "Toggle visibility",
+              inputRequired: "This field is required.",
+              // bit-error resolves this for the email validator the same way it resolves
+              // inputRequired for the required one — reachable by typing a non-email value into
+              // VendorDirect's Keeper email field.
+              inputEmail: "Input is not an email address.",
+              // Only reachable by ChromiumNoProfiles, whose stub resolves an empty profile list.
+              noBrowserProfilesFound: "No browser profiles were found",
               uploadFile: "Upload file",
               pasteAsPlainText: "Paste as plain text",
               plainText: "Plain text",
@@ -229,6 +299,16 @@ export const VendorDirectHiddenOnWeb: Story = {
 /** Chrome on Desktop with a chromium profile detected — the profile-picker view. */
 export const Chromium: Story = {
   decorators: decoratorsFor(ClientType.Desktop, [Loader.file, Loader.chromium]),
+  render: (args) => ({
+    props: args,
+    template: `<importer-controls importType="chromecsv"></importer-controls>`,
+  }),
+};
+
+/** Chrome on Desktop where the profile fetch succeeds but finds none (e.g. a freshly installed
+ *  browser) — the danger callout, not the empty dead-end select it replaces. */
+export const ChromiumNoProfiles: Story = {
+  decorators: decoratorsFor(ClientType.Desktop, undefined, metadataServiceNoProfiles()),
   render: (args) => ({
     props: args,
     template: `<importer-controls importType="chromecsv"></importer-controls>`,

@@ -25,7 +25,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { ImportType } from "../../models";
+import { chromiumBrowserNameFor, ImportType } from "../../models";
 
 type ProfileOption = { id: string; name: string };
 
@@ -190,18 +190,7 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   }
 
   private getBrowserName(format: ImportType): string {
-    if (format === "edgecsv") {
-      return "Microsoft Edge";
-    } else if (format === "operacsv") {
-      return "Opera";
-    } else if (format === "bravecsv") {
-      return "Brave";
-    } else if (format === "vivaldicsv") {
-      return "Vivaldi";
-    } else if (format === "arccsv") {
-      return "Arc";
-    }
-    return "Chrome";
+    return chromiumBrowserNameFor(format);
   }
 }
 

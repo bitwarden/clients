@@ -15,7 +15,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" [allowDisabledFormSubmit]="true">
   <bit-card-segmented>
     <bit-card-content>
-      @if (capabilitiesPending()) {
+      @if (capabilitiesPending() || profilesPending()) {
         <div class="tw-flex tw-justify-center tw-py-8">
           <bit-spinner size="lg"></bit-spinner>
         </div>
@@ -138,9 +138,19 @@
           </bit-callout>
         }
 
+        @if (profilesError(); as error) {
+          <bit-callout type="danger" id="importer-controls_callout_profiles-error">{{
+            error
+          }}</bit-callout>
+        }
+
         <bit-form-field>
           <bit-label>{{ "profile" | i18n }}</bit-label>
-          <bit-select formControlName="profile" id="importer-controls_select_profile"> </bit-select>
+          <bit-select formControlName="profile" id="importer-controls_select_profile">
+            @for (profile of profiles(); track profile.id) {
+              <bit-option [value]="profile.id" [label]="profile.name" />
+            }
+          </bit-select>
         </bit-form-field>
       } @else {
         <h2 bitTypography="h2" noMargin>{{ "importDataTitle" | i18n }}</h2>
@@ -290,7 +300,7 @@
             bitButton
             bitFormButton
             buttonType="primary"
-            [disabled]="capabilitiesPending()"
+            [disabled]="capabilitiesPending() || profilesPending()"
             id="importer-controls_button_continue"
           >
             {{ "continue" | i18n }}

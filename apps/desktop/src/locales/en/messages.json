@@ -6374,6 +6374,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Grant Access"
   },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
   "upgrade": {
     "message": "Upgrade"
   },

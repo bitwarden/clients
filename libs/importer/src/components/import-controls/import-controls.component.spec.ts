@@ -1,10 +1,12 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { map, of } from "rxjs";
 
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { Loader } from "../../metadata";
@@ -22,6 +24,8 @@ describe("ImportControlsComponent", () => {
   let importService: MockProxy<ImportServiceAbstraction>;
   let importMetadataService: MockProxy<ImportMetadataServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let logService: MockProxy<LogService>;
+  let liveAnnouncer: MockProxy<LiveAnnouncer>;
 
   const component = () => fixture.componentInstance as any;
   const byId = (id: string) => fixture.debugElement.query(By.css(`#${id}`));
@@ -36,6 +40,8 @@ describe("ImportControlsComponent", () => {
         { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+        { provide: LogService, useValue: logService },
+        { provide: LiveAnnouncer, useValue: liveAnnouncer },
       ],
     }).compileComponents();
 
@@ -47,11 +53,17 @@ describe("ImportControlsComponent", () => {
   };
 
   beforeEach(() => {
+    logService = mock<LogService>();
+    liveAnnouncer = mock<LiveAnnouncer>();
     importMetadataService = mock<ImportMetadataServiceAbstraction>();
     importMetadataService.init.mockResolvedValue(undefined);
     importMetadataService.metadata$.mockReturnValue(
       of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file] }),
     );
+    // Default to an empty (but successful) profile list — otherwise the auto-mock returns
+    // undefined, which defer() rejects, silently routing every test that never touches chromium
+    // profiles directly through the error branch instead of an empty-success one.
+    importMetadataService.getAvailableProfiles.mockResolvedValue([]);
     platformUtilsService = mock<PlatformUtilsService>();
 
     const options: Record<string, ImportOption> = {
@@ -218,6 +230,8 @@ describe("ImportControlsComponent", () => {
           { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
           { provide: PlatformUtilsService, useValue: platformUtilsService },
           { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+          { provide: LogService, useValue: logService },
+          { provide: LiveAnnouncer, useValue: liveAnnouncer },
         ],
       }).compileComponents();
       fixture = TestBed.createComponent(ImportControlsComponent);
@@ -238,6 +252,8 @@ describe("ImportControlsComponent", () => {
       resolveInit();
       await fixture.whenStable();
       fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component().primaryMode()).toBe("chromium");
       expect(fixture.debugElement.query(By.css("bit-spinner"))).toBeFalsy();
@@ -250,6 +266,190 @@ describe("ImportControlsComponent", () => {
     it("defaults to manual for a vendor with no direct importer at all", async () => {
       await setup("dashlanecsv", ClientType.Desktop);
       expect(component().primaryMode()).toBe("manual");
+    });
+  });
+
+  describe("chromium profiles", () => {
+    it("populates the profile select with the real browser profiles once chromium mode resolves", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockResolvedValue([
+        { id: "Default", name: "Default" },
+        { id: "Profile 1", name: "Work" },
+      ]);
+      await setup("chromecsv", ClientType.Desktop);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(importMetadataService.getAvailableProfiles).toHaveBeenCalledWith("chromecsv");
+      expect(component().profiles()).toEqual([
+        { id: "Default", name: "Default" },
+        { id: "Profile 1", name: "Work" },
+      ]);
+      expect(component().profilesPending()).toBe(false);
+      expect(byId("importer-controls_select_profile")).toBeTruthy();
+    });
+
+    it("does not fetch profiles for a vendor that never resolves to chromium mode", async () => {
+      await setup("keeper", ClientType.Desktop);
+
+      expect(importMetadataService.getAvailableProfiles).not.toHaveBeenCalled();
+      expect(component().profiles()).toEqual([]);
+    });
+
+    it("clears profiles when the vendor changes away from chromium mode", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockResolvedValue([
+        { id: "Default", name: "Default" },
+      ]);
+      await setup("chromecsv", ClientType.Desktop);
+      expect(component().profiles().length).toBe(1);
+
+      fixture.componentRef.setInput("importType", "dashlanecsv");
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component().profiles()).toEqual([]);
+    });
+
+    it('refetches when switching between two different chromium vendors, even though both resolve to "chromium" mode', async () => {
+      importMetadataService.metadata$.mockImplementation((type$) =>
+        type$.pipe(map((type) => ({ type, loaders: [Loader.file, Loader.chromium] }))),
+      );
+      importMetadataService.getAvailableProfiles.mockImplementation((type) =>
+        Promise.resolve([{ id: type, name: type }]),
+      );
+      await setup("chromecsv", ClientType.Desktop);
+      expect(component().profiles()).toEqual([{ id: "chromecsv", name: "chromecsv" }]);
+      component().formGroup.controls.profile.setValue("chromecsv");
+      fixture.detectChanges();
+
+      fixture.componentRef.setInput("importType", "bravecsv");
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component().primaryMode()).toBe("chromium");
+      expect(importMetadataService.getAvailableProfiles).toHaveBeenCalledWith("bravecsv");
+      expect(component().profiles()).toEqual([{ id: "bravecsv", name: "bravecsv" }]);
+      // A profile id selected for Chrome must not survive into Brave's freshly-fetched list.
+      expect(component().formGroup.controls.profile.value).toBe("");
+    });
+
+    it("falls back to an empty list when getAvailableProfiles rejects (e.g. browser access denied), but does not fail silently", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockRejectedValue(
+        new Error("browserAccessDenied"),
+      );
+
+      await setup("chromecsv", ClientType.Desktop);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().profiles()).toEqual([]);
+      expect(component().profilesError()).toBe("browserAccessDenied");
+      expect(logService.error).toHaveBeenCalledWith(
+        "Error loading chromium profiles:",
+        expect.any(Error),
+      );
+      const callout = byId("importer-controls_callout_profiles-error");
+      expect(callout.nativeElement.textContent).toContain("browserAccessDenied");
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("browserAccessDenied", "assertive");
+    });
+
+    it("surfaces an error when the fetch succeeds but returns no profiles at all, instead of leaving an unfillable required select", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockResolvedValue([]);
+
+      await setup("chromecsv", ClientType.Desktop);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().profiles()).toEqual([]);
+      expect(component().profilesError()).toBe("noBrowserProfilesFound");
+      expect(logService.error).not.toHaveBeenCalled();
+      const callout = byId("importer-controls_callout_profiles-error");
+      expect(callout.nativeElement.textContent).toContain("noBrowserProfilesFound");
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith("noBrowserProfilesFound", "assertive");
+    });
+
+    it("clears the selected profile after a chromium -> manual -> chromium toggle round trip", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockResolvedValue([
+        { id: "Default", name: "Default" },
+      ]);
+      await setup("chromecsv", ClientType.Desktop);
+      component().formGroup.controls.profile.setValue("Default");
+      component().formGroup.controls.profile.markAsTouched();
+      fixture.detectChanges();
+
+      component().toggleToManual();
+      fixture.detectChanges();
+      component().toggleToAlternate();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().primaryMode()).toBe("chromium");
+      expect(component().formGroup.controls.profile.value).toBe("");
+      expect(component().formGroup.controls.profile.touched).toBe(false);
+    });
+
+    it("shows the loading spinner and disables Continue while profiles are still resolving", async () => {
+      let resolveProfiles!: (profiles: { id: string; name: string }[]) => void;
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      importMetadataService.getAvailableProfiles.mockReturnValue(
+        new Promise((resolve) => {
+          resolveProfiles = resolve;
+        }),
+      );
+      platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+
+      await TestBed.configureTestingModule({
+        imports: [ImportControlsComponent],
+        providers: [
+          { provide: ImportServiceAbstraction, useValue: importService },
+          { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
+          { provide: PlatformUtilsService, useValue: platformUtilsService },
+          { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+          { provide: LogService, useValue: logService },
+          { provide: LiveAnnouncer, useValue: liveAnnouncer },
+        ],
+      }).compileComponents();
+      fixture = TestBed.createComponent(ImportControlsComponent);
+      fixture.componentRef.setInput("importType", "chromecsv");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().primaryMode()).toBe("chromium");
+      expect(component().profilesPending()).toBe(true);
+      expect(fixture.debugElement.query(By.css("bit-spinner"))).toBeTruthy();
+      expect(byId("importer-controls_select_profile")).toBeFalsy();
+      expect(
+        byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
+      ).toBe("true");
+
+      resolveProfiles([{ id: "Default", name: "Default" }]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().profilesPending()).toBe(false);
+      expect(fixture.debugElement.query(By.css("bit-spinner"))).toBeFalsy();
+      expect(byId("importer-controls_select_profile")).toBeTruthy();
+      expect(
+        byId("importer-controls_button_continue").nativeElement.getAttribute("aria-disabled"),
+      ).not.toBe("true");
     });
   });
 
@@ -558,6 +758,8 @@ describe("ImportControlsComponent", () => {
         of<ImporterCapabilities>({ type: "bravecsv", loaders: [Loader.file, Loader.chromium] }),
       );
       await setup("bravecsv", ClientType.Desktop);
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component().primaryMode()).toBe("chromium");
       expect(fixture.nativeElement.textContent).toContain("importChromiumAliasPreamble");

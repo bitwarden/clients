@@ -8,6 +8,7 @@ import { availableLoaders } from "../util";
 
 import {
   ImporterCapabilities,
+  ImporterProfile,
   ImportMetadataServiceAbstraction,
 } from "./import-metadata.service.abstraction";
 
@@ -37,5 +38,9 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
     );
 
     return capabilities$;
+  }
+
+  async getAvailableProfiles(type: ImportType): Promise<ImporterProfile[]> {
+    return [];
   }
 }

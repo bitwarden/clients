@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
   ImportControlsComponent,
@@ -23,7 +24,7 @@ import { DesktopImportMetadataService } from "./desktop-import-metadata.service"
     safeProvider({
       provide: ImportMetadataServiceAbstraction,
       useClass: DesktopImportMetadataService,
-      deps: [SYSTEM_SERVICE_PROVIDER],
+      deps: [SYSTEM_SERVICE_PROVIDER, I18nService],
     }),
   ],
 })

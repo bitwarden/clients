@@ -3675,6 +3675,9 @@
   "importDataChromiumSubtitle": {
     "message": "Select the profile you wish to import passwords from."
   },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
   "importDataLoginTitle": {
     "message": "Log in to $VENDOR$",
     "placeholders": {

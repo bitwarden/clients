@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,10 +11,11 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { catchError, defer, map, of, switchMap } from "rxjs";
+import { catchError, defer, map, of, startWith, switchMap } from "rxjs";
 
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
@@ -38,7 +40,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { KeeperRegion } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
 import { ImportOption, ImportType } from "../../models";
-import { ImportMetadataServiceAbstraction, ImportServiceAbstraction } from "../../services";
+import {
+  ImporterProfile,
+  ImportMetadataServiceAbstraction,
+  ImportServiceAbstraction,
+} from "../../services";
 import { pickerDisplayNameFor, pickerFormatsFor } from "../import-source-select/picker-vendor-data";
 import { KEEPER_REGION_OPTIONS } from "../keeper/keeper-region-options";
 
@@ -88,6 +94,8 @@ export class ImportControlsComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly importService = inject(ImportServiceAbstraction);
   private readonly importMetadataService = inject(ImportMetadataServiceAbstraction);
 
@@ -204,6 +212,60 @@ export class ImportControlsComponent {
   private readonly primaryModeOverride = signal<ImportStrategy | undefined>(undefined);
   protected readonly primaryMode = computed<ImportStrategy>(
     () => this.primaryModeOverride() ?? this.defaultPrimaryMode(),
+  );
+
+  private readonly chromiumProfilesFor = computed<ImportType | undefined>(() =>
+    this.primaryMode() === "chromium" ? this.importType() : undefined,
+  );
+
+  private readonly profilesResult = toSignal(
+    toObservable(this.chromiumProfilesFor).pipe(
+      switchMap((type) =>
+        type
+          ? defer(() => this.importMetadataService.getAvailableProfiles(type)).pipe(
+              map((profiles) => ({
+                resolved: true,
+                profiles,
+                error:
+                  profiles.length === 0
+                    ? this.i18nService.t("noBrowserProfilesFound")
+                    : (undefined as string | undefined),
+              })),
+              catchError((error: unknown) => {
+                this.logService.error("Error loading chromium profiles:", error);
+                const message =
+                  error instanceof Error ? error.message : this.i18nService.t("errorOccurred");
+                return of({ resolved: true, profiles: [] as ImporterProfile[], error: message });
+              }),
+              startWith({
+                resolved: false,
+                profiles: [] as ImporterProfile[],
+                error: undefined as string | undefined,
+              }),
+            )
+          : of({
+              resolved: true,
+              profiles: [] as ImporterProfile[],
+              error: undefined as string | undefined,
+            }),
+      ),
+    ),
+    {
+      initialValue: {
+        resolved: false,
+        profiles: [] as ImporterProfile[],
+        error: undefined as string | undefined,
+      },
+    },
+  );
+
+  protected readonly profiles = computed(() => this.profilesResult().profiles);
+  protected readonly profilesError = computed(() => this.profilesResult().error);
+  // requestBrowserAccess can block indefinitely on a native OS permission prompt (sandboxed
+  // macOS builds) — without this, the select renders empty during that wait, indistinguishable
+  // from "this vendor genuinely has no profiles."
+  protected readonly profilesPending = computed(
+    () => this.primaryMode() === "chromium" && !this.profilesResult().resolved,
   );
 
   protected readonly directStep = signal<DirectStep>("intro");
@@ -328,7 +390,18 @@ export class ImportControlsComponent {
     });
 
     effect(() => {
-      setEnabled(this.formGroup.controls.profile, this.primaryMode() === "chromium");
+      const active = this.primaryMode() === "chromium";
+      setEnabled(this.formGroup.controls.profile, active);
+      if (!active) {
+        this.formGroup.controls.profile.reset("");
+      }
+    });
+
+    effect(() => {
+      const error = this.profilesError();
+      if (error) {
+        void this.liveAnnouncer.announce(error, "assertive");
+      }
     });
 
     effect(() => {
@@ -407,7 +480,7 @@ export class ImportControlsComponent {
   }
 
   protected readonly submit = async (): Promise<void> => {
-    if (this.capabilitiesPending()) {
+    if (this.capabilitiesPending() || this.profilesPending()) {
       return;
     }
     if (this.primaryMode() === "direct" && this.directStep() === "intro") {
