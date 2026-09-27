@@ -50,7 +50,7 @@ const CipherData = [
       notes: 'First line, with a comma\nSecond line with "quotes"',
       login: Object.assign(new LoginView(), {
         username: "username@example.com",
-        password: "wpC9qFvsbWQK5Z",
+        password: "fake-password",
         uris: [
           Object.assign(new LoginUriView(), {
             uri: "https://www.example.com/",
