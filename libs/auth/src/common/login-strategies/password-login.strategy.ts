@@ -208,9 +208,12 @@ export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyDa
 
     // The identity result can contain master password policies for the user's organizations.
     // Get the master password policy options from both the org invite and the identity response.
-    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+    const policyOptions = [
       credentials.masterPasswordPoliciesFromOrgInvite,
       this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
+    ].filter((options) => options != null);
+    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+      ...policyOptions,
     );
 
     // We deliberately do not check enforceOnLogin as existing users who are logging
@@ -253,16 +256,16 @@ export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyDa
 
   private getMasterPasswordPolicyOptionsFromResponse(
     response: IdentityTokenResponse | IdentityTwoFactorResponse,
-  ): MasterPasswordPolicyOptions | null {
-    if (response == null) {
-      return null;
+  ): MasterPasswordPolicyOptions | undefined {
+    if (response.masterPasswordPolicy == null) {
+      return undefined;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
   }
 
   private evaluateMasterPassword(
     { masterPassword, email }: PasswordLoginCredentials,
-    options: MasterPasswordPolicyOptions,
+    options?: MasterPasswordPolicyOptions,
   ): boolean {
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
       masterPassword,
