@@ -3,16 +3,13 @@ import { firstValueFrom, Subscription, timer } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
   EncryptService,
   EncString,
-  LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
@@ -87,15 +84,11 @@ export class NativeMessagingBackground {
   private messageId = 0;
   private callbacks = new Map<number, Callback>();
   constructor(
-    private keyService: KeyService,
-    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
-    private messagingService: MessagingService,
     private appIdService: AppIdService,
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
-    private biometricStateService: BiometricStateService,
     private accountService: AccountService,
   ) {
     // Always try to keep a connection to the Bitwarden Desktop app alive so that there is no wait
@@ -114,7 +107,6 @@ export class NativeMessagingBackground {
     this.logService.info("[Native Messaging IPC] Connecting to Bitwarden Desktop app...");
     const appId = await this.appIdService.getAppId();
     this.appId = appId;
-    await this.biometricStateService.setFingerprintValidated(false);
 
     return new Promise<void>((resolve, reject) => {
       this.port = BrowserApi.connectNative("com.8bit.bitwarden");
@@ -211,27 +203,6 @@ export class NativeMessagingBackground {
               }
             }
             return;
-          case "verifyFingerprint": {
-            this.logService.info("[Native Messaging IPC] Legacy app is requesting fingerprint");
-            this.messagingService.send("showUpdateDesktopAppOrDisableFingerprintDialog", {});
-            break;
-          }
-          case "verifyDesktopIPCFingerprint": {
-            this.logService.info(
-              "[Native Messaging IPC] Desktop app requested trust verification by fingerprint.",
-            );
-            await this.showFingerprintDialog();
-            break;
-          }
-          case "verifiedDesktopIPCFingerprint": {
-            await this.biometricStateService.setFingerprintValidated(true);
-            this.messagingService.send("hideNativeMessagingFingerprintDialog", {});
-            break;
-          }
-          case "rejectedDesktopIPCFingerprint": {
-            this.messagingService.send("hideNativeMessagingFingerprintDialog", {});
-            break;
-          }
           case "wrongUserId":
             if (message.messageId != null) {
               if (this.callbacks.has(message.messageId)) {
@@ -454,20 +425,6 @@ export class NativeMessagingBackground {
     message.timestamp = Date.now();
 
     this.postMessage({ appId: this.appId!, message: message });
-  }
-
-  private async showFingerprintDialog() {
-    if (this.secureChannel?.publicKey == null) {
-      return;
-    }
-    const fingerprint = await this.legacyCompatKeyService.getFingerprint(
-      this.appId!,
-      this.secureChannel.publicKey,
-    );
-
-    this.messagingService.send("showNativeMessagingFingerprintDialog", {
-      fingerprint: fingerprint,
-    });
   }
 
   private disconnect() {

@@ -42,6 +42,7 @@ const DEFAULT_PARAMS = {
  *    tsConfig: string;
  *  };
  *  outputPath?: string;
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -61,6 +62,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path.resolve(__dirname, "../../node_modules"),
         path.resolve(process.cwd(), "node_modules"),
       ],
+      alias: params.importAliases,
     },
   };
 
@@ -119,8 +121,20 @@ module.exports.buildConfig = function buildConfig(params) {
           {
             from: path.resolve(__dirname, "src/images"),
             to: "images",
-            filter: (resourcePath) => !/_beta\.(png|ico)$/.test(resourcePath),
+            filter: (resourcePath) =>
+              !/_beta\.(png|ico)$/.test(resourcePath) && !/_dev\.png$/.test(resourcePath),
           },
+          // Development builds ship the DEV-badged icon so a client running from
+          // source is distinguishable in the dock and taskbar.
+          ...(NODE_ENV === "development"
+            ? [
+                {
+                  context: path.resolve(__dirname, "src/images"),
+                  from: "*_dev.png",
+                  to: "images",
+                },
+              ]
+            : []),
           ...(process.env.CHANNEL === "beta"
             ? [
                 {
@@ -322,6 +336,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
         fs: false,
       },
+      plugins: [new TsconfigPathsPlugin({ configFile: params.renderer.tsConfig })],
     },
     plugins: [
       new AngularWebpackPlugin({

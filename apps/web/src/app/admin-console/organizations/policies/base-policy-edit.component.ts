@@ -113,6 +113,11 @@ export abstract class BasePolicyEditDefinition {
    * to {@link warningKey} when not set.
    */
   warningKeyVfo1?: string;
+  /**
+   * If true, hides the {@link warningKey} callout entirely when the
+   * {@link FeatureFlag.VFO1Foundation} flag is enabled. Legacy behavior (flag off) is unaffected.
+   */
+  hideWarningVfo1?: boolean;
 
   /**
    * Optional i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent}

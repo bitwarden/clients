@@ -3,6 +3,7 @@
   icon="bwi-archive"
   [text]="'archiveNoun' | i18n"
   [forceActiveStyles]="archiveActive()"
+  [ariaCurrentValue]="archiveActive() ? 'page' : undefined"
   (mainContentClicked)="selectArchive()"
 >
   @if (showArchivePremiumBadge()) {
@@ -17,4 +18,9 @@
     ></button>
   }
 </bit-nav-item>
-<bit-nav-item icon="bwi-trash" [text]="'trash' | i18n" [route]="trashRoute"></bit-nav-item>
+<bit-nav-item
+  icon="bwi-trash"
+  [text]="'trash' | i18n"
+  [route]="trashRoute"
+  [queryParamsHandling]="trashQueryParamsHandling()"
+></bit-nav-item>

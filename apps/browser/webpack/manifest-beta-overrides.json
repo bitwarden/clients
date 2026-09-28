@@ -1,0 +1,10 @@
+{
+  "name": "__MSG_extNameBeta__",
+  "short_name": "Bitwarden Beta",
+  "action": {
+    "default_title": "Bitwarden Beta"
+  },
+  "browser_action": {
+    "default_title": "Bitwarden Beta"
+  }
+}

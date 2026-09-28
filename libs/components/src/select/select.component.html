@@ -1,7 +1,7 @@
 <ng-select
   [ngModel]="selectedOption()"
   (ngModelChange)="onChange($event)"
-  [disabled]="disabled"
+  [disabled]="disabled()"
   [placeholder]="placeholder()"
   [items]="items()"
   (blur)="onBlur()"
@@ -13,13 +13,23 @@
   [keyDownFn]="onKeyDown"
   [attr.aria-label]="selectedOption()?.label ?? placeholder()"
 >
+  <ng-template ng-label-tmp let-item="item">
+    <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0" [title]="item.label">
+      <ng-container
+        [ngTemplateOutlet]="leadingVisual"
+        [ngTemplateOutletContext]="{ item: item }"
+      ></ng-container>
+      <span class="tw-truncate">{{ item.label }}</span>
+    </div>
+  </ng-template>
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex tw-justify-between tw-items-center" [title]="item.label">
-      <div class="tw-flex tw-gap-2 tw-flex-1 tw-min-w-0">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-1 tw-min-w-0">
         <div class="tw-flex-initial tw-self-center">
-          @if (item.icon != null) {
-            <bit-icon [name]="item.icon" fixedWidth />
-          }
+          <ng-container
+            [ngTemplateOutlet]="leadingVisual"
+            [ngTemplateOutletContext]="{ item: item }"
+          ></ng-container>
         </div>
         <div class="tw-flex tw-flex-col tw-min-w-0">
           <div
@@ -43,3 +53,21 @@
     </div>
   </ng-template>
 </ng-select>
+
+<!-- Shared by the selected value and the dropdown rows: an icon tile when provided, otherwise a plain icon. -->
+<ng-template #leadingVisual let-item="item">
+  @if (item.iconTile) {
+    <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line box's
+         worth of descender space below the tile and push it above the row's center. -->
+    <bit-icon-tile
+      class="!tw-flex"
+      [icon]="item.iconTile.icon"
+      [variant]="tileVariant(item)"
+      [color]="tileColor(item)"
+      [emphasis]="item.iconTile.emphasis ?? 'subtle'"
+      size="xs"
+    />
+  } @else if (item.icon != null) {
+    <bit-icon [name]="item.icon" fixedWidth />
+  }
+</ng-template>

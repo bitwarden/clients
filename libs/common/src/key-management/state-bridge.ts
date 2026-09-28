@@ -4,10 +4,12 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { fromSdkKdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
+  DateTime,
   EncString,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
   SymmetricKey,
+  Utc,
   V2UpgradeToken,
   WasmStateBridge,
   WebAuthnPrfUnlockData as SdkWebAuthnPrfUnlockData,
@@ -31,6 +33,7 @@ import {
   USER_KEY,
   USER_KEY_ENCRYPTED_PIN,
   USER_KEY_ID,
+  V2_ENCRYPTED_MIGRATIONS_GRACE_PERIOD_START,
   V2_UPGRADE_TOKEN,
   WEBAUTHN_PRF_OPTIONS,
 } from "./state-definitions";
@@ -236,5 +239,27 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_user_key_id(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ID);
+  }
+
+  async set_v2_encrypted_migrations_grace_period_start(value: DateTime<Utc>): Promise<void> {
+    await writeAtomic(
+      this.stateProvider,
+      this.userId,
+      V2_ENCRYPTED_MIGRATIONS_GRACE_PERIOD_START,
+      new Date(value),
+    );
+  }
+
+  async get_v2_encrypted_migrations_grace_period_start(): Promise<DateTime<Utc> | null> {
+    const value = await readAtomic(
+      this.stateProvider,
+      this.userId,
+      V2_ENCRYPTED_MIGRATIONS_GRACE_PERIOD_START,
+    );
+    return value?.toISOString() ?? null;
+  }
+
+  async clear_v2_encrypted_migrations_grace_period_start(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, V2_ENCRYPTED_MIGRATIONS_GRACE_PERIOD_START);
   }
 }

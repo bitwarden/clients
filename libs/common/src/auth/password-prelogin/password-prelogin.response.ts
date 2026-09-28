@@ -1,20 +1,13 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KdfType } from "@bitwarden/legacy-crypto";
-
+import { KdfConfigResponse } from "../../key-management/models/response/kdf-config.response";
 import { BaseResponse } from "../../models/response/base.response";
 
 export class PasswordPreloginResponse extends BaseResponse {
-  kdf: KdfType;
-  kdfIterations: number;
-  kdfMemory?: number;
-  kdfParallelism?: number;
+  kdfSettings: KdfConfigResponse;
+  salt: string;
 
   constructor(response: any) {
     super(response);
-    this.kdf = this.getResponseProperty("Kdf");
-    this.kdfIterations = this.getResponseProperty("KdfIterations");
-    this.kdfMemory = this.getResponseProperty("KdfMemory");
-    this.kdfParallelism = this.getResponseProperty("KdfParallelism");
+    this.kdfSettings = new KdfConfigResponse(this.getResponseProperty("KdfSettings"));
+    this.salt = this.getResponseProperty("Salt");
   }
 }

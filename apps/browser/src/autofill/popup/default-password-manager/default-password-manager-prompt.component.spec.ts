@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { DialogService } from "@bitwarden/components";
 
@@ -100,6 +101,7 @@ describe("DefaultPasswordManagerPromptComponent", () => {
           provide: AbstractThemingService,
           useValue: { theme$: of(ThemeTypes.Light) },
         },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     })
       .overrideComponent(DefaultPasswordManagerPromptComponent, {

@@ -88,7 +88,7 @@ class QueryParams {
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
-    this.collectionId = params.collectionId;
+    this.collectionIds = params.collectionIds;
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
@@ -123,9 +123,10 @@ class QueryParams {
   organizationId?: OrganizationId;
 
   /**
-   * Optional collectionId to pre-select.
+   * Optional collectionId(s) to pre-select.
+   * Can be a single collectionId or comma-separated list of collectionIds.
    */
-  collectionId?: CollectionId;
+  collectionIds?: string;
 
   /**
    * Optional URI to pre-fill for login ciphers.
@@ -498,8 +499,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (params.organizationId) {
       initialValues.organizationId = params.organizationId;
     }
-    if (params.collectionId) {
-      initialValues.collectionIds = [params.collectionId];
+    if (params.collectionIds) {
+      const collectionIds = (params.collectionIds ?? "")?.split(",");
+      initialValues.collectionIds = collectionIds as CollectionId[];
     }
     if (params.uri) {
       initialValues.loginUri = params.uri;

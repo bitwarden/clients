@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -17,7 +18,6 @@ import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -27,6 +27,7 @@ import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
@@ -40,7 +41,6 @@ import { UpdateRestartService } from "./update-restart.service";
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private syncService: SyncServiceAbstraction,
     private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
@@ -58,6 +58,7 @@ export class InitService {
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeMvpService: DesktopAutotypeMvpService,
+    private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
     private ipcService: IpcService,
     private sharedUnlockPeerService: SharedUnlockPeerService,
@@ -69,6 +70,7 @@ export class InitService {
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
     private logService: LogService,
+    private automationDriver: AutomationDriver,
   ) {}
 
   init() {
@@ -99,9 +101,6 @@ export class InitService {
       );
 
       await this.serverCommunicationConfigService.init();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.syncService.fullSync(true);
       await this.vaultTimeoutService.init(true);
       await (this.i18nService as I18nRendererService).init();
       (this.eventUploadService as EventUploadService).init(true);
@@ -120,11 +119,13 @@ export class InitService {
         this.legacyCompatKeyService,
       );
       containerService.attachToGlobal(this.win);
+      this.automationDriver.attachToGlobal(this.win);
 
       await this.sharedUnlockPeerService.start();
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();
+      await this.autotypeService.init();
     };
   }
 }

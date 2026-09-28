@@ -5,6 +5,8 @@ import {
   InvoicePreviewFlowContext,
   getCartItemTranslationKey,
   getCreditTranslationKey,
+  getProratedSeatTranslationKey,
+  getProrationChargeTranslationKey,
   PlanTier,
   PurchasableReference,
 } from "@bitwarden/pricing";
@@ -34,20 +36,33 @@ describe("cart preview translation keys", () => {
 
   const lineItemKeys = Object.values(InvoicePreviewFlowContext).flatMap((flowContext) =>
     allTiers.flatMap((planTier) =>
-      allReferences.map((reference) =>
+      allReferences.flatMap((reference) => [
         getCartItemTranslationKey(reference, planTier, flowContext, logService),
-      ),
+        // A single seat resolves the singular unit.
+        getCartItemTranslationKey(reference, planTier, flowContext, logService, 1),
+      ]),
     ),
   );
+
+  const prorationChargeKeys = allReferences.flatMap((reference) => [
+    getProrationChargeTranslationKey(reference, "pm-seat"),
+    getProrationChargeTranslationKey(reference, "sm-seat"),
+    getProrationChargeTranslationKey(undefined, "pm-seat"),
+    getProrationChargeTranslationKey(undefined, "sm-seat"),
+  ]);
 
   const creditKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
     getCreditTranslationKey(flowContext),
   );
 
-  // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
-  const resolvedKeys = [...new Set([...lineItemKeys, ...creditKeys])].filter(
-    (key): key is string => !!key,
+  const proratedSeatKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
+    getProratedSeatTranslationKey(flowContext),
   );
+
+  // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
+  const resolvedKeys = [
+    ...new Set([...lineItemKeys, ...creditKeys, ...prorationChargeKeys, ...proratedSeatKeys]),
+  ].filter((key): key is string => !!key);
 
   const localeMessages = messages as Record<string, { message: string } | undefined>;
 
@@ -62,12 +77,19 @@ describe("cart preview translation keys", () => {
         "familiesMembership",
         "teamsMembership",
         "enterpriseMembership",
+        "membersLower",
         "passwordManagerPlanPrice",
-        "additionalStorageGb",
         "secretsManagerPlanPrice",
-        "additionalServiceAccounts",
+        "additionalStorageGbLower",
+        "additionalServiceAccountsLower",
         "premiumSubscriptionCredit",
         "appliedSubscriptionCredits",
+        "passwordManagerProratedCharge",
+        "storageProratedCharge",
+        "secretsManagerProratedCharge",
+        "serviceAccountsProratedCharge",
+        "memberLower",
+        "planProratedMembershipInMonths",
       ].sort(),
     );
   });

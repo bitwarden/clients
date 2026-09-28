@@ -56,6 +56,9 @@ export class ImportSuccessDialogComponent implements OnInit {
     { type: CipherType.Identity, icon: "id-card", label: "typeIdentity" },
     { type: CipherType.SecureNote, icon: "sticky-note", label: "typeSecureNote" },
     { type: CipherType.SshKey, icon: "key", label: "typeSshKey" },
+    { type: CipherType.BankAccount, icon: "bank", label: "typeBankAccount" },
+    { type: CipherType.DriversLicense, icon: "id-card", label: "typeDriversLicense" },
+    { type: CipherType.Passport, icon: "passport", label: "typePassport" },
   ];
 
   constructor(
@@ -109,58 +112,21 @@ export class ImportSuccessDialogComponent implements OnInit {
       return [];
     }
 
-    let logins = 0;
-    let cards = 0;
-    let identities = 0;
-    let secureNotes = 0;
-    let sshKeys = 0;
-    importResult.ciphers.forEach((c) => {
-      switch (c.type) {
-        case CipherType.Login:
-          logins++;
-          break;
-        case CipherType.Card:
-          cards++;
-          break;
-        case CipherType.SecureNote:
-          secureNotes++;
-          break;
-        case CipherType.Identity:
-          identities++;
-          break;
-        case CipherType.SshKey:
-          sshKeys++;
-          break;
-        default:
-          break;
-      }
-    });
-
     const list: ResultList[] = [];
-    if (logins > 0) {
-      list.push({ icon: "globe", type: "typeLogin", count: logins });
+    for (const row of this.cipherTypeRows) {
+      const count = importResult.ciphers.filter((c) => c.type === row.type).length;
+      if (count > 0) {
+        list.push({ icon: row.icon, type: row.label, count });
+      }
     }
-    if (cards > 0) {
-      list.push({ icon: "credit-card", type: "typeCard", count: cards });
+    const folderCount = importResult.folders.length - (importResult.targetFolderIncluded ? 1 : 0);
+    if (folderCount > 0) {
+      list.push({ icon: "folder", type: "folders", count: folderCount });
     }
-    if (identities > 0) {
-      list.push({ icon: "id-card", type: "typeIdentity", count: identities });
-    }
-    if (secureNotes > 0) {
-      list.push({ icon: "sticky-note", type: "typeSecureNote", count: secureNotes });
-    }
-    if (sshKeys > 0) {
-      list.push({ icon: "key", type: "typeSshKey", count: sshKeys });
-    }
-    if (importResult.folders.length > 0) {
-      list.push({ icon: "folder", type: "folders", count: importResult.folders.length });
-    }
-    if (importResult.collections.length > 0) {
-      list.push({
-        icon: "collection",
-        type: "collections",
-        count: importResult.collections.length,
-      });
+    const collectionCount =
+      importResult.collections.length - (importResult.targetCollectionIncluded ? 1 : 0);
+    if (collectionCount > 0) {
+      list.push({ icon: "collection", type: "collections", count: collectionCount });
     }
     return list;
   }

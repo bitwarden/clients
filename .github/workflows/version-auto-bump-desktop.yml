@@ -17,7 +17,10 @@ concurrency:
 jobs:
   bump:
     name: Bump Desktop Version
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # head_branch is the tag name for a tag push. The signal workflow already skips
+    # prerelease tags; this repeats the check so the bump cannot run on one even if that
+    # skip stops producing a non-success conclusion.
+    if: ${{ github.event.workflow_run.conclusion == 'success' && !contains(github.event.workflow_run.head_branch, '-beta.') }}
     runs-on: ubuntu-24.04
     permissions:
       contents: read

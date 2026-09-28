@@ -84,6 +84,7 @@ import {
   VaultBatchBarService,
   VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilter,
+  Vfo1TerminologyService,
   createFilterFunction,
 } from "@bitwarden/vault";
 import {
@@ -180,6 +181,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly cipherActions = inject(VaultCipherActionsService);
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
   private readonly configService = inject(ConfigService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
@@ -422,14 +424,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.vaultBatchBarService.completed$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
-    combineLatest([this.organization$, this.allCollections$, this.ciphers$])
+    combineLatest([this.organization$, this.allCollections$, this.ciphers$, this.filter$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([organization, allCollections, ciphers]) => {
+      .subscribe(([organization, allCollections, ciphers, filter]) => {
         this.vaultBatchBarService.setConfig({
           isOrgVault: true,
           organization,
           allCollections,
           hasCiphers: ciphers.length > 0,
+          inTrash: filter.type === "trash",
         });
       });
 
@@ -724,7 +727,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       const activeFilter = this.activeFilter();
       queryParams = {
         type: activeFilter.cipherType,
-        collectionId: activeFilter.collectionId,
+        ...this.vfo1TerminologyService.collectionQueryParams(activeFilter.collectionId),
         deleted: activeFilter.isDeleted || null,
       };
     }
