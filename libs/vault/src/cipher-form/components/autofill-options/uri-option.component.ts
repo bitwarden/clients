@@ -22,7 +22,7 @@ import {
   ValidationErrors,
   Validator,
 } from "@angular/forms";
-import { concatMap, map, pairwise, take } from "rxjs";
+import { catchError, concatMap, EMPTY, map, pairwise, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -92,6 +92,10 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
   private matchDetectionSelect: SelectComponent<UriMatchStrategySetting>;
 
   private regexMatcher?: SdkUriRegexMatcher;
+  private savedValue?: { uri: string; matchDetection: UriMatchStrategySetting | null };
+
+  /** Why an already-saved pattern won't match; shown as a warning so the item stays saveable. */
+  protected savedRegexWarning: string | null = null;
 
   protected uriForm = this.formBuilder.group({
     uri: [null as string, (control: AbstractControl<string>) => this.validateRegex(control.value)],
@@ -231,6 +235,8 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
       .pipe(
         take(1),
         map((sdk) => new SdkUriRegexMatcher(sdk.vault().uri_matcher())),
+        // Without the SDK, validation is skipped and regex URIs don't match at autofill time.
+        catchError(() => EMPTY),
         takeUntilDestroyed(),
       )
       .subscribe((matcher) => {
@@ -294,6 +300,7 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
   // NG_VALUE_ACCESSOR implementation
   writeValue(value: { uri: string; matchDetection: UriMatchStrategySetting | null }): void {
     if (value) {
+      this.savedValue = { uri: value.uri ?? "", matchDetection: value.matchDetection ?? null };
       this.uriForm.setValue(
         {
           uri: value.uri ?? "",
@@ -322,9 +329,10 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
     this.onValidatorChange = fn;
   }
 
-  /** Rejects regular expressions the SDK won't evaluate, so they can't be saved. */
+  /** Rejects new or edited regular expressions the SDK won't evaluate, so they can't be saved. */
   private validateRegex(pattern: string | null): ValidationErrors | null {
     const strategy = this.uriForm?.controls.matchDetection.value;
+    this.savedRegexWarning = null;
     if (strategy !== UriMatchStrategy.RegularExpression || !pattern || !this.regexMatcher) {
       return null;
     }
@@ -333,8 +341,21 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
     if (error == null) {
       return null;
     }
-    const key = regexErrorMessageKeys[error] ?? "uriRegexInvalid";
-    return { invalidRegex: { message: this.i18nService.t(key) } };
+    const message = this.i18nService.t(regexErrorMessageKeys[error] ?? "uriRegexInvalid");
+
+    // Blocking an unchanged saved rule would stop users saving unrelated edits to the item.
+    if (this.isUnchangedSavedRegex(pattern)) {
+      this.savedRegexWarning = message;
+      return null;
+    }
+    return { invalidRegex: { message } };
+  }
+
+  private isUnchangedSavedRegex(pattern: string): boolean {
+    return (
+      this.savedValue?.matchDetection === UriMatchStrategy.RegularExpression &&
+      this.savedValue.uri === pattern
+    );
   }
 
   private revalidateUri() {

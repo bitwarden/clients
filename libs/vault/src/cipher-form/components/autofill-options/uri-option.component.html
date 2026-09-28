@@ -22,6 +22,12 @@
           data-testid="remove-uri-button"
         ></button>
       }
+      @if (savedRegexWarning) {
+        <bit-hint>
+          <b>{{ "uriRegexSavedNotUsed" | i18n }}</b>
+          {{ savedRegexWarning }}
+        </bit-hint>
+      }
     </bit-form-field>
     @if (canReorder) {
       <div class="tw-flex tw-items-center tw-ml-1.5 tw-self-end tw-min-h-10">

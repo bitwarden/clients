@@ -44,6 +44,7 @@ import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { NO_REGEX_MATCHES, UriRegexMatcher } from "@bitwarden/common/vault/utils/uri-regex-matcher";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -1701,7 +1702,11 @@ export default class AutofillService implements AutofillServiceInterface {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(pageUrl),
     );
-    const regexMatcher = await this.cipherService.getUriRegexMatcher();
+    const usesRegex =
+      CipherViewLikeUtils.getRegexUriPatterns(options.cipher, options.defaultUriMatch).length > 0;
+    const regexMatcher = usesRegex
+      ? await this.cipherService.getUriRegexMatcher()
+      : NO_REGEX_MATCHES;
     const matchesUri = options.cipher.login.matchesUri(
       pageUrl,
       equivalentDomains,

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { of } from "rxjs";
+import { FormBuilder, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { config, of, throwError } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -77,6 +77,7 @@ describe("UriOptionComponent", () => {
   });
 
   afterEach(() => {
+    config.onUnhandledError = null;
     jest.clearAllMocks();
   });
 
@@ -97,13 +98,14 @@ describe("UriOptionComponent", () => {
         });
       });
 
-    it("shows the SDK's reason when a regular expression can't be saved", () => {
+    const loadRegex = (uri: string) =>
+      component.writeValue({ uri, matchDetection: UriMatchStrategy.RegularExpression });
+
+    it("shows the SDK's reason when an edited regular expression can't be saved", () => {
+      loadRegex("^https://example\\.com/");
       rejectWith("UnsupportedConstruct");
 
-      component.writeValue({
-        uri: "x(?!.*logout)",
-        matchDetection: UriMatchStrategy.RegularExpression,
-      });
+      component["uriForm"].controls.uri.setValue("x(?!.*logout)");
 
       expect(uriMatcher.validate).toHaveBeenCalledWith("x(?!.*logout)");
       expect(component["uriForm"].controls.uri.errors).toEqual({
@@ -113,11 +115,31 @@ describe("UriOptionComponent", () => {
     });
 
     it("uses a generic message for invalid patterns", () => {
+      loadRegex("a");
       rejectWith("InvalidPattern");
 
-      component.writeValue({ uri: "(", matchDetection: UriMatchStrategy.RegularExpression });
+      component["uriForm"].controls.uri.setValue("(");
 
       expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexInvalid" } });
+    });
+
+    it("warns instead of blocking save when an unchanged saved pattern is rejected", () => {
+      rejectWith("UnsupportedConstruct");
+
+      loadRegex("x(?!.*logout)");
+
+      expect(component.validate()).toBeNull();
+      expect(component["savedRegexWarning"]).toBe("uriRegexUnsupported");
+    });
+
+    it("blocks save once a rejected saved pattern is edited", () => {
+      rejectWith("UnsupportedConstruct");
+      loadRegex("x(?!.*logout)");
+
+      component["uriForm"].controls.uri.setValue("y(?!.*logout)");
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexUnsupported" } });
+      expect(component["savedRegexWarning"]).toBeNull();
     });
 
     it("accepts regular expressions the SDK can evaluate", () => {
@@ -136,6 +158,28 @@ describe("UriOptionComponent", () => {
 
       expect(uriMatcher.validate).not.toHaveBeenCalled();
       expect(component.validate()).toBeNull();
+    });
+
+    it("skips validation when the SDK fails to load", async () => {
+      const onUnhandledError = jest.fn();
+      config.onUnhandledError = onUnhandledError;
+      const failingSdk = { client$: throwError(() => new Error("SDK failed")) };
+      const offline = TestBed.runInInjectionContext(
+        () =>
+          new UriOptionComponent(
+            dialogServiceMock,
+            TestBed.inject(FormBuilder),
+            TestBed.inject(I18nService),
+            failingSdk as unknown as SdkService,
+          ),
+      );
+
+      offline.writeValue({ uri: "(", matchDetection: UriMatchStrategy.RegularExpression });
+
+      expect(offline.validate()).toBeNull();
+      // RxJS reports unhandled errors on a timer.
+      await new Promise((resolve) => setTimeout(resolve));
+      expect(onUnhandledError).not.toHaveBeenCalled();
     });
 
     it("revalidates when the match strategy changes", () => {

@@ -5962,6 +5962,10 @@
     "message": "This regular expression uses a feature that isn't supported for URI matching, such as a word boundary, a long or nested lookaround, or a lookaround inside a repeat.",
     "description": "Form error shown when a website URI using the 'regular expression' match detection uses a construct whose matching cost can't be bounded."
   },
+  "uriRegexSavedNotUsed": {
+    "message": "This saved regular expression isn't used for autofill until it's updated.",
+    "description": "Warning shown on an existing website URI whose saved 'regular expression' match detection can no longer be evaluated. Followed by the reason."
+  },
   "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"

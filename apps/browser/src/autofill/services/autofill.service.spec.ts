@@ -4186,6 +4186,29 @@ describe("AutofillService", () => {
       );
       expect(result).toBe(true);
     });
+    it("only loads the regex matcher when the cipher has a regular expression URI", async () => {
+      const pageUrl = "https://subdomain.example.com";
+      const options = createGenerateFillScriptOptionsMock({ tabUrl: "https://www.example.com" });
+      const uri = new LoginUriView();
+      uri.uri = "https://www.example.com";
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ uris: [uri], matchesUri: jest.fn(() => true) });
+      const regexMatcher = { matches: jest.fn() };
+      cipherService.getUriRegexMatcher.mockResolvedValue(regexMatcher);
+
+      await autofillService["inUntrustedIframe"](pageUrl, options);
+      expect(cipherService.getUriRegexMatcher).not.toHaveBeenCalled();
+
+      uri.match = UriMatchStrategy.RegularExpression;
+      await autofillService["inUntrustedIframe"](pageUrl, options);
+      expect(cipherService.getUriRegexMatcher).toHaveBeenCalledTimes(1);
+      expect(options.cipher.login.matchesUri).toHaveBeenLastCalledWith(
+        pageUrl,
+        expect.anything(),
+        regexMatcher,
+        options.defaultUriMatch,
+      );
+    });
   });
 
   describe("fieldAttrsContain", () => {
