@@ -69,7 +69,6 @@ import {
   matchesSharedFolder,
   matchesType,
   matchesVault,
-  MY_VAULT,
   NO_FOLDER,
   organizationNameForScope,
   OrgIconDirective,
@@ -600,7 +599,6 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-          this.validateOrgChips(table, values);
         });
 
       // The controls hold their own values. Driven by the switcher, not the scope, which also
@@ -679,41 +677,5 @@ export class VaultPopupListTableComponent {
       return this.i18nService.t("nSharedFolders", collectionIds.length);
     }
     return collections[0]?.name;
-  }
-
-  /**
-   * Clears collection chip selections that are no longer valid for the newly-selected
-   * organizations. Called whenever the org chip changes.
-   */
-  private validateOrgChips(
-    table: BitTableV2Component<any, any, any>,
-    values: { organization?: string[]; collection?: string[] },
-  ): void {
-    const selectedOrgIds = (values.organization ?? []).filter((id) => id !== MY_VAULT);
-
-    if (!selectedOrgIds.length) {
-      return;
-    }
-
-    const currentCollectionIds = values.collection ?? [];
-    if (!currentCollectionIds.length) {
-      return;
-    }
-
-    const collectionOrgById = new Map<string | undefined, string | undefined>(
-      this.collectionOptions().map((o) => [o.value?.id, o.value?.organizationId]),
-    );
-
-    const validCollectionIds = currentCollectionIds.filter((id) => {
-      const organizationId = collectionOrgById.get(id);
-      return organizationId != null && selectedOrgIds.includes(organizationId);
-    });
-
-    if (validCollectionIds.length !== currentCollectionIds.length) {
-      table
-        .filterControls()
-        .find((c) => c.key() === "collection")
-        ?.setValue(validCollectionIds.length ? validCollectionIds : undefined);
-    }
   }
 }
