@@ -244,9 +244,11 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
         this.revalidateUri();
       });
 
-    this.uriForm.controls.matchDetection.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.revalidateUri());
+    this.uriForm.controls.matchDetection.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      // Errors only render once touched, and the parent's markAllAsTouched doesn't reach this form.
+      this.uriForm.controls.uri.markAsTouched();
+      this.revalidateUri();
+    });
 
     this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.onChange(value);
@@ -359,7 +361,8 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
   }
 
   private revalidateUri() {
-    this.uriForm.controls.uri.updateValueAndValidity({ emitEvent: false });
+    // `onlySelf` emits the status change the form field renders from, without marking the item dirty.
+    this.uriForm.controls.uri.updateValueAndValidity({ onlySelf: true });
     this.onValidatorChange();
   }
 

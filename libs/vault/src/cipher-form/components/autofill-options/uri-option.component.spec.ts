@@ -193,6 +193,35 @@ describe("UriOptionComponent", () => {
       expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexTooLong" } });
       expect(onValidatorChange).toHaveBeenCalled();
     });
+
+    it("doesn't report a change when loading a value", () => {
+      const onChange = jest.fn();
+      component.registerOnChange(onChange);
+
+      component.writeValue({ uri: "a", matchDetection: UriMatchStrategy.RegularExpression });
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it.each([false, true])(
+      "shows the error when switching to regular expression (URI touched: %s)",
+      (touched) => {
+        rejectWith("PatternTooLong");
+        fixture.detectChanges();
+        component.writeValue({ uri: "a", matchDetection: UriMatchStrategy.Domain });
+        if (touched) {
+          component["uriForm"].controls.uri.markAsTouched();
+          fixture.detectChanges();
+        }
+
+        component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.RegularExpression);
+        fixture.detectChanges();
+
+        const input = fixture.nativeElement.querySelector("input[formControlName='uri']");
+        expect(input.getAttribute("aria-invalid")).toBe("true");
+        expect(fixture.nativeElement.textContent).toContain("uriRegexTooLong");
+      },
+    );
   });
 
   it("should not update the default uri match strategy label when it is null", () => {
