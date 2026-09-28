@@ -69,6 +69,10 @@ export default {
                   return "Password Manager prorated charge";
                 case "discount":
                   return "discount";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -419,30 +423,19 @@ export const WithCredit: Story = {
   },
 };
 
-export const WithAppliedAccountBalance: Story = {
+export const WithAppliedBalance: Story = {
+  name: "With Applied Account Balance (Premium Renewal)",
   args: {
     cart: {
       passwordManager: {
-        seats: {
-          quantity: 1,
-          translationKey: "familiesMembership",
-          cost: 40.0,
-          hideBreakdown: true,
-        },
+        seats: { quantity: 1, translationKey: "premiumMembership", cost: 19.8 },
       },
       cadence: "annually",
-      credit: {
-        translationKey: "premiumSubscriptionCredit",
-        value: 6.67,
-      },
-      estimatedTax: 2.0,
-      accountCredit: {
-        translationKey: "accountCredit",
-        value: 10.0,
-      },
-      total: 25.33,
+      estimatedTax: 1.58,
+      total: 21.38,
+      appliedBalance: 12.96,
+      amountDue: 8.42,
     } satisfies Cart,
-    hidePricingTerm: true,
   },
 };
 
