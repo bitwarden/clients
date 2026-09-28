@@ -6,6 +6,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import { IWebAuthnPrfDecryptionOptionServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/webauthn-prf-decryption-option.response";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -34,7 +35,7 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec-util";
-import { WebAuthnLoginStrategy, WebAuthnLoginStrategyData } from "./webauthn-login.strategy";
+import { WebAuthnLoginStrategy } from "./webauthn-login.strategy";
 import {
   MockAuthenticatorAssertionResponse,
   MockPublicKeyCredential,
@@ -42,7 +43,6 @@ import {
 } from "./webauthn-login.strategy.spec-util";
 
 describe("WebAuthnLoginStrategy", () => {
-  let cache: WebAuthnLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
@@ -117,7 +117,7 @@ describe("WebAuthnLoginStrategy", () => {
     });
 
     webAuthnLoginStrategy = new WebAuthnLoginStrategy(
-      cache,
+      undefined,
       unlockService,
       accountService,
       masterPasswordService,
@@ -174,32 +174,34 @@ describe("WebAuthnLoginStrategy", () => {
   const mockEncUserKey =
     "4.Xht6K9GA9jKcSNy4TaIvdj7f9+WsgQycs/HdkrJi33aC//roKkjf3UTGpdzFLxVP3WhyOVGyo9f2Jymf1MFPdpg7AuMnpGJlcrWLDbnPjOJo4x5gUwwBUmy3nFw6+wamyS1LRmrBPcv56yKpf80k5Q3hUrum8q9YS9m2I10vklX/TaB1YML0yo+K1feWUxg8vIx+vloxhUdkkysvcV5xU3R+AgYLrwvJS8TLL7Ug/P5HxinCaIroRrNe8xcv84vyVnzPFdXe0cfZ0cpcrm586LwfEXP2seeldO/bC51Uk/mudeSALJURPC64f5ch2cOvk48GOTapGnssCqr6ky5yFw==";
 
+  const webAuthnPrfOptionServerResponse: IWebAuthnPrfDecryptionOptionServerResponse = {
+    EncryptedPrivateKey: mockEncPrfPrivateKey,
+    EncryptedUserKey: mockEncUserKey,
+    CredentialId: "mockCredentialId",
+    Transports: ["usb", "nfc"],
+  };
+
   const userDecryptionOptsServerResponseWithWebAuthnPrfOption: IUserDecryptionOptionsServerResponse =
     {
       HasMasterPassword: true,
-      WebAuthnPrfOption: {
-        EncryptedPrivateKey: mockEncPrfPrivateKey,
-        EncryptedUserKey: mockEncUserKey,
-        CredentialId: "mockCredentialId",
-        Transports: ["usb", "nfc"],
-      },
+      WebAuthnPrfOption: webAuthnPrfOptionServerResponse,
     };
 
   const mockIdTokenResponseWithModifiedWebAuthnPrfOption = (key: string, value: any) => {
     const userDecryptionOpts: IUserDecryptionOptionsServerResponse = {
       ...userDecryptionOptsServerResponseWithWebAuthnPrfOption,
       WebAuthnPrfOption: {
-        ...userDecryptionOptsServerResponseWithWebAuthnPrfOption.WebAuthnPrfOption,
+        ...webAuthnPrfOptionServerResponse,
         [key]: value,
       },
     };
-    return identityTokenResponseFactory(null, userDecryptionOpts);
+    return identityTokenResponseFactory(undefined, userDecryptionOpts);
   };
 
   it("returns successful authResult when api service returns valid credentials", async () => {
     // Arrange
     const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-      null,
+      undefined,
       userDecryptionOptsServerResponseWithWebAuthnPrfOption,
     );
 
@@ -231,7 +233,7 @@ describe("WebAuthnLoginStrategy", () => {
   it("decrypts and sets user key when webAuthn PRF decryption option exists with valid PRF key and enc key data", async () => {
     // Arrange
     const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-      null,
+      undefined,
       userDecryptionOptsServerResponseWithWebAuthnPrfOption,
     );
 
@@ -252,12 +254,12 @@ describe("WebAuthnLoginStrategy", () => {
     // Assert
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledTimes(1);
     expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
-      idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedPrivateKey,
+      idTokenResponse.userDecryptionOptions?.webAuthnPrfOption?.encryptedPrivateKey,
       webAuthnCredentials.prfKey,
     );
     expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledTimes(1);
     expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-      idTokenResponse.userDecryptionOptions.webAuthnPrfOption.encryptedUserKey,
+      idTokenResponse.userDecryptionOptions?.webAuthnPrfOption?.encryptedUserKey,
       mockPrfPrivateKey,
     );
     expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(userId, mockUserKey);
@@ -270,14 +272,14 @@ describe("WebAuthnLoginStrategy", () => {
   it("does not try to set the user key when prfKey is missing", async () => {
     // Arrange
     const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-      null,
+      undefined,
       userDecryptionOptsServerResponseWithWebAuthnPrfOption,
     );
 
     apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
 
     // Remove PRF key
-    webAuthnCredentials.prfKey = null;
+    webAuthnCredentials.prfKey = undefined;
 
     // Act
     await webAuthnLoginStrategy.logIn(webAuthnCredentials);
@@ -312,16 +314,18 @@ describe("WebAuthnLoginStrategy", () => {
   it("does not set the user key when the PRF encrypted private key decryption fails", async () => {
     // Arrange
     const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-      null,
+      undefined,
       userDecryptionOptsServerResponseWithWebAuthnPrfOption,
     );
 
     apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
 
-    encryptService.unwrapDecapsulationKey.mockResolvedValue(null);
+    encryptService.unwrapDecapsulationKey.mockRejectedValue(new Error("Unwrapping failed."));
 
     // Act
-    await webAuthnLoginStrategy.logIn(webAuthnCredentials);
+    await expect(webAuthnLoginStrategy.logIn(webAuthnCredentials)).rejects.toThrow(
+      "Unwrapping failed.",
+    );
 
     // Assert
     expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
@@ -330,16 +334,18 @@ describe("WebAuthnLoginStrategy", () => {
   it("does not set the user key when the encrypted user key decryption fails", async () => {
     // Arrange
     const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-      null,
+      undefined,
       userDecryptionOptsServerResponseWithWebAuthnPrfOption,
     );
 
     apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
 
-    encryptService.decapsulateKeyUnsigned.mockResolvedValue(null);
+    encryptService.decapsulateKeyUnsigned.mockRejectedValue(new Error("Decapsulation failed."));
 
     // Act
-    await webAuthnLoginStrategy.logIn(webAuthnCredentials);
+    await expect(webAuthnLoginStrategy.logIn(webAuthnCredentials)).rejects.toThrow(
+      "Decapsulation failed.",
+    );
 
     // Assert
     expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
@@ -355,7 +361,7 @@ describe("WebAuthnLoginStrategy", () => {
     };
 
     const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
-      null,
+      undefined,
       userDecryptionOptsServerResponseWithWebAuthnPrfOption,
     );
     // Add accountKeysResponseModel to the response
