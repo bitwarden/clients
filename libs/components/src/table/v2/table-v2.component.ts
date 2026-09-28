@@ -48,9 +48,10 @@ import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
-import { ColumnName } from "./column";
+import { ColumnName, CustomizableColumn } from "./column";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
+import { TableColumnPreferencesService } from "./table-column-preferences.service";
 import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
@@ -58,6 +59,9 @@ import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
+
+/** Shared empty set, so an uncustomized table's `hiddenColumnNames` keeps a stable identity. */
+const EMPTY_COLUMN_NAMES: ReadonlySet<string> = Object.freeze(new Set<string>());
 
 /**
  * Fixed heights (px) of group headers when virtualized. Must match the header chrome
@@ -295,6 +299,16 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * params win over `[filters]` and `defaultSort`. A no-op without a router in context.
    */
   readonly queryParam = input<string>();
+
+  /**
+   * Namespaces this table's stored column preference, and opts it into customization.
+   * Required once any `<bit-column>` is marked `customizable` — without it there is
+   * nowhere to persist the user's choice, so the Customize control stays hidden.
+   *
+   * Bind a constant from `table-customize-keys.ts`, which is checked for uniqueness:
+   * two tables sharing a key would share one stored set of hidden columns.
+   */
+  readonly customizeKey = input<string>();
 
   /**
    * The table's combined URL state, mirrored to the `queryParam` namespace. Seeds from
@@ -607,10 +621,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Registered columns resolved against {@link displayedColumns}, omitting any name
-   * with no registered `<bit-column>`.
+   * Registered columns resolved against {@link displayedColumns}, omitting any name with
+   * no registered `<bit-column>`. What the host allows, before the user's choices narrow it.
    */
-  readonly effectiveColumns = computed(() => {
+  readonly availableColumns = computed(() => {
     const registered = this._columns();
     const displayed = this.displayedColumns();
     if (!displayed) {
@@ -620,6 +634,44 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     return displayed
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
+  });
+
+  /**
+   * The columns the user may toggle. The first is excluded because it carries the row's
+   * identity, which is also what guarantees the table can never be emptied.
+   */
+  readonly customizableColumns = computed(() =>
+    this.availableColumns()
+      .slice(1)
+      .filter((col) => col.customizable()),
+  );
+
+  /** Whether the Customize control applies to this table. */
+  readonly canCustomizeColumns = computed(
+    () =>
+      this.customizeKey() != null &&
+      this.presentation() === "table" &&
+      this.customizableColumns().length > 0,
+  );
+
+  /** The stored hidden names, narrowed to columns that are currently togglable. */
+  readonly hiddenColumnNames = computed<ReadonlySet<string>>(() => {
+    const key = this.customizeKey();
+    if (key == null || !this.canCustomizeColumns()) {
+      return EMPTY_COLUMN_NAMES;
+    }
+    const stored = this.columnPreferences.hidden(key)();
+    const togglable = this.customizableColumns()
+      .map((col) => col.name())
+      .filter((name): name is string => name != null && stored.has(name));
+    return new Set(togglable);
+  });
+
+  /** {@link availableColumns} minus the columns the user hid. What actually renders. */
+  readonly effectiveColumns = computed(() => {
+    const hidden = this.hiddenColumnNames();
+    const available = this.availableColumns();
+    return hidden.size === 0 ? available : available.filter((col) => !hidden.has(col.name() ?? ""));
   });
 
   /** Total column count including the selection column — the `aria-colspan` a group header spans. */
@@ -688,6 +740,60 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   protected readonly isFill = computed(() => this.height() === "fill");
 
   private readonly scrollLayout = inject(ScrollLayoutService);
+
+  private readonly columnPreferences = inject(TableColumnPreferencesService);
+
+  /** The rendered header row, read for the column labels the Customize dialog shows. */
+  private readonly headerRowEl = viewChild(BitHeaderRowComponent, { read: ElementRef });
+
+  /**
+   * The togglable columns paired with their header text. Read on dialog open so labels are
+   * current; a column whose header has no text is omitted and stays visible.
+   */
+  customizableColumnLabels(): readonly CustomizableColumn[] {
+    const row = this.headerRowEl()?.nativeElement as HTMLElement | undefined;
+    if (!row) {
+      return [];
+    }
+    // Read the cells into a map rather than building a selector per column: a column key
+    // is arbitrary consumer text, and this sidesteps escaping it entirely.
+    const labels = new Map<string, string>();
+    for (const cell of row.querySelectorAll<HTMLElement>("[data-bit-column]")) {
+      labels.set(cell.dataset.bitColumn ?? "", cell.textContent?.trim() ?? "");
+    }
+
+    return this.customizableColumns().flatMap((col) => {
+      const name = col.name();
+      if (name == null) {
+        return [];
+      }
+      const label = labels.get(name) ?? "";
+      if (!label) {
+        this.logService?.warning(
+          `bit-table-v2: column "${name}" is customizable but its header has no text, ` +
+            "so it has no label to show in the Customize dialog. It will stay visible.",
+        );
+        return [];
+      }
+      return [{ name, label }];
+    });
+  }
+
+  /** Shows or hides one column. Idempotent, so callers needn't know the current state. */
+  setColumnHidden(name: string, hidden: boolean): void {
+    const key = this.customizeKey();
+    if (key != null) {
+      this.columnPreferences.setColumnHidden(key, name, hidden);
+    }
+  }
+
+  /** Clears this table's stored preference, restoring the declared column set. */
+  resetColumns(): void {
+    const key = this.customizeKey();
+    if (key != null) {
+      this.columnPreferences.reset(key);
+    }
+  }
 
   /**
    * The element the body scrolls in, virtualized or not — replaced when the table swaps between

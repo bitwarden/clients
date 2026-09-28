@@ -9,7 +9,7 @@ import { filter as rxFilter, map } from "rxjs";
 import { screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { GlobalStateProvider } from "@bitwarden/state";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
 
 import { AsyncActionsModule } from "../../async-actions";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
@@ -29,7 +29,7 @@ import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
 import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { TypographyModule } from "../../typography";
-import { I18nMockService, StorybookGlobalStateProvider } from "../../utils";
+import { I18nMockService, StorybookGlobalStateProvider, StorybookStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitCellLoadingDirective } from "./bit-cell-loading.directive";
@@ -973,6 +973,10 @@ export default {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,
         },
+        {
+          provide: StateProvider,
+          useClass: StorybookStateProvider,
+        },
         // Provided at the application (root) level so dialogs opened via DialogService —
         // which root their injector at the app injector, not the story module — resolve it.
         {
@@ -998,6 +1002,12 @@ export default {
               noMatchingItems: "No matching items",
               noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
               clearSearch: "Clear search",
+              customize: "Customize",
+              customizeYourView: "Customize your view",
+              showColumns: "Show columns",
+              resetToDefault: "Reset to default",
+              columnShown: (name) => `${name} column shown`,
+              columnHidden: (name) => `${name} column hidden`,
               oneFilterResult: "1 result",
               filterResults: (count) => `${count} results`,
               selectAllRows: "Select all rows",
@@ -1264,6 +1274,54 @@ export const ReorderedAndHidden: Story = {
       </bit-table-v2>
     `,
   }),
+};
+
+/** A table that opts two of its three columns into the Customize dialog. */
+const customizeColumnsTemplate = `
+  <bit-table-v2 [tableDef]="table" customizeKey="storybook-customize">
+    <bit-table-toolbar>
+      <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+    </bit-table-toolbar>
+    <bit-column sortable>
+      <bit-header-cell>Name</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+    </bit-column>
+    <bit-column customizable sortable>
+      <bit-header-cell>Id</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+    </bit-column>
+    <bit-column customizable sortable>
+      <bit-header-cell>Other</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+    </bit-column>
+  </bit-table-v2>
+`;
+
+/**
+ * A table opts into the column picker by setting `customizeKey` and marking the columns
+ * the user may hide. The **Customize** button then appears beside the search input, and
+ * each switch in the dialog applies immediately — the table re-lays out behind the scrim.
+ *
+ * The primary (first) column is never offered, so the user can always hide everything
+ * else and still have a table.
+ */
+export const CustomizeColumns: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: customizeColumnsTemplate,
+  }),
+};
+
+/** The dialog as it opens, with one switch per hideable column. */
+export const CustomizeColumnsDialogOpen: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: customizeColumnsTemplate,
+  }),
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: "Customize" }));
+  },
 };
 
 /**

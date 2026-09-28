@@ -37,6 +37,10 @@ import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
+import {
+  CustomizeColumnsDialogComponent,
+  CustomizeColumnsDialogParams,
+} from "./customize-columns-dialog.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
@@ -247,6 +251,34 @@ export class BitTableToolbarComponent {
     this.dialogService.open<unknown, FilterDialogParams>(FilterDialogComponent, {
       data: { filters: this.filters() },
     });
+  }
+
+  /**
+   * Whether to offer column customization. The viewport test lives here, not on the table:
+   * the table's own gate also drives header stamping and the stored preference, and
+   * narrowing the window must not un-hide the user's columns.
+   */
+  protected readonly canCustomizeColumns = computed(
+    () => (this.table?.canCustomizeColumns() ?? false) && this.isLargeScreen(),
+  );
+
+  /** Opens the column picker. Each switch applies immediately, behind the scrim. */
+  protected openCustomizeColumns(): void {
+    const table = this.table;
+    if (table == null) {
+      return;
+    }
+    this.dialogService.open<unknown, CustomizeColumnsDialogParams>(
+      CustomizeColumnsDialogComponent,
+      {
+        data: {
+          columns: table.customizableColumnLabels(),
+          hidden: table.hiddenColumnNames,
+          setHidden: (name, hidden) => table.setColumnHidden(name, hidden),
+          reset: () => table.resetColumns(),
+        },
+      },
+    );
   }
 
   /** Reset every projected filter's selection. Excludes search. */

@@ -59,6 +59,9 @@ export class BitHeaderCellComponent {
   /** True when there's no owning column, so the cell renders itself inline. */
   protected readonly manual = computed(() => this.column == null);
 
+  /** This cell's column key, so the table can find the rendered header. Null in manual mode. */
+  protected readonly columnName = computed(() => this.column?.name() ?? null);
+
   /**
    * Whether to render the sort affordance. The column must opt in via `sortable`,
    * and the table must be in `table` presentation — `list` presentation hides the

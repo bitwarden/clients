@@ -16,9 +16,20 @@
       }
     </label>
   }
-  @for (col of effectiveColumns(); track col.name()) {
+  @for (col of availableColumns(); track col.name()) {
     @if (col.headerTemplate(); as tpl) {
-      <ng-container *ngTemplateOutlet="tpl"></ng-container>
+      @if (!hiddenColumnNames().has(col.name() ?? "")) {
+        <ng-container *ngTemplateOutlet="tpl"></ng-container>
+      } @else {
+        <!--
+          A hidden column stays stamped so the Customize dialog can read its label: the
+          label is content-projected, so it exists in one place only and can't be rendered
+          again to be measured. `display: none` keeps it out of the grid and the tab order.
+        -->
+        <div class="tw-hidden" aria-hidden="true">
+          <ng-container *ngTemplateOutlet="tpl"></ng-container>
+        </div>
+      }
     }
   }
 </ng-template>

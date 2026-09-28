@@ -187,6 +187,50 @@ show every column in declaration order.**
 </bit-table-v2>
 ```
 
+### Letting the user choose columns
+
+Set `customizeKey` on the table and mark each column the user may hide with `customizable`. A
+**Customize** button then appears in the toolbar beside the search input, opening a dialog with one
+switch per marked column. Each switch applies immediately — the table re-lays out behind the scrim —
+and the choice is stored per user, so it survives a reload and a re-login. **Reset to default**
+turns every column back on, and is offered only once the user has actually changed something.
+
+```html
+<bit-table-v2 [tableDef]="table" customizeKey="members">
+  <bit-table-toolbar>
+    <bit-search [placeholder]="'search' | i18n"></bit-search>
+  </bit-table-toolbar>
+
+  <!-- The first column is the row's identity: never offered, always rendered. -->
+  <bit-column sortable>
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+
+  <bit-column customizable sortable>
+    <bit-header-cell>{{ "email" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+Rules worth knowing:
+
+- **`customizable` is opt-in.** An unmarked column always renders, so leave row-action columns
+  alone. A table with no column marked gets no Customize button at all, which is why an existing
+  table is unaffected until it opts in.
+- **The first column is never offered**, which is what guarantees the table can't be emptied.
+  Marking it has no effect.
+- **`customizeKey` is required.** Without somewhere to persist the choice the button stays hidden;
+  the key also namespaces the stored preference, so make it unique per table.
+- **The dialog labels each column with its header text**, read from the rendered header. A column
+  with an icon-only header has no label to show, so it is skipped and stays visible.
+- **`displayedColumns` still wins.** It decides what is _available_; the user's choice hides a
+  subset of that. A column the host drops never reaches the dialog, and a choice made about it is
+  remembered for when it returns.
+- **Not offered in `list` presentation**, which has no header, or below the `md` breakpoint. That is
+  what keeps the feature out of the browser extension and narrow viewports.
+
 ### Reusable columns
 
 You can move a column into its own component — a `<bit-column>` finds its table even from inside

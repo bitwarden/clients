@@ -7,6 +7,7 @@
     role="columnheader"
     class="tw-flex tw-items-center tw-h-12 tw-px-4 tw-py-0 tw-text-sm tw-font-medium tw-text-start"
     [attr.aria-sort]="ariaSort()"
+    [attr.data-bit-column]="columnName()"
   >
     @if (sortable()) {
       <button

@@ -25,6 +25,19 @@
         }
       </div>
     }
+    @if (canCustomizeColumns()) {
+      <button
+        type="button"
+        id="bit-table-toolbar_button_customize"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-sliders"
+        class="tw-flex-none"
+        (click)="openCustomizeColumns()"
+      >
+        {{ "customize" | i18n }}
+      </button>
+    }
     <div [class]="endSlotClasses()">
       <ng-content select="[slot=end]"></ng-content>
     </div>
