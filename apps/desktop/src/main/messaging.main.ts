@@ -1,5 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as fs from "fs";
+import * as path from "path";
+
 import { app, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
@@ -12,6 +15,8 @@ import { MenuUpdateRequest } from "./menu/menu.updater";
 
 const SyncInterval = 5 * 60 * 1000; // 5 minutes
 export const AUTOSTART_FLAG = "--autostart";
+// Launcher script that after-pack.js installs next to the Electron binary on Linux.
+const LINUX_LAUNCHER = "bitwarden";
 
 export class MessagingMain {
   private syncTimeout: NodeJS.Timeout;
@@ -119,7 +124,7 @@ export class MessagingMain {
     if (process.platform === "linux") {
       autostart
         .setAutostart(enabled, {
-          execPath: app.getPath("exe"),
+          execPath: this.linuxExecPath(),
           autostartFlag: AUTOSTART_FLAG,
         })
         .catch((e) => {
@@ -128,6 +133,18 @@ export class MessagingMain {
     } else {
       app.setLoginItemSettings({ openAtLogin: enabled, args: enabled ? [AUTOSTART_FLAG] : [] });
     }
+  }
+
+  // The launcher selects the ozone platform, so autostart must run it rather than the
+  // Electron binary. E.g. /opt/Bitwarden/bitwarden-app -> /opt/Bitwarden/bitwarden
+  private linuxExecPath(): string {
+    const exe = app.getPath("exe");
+    const launcher = path.join(path.dirname(exe), LINUX_LAUNCHER);
+    if (!fs.existsSync(launcher)) {
+      return exe;
+    }
+
+    return launcher;
   }
 
   private async setFocus() {
