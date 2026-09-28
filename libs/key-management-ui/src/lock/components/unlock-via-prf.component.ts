@@ -29,6 +29,7 @@ import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.servic
           (click)="unlockViaPrf()"
           [disabled]="unlocking"
           [loading]="unlocking"
+          data-testid="unlock-with-passkey-button"
         >
           <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
           {{ "unlockWithPasskey" | i18n }}
@@ -43,6 +44,7 @@ import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.servic
           (click)="unlockViaPrf()"
           [disabled]="unlocking"
           [loading]="unlocking"
+          data-testid="unlock-with-passkey-button"
         >
           <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
           {{ "unlockWithPasskey" | i18n }}

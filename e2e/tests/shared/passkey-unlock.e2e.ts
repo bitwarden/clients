@@ -40,7 +40,8 @@ const EXTENSION_VAULT_URL = /#\/tabs\//;
 const LOCK_URL = /#\/lock/;
 
 const PASSKEY_NAME = "e2e-shared-prf";
-const UNLOCK_WITH_PASSKEY = "Unlock with passkey";
+const UNLOCK_WITH_PASSKEY_BUTTON = "unlock-with-passkey-button";
+const PASSKEY_NAME_CELL = "passkey-name";
 
 async function logInToWebVault(page: Page) {
   await skipOnboardingDialogs(page);
@@ -84,7 +85,7 @@ test("unlocks the extension with a passkey registered on the web vault", async (
   const lockScreen = new LockScreen(tab);
   await lockScreen.waitUntilShown();
 
-  await tab.getByRole("button", { name: UNLOCK_WITH_PASSKEY }).click();
+  await tab.getByTestId(UNLOCK_WITH_PASSKEY_BUTTON).click();
   await tab.waitForURL(EXTENSION_VAULT_URL, { timeout: POST_LOGIN_TIMEOUT_MS });
   await lockScreen.waitUntilGone();
 
@@ -95,5 +96,7 @@ test("unlocks the extension with a passkey registered on the web vault", async (
   const cleanupSettings = new PasskeySettingsPage(cleanup);
   await cleanupSettings.open();
   await cleanupSettings.removeAll(PASSKEY_NAME, user.password);
-  await expect(cleanup.getByText(PASSKEY_NAME)).toHaveCount(0);
+  await expect(
+    cleanup.getByTestId(PASSKEY_NAME_CELL).and(cleanup.getByText(PASSKEY_NAME, { exact: true })),
+  ).toHaveCount(0);
 });
