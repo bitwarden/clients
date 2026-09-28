@@ -16,7 +16,7 @@ import { Matrix } from "../../../../spec/matrix";
 import { subscribeTo } from "../../../../spec/observable-tracker";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { AllowedFeatureFlagTypes, FeatureFlag } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
@@ -451,6 +451,102 @@ describe("ConfigService", () => {
       );
 
       expect(result).toBe(true);
+    });
+  });
+
+  describe("flight recorder gate", () => {
+    let sut: DefaultConfigService;
+    let overrideState: FakeGlobalState<Record<string, boolean | number | string>>;
+    const environmentSubject = new BehaviorSubject(environmentFactory(activeApiUrl));
+
+    beforeAll(async () => {
+      await accountService.switchAccount(null);
+    });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.globalEnvironment$ = environmentSubject;
+      overrideState = stateProvider.global.getFake(GLOBAL_FEATURE_FLAG_OVERRIDES);
+    });
+
+    /** Builds the service over a fresh config carrying the given flag states. */
+    const withConfig = async (featureStates: Record<string, AllowedFeatureFlagTypes>) => {
+      const config = new ServerConfig(new ServerConfigData({ featureStates }));
+      config.utcDate = new Date();
+      globalState.stateSubject.next({ [activeApiUrl]: config });
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      await firstValueFrom(sut.serverConfig$);
+    };
+
+    it("enables the recorder when the flag is on", async () => {
+      await withConfig({ [FeatureFlag.PM30935_FlightRecorderTsLogging]: true });
+
+      expect(logService.enableRecorder).toHaveBeenCalledWith(true);
+    });
+
+    it("disables the recorder when the flag is absent", async () => {
+      await withConfig({});
+
+      expect(logService.enableRecorder).toHaveBeenCalledWith(false);
+    });
+
+    it("honours a local override", async () => {
+      overrideState.stateSubject.next({
+        [FeatureFlag.PM30935_FlightRecorderTsLogging]: true,
+      });
+
+      await withConfig({ [FeatureFlag.PM30935_FlightRecorderTsLogging]: false });
+
+      expect(logService.enableRecorder).toHaveBeenCalledWith(true);
+    });
+
+    it("waits for the fetched config rather than gating on a stale one", async () => {
+      const stale = new ServerConfig(
+        new ServerConfigData({
+          featureStates: { [FeatureFlag.PM30935_FlightRecorderTsLogging]: false },
+        }),
+      );
+      stale.utcDate = tooOld;
+      globalState.stateSubject.next({ [activeApiUrl]: stale });
+      configApiService.get.mockResolvedValue(
+        new ServerConfigResponse({
+          featureStates: { [FeatureFlag.PM30935_FlightRecorderTsLogging]: true },
+        }),
+      );
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      await firstValueFrom(sut.serverConfig$);
+
+      // Gating on the stale config would disable first and drop the startup queue.
+      expect(logService.enableRecorder).not.toHaveBeenCalledWith(false);
+      expect(logService.enableRecorder).toHaveBeenCalledWith(true);
+    });
+
+    it("does not read the flag when nothing subscribes", () => {
+      new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+
+      // The gate hangs off the existing pipeline, so a run that never reads config
+      // never enables the recorder.
+      expect(logService.enableRecorder).not.toHaveBeenCalled();
     });
   });
 
