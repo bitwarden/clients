@@ -35,17 +35,16 @@
   @if (displayBaseUrl) {
     <bit-form-field>
       <bit-label>{{ "selfHostBaseUrl" | i18n }}</bit-label>
-      <input bitInput formControlName="baseUrl" type="text" (change)="save('baseUrl')" />
-    </bit-form-field>
-    <bit-form-control>
       <input
-        bitCheckbox
-        type="checkbox"
-        formControlName="allowUnsafeUrl"
-        (change)="save('allowUnsafeUrl')"
+        #baseUrlInput
+        bitInput
+        formControlName="baseUrl"
+        type="text"
+        (change)="onBaseUrlChange()"
       />
-      <bit-label>{{ "forwarderAllowUnsafeUrl" | i18n }}</bit-label>
-      <bit-hint>{{ "forwarderAllowUnsafeUrlHint" | i18n }}</bit-hint>
-    </bit-form-control>
+      @if (showTrustedHint) {
+        <bit-hint>{{ "forwarderUrlTrustedHint" | i18n }}</bit-hint>
+      }
+    </bit-form-field>
   }
 </form>

@@ -4,16 +4,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 
 /**
- * Rejects a self-hosted forwarder base URL that isn't https or targets a local/private host.
+ * Rejects a self-hosted forwarder base URL that can't be parsed as a url at all.
  *
- * @param isOverridden reports whether the user has deliberately approved the current value via
- *  the "allow unsafe url" disclaimer checkbox. Only waives the scheme/host rejection — a url
- *  that can't be parsed at all is always rejected, override or not.
+ * A well-formed but unsafe url (wrong scheme, or a private/loopback/link-local host) is
+ * deliberately NOT a form error here — per the design, that case is handled entirely by an
+ * imperative "Trust URL" confirmation dialog, not by inline form validation.
  */
-export function urlSafetyValidator(
-  i18nService: I18nService,
-  isOverridden: () => boolean = () => false,
-): ValidatorFn {
+export function urlSafetyValidator(i18nService: I18nService): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value as string;
     if (!value) {
@@ -21,15 +18,10 @@ export function urlSafetyValidator(
     }
 
     const unsafe = unsafeUrlReason(value);
-    if (!unsafe) {
+    if (unsafe?.code !== "invalid") {
       return null;
     }
 
-    if (unsafe.code !== "invalid" && isOverridden()) {
-      return null;
-    }
-
-    const messageKey = unsafe.code === "invalid" ? "forwarderMalformedUrl" : "forwarderUnsafeUrl";
-    return { unsafeUrl: { code: unsafe.code, message: i18nService.t(messageKey) } };
+    return { unsafeUrl: { code: unsafe.code, message: i18nService.t("forwarderMalformedUrl") } };
   };
 }
