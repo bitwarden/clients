@@ -23,6 +23,7 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 import { cleanUserAgent, DEV_ICON_FILE, isDev } from "../utils";
 
 import {
+  isFlatpak,
   isLinux,
   isMac,
   isMacAppStore,
@@ -150,7 +151,7 @@ export class WindowMain {
         this.win.setBackgroundColor(await this.getBackgroundColor());
 
         // By default some linux distro collect core dumps on crashes which gets written to disk.
-        if (this.enableRendererProcessForceCrashReload) {
+        if (this.enableRendererProcessForceCrashReload && (await this.secureRendererDumps())) {
           const crashEvent = once(this.win.webContents, "render-process-gone");
           this.win.webContents.forcefullyCrashRenderer();
           await crashEvent;
@@ -617,6 +618,23 @@ export class WindowMain {
 
   // Retrieve the background color
   // Resolves background color mismatch when starting the application.
+  // Renderers fork from the zygote, which starts before main disables its own core dumps, so
+  // unless the launcher script ran they keep the session's limit. Set it on the renderer about to
+  // be crashed. Flatpak renderers are covered by the process isolation preload.
+  private async secureRendererDumps(): Promise<boolean> {
+    if (!isLinux() || isFlatpak()) {
+      return true;
+    }
+
+    try {
+      await processisolations.disableCoredumpsFor(this.win.webContents.getOSProcessId());
+      return true;
+    } catch (e) {
+      this.logService.error("Failed to disable renderer coredumps, reloading without crash", e);
+      return false;
+    }
+  }
+
   async getBackgroundColor(): Promise<string> {
     let theme = await this.storageService.get("global_theming_selection");
 

@@ -403,6 +403,7 @@ export declare namespace powermonitors {
 
 export declare namespace processisolations {
   export function disableCoredumps(): Promise<void>
+  export function disableCoredumpsFor(pid: number): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>
   export function isolateProcess(): Promise<void>
 }

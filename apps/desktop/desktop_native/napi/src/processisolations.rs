@@ -8,6 +8,12 @@ pub mod processisolations {
 
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
+    pub async fn disable_coredumps_for(pid: u32) -> napi::Result<()> {
+        Ok(desktop_core::process_isolation::disable_coredumps_for(pid)?)
+    }
+
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
+    #[napi]
     pub async fn is_core_dumping_disabled() -> napi::Result<bool> {
         Ok(desktop_core::process_isolation::is_core_dumping_disabled()?)
     }

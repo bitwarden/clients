@@ -36,6 +36,34 @@ pub fn disable_coredumps() -> Result<()> {
     Ok(())
 }
 
+/// Disables core dumps of another process owned by the same user (e.g. a renderer) by setting its
+/// RLIMIT_CORE to 0 via prlimit.
+pub fn disable_coredumps_for(pid: u32) -> Result<()> {
+    let rlimit = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    info!(pid, "Disabling core dumps via prlimit.");
+
+    if unsafe {
+        libc::prlimit(
+            pid as libc::pid_t,
+            RLIMIT_CORE,
+            &rlimit,
+            std::ptr::null_mut(),
+        )
+    } != 0
+    {
+        let e = std::io::Error::last_os_error();
+        return Err(anyhow::anyhow!(
+            "failed to disable core dumping for {pid}, memory might be persisted to disk on crashes {}",
+            e
+        ));
+    }
+
+    Ok(())
+}
+
 /// Checks if core dumping is disabled by verifying that RLIMIT_CORE is set to 0.
 pub fn is_core_dumping_disabled() -> Result<bool> {
     let mut rlimit = libc::rlimit {
@@ -68,4 +96,31 @@ pub fn isolate_process() -> Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn disable_coredumps_for_sets_child_core_limit_to_zero() {
+        let mut child = std::process::Command::new("sleep")
+            .arg("5")
+            .spawn()
+            .unwrap();
+
+        disable_coredumps_for(child.id()).unwrap();
+
+        let limits = std::fs::read_to_string(format!("/proc/{}/limits", child.id())).unwrap();
+        child.kill().unwrap();
+        child.wait().unwrap();
+        let core = limits
+            .lines()
+            .find(|l| l.starts_with("Max core file size"))
+            .unwrap();
+        assert_eq!(
+            core.split_whitespace().collect::<Vec<_>>()[4..6],
+            ["0", "0"]
+        );
+    }
 }

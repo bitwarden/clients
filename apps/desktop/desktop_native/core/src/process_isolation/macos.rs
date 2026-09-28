@@ -7,6 +7,11 @@ pub fn disable_coredumps() -> Result<()> {
 }
 
 #[allow(missing_docs)]
+pub fn disable_coredumps_for(_pid: u32) -> Result<()> {
+    bail!("Not implemented on Mac")
+}
+
+#[allow(missing_docs)]
 pub fn is_core_dumping_disabled() -> Result<bool> {
     bail!("Not implemented on Mac")
 }

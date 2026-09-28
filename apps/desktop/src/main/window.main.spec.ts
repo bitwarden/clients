@@ -1,11 +1,15 @@
+import { EventEmitter } from "events";
 import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
+import { ipcMain } from "electron";
 import { mock } from "jest-mock-extended";
+import { NEVER } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { SafeShell } from "../platform/main/safe-shell.main";
@@ -32,6 +36,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
     isolateProcess: jest.fn(),
     isCoreDumpingDisabled: jest.fn(),
     disableCoredumps: jest.fn(),
+    disableCoredumpsFor: jest.fn(),
   },
 }));
 
@@ -107,6 +112,91 @@ describe("WindowMain", () => {
     it("returns false for an unparseable string without throwing", () => {
       expect(isLocalBundleUrl("not a url")).toBe(false);
     });
+  });
+});
+
+describe("reload-process", () => {
+  const RENDERER_PID = 4242;
+  const originalPlatform = process.platform;
+
+  let reload: () => Promise<void>;
+  let webContents: EventEmitter & {
+    forcefullyCrashRenderer: jest.Mock;
+    reloadIgnoringCache: jest.Mock;
+    getOSProcessId: jest.Mock;
+  };
+
+  beforeEach(async () => {
+    (global as any).BIT_ENVIRONMENT = "production";
+    // jsdom lacks setImmediate, which the reload uses to let the crashed renderer tear down.
+    (global as any).setImmediate ??= (fn: () => void) => setTimeout(fn, 0);
+    Object.defineProperty(process, "platform", { value: "linux", configurable: true });
+
+    // Crashing the renderer emits render-process-gone, which the reload awaits.
+    webContents = Object.assign(new EventEmitter(), {
+      forcefullyCrashRenderer: jest.fn(() => webContents.emit("render-process-gone")),
+      reloadIgnoringCache: jest.fn(),
+      getOSProcessId: jest.fn(() => RENDERER_PID),
+    });
+
+    const desktopSettingsService = mock<DesktopSettingsService>();
+    desktopSettingsService.modalMode$ = NEVER;
+    desktopSettingsService.preventScreenshots$ = NEVER;
+
+    const sut = new WindowMain(
+      mock<BiometricStateService>(),
+      mock<LogService>(),
+      mock<AbstractStorageService>(),
+      desktopSettingsService,
+      mock<SafeShell>(),
+      null,
+      () => {},
+      null,
+    );
+    jest.spyOn(sut, "getBackgroundColor").mockResolvedValue("#000000");
+    sut.win = { setBackgroundColor: jest.fn(), webContents } as any;
+    sut.session = { clearCache: jest.fn() } as any;
+
+    // init() rejects without a real electron app; only its ipc registration is needed.
+    sut.init().catch(() => {});
+    reload = jest
+      .mocked(ipcMain.on)
+      .mock.calls.find(([channel]) => channel === "reload-process")[1] as any;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+    delete (global as any).BIT_ENVIRONMENT;
+  });
+
+  it("disables renderer core dumps before crashing it", async () => {
+    jest.mocked(processisolations.disableCoredumpsFor).mockResolvedValue();
+
+    await reload();
+
+    expect(processisolations.disableCoredumpsFor).toHaveBeenCalledWith(RENDERER_PID);
+    expect(webContents.forcefullyCrashRenderer).toHaveBeenCalled();
+    expect(webContents.reloadIgnoringCache).toHaveBeenCalled();
+  });
+
+  it("reloads without crashing when renderer core dumps cannot be disabled", async () => {
+    jest.mocked(processisolations.disableCoredumpsFor).mockRejectedValue(new Error("EPERM"));
+
+    await reload();
+
+    expect(webContents.forcefullyCrashRenderer).not.toHaveBeenCalled();
+    expect(webContents.reloadIgnoringCache).toHaveBeenCalled();
+  });
+
+  it("crashes without touching the renderer on Flatpak", async () => {
+    process.env.container = "flatpak";
+
+    await reload();
+
+    delete process.env.container;
+    expect(processisolations.disableCoredumpsFor).not.toHaveBeenCalled();
+    expect(webContents.forcefullyCrashRenderer).toHaveBeenCalled();
   });
 });
 
