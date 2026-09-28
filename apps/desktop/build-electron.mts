@@ -26,7 +26,9 @@ import { Logger, runCommand } from "./scripts/build-support.mts";
 import WebpackBuildTask from "./build-app.mts";
 import ChromiumImporterBuildTask from "./desktop_native/chromium_importer/build-chromium-importer.mts";
 import ProcessIsolationBuildTask from "./desktop_native/process_isolation/build-process-isolation.mts";
-import DesktopProxyBuildTask from "./desktop_native/proxy/build-desktop-proxy.mts";
+import DesktopProxyBuildTask, {
+  desktopProxyEntitlementsPaths,
+} from "./desktop_native/proxy/build-desktop-proxy.mts";
 import NapiBuildTask from "./desktop_native/napi/scripts/build-napi.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "./macos/Scripts/build-autofill-extension.mts";
 
@@ -48,6 +50,9 @@ import plist from "plist";
 const SOURCE_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 const ELECTRON_FRAMEWORK = "Electron Framework.framework";
+
+/// Everything in the electron-builder configuration that does not vary per build.
+const BASE_CONFIG = path.resolve(SOURCE_DIR, "electron-builder.base.json");
 
 /// Where the native addon lives inside the packaged app, which is where index.js looks for it.
 const NAPI_PACKAGE = "node_modules/@bitwarden/desktop-napi";
@@ -193,33 +198,41 @@ const ElectronBuildTask: BuildTask = {
       projectDir: SOURCE_DIR,
       // The hooks and the absolute paths go on after the file is written -- what is recorded there
       // stays the configuration, relative and readable, not the form it has to take to run.
-      config: {
-        ...baseConfig,
-        files: [...(baseConfig.files ?? []), ...nativeModule(config)],
-        asarUnpack: [...(baseConfig.asarUnpack ?? []), "**/desktop_napi.*.node"],
-        ...{
-          directories: {
-            buildResources: path.resolve(SOURCE_DIR, "resources"),
-            app: getBuildDirectories(config, WebpackBuildTask).outputDir,
-            output: privateDir,
+      config: mergePlatformSections(
+        {
+          // Named rather than spread in, because otherwise electron-builder goes looking for a
+          // configuration of its own in the project directory -- and finds Legacy's
+          // electron-builder.json, which names binaries this build did not produce. It loads the
+          // file named here instead, and merges the rest of this object over it. Arrays are merged
+          // as a union, so only what this build adds to them goes here.
+          extends: BASE_CONFIG,
+          files: nativeModule(config),
+          asarUnpack: ["**/desktop_napi.*.node"],
+          ...{
+            directories: {
+              buildResources: path.resolve(SOURCE_DIR, "resources"),
+              app: getBuildDirectories(config, WebpackBuildTask).outputDir,
+              output: privateDir,
+            },
+            // Returning false tells electron-builder that node_modules are handled elsewhere, so it
+            // neither rebuilds native dependencies nor collects any. Webpack bundles everything the
+            // app uses except the externals, so there is nothing to collect -- but the webpack output
+            // has no node_modules, and electron-builder would otherwise go looking in the workspace
+            // root and package all of that.
+            beforeBuild: async () => false,
+            beforePack: () => {},
+            afterPack: (context: AfterPackContext) => afterPack(config, privateDir, context),
+            afterSign: () => afterSign(config, privateDir),
           },
-          // Returning false tells electron-builder that node_modules are handled elsewhere, so it
-          // neither rebuilds native dependencies nor collects any. Webpack bundles everything the
-          // app uses except the externals, so there is nothing to collect -- but the webpack output
-          // has no node_modules, and electron-builder would otherwise go looking in the workspace
-          // root and package all of that.
-          beforeBuild: async () => false,
-          beforePack: () => {},
-          afterPack: (context: AfterPackContext) => afterPack(config, privateDir, context),
-          afterSign: () => afterSign(config, privateDir),
-        },
-        ...macConfig,
-        /*
+          ...macConfig,
+          /*
         ...withAbsoluteSigningPaths(resolved),
         ...packHooks(config),
         ...appxManifestHook(config),
         */
-      },
+        },
+        nativeExecutables(config),
+      ),
       targets: ElectronPlatformMap[config.platform].createTarget(
         electronTargets,
         ElectronArchitectureMap[config.architecture],
@@ -254,6 +267,70 @@ const ElectronBuildTask: BuildTask = {
 function nativeModule(config: BuildConfig) {
   const { outputDir: napiOutputDir } = getBuildDirectories(config, NapiBuildTask);
   return [{ from: napiOutputDir, to: NAPI_PACKAGE, filter: ["*.node", "index.js"] }];
+}
+
+/// The executables other build tasks produced that ship beside the app, for whichever of those
+/// tasks are part of this build. Keyed by the platform section of the configuration they belong
+/// in.
+function nativeExecutables(config: BuildConfig): Configuration {
+  const built = (task: BuildTask, file: string) =>
+    config.targets.includes(task.targetName)
+      ? [path.join(getBuildDirectories(config, task).outputDir, file)]
+      : [];
+
+  switch (config.platform) {
+    case "macos":
+      return {
+        mac: {
+          // The same binary twice: the browser launches desktop_proxy, which has to name the app
+          // group itself, and the app launches desktop_proxy.inherit, which takes on the app's
+          // sandbox. afterPack signs each with its own entitlements.
+          extraFiles: built(DesktopProxyBuildTask, "desktop_proxy").flatMap((from) => [
+            { from, to: "MacOS/desktop_proxy" },
+            { from, to: "MacOS/desktop_proxy.inherit" },
+          ]),
+        },
+      };
+    case "windows":
+      return {
+        win: {
+          extraFiles: [
+            ...built(DesktopProxyBuildTask, "desktop_proxy.exe").map((from) => ({
+              from,
+              to: "desktop_proxy.exe",
+            })),
+            ...built(ChromiumImporterBuildTask, "bitwarden_chromium_import_helper.exe").map(
+              (from) => ({ from, to: "bitwarden_chromium_import_helper.exe" }),
+            ),
+          ],
+        },
+      };
+    case "linux":
+      return {
+        linux: {
+          extraFiles: [
+            ...built(DesktopProxyBuildTask, "desktop_proxy").map((from) => ({
+              from,
+              to: "desktop_proxy",
+            })),
+            ...built(ProcessIsolationBuildTask, "libprocess_isolation.so").map((from) => ({
+              from,
+              to: "libprocess_isolation.so",
+            })),
+          ],
+        },
+      };
+  }
+}
+
+/// Merges each platform section of `sections` into the one already in `config`, rather than
+/// replacing it.
+function mergePlatformSections(config: Configuration, sections: Configuration): Configuration {
+  const merged: Record<string, unknown> = { ...config };
+  for (const [key, section] of Object.entries(sections)) {
+    merged[key] = { ...(merged[key] as object), ...section };
+  }
+  return merged as Configuration;
 }
 
 /// Where configure writes the entitlements the app is signed with. electron-builder hands these
@@ -582,6 +659,13 @@ async function afterPack(config: BuildConfig, privateDir: string, context: After
       await runCommand("cp", ["-cR", signedFrameworkPaths(privateDir).framework, frameworkPath]);
     }
 
+    if (
+      config.macos?.signingCertificate != null &&
+      config.targets.includes(DesktopProxyBuildTask.targetName)
+    ) {
+      await signDesktopProxy(config, appDir);
+    }
+
     if (config.targets.includes(BitwardenMacosAutofillExtensionBuildTask.targetName)) {
       const extensionDir = path.join(
         getBuildDirectories(config, BitwardenMacosAutofillExtensionBuildTask).outputDir,
@@ -589,6 +673,33 @@ async function afterPack(config: BuildConfig, privateDir: string, context: After
       );
       await copyMacOsPlugin(appDir, extensionDir);
     }
+  }
+}
+
+/// Signs both copies of the proxy, each with the entitlements DesktopProxyBuildTask's configure
+/// wrote for it, before electron-builder signs the app. electron-builder is told to leave them
+/// alone (`signIgnore` in the base configuration), because it would sign them with the app's
+/// inherited entitlements. They take the app's identifier, as the app group they share is named
+/// after it.
+async function signDesktopProxy(config: BuildConfig, appDir: string) {
+  const entitlements = desktopProxyEntitlementsPaths(config);
+  for (const [name, entitlementsPath] of [
+    ["desktop_proxy", entitlements.desktopProxy],
+    ["desktop_proxy.inherit", entitlements.desktopProxyInherit],
+  ]) {
+    await runCommand("codesign", [
+      "--sign",
+      config.macos!.signingCertificate!,
+      "--identifier",
+      config.derived.appId,
+      "--force",
+      wantsSecureTimestamp(config) ? "--timestamp" : "--timestamp=none",
+      "--options",
+      "runtime",
+      "--entitlements",
+      entitlementsPath,
+      path.join(appDir, "Contents/MacOS", name),
+    ]);
   }
 }
 

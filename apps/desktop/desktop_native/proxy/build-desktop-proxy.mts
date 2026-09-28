@@ -2,8 +2,10 @@ import { copyFileSync, readFileSync, utimesSync, statSync, writeFileSync, rename
 import path from "path";
 import { fileURLToPath } from 'url';
 
+import plist from "plist";
+
 import { runCargoBuild, rustTargetsFor } from "../../scripts/build-support-rust.mts";
-import { BuildError, type BuildConfig, type BuildTask } from "../../scripts/build-config.mts";
+import { BuildError, type BuildConfig, type BuildTask, getBuildDirectories } from "../../scripts/build-config.mts";
 import { addDepFileEntry, Logger, processDepFile, runCommand, withExt, withStemSuffix } from "../../scripts/build-support.mts";
 
 const SOURCE_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -34,7 +36,11 @@ const DesktopProxyBuildTask: BuildTask = {
     }
   },
 
-  async configure(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {},
+  async configure(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
+    if (config.platform === "macos") {
+      writeEntitlements(config);
+    }
+  },
 
   async build(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
     const taskDepFilePath = path.join(privateDir, `${this.targetName}.d`);
@@ -93,6 +99,46 @@ const DesktopProxyBuildTask: BuildTask = {
       appendFileSync(taskDepFilePath, contents);
     }
   },
+}
+
+/// Where configure writes the entitlements each copy of the proxy is signed with on macOS. The app
+/// ships the same binary twice, and whoever packages it signs each copy with its own.
+export function desktopProxyEntitlementsPaths(config: BuildConfig) {
+  const { privateDir } = getBuildDirectories(config, DesktopProxyBuildTask);
+  return {
+    /// For desktop_proxy, which the browser launches.
+    desktopProxy: path.join(privateDir, "desktop_proxy.entitlements"),
+    /// For desktop_proxy.inherit, which the app launches.
+    desktopProxyInherit: path.join(privateDir, "desktop_proxy.inherit.entitlements"),
+  };
+}
+
+function writeEntitlements(config: BuildConfig) {
+  const paths = desktopProxyEntitlementsPaths(config);
+  const write = (destination: string, entitlements: plist.PlistObject) =>
+    writeFileSync(destination, `${plist.build(entitlements, { indent: "\t", offset: -1 })}\n`);
+
+  if (config.derived.macos!.isMasBuild) {
+    // Launched by the browser, so it has no sandbox to inherit and has to name the app group
+    // itself -- that group is the only way it can reach the app.
+    write(paths.desktopProxy, {
+      "com.apple.security.app-sandbox": true,
+      "com.apple.security.application-groups": [config.derived.macos!.ipcAppGroup],
+      "com.apple.security.cs.allow-jit": true,
+    });
+    // Launched by the app, whose sandbox it takes on.
+    write(paths.desktopProxyInherit, {
+      "com.apple.security.app-sandbox": true,
+      "com.apple.security.inherit": true,
+      "com.apple.security.cs.allow-jit": true,
+    });
+  } else {
+    // Outside the sandbox the proxy needs nothing of its own, and gets what any other child
+    // process of the app gets.
+    for (const destination of [paths.desktopProxy, paths.desktopProxyInherit]) {
+      write(destination, { "com.apple.security.cs.allow-jit": true });
+    }
+  }
 }
 
 export default DesktopProxyBuildTask;

@@ -51,7 +51,8 @@ const ProcessIsolationBuildTask: BuildTask = {
         "macos": "dylib",
         "windows": "dll",
     }[platform];
-    const artifactBasename = `${CRATE_PACKAGE_NAME}.${extension}`;
+    // Cargo names a cdylib lib<name> everywhere but Windows.
+    const artifactBasename = `${platform == "windows" ? "" : "lib"}${CRATE_PACKAGE_NAME}.${extension}`;
     for (const target of rustTargets) {
       const cargoResult = await runCargoBuild(cargoBin, CRATE_PACKAGE_NAME, [], target, profile);
 
