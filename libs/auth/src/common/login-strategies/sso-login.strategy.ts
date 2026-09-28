@@ -54,7 +54,7 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
   /**
    * @see {@link SsoLoginStrategyData.email}
    */
-  email$: Observable<string | null>;
+  email$: Observable<string | undefined>;
   /**
    * @see {@link SsoLoginStrategyData.orgId}
    */
@@ -62,7 +62,7 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
   /**
    * @see {@link SsoLoginStrategyData.ssoEmail2FaSessionToken}
    */
-  ssoEmail2FaSessionToken$: Observable<string | null>;
+  ssoEmail2FaSessionToken$: Observable<string | undefined>;
 
   protected cache: BehaviorSubject<SsoLoginStrategyData>;
 

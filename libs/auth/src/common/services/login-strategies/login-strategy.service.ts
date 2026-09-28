@@ -128,49 +128,49 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     );
   }
 
-  async getEmail(): Promise<string | null> {
+  async getEmail(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "email$" in strategy) {
       return await firstValueFrom(strategy.email$);
     }
-    return null;
+    return undefined;
   }
 
-  async getMasterPasswordHash(): Promise<string | null> {
+  async getMasterPasswordHash(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "serverMasterKeyHash$" in strategy) {
       return await firstValueFrom(strategy.serverMasterKeyHash$);
     }
-    return null;
+    return undefined;
   }
 
-  async getSsoEmail2FaSessionToken(): Promise<string | null> {
+  async getSsoEmail2FaSessionToken(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "ssoEmail2FaSessionToken$" in strategy) {
       return await firstValueFrom(strategy.ssoEmail2FaSessionToken$);
     }
-    return null;
+    return undefined;
   }
 
-  async getAccessCode(): Promise<string | null> {
+  async getAccessCode(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "accessCode$" in strategy) {
       return await firstValueFrom(strategy.accessCode$);
     }
-    return null;
+    return undefined;
   }
 
-  async getAuthRequestId(): Promise<string | null> {
+  async getAuthRequestId(): Promise<string | undefined> {
     const strategy = await firstValueFrom(this.loginStrategy$);
 
     if (strategy && "authRequestId$" in strategy) {
       return await firstValueFrom(strategy.authRequestId$);
     }
-    return null;
+    return undefined;
   }
 
   async logIn(
