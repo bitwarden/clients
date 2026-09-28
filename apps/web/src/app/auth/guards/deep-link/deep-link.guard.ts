@@ -33,12 +33,11 @@ export function deepLinkGuard(): CanActivateFn {
       const persistedPreLoginUrl: string | undefined =
         await routerService.getAndClearLoginRedirectUrl();
       if (persistedPreLoginUrl === undefined) {
-        // Url us undefined, so there is nothing to navigate to.
+        // Url is undefined, so there is nothing to navigate to.
         return true;
       }
       // Check if the url is empty or null
       if (!Utils.isNullOrEmpty(persistedPreLoginUrl)) {
-        // const urlTree: string | UrlTree = persistedPreLoginUrl;
         return router.navigateByUrl(persistedPreLoginUrl);
       }
       return true;
