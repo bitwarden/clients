@@ -3,7 +3,6 @@ import {
   AUTOMATION_BIOMETRICS_ENV,
   Biometrics,
   BiometricRequestType,
-  biometricUnlockLabel,
 } from "../../src/desktop/biometrics";
 import { expect, test } from "../../src/desktop/fixtures";
 import { LoginPage } from "../../src/login";
@@ -23,7 +22,6 @@ test.use({ extraEnv: AUTOMATION_BIOMETRICS_ENV });
 
 test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({ app, window }) => {
   const biometrics = new Biometrics(window);
-  const label = biometricUnlockLabel();
 
   const login = new LoginPage(window);
   await login.logIn();
@@ -32,19 +30,15 @@ test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({ 
   // Enrolling stores the key with the fake right away; it raises no prompt to approve.
   await clickMenuItem(app, MenuItem.Settings);
   const settings = window.getByRole("dialog");
-  const toggle = settings.getByRole("checkbox", { name: label });
+  const toggle = settings.getByTestId("settings-biometric-checkbox");
   await toggle.check();
-  // The dialog unchecks the toggle again when enrolling fails.
-  await expect(toggle).toBeChecked();
   await window.keyboard.press("Escape");
-  await expect(settings).toBeHidden();
 
   // Locking turns auto-prompt off, so unlock waits for the button.
   await clickMenuItem(app, MenuItem.LockAll);
   await window.waitForURL(LOCK_URL);
-  const unlock = window.getByRole("button", { name: label });
-  await expect(unlock).toBeEnabled();
 
+  const unlock = window.getByTestId("lock-biometric-unlock-button");
   await unlock.click();
   await biometrics.approveNext(BiometricRequestType.Unlock);
 

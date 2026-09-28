@@ -24,7 +24,12 @@
 
         @if (supportsBiometric()) {
           <bit-form-control>
-            <input type="checkbox" bitCheckbox formControlName="biometric" />
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="biometric"
+              data-testid="settings-biometric-checkbox"
+            />
             <bit-label>{{ biometricText | i18n }}</bit-label>
             @if (form.value.biometric && isMac) {
               <bit-hint>{{ "additionalTouchIdSettings" | i18n }}</bit-hint>
