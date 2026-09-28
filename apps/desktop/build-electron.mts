@@ -146,6 +146,11 @@ const ElectronBuildTask: BuildTask = {
         ...(entitlements.loginHelper != null
           ? { entitlementsLoginHelper: entitlements.loginHelper }
           : {}),
+        // A secure timestamp is a round trip to Apple for each of the ~250 files codesign signs,
+        // which is most of the signing time. Notarization requires one, and a public build may
+        // be notarized or submitted later, but an internal build that is not notarized cannot
+        // pass Gatekeeper on another developer's machine anyway, so it has no use for one.
+        ...(!config.macos!.notarize && config.audience === "internal" ? { timestamp: "none" } : {}),
       };
       const nullSigning = { identity: null, provisioningProfile: null };
       if (config.derived.macos!.isMasBuild) {
