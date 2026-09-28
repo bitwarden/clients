@@ -1,7 +1,8 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent } from "storybook/test";
+import { expect, userEvent, waitFor } from "storybook/test";
 
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -97,6 +98,38 @@ export const WithContent: Story = {
 export const WithContentVfo1: Story = {
   ...WithContent,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const StickyHeaderAndFooterVfo1: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo, items: Array.from({ length: 30 }, (_, i) => i) },
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav>
+          <bit-nav-logo [openIcon]="logo" [route]="['']" label="Password Manager"></bit-nav-logo>
+          @for (item of items; track item) {
+          <bit-nav-item text="Collection {{ item }}" icon="bwi-collection"></bit-nav-item>
+          }
+          <bit-nav-item slot="account" text="My account" icon="bwi-user"></bit-nav-item>
+        </bit-side-nav>
+        <bit-callout title="Foobar"> Hello world! </bit-callout>
+      </bit-layout>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    // The nav scrolls itself, not the page; the sticky bands only engage once it is 600px tall.
+    const scroller = await waitFor(() => {
+      const el = canvasElement.querySelector<HTMLElement>("#bit-side-nav--scroll");
+      if (el == null) {
+        throw new Error("Side nav scroll container has not rendered");
+      }
+      return el;
+    });
+
+    scroller.scrollTop = 400;
+    await waitFor(async () => await expect(scroller.scrollTop).toBeGreaterThan(0));
+  },
 };
 
 export const SkipLinks: Story = {
