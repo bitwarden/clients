@@ -602,7 +602,8 @@ export class SettingsDialogComponent implements OnInit {
   private showAutostartSetting(): boolean {
     // Windows store does not support autostart
     // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
-    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
+    // AppImage runs from a temporary mount, so an autostart entry would not survive a reboot
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isAppImage;
   }
 
   protected async saveOpenAtLogin() {

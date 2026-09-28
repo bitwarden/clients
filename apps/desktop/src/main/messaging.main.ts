@@ -9,6 +9,7 @@ import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
+import { isAppImage } from "./platform-utils.main";
 
 const SyncInterval = 5 * 60 * 1000; // 5 minutes
 export const AUTOSTART_FLAG = "--autostart";
@@ -117,8 +118,10 @@ export class MessagingMain {
   // knows and delegate. macOS/Windows use Electron's login-item API, which has no Rust equivalent.
   private setOpenAtLogin(enabled: boolean) {
     if (process.platform === "linux") {
+      // The AppImage runs from a temporary mount that is gone after reboot, so never autostart it.
+      // Removing the entry also cleans up ones written by earlier versions.
       autostart
-        .setAutostart(enabled, {
+        .setAutostart(enabled && !isAppImage(), {
           execPath: app.getPath("exe"),
           autostartFlag: AUTOSTART_FLAG,
         })
