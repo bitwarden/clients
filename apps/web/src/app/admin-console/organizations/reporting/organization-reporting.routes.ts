@@ -1,5 +1,4 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { Routes } from "@angular/router";
 
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -25,7 +24,7 @@ import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 
 import { ReportsHomeComponent } from "./reports-home.component";
 
-const routes: Routes = [
+export const organizationReportingRoutes: Routes = [
   {
     path: "",
     canActivate: [organizationPermissionsGuard(canAccessReportingTab)],
@@ -118,9 +117,3 @@ function getReportRoute(organization: Organization): string | undefined {
   }
   return undefined;
 }
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class OrganizationReportingRoutingModule {}
