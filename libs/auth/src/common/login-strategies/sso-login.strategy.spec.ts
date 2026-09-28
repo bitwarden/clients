@@ -533,6 +533,19 @@ describe("SsoLoginStrategy", () => {
       expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).not.toHaveBeenCalled();
     });
 
+    it("does not enroll a new SSO user whose org has no key connector", async () => {
+      tokenResponse = identityTokenResponseFactory(null, {
+        HasMasterPassword: false,
+        KeyConnectorOption: null,
+      });
+      tokenResponse.key = undefined;
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await ssoLoginStrategy.logIn(credentials);
+
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).not.toHaveBeenCalled();
+    });
+
     it("does not derive the user key from the master key for an enrolled user", async () => {
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
