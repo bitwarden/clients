@@ -871,7 +871,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (!sort.column) {
       return filtered;
     }
-    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+    const col = this.availableColumns().find((c) => c.name() === sort.column);
     return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
   });
 
@@ -1088,7 +1088,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     // Seed the initial sort from the first column declaring `defaultSort`, unless
     // a sort column is already set (e.g. via `[(sort)]` or restored from the URL).
     if (!this.sort().column) {
-      const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
+      const defaultCol = this.availableColumns().find((c) => c.defaultSort());
       const name = defaultCol?.name();
       if (name) {
         this.sort.set({

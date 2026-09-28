@@ -36,7 +36,7 @@ const mockI18nService = { t: (key: string) => key };
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column customizable width="100px">
+      <bit-column customizable width="100px" [sortFn]="sortByVault">
         <bit-header-cell>Vault</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.vault; let row">{{ row.vault }}</bit-cell>
       </bit-column>
@@ -56,6 +56,8 @@ class TestHostComponent {
   readonly displayed = signal<string[] | undefined>(undefined);
   readonly presentation = signal<"table" | "list">("table");
   readonly rows = signal<Row[]>([{ name: "one", vault: "v", folder: "f", actions: "a" }]);
+  /** Orders vaults by their trailing digit, which plain string compare would not produce. */
+  readonly sortByVault = (a: Row, b: Row) => a.vault.slice(-1).localeCompare(b.vault.slice(-1));
   readonly table = defineTable<Row>(this.rows);
   readonly tableCmp = viewChild.required(BitTableV2Component);
 }
@@ -234,6 +236,34 @@ describe("BitTableV2Component column customization", () => {
       fixture.detectChanges();
 
       expect(names()).toEqual(["name", "folder", "actions"]);
+    });
+  });
+
+  describe("composition with sorting", () => {
+    beforeEach(() => {
+      host.rows.set([
+        { name: "one", vault: "c1", folder: "f", actions: "a" },
+        { name: "two", vault: "b3", folder: "f", actions: "a" },
+        { name: "three", vault: "a2", folder: "f", actions: "a" },
+      ]);
+      table().sort.set({ column: "vault", direction: "asc" });
+      fixture.detectChanges();
+    });
+
+    it("keeps a hidden column's sortFn so the row order does not shift", () => {
+      const before = table()
+        .sorted()
+        .map((r) => r.name);
+      expect(before).toEqual(["one", "three", "two"]);
+
+      table().setColumnHidden("vault", true);
+      fixture.detectChanges();
+
+      expect(
+        table()
+          .sorted()
+          .map((r) => r.name),
+      ).toEqual(before);
     });
   });
 });
