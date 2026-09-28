@@ -14,6 +14,7 @@ import ChromiumImporterBuildTask from "../desktop_native/chromium_importer/build
 import ProcessIsolationBuildTask from "../desktop_native/process_isolation/build-process-isolation.mts";
 import DesktopProxyBuildTask from "../desktop_native/proxy/build-desktop-proxy.mts";
 import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
+import NapiTypesBuildTask from "../desktop_native/napi/scripts/build-napi-types.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
 
 const ALL_TARGETS: BuildTask[] = [
@@ -22,6 +23,7 @@ const ALL_TARGETS: BuildTask[] = [
   ChromiumImporterBuildTask,
   ProcessIsolationBuildTask,
   DesktopProxyBuildTask,
+  NapiTypesBuildTask,
   NapiBuildTask,
   WebpackBuildTask,
   ElectronBuildTask,

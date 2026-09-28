@@ -37,18 +37,6 @@ const NapiBuildTask: BuildTask = {
   async build(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
     const targets = rustTargetsFor(config.platform, config.architecture);
 
-    // index.d.ts is like a header file that the TypeScript build step will link against.
-    // When working on Rust code, often the implementation will change without
-    // changing the TypeScript interface, but napi-rs will update the mtime of
-    // index.d.ts anyway, which would cause unnecessary rebuilds of the TypeScript app.
-    //
-    // So we save the mtime, compare the content, and then restore the mtime so
-    // that future build steps can rely on that.
-    const indexDtsPath = path.join(SOURCE_DIR, "index.d.ts");
-    let prevIndexAtime: Date | undefined;
-    let prevIndexMtime: Date | undefined;
-    let prevIndexContent: Buffer | undefined;
-
     for (const target of targets) {
       const privNodePath = path.join(privateDir, `napi-${target}.node`);
       const privDepPath = path.join(privateDir, `napi-${target}.d`);
@@ -66,13 +54,7 @@ const NapiBuildTask: BuildTask = {
         continue;
       }
 
-      // Snapshot on the first stale target; subsequent targets share the same index.d.ts.
-      if (prevIndexContent === undefined && existsSync(indexDtsPath)) {
-        ({ atime: prevIndexAtime, mtime: prevIndexMtime } = statSync(indexDtsPath));
-        prevIndexContent = readFileSync(indexDtsPath);
-      }
-
-      const modulePath = await napi(config, target);
+      const modulePath = await napi(config, target, privateDir);
 
       // Save the platform-specific output basename so up-to-date builds know
       // which filename to restore in outputDir.
@@ -106,12 +88,16 @@ const NapiBuildTask: BuildTask = {
 
     copyIfNewer(path.join(SOURCE_DIR, "index.js"), path.join(outputDir, "index.js"));
 
-    // Restore index.d.ts mtime if napi-rs ran but the FFI interface content
-    // didn't change, so webpack's dep check doesn't see a spurious change.
-    if (prevIndexContent !== undefined && existsSync(indexDtsPath)) {
-      if (readFileSync(indexDtsPath).equals(prevIndexContent)) {
-        utimesSync(indexDtsPath, prevIndexAtime!, prevIndexMtime!);
-      }
+    // Keep the checked-in index.d.ts in step with what was actually built. NapiTypes normally
+    // wrote the same content already, and writing only on a difference leaves the mtime alone
+    // for the TypeScript application, which may be compiling against it right now.
+    const builtIndexDts = path.join(privateDir, "index.d.ts");
+    const indexDts = path.join(SOURCE_DIR, "index.d.ts");
+    if (
+      existsSync(builtIndexDts) &&
+      (!existsSync(indexDts) || !readFileSync(builtIndexDts).equals(readFileSync(indexDts)))
+    ) {
+      copyFileSync(builtIndexDts, indexDts);
     }
   }
 
@@ -130,6 +116,7 @@ function copyIfNewer(src: string, dest: string) {
 async function napi(
   config: BuildConfig,
   target: RustTarget,
+  privateDir: string,
 ): Promise<string> {
   // napi-rs spawns cargo with this process's environment, and its API takes no environment of
   // its own, so the cross-compilation variables have to be set here.
@@ -144,6 +131,11 @@ async function napi(
     // Puts the platform triple in the module's name.
     platform: true,
     noJsBinding: true,
+    // index.d.ts is NapiTypes' output, which the TypeScript application may be compiling
+    // against while this runs. napi-rs rewrites it unconditionally, so it goes to privateDir and
+    // build() copies it over only if it differs. The path is resolved against the crate
+    // directory.
+    dts: path.relative(SOURCE_DIR, path.join(privateDir, "index.d.ts")),
   });
 
   const outputs = await task;

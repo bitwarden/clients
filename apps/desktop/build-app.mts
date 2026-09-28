@@ -14,7 +14,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { type BuildConfig, type BuildTask, BuildError } from "./scripts/build-config.mts";
-import NapiBuildTask from "./desktop_native/napi/scripts/build-napi.mts";
+import NapiTypesBuildTask from "./desktop_native/napi/scripts/build-napi-types.mts";
 import { Logger, processDepFile } from "./scripts/build-support.mts";
 
 const SOURCE_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -41,7 +41,7 @@ interface Compilation {
 const WebpackBuildTask: BuildTask = {
   targetName: "WebpackApplication",
   sourceDir: SOURCE_DIR,
-  dependencies: [NapiBuildTask],
+  dependencies: [NapiTypesBuildTask],
   async validate(config: BuildConfig): Promise<void> {
     const validationErrors: BuildError[] = [];
     if (!config.profile) {
