@@ -1947,11 +1947,6 @@ export default class AutofillService implements AutofillServiceInterface {
         continue;
       }
 
-      if (this.shouldMakeIdentityAddressFillScript(filledFields, keywordsList)) {
-        this.makeIdentityAddressFillScript(fillScript, filledFields, field, identity);
-        continue;
-      }
-
       if (this.shouldMakeIdentityPostalCodeFillScript(filledFields, keywordsCombined)) {
         this.makeScriptActionWithValue(fillScript, identity.postalCode, field, filledFields);
         continue;
@@ -1974,6 +1969,15 @@ export default class AutofillService implements AutofillServiceInterface {
 
       if (this.shouldMakeIdentityPhoneFillScript(filledFields, keywordsCombined)) {
         this.makeScriptActionWithValue(fillScript, identity.phone, field, filledFields);
+        continue;
+      }
+
+      // Test the generic address match after the more specific address component
+      // matches (postal code, city, state, country, phone). Field name prefixes such as
+      // "billingAddress[...]" contain "billing-addr" keywords that otherwise claim every
+      // field in the form as a generic address field (#23356).
+      if (this.shouldMakeIdentityAddressFillScript(filledFields, keywordsList)) {
+        this.makeIdentityAddressFillScript(fillScript, filledFields, field, identity);
         continue;
       }
 
