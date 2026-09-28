@@ -54,7 +54,7 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class PasswordLoginStrategy extends LoginStrategy {
+export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyData> {
   /** The email address of the user attempting to log in. */
   email$: Observable<string>;
   /** The master key hash used for authentication */

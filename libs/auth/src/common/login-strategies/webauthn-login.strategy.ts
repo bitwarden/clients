@@ -29,7 +29,7 @@ export class WebAuthnLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class WebAuthnLoginStrategy extends LoginStrategy {
+export class WebAuthnLoginStrategy extends LoginStrategy<WebAuthnLoginStrategyData> {
   protected cache: BehaviorSubject<WebAuthnLoginStrategyData>;
 
   constructor(

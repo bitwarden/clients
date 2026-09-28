@@ -29,7 +29,7 @@ export class AuthRequestLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class AuthRequestLoginStrategy extends LoginStrategy {
+export class AuthRequestLoginStrategy extends LoginStrategy<AuthRequestLoginStrategyData> {
   email$: Observable<string>;
   accessCode$: Observable<string>;
   authRequestId$: Observable<string>;

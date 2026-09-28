@@ -50,7 +50,7 @@ export class SsoLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class SsoLoginStrategy extends LoginStrategy {
+export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
   /**
    * @see {@link SsoLoginStrategyData.email}
    */

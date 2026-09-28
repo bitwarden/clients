@@ -24,7 +24,7 @@ export class UserApiLoginStrategyData implements LoginStrategyData {
   }
 }
 
-export class UserApiLoginStrategy extends LoginStrategy {
+export class UserApiLoginStrategy extends LoginStrategy<UserApiLoginStrategyData> {
   protected cache: BehaviorSubject<UserApiLoginStrategyData>;
 
   constructor(
