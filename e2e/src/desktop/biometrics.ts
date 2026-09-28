@@ -11,7 +11,14 @@ export type BiometricRequestType = (typeof BiometricRequestType)[keyof typeof Bi
 export type BiometricRequest = { id: string; type: BiometricRequestType; userId?: string };
 
 const CAPABILITY = "biometrics";
+const STATE_CAPABILITY = "state";
 const REQUEST_TIMEOUT_MS = 15_000;
+const ENROLL_TIMEOUT_MS = 15_000;
+
+// `BiometricsStatus.Available` (libs/key-management): for a user, the key is stored.
+const STATUS_AVAILABLE = 0;
+// `ACCOUNT_ACTIVE_ACCOUNT_ID` (libs/common/src/auth/services/account.service.ts).
+const ACTIVE_ACCOUNT_ID = { stateName: "account", key: "activeAccountId" };
 
 /**
  * Drives the fake biometrics through the renderer's automation driver
@@ -50,6 +57,28 @@ export class Biometrics {
       ([name, requestId]) => (window as any).bitwardenAutomationDriver.get(name).deny(requestId),
       [CAPABILITY, id] as const,
     );
+  }
+
+  /**
+   * Waits until the active user's key is stored. The settings toggle checks at once, but
+   * enrolling finishes asynchronously; locking before that makes it fail silently.
+   */
+  async waitUntilEnrolled() {
+    const userId = await this.page.evaluate(
+      ([name, address]) => (window as any).bitwardenAutomationDriver.get(name).readGlobal(address),
+      [STATE_CAPABILITY, ACTIVE_ACCOUNT_ID] as const,
+    );
+
+    await expect
+      .poll(
+        () =>
+          this.page.evaluate(
+            (id) => (window as any).ipc.keyManagement.biometric.getBiometricsStatusForUser(id),
+            userId,
+          ),
+        { timeout: ENROLL_TIMEOUT_MS, message: "Biometric enrollment did not complete" },
+      )
+      .toBe(STATUS_AVAILABLE);
   }
 
   /** Waits for the app to raise a prompt of `type`, then approves it, like a user touching the sensor. */

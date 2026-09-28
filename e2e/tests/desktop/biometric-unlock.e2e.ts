@@ -8,9 +8,8 @@ import { expect, test } from "../../src/desktop/fixtures";
 import { LoginPage } from "../../src/login";
 
 /**
- * Needs a development build, the only kind that honors the fake biometrics:
- *
- *   npm run build:dev --workspace @bitwarden/desktop
+ * Needs a development build, the only kind that honors the fake biometrics.
+ * `npm run test:e2e:desktop` builds one.
  *
  * Development builds also skip the lock-time renderer reload, so one page spans the test.
  */
@@ -32,6 +31,7 @@ test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({ 
   const settings = window.getByRole("dialog");
   const toggle = settings.getByTestId("settings-biometric-checkbox");
   await toggle.check();
+  await biometrics.waitUntilEnrolled();
   await window.keyboard.press("Escape");
 
   // Locking turns auto-prompt off, so unlock waits for the button.
@@ -39,6 +39,7 @@ test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({ 
   await window.waitForURL(LOCK_URL);
 
   const unlock = window.getByTestId("lock-biometric-unlock-button");
+  await expect(unlock).toBeEnabled();
   await unlock.click();
   await biometrics.approveNext(BiometricRequestType.Unlock);
 
