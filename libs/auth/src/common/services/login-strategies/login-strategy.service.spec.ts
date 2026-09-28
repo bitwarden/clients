@@ -1,5 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -570,6 +570,15 @@ describe("LoginStrategyService", () => {
       apiService.postIdentityToken.mockRejectedValue(
         new ErrorResponse({ message: "Username or password is incorrect." }, 400, true),
       );
+    });
+
+    it("clears the login session so no auth type remains", async () => {
+      passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+      await expect(
+        sut.logIn(new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await firstValueFrom(sut.currentAuthType$)).toBeNull();
     });
 
     it("returns undefined from the password accessors", async () => {

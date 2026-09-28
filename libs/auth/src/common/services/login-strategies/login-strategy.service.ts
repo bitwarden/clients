@@ -182,7 +182,15 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     // If the popup uses its own instance of this service, this can be removed.
     const ownedCredentials = { ...credentials };
 
-    const result = await strategy?.logIn(ownedCredentials as any);
+    let result: AuthResult | undefined;
+    try {
+      result = await strategy?.logIn(ownedCredentials as any);
+    } catch (e) {
+      // A failed attempt must not leave an auth type behind: the auth guards treat a set auth
+      // type as a login in progress.
+      await this.clearCache();
+      throw e;
+    }
 
     if (result != null && !result.requiresTwoFactor && !result.requiresDeviceVerification) {
       await this.clearCache();
