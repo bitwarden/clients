@@ -1392,6 +1392,22 @@ describe("CartSummaryComponent", () => {
       );
       expect(noBalance.nativeElement.textContent).toContain("Total");
     });
+
+    it("shows total and total balance in header total when amount due is zero", () => {
+      fixture.componentRef.setInput("cart", {
+        ...mockCart,
+        total: 12,
+        appliedBalance: 0,
+        amountDue: 0,
+      });
+      fixture.detectChanges();
+
+      const headerTotal = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      expect(headerTotal.nativeElement.textContent).toContain("$12");
+      expect(headerTotal.nativeElement.textContent).not.toContain("$0");
+    });
   });
 });
 
