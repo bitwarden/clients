@@ -2,6 +2,8 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -34,6 +36,7 @@ describe("CliBiometricsService", () => {
   const keyService = mock<KeyService>();
   const logService = mock<LogService>();
   const ipcService = mock<CliIpcService>();
+  const configService = mock<ConfigService>();
   const ipcClient = mock<IpcClient>();
 
   let service: CliBiometricsService;
@@ -42,7 +45,14 @@ describe("CliBiometricsService", () => {
     jest.clearAllMocks();
     accountService.activeAccount$ = of({ id: userId } as never);
     Object.defineProperty(ipcService, "client", { configurable: true, value: ipcClient });
-    service = new CliBiometricsService(accountService, () => keyService, logService, ipcService);
+    configService.getFeatureFlag.mockResolvedValue(true as never);
+    service = new CliBiometricsService(
+      accountService,
+      () => keyService,
+      logService,
+      ipcService,
+      () => configService,
+    );
   });
 
   it("returns the desktop biometric status for the active account", async () => {
@@ -96,5 +106,30 @@ describe("CliBiometricsService", () => {
     jest.mocked(ipcRequestAuthenticateBiometrics).mockResolvedValue(true);
 
     await expect(service.authenticateWithBiometrics()).resolves.toBe(true);
+  });
+
+  describe("when the BiometricsSDKIPC flag is off", () => {
+    beforeEach(() => {
+      configService.getFeatureFlag.mockImplementation(async (flag) =>
+        flag === FeatureFlag.BiometricsSDKIPC ? false : (undefined as never),
+      );
+    });
+
+    it("reports the platform as unsupported without touching SDK IPC", async () => {
+      await expect(service.getBiometricsStatusForUser(userId)).resolves.toBe(
+        BiometricsStatus.PlatformUnsupported,
+      );
+      expect(ipcRequestGetBiometricsStatus).not.toHaveBeenCalled();
+    });
+
+    it("refuses to unlock", async () => {
+      await expect(service.unlockWithBiometricsForUser(userId)).resolves.toBeNull();
+      expect(ipcRequestUnlockBiometrics).not.toHaveBeenCalled();
+    });
+
+    it("refuses to authenticate", async () => {
+      await expect(service.authenticateWithBiometrics()).resolves.toBe(false);
+      expect(ipcRequestAuthenticateBiometrics).not.toHaveBeenCalled();
+    });
   });
 });

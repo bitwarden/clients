@@ -84,6 +84,7 @@ import {
   VaultBatchBarService,
   VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilter,
+  Vfo1TerminologyService,
   createFilterFunction,
 } from "@bitwarden/vault";
 import {
@@ -180,6 +181,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly cipherActions = inject(VaultCipherActionsService);
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
   private readonly configService = inject(ConfigService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
@@ -725,7 +727,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       const activeFilter = this.activeFilter();
       queryParams = {
         type: activeFilter.cipherType,
-        collectionId: activeFilter.collectionId,
+        ...this.vfo1TerminologyService.collectionQueryParams(activeFilter.collectionId),
         deleted: activeFilter.isDeleted || null,
       };
     }

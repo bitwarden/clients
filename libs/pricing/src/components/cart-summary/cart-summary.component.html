@@ -5,7 +5,9 @@
   <div class="tw-flex tw-items-center tw-pb-2 tw-gap-2">
     <div class="tw-flex tw-items-center">
       @if (this.header(); as header) {
-        <ng-container *ngTemplateOutlet="header; context: { total: total() }" />
+        <ng-container
+          *ngTemplateOutlet="header; context: { total: total(), amountDue: amountDue() }"
+        />
       } @else {
         <h2
           bitTypography="h4"
@@ -13,7 +15,8 @@
           class="!tw-m-0"
           data-testid="purchase-summary-heading-total"
         >
-          {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
+          {{ (appliedBalance() > 0 ? "amountDue" : "total") | i18n }}:
+          {{ amountDue() | currency: "USD" : "symbol" }} USD
         </h2>
         <span bitTypography="h3">&nbsp;</span>
         @if (!hideTerm) {
@@ -399,6 +402,25 @@
           }
         </div>
       </div>
+
+      @if (appliedBalance() > 0) {
+        <div id="applied-balance-section" class="tw-flex tw-justify-between tw-pt-2">
+          <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
+            {{ "appliedBalance" | i18n }}
+          </h3>
+          <div bitTypography="body1" class="tw-text-muted" data-testid="applied-balance-amount">
+            -{{ appliedBalance() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+        <div id="amount-due-section" class="tw-flex tw-justify-between tw-items-center tw-pt-2">
+          <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
+            {{ "amountDue" | i18n }}
+          </h3>
+          <div bitTypography="body1" class="tw-text-muted" data-testid="amount-due">
+            {{ amountDue() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+      }
     </div>
   }
 </div>

@@ -19,7 +19,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -49,7 +48,6 @@ describe("AuthRequestLoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptions: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let deviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
@@ -87,7 +85,6 @@ describe("AuthRequestLoginStrategy", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptions = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     deviceTrustService = mock<DeviceTrustServiceAbstraction>();
@@ -122,7 +119,6 @@ describe("AuthRequestLoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptions,
       billingAccountProfileStateService,
@@ -164,14 +160,6 @@ describe("AuthRequestLoginStrategy", () => {
     // Call logIn
     await authRequestLoginStrategy.logIn(credentials);
 
-    // setMasterKey and setMasterKeyHash should not be called
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-
-    // setMasterKeyEncryptedUserKey, the unlock, and setPrivateKey should still be called
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      mockUserId,
-    );
     expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(mockUserId, decUserKey);
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
       { V1: { private_key: tokenResponse.privateKey } },
@@ -203,7 +191,6 @@ describe("AuthRequestLoginStrategy", () => {
     };
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(decUserKey);
 
     await authRequestLoginStrategy.logIn(credentials);
 
