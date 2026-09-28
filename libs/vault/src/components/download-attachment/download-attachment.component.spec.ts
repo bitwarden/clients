@@ -128,8 +128,7 @@ describe("DownloadAttachmentComponent", () => {
       fetchMock = jest.fn().mockResolvedValue({});
       global.fetch = fetchMock;
       // Request is not defined in the Jest runtime
-      // eslint-disable-next-line no-global-assign
-      Request = MockRequest as any;
+      globalThis.Request = MockRequest as unknown as typeof Request;
     });
 
     it("hides download button when the attachment has decryption failure", () => {

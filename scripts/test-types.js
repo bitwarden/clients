@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 function getFiles(dir) {
-  results = [];
+  let results = [];
   fs.readdirSync(dir).forEach((file) => {
     file = path.join(dir, file);
     const stat = fs.statSync(file);
@@ -26,14 +26,19 @@ const files = getFiles(path.join(__dirname, "..", "libs"))
     return !path.includes("libs/shared/");
   });
 
-concurrently([
-  {
-    // run the strict type check plugin until we're fully converted, then update tsconfig.json to use strict
-    name: "typescript-strict-plugin",
-    command: "npx tsc-strict",
-  },
-  ...files.map((file) => ({
-    name: path.basename(path.dirname(file)),
-    command: `npx tsc --noEmit --project ${file}`,
-  })),
-]);
+concurrently(
+  [
+    {
+      // run the strict type check plugin until we're fully converted, then update tsconfig.json to use strict
+      name: "typescript-strict-plugin",
+      command: "npx tsc-strict",
+    },
+    ...files.map((file) => ({
+      name: path.basename(path.dirname(file)),
+      command: `npx tsc --noEmit --project "${file}"`,
+    })),
+  ],
+  { maxProcesses: 2 },
+).result.catch(() => {
+  process.exitCode = 1;
+});

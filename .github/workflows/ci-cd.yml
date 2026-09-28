@@ -1,0 +1,222 @@
+name: Class CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: class-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CI: "true"
+
+jobs:
+  quality:
+    name: Lint and library type checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - run: npm run lint
+      - run: npm run test:types
+
+  tests:
+    name: Jest (${{ matrix.group }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: web
+            paths: apps/web bitwarden_license/bit-web
+          - group: browser
+            paths: apps/browser bitwarden_license/bit-browser
+          - group: desktop
+            paths: apps/desktop bitwarden_license/bit-desktop
+          - group: cli
+            paths: apps/cli bitwarden_license/bit-cli
+          - group: libraries
+            paths: libs bitwarden_license/bit-common
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run tests with bounded memory
+        env:
+          BITWARDENCLI_APPDATA_DIR: ${{ runner.temp }}/class-cli-${{ matrix.group }}
+        run: npm test -- ${{ matrix.paths }} --ci --coverage --maxWorkers=2 --workerIdleMemoryLimit=1500MiB
+      - name: Preserve test reports even on failure
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: class-tests-${{ matrix.group }}
+          path: |
+            coverage/
+            junit.xml
+          retention-days: 7
+
+  builds:
+    name: Build (${{ matrix.app }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: web
+            workspace: "@bitwarden/web-vault"
+            script: dist:oss:selfhost
+          - app: browser
+            workspace: "@bitwarden/browser"
+            script: build:prod:chrome
+          - app: cli
+            workspace: "@bitwarden/cli"
+            script: build:oss:prod
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Build production OSS client
+        run: npm run ${{ matrix.script }} --workspace ${{ matrix.workspace }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: class-build-${{ matrix.app }}
+          path: apps/${{ matrix.app }}/build/
+          if-no-files-found: error
+          retention-days: 7
+
+  desktop:
+    name: Linux desktop and native integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install native test prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnome-keyring dbus-x11
+      - name: Install repository Rust toolchain
+        working-directory: apps/desktop/desktop_native
+        # rustup reads rust-toolchain.toml in this directory.
+        run: rustup show active-toolchain
+      - name: Build native modules
+        run: npm run build-native --workspace @bitwarden/desktop
+      - name: Test native libraries with a session keyring
+        working-directory: apps/desktop/desktop_native
+        run: |
+          mkdir -p ~/.cache ~/.local/share/keyrings
+          dbus-run-session -- bash -euo pipefail -c '
+            eval "$(printf "\n" | gnome-keyring-daemon --unlock)"
+            eval "$(printf "\n" | gnome-keyring-daemon --start --components=secrets)"
+            export GNOME_KEYRING_CONTROL
+            cargo test --locked --lib -- --test-threads=1
+          '
+          cargo test --locked --doc
+      - name: Build desktop bundles sequentially to limit memory
+        run: |
+          npm run build:oss:main --workspace @bitwarden/desktop
+          npm run build:oss:renderer --workspace @bitwarden/desktop
+          npm run build:oss:preload --workspace @bitwarden/desktop
+
+  docker:
+    name: Verify self-hosted web image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out required web hosting source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: bitwarden/server
+          # Public server revision used during local Docker validation.
+          ref: 536e655a6d4891e69ffeffc15bb52ebea307953d
+          path: server
+          persist-credentials: false
+      - name: Record the external server revision
+        run: git -C server rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
+      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      - name: Build image without publishing
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: class-web:ci
+          build-args: |
+            NODE_VERSION=24
+            NPM_COMMAND=dist:oss:selfhost
+            LICENSE_TYPE=oss
+
+  ci:
+    name: Class CI gate
+    if: ${{ always() }}
+    needs: [quality, tests, builds, desktop, docker]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every CI job to succeed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -e 'all(.[]; .result == "success")'
+
+  deployment-placeholder:
+    name: Deployment placeholder (no deployment)
+    needs: ci
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Describe the remaining deployment setup
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          CI passed. No application was deployed and no image was published.
+          The group must choose a hosting destination and compatible server revision,
+          configure a protected GitHub environment and required GitHub Secrets,
+          and replace this placeholder with artifact/image deployment and smoke tests.
+          Browser stores, desktop signing, and npm publishing are separate release paths.
+          SUMMARY

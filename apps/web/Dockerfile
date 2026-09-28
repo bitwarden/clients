@@ -4,6 +4,10 @@
 ARG NODE_VERSION=24
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS node-build
 
+# Native npm dependencies may need compilation when no prebuilt binary exists.
+# These tools remain in the build stage, not the runtime image.
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /source
 COPY package*.json ./
 COPY . .

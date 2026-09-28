@@ -429,7 +429,9 @@ module.exports.buildConfig = function buildConfig(params) {
       },
       minimize: NODE_ENV === "production",
       minimizer: [
+        // Bound memory use on CI runners and Docker VMs with many visible CPUs.
         new TerserPlugin({
+          parallel: 2,
           terserOptions: {
             safari10: true,
             // Replicate Angular CLI behaviour
