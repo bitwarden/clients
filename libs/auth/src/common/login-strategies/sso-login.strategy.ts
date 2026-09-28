@@ -116,24 +116,21 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
     return ssoAuthResult;
   }
 
-  private isKeyConnectorAvailable(tokenResponse: IdentityTokenResponse): boolean {
-    return tokenResponse?.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl != null;
-  }
-
-  private needsKeyConnectorEnrollmentForNewUser(tokenResponse: IdentityTokenResponse): boolean {
+  /**
+   * Returns the key connector URL when the user is a brand-new SSO user who must enroll in
+   * key connector; otherwise `undefined`.
+   */
+  private getNewUserKeyConnectorEnrollmentUrl(
+    tokenResponse: IdentityTokenResponse,
+  ): string | undefined {
     // A key connector URL alone is not enough: it is also present for an existing master-password
     // user in an org that has just enabled key connector, who must be converted rather than
     // enrolled. Only a brand-new SSO user has neither a master password nor a wrapped user key.
-    return (
-      this.isKeyConnectorAvailable(tokenResponse) &&
-      tokenResponse.userDecryptionOptions?.hasMasterPassword === false &&
-      tokenResponse.key == null
-    );
-  }
-
-  private getKeyConnectorUrl(tokenResponse: IdentityTokenResponse): string {
-    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
-    return userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
+    const userDecryptionOptions = tokenResponse.userDecryptionOptions;
+    if (userDecryptionOptions?.hasMasterPassword !== false || tokenResponse.key != null) {
+      return undefined;
+    }
+    return userDecryptionOptions.keyConnectorOption?.keyConnectorUrl;
   }
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
@@ -145,12 +142,14 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
     // Note: Ideally we would refactor this to classify into distinct states based on the token response
     // with a return enum "mainUnlockMethod". This work is currently not tracked.
 
-    if (this.needsKeyConnectorEnrollmentForNewUser(tokenResponse)) {
+    const newUserKeyConnectorUrl = this.getNewUserKeyConnectorEnrollmentUrl(tokenResponse);
+
+    if (newUserKeyConnectorUrl != null) {
       // Not for existing users that need to be converted!
       await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
         {
           kdfConfig: tokenResponse.kdfConfig,
-          keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
+          keyConnectorUrl: newUserKeyConnectorUrl,
           organizationId: this.cache.value.orgId,
         },
         userId,
