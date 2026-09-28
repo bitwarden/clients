@@ -21,16 +21,12 @@ export type AdaptInvoicePreviewOptions = {
 };
 
 /**
- * Where a proration charge appears in the cart.
+ * Describes where a proration charge should be placed in the cart.
  *
- * - SeatLine (upgrade, plan-change): the server bakes each proration charge into its seat line —
- *   the seat line is the charge. No separate charge row renders, and the seat line's quantity x
- *   cost breakdown hides because its cost is a lump, not a per-unit price. When the invoice is all
- *   prorations (the Premium upgrade's `always_invoice` preview), there is no seat line on the wire,
- *   so the summed charge becomes the seat line.
- * - ProrationLine (subscription page): the seat line is a real per-unit renewal price, or absent
- *   entirely on an all-proration transition invoice — where no seat quantity exists, so a seat
- *   line can't be built. Charged prorations render as their own lines either way.
+ * - SeatLine (upgrade): Places the proration charges within the seat line itself, with no separate charge row.
+ * The seat (charge) line's quantity x cost breakdown is hidden because the cost is a lump sum.
+ * - ProrationLine (subscription page, plan-change): charged prorations render as their own lines beside any real seat line (pm-seat, etc),
+ *   or as the only line when the invoice is all prorations.
  */
 const ProrationChargePlacements = {
   SeatLine: "seat-line",
@@ -39,11 +35,17 @@ const ProrationChargePlacements = {
 type ProrationChargePlacement =
   (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
 
+/**
+ * Determines where a proration charge should be placed in the cart based on the flow context.
+ * @param flowContext The current flow context of the invoice preview.
+ * @returns The placement of the proration charge in the cart.
+ */
 const getProrationChargePlacement = (
   flowContext: InvoicePreviewFlowContext,
 ): ProrationChargePlacement => {
   switch (flowContext) {
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+    case InvoicePreviewFlowContext.OrganizationPlanChange:
       return ProrationChargePlacements.ProrationLine;
     default:
       return ProrationChargePlacements.SeatLine;
@@ -178,13 +180,7 @@ export const adaptInvoicePreviewToCart = (
     };
   };
 
-  // A mid-cycle change can return an "all-proration" invoice: only one-time proration adjustments,
-  // with no recurring seat, storage, or service-account line items.
-  const allProrationInvoice =
-    pm.seats == null &&
-    passwordManager.additionalStorage == null &&
-    sm.seats == null &&
-    secretsManager?.additionalServiceAccounts == null;
+  const hidePricingTerm = shouldHidePricingTerm(preview, flowContext);
 
   const cart: Cart = {
     passwordManager: {
@@ -209,7 +205,7 @@ export const adaptInvoicePreviewToCart = (
         }
       : {}),
     cadence: preview.cadence,
-    ...(allProrationInvoice ? { hidePricingTerm: true } : {}),
+    ...(hidePricingTerm ? { hidePricingTerm: true } : {}),
     ...(preview.discounts ? { discounts: preview.discounts } : {}),
     estimatedTax: preview.estimatedTax,
     total: preview.total,
@@ -263,4 +259,37 @@ const buildCreditRow = (
   }
 
   return { translationKey, value };
+};
+
+/**
+ * Determines whether the pricing term for a line should be hidden based on the flow context and the presence of prorations.
+ * @param preview The current invoice preview.
+ * @param flowContext The current flow context of the invoice preview.
+ * @returns `true` if the pricing term should be hidden, `false` otherwise.
+ */
+const shouldHidePricingTerm = (
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
+): boolean => {
+  const { passwordManager, secretsManager } = preview;
+
+  // All-proration invoice: only one-time proration adjustments, no recurring line at all.
+  if (
+    passwordManager.seats == null &&
+    passwordManager.additionalStorage == null &&
+    secretsManager?.seats == null &&
+    secretsManager?.additionalServiceAccounts == null
+  ) {
+    return true;
+  }
+
+  // Mid-cycle plan change: a one-time proration invoice
+  if (
+    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
+    (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations))
+  ) {
+    return true;
+  }
+
+  return false;
 };
