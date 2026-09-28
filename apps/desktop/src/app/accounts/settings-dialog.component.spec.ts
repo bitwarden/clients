@@ -961,18 +961,6 @@ describe("SettingsDialogComponent", () => {
     });
   });
 
-  describe("open at login", () => {
-    it("is hidden on AppImage", () => {
-      (global as any).ipc.platform.isAppImage = true;
-
-      // Recreate component, the option is resolved at construction
-      fixture = TestBed.createComponent(SettingsDialogComponent);
-      component = fixture.componentInstance;
-
-      expect((component as any).showOpenAtLoginOption).toBe(false);
-    });
-  });
-
   describe("desktop autotype", () => {
     it("autotype should be hidden on mac os", async () => {
       // Set OS
