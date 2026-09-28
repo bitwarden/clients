@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -7,6 +7,7 @@ import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/a
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
+import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -188,6 +189,26 @@ describe("SsoLoginStrategy", () => {
           token: null,
         }),
       }),
+    );
+  });
+
+  it("keeps the email and SSO email 2FA session token from a two-factor response", async () => {
+    apiService.postIdentityToken.mockResolvedValue(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["1"],
+        TwoFactorProviders2: { 1: { Email: "e***@bitwarden.com" } },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: "EMAIL",
+        ssoEmail2faSessionToken: "SSO_EMAIL_2FA_SESSION_TOKEN",
+      }),
+    );
+
+    await ssoLoginStrategy.logIn(credentials);
+
+    expect(await firstValueFrom(ssoLoginStrategy.email$)).toBe("EMAIL");
+    expect(await firstValueFrom(ssoLoginStrategy.ssoEmail2FaSessionToken$)).toBe(
+      "SSO_EMAIL_2FA_SESSION_TOKEN",
     );
   });
 
@@ -497,6 +518,19 @@ describe("SsoLoginStrategy", () => {
         },
         userId,
       );
+    });
+
+    it("does not enroll an existing master-password user whose org has key connector", async () => {
+      tokenResponse = identityTokenResponseFactory(null, {
+        HasMasterPassword: true,
+        KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
+      });
+      tokenResponse.key = undefined;
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await ssoLoginStrategy.logIn(credentials);
+
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).not.toHaveBeenCalled();
     });
 
     it("does not derive the user key from the master key for an enrolled user", async () => {

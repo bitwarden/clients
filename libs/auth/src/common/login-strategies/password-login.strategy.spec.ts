@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -438,6 +439,30 @@ describe("PasswordLoginStrategy", () => {
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.WeakMasterPassword,
         userId,
+      );
+    });
+
+    it("evaluates the password against the org invite policies alone when the token response has no policy", async () => {
+      const orgInvitePolicies = Object.assign(new MasterPasswordPolicyOptions(), {
+        minLength: 12,
+        minComplexity: 3,
+        requireUpper: true,
+        enforceOnLogin: false,
+      });
+      credentials.masterPasswordPoliciesFromOrgInvite = orgInvitePolicies;
+      apiService.postIdentityToken.mockResolvedValueOnce(identityTokenResponseFactory());
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 4 } as any);
+      const realPolicyService: DefaultPolicyService = Object.create(DefaultPolicyService.prototype);
+      policyService.combineMasterPasswordPolicyOptions.mockImplementation((...options) =>
+        realPolicyService.combineMasterPasswordPolicyOptions(...options),
+      );
+
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(policyService.evaluateMasterPassword).toHaveBeenCalledWith(
+        4,
+        credentials.masterPassword,
+        Object.assign(new MasterPasswordPolicyOptions(), orgInvitePolicies),
       );
     });
 

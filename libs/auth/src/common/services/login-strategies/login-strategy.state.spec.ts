@@ -77,6 +77,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     expect(result).not.toBeNull();
     expect(result!.password).toBeInstanceOf(PasswordLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.password!, actual.password);
   });
 
   it("should correctly deserialize SsoLoginStrategyData", () => {
@@ -94,6 +95,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     expect(result).not.toBeNull();
     expect(result!.sso).toBeInstanceOf(SsoLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.sso!, actual.sso);
   });
 
   it("should correctly deserialize UserApiLoginStrategyData", () => {
@@ -109,6 +111,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     expect(result).not.toBeNull();
     expect(result!.userApiKey).toBeInstanceOf(UserApiLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.userApiKey!, actual.userApiKey);
   });
 
   it("should correctly deserialize AuthRequestLoginStrategyData", () => {
@@ -131,6 +134,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     expect(result).not.toBeNull();
     expect(result!.authRequest).toBeInstanceOf(AuthRequestLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.authRequest!, actual.authRequest);
   });
 
   it("should correctly deserialize WebAuthnLoginStrategyData", () => {
@@ -155,6 +159,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     expect(result).not.toBeNull();
     expect(result!.webAuthn).toBeInstanceOf(WebAuthnLoginStrategyData);
     verifyPropertyPrototypes(result!, actual);
+    verifyFieldsPreserved(result!.webAuthn!, actual.webAuthn);
   });
 });
 
@@ -180,6 +185,24 @@ function verifyPropertyPrototypes(deserialized: object, concrete: object) {
       const realProto = Object.getPrototypeOf(realProperty);
       expect(deserializedProperty).toBeInstanceOf(realProto.constructor);
       verifyPropertyPrototypes(deserializedProperty, realProperty);
+    }
+  }
+}
+
+/**
+ * Verifies that every field set on the object stored in state survives deserialization, and
+ * that primitive fields keep their values.
+ * @param deserialized the deserialized object
+ * @param concrete the object stored in state
+ */
+function verifyFieldsPreserved(deserialized: object, concrete: object) {
+  for (const [key, value] of Object.entries(concrete)) {
+    if (value === undefined) {
+      continue;
+    }
+    expect(deserialized).toHaveProperty(key);
+    if (typeof value !== "object" || value === null) {
+      expect((deserialized as any)[key]).toEqual(value);
     }
   }
 }

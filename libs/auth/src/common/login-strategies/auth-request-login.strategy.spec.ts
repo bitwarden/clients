@@ -172,6 +172,19 @@ describe("AuthRequestLoginStrategy", () => {
     expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
   });
 
+  it("sends the auth request information to the server", async () => {
+    await authRequestLoginStrategy.logIn(credentials);
+
+    expect(apiService.postIdentityToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email,
+        masterPasswordHash: accessCode,
+        authRequest: authRequestId,
+        device: expect.objectContaining({ identifier: deviceId }),
+      }),
+    );
+  });
+
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
     const accountKeysData = {
       publicKeyEncryptionKeyPair: {
