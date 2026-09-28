@@ -19,7 +19,7 @@ import { WebAuthnLoginStrategyData } from "../../login-strategies/webauthn-login
 import {
   MockAuthenticatorAssertionResponse,
   MockPublicKeyCredential,
-} from "../../login-strategies/webauthn-login.strategy.spec";
+} from "../../login-strategies/webauthn-login.strategy.spec-util";
 import { AuthRequestLoginCredentials, WebAuthnLoginCredentials } from "../../models";
 
 import { CACHE_EXPIRATION_KEY, CACHE_KEY } from "./login-strategy.state";

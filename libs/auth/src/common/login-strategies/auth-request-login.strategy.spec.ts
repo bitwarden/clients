@@ -35,7 +35,7 @@ import {
   AuthRequestLoginStrategy,
   AuthRequestLoginStrategyData,
 } from "./auth-request-login.strategy";
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
 
 describe("AuthRequestLoginStrategy", () => {
   let cache: AuthRequestLoginStrategyData;

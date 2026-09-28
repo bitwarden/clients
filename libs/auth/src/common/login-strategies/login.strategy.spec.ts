@@ -11,10 +11,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
-import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import {
   PasswordPreloginData,
   PasswordPreloginService,
@@ -54,32 +51,22 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions
 import { PasswordLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
+import {
+  accessToken,
+  email,
+  encryptedUserKey,
+  identityTokenResponseFactory,
+  kdfIterations,
+  refreshToken,
+} from "./login.strategy.spec-util";
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 
-const email = "hello@world.com";
 const masterPassword = "password";
 
 const deviceId = Utils.newGuid();
-const accessToken = "ACCESS_TOKEN";
-const refreshToken = "REFRESH_TOKEN";
-const encryptedUserKey = "USER_KEY";
-const privateKey = "PRIVATE_KEY";
-const kdf = 0;
-const kdfIterations = 10000;
 const userId = Utils.newGuid() as UserId;
 const masterPasswordHash = "MASTER_PASSWORD_HASH";
 const name = "NAME";
-const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerResponse = {
-  HasMasterPassword: true,
-  MasterPasswordUnlock: {
-    Salt: email,
-    Kdf: {
-      KdfType: kdf,
-      Iterations: kdfIterations,
-    },
-    MasterKeyEncryptedUserKey: encryptedUserKey,
-  },
-};
 
 const decodedToken = {
   sub: userId,
@@ -91,32 +78,6 @@ const decodedToken = {
 const twoFactorProviderType = TwoFactorProviderType.Authenticator;
 const twoFactorToken = "TWO_FACTOR_TOKEN";
 const twoFactorRemember = true;
-
-export function identityTokenResponseFactory(
-  masterPasswordPolicyResponse: MasterPasswordPolicyResponse | undefined = undefined,
-  userDecryptionOptions: IUserDecryptionOptionsServerResponse | undefined = undefined,
-) {
-  return new IdentityTokenResponse({
-    ForcePasswordReset: false,
-    Kdf: kdf,
-    KdfIterations: kdfIterations,
-    Key: encryptedUserKey,
-    PrivateKey: privateKey,
-    access_token: accessToken,
-    expires_in: 3600,
-    refresh_token: refreshToken,
-    scope: "api offline_access",
-    token_type: "Bearer",
-    MasterPasswordPolicy: masterPasswordPolicyResponse,
-    UserDecryptionOptions: userDecryptionOptions || defaultUserDecryptionOptionsServerResponse,
-    AccountKeys: {
-      publicKeyEncryptionKeyPair: {
-        wrappedPrivateKey: privateKey,
-        publicKey: "PUBLIC_KEY",
-      },
-    },
-  });
-}
 
 // TODO: add tests for latest changes to base class for TDE
 describe("LoginStrategy", () => {

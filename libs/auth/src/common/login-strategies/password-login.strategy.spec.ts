@@ -48,7 +48,7 @@ import { UnlockService } from "@bitwarden/unlock";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 
 const email = "hello@world.com";

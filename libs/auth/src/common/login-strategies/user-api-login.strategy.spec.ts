@@ -31,7 +31,7 @@ import { UnlockService } from "@bitwarden/unlock";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
 import { UserApiLoginStrategy, UserApiLoginStrategyData } from "./user-api-login.strategy";
 
 describe("UserApiLoginStrategy", () => {
