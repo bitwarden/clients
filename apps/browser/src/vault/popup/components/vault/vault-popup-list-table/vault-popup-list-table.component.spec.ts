@@ -280,6 +280,8 @@ describe("VaultPopupListTableComponent", () => {
           useValue: {
             getUserState$: () => of({ hasSeen: true, hasDismissed: true }),
             getUser: () => ({ update: async () => {} }),
+            // `bit-table-v2` reads its column preferences here; nothing hidden.
+            getActive: () => ({ state$: of(null), update: async () => {} }),
           },
         },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },

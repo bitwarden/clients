@@ -62,10 +62,11 @@ import {
   CompactModeService,
   DialogService,
   I18nMockService,
+  StorybookStateProvider,
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { StateProvider } from "@bitwarden/state";
+import { StateProvider, UserKeyDefinition } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
   PasswordRepromptService,
@@ -392,6 +393,9 @@ const buildAtRiskTasks = (args: StoryArgs) => {
 };
 
 const buildProviders = (args: StoryArgs) => {
+  // `bit-table-v2` stores its column preferences through `getActive`; the shared mock supplies
+  // the per-key state the rest of this hand-rolled provider doesn't.
+  const activeUserStates = new StorybookStateProvider();
   const emptyVault$ = new BehaviorSubject(args.emptyVault ?? false);
   const noFilteredResults$ = new BehaviorSubject(args.noFilteredResults ?? false);
   const showDeactivatedOrg$ = new BehaviorSubject(args.showDeactivatedOrg ?? false);
@@ -603,6 +607,7 @@ const buildProviders = (args: StoryArgs) => {
               : of(null),
           update: () => Promise.resolve(),
         }),
+        getActive: (key: UserKeyDefinition<unknown>) => activeUserStates.getActive(key),
       },
     },
     { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
