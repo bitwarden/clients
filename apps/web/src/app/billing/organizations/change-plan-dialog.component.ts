@@ -47,6 +47,7 @@ import {
   DialogConfig,
   DialogRef,
   DialogService,
+  SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -126,6 +127,7 @@ interface OnSuccessArgs {
     EnterBillingAddressComponent,
     CardComponent,
     CartSummaryComponent,
+    SpinnerComponent,
     Vfo1I18nPipe,
   ],
 })
@@ -273,6 +275,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
     },
   });
+
+  // With the preview cart on, block submission until the cost preview has loaded so a plan change
+  // can't be committed without its cost shown.
+  protected get isSubmitDisabled(): boolean {
+    return this.previewCartEnabled() && !this.planChangeCart.hasValue();
+  }
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,

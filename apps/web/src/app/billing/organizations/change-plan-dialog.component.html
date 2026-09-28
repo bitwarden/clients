@@ -390,7 +390,11 @@
         </app-enter-billing-address>
       </ng-container>
       @if (previewCartEnabled()) {
-        @if (planChangeCart.hasValue()) {
+        @if (planChangeCart.isLoading()) {
+          <div class="tw-mt-4 tw-text-center">
+            <bit-spinner></bit-spinner>
+          </div>
+        } @else if (planChangeCart.hasValue()) {
           <div class="tw-mt-4">
             <billing-cart-summary [cart]="planChangeCart.value()" />
           </div>
@@ -908,7 +912,13 @@
     </ng-container>
   </div>
   <ng-container bitDialogFooter>
-    <button bitButton bitFormButton buttonType="primary" type="submit">
+    <button
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      type="submit"
+      [disabled]="isSubmitDisabled"
+    >
       {{ submitButtonLabel }}
     </button>
     <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">

@@ -179,8 +179,17 @@ export const adaptInvoicePreviewToCart = (
       translationParams: [options.planName, formatMonthLabel(proratedMonths)],
     };
   };
-
-  const hidePricingTerm = shouldHidePricingTerm(preview, flowContext);
+  // Hide the recurring term for one-time invoices: an all-proration invoice (no recurring line at
+  // all) or a mid-cycle plan change carrying prorations.
+  const allProrationInvoice =
+    pm.seats == null &&
+    passwordManager.additionalStorage == null &&
+    sm.seats == null &&
+    secretsManager?.additionalServiceAccounts == null;
+  const oneTimePlanChange =
+    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
+    (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations));
+  const hidePricingTerm = allProrationInvoice || oneTimePlanChange;
 
   const cart: Cart = {
     passwordManager: {
@@ -259,37 +268,4 @@ const buildCreditRow = (
   }
 
   return { translationKey, value };
-};
-
-/**
- * Determines whether the pricing term for a line should be hidden based on the flow context and the presence of prorations.
- * @param preview The current invoice preview.
- * @param flowContext The current flow context of the invoice preview.
- * @returns `true` if the pricing term should be hidden, `false` otherwise.
- */
-const shouldHidePricingTerm = (
-  preview: InvoicePreview,
-  flowContext: InvoicePreviewFlowContext,
-): boolean => {
-  const { passwordManager, secretsManager } = preview;
-
-  // All-proration invoice: only one-time proration adjustments, no recurring line at all.
-  if (
-    passwordManager.seats == null &&
-    passwordManager.additionalStorage == null &&
-    secretsManager?.seats == null &&
-    secretsManager?.additionalServiceAccounts == null
-  ) {
-    return true;
-  }
-
-  // Mid-cycle plan change: a one-time proration invoice
-  if (
-    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
-    (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations))
-  ) {
-    return true;
-  }
-
-  return false;
 };

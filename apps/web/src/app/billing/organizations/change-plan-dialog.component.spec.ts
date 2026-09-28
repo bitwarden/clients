@@ -375,6 +375,41 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
       expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
     });
+
+    it("disables submit while the flag is on and the preview has not loaded", () => {
+      previewCartFlag$.next(true);
+      (component as any).planChangeCart = { hasValue: () => false };
+
+      expect((component as any).isSubmitDisabled).toBe(true);
+    });
+
+    it("enables submit once the preview has loaded", () => {
+      previewCartFlag$.next(true);
+      (component as any).planChangeCart = { hasValue: () => true };
+
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("leaves submit enabled when the flag is off, regardless of the preview", () => {
+      previewCartFlag$.next(false);
+      (component as any).planChangeCart = { hasValue: () => false };
+
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("holds the preview in a loading state (spinner shown, submit disabled) while the request is in flight", () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      // A never-resolving preview keeps the resource loading so the spinner branch stays active.
+      invoicePreviewService.previewPlanChangeCart.mockReturnValue(new Promise(() => {}));
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+
+      expect((component as any).planChangeCart.isLoading()).toBe(true);
+      expect((component as any).planChangeCart.hasValue()).toBe(false);
+      expect((component as any).isSubmitDisabled).toBe(true);
+    });
   });
 
   describe("isSecretsManagerTrial (PM-40440)", () => {
