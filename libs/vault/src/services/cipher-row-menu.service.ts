@@ -1,12 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { shareReplay, switchMap } from "rxjs";
+import { map, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import {
@@ -17,10 +16,17 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 
 import { CipherActionService } from "./cipher-action.service";
+
+/**
+ * The only actions offered for an item that failed to decrypt. Every other action reads or
+ * re-encrypts fields the client could not decrypt, so it would fail.
+ */
+const DECRYPTION_FAILURE_ACTION_IDS = new Set(["delete", "permanentlyDelete"]);
 
 export type CipherRowMenuHandlers<C extends CipherViewLike> = {
   edit: (item: C) => void | Promise<void>;
@@ -39,7 +45,8 @@ export class CipherRowMenuService {
   private readonly cipherActionService = inject(CipherActionService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+    map((a) => a?.id),
+    filterOutNullish(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
@@ -67,7 +74,7 @@ export class CipherRowMenuService {
     collections: CollectionView[] = [],
     handlers: CipherRowMenuHandlers<C>,
   ): VaultItemsTableRowAction<C>[] {
-    return [
+    const actions: VaultItemsTableRowAction<C>[] = [
       {
         id: "addFavorite",
         label: this.i18nService.t("favorite"),
@@ -149,6 +156,14 @@ export class CipherRowMenuService {
         variant: "danger",
       },
     ];
+
+    return actions.map((action) => ({
+      ...action,
+      show: (item: C) =>
+        (DECRYPTION_FAILURE_ACTION_IDS.has(action.id) ||
+          !CipherViewLikeUtils.decryptionFailure(item)) &&
+        (action.show?.(item) ?? true),
+    }));
   }
 
   private showFavorite(cipher: CipherViewLike): boolean {

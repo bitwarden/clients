@@ -514,11 +514,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null> {
-    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
-    // guard clause and update the abstraction JSDoc that documents it.
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
-      return null;
-    }
     const client: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const sealed: SealedOpenOrgInvite = client.auth().registration().seal_open_org_invite_data({
       organizationId: invite.organizationId,

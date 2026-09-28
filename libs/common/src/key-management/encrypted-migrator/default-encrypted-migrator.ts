@@ -13,6 +13,7 @@ import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { StateProvider } from "../../platform/state";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
@@ -42,12 +43,13 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     userKeyRotationService: UserKeyRotationServiceAbstraction,
     cipherService: CipherService,
     sdkService: SdkService,
+    stateProvider: StateProvider,
   ) {
     // Register migrations here
 
     this.migrations.push({
       name: "User Key Id Backfill Migration",
-      migration: new UserKeyIdBackfillMigration(sdkService, syncService, logService),
+      migration: new UserKeyIdBackfillMigration(sdkService, syncService, stateProvider, logService),
     });
 
     this.migrations.push({

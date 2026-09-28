@@ -13,13 +13,7 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherMenuItem, CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import {
-  ButtonModule,
-  DialogService,
-  MenuModule,
-  NoItemsModule,
-  TooltipDirective,
-} from "@bitwarden/components";
+import { ButtonModule, DialogService, MenuModule, TooltipDirective } from "@bitwarden/components";
 import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -37,15 +31,7 @@ export interface NewItemInitialValues {
 @Component({
   selector: "app-new-item-dropdown",
   templateUrl: "new-item-dropdown.component.html",
-  imports: [
-    NoItemsModule,
-    JslibModule,
-    CommonModule,
-    ButtonModule,
-    RouterLink,
-    MenuModule,
-    TooltipDirective,
-  ],
+  imports: [JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule, TooltipDirective],
 })
 export class NewItemDropdownComponent implements OnInit {
   cipherType = CipherType;
@@ -116,7 +102,7 @@ export class NewItemDropdownComponent implements OnInit {
 
     return {
       type: type.toString(),
-      collectionId: this.initialValues?.collectionId,
+      collectionIds: this.initialValues?.collectionId,
       organizationId: this.initialValues?.organizationId,
       folderId: this.initialValues?.folderId,
       ...loginDetails,
@@ -132,7 +118,7 @@ export class NewItemDropdownComponent implements OnInit {
       queryParams: {
         folderId: this.initialValues?.folderId,
         organizationId: this.initialValues?.organizationId,
-        collectionId: this.initialValues?.collectionId,
+        collectionIds: this.initialValues?.collectionId,
       },
     });
   }

@@ -92,6 +92,22 @@ const SHOW_INLINE_MENU_SSH_KEYS = new UserKeyDefinition(
   },
 );
 
+const HONOR_BITWARDEN_IGNORE_ATTRIBUTE = new KeyDefinition(
+  AUTOFILL_SETTINGS_DISK_LOCAL,
+  "honorBitwardenIgnoreAttribute",
+  {
+    deserializer: (value: boolean) => value ?? false,
+  },
+);
+
+const HONOR_BITWARDEN_AUTOFILL_ATTRIBUTE = new KeyDefinition(
+  AUTOFILL_SETTINGS_DISK_LOCAL,
+  "honorBitwardenAutofillAttribute",
+  {
+    deserializer: (value: boolean) => value ?? false,
+  },
+);
+
 const ENABLE_CONTEXT_MENU = new KeyDefinition(AUTOFILL_SETTINGS_DISK, "enableContextMenu", {
   deserializer: (value: boolean) => value ?? true,
 });
@@ -143,6 +159,10 @@ export abstract class AutofillSettingsServiceAbstraction {
   setShowInlineMenuCards: (newValue: boolean) => Promise<void>;
   showInlineMenuSshKeys$: Observable<boolean>;
   setShowInlineMenuSshKeys: (newValue: boolean) => Promise<void>;
+  honorBitwardenIgnoreAttribute$: Observable<boolean>;
+  setHonorBitwardenIgnoreAttribute: (newValue: boolean) => Promise<void>;
+  honorBitwardenAutofillAttribute$: Observable<boolean>;
+  setHonorBitwardenAutofillAttribute: (newValue: boolean) => Promise<void>;
   enableContextMenu$: Observable<boolean>;
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
   clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
@@ -182,6 +202,12 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   private showInlineMenuSshKeysState: ActiveUserState<boolean>;
   readonly showInlineMenuSshKeys$: Observable<boolean>;
+
+  private honorBitwardenIgnoreAttributeState: GlobalState<boolean>;
+  readonly honorBitwardenIgnoreAttribute$: Observable<boolean>;
+
+  private honorBitwardenAutofillAttributeState: GlobalState<boolean>;
+  readonly honorBitwardenAutofillAttribute$: Observable<boolean>;
 
   private enableContextMenuState: GlobalState<boolean>;
   readonly enableContextMenu$: Observable<boolean>;
@@ -269,6 +295,20 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
       ),
     );
 
+    this.honorBitwardenIgnoreAttributeState = this.stateProvider.getGlobal(
+      HONOR_BITWARDEN_IGNORE_ATTRIBUTE,
+    );
+    this.honorBitwardenIgnoreAttribute$ = this.honorBitwardenIgnoreAttributeState.state$.pipe(
+      map((x) => x ?? false),
+    );
+
+    this.honorBitwardenAutofillAttributeState = this.stateProvider.getGlobal(
+      HONOR_BITWARDEN_AUTOFILL_ATTRIBUTE,
+    );
+    this.honorBitwardenAutofillAttribute$ = this.honorBitwardenAutofillAttributeState.state$.pipe(
+      map((x) => x ?? false),
+    );
+
     this.enableContextMenuState = this.stateProvider.getGlobal(ENABLE_CONTEXT_MENU);
     this.enableContextMenu$ = this.enableContextMenuState.state$.pipe(map((x) => x ?? true));
 
@@ -338,6 +378,14 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setShowInlineMenuSshKeys(newValue: boolean): Promise<void> {
     await this.showInlineMenuSshKeysState.update(() => newValue);
+  }
+
+  async setHonorBitwardenIgnoreAttribute(newValue: boolean): Promise<void> {
+    await this.honorBitwardenIgnoreAttributeState.update(() => newValue);
+  }
+
+  async setHonorBitwardenAutofillAttribute(newValue: boolean): Promise<void> {
+    await this.honorBitwardenAutofillAttributeState.update(() => newValue);
   }
 
   async setEnableContextMenu(newValue: boolean): Promise<void> {

@@ -24,6 +24,7 @@ import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/va
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
@@ -42,6 +43,7 @@ import { WebLayoutModule } from "./web-layout.module";
     VaultManageNavComponent,
     VaultNavSectionComponent,
     BillingFreeFamiliesNavItemComponent,
+    PamUserNavSlotComponent,
     PopoverModule,
     CoachmarkComponent,
   ],
@@ -56,6 +58,12 @@ export class UserLayoutComponent implements OnInit {
 
   protected readonly coachmarkService = inject(CoachmarkService);
   protected readonly sideNavService = inject(SideNavService);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly exportRoute = computed(() => {
+    const vfo1Enabled = this.vfo1Enabled();
+    return vfo1Enabled ? "/settings/export" : "/tools/export";
+  });
 
   protected readonly vfo1Enabled: Signal<boolean> = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),

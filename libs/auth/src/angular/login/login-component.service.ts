@@ -4,8 +4,8 @@ import { Params } from "@angular/router";
 
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-// eslint-disable-next-line no-restricted-imports
-import { AnonLayoutWrapperData } from "@bitwarden/components";
+
+import { HandleQueryParamErrorsResult } from "./handle-query-param-errors-result.type";
 
 export interface PasswordPolicies {
   policies: Policy[];
@@ -54,13 +54,11 @@ export abstract class LoginComponentService {
 
   /**
    * Handles error responses surfaced via /login query params (today:
-   * server-side SSO redirects carrying `error` + `organizationName`). Decides
-   * whether to auto-progress to MP entry, and optionally returns layout data
-   * that `toggleLoginUiState` will apply in place of the default MP-entry
-   * anon-layout.
+   * server-side SSO redirects carrying `error` + `organizationName`). Returns
+   * a discriminated result so the caller can distinguish auto-progress
+   * (`auto-submit`), a handler-initiated redirect away from /login
+   * (`redirected`), and no-op outcomes (`none`).
    * - Used by: Web
    */
-  handleQueryParamErrors?: (
-    params: Params,
-  ) => Promise<{ autoSubmit: boolean; mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData> }>;
+  handleQueryParamErrors?: (params: Params) => Promise<HandleQueryParamErrorsResult>;
 }

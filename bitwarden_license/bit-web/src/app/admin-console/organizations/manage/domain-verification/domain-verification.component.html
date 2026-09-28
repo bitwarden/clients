@@ -112,7 +112,8 @@
       class="tw-mt-6 tw-flex tw-flex-col tw-items-center tw-justify-center"
       *ngIf="orgDomains?.length == 0"
     >
-      <bit-no-items [icon]="domainIcon">
+      <bit-status-lockup>
+        <bit-svg slot="graphic" [content]="domainIcon"></bit-svg>
         <div slot="title">{{ "noDomains" | i18n }}</div>
         <div slot="description">{{ "noDomainsSubText" | i18n }}</div>
         <button
@@ -125,7 +126,7 @@
         >
           {{ (btnTextAddCreateFeatureFlag() ? "addDomain" : "newDomain") | i18n }}
         </button>
-      </bit-no-items>
+      </bit-status-lockup>
     </div>
   </ng-container>
 </ng-container>

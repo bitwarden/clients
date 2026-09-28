@@ -7,11 +7,17 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
+import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Account, UserId } from "@bitwarden/common/platform/models/domain/account";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+
+jest.mock("@bitwarden/common/desktop-native/services/autotype-feature-flags", () => ({
+  autotypeFeatureFlagState$: jest.fn(),
+}));
 
 describe("DesktopAutotypeDefaultSettingPolicy", () => {
   let service: DesktopAutotypeDefaultSettingPolicy;
@@ -21,7 +27,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   let configService: MockProxy<ConfigService>;
 
   let mockAccountSubject: BehaviorSubject<Account | null>;
-  let mockFeatureFlagSubject: BehaviorSubject<boolean>;
+  let featureFlagSubject: BehaviorSubject<AutotypeFeatureFlagState>;
   let mockAuthStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let mockPolicyAppliesSubject: BehaviorSubject<boolean>;
 
@@ -35,7 +41,9 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
         name: "Test User",
       }),
     });
-    mockFeatureFlagSubject = new BehaviorSubject<boolean>(true);
+    featureFlagSubject = new BehaviorSubject<AutotypeFeatureFlagState>(
+      AutotypeFeatureFlagState.Mvp,
+    );
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,
     );
@@ -47,9 +55,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     configService = mock<ConfigService>();
 
     accountService.activeAccount$ = mockAccountSubject.asObservable();
-    configService.getFeatureFlag$ = jest
-      .fn()
-      .mockReturnValue(mockFeatureFlagSubject.asObservable());
+    jest.mocked(autotypeFeatureFlagState$).mockReturnValue(featureFlagSubject.asObservable());
     authService.authStatusFor$ = jest
       .fn()
       .mockImplementation((_: UserId) => mockAuthStatusSubject.asObservable());
@@ -73,15 +79,27 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockAccountSubject.complete();
-    mockFeatureFlagSubject.complete();
+    featureFlagSubject.complete();
     mockAuthStatusSubject.complete();
     mockPolicyAppliesSubject.complete();
   });
 
   describe("autotypeDefaultSetting$", () => {
     it("should emit null when feature flag is disabled", async () => {
-      mockFeatureFlagSubject.next(false);
+      featureFlagSubject.next(AutotypeFeatureFlagState.Off);
       const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(result).toBeNull();
+      expect(autotypeFeatureFlagState$).toHaveBeenCalledWith(configService);
+    });
+
+    it("should emit null when the resolved feature flag state is neither Mvp nor Ga", async () => {
+      // autotypeFeatureFlagState$ defaults to Off when both the MVP and GA flags are on,
+      // so the policy should not apply (be null)
+      mockPolicyAppliesSubject.next(true);
+      featureFlagSubject.next(AutotypeFeatureFlagState.Off);
+
+      const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+
       expect(result).toBeNull();
     });
 
@@ -109,6 +127,15 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     });
 
     it("should emit true when autotype policy is enabled", async () => {
+      mockPolicyAppliesSubject.next(true);
+      const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+      expect(policyStatus).toBe(true);
+    });
+
+    it("should emit true when autotype policy is enabled and the resolved state is Ga", async () => {
+      // The policy gates on `!== Off`, so it applies under any available Autotype
+      // implementation, not just Mvp (which the other tests cover by default).
+      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
       mockPolicyAppliesSubject.next(true);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policyStatus).toBe(true);
@@ -176,7 +203,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       mockPolicyAppliesSubject.next(true);
       expect(await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)))).toBe(true);
 
-      mockFeatureFlagSubject.next(false);
+      featureFlagSubject.next(AutotypeFeatureFlagState.Off);
       expect(await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)))).toBeNull();
     });
 

@@ -6,6 +6,7 @@ import {
   ClipboardOptions,
   PlatformUtilsService,
 } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { hasUserAgentBrand } from "@bitwarden/common/platform/misc/user-agent-data";
 
 import { SafariApp } from "../../../browser/safariApp";
 import { BrowserApi } from "../../browser/browser-api";
@@ -32,6 +33,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     // the list we hope to catch all by the most generic clients they could be on.
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
+    } else if (BrowserPlatformUtilsService.isDuckDuckGo()) {
+      // Must precede the Edge and Chrome checks: DuckDuckGo's Chromium build carries an
+      // "Edg/" suffix in its user agent and lists "Chromium" among its brands, so both of
+      // those checks would otherwise claim it first.
+      this.deviceCache = DeviceType.DuckDuckGoExtension;
     } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
       this.deviceCache = DeviceType.OperaExtension;
     } else if (BrowserPlatformUtilsService.isEdge()) {
@@ -107,6 +113,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.VivaldiExtension;
   }
 
+  private static isDuckDuckGo(): boolean {
+    return hasUserAgentBrand("DuckDuckGo");
+  }
+
+  isDuckDuckGo(): boolean {
+    return this.getDevice() === DeviceType.DuckDuckGoExtension;
+  }
+
   private static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
@@ -124,7 +138,13 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   isChromium(): boolean {
-    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+    // DuckDuckGo is Chromium (WebView2) on Windows but WebKit on macOS, so it is not
+    // Chromium in general. It is safe to treat unconditionally here because detection relies
+    // on userAgentData, which only Chromium exposes — so DuckDuckGoExtension can only ever
+    // be the Windows build. Revisit if a user-agent-based fallback is ever added above.
+    return (
+      this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi() || this.isDuckDuckGo()
+    );
   }
 
   /**
@@ -328,6 +348,8 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
         return "Vivaldi Extension";
       case DeviceType.SafariExtension:
         return "Safari Extension";
+      case DeviceType.DuckDuckGoExtension:
+        return "DuckDuckGo Extension";
       default:
         return "Unknown Browser Extension";
     }

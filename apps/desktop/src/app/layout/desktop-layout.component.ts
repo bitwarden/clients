@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -9,6 +9,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
@@ -30,6 +31,8 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     DesktopSideNavComponent,
     VaultFilterComponent,
     SendFiltersNavComponent,
+    VaultNavSectionComponent,
+    VaultManageNavComponent,
   ],
   templateUrl: "./desktop-layout.component.html",
 })
@@ -37,6 +40,7 @@ export class DesktopLayoutComponent {
   private dialogService = inject(DialogService);
   private sendPolicyService = inject(SendPolicyService);
   private configService = inject(ConfigService);
+  private router = inject(Router);
 
   protected readonly logo = PasswordManagerLogo;
 
@@ -54,7 +58,11 @@ export class DesktopLayoutComponent {
     this.dialogService.open(CredentialGeneratorComponent);
   }
 
-  protected openImport() {
+  protected async openImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/import"]);
+      return;
+    }
     this.dialogService.open(ImportDesktopComponent);
   }
 

@@ -193,7 +193,9 @@ describe("MyFoldersComponent", () => {
       await component["deleteSelected"]();
 
       expect(openDeleteDialog).toHaveBeenCalledWith(dialogService, { count: 3 });
-      expect(folderApiService.deleteMany).toHaveBeenCalledWith(["1", "2", "3"], userId);
+      const [deletedIds, deletedUserId] = folderApiService.deleteMany.mock.calls[0];
+      expect([...deletedIds].sort()).toEqual(["1", "2", "3"]);
+      expect(deletedUserId).toBe(userId);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "foldersDeleted",

@@ -47,6 +47,7 @@ import {
   SearchModule,
   ToastService,
 } from "@bitwarden/components";
+import { ShareButtonComponent } from "@bitwarden/tools-share";
 import {
   ArchiveCipherUtilitiesService,
   CipherViewComponent,
@@ -106,6 +107,7 @@ type LoadAction =
     PopOutComponent,
     CalloutModule,
     ChipActionComponent,
+    ShareButtonComponent,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },

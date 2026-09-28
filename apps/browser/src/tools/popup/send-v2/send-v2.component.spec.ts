@@ -22,7 +22,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
-import { ButtonModule, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, StatusLockupComponent } from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
   SendListItemsContainerComponent,
@@ -77,7 +77,7 @@ describe("SendV2Component", () => {
         JslibModule,
         ReactiveFormsModule,
         ButtonModule,
-        NoItemsModule,
+        StatusLockupComponent,
         NewSendDropdownComponent,
         SendListItemsContainerComponent,
         SendListFiltersComponent,

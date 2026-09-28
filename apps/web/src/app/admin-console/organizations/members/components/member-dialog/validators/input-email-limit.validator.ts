@@ -3,6 +3,8 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
+import { parseCommaSeparatedEmails } from "./parse-comma-separated-emails";
+
 export function isDynamicSeatPlan(productTierType: ProductTierType): boolean {
   return !isFixedSeatPlan(productTierType);
 }
@@ -17,6 +19,11 @@ export function isFixedSeatPlan(productTierType: ProductTierType): boolean {
       return false;
   }
 }
+
+/**
+ * Arbitrary limit on the number of email addresses the invite input accepts in a single submission.
+ */
+export const emailBatchLimit = 20;
 
 /**
  * Returns the maximum number of unique emails an admin may submit in a single invite operation.
@@ -34,22 +41,29 @@ export function isFixedSeatPlan(productTierType: ProductTierType): boolean {
  *   (no new seat is consumed) even when the org is at full capacity.
  */
 export function getEmailBatchLimit(organization: Organization, occupiedSeatCount: number): number {
-  // Arbitrary limit on the number of email addresses the invite input accepts in a single submission.
-  const batchLimit = 20;
-
   if (isDynamicSeatPlan(organization.productTierType)) {
-    return batchLimit;
+    return emailBatchLimit;
   }
 
   const remainingSeats = organization.seats - occupiedSeatCount;
-  return Math.min(batchLimit, Math.max(0, remainingSeats));
+  return Math.min(emailBatchLimit, Math.max(0, remainingSeats));
+}
+
+/**
+ * Returns true when the organization's remaining seats — rather than the per-submission batch size —
+ * are what cap the number of emails the admin may enter. The two cases warrant different validation
+ * messages: running out of seats is resolved by upgrading the plan, whereas exceeding the batch size
+ * is resolved by submitting the invites in more than one batch.
+ */
+export function isSeatConstrainedEmailBatch(
+  organization: Organization,
+  occupiedSeatCount: number,
+): boolean {
+  return getEmailBatchLimit(organization, occupiedSeatCount) < emailBatchLimit;
 }
 
 function getUniqueInputEmails(control: AbstractControl, existingEmails: string[] = []): string[] {
-  const emails: string[] = control.value
-    .split(",")
-    .map((email: string) => email.trim())
-    .filter((email: string) => email !== "");
+  const emails = parseCommaSeparatedEmails(control.value);
   const uniqueEmails: string[] = Array.from(new Set(emails));
 
   if (existingEmails.length === 0) {

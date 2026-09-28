@@ -149,8 +149,6 @@ export abstract class OrganizationInviteService {
    * Seals the open-org-invite context (`organizationId`, `inviteLinkCode`, `inviteKey`)
    * against a per-email secret so a later {@link unsealOpenOrgInvite} can recover it, and
    * returns the sealed blob for the caller to attach to the verification-email request.
-   * Returns `null` when {@link FeatureFlag.GenerateInviteLink} is off so callers can no-op
-   * without a flag check of their own.
    */
   abstract sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null>;
 

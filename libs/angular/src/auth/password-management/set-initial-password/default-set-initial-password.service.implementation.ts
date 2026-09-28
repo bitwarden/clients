@@ -159,6 +159,26 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
+    // ============================================================
+    // PM-42990 — ROLLBACK NOTE
+    // ============================================================
+    // This code builds the request from a master password hash. The caller
+    // computes that hash in SetInitialPasswordComponent.
+    //
+    // This method does not build authentication data or unlock data.
+    //
+    // This exists because the set-password endpoint needs the old shape for
+    // 3 releases, to stay compatible with self hosted servers.
+    //
+    // BUILD: Move the hash and key computation back into this method. Build
+    // the request from authentication data and unlock data, not a hash.
+    //
+    // DELETE: Remove the assertions on newMasterKey and newServerMasterKeyHash
+    // below. Delete newMasterKey and newServerMasterKeyHash from
+    // SetInitialPasswordCredentials and PasswordInputResult. See
+    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+    // refactor.
+    // ============================================================
     const request = new SetPasswordRequest(
       newServerMasterKeyHash,
       masterKeyEncryptedUserKey[1].encryptedString,
@@ -174,12 +194,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(
-      newMasterKey,
-      kdfConfig,
-      masterKeyEncryptedUserKey,
-      userId,
-    );
+    await this.updateAccountDecryptionProperties(kdfConfig, userId);
 
     // Set master password unlock data for unlock path pointed to with
     // MasterPasswordUnlockData feature development
@@ -259,7 +274,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+    const request = new UpdateTdeOffboardingPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,
@@ -340,11 +355,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
 
     await this.updateLegacyState(
-      newPassword,
       fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
-      new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
       userId,
-      masterPasswordUnlockData,
     );
 
     // Unlocking initializes the SDK from state, so it has to run after the state written above -
@@ -402,6 +414,22 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
+    // ============================================================
+    // PM-42990 — ROLLBACK NOTE
+    // ============================================================
+    // This method already builds authentication data and unlock data.
+    // The method newConstructor() converts that data into the old request shape.
+    //
+    // It converts to the old shape because the endpoint needs it for 3
+    // releases, to stay compatible with self hosted servers.
+    //
+    // BUILD: Replace this call with a direct call to the new request
+    // constructor. No other change is needed here.
+    //
+    // DELETE: Nothing to delete at this call site. See
+    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+    // refactor.
+    // ============================================================
     const request = SetPasswordRequest.newConstructor(
       authenticationData,
       unlockData,
@@ -417,13 +445,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // User now has a password so update decryption state
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
-    await this.updateLegacyState(
-      newPassword,
-      unlockData.kdf,
-      new EncString(unlockData.masterKeyWrappedUserKey),
-      userId,
-      unlockData,
-    );
+    await this.updateLegacyState(unlockData.kdf, userId);
 
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnroll(
@@ -461,12 +483,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   /**
    * @deprecated along with `setInitialPassword()` deprecation
    */
-  private async updateAccountDecryptionProperties(
-    masterKey: MasterKey,
-    kdfConfig: KdfConfig,
-    masterKeyEncryptedUserKey: [UserKey, EncString],
-    userId: UserId,
-  ) {
+  private async updateAccountDecryptionProperties(kdfConfig: KdfConfig, userId: UserId) {
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
@@ -476,23 +493,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userDecryptionOpts,
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-      masterKeyEncryptedUserKey[1],
-      userId,
-    );
   }
 
   // Deprecated legacy support - to be removed in future
-  private async updateLegacyState(
-    newPassword: string,
-    kdfConfig: KdfConfig,
-    masterKeyWrappedUserKey: EncString,
-    userId: UserId,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-  ) {
+  private async updateLegacyState(kdfConfig: KdfConfig, userId: UserId) {
     // TODO Remove HasMasterPassword from UserDecryptionOptions https://bitwarden.atlassian.net/browse/PM-23475
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
@@ -505,15 +509,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-    // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
-
-    // TODO Removed with https://bitwarden.atlassian.net/browse/PM-30676
-    await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
-      newPassword,
-      masterPasswordUnlockData,
-      userId,
-    );
   }
 
   /**

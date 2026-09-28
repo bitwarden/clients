@@ -20,6 +20,8 @@ export type AccordionSize = "sm" | "default";
 
 export type AccordionVariant = "default" | "subtle";
 
+export type AccordionHeight = "constrained" | "auto";
+
 let nextId = 0;
 
 @Component({
@@ -56,6 +58,7 @@ export class AccordionComponent {
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly size = input<AccordionSize>("default");
   readonly variant = input<AccordionVariant>("default");
+  readonly height = input<AccordionHeight>("constrained");
 
   protected readonly resolvedVariant = computed(() => this.group?.variant() ?? this.variant());
 
@@ -145,8 +148,10 @@ export class AccordionComponent {
       "tw-rounded-b-xl",
       "tw-overflow-hidden",
       "tw-transition-[grid-template-rows,padding] tw-duration-150",
+      // `tw-border-0` zeroes the sides `tw-border-solid` would otherwise leave at the browser's
+      // default width. Desktop runs without Tailwind's preflight, so nothing else does it there.
       this.resolvedVariant() === "subtle" && this.open()
-        ? "tw-border-t tw-border-solid tw-border-border-base"
+        ? "tw-border-0 tw-border-t tw-border-solid tw-border-border-base"
         : "",
       this.open() ? "tw-grid-rows-[1fr] tw-py-4" : "tw-grid-rows-[0fr] tw-py-0",
     ].join(" "),

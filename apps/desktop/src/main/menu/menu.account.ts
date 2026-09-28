@@ -5,7 +5,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
-import { isMacAppStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isWindowsStore } from "../platform-utils.main";
 
 import { IMenubarMenu } from "./menubar";
 

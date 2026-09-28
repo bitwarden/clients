@@ -14,6 +14,7 @@ import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { StateProvider } from "../../platform/state";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
@@ -33,6 +34,7 @@ jest.mock("./migrations/user-key-id-backfill-migration");
 
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
+  const mockStateProvider = mock<StateProvider>();
   const mockLogService = mock<LogService>();
   const configService = mock<ConfigService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
@@ -94,6 +96,7 @@ describe("EncryptedMigrator", () => {
       mockUserKeyRotationService,
       mockCipherService,
       mockSdkService,
+      mockStateProvider,
     );
   });
 

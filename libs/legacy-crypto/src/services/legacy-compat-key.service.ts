@@ -2,7 +2,6 @@ import * as bigInt from "big-integer";
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -25,7 +24,6 @@ import { CsprngArray } from "../types/csprng";
 
 export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbstraction {
   constructor(
-    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
     private encryptService: EncryptService,
@@ -48,14 +46,9 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
   /**
    * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
    */
-  async getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey> {
+  async deriveMasterKeyForUser(password: string, userId: UserId): Promise<MasterKey> {
     if (userId == null) {
       throw new Error("User ID is required.");
-    }
-
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey != null) {
-      return masterKey;
     }
 
     const email = await firstValueFrom(

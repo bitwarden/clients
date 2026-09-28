@@ -3,6 +3,7 @@ import {
   AutoConfirmPolicy,
   DesktopAutotypeDefaultSettingPolicy,
   DisableSendPolicy,
+  FillAssistPolicy,
   MasterPasswordPolicy,
   OrganizationDataOwnershipPolicy,
   OrganizationUserNotificationPolicy,
@@ -37,6 +38,7 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new RestrictedItemTypesPolicy(),
   new DesktopAutotypeDefaultSettingPolicy(),
   new UriMatchDefaultPolicy(),
+  new FillAssistPolicy(),
   new AutoConfirmPolicy(),
   new OrganizationUserNotificationPolicy(),
 ];

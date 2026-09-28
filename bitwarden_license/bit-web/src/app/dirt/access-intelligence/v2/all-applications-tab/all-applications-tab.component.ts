@@ -21,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
@@ -50,7 +49,6 @@ import {
     LinkModule,
     SearchModule,
     PipesModule,
-    NoItemsModule,
     SharedModule,
     ApplicationsTableV2Component,
     TypographyModule,

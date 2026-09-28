@@ -6,6 +6,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
 
 import { CipherHealthView } from "../../../../access-intelligence/models";
 
@@ -15,11 +16,13 @@ describe("DefaultCipherHealthService", () => {
   let service: DefaultCipherHealthService;
   let auditService: MockProxy<AuditService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     auditService = mock<AuditService>();
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
-    service = new DefaultCipherHealthService(auditService, passwordStrengthService);
+    logService = mock<LogService>();
+    service = new DefaultCipherHealthService(auditService, passwordStrengthService, logService);
   });
 
   // Helper to create mock ciphers

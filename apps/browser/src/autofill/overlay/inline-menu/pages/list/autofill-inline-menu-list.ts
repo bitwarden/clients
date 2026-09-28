@@ -10,8 +10,15 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { Lock } from "../../../../content/components/icons";
-import { InlineMenuCipherList, InlineMenuPrompt } from "../../../../content/components/inline-menu";
+import { ActionButton } from "../../../../content/components/buttons/action-button";
+import { Lock, Plus } from "../../../../content/components/icons";
+import {
+  InlineMenuCipherList,
+  InlineMenuCipherListNewItem,
+  InlineMenuContainer,
+  InlineMenuPrompt,
+  InlineMenuPasswordGenerator,
+} from "../../../../content/components/inline-menu";
 import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import { EventSecurity } from "../../../../utils/event-security";
@@ -334,6 +341,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param generatedPassword - The generated password to display.
    */
   private buildPasswordGenerator(generatedPassword: string) {
+    if (this.useLitComponents) {
+      this.renderLitPasswordGenerator(generatedPassword);
+      return;
+    }
+
     this.passwordGeneratorContainer = globalThis.document.createElement("div");
     this.passwordGeneratorContainer.classList.add("password-generator-container");
 
@@ -397,6 +409,31 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.passwordGeneratorContainer.appendChild(passwordGeneratorActions);
     this.inlineMenuListContainer.appendChild(this.passwordGeneratorContainer);
+  }
+
+  private renderLitPasswordGenerator(generatedPassword: string) {
+    const characterDescriptors: Record<string, string> = {};
+    for (const key of Object.values(specialCharacterToKeyMap)) {
+      characterDescriptors[key] = this.getTranslation(key);
+    }
+
+    this.renderLit(
+      InlineMenuPasswordGenerator({
+        password: generatedPassword,
+        headingText: this.getTranslation("fillGeneratedPassword"),
+        theme: this.theme,
+        i18n: {
+          generatedPassword: this.getTranslation("generatedPassword"),
+          lowercaseAriaLabel: this.getTranslation("lowercaseAriaLabel"),
+          uppercaseAriaLabel: this.getTranslation("uppercaseAriaLabel"),
+          regeneratePassword: this.getTranslation("regeneratePassword"),
+          characterDescriptors,
+        },
+        handleFillPassword: () => this.postMessageToParent({ command: "fillGeneratedPassword" }),
+        handleRefreshPassword: () =>
+          this.postMessageToParent({ command: "refreshGeneratedPassword" }),
+      }),
+    );
   }
 
   /**
@@ -562,6 +599,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
+    if (this.useLitComponents) {
+      if (!this.inlineMenuListContainer.querySelector("[data-fill-generated-password]")) {
+        this.resetInlineMenuContainer();
+      }
+      this.renderLitPasswordGenerator(message.generatedPassword);
+      return;
+    }
+
     const passwordGeneratorContentElement = this.inlineMenuListContainer.querySelector(
       "#password-generator-content",
     );
@@ -679,22 +724,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         onListEdgeReached: this.showInlineMenuAccountCreation
           ? () => this.newItemButtonElement?.focus()
           : undefined,
+        newItem: this.showInlineMenuAccountCreation
+          ? this.buildNewItemActionProps(true)
+          : undefined,
       }),
     );
     this.setupLitCipherListScrollListeners();
-
-    if (!this.showInlineMenuAccountCreation) {
-      return;
-    }
-
-    if (this.newItemButtonElement) {
-      return;
-    }
-
-    const addNewLoginButtonContainer = this.buildNewItemButton();
-    this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
-    this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
-    this.newItemButtonElement!.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+    this.newItemButtonElement = this.showInlineMenuAccountCreation
+      ? (this.litHost?.querySelector<HTMLButtonElement>(
+          "[data-testid='inline-menu-new-item-button']",
+        ) ?? undefined)
+      : undefined;
   }
 
   private loadLitPageOfCiphers() {
@@ -789,6 +829,22 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Facilitates the ability to add a new vault item from the inline menu.
    */
   private buildNoResultsInlineMenuList() {
+    if (this.useLitComponents) {
+      this.renderLit(
+        InlineMenuPrompt({
+          message: this.getTranslation("noItemsToShow"),
+          theme: this.theme,
+          dataTestId: "inline-menu-empty-state",
+          ...this.buildNewItemActionProps(false),
+        }),
+      );
+      this.newItemButtonElement =
+        this.litHost?.querySelector<HTMLButtonElement>(
+          "[data-testid='inline-menu-new-item-button']",
+        ) ?? undefined;
+      return;
+    }
+
     const noItemsMessage = globalThis.document.createElement("div");
     noItemsMessage.classList.add("no-items", "inline-menu-list-message");
     noItemsMessage.textContent = this.getTranslation("noItemsToShow");
@@ -854,6 +910,21 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return this.getTranslation("addNewVaultItem");
+  }
+
+  /**
+   * Builds the shared props for the Lit New Item action, used by both the
+   * empty state prompt and the action rendered below the cipher list.
+   */
+  private buildNewItemActionProps(showLogin: boolean): InlineMenuCipherListNewItem {
+    return {
+      actionText: this.getNewItemButtonText(showLogin),
+      i18n: { actionAria: this.getNewItemAriaLabel(showLogin) },
+      icon: Plus,
+      handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
+      handleKeyUp: this.handleNewItemButtonKeyUpEvent,
+      actionDataTestId: "inline-menu-new-item-button",
+    };
   }
 
   /**
@@ -1711,12 +1782,28 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.isPasskeyAuthInProgress = true;
     this.resetInlineMenuContainer();
 
-    const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
-    passkeyAuthenticatingLoader.classList.add("passkey-authenticating-loader");
-    passkeyAuthenticatingLoader.textContent = this.getTranslation("authenticating");
-    passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
+    if (this.useLitComponents) {
+      this.renderLit(
+        InlineMenuContainer({
+          theme: this.theme,
+          dataTestId: "inline-menu-passkey-authenticating",
+          children: ActionButton({
+            buttonText: this.getTranslation("authenticating"),
+            isLoading: true,
+            theme: this.theme,
+            handleClick: () => {},
+            dataTestId: "inline-menu-passkey-authenticating-button",
+          }),
+        }),
+      );
+    } else {
+      const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
+      passkeyAuthenticatingLoader.classList.add("passkey-authenticating-loader");
+      passkeyAuthenticatingLoader.textContent = this.getTranslation("authenticating");
+      passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
 
-    this.inlineMenuListContainer.appendChild(passkeyAuthenticatingLoader);
+      this.inlineMenuListContainer.append(passkeyAuthenticatingLoader);
+    }
 
     globalThis.setTimeout(() => {
       this.isPasskeyAuthInProgress = false;
@@ -1810,7 +1897,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const firstListElement = this.inlineMenuListContainer.querySelector(
-      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-fill-cipher]",
+      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-testid='inline-menu-new-item-button'], [data-fill-cipher], [data-fill-generated-password]",
     ) as HTMLElement;
     firstListElement?.focus();
   }

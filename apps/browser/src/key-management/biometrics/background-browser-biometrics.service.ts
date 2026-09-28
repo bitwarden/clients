@@ -23,6 +23,7 @@ import {
   ipcRequestGetBiometricsStatus,
   ipcRequestUnlockBiometrics,
 } from "@bitwarden/sdk-internal";
+import { UnlockMethod } from "@bitwarden/unlock";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -113,7 +114,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           }
 
           await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
-          await this.unlockService!.unlockWithDecryptedUserKey(userId, userKey);
+          await this.unlockService!.unlockWithDecryptedUserKey(
+            userId,
+            userKey,
+            UnlockMethod.Biometrics,
+          );
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;
@@ -140,7 +145,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
         try {
-          await this.unlockService!.unlockWithDecryptedUserKey(userId, userKey);
+          await this.unlockService!.unlockWithDecryptedUserKey(
+            userId,
+            userKey,
+            UnlockMethod.Biometrics,
+          );
           await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });

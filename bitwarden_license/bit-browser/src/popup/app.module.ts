@@ -14,6 +14,7 @@ import { AppModule as OssModule } from "@bitwarden/browser/popup/app.module";
 import { HEALTH_TAB_NAV_BUTTON } from "@bitwarden/browser/popup/health-tab-nav-button";
 // import { WildcardRoutingModule } from "@bitwarden/browser/popup/wildcard-routing.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { safeProvider } from "@bitwarden/ui-common";
 
@@ -49,7 +50,7 @@ import { HealthAccessService } from "./dirt/health/services/health-access.servic
     safeProvider({
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
-      deps: [CipherRiskService],
+      deps: [CipherRiskService, LogService],
     }),
     safeProvider({
       provide: HEALTH_TAB_NAV_BUTTON,

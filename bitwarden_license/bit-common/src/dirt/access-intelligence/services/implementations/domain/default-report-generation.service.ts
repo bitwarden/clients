@@ -11,6 +11,7 @@ import {
   AccessReportView,
   MemberRegistry,
 } from "../../../models";
+import { flowTimer } from "../../../utils/measure-flow-step.operator";
 import { CipherHealthService } from "../../abstractions/cipher-health.service";
 import {
   CollectionAccessDetails,
@@ -56,7 +57,14 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       groupMemberships,
     ).pipe(
       map(({ ciphers: processedCiphers, healthMap, memberMapping, registry }) => {
+        const measureStep = flowTimer(this.logService);
+
         const reports = this.aggregateIntoReports(processedCiphers, healthMap, memberMapping);
+        measureStep("Generate: applications grouped", [
+          ["itemCount", processedCiphers.length],
+          ["memberCount", Object.keys(registry).length],
+          ["applicationCount", reports.length],
+        ]);
 
         // Build view and populate with generated data
         const view = new AccessReportView();
@@ -67,9 +75,21 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
         // Carry over application metadata from previous report
         this.carryOverApplicationMetadata(view, previousApplications ?? []);
+        // Measured separately: this is the only step whose cost scales with the previous report.
+        measureStep("Generate: previous metadata carried over", [
+          ["applicationCount", reports.length],
+          ["previousApplicationCount", previousApplications?.length ?? 0],
+        ]);
 
         // Compute summary (delegates to smart model method)
         view.recomputeSummary();
+        // passwordCount sums cipher refs per application, so a cipher on several URIs counts once each.
+        measureStep("Generate: summary recomputed", [
+          ["itemCount", processedCiphers.length],
+          ["passwordCount", view.summary.totalPasswordCount],
+          ["memberCount", view.summary.totalMemberCount],
+          ["applicationCount", view.summary.totalApplicationCount],
+        ]);
 
         return view;
       }),

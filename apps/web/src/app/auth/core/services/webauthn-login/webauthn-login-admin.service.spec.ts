@@ -41,6 +41,7 @@ describe("WebauthnAdminService", () => {
 
   let originalAuthenticatorAssertionResponse!: AuthenticatorAssertionResponse | any;
   const mockUserId = newGuid() as UserId;
+  const mockPrfWrappingKey = makeSymmetricCryptoKey(64, 1) as PrfKey;
   const mockUserKey = makeSymmetricCryptoKey(64) as UserKey;
 
   beforeAll(() => {
@@ -69,6 +70,7 @@ describe("WebauthnAdminService", () => {
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
 
     keyService.userKey$.mockReturnValue(of(mockUserKey));
+    webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf.mockResolvedValue(mockPrfWrappingKey);
   });
 
   beforeEach(() => {
@@ -91,7 +93,7 @@ describe("WebauthnAdminService", () => {
     });
 
     it("should return credential when navigator.credentials does not throw", async () => {
-      const deviceResponse = createDeviceResponse({ prf: false });
+      const deviceResponse = createDeviceResponse({ prfEnabled: false });
       credentials.create.mockResolvedValue(deviceResponse as PublicKeyCredential);
       const createOptions = createCredentialCreateOptions();
 
@@ -105,13 +107,92 @@ describe("WebauthnAdminService", () => {
     });
 
     it("should return supportsPrf=true when extensions contain prf", async () => {
-      const deviceResponse = createDeviceResponse({ prf: true });
+      const deviceResponse = createDeviceResponse({ prfEnabled: true });
       credentials.create.mockResolvedValue(deviceResponse as PublicKeyCredential);
       const createOptions = createCredentialCreateOptions();
 
       const result = await service.createCredential(createOptions);
 
       expect(result.supportsPrf).toBe(true);
+    });
+
+    it("should return prfResult when PRF extension output contains value", async () => {
+      const deviceResponse = createDeviceResponse({ prfEnabled: true, prfResult: true });
+      credentials.create.mockResolvedValue(deviceResponse as PublicKeyCredential);
+      const createOptions = createCredentialCreateOptions();
+
+      const result = await service.createCredential(createOptions);
+
+      expect(result.supportsPrf).toBe(true);
+      expect(result.prfResult).toBeDefined();
+    });
+
+    it("should return prfResult=undefined when authenticator does not support PRF on create", async () => {
+      const deviceResponse = createDeviceResponse({ prfEnabled: true, prfResult: false });
+      credentials.create.mockResolvedValue(deviceResponse as PublicKeyCredential);
+      const createOptions = createCredentialCreateOptions();
+
+      const result = await service.createCredential(createOptions);
+
+      expect(result.supportsPrf).toBe(true);
+      expect(result.prfResult).toBeUndefined();
+    });
+  });
+
+  describe("createKeySet", () => {
+    it("should return prfKeySet when supportsPrf == true", async () => {
+      const createdCredential = createDeviceResponse({ prfEnabled: true });
+      credentials.create.mockResolvedValue(createdCredential as PublicKeyCredential);
+      const createOptions = createCredentialCreateOptions();
+
+      const pendingCredential: PendingWebauthnLoginCredentialView = {
+        createOptions,
+        deviceResponse: createdCredential,
+        supportsPrf: true,
+        prfResult: undefined,
+      };
+
+      const assertedCredential = getDeviceResponse({ prfResult: true });
+      credentials.get.mockResolvedValueOnce(assertedCredential);
+
+      const mockEncryptedPublicKey = new EncString("test_encryptedPublicKey");
+      const mockEncryptedUserKey = new EncString("test_encryptedUserKey");
+      const mockedKeySet = new RotateableKeySet<PrfKey>(
+        mockEncryptedUserKey,
+        mockEncryptedPublicKey,
+      );
+      rotateableKeySetService.createKeySet.mockResolvedValue(mockedKeySet);
+
+      const keySet = await service.createKeySet(pendingCredential, mockUserId);
+
+      expect(credentials.get).toHaveBeenCalled();
+      expect(keySet).toEqual(mockedKeySet);
+    });
+
+    it("should return prfKeySet when prfResult contains value", async () => {
+      const createdCredential = createDeviceResponse({ prfEnabled: true, prfResult: true });
+      credentials.create.mockResolvedValue(createdCredential as PublicKeyCredential);
+      const createOptions = createCredentialCreateOptions();
+
+      const pendingCredential = {
+        createOptions,
+        deviceResponse: createdCredential,
+        supportsPrf: true,
+        prfResult: createdCredential.getClientExtensionResults().prf.results.first,
+      };
+
+      const mockEncryptedPublicKey = new EncString("test_encryptedPublicKey");
+      const mockEncryptedUserKey = new EncString("test_encryptedUserKey");
+      const mockedKeySet = new RotateableKeySet<PrfKey>(
+        mockEncryptedUserKey,
+        mockEncryptedPublicKey,
+      );
+      rotateableKeySetService.createKeySet.mockResolvedValue(mockedKeySet);
+
+      const keySet = await service.createKeySet(pendingCredential, mockUserId);
+
+      expect(credentials.get).not.toHaveBeenCalled();
+      expect(keySet).toEqual(mockedKeySet);
     });
   });
 
@@ -367,7 +448,10 @@ function createCredentialCreateOptions(): CredentialCreateOptionsView {
   return new CredentialCreateOptionsView(challenge as any, Symbol() as any);
 }
 
-function createDeviceResponse({ prf = false }: { prf?: boolean } = {}): PublicKeyCredential {
+function createDeviceResponse({
+  prfEnabled = false,
+  prfResult = false,
+}: { prfEnabled?: boolean; prfResult?: boolean } = {}): PublicKeyCredential {
   const credential = {
     id: "Y29yb2l1IHdhcyBoZXJl",
     rawId: new Uint8Array([0x74, 0x65, 0x73, 0x74]),
@@ -377,8 +461,23 @@ function createDeviceResponse({ prf = false }: { prf?: boolean } = {}): PublicKe
       clientDataJSON: "eyJ0ZXN0IjoidGVzdCJ9",
     },
     getClientExtensionResults: () => {
-      if (!prf) {
+      if (!prfEnabled && !prfResult) {
         return {};
+      }
+
+      if (prfResult) {
+        return {
+          prf: {
+            enabled: Boolean(prfEnabled),
+            results: {
+              first: new Uint8Array([
+                0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+                0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+                0x1c, 0x1d, 0x1e, 0x1f,
+              ]),
+            },
+          },
+        };
       }
 
       return {
@@ -391,6 +490,42 @@ function createDeviceResponse({ prf = false }: { prf?: boolean } = {}): PublicKe
 
   Object.setPrototypeOf(credential, PublicKeyCredential.prototype);
   Object.setPrototypeOf(credential.response, AuthenticatorAttestationResponse.prototype);
+
+  return credential;
+}
+
+function getDeviceResponse({
+  prfResult = false,
+}: { prfResult?: boolean } = {}): PublicKeyCredential {
+  const credential = {
+    id: "Y29yb2l1IHdhcyBoZXJl",
+    rawId: new Uint8Array([0x74, 0x65, 0x73, 0x74]),
+    type: "public-key",
+    response: {
+      authenticatorData: new Uint8Array([0, 0, 0]),
+      signature: new Uint8Array([0x01, 0x02, 0x03, 0x04]),
+    },
+    getClientExtensionResults: () => {
+      if (!prfResult) {
+        return {};
+      }
+
+      return {
+        prf: {
+          results: {
+            first: new Uint8Array([
+              0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+              0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+              0x1c, 0x1d, 0x1e, 0x1f,
+            ]),
+          },
+        },
+      };
+    },
+  } as any;
+
+  Object.setPrototypeOf(credential, PublicKeyCredential.prototype);
+  Object.setPrototypeOf(credential.response, AuthenticatorAssertionResponse.prototype);
 
   return credential;
 }
@@ -439,6 +574,11 @@ class MockPublicKeyCredential implements PublicKeyCredential {
         },
       },
     };
+  }
+
+  toJSON(): string {
+    // Not currently needed for mocks.
+    throw Error("Not implemented");
   }
 
   static isConditionalMediationAvailable(): Promise<boolean> {

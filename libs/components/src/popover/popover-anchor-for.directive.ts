@@ -17,6 +17,7 @@ import { outputToObservable } from "@angular/core/rxjs-interop";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
 import { PositionIdentifier, defaultPositions } from "./default-positions";
+import { PopoverPanelComponent } from "./popover-panel.component";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
@@ -60,7 +61,9 @@ export class PopoverAnchorForDirective implements OnDestroy {
   readonly popoverOpen = model(false);
 
   /** The popover component to display */
-  readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchorFor" });
+  readonly popover = input.required<PopoverComponent | PopoverPanelComponent>({
+    alias: "bitPopoverAnchorFor",
+  });
 
   /** Whether clicking the backdrop closes the popover. Defaults to true. */
   readonly closeOnBackdropClick = input<boolean>(true);

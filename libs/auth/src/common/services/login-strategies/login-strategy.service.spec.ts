@@ -32,7 +32,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   FakeAccountService,
   FakeGlobalStateProvider,
@@ -63,7 +62,7 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CacheData } from "./login-strategy.state";
 
-const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1));
+const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt");
 
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
@@ -81,7 +80,6 @@ describe("LoginStrategyService", () => {
   let keyConnectorService: MockProxy<KeyConnectorService>;
   let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let i18nService: MockProxy<I18nService>;
   let encryptService: MockProxy<EncryptService>;
@@ -118,7 +116,6 @@ describe("LoginStrategyService", () => {
     keyConnectorService = mock<KeyConnectorService>();
     unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     i18nService = mock<I18nService>();
     encryptService = mock<EncryptService>();
@@ -161,7 +158,7 @@ describe("LoginStrategyService", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 
@@ -177,7 +174,6 @@ describe("LoginStrategyService", () => {
       logService,
       keyConnectorService,
       environmentService,
-      stateService,
       twoFactorService,
       i18nService,
       encryptService,
@@ -346,7 +342,6 @@ describe("LoginStrategyService", () => {
       logService,
       keyConnectorService,
       environmentService,
-      stateService,
       twoFactorService,
       i18nService,
       encryptService,
