@@ -1,4 +1,5 @@
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
@@ -62,15 +63,19 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
   it("should correctly deserialize PasswordLoginStrategyData", () => {
     const actual = {
-      password: new PasswordLoginStrategyData(),
+      password: new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          "EMAIL",
+          "LOCAL_PASSWORD_HASH",
+          twoFactorRequest,
+          deviceRequest,
+        ),
+        userEnteredEmail: "EMAIL",
+        masterKey: new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey,
+        masterPassword: "MASTER_PASSWORD",
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      }),
     };
-    actual.password.tokenRequest = new PasswordTokenRequest(
-      "EMAIL",
-      "LOCAL_PASSWORD_HASH",
-      twoFactorRequest,
-      deviceRequest,
-    );
-    actual.password.masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
@@ -81,14 +86,18 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
   });
 
   it("should correctly deserialize SsoLoginStrategyData", () => {
-    const actual = { sso: new SsoLoginStrategyData() };
-    actual.sso.tokenRequest = new SsoTokenRequest(
-      "CODE",
-      "CODE_VERIFIER",
-      "REDIRECT_URI",
-      twoFactorRequest,
-      deviceRequest,
-    );
+    const actual = {
+      sso: new SsoLoginStrategyData({
+        tokenRequest: new SsoTokenRequest(
+          "CODE",
+          "CODE_VERIFIER",
+          "REDIRECT_URI",
+          twoFactorRequest,
+          deviceRequest,
+        ),
+        orgId: "ORG_ID",
+      }),
+    };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
@@ -99,12 +108,11 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
   });
 
   it("should correctly deserialize UserApiLoginStrategyData", () => {
-    const actual = { userApiKey: new UserApiLoginStrategyData() };
-    actual.userApiKey.tokenRequest = new UserApiTokenRequest(
-      "CLIENT_ID",
-      "CLIENT_SECRET",
-      twoFactorRequest,
-    );
+    const actual = {
+      userApiKey: new UserApiLoginStrategyData({
+        tokenRequest: new UserApiTokenRequest("CLIENT_ID", "CLIENT_SECRET", twoFactorRequest),
+      }),
+    };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
@@ -115,19 +123,22 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
   });
 
   it("should correctly deserialize AuthRequestLoginStrategyData", () => {
-    const actual = { authRequest: new AuthRequestLoginStrategyData() };
-    actual.authRequest.tokenRequest = new PasswordTokenRequest(
-      "EMAIL",
-      "ACCESS_CODE",
-      twoFactorRequest,
-      deviceRequest,
-    );
-    actual.authRequest.authRequestCredentials = new AuthRequestLoginCredentials(
-      "EMAIL",
-      "ACCESS_CODE",
-      "AUTH_REQUEST_ID",
-      new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-    );
+    const actual = {
+      authRequest: new AuthRequestLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          "EMAIL",
+          "ACCESS_CODE",
+          twoFactorRequest,
+          deviceRequest,
+        ),
+        authRequestCredentials: new AuthRequestLoginCredentials(
+          "EMAIL",
+          "ACCESS_CODE",
+          "AUTH_REQUEST_ID",
+          new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+        ),
+      }),
+    };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
@@ -139,16 +150,15 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
   it("should correctly deserialize WebAuthnLoginStrategyData", () => {
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
-    const actual = { webAuthn: new WebAuthnLoginStrategyData() };
     const publicKeyCredential = new MockPublicKeyCredential();
     const deviceResponse = new WebAuthnLoginAssertionResponseRequest(publicKeyCredential);
     const prfKey = new SymmetricCryptoKey(new Uint8Array(64)) as PrfKey;
-    actual.webAuthn.credentials = new WebAuthnLoginCredentials("TOKEN", deviceResponse, prfKey);
-    actual.webAuthn.tokenRequest = new WebAuthnLoginTokenRequest(
-      "TOKEN",
-      deviceResponse,
-      deviceRequest,
-    );
+    const actual = {
+      webAuthn: new WebAuthnLoginStrategyData({
+        tokenRequest: new WebAuthnLoginTokenRequest("TOKEN", deviceResponse, deviceRequest),
+        credentials: new WebAuthnLoginCredentials("TOKEN", deviceResponse, prfKey),
+      }),
+    };
 
     actual.webAuthn.tokenRequest.setTwoFactor(
       new TokenTwoFactorRequest(TwoFactorProviderType.Email, "TOKEN", false),

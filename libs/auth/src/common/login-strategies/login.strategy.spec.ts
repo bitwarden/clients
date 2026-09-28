@@ -42,6 +42,7 @@ import {
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
+import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
@@ -457,12 +458,17 @@ describe("LoginStrategy", () => {
 
     it("sends 2FA token provided by user to server (two-step)", async () => {
       // Simulate a partially completed login
-      cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(
-        email,
-        masterPasswordHash,
-        new TokenTwoFactorRequest(),
-      );
+      cache = new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          email,
+          masterPasswordHash,
+          new TokenTwoFactorRequest(),
+        ),
+        userEnteredEmail: email,
+        masterKey: {} as MasterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      });
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
@@ -520,12 +526,17 @@ describe("LoginStrategy", () => {
 
       apiService.postIdentityToken.mockResolvedValue(deviceVerificationResponse);
 
-      cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(
-        email,
-        masterPasswordHash,
-        new TokenTwoFactorRequest(),
-      );
+      cache = new PasswordLoginStrategyData({
+        tokenRequest: new PasswordTokenRequest(
+          email,
+          masterPasswordHash,
+          new TokenTwoFactorRequest(),
+        ),
+        userEnteredEmail: email,
+        masterKey: {} as MasterKey,
+        masterPassword,
+        forcePasswordResetReason: ForceSetPasswordReason.None,
+      });
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
@@ -557,6 +568,45 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       expect(result.requiresDeviceVerification).toBe(true);
+    });
+  });
+
+  describe("given no login in progress", () => {
+    it("rejects a two-factor attempt without sending a token request", async () => {
+      passwordLoginStrategy = new PasswordLoginStrategy(
+        undefined,
+        passwordStrengthService,
+        policyService,
+        passwordPreloginService,
+        unlockService,
+        legacyCompatKeyService,
+        accountService as AccountService,
+        masterPasswordService,
+        keyService,
+        encryptService,
+        apiService,
+        tokenService,
+        appIdService,
+        platformUtilsService,
+        messagingService,
+        logService,
+        twoFactorService,
+        userDecryptionOptionsService,
+        billingAccountProfileStateService,
+        vaultTimeoutSettingsService,
+        kdfConfigService,
+        environmentService,
+        configService,
+        accountCryptographicStateService,
+      );
+
+      await expect(
+        passwordLoginStrategy.logInTwoFactor(
+          new TokenTwoFactorRequest(TwoFactorProviderType.Authenticator, "TOKEN", false),
+        ),
+      ).rejects.toThrow("No login is in progress.");
+
+      expect(apiService.postIdentityToken).not.toHaveBeenCalled();
     });
   });
 });

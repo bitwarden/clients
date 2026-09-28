@@ -41,24 +41,12 @@ import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "
 import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
-import {
-  AuthRequestLoginStrategy,
-  AuthRequestLoginStrategyData,
-} from "../../login-strategies/auth-request-login.strategy";
+import { AuthRequestLoginStrategy } from "../../login-strategies/auth-request-login.strategy";
 import { LoginStrategy } from "../../login-strategies/login.strategy";
-import {
-  PasswordLoginStrategy,
-  PasswordLoginStrategyData,
-} from "../../login-strategies/password-login.strategy";
-import { SsoLoginStrategy, SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
-import {
-  UserApiLoginStrategy,
-  UserApiLoginStrategyData,
-} from "../../login-strategies/user-api-login.strategy";
-import {
-  WebAuthnLoginStrategy,
-  WebAuthnLoginStrategyData,
-} from "../../login-strategies/webauthn-login.strategy";
+import { PasswordLoginStrategy } from "../../login-strategies/password-login.strategy";
+import { SsoLoginStrategy } from "../../login-strategies/sso-login.strategy";
+import { UserApiLoginStrategy } from "../../login-strategies/user-api-login.strategy";
+import { WebAuthnLoginStrategy } from "../../login-strategies/webauthn-login.strategy";
 import {
   UserApiLoginCredentials,
   PasswordLoginCredentials,
@@ -327,7 +315,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         switch (strategy) {
           case AuthenticationType.Password:
             return new PasswordLoginStrategy(
-              data?.password ?? new PasswordLoginStrategyData(),
+              data?.password,
               this.passwordStrengthService,
               this.policyService,
               this.passwordPreloginService,
@@ -337,7 +325,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
             );
           case AuthenticationType.Sso:
             return new SsoLoginStrategy(
-              data?.sso ?? new SsoLoginStrategyData(),
+              data?.sso,
               this.keyConnectorService,
               this.unlockService,
               this.deviceTrustService,
@@ -345,24 +333,16 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:
-            return new UserApiLoginStrategy(
-              data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.unlockService,
-              ...sharedDeps,
-            );
+            return new UserApiLoginStrategy(data?.userApiKey, this.unlockService, ...sharedDeps);
           case AuthenticationType.AuthRequest:
             return new AuthRequestLoginStrategy(
-              data?.authRequest ?? new AuthRequestLoginStrategyData(),
+              data?.authRequest,
               this.unlockService,
               this.deviceTrustService,
               ...sharedDeps,
             );
           case AuthenticationType.WebAuthn:
-            return new WebAuthnLoginStrategy(
-              data?.webAuthn ?? new WebAuthnLoginStrategyData(),
-              this.unlockService,
-              ...sharedDeps,
-            );
+            return new WebAuthnLoginStrategy(data?.webAuthn, this.unlockService, ...sharedDeps);
         }
       }),
     );

@@ -50,7 +50,7 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec-util";
-import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
+import { PasswordLoginStrategy } from "./password-login.strategy";
 
 const email = "hello@world.com";
 const masterPassword = "password";
@@ -157,7 +157,7 @@ describe("PasswordLoginStrategy", () => {
     policyService.evaluateMasterPassword.mockReturnValue(true);
 
     passwordLoginStrategy = new PasswordLoginStrategy(
-      new PasswordLoginStrategyData(),
+      undefined,
       passwordStrengthService,
       policyService,
       passwordPreloginService,

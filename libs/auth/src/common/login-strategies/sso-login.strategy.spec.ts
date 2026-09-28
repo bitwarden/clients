@@ -48,7 +48,7 @@ import { UserDecryptionOptions } from "../models";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec-util";
-import { SsoLoginStrategy, SsoLoginStrategyData } from "./sso-login.strategy";
+import { SsoLoginStrategy } from "./sso-login.strategy";
 
 describe("SsoLoginStrategy", () => {
   let accountService: FakeAccountService;
@@ -143,7 +143,7 @@ describe("SsoLoginStrategy", () => {
     );
 
     ssoLoginStrategy = new SsoLoginStrategy(
-      {} as SsoLoginStrategyData,
+      undefined,
       keyConnectorService,
       unlockService,
       deviceTrustService,

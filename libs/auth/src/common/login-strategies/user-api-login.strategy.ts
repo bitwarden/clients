@@ -15,20 +15,24 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
-  tokenRequest: UserApiTokenRequest;
+  readonly tokenRequest: UserApiTokenRequest;
+
+  constructor(fields: UserApiLoginStrategyData) {
+    this.tokenRequest = fields.tokenRequest;
+  }
 
   static fromJSON(obj: Jsonify<UserApiLoginStrategyData>): UserApiLoginStrategyData {
-    return Object.assign(new UserApiLoginStrategyData(), obj, {
+    return new UserApiLoginStrategyData({
       tokenRequest: UserApiTokenRequest.fromJSON(obj.tokenRequest),
     });
   }
 }
 
 export class UserApiLoginStrategy extends LoginStrategy<UserApiLoginStrategyData> {
-  protected cache: BehaviorSubject<UserApiLoginStrategyData>;
+  protected cache: BehaviorSubject<UserApiLoginStrategyData | undefined>;
 
   constructor(
-    data: UserApiLoginStrategyData,
+    data: UserApiLoginStrategyData | undefined,
     private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -38,14 +42,13 @@ export class UserApiLoginStrategy extends LoginStrategy<UserApiLoginStrategyData
   }
 
   override async logIn(credentials: UserApiLoginCredentials) {
-    const data = new UserApiLoginStrategyData();
-    data.tokenRequest = new UserApiTokenRequest(
+    const tokenRequest = new UserApiTokenRequest(
       credentials.clientId,
       credentials.clientSecret,
       await this.buildTwoFactor(),
       await this.buildDeviceRequest(),
     );
-    this.cache.next(data);
+    this.cache.next(new UserApiLoginStrategyData({ tokenRequest }));
 
     const [authResult] = await this.startLogIn();
     return authResult;
@@ -71,7 +74,7 @@ export class UserApiLoginStrategy extends LoginStrategy<UserApiLoginStrategyData
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
     );
 
-    const tokenRequest = this.cache.value.tokenRequest;
+    const { tokenRequest } = this.getLoginStrategyDataOrThrow();
 
     await this.tokenService.setClientId(
       tokenRequest.clientId,

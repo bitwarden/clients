@@ -57,7 +57,11 @@ import {
 } from "../../abstractions";
 import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
-import { PasswordLoginCredentials, SsoLoginCredentials } from "../../models";
+import {
+  AuthRequestLoginCredentials,
+  PasswordLoginCredentials,
+  SsoLoginCredentials,
+} from "../../models";
 import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
 import { LoginStrategyService } from "./login-strategy.service";
@@ -568,6 +572,16 @@ describe("LoginStrategyService", () => {
       );
     });
 
+    it("returns undefined from the password accessors", async () => {
+      passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+      await expect(
+        sut.logIn(new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getMasterPasswordHash()).toBeUndefined();
+    });
+
     it("returns undefined from the SSO accessors", async () => {
       await expect(
         sut.logIn(
@@ -577,6 +591,16 @@ describe("LoginStrategyService", () => {
 
       expect(await sut.getEmail()).toBeUndefined();
       expect(await sut.getSsoEmail2FaSessionToken()).toBeUndefined();
+    });
+
+    it("returns undefined from the auth request accessors", async () => {
+      await expect(
+        sut.logIn(new AuthRequestLoginCredentials("EMAIL", "ACCESS_CODE", "AUTH_REQUEST_ID", null)),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getAccessCode()).toBeUndefined();
+      expect(await sut.getAuthRequestId()).toBeUndefined();
     });
   });
 });

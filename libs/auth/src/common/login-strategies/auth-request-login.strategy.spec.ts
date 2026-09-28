@@ -31,15 +31,10 @@ import { UnlockService } from "@bitwarden/unlock";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
 
-import {
-  AuthRequestLoginStrategy,
-  AuthRequestLoginStrategyData,
-} from "./auth-request-login.strategy";
+import { AuthRequestLoginStrategy } from "./auth-request-login.strategy";
 import { identityTokenResponseFactory } from "./login.strategy.spec-util";
 
 describe("AuthRequestLoginStrategy", () => {
-  let cache: AuthRequestLoginStrategyData;
-
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -75,8 +70,6 @@ describe("AuthRequestLoginStrategy", () => {
   const decUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
   beforeEach(async () => {
-    cache = new AuthRequestLoginStrategyData();
-
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -106,7 +99,7 @@ describe("AuthRequestLoginStrategy", () => {
     });
 
     authRequestLoginStrategy = new AuthRequestLoginStrategy(
-      cache,
+      undefined,
       unlockService,
       deviceTrustService,
       accountService,
