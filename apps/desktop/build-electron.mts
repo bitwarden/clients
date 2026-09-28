@@ -34,11 +34,13 @@ import {
   build as electronBuilder,
   Arch as ElectronArchitecture,
   Platform as ElectronPlatform,
+  type AfterPackContext,
   type Configuration,
   type CliOptions,
 } from "electron-builder";
 import { flipFuses, FuseV1Options, FuseVersion, type FuseConfig } from "@electron/fuses";
 import { notarize } from "@electron/notarize";
+import { makeUniversalApp } from "@electron/universal";
 import { executeAppBuilder } from "builder-util";
 import { isBinaryFile } from "isbinaryfile";
 import plist from "plist";
@@ -208,7 +210,7 @@ const ElectronBuildTask: BuildTask = {
           // root and package all of that.
           beforeBuild: async () => false,
           beforePack: () => {},
-          afterPack: () => afterPack(config, privateDir),
+          afterPack: (context: AfterPackContext) => afterPack(config, privateDir, context),
           afterSign: () => afterSign(config, privateDir),
         },
         ...macConfig,
@@ -339,11 +341,9 @@ function wantsSecureTimestamp(config: BuildConfig): boolean {
 /// from one build to the next: electron-builder copies it out of the Electron distribution
 /// untouched. Every input to its signature -- the identity, the inherited entitlements, the
 /// timestamp and hardened runtime settings, the platform and architecture -- is fixed at
-/// configure time, except the Electron version, which build checks. Not for universal builds,
-/// where @electron/universal merges two per-architecture frameworks into one after they are
-/// packed.
+/// configure time, except the Electron version, which build checks.
 function usesSignedFramework(config: BuildConfig): boolean {
-  return config.macos?.signingCertificate != null && config.architecture !== "universal";
+  return config.macos?.signingCertificate != null;
 }
 
 function signedFrameworkPaths(privateDir: string) {
@@ -364,21 +364,48 @@ async function signElectronFramework(
 ) {
   const electronVersion = baseConfig.electronVersion!;
   const isMas = config.derived.macos!.isMasBuild;
-  const zip = await downloadElectron(config.derived.hostPlatform, {
-    platform: isMas ? "mas" : "darwin",
-    arch: config.architecture,
-    version: electronVersion,
-    ...baseConfig.electronDownload,
-  });
-
   const { dir, framework, stamp } = signedFrameworkPaths(privateDir);
   rmSync(dir, { recursive: true, force: true });
   const extracted = path.join(dir, "extracted");
-  await runCommand("ditto", ["-x", "-k", zip, extracted]);
-  renameSync(
-    path.join(extracted, "Electron.app/Contents/Frameworks", ELECTRON_FRAMEWORK),
-    framework,
-  );
+
+  // The Electron.app from the distribution for one architecture, unpacked.
+  const electronApp = async (arch: string) => {
+    const zip = await downloadElectron(config.derived.hostPlatform, {
+      platform: isMas ? "mas" : "darwin",
+      arch,
+      version: electronVersion,
+      ...baseConfig.electronDownload,
+    });
+    await runCommand("ditto", ["-x", "-k", zip, path.join(extracted, arch)]);
+    return path.join(extracted, arch, "Electron.app");
+  };
+
+  let app: string;
+  if (config.architecture === "universal") {
+    // electron-builder packs an app for each architecture and merges them with
+    // @electron/universal, frameworks included, so merging the two distributions the same way
+    // gives the framework it would produce, and it can be signed now and put in place of that
+    // one. The one difference is ElectronAsarIntegrity in the framework's Info.plist, which the
+    // merge rewrites to name the app's asar. Electron reads it from the app's Info.plist, and a
+    // single-architecture build ships the distribution's entry here too.
+    app = path.join(extracted, "universal", "Electron.app");
+    const x64App = await electronApp("x64");
+    const arm64App = await electronApp("arm64");
+    // @electron/universal merges packaged apps, and fails on a bare distribution, which has no
+    // app of its own. An empty one, the same in both, is passed through untouched.
+    for (const a of [x64App, arm64App]) {
+      mkdirSync(path.join(a, "Contents/Resources/app"));
+    }
+    await makeUniversalApp({
+      x64AppPath: x64App,
+      arm64AppPath: arm64App,
+      outAppPath: app,
+      force: true,
+    });
+  } else {
+    app = await electronApp(config.architecture);
+  }
+  renameSync(path.join(app, "Contents/Frameworks", ELECTRON_FRAMEWORK), framework);
   rmSync(extracted, { recursive: true });
 
   // The fuses are in the framework binary, so they are flipped before it is signed.
@@ -537,13 +564,15 @@ function electronFuses(config: BuildConfig): FuseConfig {
   };
 }
 
-async function afterPack(config: BuildConfig, privateDir: string) {
+async function afterPack(config: BuildConfig, privateDir: string, context: AfterPackContext) {
+  // A universal build packs an app for each architecture first, calling this for each, and then
+  // again for the app merged from them. Only that last one is signed and shipped.
+  if (context.arch !== ElectronArchitectureMap[config.architecture]) {
+    return;
+  }
+
   if (config.platform === "macos") {
-    const appDir = path.join(
-      privateDir,
-      config.derived.electronFolder,
-      `${config.derived.productName}.app`,
-    );
+    const appDir = path.join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`);
 
     if (usesSignedFramework(config)) {
       const frameworkPath = path.join(appDir, "Contents/Frameworks", ELECTRON_FRAMEWORK);
