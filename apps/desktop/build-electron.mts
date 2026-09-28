@@ -37,6 +37,7 @@ import {
   type Configuration,
   type CliOptions,
 } from "electron-builder";
+import { flipFuses, FuseV1Options, FuseVersion, type FuseConfig } from "@electron/fuses";
 import { notarize } from "@electron/notarize";
 import { executeAppBuilder } from "builder-util";
 import { isBinaryFile } from "isbinaryfile";
@@ -127,7 +128,7 @@ const ElectronBuildTask: BuildTask = {
   async build(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
     const baseConfig = readBaseConfig();
     if (usesSignedFramework(config)) {
-      checkSignedFramework(privateDir, baseConfig);
+      checkSignedFramework(config, privateDir, baseConfig);
     }
     const electronTargets = [];
     for (const packageFormat of config.packageFormats) {
@@ -380,6 +381,9 @@ async function signElectronFramework(
   );
   rmSync(extracted, { recursive: true });
 
+  // The fuses are in the framework binary, so they are flipped before it is signed.
+  await flipFuses(path.join(framework, "Electron Framework"), electronFuses(config));
+
   // As electron-builder hands them to osx-sign for anything that is not the app, a helper or the
   // login item. Hardened runtime is opt-in for App Store builds and opt-out otherwise.
   const hardenedRuntime = isMas
@@ -420,7 +424,8 @@ async function signElectronFramework(
   await Promise.all(Array.from({ length: os.availableParallelism() }, worker));
   await sign(framework);
 
-  writeFileSync(stamp, JSON.stringify({ electronVersion }));
+  const recorded: SignedFrameworkStamp = { electronVersion, fuses: electronFuses(config) };
+  writeFileSync(stamp, JSON.stringify(recorded));
 }
 
 /// Fetches the Electron zip into electron-builder's cache, unless it is already there, and returns
@@ -474,21 +479,62 @@ async function binaryFiles(dir: string): Promise<string[]> {
   return files;
 }
 
-/// The Electron version is read from electron-builder.base.json on every build, but the framework
-/// was signed for the one it named at configure time.
-function checkSignedFramework(privateDir: string, baseConfig: Configuration) {
+/// What configure recorded about the framework it signed: the inputs to it that do not come from
+/// the build configuration, and so can change without configure being run again.
+interface SignedFrameworkStamp {
+  electronVersion: string;
+  fuses: FuseConfig;
+}
+
+/// The Electron version is read from electron-builder.base.json on every build, and the fuses
+/// from this file, but the framework was signed with what they were at configure time.
+function checkSignedFramework(config: BuildConfig, privateDir: string, baseConfig: Configuration) {
   const { stamp } = signedFrameworkPaths(privateDir);
-  const configured = existsSync(stamp)
-    ? (JSON.parse(readFileSync(stamp, "utf-8")) as { electronVersion: string }).electronVersion
+  const recorded = existsSync(stamp)
+    ? (JSON.parse(readFileSync(stamp, "utf-8")) as SignedFrameworkStamp)
     : null;
-  if (configured !== baseConfig.electronVersion) {
+  const rerun = "Re-run build-configure for this build directory to pick up the change.";
+  if (recorded == null) {
+    throw new BuildError(`This build directory has no signed ${ELECTRON_FRAMEWORK}. ${rerun}`);
+  }
+  if (recorded.electronVersion !== baseConfig.electronVersion) {
     throw new BuildError(
       `electron-builder.base.json names Electron ${baseConfig.electronVersion}, but this build ` +
-        `directory's signed ${ELECTRON_FRAMEWORK} is ` +
-        `${configured == null ? "missing" : `for Electron ${configured}`}. ` +
-        "Re-run build-configure for this build directory to pick up the new version.",
+        `directory's signed ${ELECTRON_FRAMEWORK} is for Electron ${recorded.electronVersion}. ${rerun}`,
     );
   }
+  if (JSON.stringify(recorded.fuses) !== JSON.stringify(electronFuses(config))) {
+    throw new BuildError(
+      `The Electron fuses have changed since this build directory's ${ELECTRON_FRAMEWORK} was ` +
+        `signed. ${rerun}`,
+    );
+  }
+}
+
+/// Electron features that are compiled in but can be switched off in the shipped binary. See
+/// https://www.electronjs.org/docs/latest/tutorial/fuses for the list and their defaults.
+function electronFuses(config: BuildConfig): FuseConfig {
+  return {
+    version: FuseVersion.V1,
+    strictlyRequireAllFuses: true,
+    [FuseV1Options.RunAsNode]: false,
+    [FuseV1Options.EnableCookieEncryption]: true,
+    [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+    [FuseV1Options.EnableNodeCliInspectArguments]: false,
+    // Asar integrity is only implemented for macOS and Windows.
+    // https://www.electronjs.org/docs/latest/tutorial/asar-integrity
+    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]:
+      config.platform === "macos" || config.platform === "windows",
+    [FuseV1Options.OnlyLoadAppFromAsar]: true,
+    // The app refuses to open when enabled.
+    [FuseV1Options.LoadBrowserProcessSpecificV8Snapshot]: false,
+    // To disable this, we should stop using the file:// protocol to load the app bundle. This can
+    // be done by defining a custom app:// protocol and loading the bundle from there, but then any
+    // requests to the server will be blocked by CORS policy.
+    [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+    // Enables V8 signal handlers to trap out-of-bounds memory access from WebAssembly.
+    [FuseV1Options.WasmTrapHandlers]: true,
+  };
 }
 
 async function afterPack(config: BuildConfig, privateDir: string) {
