@@ -13,12 +13,9 @@ APP_CONFIG = {
 platform :mac do
   desc "Prepare release notes from changelog"
   lane :prepare_release_notes do |options|
+    # Used as supplied: bitwarden/deploy's format-release-notes action formats it.
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Used as supplied. The caller formats the notes -- bitwarden/deploy's
-    # format-release-notes action -- so one convention covers every store.
-    # Splitting here would break an item on any internal period, such as a
-    # version number.
     UI.message("Release notes: ")
     UI.message("#{changelog}")
     
