@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, throwError } from "rxjs";
 
 import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -69,9 +69,11 @@ async function createComponent(
 
   const organizationDomainsService = mock<OrganizationDomainsService>();
   if (options.domainsError != null) {
-    organizationDomainsService.verifiedDomains.mockRejectedValue(options.domainsError);
+    organizationDomainsService.verifiedDomains$.mockReturnValue(
+      throwError(() => options.domainsError),
+    );
   } else {
-    organizationDomainsService.verifiedDomains.mockResolvedValue(options.domains ?? []);
+    organizationDomainsService.verifiedDomains$.mockReturnValue(of(options.domains ?? []));
   }
 
   const configService = mock<ConfigService>();
@@ -140,7 +142,7 @@ describe("ByLinkTabComponent", () => {
         domains: ["example.com", "other.com"],
       });
 
-      expect(organizationDomainsService.verifiedDomains).toHaveBeenCalledWith(USER_ID, ORG_ID);
+      expect(organizationDomainsService.verifiedDomains$).toHaveBeenCalledWith(USER_ID, ORG_ID);
       expect(component.form.controls.domains.value).toBe("example.com, other.com");
     });
 
@@ -167,7 +169,7 @@ describe("ByLinkTabComponent", () => {
         initialLink: makeInviteLink(true),
       });
 
-      expect(organizationDomainsService.verifiedDomains).not.toHaveBeenCalled();
+      expect(organizationDomainsService.verifiedDomains$).not.toHaveBeenCalled();
       expect(component.form.controls.domains.value).toBe("example.com");
     });
   });

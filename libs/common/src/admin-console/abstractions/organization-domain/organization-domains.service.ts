@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { OrganizationId, UserId } from "../../../types/guid";
 
 export abstract class OrganizationDomainsService {
@@ -11,5 +13,5 @@ export abstract class OrganizationDomainsService {
    * without that permission returns a 401 which the api service treats as an invalid access token,
    * logging the user out.
    */
-  abstract verifiedDomains(userId: UserId, organizationId: OrganizationId): Promise<string[]>;
+  abstract verifiedDomains$(userId: UserId, organizationId: OrganizationId): Observable<string[]>;
 }

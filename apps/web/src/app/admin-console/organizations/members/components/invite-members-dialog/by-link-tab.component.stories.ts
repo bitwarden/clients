@@ -154,7 +154,7 @@ const makeRender =
           {
             provide: OrganizationDomainsService,
             useValue: {
-              verifiedDomains: () => Promise.resolve(verifiedDomainNames),
+              verifiedDomains$: () => of(verifiedDomainNames),
             },
           },
           {

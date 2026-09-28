@@ -1,4 +1,4 @@
-import { concatMap, firstValueFrom } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
 import { OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 
@@ -9,16 +9,14 @@ import { OrganizationDomainsService } from "../../abstractions/organization-doma
 export class DefaultOrganizationDomainsService implements OrganizationDomainsService {
   constructor(private readonly sdkService: SdkService) {}
 
-  async verifiedDomains(userId: UserId, organizationId: OrganizationId): Promise<string[]> {
-    return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          using ref = sdk.take();
-          return await ref.value
-            .organization_domains()
-            .get_verified_domains(asUuid<SdkOrganizationId>(organizationId));
-        }),
-      ),
+  verifiedDomains$(userId: UserId, organizationId: OrganizationId): Observable<string[]> {
+    return this.sdkService.userClient$(userId).pipe(
+      switchMap(async (sdk) => {
+        using ref = sdk.take();
+        return await ref.value
+          .organization_domains()
+          .get_verified_domains(asUuid<SdkOrganizationId>(organizationId));
+      }),
     );
   }
 }

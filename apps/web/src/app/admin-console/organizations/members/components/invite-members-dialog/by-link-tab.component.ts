@@ -261,10 +261,12 @@ export class ByLinkTabComponent {
       // Goes through the SDK rather than the full domains endpoint, which requires Manage SSO:
       // calling that without the permission returns a 401 that the api service treats as an
       // invalid access token, logging the user out of the vault entirely.
-      const userId = await firstValueFrom(this.userId$);
-      verifiedDomainNames = await this.organizationDomainsService.verifiedDomains(
-        userId,
-        this.organizationId(),
+      verifiedDomainNames = await firstValueFrom(
+        this.userId$.pipe(
+          switchMap((userId) =>
+            this.organizationDomainsService.verifiedDomains$(userId, this.organizationId()),
+          ),
+        ),
       );
     } catch (e) {
       // Prefilling is a convenience, so a failure here should leave the field empty rather than
