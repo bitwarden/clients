@@ -172,6 +172,22 @@ describe("AuthRequestLoginStrategy", () => {
     expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
   });
 
+  it("throws without unlocking when the approving device supplied no decrypted user key", async () => {
+    const credentialsWithoutUserKey = new AuthRequestLoginCredentials(
+      email,
+      accessCode,
+      authRequestId,
+      null,
+    );
+
+    await expect(authRequestLoginStrategy.logIn(credentialsWithoutUserKey)).rejects.toThrow(
+      "Cannot unlock: the approving device did not supply a decrypted user key.",
+    );
+
+    expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+    expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+  });
+
   it("sends the auth request information to the server", async () => {
     await authRequestLoginStrategy.logIn(credentials);
 

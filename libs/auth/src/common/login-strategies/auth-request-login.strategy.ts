@@ -74,12 +74,12 @@ export class AuthRequestLoginStrategy extends LoginStrategy<AuthRequestLoginStra
   }
 
   protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
-    const authRequestCredentials = this.cache.value.authRequestCredentials;
     // Login with device: the approving device supplies an already-decrypted user key.
-    await this.unlockService.unlockWithDecryptedUserKey(
-      userId,
-      authRequestCredentials.decryptedUserKey,
-    );
+    const { decryptedUserKey } = this.cache.value.authRequestCredentials;
+    if (decryptedUserKey == null) {
+      throw new Error("Cannot unlock: the approving device did not supply a decrypted user key.");
+    }
+    await this.unlockService.unlockWithDecryptedUserKey(userId, decryptedUserKey);
     // Establish trust if required after setting user key
     await this.deviceTrustService.trustDeviceIfRequired(userId);
   }
