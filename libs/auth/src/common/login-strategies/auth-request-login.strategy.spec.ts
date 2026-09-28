@@ -129,6 +129,8 @@ describe("AuthRequestLoginStrategy", () => {
       accountCryptographicStateService,
     );
 
+    credentials = new AuthRequestLoginCredentials(email, accessCode, authRequestId, decUserKey);
+
     tokenResponse = identityTokenResponseFactory();
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
