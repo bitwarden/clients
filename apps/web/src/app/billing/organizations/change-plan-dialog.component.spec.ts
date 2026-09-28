@@ -410,6 +410,22 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).planChangeCart.hasValue()).toBe(false);
       expect((component as any).isSubmitDisabled).toBe(true);
     });
+
+    it("surfaces the error state (spinner shown, submit disabled) when the preview request fails", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("preview failed"));
+
+      (component as any).refreshPlanChangePreview();
+      TestBed.tick();
+      // Let the rejected loader settle, then flush the resource's status update.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect((component as any).planChangeCart.error()).toBeTruthy();
+      expect((component as any).planChangeCart.hasValue()).toBe(false);
+      expect((component as any).isSubmitDisabled).toBe(true);
+    });
   });
 
   describe("isSecretsManagerTrial (PM-40440)", () => {

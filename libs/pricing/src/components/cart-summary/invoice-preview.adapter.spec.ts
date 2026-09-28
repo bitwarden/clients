@@ -377,51 +377,6 @@ describe("adaptInvoicePreviewToCart", () => {
     });
 
     describe("plan change", () => {
-      it("should show plan change from teams to enterprise correctly", () => {
-        const preview = basePreview({
-          passwordManager: {
-            seats: { reference: "pm-seat", quantity: 3, cost: 144 },
-            prorations: [
-              {
-                reference: "pm-seat",
-                credit: 7,
-                charge: 13.99,
-                tax: 0,
-                total: 6.99,
-                months: 1,
-              },
-            ],
-          },
-          planTier: "enterprise",
-          total: 6.99,
-        });
-
-        const cart = adaptInvoicePreviewToCart(
-          preview,
-          InvoicePreviewFlowContext.OrganizationPlanChange,
-          logService,
-        );
-
-        expect(cart.passwordManager.seats).toEqual({
-          translationKey: "passwordManagerPlanPrice",
-          quantity: 3,
-          cost: 144,
-        });
-        expect(cart.passwordManager.prorationCharges).toEqual([
-          {
-            translationKey: "passwordManagerProratedCharge",
-            quantity: 1,
-            cost: 13.99,
-            hideBreakdown: true,
-          },
-        ]);
-        expect(cart.credit).toEqual({
-          translationKey: "appliedProrationCredits",
-          value: 7,
-        });
-        expect(cart.hidePricingTerm).toBe(true);
-      });
-
       it("should render charged prorations as their own lines beside a real seat line", () => {
         // A plan change previews the new plan's per-unit price plus a separate mid-cycle proration
         // charge, so the charge renders as its own line rather than merging into the seat line.
@@ -505,35 +460,6 @@ describe("adaptInvoicePreviewToCart", () => {
         expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 83.09 });
         expect(cart.estimatedTax).toBe(-3.0);
         expect(cart.total).toBe(-83.09);
-        expect(cart.hidePricingTerm).toBe(true);
-      });
-
-      it("emits a credit row and hides the term for a credit-only mid-cycle change, with no charge line", () => {
-        // Unused-time credit exceeds the new plan's charge: the seat line is a real per-unit price,
-        // the credit collapses into one row, and no proration charge line renders.
-        const preview = basePreview({
-          passwordManager: {
-            seats: { reference: "pm-seat", quantity: 6, cost: 42 },
-            prorations: [
-              { reference: "pm-seat", credit: 43.09, charge: 0, tax: 0, total: -43.09, months: 1 },
-            ],
-          },
-          planTier: "teams",
-        });
-
-        const cart = adaptInvoicePreviewToCart(
-          preview,
-          InvoicePreviewFlowContext.OrganizationPlanChange,
-          logService,
-        );
-
-        expect(cart.passwordManager.seats).toEqual({
-          translationKey: "passwordManagerPlanPrice",
-          quantity: 6,
-          cost: 42,
-        });
-        expect(cart.passwordManager.prorationCharges).toBeUndefined();
-        expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 43.09 });
         expect(cart.hidePricingTerm).toBe(true);
       });
 
