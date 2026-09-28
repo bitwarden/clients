@@ -11,13 +11,10 @@ import type { PlanTier } from "@bitwarden/pricing";
 import type { BillingAddress } from "../payment/types";
 import type { OrganizationSubscriptionPurchase } from "../types";
 
-/**
- * Request shapes are owned by the per-screen tickets that consume each route. They are kept
- * minimal and narrowly typed here rather than `any`, and will be filled out as those land.
- */
-// TODO(PM-40222): finalize the premium purchase request shape.
 export type PremiumPurchasePreviewRequest = {
   additionalStorage: number;
+  coupons?: string[];
+  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
 };
 
 export type PremiumOrgUpgradePreviewRequest = {
@@ -41,21 +38,27 @@ export type OrganizationPlanChangePreviewRequest = {
  * through `InvoicePreviewService`, which owns both.
  *
  * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
- * until the corresponding server ticket lands. 404s deliberately propagate: while the routes do
- * not exist, "route missing" must stay distinguishable from "no subscription".
+ * while the flag is off. 404s deliberately propagate so "flag off" stays distinguishable from
+ * "no subscription".
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewClient {
   private apiService = inject(ApiService);
 
-  /** Consumed by PM-40222. */
   previewPremiumPurchase = async (
     request: PremiumPurchasePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
+    const params = new URLSearchParams({
+      additionalStorage: request.additionalStorage.toString(),
+      country: request.billingAddress.country,
+      postalCode: request.billingAddress.postalCode,
+    });
+    request.coupons?.forEach((coupon) => params.append("coupons", coupon));
+
     const json = await this.apiService.send(
-      "POST",
-      "/account/billing/subscriptions/premium/invoice/preview",
-      request,
+      "GET",
+      `/account/billing/subscription/purchase/preview?${params.toString()}`,
+      null,
       true,
       true,
     );
