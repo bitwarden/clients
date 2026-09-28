@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { distinctUntilChanged, Observable } from "rxjs";
 
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
@@ -12,7 +12,10 @@ export class DefaultAccountCryptographicStateService implements AccountCryptogra
   constructor(protected stateProvider: StateProvider) {}
 
   accountCryptographicState$(userId: UserId): Observable<WrappedAccountCryptographicState | null> {
-    return this.stateProvider.getUserState$(ACCOUNT_CRYPTOGRAPHIC_STATE, userId);
+    return this.stateProvider.getUserState$(ACCOUNT_CRYPTOGRAPHIC_STATE, userId).pipe(
+      // Sync rewrites unchanged state; each emission makes consumers decrypt the whole vault.
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+    );
   }
 
   async setAccountCryptographicState(
