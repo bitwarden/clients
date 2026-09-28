@@ -59,6 +59,7 @@ import {
   SkeletonTextComponent,
   SortFn,
   TableSelectionModel,
+  VAULT_ITEMS_CUSTOMIZE_KEY,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -281,6 +282,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly filterKeys = VAULT_FILTER_KEYS;
   protected readonly rowHeight = ROW_HEIGHT;
   protected readonly minTableHeight = MIN_TABLE_HEIGHT;
+  protected readonly customizeKey = VAULT_ITEMS_CUSTOMIZE_KEY;
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
