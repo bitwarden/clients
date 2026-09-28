@@ -12,13 +12,13 @@
     "message": "Aktivitet"
   },
   "criticalAppsAtRisk": {
-    "message": "Critical apps at risk"
+    "message": "Kritiska appar i riskzonen"
   },
   "criticalApplicationsAtRisk": {
-    "message": "Critical applications at risk"
+    "message": "Kritiska applikationer i riskzonen"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "Alla kritiska appar"
   },
   "appLogoLabel": {
     "message": "Bitwardens logotyp"
@@ -66,16 +66,16 @@
     "message": "Risk över tid"
   },
   "filterRiskOverTime": {
-    "message": "Filter risk over time"
+    "message": "Filtrera risk över tid"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Lösenord i riskzonen"
   },
   "noEditPermissions": {
     "message": "Du har inte behörighet att redigera detta objekt"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "Granska säkerhetsrapporter för att hitta och åtgärda risker med inloggningsuppgifter innan de förvärras."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Granska inloggningar i riskzonen"
@@ -142,7 +142,7 @@
     "message": "Skicka påminnelser"
   },
   "noCriticalApplicationsMarkedYet": {
-    "message": "You haven't marked any critical applications yet. Review applications to get started."
+    "message": "Du har inte markerat några kritiska program ännu. Granska program för att komma igång."
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "När du markerar applikationer som kritiska kommer de att visas här."
@@ -215,40 +215,40 @@
     }
   },
   "yourDataIsInLetsPutItToWork": {
-    "message": "Your data is in. Let's put it to work."
+    "message": "Dina data har lästs in. Låt oss använda dem."
   },
   "takeAQuickTourOfAccessIntelligence": {
-    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+    "message": "Ta en snabb rundtur i Access Intelligence och se exakt hur du använder organisationens data för att vidta åtgärder."
   },
   "yourEntireOrgsSecurityInOneView": {
-    "message": "Your entire org's security, in one view"
+    "message": "Hela organisationens säkerhet i en vy"
   },
   "accessIntelligenceGivesYouSinglePlace": {
-    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+    "message": "Access Intelligence ger dig en samlad vy över alla appar, lösenord och medlemmar som är i riskzonen."
   },
   "youSetThePrioritiesWeSurfaceTheRisks": {
-    "message": "You set the priorities. We surface the risks."
+    "message": "Du anger prioriteringarna. Vi visar riskerna."
   },
   "youMarkWhichAppsAreMostCritical": {
-    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+    "message": "Du markerar vilka appar som är viktigast, och Access Intelligence identifierar automatiskt lösenorden i riskzonen som behöver åtgärdas först."
   },
   "trackImprovementsAcrossYourTeam": {
-    "message": "Track improvements across your team"
+    "message": "Följ förbättringarna i teamet"
   },
   "membersAreAutomaticallyNotified": {
-    "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
+    "message": "Medlemmar får automatiskt meddelanden om lösenord i riskzonen i sitt Bitwarden-tillägg. Ingen uppföljning krävs."
   },
   "importYourOrgDataToGetStarted": {
-    "message": "Import your org data to get started"
+    "message": "Importera organisationens data för att komma igång."
   },
   "onceItHasTheVaultData": {
-    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+    "message": "När Access Intelligence har valvdata har det allt som behövs för att rapportera om organisationens lösenordshälsa."
   },
   "accessIntelligenceWelcomeTour": {
-    "message": "Access Intelligence welcome tour"
+    "message": "Välkomsttur i Access Intelligence"
   },
   "startTour": {
-    "message": "Start tour"
+    "message": "Starta rundturen"
   },
   "noDataInOrgTitle": {
     "message": "Ingen data hittades"
@@ -317,7 +317,7 @@
     }
   },
   "numCriticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked critical",
+    "message": "$COUNT$ program markerade som kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -326,7 +326,7 @@
     }
   },
   "numApplicationsUnmarkedCriticalSuccess": {
-    "message": "$COUNT$ applications marked not critical",
+    "message": "$COUNT$ program markerade som inte kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -356,7 +356,7 @@
     "message": "Misslyckades med att markera applikationer som kritiska"
   },
   "applicationsUnmarkedAsCriticalFail": {
-    "message": "Failed to unmark applications as critical"
+    "message": "Det gick inte att avmarkera program som kritiska"
   },
   "application": {
     "message": "Applikation"
@@ -383,10 +383,10 @@
     "message": "Dessa medlemmar har tillgång till sårbara objekt för kritiska applikationer."
   },
   "membersWithAtRiskPwds": {
-    "message": "Members with at risk passwords"
+    "message": "Medlemmar med lösenord i riskzonen"
   },
   "membersWithAtRiskPasswordsAndForCriticalApplications": {
-    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "message": "$ATRISKAPPCOUNT$ medlemmar med lösenord i riskzonen för $CRITICALAPPCOUNT$ kritiska program",
     "placeholders": {
       "atRiskAppCount": {
         "content": "$1",
@@ -429,7 +429,7 @@
     }
   },
   "ofCountTotal": {
-    "message": "of $TOTAL$ total",
+    "message": "av totalt $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -669,7 +669,7 @@
     "message": "Lägg till webbplats"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Lägg till webbplats eller app"
   },
   "app": {
     "message": "App"
@@ -706,10 +706,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Visa matchningsidentifiering"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Dölj matchningsidentifiering"
   },
   "autoFillOnPageLoad": {
     "message": "Autofyll vid sidladdning?"
@@ -742,25 +742,25 @@
     "message": "Passnummer"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Kön"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Kopiera kön"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Födelseort"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Nationalitet"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Kopiera nationalitet"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Passtyp"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Nationellt identifikationsnummer"
   },
   "licenseNumber": {
     "message": "Körkortsnummer"
@@ -853,7 +853,7 @@
     "message": "Bitwarden kan lagra och fylla i 2-stegsverifieringskoder. Välj kameraikonen för att ta en skärmdump av den här webbplatsens QR-kod för autentisering, eller kopiera och klistra in nyckeln i det här fältet."
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "Skanna autentiserarens QR-kod från den aktuella webbsidan"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Läs mer om autentiserare"
@@ -907,7 +907,7 @@
     "message": "Redigera mapp"
   },
   "editFolderNamed": {
-    "message": "Edit $NAME$",
+    "message": "Redigera $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -916,7 +916,7 @@
     }
   },
   "deleteFolderNamed": {
-    "message": "Delete $NAME$",
+    "message": "Ta bort $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1008,7 +1008,7 @@
     "message": "Spara"
   },
   "saveAndContinue": {
-    "message": "Save and continue"
+    "message": "Spara och fortsätt"
   },
   "cancel": {
     "message": "Avbryt"
@@ -1023,7 +1023,7 @@
     "message": "Stäng"
   },
   "done": {
-    "message": "Done"
+    "message": "Klar"
   },
   "delete": {
     "message": "Radera"
@@ -1084,13 +1084,13 @@
     "message": "Alla objekt"
   },
   "allVaultItems": {
-    "message": "All vault items"
+    "message": "Alla valvobjekt"
   },
   "favorites": {
     "message": "Favoriter"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Markera objekt som favoriter för att filtrera dem här."
   },
   "taskSummary": {
     "message": "Uppgiftssammandrag"
@@ -1117,19 +1117,19 @@
     "message": "SSH-nyckel"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Körkort"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Körkort eller id-handling"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Webbplats eller app"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Kredit- eller betalkort"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Personuppgifter"
   },
   "typeNoteSubtitle": {
     "message": "Important text"
@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ more shared folders shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 more shared folder shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "My folder"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Add items to My items to filter them here."
   },
   "sharedFolderFilterTooltip": {
     "message": "Add items to a shared folder to filter here."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Kopiera användarnamn",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Copy external ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copy SSO external ID",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Kopiera nummer",
@@ -3461,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
   },
   "importTargetHintFolder": {
     "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -4685,6 +4688,15 @@
   "reinstateSubscription": {
     "message": "Återuppta prenumeration"
   },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
+  },
   "reinstateConfirmation": {
     "message": "Är du säker att du vill ta bort den väntande avslutningsförfrågan och återuppta ditt abonnemang?"
   },
@@ -5418,10 +5430,6 @@
   },
   "collectionInfo": {
     "message": "Samlingsinfo"
-  },
-  "sharedFolderInfo": {
-    "message": "Shared folder info",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Är du säker på att du vill radera denna samling?"
@@ -7480,6 +7488,9 @@
   "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Invite link updated"
+  },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
   },
@@ -7554,6 +7565,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Genom att fortsätta samtycker du till"
@@ -8853,16 +8867,16 @@
   "sendControls": {
     "message": "Send controls"
   },
-  "manageSend": {
-    "message": "Manage Send",
+  "manageSendV2": {
+    "message": "Manage Send and share",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
+  "sendControlsPolicyDescV5": {
+    "message": "Manage how members use Send and share Vault items. This policy won't be enforced for owners and admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9547,25 @@
   "decryptionError": {
     "message": "Dekrypteringsfel"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden kunde inte dekryptera valvföremålet/valvföremålen som listas nedan."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontakta kundtjänst",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "för att undvika ytterligare dataförlust.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "Hantera användare måste också beviljas behörigheten hantera kontoåterställning"
@@ -10919,18 +10942,6 @@
   "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Tillhandahåll automatiskt användare och grupper med din föredragna identitetsleverantör via SCIM-tillhandahållande. Hitta integrationer som stöds",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Aktivera SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Konfigurera din önskade identitetsleverantör genom att ange URL och SCIM API-nyckel",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Denna API-nyckel har åtkomst för att hantera användare inom din organisation. Den bör hållas hemlig."
   },
@@ -11277,6 +11288,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Ta bort hemligheter permanent"
+  },
+  "currentVersion": {
+    "message": "Current version",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modified by: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Secret value copied",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Secret restored to selected version",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restore secret version",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Are you sure you want to restore this secret to the selected version? The current value will be replaced.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Previous versions",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Version history",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "No version history",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Välj de projekt som hemligheten ska associeras med. Endast organisationsanvändare med åtkomst till dessa projekt kommer att kunna se hemligheten.",
@@ -12457,6 +12510,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Är du säker på att du vill återställa dessa hemligheter?"
+  },
+  "restoreThisVersion": {
+    "message": "Restore this version"
   },
   "secretRestoredSuccessToast": {
     "message": "Hemlig återställning"
@@ -17686,5 +17742,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Invite your whole team with a single link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Invite members dialog preview showing the new by-link tab"
+  },
+  "showMeHow": {
+    "message": "Show me how"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "additional service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
+  "membersLower": {
+    "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Keep and reactivate"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager prorated charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage prorated charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager prorated charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service accounts prorated charge"
   }
 }

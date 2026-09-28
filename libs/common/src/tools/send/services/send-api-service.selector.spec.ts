@@ -172,8 +172,19 @@ describe("SendApiServiceSelector", () => {
 
       await selector.saveView(sendView, file, "hunter2");
 
-      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2");
+      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", undefined);
       expect(legacy.saveView).not.toHaveBeenCalled();
+    });
+
+    it("forwards an abort signal to the SDK service when the flag is on", async () => {
+      const selector = buildSelector(true);
+      const sendView = view(SendType.File, null);
+      const file = new ArrayBuffer(4);
+      const controller = new AbortController();
+
+      await selector.saveView(sendView, file, "hunter2", controller.signal);
+
+      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2", controller.signal);
     });
 
     it.each([
@@ -187,7 +198,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.saveView(sendView, null);
 
-      expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined);
+      expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined, undefined);
       expect(sdk.saveView).not.toHaveBeenCalled();
     });
   });

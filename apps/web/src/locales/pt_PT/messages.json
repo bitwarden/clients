@@ -1252,20 +1252,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "Mais $COUNT$ pastas partilhadas apresentadas acima deste botão",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "Mais uma pasta partilhada apresentada acima deste botão",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -1274,6 +1260,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Adicione pastas aos itens para os filtrar aqui."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Adicione itens a Os meus itens para os filtrar aqui."
   },
   "sharedFolderFilterTooltip": {
     "message": "Adicione itens a uma pasta partilhada para os filtrar aqui."
@@ -1699,6 +1688,14 @@
   "copyUsername": {
     "message": "Copiar nome de utilizador",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Copiar ID externo",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copiar ID externo do SSO",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Copiar número",
@@ -3461,11 +3458,17 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
+  "selectImportSharedFolder": {
+    "message": "Selecionar uma pasta partilhada"
+  },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta partilhada"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -4685,6 +4688,15 @@
   "reinstateSubscription": {
     "message": "Restabelecer subscrição"
   },
+  "keepSubscription": {
+    "message": "Manter subscrição"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "A sua subscrição está com um pagamento em atraso e será suspensa em breve."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "A sua subscrição está com um pagamento em atraso e foi suspensa."
+  },
   "reinstateConfirmation": {
     "message": "Tem a certeza de que pretende eliminar o pedido de cancelamento pendente e restabelecer a sua subscrição?"
   },
@@ -5418,10 +5430,6 @@
   },
   "collectionInfo": {
     "message": "Informações da coleção"
-  },
-  "sharedFolderInfo": {
-    "message": "Informações da pasta partilhada",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Tem a certeza de que pretende eliminar esta coleção?"
@@ -7480,6 +7488,9 @@
   "inviteLinkRegenerated": {
     "message": "Link de convite regenerado"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Link de convite atualizado"
+  },
   "regenerateInviteLink": {
     "message": "Regenerar link de convite"
   },
@@ -7554,6 +7565,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Convide membros para a sua organização com um link. Se ainda não tiver sido especificado nenhum papel, serão adicionados como utilizadores predefinidos."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Utilizar um link de convite pode representar um risco de segurança no seu ambiente auto-hospedado, porque os utilizadores não têm de verificar os seus e-mails."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ao continuar, concorda com os"
@@ -8853,16 +8867,16 @@
   "sendControls": {
     "message": "Controlos do Send"
   },
-  "manageSend": {
-    "message": "Gerir Send",
+  "manageSendV2": {
+    "message": "Gerir o Send e partilhar",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Definir opções para criar e editar Sends, incluindo a possibilidade de remover Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Gerir a forma como os membros utilizam o Send. Esta política será aplicada aos Sends criados depois de ativar esta política. Os administradores e proprietários estão isentos.",
+  "sendControlsPolicyDescV5": {
+    "message": "Gerir a forma como os membros utilizam o Send e partilham itens do cofre. Esta política não será aplicada aos proprietários e administradores.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -9533,16 +9547,25 @@
   "decryptionError": {
     "message": "Erro de desencriptação"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  "couldNotDecryptVaultItem": {
+    "message": "O Bitwarden não conseguiu desencriptar o item do cofre apresentado abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça o ID do item abaixo para verificar se é possível recuperá-lo."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contacte o serviço de apoio ao cliente",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "O Bitwarden não conseguiu desencriptar os itens do cofre apresentados abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça os IDs dos itens abaixo para verificar se é possível recuperá-los."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar perdas adicionais de dados.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID do item",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "IDs dos itens",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copiar ID"
+  },
+  "copyAllIds": {
+    "message": "Copiar todos os IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "Para conceder a permissão Gerir utilizadores, também é necessário conceder a permissão Gerir a recuperação da conta"
@@ -10664,16 +10687,16 @@
     "message": "Serviço"
   },
   "unknownCipher": {
-    "message": "Item desconhecido, poderá ser necessário pedir autorização para aceder a este item."
+    "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
   },
   "unknownSecret": {
-    "message": "Segredo desconhecido, poderá ser necessário pedir autorização para aceder a este segredo."
+    "message": "Segredo desconhecido. Poderá ter de pedir permissão para aceder a este segredo."
   },
   "unknownServiceAccount": {
-    "message": "Conta de máquina desconhecida, poderá precisar de pedir autorização para aceder a esta conta de máquina."
+    "message": "Conta de máquina desconhecida. Poderá ter de pedir permissão para aceder a esta conta de máquina."
   },
   "unknownProject": {
-    "message": "Projeto desconhecido, poderá ser necessário pedir autorização para aceder a este projeto."
+    "message": "Projeto desconhecido. Poderá ter de pedir permissão para aceder a este projeto."
   },
   "cannotSponsorSelf": {
     "message": "Não é possível resgatar da conta ativa. Introduza um e-mail diferente."
@@ -10918,18 +10941,6 @@
   },
   "scimLearnMore": {
     "message": "Saiba mais sobre o SCIM"
-  },
-  "scimIntegrationDescription": {
-    "message": "Aprovisione automaticamente utilizadores e grupos com o seu fornecedor de identidade preferido através do aprovisionamento SCIM. Encontre integrações suportadas",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Ativar SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Configure o seu fornecedor de identidade preferido, definindo o URL e a chave da API SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
     "message": "Esta chave de API tem acesso para gerir utilizadores na sua organização. Deve ser mantida em segredo."
@@ -11277,6 +11288,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Eliminar segredos permanentemente"
+  },
+  "currentVersion": {
+    "message": "Versão atual",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modificado por: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Valor secreto copiado",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Segredo restaurado para a versão selecionada",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restaurar versão do segredo",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Tem a certeza de que pretende restaurar este segredo para a versão selecionada? O valor atual será substituído.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Versões anteriores",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Histórico de versões",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Sem histórico de versões",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Selecione os projetos aos quais o segredo será associado. Apenas os utilizadores da organização com acesso a estes projetos poderão ver o segredo.",
@@ -12457,6 +12510,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Tem a certeza de que quer recuperar estes segredos?"
+  },
+  "restoreThisVersion": {
+    "message": "Restaurar esta versão"
   },
   "secretRestoredSuccessToast": {
     "message": "Segredo restaurado"
@@ -16642,7 +16698,7 @@
     "message": "Saltar"
   },
   "sendPasswordHelperText": {
-    "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
+    "message": "Os destinatários terão de introduzir a palavra-passe para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "perUser": {
@@ -17686,5 +17742,152 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Convide toda a sua equipa com um único link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Qualquer pessoa com um e-mail da empresa pode utilizar o link de convite para aderir à sua organização. Adicione-o aos recursos de onboarding para que os novos colaboradores possam aderir quando estiverem prontos."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Pré-visualização da janela de convite de membros com o novo separador por link"
+  },
+  "showMeHow": {
+    "message": "Mostrar-me como"
+  },
+  "shareVerb": {
+    "message": "Partilhar"
+  },
+  "peopleWhoCanView": {
+    "message": "Pessoas com acesso de visualização",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Depois de partilhar este link, os destinatários terão de verificar o seu e-mail com um código para ver o item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Este link expira após esta data, mas os destinatários podem conservar as informações partilhadas anteriormente. Gere novamente a credencial para revogar o acesso.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "O link expira após",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Partilha única",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Links ativos",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copiado para a área de transferência",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Não foi possível criar o link de partilha",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link guardado e copiado para a área de transferência",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Não foi possível copiar o link de partilha para a área de transferência",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Link de partilha eliminado",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Não foi possível eliminar o link de partilha",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Partilhar através de um link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Partilha do item $ITEM$ do cofre",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expira a",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ partilhou o seguinte item consigo.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "contas de serviço adicionais"
+  },
+  "additionalStorageGbLower": {
+    "message": "armazenamento adicional (GB)"
+  },
+  "membersLower": {
+    "message": "membros"
+  },
+  "memberLower": {
+    "message": "membro"
+  },
+  "annualLower": {
+    "message": "anual"
+  },
+  "monthlyLower": {
+    "message": "mensal"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "Subscrição $PLAN$ $CADENCE$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Manter e reativar"
+  },
+  "subscriptionIsNowActive": {
+    "message": "A subscrição está agora ativa"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Esta ação anulará o seu pedido de cancelamento e reativará a sua subscrição."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Não foi possível carregar os detalhes da subscrição"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "O nosso serviço de faturação está indisponível, pelo que não podemos apresentar a sua subscrição e os preços neste momento. A sua subscrição não foi afetada."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Encargo proporcional do Gestor de Palavras-passe"
+  },
+  "storageProratedCharge": {
+    "message": "Encargo proporcional do armazenamento"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Encargo proporcional do Gestor de Segredos"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Encargo proporcional das contas de serviço"
   }
 }

@@ -331,7 +331,7 @@ type VaultFilters = {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions; track option.value) {
               <bit-filter-option [value]="option.value">
                 {{ option.label }}
@@ -339,7 +339,12 @@ type VaultFilters = {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Collections"
+            multiple
+          >
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -464,7 +469,7 @@ class DemoFilterableTableComponent {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions; track option.value) {
               <bit-filter-option [value]="option.value">
                 {{ option.label }}
@@ -472,7 +477,12 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+          <bit-filter-menu
+            icon="bwi-collection"
+            key="collection"
+            placeholderText="Shared folders"
+            multiple
+          >
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -494,7 +504,7 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+          <bit-filter-menu icon="bwi-folder" key="folder" placeholderText="My folders" multiple>
             <bit-filter-option [value]="null">No folders</bit-filter-option>
             <bit-filter-option-divider></bit-filter-option-divider>
             @for (folder of folders; track folder.id) {
@@ -666,7 +676,7 @@ class DemoSearchableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+          <bit-filter-menu icon="bwi-vault" key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions(); track option.value) {
               <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
             }
@@ -865,7 +875,12 @@ const LONG_LABEL_ROWS: LongLabelRow[] = [
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
 
-          <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+          <bit-filter-menu
+            key="collection"
+            placeholderText="Shared folders"
+            icon="bwi-shared-folder"
+            multiple
+          >
             <bit-filter-section [label]="orgName" collapsible>
               @for (collection of collections; track collection.id) {
                 <bit-filter-option [value]="collection.id">
@@ -875,7 +890,7 @@ const LONG_LABEL_ROWS: LongLabelRow[] = [
             </bit-filter-section>
           </bit-filter-menu>
 
-          <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+          <bit-filter-menu icon="bwi-folder" key="folder" placeholderText="My folders" multiple>
             @for (folder of folders; track folder.id) {
               <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
             }
@@ -1661,8 +1676,9 @@ export const KitchenSinkFilterEmpty: Story = {
 /**
  * Long option names, with a selection already applied. Nothing here can show a name in full,
  * so each surface truncates and carries a tooltip with the whole thing: the chip triggers, and
- * below `md` the dismissible chips on the collapsed toolbar's own row
- * (`Shared folders: <name>, <name>`). Snapshotted at both widths.
+ * below `md` the dismissible chips on the collapsed toolbar's own row. A multi-select puts one
+ * chip on that row per selected option — named for the option alone, led by the filter's icon —
+ * so each can be dropped without clearing the rest. Snapshotted at both widths.
  */
 export const FilterLongLabelsApplied: Story = {
   render: () => ({

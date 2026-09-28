@@ -2,7 +2,7 @@
   <button
     bit-chip-content
     [startIcon]="icon()"
-    [endIcon]="active() ? undefined : menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
+    [endIcon]="active() ? undefined : menuTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"
     type="button"
     class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
     [class.tw-cursor-not-allowed]="disabled()"
@@ -30,8 +30,11 @@
   }
 </bit-chip-content>
 
-<!-- Instantiates the projected declarations so the chip can draw rows from their data. -->
-<div class="tw-hidden"><ng-content></ng-content></div>
+<!-- Instantiates projected content so the chip can draw rows from it; data-driven options need no
+     such trick, since they're plain rows built from `options()`, never stamped as components. -->
+<div class="tw-hidden">
+  <ng-content></ng-content>
+</div>
 
 <!-- Single-select rows are flat: nesting requires `multiple`, enforced in the component. -->
 <ng-template #optionRow let-option>
@@ -299,7 +302,7 @@
               </div>
             }
             @if (section.open()) {
-              @for (option of section.options(); track option.value()) {
+              @for (option of section.children(); track option.value()) {
                 @if (rowVisible(option)) {
                   <ng-container
                     *ngTemplateOutlet="optionRow; context: { $implicit: option }"
@@ -333,7 +336,7 @@
   <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
     <!-- Gated on open: the overlay keeps this view alive between openings, so ungated rows would
          outlive their popover and still count as the menu's once the dialog owns the options. -->
-    @if (menuTrigger.isOpen) {
+    @if (menuTrigger.isOpen()) {
       <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
     }
   </div>

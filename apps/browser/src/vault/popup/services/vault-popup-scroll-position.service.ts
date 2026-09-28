@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, fromEvent, Subscription } from "rxjs";
 
-import { ScrollLayoutService } from "@bitwarden/components";
+import { ScrollCollapseService, ScrollLayoutService } from "@bitwarden/components";
 import { VAULT_BASE_ROUTE } from "@bitwarden/vault";
 
 @Injectable({
@@ -12,6 +12,7 @@ import { VAULT_BASE_ROUTE } from "@bitwarden/vault";
 export class VaultPopupScrollPositionService {
   private router = inject(Router);
   private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly scrollCollapse = inject(ScrollCollapseService);
 
   /** Path of the vault screen */
   private readonly vaultPath = inject(VAULT_BASE_ROUTE);
@@ -26,6 +27,9 @@ export class VaultPopupScrollPositionService {
    * Where a restore left the element, or `null`. An event finding it still there is the restore's.
    */
   private restoredTo: number | null = null;
+
+  /** The element currently being tracked, so a deferred jump knows whether it is still wanted. */
+  private attached: HTMLElement | null = null;
 
   constructor() {
     this.router.events
@@ -44,20 +48,35 @@ export class VaultPopupScrollPositionService {
     const target = this.scrollPosition;
 
     if (restoring) {
-      // Before the jump paints, so collapsing chrome arrives collapsed rather than animating.
-      this.scrollLayout.restoredScrolled.set(target! > 0);
+      // Gated on the scroller affording the collapse: handing back more height than it has left to
+      // scroll would clamp the offset and reopen the regions against the user (CL-1318).
+      //
+      // Measured once, while the regions are still expanded. The collapse gives its height to the
+      // scroller, so measuring again afterwards tests a range the collapse itself shrank — the
+      // same reason `scrollDirection` gates the flip to `"down"` and never re-tests it.
+      const affordsCollapse = this.scrollCollapse.affordsCollapse(scrollElement);
+
+      // Before the jump paints, so the collapsing regions arrive collapsed rather than animating.
+      this.scrollLayout.restoredScrolled.set(target! > 0 && affordsCollapse);
 
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(() => {
+        // A later attach, or a `stop()`, may have landed in the meantime — this jump belongs to
+        // neither, and applying it would raise the restore state with nothing left to clear it.
+        if (this.attached !== scrollElement) {
+          return;
+        }
+
         scrollElement.scrollTo({ top: target!, behavior: "instant" });
         // From where the jump landed: the vault attaches twice and the first never scrolls.
         this.restoredTo = scrollElement.scrollTop;
-        this.scrollLayout.restoredScrolled.set(scrollElement.scrollTop > 0);
+        this.scrollLayout.restoredScrolled.set(scrollElement.scrollTop > 0 && affordsCollapse);
       });
     }
 
     this.scrollSubscription?.unsubscribe();
 
+    this.attached = scrollElement;
     this.restoredTo = restoring ? target : null;
 
     this.scrollSubscription = fromEvent(scrollElement, "scroll").subscribe(() => {
@@ -76,6 +95,7 @@ export class VaultPopupScrollPositionService {
   stop(reset?: true) {
     this.scrollSubscription?.unsubscribe();
     this.scrollSubscription = null;
+    this.attached = null;
     this.restoredTo = null;
     this.scrollLayout.restoredScrolled.set(false);
 

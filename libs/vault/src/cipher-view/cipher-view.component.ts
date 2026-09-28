@@ -112,6 +112,11 @@ export class CipherViewComponent {
    * premium in anonymous environments where the userId is not available
    */
   readonly hasAnonymousPremium = input<boolean>(false);
+  /**
+   * Optional input for explicitly disabling the at-risk password link (used for
+   * situations where the cipher contents are not editable)
+   */
+  readonly hideChangePasswordLink = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,
@@ -318,6 +323,7 @@ export class CipherViewComponent {
 
   readonly showChangePasswordLink = computed(() => {
     return (
+      !this.hideChangePasswordLink() &&
       this.hasLoginUri() &&
       (this.hadPendingChangePasswordTask() ||
         // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.

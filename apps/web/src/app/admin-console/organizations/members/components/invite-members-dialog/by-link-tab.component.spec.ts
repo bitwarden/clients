@@ -1,13 +1,16 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainMiniResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-mini.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
@@ -36,21 +39,32 @@ function makeInviteLink(supportsConfirmation: boolean): OrganizationInviteLink {
   });
 }
 
+function buildDomain(domainName: string, verified: boolean): OrganizationDomainMiniResponse {
+  return {
+    domainName,
+    verifiedDate: verified ? "2025-01-01T00:00:00Z" : null,
+  } as unknown as OrganizationDomainMiniResponse;
+}
+
 interface Harness {
   fixture: ComponentFixture<ByLinkTabComponent>;
   component: ByLinkTabComponent;
   inviteLink$: BehaviorSubject<OrganizationInviteLink | undefined>;
   inviteLinkService: MockProxy<OrganizationInviteLinkService>;
   validationService: MockProxy<ValidationService>;
+  orgDomainApiService: MockProxy<OrgDomainApiServiceAbstraction>;
 }
 
 async function createComponent(
   options: {
     initialLink?: OrganizationInviteLink;
     autoConfirmEnabled?: boolean;
+    domains?: OrganizationDomainMiniResponse[];
+    domainsError?: unknown;
+    showCoachMarks?: boolean;
   } = {},
 ): Promise<Harness> {
-  const { initialLink, autoConfirmEnabled = true } = options;
+  const { initialLink, autoConfirmEnabled = true, showCoachMarks = false } = options;
 
   const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
 
@@ -62,7 +76,11 @@ async function createComponent(
   accountService.activeAccount$ = of({ id: USER_ID } as any);
 
   const orgDomainApiService = mock<OrgDomainApiServiceAbstraction>();
-  orgDomainApiService.getAllByOrgId.mockResolvedValue([]);
+  if (options.domainsError != null) {
+    orgDomainApiService.getAllMiniByOrgId.mockRejectedValue(options.domainsError);
+  } else {
+    orgDomainApiService.getAllMiniByOrgId.mockResolvedValue(options.domains ?? []);
+  }
 
   const configService = mock<ConfigService>();
   configService.getFeatureFlag$.mockImplementation((flag) =>
@@ -81,12 +99,14 @@ async function createComponent(
   await TestBed.configureTestingModule({
     imports: [ByLinkTabComponent],
     providers: [
+      provideNoopAnimations(),
       { provide: OrganizationInviteLinkService, useValue: inviteLinkService },
       { provide: AccountService, useValue: accountService },
       { provide: OrgDomainApiServiceAbstraction, useValue: orgDomainApiService },
       { provide: ConfigService, useValue: configService },
       { provide: I18nService, useValue: i18nService },
       { provide: ValidationService, useValue: validationService },
+      { provide: LogService, useValue: mock<LogService>() },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
@@ -96,6 +116,7 @@ async function createComponent(
 
   const fixture = TestBed.createComponent(ByLinkTabComponent);
   fixture.componentRef.setInput("organizationId", ORG_ID);
+  fixture.componentRef.setInput("showCoachMarks", showCoachMarks);
   fixture.detectChanges();
   await fixture.whenStable();
 
@@ -105,6 +126,7 @@ async function createComponent(
     inviteLink$,
     inviteLinkService,
     validationService,
+    orgDomainApiService,
   };
 }
 
@@ -116,6 +138,55 @@ function switchRendered(fixture: ComponentFixture<ByLinkTabComponent>): boolean 
 }
 
 describe("ByLinkTabComponent", () => {
+  describe("prefilling domains from verified org domains", () => {
+    it("prefills verified domains and ignores unverified ones", async () => {
+      const { component, orgDomainApiService } = await createComponent({
+        domains: [buildDomain("example.com", true), buildDomain("unverified.com", false)],
+      });
+
+      expect(orgDomainApiService.getAllMiniByOrgId).toHaveBeenCalledWith(ORG_ID);
+      expect(component.form.controls.domains.value).toBe("example.com");
+    });
+
+    // The full domains endpoint requires the Manage SSO permission. Requesting it without that
+    // permission returns a 401, which logs the user out of the vault entirely. The mini endpoint
+    // also accepts Manage Users, so members who can only manage users still get the prefill.
+    it("reads domains from the mini endpoint rather than the Manage SSO one", async () => {
+      const { orgDomainApiService } = await createComponent({
+        domains: [buildDomain("example.com", true)],
+      });
+
+      expect(orgDomainApiService.getAllByOrgId).not.toHaveBeenCalled();
+    });
+
+    it("leaves the field empty when the org has no verified domains", async () => {
+      const { component } = await createComponent({
+        domains: [buildDomain("unverified.com", false)],
+      });
+
+      expect(component.form.controls.domains.value).toBe("");
+    });
+
+    // Servers predating the mini endpoint answer with a 404. Prefilling is a convenience, so the
+    // dialog must stay usable rather than blowing up with an unhandled rejection.
+    it("leaves the field empty when the domains request fails", async () => {
+      const { component } = await createComponent({
+        domainsError: new Error("404 Not Found"),
+      });
+
+      expect(component.form.controls.domains.value).toBe("");
+    });
+
+    it("does not request org domains when an invite link already exists", async () => {
+      const { component, orgDomainApiService } = await createComponent({
+        initialLink: makeInviteLink(true),
+      });
+
+      expect(orgDomainApiService.getAllMiniByOrgId).not.toHaveBeenCalled();
+      expect(component.form.controls.domains.value).toBe("example.com");
+    });
+  });
+
   describe("require admin confirmation switch", () => {
     it("is hidden when no link exists yet", async () => {
       const { fixture } = await createComponent();
@@ -245,6 +316,162 @@ describe("ByLinkTabComponent", () => {
       await new Promise(process.nextTick);
 
       expect(component.form.dirty).toBe(false);
+    });
+
+    // The step 1 coachmark popover's backdrop blocks clicks into the page, so a click-driven
+    // refocus of the invalid field isn't possible while it's open.
+    it("refocuses the domains field when the form is invalid", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+
+      component.form.controls.domains.setValue("");
+      await component.save();
+
+      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(focus).toHaveBeenCalled();
+    });
+
+    it("refocuses the domains field when advancing the tour with an invalid form", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+
+      component.form.controls.domains.setValue("");
+      await component.saveAndAdvanceToStep2();
+
+      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(component.tourStep()).not.toBe(2);
+      expect(focus).toHaveBeenCalled();
+    });
+
+    // Angular's `Validators.required` only rejects an empty string, so comma/whitespace-only
+    // input (e.g. ",  ,") passes form validation yet parses down to zero domains. Without this,
+    // the empty array reached the service layer, which threw "At least one allowed domain is
+    // required." — an error the refocus logic never saw because it lived past the form-validity
+    // check.
+    it("treats comma/whitespace-only input as empty, without calling the service", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+
+      component.form.controls.domains.setValue(" , , ");
+      expect(component.form.valid).toBe(true);
+      expect(component.domainsEmpty()).toBe(true);
+
+      await component.save();
+
+      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.updateAllowedDomains).not.toHaveBeenCalled();
+      expect(focus).toHaveBeenCalled();
+    });
+
+    // The server can reject domains that pass client-side parsing (e.g. malformed or duplicate
+    // domains). The rejection is only visible to `[bitAction]`'s generic error toast, which has
+    // no way to reach into the component to refocus the field — save() has to do it itself.
+    it("refocuses the domains field and rethrows when the server rejects the save", async () => {
+      const { fixture, component, inviteLinkService } = await createComponent();
+      const domainsInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        '[data-testid="allowedDomains"]',
+      );
+      const focus = jest.spyOn(domainsInput, "focus");
+      const failure = new Error("At least one allowed domain is required.");
+      inviteLinkService.createInviteLink.mockRejectedValue(failure);
+
+      component.form.controls.domains.setValue("example.com");
+
+      await expect(component.save()).rejects.toThrow(failure);
+      expect(focus).toHaveBeenCalled();
+    });
+  });
+
+  // TODO(coachmark cleanup): remove this describe block with the rest of the guided tour.
+  describe("guided tour", () => {
+    function saveButtonDisabled(fixture: ComponentFixture<ByLinkTabComponent>): boolean {
+      const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="saveDomains"]',
+      );
+      // bitButton aria-disables rather than setting the native `disabled` attribute (see
+      // ariaDisableElement in @bitwarden/components), so check aria-disabled instead.
+      return button.getAttribute("aria-disabled") === "true";
+    }
+
+    it("enables the save button when the tour is not running", async () => {
+      const { fixture, component } = await createComponent({ showCoachMarks: false });
+      component.form.controls.domains.setValue("example.com");
+      fixture.detectChanges();
+
+      expect(saveButtonDisabled(fixture)).toBe(false);
+    });
+
+    it("disables the save button once the tour starts, even with valid domains", async () => {
+      const { fixture, component } = await createComponent({ showCoachMarks: true });
+      component.form.controls.domains.setValue("example.com");
+
+      component.tourStep.set(1);
+      fixture.detectChanges();
+
+      expect(saveButtonDisabled(fixture)).toBe(true);
+    });
+
+    it("re-enables the save button once the tour finishes", async () => {
+      const { fixture, component } = await createComponent({ showCoachMarks: true });
+      component.form.controls.domains.setValue("example.com");
+
+      component.tourStep.set(1);
+      fixture.detectChanges();
+      expect(saveButtonDisabled(fixture)).toBe(true);
+
+      component.tourStep.set(0);
+      fixture.detectChanges();
+
+      expect(saveButtonDisabled(fixture)).toBe(false);
+    });
+  });
+
+  describe("guided tour", () => {
+    // The tour's opening step is delayed via setTimeout so the popover doesn't anchor to a
+    // stale rect; wait it out with real timers rather than faking them, since fake timers
+    // deadlock the component's `await fixture.whenStable()` setup above.
+    const waitForTourStart = () => new Promise((resolve) => setTimeout(resolve, 300));
+
+    it("starts the tour when the org has no invite link yet", async () => {
+      const { component } = await createComponent({
+        showCoachMarks: true,
+      });
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(1);
+    });
+
+    it("does not start the tour when showCoachMarks is false", async () => {
+      const { component } = await createComponent({});
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(0);
+    });
+
+    // The callout that offers the tour is only shown to orgs without a link configured yet
+    // (see InviteLinkCalloutService.showIfEligible), so showCoachMarks=true alongside an
+    // existing link shouldn't happen in practice — but the tour must not start in that case,
+    // since its first step targets state that only exists pre-link.
+    it("does not start the tour when the org already has an invite link configured", async () => {
+      const { component } = await createComponent({
+        initialLink: makeInviteLink(true),
+        showCoachMarks: true,
+      });
+
+      await waitForTourStart();
+
+      expect(component.tourStep()).toBe(0);
     });
   });
 

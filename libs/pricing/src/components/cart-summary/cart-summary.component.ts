@@ -43,7 +43,7 @@ export class CartSummaryComponent {
   readonly cart = input.required<Cart>();
 
   // Optional inputs
-  readonly header = input<TemplateRef<{ total: number }>>();
+  readonly header = input<TemplateRef<{ total: number; amountDue: number }>>();
 
   // Hide pricing term (e.g., "/ month" or "/ year") if true
   readonly hidePricingTerm = input<boolean>(false);
@@ -190,7 +190,7 @@ export class CartSummaryComponent {
   );
 
   /**
-   * Calculates the subtotal before discount and tax, including proration charge rows.
+   * The subtotal before cart-level discount and tax
    */
   readonly subtotal = computed<number>(
     () =>
@@ -200,7 +200,8 @@ export class CartSummaryComponent {
       this.additionalServiceAccountsTotal() +
       [this.cart().passwordManager.prorationCharges, this.cart().secretsManager?.prorationCharges]
         .flatMap((charges) => charges ?? [])
-        .reduce((sum, charge) => sum + charge.cost, 0),
+        .reduce((sum, charge) => sum + charge.cost, 0) -
+      this.lineDiscountTotal(),
   );
 
   /**
@@ -258,16 +259,16 @@ export class CartSummaryComponent {
     return credit.value;
   });
 
+  readonly appliedBalance = computed<number>(() => this.cart().appliedBalance ?? 0);
+  readonly amountDue = computed<number>(() => this.cart().amountDue ?? this.total());
+
   /**
-   * Calculates the total of all line items including discounts, credit and tax
+   * Calculates the total of all line items including discounts, credits and tax. Per-line
+   * discounts are already netted into {@link subtotal}, so only the cart-level discount is
+   * subtracted here.
    */
   private readonly computedTotal = computed<number>(
-    () =>
-      this.subtotal() -
-      this.discountAmount() -
-      this.lineDiscountTotal() -
-      this.creditAmount() +
-      this.estimatedTax(),
+    () => this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax(),
   );
 
   /**

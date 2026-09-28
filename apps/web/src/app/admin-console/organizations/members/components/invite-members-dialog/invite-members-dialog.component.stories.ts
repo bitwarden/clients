@@ -12,6 +12,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
@@ -67,6 +68,10 @@ const mockPlatformUtilsService = {
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockLogService = {
+  error: () => {},
 };
 
 const mockServerSettingsService = {
@@ -246,10 +251,11 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: LogService, useValue: mockLogService },
         { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
           provide: OrgDomainApiServiceAbstraction,
-          useValue: { getAllByOrgId: () => Promise.resolve([]) },
+          useValue: { getAllMiniByOrgId: () => Promise.resolve([]) },
         },
       ],
     }),
