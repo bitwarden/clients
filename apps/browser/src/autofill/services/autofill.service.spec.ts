@@ -4549,6 +4549,81 @@ describe("AutofillService", () => {
             expect(value.script).toContainEqual(["fill_by_opid", companyField.opid, company]);
           });
 
+          it("will match specific address component fields before the generic address field when field names carry a billing address prefix", async () => {
+            // Regression test for https://github.com/bitwarden/clients/issues/23356:
+            // normalized field names like "billingAddress[zipcode]" contain the
+            // "billing-addr" keyword and must not be claimed by the generic address match.
+            const streetField = createAutofillFieldMock({
+              opid: "street",
+              htmlName: "billingAddress[street]",
+              htmlID: "billingAddressAddressStreet",
+              autoCompleteType: "billing address-line1",
+            });
+            const postalCodeField = createAutofillFieldMock({
+              opid: "postalCode",
+              htmlName: "billingAddress[zipcode]",
+              htmlID: "billingAddressAddressZipcode",
+              autoCompleteType: "billing postal-code",
+            });
+            const cityField = createAutofillFieldMock({
+              opid: "city",
+              htmlName: "billingAddress[city]",
+              htmlID: "billingAddressAddressCity",
+              autoCompleteType: "billing address-level2",
+            });
+            const phoneField = createAutofillFieldMock({
+              opid: "phone",
+              htmlName: "billingAddress[phoneNumber]",
+              htmlID: "billingAddressAddressPhoneNumber",
+              autoCompleteType: "billing tel",
+            });
+            const countryField = createAutofillFieldMock({
+              opid: "country",
+              htmlName: "billingAddress[countryId]",
+              htmlID: "billingAddressAddressCountry",
+              autoCompleteType: "billing country",
+              tagName: "select",
+            });
+            pageDetails.fields = [
+              streetField,
+              postalCodeField,
+              cityField,
+              phoneField,
+              countryField,
+            ];
+            const address1 = "123 Main St.";
+            const postalCode = "12345";
+            const city = "City";
+            const country = "US";
+            const phone = "123-456-7890";
+            options.cipher.identity.address1 = address1;
+            options.cipher.identity.postalCode = postalCode;
+            options.cipher.identity.city = city;
+            options.cipher.identity.country = country;
+            options.cipher.identity.phone = phone;
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", streetField.opid, address1]);
+            expect(value.script).toContainEqual(["fill_by_opid", postalCodeField.opid, postalCode]);
+            expect(value.script).toContainEqual(["fill_by_opid", cityField.opid, city]);
+            expect(value.script).toContainEqual(["fill_by_opid", phoneField.opid, phone]);
+            expect(value.script).toContainEqual(["fill_by_opid", countryField.opid, country]);
+            expect(value.script).not.toContainEqual([
+              "fill_by_opid",
+              postalCodeField.opid,
+              address1,
+            ]);
+            expect(value.script).not.toContainEqual(["fill_by_opid", cityField.opid, address1]);
+            expect(value.script).not.toContainEqual(["fill_by_opid", phoneField.opid, address1]);
+            expect(value.script).not.toContainEqual(["fill_by_opid", countryField.opid, address1]);
+          });
+
           it("will find the two character IsoState value for an identity cipher that contains the full name of a state", async () => {
             const stateField = createAutofillFieldMock({ opid: "state", htmlName: "state" });
             pageDetails.fields = [stateField];
