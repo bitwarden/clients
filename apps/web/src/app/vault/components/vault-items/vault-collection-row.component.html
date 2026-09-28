@@ -37,7 +37,7 @@
           : ('viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name)
       }}"
       [routerLink]="[]"
-      [queryParams]="{ collectionId: collection.id }"
+      [queryParams]="collectionQueryParams"
       queryParamsHandling="merge"
       appStopProp
     >

@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
-  StagedStatus = "pm-34423-staged-status",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
 
@@ -68,8 +67,6 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
-  SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
@@ -106,7 +103,6 @@ export enum FeatureFlag {
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
-  PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
   PM29968_FillAfterSave = "pm-29968-fill-after-save",
@@ -122,6 +118,7 @@ export enum FeatureFlag {
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
+  PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
@@ -149,7 +146,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
-  [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
 
@@ -198,7 +194,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
-  [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
   [FeatureFlag.PM29968_FillAfterSave]: FALSE,
@@ -242,8 +237,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
-  [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
@@ -253,6 +246,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
+  [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
