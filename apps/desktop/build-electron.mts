@@ -1,6 +1,17 @@
-import { readFileSync, mkdirSync, renameSync, existsSync, rmSync, writeFileSync } from "fs";
+import {
+  readFileSync,
+  readdirSync,
+  mkdirSync,
+  renameSync,
+  existsSync,
+  rmSync,
+  writeFileSync,
+} from "fs";
+import { execFile } from "child_process";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
+import { promisify } from "util";
 
 import {
   type Architecture,
@@ -27,9 +38,13 @@ import {
   type CliOptions,
 } from "electron-builder";
 import { notarize } from "@electron/notarize";
+import { executeAppBuilder } from "builder-util";
+import { isBinaryFile } from "isbinaryfile";
 import plist from "plist";
 
 const SOURCE_DIR = path.dirname(fileURLToPath(import.meta.url));
+
+const ELECTRON_FRAMEWORK = "Electron Framework.framework";
 
 /// Where the native addon lives inside the packaged app, which is where index.js looks for it.
 const NAPI_PACKAGE = "node_modules/@bitwarden/desktop-napi";
@@ -103,13 +118,17 @@ const ElectronBuildTask: BuildTask = {
   async configure(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
     if (config.platform === "macos") {
       writeEntitlements(config, privateDir);
+      if (usesSignedFramework(config)) {
+        await signElectronFramework(config, privateDir, readBaseConfig());
+      }
     }
   },
 
   async build(config: BuildConfig, outputDir: string, privateDir: string): Promise<void> {
-    const baseConfigPath = path.resolve(SOURCE_DIR, "electron-builder.base.json");
-    const baseConfigFile = readFileSync(baseConfigPath, { encoding: "utf-8" });
-    const baseConfig = JSON.parse(baseConfigFile);
+    const baseConfig = readBaseConfig();
+    if (usesSignedFramework(config)) {
+      checkSignedFramework(privateDir, baseConfig);
+    }
     const electronTargets = [];
     for (const packageFormat of config.packageFormats) {
       switch (packageFormat) {
@@ -146,11 +165,11 @@ const ElectronBuildTask: BuildTask = {
         ...(entitlements.loginHelper != null
           ? { entitlementsLoginHelper: entitlements.loginHelper }
           : {}),
-        // A secure timestamp is a round trip to Apple for each of the ~250 files codesign signs,
-        // which is most of the signing time. Notarization requires one, and a public build may
-        // be notarized or submitted later, but an internal build that is not notarized cannot
-        // pass Gatekeeper on another developer's machine anyway, so it has no use for one.
-        ...(!config.macos!.notarize && config.audience === "internal" ? { timestamp: "none" } : {}),
+        ...(wantsSecureTimestamp(config) ? {} : { timestamp: "none" }),
+        // configure signed the framework already, and afterPack puts that copy in place.
+        ...(usesSignedFramework(config)
+          ? { signIgnore: [`/Frameworks/${ELECTRON_FRAMEWORK.replace(".", "\\.")}(/|$)`] }
+          : {}),
       };
       const nullSigning = { identity: null, provisioningProfile: null };
       if (config.derived.macos!.isMasBuild) {
@@ -300,6 +319,178 @@ function writeEntitlements(config: BuildConfig, privateDir: string) {
   }
 }
 
+function readBaseConfig() {
+  const baseConfigPath = path.resolve(SOURCE_DIR, "electron-builder.base.json");
+  return JSON.parse(readFileSync(baseConfigPath, { encoding: "utf-8" }));
+}
+
+/// A secure timestamp is a round trip to Apple for each file codesign signs, which is most of the
+/// signing time. Notarization requires one, and a public build may be notarized or submitted
+/// later, but an internal build that is not notarized cannot pass Gatekeeper on another
+/// developer's machine anyway, so it has no use for one.
+function wantsSecureTimestamp(config: BuildConfig): boolean {
+  return config.macos!.notarize === true || config.audience !== "internal";
+}
+
+/// Whether configure signs Electron's framework, so that the build does not have to.
+///
+/// The framework is more than 230 of the app's ~250 signed files, and nothing about it changes
+/// from one build to the next: electron-builder copies it out of the Electron distribution
+/// untouched. Every input to its signature -- the identity, the inherited entitlements, the
+/// timestamp and hardened runtime settings, the platform and architecture -- is fixed at
+/// configure time, except the Electron version, which build checks. Not for universal builds,
+/// where @electron/universal merges two per-architecture frameworks into one after they are
+/// packed.
+function usesSignedFramework(config: BuildConfig): boolean {
+  return config.macos?.signingCertificate != null && config.architecture !== "universal";
+}
+
+function signedFrameworkPaths(privateDir: string) {
+  const dir = path.join(privateDir, "signed-electron-framework");
+  return {
+    dir,
+    framework: path.join(dir, ELECTRON_FRAMEWORK),
+    stamp: path.join(dir, "stamp.json"),
+  };
+}
+
+/// Signs the framework from the Electron distribution electron-builder will pack, file by file
+/// the way @electron/osx-sign would inside the app, and leaves it for afterPack to put in place.
+async function signElectronFramework(
+  config: BuildConfig,
+  privateDir: string,
+  baseConfig: Configuration,
+) {
+  const electronVersion = baseConfig.electronVersion!;
+  const isMas = config.derived.macos!.isMasBuild;
+  const zip = await downloadElectron(config.derived.hostPlatform, {
+    platform: isMas ? "mas" : "darwin",
+    arch: config.architecture,
+    version: electronVersion,
+    ...baseConfig.electronDownload,
+  });
+
+  const { dir, framework, stamp } = signedFrameworkPaths(privateDir);
+  rmSync(dir, { recursive: true, force: true });
+  const extracted = path.join(dir, "extracted");
+  await runCommand("ditto", ["-x", "-k", zip, extracted]);
+  renameSync(
+    path.join(extracted, "Electron.app/Contents/Frameworks", ELECTRON_FRAMEWORK),
+    framework,
+  );
+  rmSync(extracted, { recursive: true });
+
+  // As electron-builder hands them to osx-sign for anything that is not the app, a helper or the
+  // login item. Hardened runtime is opt-in for App Store builds and opt-out otherwise.
+  const hardenedRuntime = isMas
+    ? (baseConfig.mas?.hardenedRuntime ?? baseConfig.mac?.hardenedRuntime) === true
+    : baseConfig.mac?.hardenedRuntime !== false;
+  const args = [
+    "--sign",
+    config.macos!.signingCertificate!,
+    "--force",
+    wantsSecureTimestamp(config) ? "--timestamp" : "--timestamp=none",
+    ...(hardenedRuntime ? ["--options", "runtime"] : []),
+    "--entitlements",
+    entitlementsPaths(config, privateDir).appInherit,
+  ];
+
+  // osx-sign signs every binary file, then the bundle.
+  const files = await binaryFiles(framework);
+  Logger.log(`Signing ${files.length} files in ${ELECTRON_FRAMEWORK} ${electronVersion}`);
+  const sign = async (file: string) => {
+    // Captured rather than inherited: codesign reports "replacing existing signature" for every
+    // file, because Electron ships them signed by its own identity.
+    try {
+      await promisify(execFile)("codesign", [...args, file]);
+    } catch (e) {
+      throw new BuildError(
+        `codesign failed for ${file}: ${(e as { stderr?: string }).stderr ?? e}`,
+      );
+    }
+  };
+  // The files are leaves -- there is no bundle nested inside the framework -- so they can be
+  // signed in any order, and only the bundle's own signature, which seals them, has to wait.
+  const queue = [...files];
+  const worker = async () => {
+    for (let file = queue.shift(); file != null; file = queue.shift()) {
+      await sign(file);
+    }
+  };
+  await Promise.all(Array.from({ length: os.availableParallelism() }, worker));
+  await sign(framework);
+
+  writeFileSync(stamp, JSON.stringify({ electronVersion }));
+}
+
+/// Fetches the Electron zip into electron-builder's cache, unless it is already there, and returns
+/// its path. electron-builder downloads through app-builder, whose cache is a flat directory of
+/// `electron-v<version>-<platform>-<arch>.zip`, so the same command is used here and the zip is
+/// downloaded once for both. @electron/get would work too, but nests its cache under a hash of the
+/// URL, so the packaging step would download the same file again.
+async function downloadElectron(
+  hostPlatform: Platform,
+  options: {
+    platform: string;
+    arch: string;
+    version: string;
+    cache?: string | null;
+    customFilename?: string | null;
+  },
+): Promise<string> {
+  await executeAppBuilder(["download-electron", "--configuration", JSON.stringify([options])]);
+  const cache = options.cache ?? process.env.ELECTRON_CACHE ?? defaultElectronCache(hostPlatform);
+  const filename =
+    options.customFilename ??
+    `electron-v${options.version}-${options.platform}-${options.arch}.zip`;
+  return path.join(cache, filename);
+}
+
+/// Where app-builder caches Electron downloads when nothing overrides it.
+function defaultElectronCache(hostPlatform: Platform): string {
+  switch (hostPlatform) {
+    case "macos":
+      return path.join(os.homedir(), "Library/Caches/electron");
+    default:
+      throw new BuildError(
+        `Locating the Electron download cache is not implemented yet on ${hostPlatform}.`,
+      );
+  }
+}
+
+/// Regular files under dir that are binary, by the same test osx-sign uses. Symlinks are not
+/// followed: a framework's top-level entries all point into Versions/A, and going through them
+/// would only find the same files again.
+async function binaryFiles(dir: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await binaryFiles(file)));
+    } else if (entry.isFile() && (await isBinaryFile(file))) {
+      files.push(file);
+    }
+  }
+  return files;
+}
+
+/// The Electron version is read from electron-builder.base.json on every build, but the framework
+/// was signed for the one it named at configure time.
+function checkSignedFramework(privateDir: string, baseConfig: Configuration) {
+  const { stamp } = signedFrameworkPaths(privateDir);
+  const configured = existsSync(stamp)
+    ? (JSON.parse(readFileSync(stamp, "utf-8")) as { electronVersion: string }).electronVersion
+    : null;
+  if (configured !== baseConfig.electronVersion) {
+    throw new BuildError(
+      `electron-builder.base.json names Electron ${baseConfig.electronVersion}, but this build ` +
+        `directory's signed ${ELECTRON_FRAMEWORK} is ` +
+        `${configured == null ? "missing" : `for Electron ${configured}`}. ` +
+        "Re-run build-configure for this build directory to pick up the new version.",
+    );
+  }
+}
+
 async function afterPack(config: BuildConfig, privateDir: string) {
   if (config.platform === "macos") {
     const appDir = path.join(
@@ -307,6 +498,14 @@ async function afterPack(config: BuildConfig, privateDir: string) {
       config.derived.electronFolder,
       `${config.derived.productName}.app`,
     );
+
+    if (usesSignedFramework(config)) {
+      const frameworkPath = path.join(appDir, "Contents/Frameworks", ELECTRON_FRAMEWORK);
+      rmSync(frameworkPath, { recursive: true });
+      // A clone rather than a copy, which on APFS costs nothing. cp keeps extended attributes,
+      // which is where codesign puts the signature of a file that is not Mach-O.
+      await runCommand("cp", ["-cR", signedFrameworkPaths(privateDir).framework, frameworkPath]);
+    }
 
     if (config.targets.includes(BitwardenMacosAutofillExtensionBuildTask.targetName)) {
       const extensionDir = path.join(
