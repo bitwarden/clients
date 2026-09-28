@@ -681,6 +681,7 @@ const safeProviders: SafeProvider[] = [
       EnvironmentService,
       I18nServiceAbstraction,
       PlatformUtilsService,
+      LogService,
     ],
   }),
   safeProvider({
