@@ -56,6 +56,7 @@ async function main() {
       if (!task) {
         throw new BuildError(`Unknown target ${target}`);
       }
+      const start = process.hrtime.bigint();
 
       if (IS_GITHUB_ACTIONS) {
         console.log(`::group::Build ${target}`);
@@ -70,6 +71,10 @@ async function main() {
       if (IS_GITHUB_ACTIONS) {
         console.log("::endgroup::");
       }
+      const end = process.hrtime.bigint();
+      const elapsedNs = end - (start as bigint);
+      const seconds = Number(elapsedNs / 1_000_000n) / 1_000;
+      Logger.log(`${task.targetName} completed in ${seconds}s`);
     }
   });
 
