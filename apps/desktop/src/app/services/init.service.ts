@@ -1,4 +1,4 @@
-import { Inject, Injectable, DOCUMENT } from "@angular/core";
+import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
@@ -23,6 +23,7 @@ import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitward
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
+import { FlightRecorderForwardingService } from "@bitwarden/logging-angular";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -39,6 +40,8 @@ import { UpdateRestartService } from "./update-restart.service";
 
 @Injectable()
 export class InitService {
+  private readonly flightRecorderForwarding = inject(FlightRecorderForwardingService);
+
   constructor(
     @Inject(WINDOW) private win: Window,
     private vaultTimeoutService: DefaultVaultTimeoutService,
@@ -78,6 +81,7 @@ export class InitService {
       limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
+      void this.flightRecorderForwarding.enable("DesktopMain");
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();

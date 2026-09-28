@@ -303,7 +303,7 @@ import {
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
-import { FlightRecorderClient } from "@bitwarden/sdk-internal";
+import { enableFlightRecorderCollection, FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -1915,6 +1915,13 @@ export default class MainBackground {
     // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
+    // Collects the flight recorder events of extension pages. Not flag-gated: the pages check the
+    // flag before forwarding.
+    try {
+      await enableFlightRecorderCollection(this.ipcService.client, "BrowserBackground");
+    } catch (e) {
+      this.logService.error("[FlightRecorder] Failed to enable collection", e);
+    }
     await this.sharedUnlockPeerService.start();
 
     for (const userId of userIds) {

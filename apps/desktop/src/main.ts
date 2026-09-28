@@ -36,7 +36,7 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
-import { FlightRecorderClient } from "@bitwarden/sdk-internal";
+import { enableFlightRecorderCollection, FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -420,6 +420,13 @@ export class Main {
         // before `windowMain.init()`, so the renderer always finds main's IPC client and handlers ready.
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
+        // Collects the renderer's flight recorder events. Not flag-gated: the renderer checks the
+        // flag before forwarding.
+        try {
+          await enableFlightRecorderCollection(this.ipcService.client, "DesktopMain");
+        } catch (e) {
+          this.logService.error("[FlightRecorder] Failed to enable collection", e);
+        }
 
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
