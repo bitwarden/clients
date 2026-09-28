@@ -4,11 +4,14 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
+import type { CipherService } from "../../vault/abstractions/cipher.service";
+
 export class ContainerService {
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
     private legacyCompatKeyService: LegacyCompatKeyService,
+    private cipherService?: CipherService,
   ) {}
 
   attachToGlobal(global: any) {
@@ -45,5 +48,15 @@ export class ContainerService {
       throw new Error("ContainerService.encryptService not initialized.");
     }
     return this.encryptService;
+  }
+
+  /**
+   * @throws Will throw if CipherService was not provided to the ContainerService constructor
+   */
+  getCipherService(): CipherService {
+    if (this.cipherService == null) {
+      throw new Error("ContainerService.cipherService not initialized.");
+    }
+    return this.cipherService;
   }
 }

@@ -8,12 +8,16 @@ import { Cipher } from "../../models/domain/cipher";
 import { CipherResponse } from "../../models/response/cipher.response";
 
 export abstract class CipherFileUploadService {
+  /**
+   * @param dataEncKey The attachment key and its wrapped form. Pass `null` to create an attachment
+   * without its own key, which is only used to reproduce the legacy attachment format.
+   */
   abstract upload(
     cipher: Cipher,
     encFileName: EncString,
     encData: EncArrayBuffer,
     admin: boolean,
-    dataEncKey: [SymmetricCryptoKey, EncString],
+    dataEncKey: [SymmetricCryptoKey, EncString] | null,
     userId: UserId,
     options?: UploadOptions,
   ): Promise<CipherResponse>;
