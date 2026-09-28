@@ -15,25 +15,18 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Split on periods and format with bullet points
-    # Try different formatting approaches for App Store Connect
-    formatted_changelog = changelog
-      .split('.')
-      .map(&:strip)
-      .reject(&:empty?)
-      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
-      .join("\n")
-    
-    UI.message("Original changelog: ")
+    # Used as supplied. The caller formats the notes -- bitwarden/deploy's
+    # format-release-notes action -- so one convention covers every store.
+    # Splitting here would break an item on any internal period, such as a
+    # version number.
+    UI.message("Release notes: ")
     UI.message("#{changelog}")
-    UI.message("Formatted changelog: ")
-    UI.message("#{formatted_changelog}")
     
     # Create release notes directories and files for all locales
     APP_CONFIG[:locales].each do |locale|
       dir = "release_notes/#{locale}"
       FileUtils.mkdir_p(dir)
-      File.write("#{dir}/release_notes.txt", formatted_changelog)
+      File.write("#{dir}/release_notes.txt", changelog)
       UI.message("Creating release notes for #{locale}")
     end
 
