@@ -17,6 +17,7 @@ import {
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
+import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
@@ -189,7 +190,7 @@ describe("RuntimeBackground collection dispatch", () => {
       cipherService.getAllDecrypted.mockResolvedValue([cipher]);
       (main as any).cipherService = cipherService;
       autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
-        didAutofill: true,
+        outcome: AutofillOutcome.Filled,
         totp: "totp-123",
       });
     });
@@ -201,7 +202,7 @@ describe("RuntimeBackground collection dispatch", () => {
       );
 
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).toHaveBeenCalledWith(tab, cipher);
-      expect(result).toEqual({ didAutofill: true, totp: "totp-123" });
+      expect(result).toEqual({ outcome: AutofillOutcome.Filled, totp: "totp-123" });
     });
 
     it("security: rejects a content-script sender without fetching or filling", async () => {
@@ -222,43 +223,67 @@ describe("RuntimeBackground collection dispatch", () => {
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
     });
 
-    // Functional contract for a rejected sender.
-    it("returns a no-fill result when the sender is rejected", async () => {
-      jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(false);
+    // Safeguard `unsafeAutofillTabWithCipher` from being used as an oracle. Every early
+    // exit reports the same outcome, so a caller cannot use the reply to learn which check turned
+    // it away.
+    describe("security: emit a denied outcome when processing early exits", () => {
+      const fillMessage = { command: "fillCipherForPopup", tabId: 1, cipherId: "cipher-1" };
 
-      const result = await runtimeBackground.processMessageWithSender(
-        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
-        contentScriptSender,
-      );
+      it("denies a rejected sender", async () => {
+        jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(false);
 
-      expect(result).toEqual({ didAutofill: false });
-    });
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url },
+          contentScriptSender,
+        );
 
-    it("does not fill when the cipher id is unknown", async () => {
-      const result = await runtimeBackground.processMessageWithSender(
-        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "missing" },
-        popupSender,
-      );
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
 
-      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
-    });
+      it("denies a tab that is gone", async () => {
+        jest.spyOn(BrowserApi, "getTab").mockResolvedValue(null);
 
-    it("security: does not fill when the tab navigates after the popup captured its url", async () => {
-      // When the freshly fetched tab shows a different URL, the tab navigated during message transmission.
-      // This invalidates the message and abandons the fill.
-      const result = await runtimeBackground.processMessageWithSender(
-        {
-          command: "fillCipherForPopup",
-          tabId: 1,
-          tabUrl: "https://before-nav.example/login",
-          cipherId: "cipher-1",
-        },
-        popupSender,
-      );
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url },
+          popupSender,
+        );
 
-      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies a tab that navigated after the popup captured its url", async () => {
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: "https://before-nav.example/login" },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies a request with no active user", async () => {
+        accountService.activeAccount$ = of(null as any);
+
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
+
+      it("denies an unknown cipher", async () => {
+        const result = await runtimeBackground.processMessageWithSender(
+          { ...fillMessage, tabUrl: tab.url, cipherId: "missing" },
+          popupSender,
+        );
+
+        expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+        expect(result).toEqual({ outcome: AutofillOutcome.Denied });
+      });
     });
   });
 

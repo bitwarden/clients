@@ -51,6 +51,7 @@ import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generat
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
@@ -80,6 +81,7 @@ import {
   triggerWebNavigationOnCommittedEvent,
   triggerWebRequestOnCompletedEvent,
 } from "../spec/testing-utils";
+import { FillResult } from "../types/fill-result";
 
 import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 import {
@@ -259,7 +261,7 @@ describe("OverlayBackground", () => {
     autofillOrchestrator.collectPageDetails.mockResolvedValue([]);
     // The overlay routes fills through the orchestrator; default to a filled-without-TOTP outcome so
     // handlers that destructure the result do not choke on the mock's undefined default.
-    autofillOrchestrator.fillCipher.mockResolvedValue({ didAutofill: true });
+    autofillOrchestrator.fillCipher.mockResolvedValue({ outcome: AutofillOutcome.Filled });
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -3867,7 +3869,7 @@ describe("OverlayBackground", () => {
           [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
         ]);
         autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
-        autofillOrchestrator.fillCipher.mockResolvedValue({ didAutofill: false });
+        autofillOrchestrator.fillCipher.mockResolvedValue({ outcome: AutofillOutcome.Absent });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",
@@ -3897,7 +3899,11 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        autofillOrchestrator.fillCipher.mockResolvedValue({ didAutofill: true, totp: "totp-code" });
+        autofillOrchestrator.fillCipher.mockResolvedValue({
+          outcome: AutofillOutcome.Filled,
+          totp: "totp-code",
+          canAutoCopyTotp: true,
+        });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",
@@ -3909,7 +3915,7 @@ describe("OverlayBackground", () => {
         expect(copyToClipboardSpy).toHaveBeenCalledWith("totp-code");
       });
 
-      it("copies the cipher's totp code via fallback when the fill reported no totp", async () => {
+      it("mitigates an absent fill by copying the cipher's totp code", async () => {
         const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
         overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
@@ -3919,10 +3925,17 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        // The fill succeeded but the script could not target the TOTP input, which is the case the
-        // fallback exists for.
-        autofillOrchestrator.fillCipher.mockResolvedValue({ didAutofill: true });
-        autofillService.getTotpCopyCode.mockResolvedValue("fallback-totp");
+        const updateLastUsedSpy = jest.spyOn(
+          overlayBackground as any,
+          "updateLastUsedInlineMenuCipher",
+        );
+        // An absent fill is a failure the user's explicit choice of cipher lets us mitigate: the
+        // attempt still releases the code, so the request goes on to copy it.
+        autofillOrchestrator.fillCipher.mockResolvedValue({
+          outcome: AutofillOutcome.Absent,
+          totp: "hidden-field-totp",
+          canAutoCopyTotp: true,
+        });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",
@@ -3931,11 +3944,12 @@ describe("OverlayBackground", () => {
         });
         await flushPromises();
 
-        expect(autofillService.getTotpCopyCode).toHaveBeenCalledWith(cipher2);
-        expect(copyToClipboardSpy).toHaveBeenCalledWith("fallback-totp");
+        expect(copyToClipboardSpy).toHaveBeenCalledWith("hidden-field-totp");
+        // Last-used records a credential that was placed, and this attempt placed none.
+        expect(updateLastUsedSpy).not.toHaveBeenCalled();
       });
 
-      it("security: copies nothing when the orchestrator reports no fill", async () => {
+      it("copies nothing when the user's preference withholds auto-copy", async () => {
         const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
         overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
@@ -3945,11 +3959,13 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        // `didAutofill: false` also covers the orchestrator refusing the fill because the target is
-        // no longer the foreground tab or has navigated. A refused fill must not reach the clipboard,
-        // so the fallback is not even consulted.
-        autofillOrchestrator.fillCipher.mockResolvedValue({ didAutofill: false });
-        autofillService.getTotpCopyCode.mockResolvedValue("fallback-totp");
+        // A released code is not licence to copy it: the preference decides, so reading `totp`
+        // directly rather than asking would copy against the user's wishes.
+        autofillOrchestrator.fillCipher.mockResolvedValue({
+          outcome: AutofillOutcome.Filled,
+          totp: "withheld-totp",
+          canAutoCopyTotp: false,
+        });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",
@@ -3958,11 +3974,10 @@ describe("OverlayBackground", () => {
         });
         await flushPromises();
 
-        expect(autofillService.getTotpCopyCode).not.toHaveBeenCalled();
         expect(copyToClipboardSpy).not.toHaveBeenCalled();
       });
 
-      it("copies nothing when the fill reported no totp and the fallback helper declines to return a code", async () => {
+      it("security: copies nothing when the orchestrator denies the fill", async () => {
         const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
         overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
@@ -3972,8 +3987,36 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        autofillOrchestrator.fillCipher.mockResolvedValue({ didAutofill: true });
-        autofillService.getTotpCopyCode.mockResolvedValue(undefined);
+        // A denial terminates the request. The type gives the denied arm no `totp`, so this forces
+        // the shape the type forbids to prove the check is a runtime backstop and not only a
+        // compile-time one.
+        autofillOrchestrator.fillCipher.mockResolvedValue({
+          outcome: AutofillOutcome.Denied,
+          totp: "must-not-copy",
+          canAutoCopyTotp: true,
+        } as unknown as FillResult);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(copyToClipboardSpy).not.toHaveBeenCalled();
+      });
+
+      it("copies nothing when the attempt released no totp", async () => {
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        const copyToClipboardSpy = jest
+          .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
+          .mockImplementation();
+        autofillOrchestrator.fillCipher.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",

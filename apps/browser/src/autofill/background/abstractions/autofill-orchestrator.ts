@@ -1,12 +1,9 @@
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import {
-  AutoFillOptions,
-  AutoFillResult,
-  PageDetail,
-} from "../../services/abstractions/autofill.service";
+import { AutoFillOptions, PageDetail } from "../../services/abstractions/autofill.service";
 import { AutofillTriageResponse } from "../../types/autofill-triage";
+import { FillResult } from "../../types/fill-result";
 
 /**
  * The single owner of fill execution in the background. It reduces every fill request — page load,
@@ -65,7 +62,7 @@ export abstract class AutofillOrchestrator {
    * Reports whether a fill ran and the TOTP to copy; a tab that is not the foreground/active tab
    * runs no fill (use {@link unsafeAutofillTabWithCipher} to bypass that check).
    */
-  abstract fillCipher(options: AutoFillOptions): Promise<AutoFillResult>;
+  abstract fillCipher(options: AutoFillOptions): Promise<FillResult>;
 
   /**
    * Collects a tab's page details and fills the given cipher into it.
@@ -77,7 +74,7 @@ export abstract class AutofillOrchestrator {
     tab: chrome.tabs.Tab,
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
-  ): Promise<AutoFillResult>;
+  ): Promise<FillResult>;
 
   /**
    * Collects a tab's page details and fills the given cipher into it, omitting the active-tab
@@ -94,5 +91,5 @@ export abstract class AutofillOrchestrator {
     tab: chrome.tabs.Tab,
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
-  ): Promise<AutoFillResult>;
+  ): Promise<FillResult>;
 }

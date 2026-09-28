@@ -371,6 +371,7 @@ import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/c
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
+import { shouldAutoCopyTotp } from "../autofill/types/fill-result";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -1690,8 +1691,10 @@ export default class MainBackground {
           return;
         }
 
+        // The user chose this cipher from the context menu, so a fill that placed nothing is
+        // mitigated by copying its code. See `autofill.design.md`, "Outcomes".
         const result = await this.autofillOrchestrator.autofillTabWithCipher(tab, cipher);
-        if (result.didAutofill && result.totp != null) {
+        if (shouldAutoCopyTotp(result)) {
           this.platformUtilsService.copyToClipboard(result.totp);
         }
       },

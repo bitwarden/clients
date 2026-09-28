@@ -65,6 +65,34 @@ submitted only into a frame that still resolves to an approved host at the step 
 Beyond that gate, automated login obeys the rules every fill obeys, including the foreground
 verification that keeps a submit off a background tab.
 
+## Outcomes
+
+Every fill attempt reports one of three outcomes:
+
+- **Filled** — a credential reached the page and was placed.
+- **Absent** — nothing was placed and nothing was refused: no field took the cipher. This is an
+  ordinary result. A page that carries no fields for the chosen cipher reaches it, as does one whose
+  frames report no fields at all.
+- **Denied** — the attempt never reached the page, because a fill invariant did not hold. Often, denied
+  attempts occur because the request was invalidated by a navigation event. Denial can also occur due
+  to a policy control (the request is not permitted) or a failed security check.
+
+Absent and denied outcomes are both forms of fill-failure. Their distinguishing feature is whether
+autofill operations should terminate or continue. A denied response terminates the request. An
+absent response may mitigate the failure (say, by copying a TOTP code).
+
+### Reading an outcome
+
+When a fill attempt uses a credential featuring a TOTP code, the current value of the code may be
+included in the response. Releasing the code follows the user's auto-copy preference and their
+entitlement to verification codes for that cipher. A denial forbids the release of a TOTP.
+
+> [!IMPORTANT]
+> Autofill performs TOTP fill operations onto the page. The outcome of a fill should not be
+> used to perform a secondary fill operation. It is permitted, however, to copy the code into
+> a different structure, such as the system clipboard,
+> [as governed by our security principles](https://contributing.bitwarden.com/architecture/security/principles/).
+
 ## The autofill service
 
 The autofill service's **fill operation** is a narrow primitive: given a concrete cipher and a
@@ -73,6 +101,9 @@ decision. The [orchestrator](./orchestrator.design.md) chooses the cipher, verif
 user is working in, and sequences the collect with other autofill operations. Keeping the
 fill contract narrow lets autofill's fill invariants live in one place rather than being
 re-derived at every entry point.
+
+The service applies **policy** during fill operations. This includes enforcing enterprise policy,
+reading a user's settings, and checking whether licensing entitlements permit an action.
 
 The service also carries broader, older autofill responsibilities including injecting the content scripts,
 driving the reprompt popout, event and TOTP handling. These are under active migration. The direction

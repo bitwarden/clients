@@ -9,36 +9,13 @@ import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { FillResult } from "../../types/fill-result";
 
 export interface PageDetail {
   frameId: number;
   tab: chrome.tabs.Tab;
   details: AutofillPageDetails;
 }
-
-/**
- * The outcome of an autofill attempt.
- *
- * @example
- * const result = await autofillService.doAutoFill(options);
- * if (result.didAutofill && result.totp != null) {
- *   copyToClipboard(result.totp);
- * }
- */
-export type AutoFillResult =
-  | {
-      /** Whether a fill script was dispatched to at least one frame. */
-      didAutofill: false;
-    }
-  | {
-      /** Whether a fill script was dispatched to at least one frame. */
-      didAutofill: true;
-      /** The TOTP code to copy after a successful login fill; absent when the fill produced no TOTP. */
-      totp?: string;
-    };
-
-/** The shared "no fill happened" outcome. Frozen so every no-fill path returns one instance. */
-export const DID_NOT_AUTOFILL: AutoFillResult = Object.freeze({ didAutofill: false });
 
 export interface AutoFillOptions {
   cipher: CipherView;
@@ -126,7 +103,7 @@ export abstract class AutofillService {
    * If you're calling this method, you're probably doing it wrong. Use the
    * {@link AutofillOrchestrator} to request an autofill!
    */
-  doAutoFill!: (options: AutoFillOptions) => Promise<AutoFillResult>;
+  doAutoFill!: (options: AutoFillOptions) => Promise<FillResult>;
   /** Non-null asserted. */
   setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
   /** Non-null asserted. */
@@ -135,5 +112,4 @@ export abstract class AutofillService {
     tab: chrome.tabs.Tab,
     action?: string,
   ) => Promise<boolean>;
-  getTotpCopyCode!: (cipher: CipherView) => Promise<string | undefined>;
 }

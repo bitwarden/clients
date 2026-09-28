@@ -51,21 +51,21 @@ import { getWebExtSender } from "../../platform/utils/web-ext-sender";
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result";
 import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
-  AutoFillResult,
   AutofillService as AutofillServiceInterface,
   COLLECT_PAGE_DETAILS_RESPONSE_COMMAND,
   FormData,
   GenerateFillScriptOptions,
-  DID_NOT_AUTOFILL,
   PageDetail,
 } from "./abstractions/autofill.service";
 import {
@@ -442,50 +442,43 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Resolves a cipher's TOTP code for clipboard copy when the caller can't rely on a successful
-   * fill to produce one (e.g., a hidden TOTP input that the fill script can't target). Applies
-   * the same premium/organization gate and auto-copy setting as {@link doAutoFill}.
+   * Reports an outcome together with the cipher's TOTP code and whether the user's preference
+   * permits copying it.
+   *
+   * NOTE: This method does not check subscription level; it returns the TOTP unconditionally.
+   *
+   * @param outcome How the attempt concluded.
+   * @param cipher The cipher whose code is under consideration.
    */
-  async getTotpCopyCode(cipher: CipherView): Promise<string | undefined> {
+  private async fillOutcomeWithTotp(
+    outcome: typeof AutofillOutcome.Filled | typeof AutofillOutcome.Absent,
+    cipher: CipherView,
+  ): Promise<FillOccurred> {
     if (cipher.type !== CipherType.Login || !cipher.login?.totp) {
-      return undefined;
+      return Object.freeze({ outcome });
     }
 
-    if (!(await this.getShouldAutoCopyTotp())) {
-      return undefined;
-    }
+    const canAutoCopyTotp = await this.getShouldAutoCopyTotp();
+    const totp = (await firstValueFrom(this.totpService.getCode$(cipher.login.totp))).code;
 
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    const canAccessPremium = activeAccount?.id
-      ? await firstValueFrom(
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
-        )
-      : false;
-
-    if (!canAccessPremium && !cipher.organizationUseTotp) {
-      return undefined;
-    }
-
-    return (await firstValueFrom(this.totpService.getCode$(cipher.login.totp))).code ?? undefined;
+    return Object.freeze({ outcome, totp: totp ?? undefined, canAutoCopyTotp });
   }
 
   /**
-   * Autofill a given tab with a given login item
-   * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
-   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
-   * of the successfully autofilled login, if any. A no-fill is reported as `{ didAutofill: false }`
-   * rather than a thrown exception.
-   * @throws Rejects when an unexpected error occurs during the fill; a no-fill is not an error and
-   * resolves to `{ didAutofill: false }`.
+   * Autofill a given tab with a given login item.
+   *
+   * @param options Instructions about the autofill operation, including tab and login item
+   * @returns A refused frame reports `denied` and terminates the request. A fill that placed
+   * nothing reports `absent`, which the caller may mitigate. See `autofill.design.md`, "Outcomes".
+   * @throws Rejects when an unexpected error occurs during the fill. Failing to fill is **not** an
+   * error.
    */
-  async doAutoFill(options: AutoFillOptions): Promise<AutoFillResult> {
+  async doAutoFill(options: AutoFillOptions): Promise<FillResult> {
     const tab = options.tab;
     const tabUrl = tab?.url;
     if (!tabUrl || !options.cipher || !options.pageDetails || !options.pageDetails.length) {
-      return DID_NOT_AUTOFILL;
+      return AUTOFILL_DENIED;
     }
-
-    let totp: string | null = null;
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     let canAccessPremium = false;
@@ -496,14 +489,14 @@ export default class AutofillService implements AutofillServiceInterface {
     }
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
 
+    // check for premium subscription entitlement or organizational policy
     const canUseTotp = canAccessPremium || options.cipher.organizationUseTotp;
 
-    let didAutofill = false;
-    await Promise.all(
-      options.pageDetails.map(async (pd) => {
-        // make sure we're still on correct tab
+    const outcomes = await Promise.all(
+      options.pageDetails.map(async (pd): Promise<AutofillOutcome> => {
+        // security: deny fills across tabs or when a navigation occurred
         if (pd.tab.id !== tab.id || pd.tab.url !== tab.url) {
-          return;
+          return AutofillOutcome.Denied;
         }
 
         // If we have a focused form, filter the page details to only include fields from that form
@@ -529,7 +522,7 @@ export default class AutofillService implements AutofillServiceInterface {
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
-          return;
+          return AutofillOutcome.Absent;
         }
 
         if (
@@ -538,13 +531,12 @@ export default class AutofillService implements AutofillServiceInterface {
           !options.allowUntrustedIframe
         ) {
           this.logService.info("Autofill on page load was blocked due to an untrusted iframe.");
-          return;
+          return AutofillOutcome.Denied;
         }
 
         // Add a small delay between operations
         fillScript.properties.delay_between_operations = 20;
 
-        didAutofill = true;
         if (!options.skipLastUsed && activeAccount?.id) {
           await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
@@ -564,34 +556,37 @@ export default class AutofillService implements AutofillServiceInterface {
           { frameId: pd.frameId },
         );
 
-        // Skip getting the TOTP code for clipboard in these cases
-        if (
-          options.cipher.type !== CipherType.Login ||
-          totp !== null ||
-          !canUseTotp ||
-          !options.cipher.login?.totp
-        ) {
-          return;
-        }
-
-        const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
-
-        totp = shouldAutoCopyTotp
-          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
-          : null;
+        return AutofillOutcome.Filled;
       }),
     );
 
-    if (didAutofill) {
+    // A placed credential outranks a refusal in another frame, and a refusal outranks a frame that
+    // simply had nothing to take.
+    let outcome: AutofillOutcome = AutofillOutcome.Absent;
+    if (outcomes.includes(AutofillOutcome.Denied)) {
+      outcome = AutofillOutcome.Denied;
+    }
+    if (outcomes.includes(AutofillOutcome.Filled)) {
+      outcome = AutofillOutcome.Filled;
+    }
+
+    // A refusal terminates the request, so the code is never resolved for it.
+    if (outcome === AutofillOutcome.Denied) {
+      return AUTOFILL_DENIED;
+    }
+
+    if (outcome === AutofillOutcome.Filled) {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientAutofilled,
         options.cipher.id,
       );
-      // Map the internal `null` (no TOTP) to the outcome's optional `totp`.
-      return { didAutofill: true, totp: totp ?? undefined };
-    } else {
-      return DID_NOT_AUTOFILL;
     }
+
+    if (canUseTotp) {
+      return await this.fillOutcomeWithTotp(outcome, options.cipher);
+    }
+
+    return Object.freeze({ outcome });
   }
 
   /**

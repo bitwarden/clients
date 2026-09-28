@@ -34,11 +34,10 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import {
-  AutoFillResult,
-  PageDetail,
-} from "../../../autofill/services/abstractions/autofill.service";
+import { AutofillOutcome } from "../../../autofill/enums/autofill-outcome.enum";
+import { PageDetail } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
+import { didFillOccur, FillResult, shouldAutoCopyTotp } from "../../../autofill/types/fill-result";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { devFlagEnabled } from "../../../platform/flags";
@@ -313,17 +312,23 @@ export class VaultPopupAutofillService {
     try {
       // The cipher is sent by id so decrypted vault data stays off the message channel.
       const response = await BrowserApi.sendMessageWithResponse<{
-        result?: AutoFillResult;
+        result?: FillResult;
       }>("fillCipherForPopup", { tabId: tab.id, tabUrl: tab.url, cipherId: cipher.id });
-      const outcome = response?.result;
-
-      if (!outcome?.didAutofill) {
+      const fillResult = response?.result;
+      if (!fillResult || !didFillOccur(fillResult)) {
         this._reportAutofillFailure();
         return false;
       }
 
-      if (outcome.totp != null) {
-        this.platformUtilService.copyToClipboard(outcome.totp, { window: window });
+      if (shouldAutoCopyTotp(fillResult)) {
+        this.platformUtilService.copyToClipboard(fillResult.totp, { window: window });
+      }
+
+      // An absent fill placed no credential, so it is reported as the failure it is even when
+      // copying the code mitigated it.
+      if (fillResult.outcome !== AutofillOutcome.Filled) {
+        this._reportAutofillFailure();
+        return false;
       }
     } catch (e: unknown) {
       // unexpected error occurred during autofill
@@ -396,13 +401,13 @@ export class VaultPopupAutofillService {
   ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
+    const filled = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
 
-    if (didAutofill && closePopup) {
+    if (filled && closePopup) {
       await this._closePopup(cipher, tab);
     }
 
-    return didAutofill;
+    return filled;
   }
 
   /**
@@ -439,9 +444,9 @@ export class VaultPopupAutofillService {
 
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
+    const filled = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
 
-    if (!didAutofill) {
+    if (!filled) {
       return false;
     }
 

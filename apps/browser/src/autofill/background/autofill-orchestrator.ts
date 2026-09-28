@@ -26,18 +26,23 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutofillLifecycleService,
   AutomationWorkflow,
 } from "../services/abstractions/autofill-lifecycle.service";
 import {
-  AutofillService,
   AutoFillOptions,
-  AutoFillResult,
-  DID_NOT_AUTOFILL,
+  AutofillService,
   PageDetail,
 } from "../services/abstractions/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
+import {
+  AUTOFILL_ABSENT,
+  AUTOFILL_DENIED,
+  FillResult,
+  shouldAutoCopyTotp,
+} from "../types/fill-result";
 
 import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 
@@ -239,7 +244,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     });
   }
 
-  async fillCipher(options: AutoFillOptions): Promise<AutoFillResult> {
+  async fillCipher(options: AutoFillOptions): Promise<FillResult> {
     return this.commit(options);
   }
 
@@ -247,10 +252,10 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     tab: chrome.tabs.Tab,
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
-  ): Promise<AutoFillResult> {
+  ): Promise<FillResult> {
     const pageDetails = await this.collectPageDetails(tab);
     if (pageDetails.length === 0) {
-      return DID_NOT_AUTOFILL;
+      return AUTOFILL_ABSENT;
     }
     const fill = { tab, cipher, pageDetails, ...CALLER_FILL_DEFAULTS, ...options };
     return this.fillCipher(fill);
@@ -260,10 +265,10 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     tab: chrome.tabs.Tab,
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
-  ): Promise<AutoFillResult> {
+  ): Promise<FillResult> {
     const pageDetails = await this.collectPageDetails(tab);
     if (pageDetails.length === 0) {
-      return DID_NOT_AUTOFILL;
+      return AUTOFILL_ABSENT;
     }
 
     // FIXME (PM-39579): gate these on the target tab's lifecycle state once that gate lands. Only "warm"
@@ -305,7 +310,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       allowTotpAutofill: true,
       autoSubmitLogin: true,
     });
-    if (result.didAutofill) {
+    if (result.outcome === AutofillOutcome.Filled) {
       this.cycleFillableCipher(tab.url);
     }
   }
@@ -370,13 +375,20 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
 
       // A commanded fill cycles the rotation so its next invocation offers the next cipher;
       // a page-load fill uses last-used/last-launched selection and leaves the rotation alone.
-      if (fromCommand && result.didAutofill) {
+      if (fromCommand && result.outcome === AutofillOutcome.Filled) {
         this.cycleFillableCipher(plan.cycleKey);
       }
 
-      // Login fills copy the TOTP and refresh the overlay ciphers when a fill occurred.
-      if (result.didAutofill && (request.kind === "pageLoad" || request.kind === "command")) {
-        this.copyTotp(result.totp);
+      // Login fills copy the TOTP and refresh the overlay ciphers once a credential is placed.
+      // Avoids overwriting the clipboard, since the user does not choose the filled cipher.
+      if (
+        result.outcome === AutofillOutcome.Filled &&
+        (request.kind === "pageLoad" || request.kind === "command")
+      ) {
+        if (shouldAutoCopyTotp(result)) {
+          this.platformUtilsService.copyToClipboard(result.totp);
+        }
+
         await this.updateOverlayCiphers();
       }
     } catch (error) {
@@ -547,22 +559,22 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   private async commit(
     options: AutoFillOptions,
     overrides: CommitOverrides = {},
-  ): Promise<AutoFillResult> {
+  ): Promise<FillResult> {
     // Fail safe: absent or any value other than an explicit `false` keeps the verification on.
     const requireForeground = overrides[requireActiveTab] !== false;
     const liveTab = await this.liveTargetTab(options.tab, requireForeground);
     if (!liveTab) {
-      return DID_NOT_AUTOFILL;
+      return AUTOFILL_DENIED;
     }
 
     // The target tab must still show the URL the fill was aimed at, so a tab that navigated
     // after the request is abandoned rather than filled.
     if (liveTab?.url !== options.tab.url) {
-      return DID_NOT_AUTOFILL;
+      return AUTOFILL_DENIED;
     }
 
     const result = await this.autofillService.doAutoFill(options);
-    if (result.didAutofill) {
+    if (result.outcome === AutofillOutcome.Filled) {
       await this.recordActiveAccountActivity();
     }
     return result;
@@ -635,11 +647,5 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       return;
     }
     await this.accountService.setAccountActivity(activeUserId, new Date(this.now()));
-  }
-
-  private copyTotp(totp: string | undefined) {
-    if (totp !== undefined) {
-      this.platformUtilsService.copyToClipboard(totp);
-    }
   }
 }

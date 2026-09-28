@@ -39,11 +39,9 @@ import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-p
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
-import {
-  AutofillService,
-  AutoFillResult,
-} from "../autofill/services/abstractions/autofill.service";
+import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
+import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -177,25 +175,24 @@ export default class RuntimeBackground {
         // The popup keeps the reprompt and TOTP copy in the foreground but dispatches the fill here.
         // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
         // the message channel.
-        const noFill: AutoFillResult = { didAutofill: false };
         if (!BrowserApi.senderIsInternal(sender, this.logService)) {
-          return noFill;
+          return AUTOFILL_DENIED;
         }
         // Rehydrate tab information; assert URL hasn't changed to verify message integrity
         const targetTab = await BrowserApi.getTab(msg.tabId);
         if (targetTab == null || targetTab.url !== msg.tabUrl) {
-          return noFill;
+          return AUTOFILL_DENIED;
         }
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((account) => account?.id)),
         );
         if (activeUserId == null) {
-          return noFill;
+          return AUTOFILL_DENIED;
         }
         const ciphers = await this.main.cipherService.getAllDecrypted(activeUserId);
         const cipher = ciphers.find((candidate) => candidate.id === msg.cipherId);
         if (cipher == null) {
-          return noFill;
+          return AUTOFILL_DENIED;
         }
         // The only sender of `fillCipherForPopup` is an extension page, as confirmed by the
         // `BrowserApi.senderIsInternal(sender)` guard above, so this is never reachable from a

@@ -21,12 +21,13 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { AutofillOutcome } from "../../../autofill/enums/autofill-outcome.enum";
 import {
-  AutoFillResult,
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
+import { FillResult } from "../../../autofill/types/fill-result";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { devFlagEnabled } from "../../../platform/flags";
@@ -313,13 +314,13 @@ describe("VaultPopupAutofillService", () => {
     let mockCipher: CipherView;
     // The popup routes the fill through the background; this is the controllable outcome the
     // background returns for a "fillCipherForPopup" request.
-    let fillOutcome: AutoFillResult;
+    let fillOutcome: FillResult;
 
     beforeEach(() => {
       mockCipher = new CipherView();
       mockCipher.type = CipherType.Login;
 
-      fillOutcome = { didAutofill: true };
+      fillOutcome = { outcome: AutofillOutcome.Filled };
       jest
         .spyOn(BrowserApi, "sendMessageWithResponse")
         .mockImplementation(async (command: string) =>
@@ -344,7 +345,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if autofill is not successful", async () => {
-        fillOutcome = { didAutofill: false };
+        fillOutcome = { outcome: AutofillOutcome.Absent };
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
         expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -357,7 +358,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false and surface an error toast if the background fill dispatch rejects unexpectedly", async () => {
-        // The background reports a no-fill as a value ({ didAutofill: false }), but a genuine failure
+        // The background reports a refusal or an empty fill as a value, but a genuine failure
         // mid-dispatch still rejects; the retained catch keeps that from becoming an unhandled rejection.
         const error = new Error("boom");
         jest
@@ -399,7 +400,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false when the background reports no fillable page details", async () => {
-        fillOutcome = { didAutofill: false };
+        fillOutcome = { outcome: AutofillOutcome.Absent };
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
         expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
@@ -417,10 +418,42 @@ describe("VaultPopupAutofillService", () => {
         expect(result).toBe(false);
       });
 
+      it("copies the code and still reports failure when the attempt filled nothing", async () => {
+        mockCipher.id = "test-cipher-id-with-totp";
+        fillOutcome = {
+          outcome: AutofillOutcome.Absent,
+          totp: "123456",
+          canAutoCopyTotp: true,
+        };
+
+        const result = await service.doAutofill(mockCipher);
+
+        expect(mockPlatformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+          "123456",
+          expect.anything(),
+        );
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: null,
+          message: mockI18nService.t("autofillError"),
+        });
+        expect(result).toBe(false);
+      });
+
+      it("copies nothing when the background refuses the fill", async () => {
+        mockCipher.id = "test-cipher-id-with-totp";
+        fillOutcome = { outcome: AutofillOutcome.Denied };
+
+        const result = await service.doAutofill(mockCipher);
+
+        expect(mockPlatformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+        expect(result).toBe(false);
+      });
+
       it("should copy TOTP code to clipboard if available", async () => {
         mockCipher.id = "test-cipher-id-with-totp";
         const totpCode = "123456";
-        fillOutcome = { didAutofill: true, totp: totpCode };
+        fillOutcome = { outcome: AutofillOutcome.Filled, totp: totpCode, canAutoCopyTotp: true };
         await service.doAutofill(mockCipher);
         expect(mockPlatformUtilsService.copyToClipboard).toHaveBeenCalledWith(
           totpCode,
@@ -508,7 +541,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if autofill is not successful", async () => {
-        fillOutcome = { didAutofill: false };
+        fillOutcome = { outcome: AutofillOutcome.Absent };
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(false);
         expect(mockToastService.showToast).toHaveBeenCalledWith({

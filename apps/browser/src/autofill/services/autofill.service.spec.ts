@@ -54,6 +54,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { stampWebExtSender } from "../../platform/utils/web-ext-sender";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -790,34 +791,69 @@ describe("AutofillService", () => {
       it("reports no fill if the tab is not provided", async () => {
         autofillOptions.tab = undefined;
 
-        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({ didAutofill: false });
+        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({
+          outcome: AutofillOutcome.Denied,
+        });
       });
 
       it("reports no fill if the cipher is not provided", async () => {
         autofillOptions.cipher = undefined;
 
-        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({ didAutofill: false });
+        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({
+          outcome: AutofillOutcome.Denied,
+        });
       });
 
       it("reports no fill if the page details are not provided", async () => {
         autofillOptions.pageDetails = undefined;
 
-        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({ didAutofill: false });
+        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({
+          outcome: AutofillOutcome.Denied,
+        });
       });
 
       it("reports no fill if the page details are empty", async () => {
         autofillOptions.pageDetails = [];
 
-        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({ didAutofill: false });
+        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({
+          outcome: AutofillOutcome.Denied,
+        });
       });
 
-      it("reports no fill if an autofill did not occur for any of the passed pages", async () => {
-        autofillOptions.tab.url = "https://a-different-url.com";
+      // One refused frame does not undo a credential placed in another: the fill happened, and the
+      // caller needs to know it happened.
+      it("reports a fill when another frame was refused", async () => {
         jest
           .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
           .mockImplementation(() => of(true));
+        autofillOptions.pageDetails.push({
+          ...autofillOptions.pageDetails[0],
+          frameId: 2,
+          tab: createChromeTabMock({ url: "https://a-different-url.com" }),
+        });
 
-        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({ didAutofill: false });
+        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({
+          outcome: AutofillOutcome.Filled,
+          totp: undefined,
+        });
+      });
+
+      // Page details describing a different page than the target mean the cipher was chosen
+      // against something the frame no longer shows, so the fill is refused rather than empty.
+      it("refuses the fill when the page details describe a different page", async () => {
+        autofillOptions.tab.url = "https://a-different-url.com";
+        autofillOptions.cipher.login.totp = "totp-seed";
+        autofillOptions.cipher.organizationUseTotp = true;
+        jest
+          .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+          .mockImplementation(() => of(true));
+        jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
+        totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
+
+        // A refusal releases nothing, so no code rides along even though policy would allow one.
+        expect(await autofillService.doAutoFill(autofillOptions)).toEqual({
+          outcome: AutofillOutcome.Denied,
+        });
       });
     });
 
@@ -884,7 +920,7 @@ describe("AutofillService", () => {
         EventType.Cipher_ClientAutofilled,
         autofillOptions.cipher.id,
       );
-      expect(autofillResult).toEqual({ didAutofill: true });
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Filled });
     });
 
     it("sends showAnimations as false when enableAutofillAnimation$ emits false", async () => {
@@ -988,14 +1024,19 @@ describe("AutofillService", () => {
     it("blocks autofill on an untrusted iframe", async () => {
       autofillOptions.allowUntrustedIframe = false;
       autofillOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(false);
+      autofillOptions.cipher.login.totp = "totp-seed";
+      autofillOptions.cipher.organizationUseTotp = true;
       jest.spyOn(logService, "info");
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
+      totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(logService.info).toHaveBeenCalledWith(
         "Autofill on page load was blocked due to an untrusted iframe.",
       );
-      expect(autofillResult).toEqual({ didAutofill: false });
+      // An untrusted frame is refused, not empty, so no code is released for it.
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Denied });
     });
 
     it("allows autofill on an untrusted iframe if the passed option allowing untrusted iframes is set to true", async () => {
@@ -1027,7 +1068,7 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateFillScript"]).toHaveBeenCalled();
       expect(BrowserApi.tabSendMessage).not.toHaveBeenCalled();
-      expect(autofillResult).toEqual({ didAutofill: false });
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Absent });
     });
 
     it("returns a TOTP value", async () => {
@@ -1043,7 +1084,11 @@ describe("AutofillService", () => {
 
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
       expect(totpService.getCode$).toHaveBeenCalledWith(autofillOptions.cipher.login.totp);
-      expect(autofillResult).toEqual({ didAutofill: true, totp: totpCode });
+      expect(autofillResult).toEqual({
+        outcome: AutofillOutcome.Filled,
+        totp: totpCode,
+        canAutoCopyTotp: true,
+      });
     });
 
     it("does not return a TOTP value if the user does not have premium features", async () => {
@@ -1059,7 +1104,7 @@ describe("AutofillService", () => {
 
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
       expect(totpService.getCode$).not.toHaveBeenCalled();
-      expect(autofillResult).toEqual({ didAutofill: true });
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Filled });
     });
 
     it("leaves the passed cipher's TOTP seed intact when the user does not have premium features", async () => {
@@ -1088,16 +1133,27 @@ describe("AutofillService", () => {
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(totpService.getCode$).toHaveBeenCalledWith("totp");
-      expect(autofillResult).toEqual({ didAutofill: true, totp: totpCode });
+      expect(autofillResult).toEqual({
+        outcome: AutofillOutcome.Filled,
+        totp: totpCode,
+        canAutoCopyTotp: true,
+      });
     });
 
     it("reports a fill with no TOTP if the cipher type is not for a Login", async () => {
       autofillOptions.cipher.type = CipherType.Identity;
       autofillOptions.cipher.identity = mock<IdentityView>();
+      // Entitlement and a seed are both present, so the cipher's type is the only thing that can
+      // withhold the code.
+      autofillOptions.cipher.organizationUseTotp = true;
+      autofillOptions.cipher.login.totp = "totp-seed";
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
-      expect(autofillResult).toEqual({ didAutofill: true });
+      expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Filled });
     });
 
     it("reports a fill with no TOTP if the login does not contain a TOTP value", async () => {
@@ -1109,7 +1165,7 @@ describe("AutofillService", () => {
 
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
       expect(totpService.getCode$).not.toHaveBeenCalled();
-      expect(autofillResult).toEqual({ didAutofill: true });
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Filled });
     });
 
     it("reports a fill with no TOTP if the user cannot access premium and the organization does not use TOTP", async () => {
@@ -1121,95 +1177,49 @@ describe("AutofillService", () => {
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
-      expect(autofillResult).toEqual({ didAutofill: true });
+      expect(autofillResult).toEqual({ outcome: AutofillOutcome.Filled });
     });
 
-    it("reports a fill with no TOTP if the user has disabled `auto TOTP copy`", async () => {
+    // The preference decides whether the code may be copied without asking, not whether the
+    // attempt releases one.
+    it("withholds auto-copy when the user has disabled `auto TOTP copy`", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = true;
       jest
         .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
         .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
-      jest.spyOn(totpService, "getCode$");
+      totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
-      expect(totpService.getCode$).not.toHaveBeenCalled();
-      expect(autofillResult).toEqual({ didAutofill: true });
+      expect(autofillResult).toEqual({
+        outcome: AutofillOutcome.Filled,
+        totp: "123456",
+        canAutoCopyTotp: false,
+      });
     });
-  });
 
-  describe("getTotpCopyCode", () => {
-    let cipher: CipherView;
-
-    beforeEach(() => {
-      cipher = mock<CipherView>({ type: CipherType.Login });
-      cipher.login.totp = "totp-seed";
-      cipher.organizationUseTotp = false;
+    // A verification code does not depend on the page, so an attempt that placed nothing still
+    // releases one. A second-factor step whose only field goes unrecognised reaches this.
+    it("reports a code with an absent fill when nothing on the page could be filled", async () => {
+      autofillOptions.cipher.login.totp = "totp-seed";
+      autofillOptions.cipher.organizationUseTotp = true;
+      autofillOptions.pageDetails[0].details.fields = [];
       jest
         .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
         .mockImplementation(() => of(true));
       jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
       totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
-    });
 
-    it("returns the computed TOTP code when premium and auto-copy setting are on", async () => {
-      const result = await autofillService.getTotpCopyCode(cipher);
+      const autofillResult = await autofillService.doAutoFill(autofillOptions);
 
-      expect(result).toBe("123456");
-      expect(totpService.getCode$).toHaveBeenCalledWith("totp-seed");
-    });
-
-    it("returns undefined when the cipher is not a Login", async () => {
-      cipher.type = CipherType.Identity;
-
-      const result = await autofillService.getTotpCopyCode(cipher);
-
-      expect(result).toBeUndefined();
-      expect(totpService.getCode$).not.toHaveBeenCalled();
-    });
-
-    it("returns undefined when the cipher has no TOTP seed", async () => {
-      cipher.login.totp = undefined;
-
-      const result = await autofillService.getTotpCopyCode(cipher);
-
-      expect(result).toBeUndefined();
-      expect(totpService.getCode$).not.toHaveBeenCalled();
-    });
-
-    it("returns undefined when auto-copy TOTP is disabled", async () => {
-      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
-
-      const result = await autofillService.getTotpCopyCode(cipher);
-
-      expect(result).toBeUndefined();
-      expect(totpService.getCode$).not.toHaveBeenCalled();
-    });
-
-    it("returns undefined for a non-premium user whose cipher's organization does not use TOTP", async () => {
-      jest
-        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
-        .mockImplementation(() => of(false));
-      cipher.organizationUseTotp = false;
-
-      const result = await autofillService.getTotpCopyCode(cipher);
-
-      expect(result).toBeUndefined();
-      expect(totpService.getCode$).not.toHaveBeenCalled();
-    });
-
-    it("returns the code for a non-premium user when the organization uses TOTP", async () => {
-      jest
-        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
-        .mockImplementation(() => of(false));
-      cipher.organizationUseTotp = true;
-
-      const result = await autofillService.getTotpCopyCode(cipher);
-
-      expect(result).toBe("123456");
+      expect(autofillResult).toEqual({
+        outcome: AutofillOutcome.Absent,
+        totp: "123456",
+        canAutoCopyTotp: true,
+      });
     });
   });
 

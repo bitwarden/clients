@@ -22,7 +22,9 @@ A fill separates into a step that only observes and a step that acts:
   safe wherever a frame is engaged.
 - A **commit** places a credential. It is the one guarded, effectful step: it confirms the target is
   safe to fill, dispatches the fill, and — only if a credential was actually placed — runs the
-  fill's user-visible effects.
+  effects it books itself. Effects owned by the surface that asked for the fill, such as copying a
+  verification code, are that surface's to run and follow their own rule (see
+  [Autofill: Outcomes](./autofill.design.md#outcomes)).
 
 Keeping these apart is load-bearing, not stylistic: every protection a credential needs belongs with
 the commit, at the moment the credential is placed, and never with the harmless read. Between the two

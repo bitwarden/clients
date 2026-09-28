@@ -11,17 +11,14 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutomatedLoginStepReady,
   AutomationWorkflow,
   AutofillLifecycleService,
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
-import {
-  AutoFillResult,
-  AutofillService,
-  PageDetail,
-} from "../services/abstractions/autofill.service";
+import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -29,6 +26,7 @@ import {
   createPageDetailMock,
 } from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
+import { FillResult } from "../types/fill-result";
 
 import {
   DefaultAutofillOrchestrator,
@@ -100,8 +98,8 @@ describe("DefaultAutofillOrchestrator", () => {
 
   // A promise whose resolution the test controls, so it can hold a fill in flight.
   const deferred = () => {
-    let resolve!: (value: AutoFillResult) => void;
-    const promise = new Promise<AutoFillResult>((r) => (resolve = r));
+    let resolve!: (value: FillResult) => void;
+    const promise = new Promise<FillResult>((r) => (resolve = r));
     return { promise, resolve };
   };
 
@@ -155,7 +153,7 @@ describe("DefaultAutofillOrchestrator", () => {
 
     autofillService = mock<AutofillService>();
     autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
-    autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+    autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Absent });
     autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
     cipherService = mock<CipherService>();
     cipherService.getLastLaunchedForUrl.mockResolvedValue(undefined as unknown as CipherView);
@@ -212,7 +210,11 @@ describe("DefaultAutofillOrchestrator", () => {
       jest
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 1, url }));
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
+      autofillService.doAutoFill.mockResolvedValue({
+        outcome: AutofillOutcome.Filled,
+        totp: "999999",
+        canAutoCopyTotp: true,
+      });
 
       emitPageTransition(pd);
       await flushPromises();
@@ -252,7 +254,11 @@ describe("DefaultAutofillOrchestrator", () => {
       jest
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 1, url }));
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
+      autofillService.doAutoFill.mockResolvedValue({
+        outcome: AutofillOutcome.Filled,
+        totp: "999999",
+        canAutoCopyTotp: true,
+      });
 
       emitPageTransition(pd);
       await flushPromises();
@@ -521,13 +527,17 @@ describe("DefaultAutofillOrchestrator", () => {
     it("does not copy or refresh the overlay when the fill matched nothing", async () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+      autofillService.doAutoFill.mockResolvedValue({
+        outcome: AutofillOutcome.Absent,
+        totp: "123456",
+        canAutoCopyTotp: true,
+      });
 
       emitPageTransition(pd);
       await flushPromises();
 
       // Account activity, the overlay refresh, and the TOTP copy are all follow-ons of a fill that
-      // used a credential; when the fill matched nothing (`didAutofill: false`) none of them run.
+      // used a credential; when the fill places nothing, none of them run.
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
       expect(updateOverlayCiphers).not.toHaveBeenCalled();
@@ -561,7 +571,11 @@ describe("DefaultAutofillOrchestrator", () => {
       const cipher = makeCipher(CipherType.Login);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "111111" });
+      autofillService.doAutoFill.mockResolvedValue({
+        outcome: AutofillOutcome.Filled,
+        totp: "111111",
+        canAutoCopyTotp: true,
+      });
 
       autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
@@ -637,7 +651,7 @@ describe("DefaultAutofillOrchestrator", () => {
         // The row names the selection method for its type, so the case's cipher is wired without a
         // branch on cipherType.
         cipherService[selector].mockResolvedValue(cipher);
-        autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+        autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
         autofillOrchestrator.autofillActiveTabForCipherType(pd.tab, cipherType);
         await flushPromises();
@@ -697,7 +711,7 @@ describe("DefaultAutofillOrchestrator", () => {
       );
       const cipher = makeCipher(CipherType.Login);
       cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
       autofillOrchestrator.autofillActiveTabFromCommand(tab);
       await flushPromises();
@@ -772,7 +786,7 @@ describe("DefaultAutofillOrchestrator", () => {
 
       // The tab is removed while the first is in flight: the queued second is abandoned.
       removeTab(1);
-      inFlight.resolve({ didAutofill: false });
+      inFlight.resolve({ outcome: AutofillOutcome.Absent });
       await flushPromises();
 
       expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
@@ -795,8 +809,8 @@ describe("DefaultAutofillOrchestrator", () => {
       // Neither has resolved, yet both are in flight — different frames do not serialize.
       expect(autofillService.doAutoFill).toHaveBeenCalledTimes(2);
 
-      first.resolve({ didAutofill: false });
-      second.resolve({ didAutofill: false });
+      first.resolve({ outcome: AutofillOutcome.Absent });
+      second.resolve({ outcome: AutofillOutcome.Absent });
       await flushPromises();
     });
   });
@@ -1011,7 +1025,11 @@ describe("DefaultAutofillOrchestrator", () => {
     it("fills a caller-supplied cipher into the foreground tab and returns the outcome", async () => {
       const tab = createChromeTabMock({ id: 1 });
       const pd = pageDetail(1, 0);
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
+      autofillService.doAutoFill.mockResolvedValue({
+        outcome: AutofillOutcome.Filled,
+        totp: "999999",
+        canAutoCopyTotp: true,
+      });
 
       const result = await autofillOrchestrator.fillCipher({
         tab,
@@ -1022,7 +1040,11 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({ tab, pageDetails: [pd] }),
       );
-      expect(result).toEqual({ didAutofill: true, totp: "999999" });
+      expect(result).toEqual({
+        outcome: AutofillOutcome.Filled,
+        totp: "999999",
+        canAutoCopyTotp: true,
+      });
     });
 
     it("security: refuses a caller-supplied fill onto a tab that is not the foreground tab", async () => {
@@ -1041,7 +1063,7 @@ describe("DefaultAutofillOrchestrator", () => {
       });
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
+      expect(result).toEqual({ outcome: AutofillOutcome.Denied });
     });
   });
 
@@ -1050,14 +1072,22 @@ describe("DefaultAutofillOrchestrator", () => {
       const pd = pageDetail(1, 0);
       const cipher = { id: "c1" } as any;
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
+      autofillService.doAutoFill.mockResolvedValue({
+        outcome: AutofillOutcome.Filled,
+        totp: "999999",
+        canAutoCopyTotp: true,
+      });
 
       const result = await autofillOrchestrator.autofillTabWithCipher(pd.tab, cipher);
 
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({ tab: pd.tab, cipher, pageDetails: [pd] }),
       );
-      expect(result).toEqual({ didAutofill: true, totp: "999999" });
+      expect(result).toEqual({
+        outcome: AutofillOutcome.Filled,
+        totp: "999999",
+        canAutoCopyTotp: true,
+      });
       // A fill is account activity regardless of the entry point.
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
     });
@@ -1075,10 +1105,10 @@ describe("DefaultAutofillOrchestrator", () => {
       const result = await autofillOrchestrator.autofillTabWithCipher(pd.tab, { id: "c1" } as any);
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
+      expect(result).toEqual({ outcome: AutofillOutcome.Denied });
     });
 
-    it("does not fill and reports didAutofill=false when the collect is empty", async () => {
+    it("does not fill and reports an absent outcome when the collect is empty", async () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
       const result = await autofillOrchestrator.autofillTabWithCipher(
@@ -1087,7 +1117,7 @@ describe("DefaultAutofillOrchestrator", () => {
       );
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
+      expect(result).toEqual({ outcome: AutofillOutcome.Absent });
     });
   });
 
@@ -1097,7 +1127,7 @@ describe("DefaultAutofillOrchestrator", () => {
       // fills its explicit sender tab, which need not be the current-window active tab.
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
       jest
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 2 }));
@@ -1107,10 +1137,10 @@ describe("DefaultAutofillOrchestrator", () => {
       } as any);
 
       expect(autofillService.doAutoFill).toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: true });
+      expect(result).toEqual({ outcome: AutofillOutcome.Filled });
     });
 
-    it("does not fill and reports didAutofill=false when the collect is empty", async () => {
+    it("does not fill and reports an absent outcome when the collect is empty", async () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
       const result = await autofillOrchestrator.unsafeAutofillTabWithCipher(
@@ -1119,13 +1149,13 @@ describe("DefaultAutofillOrchestrator", () => {
       );
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
+      expect(result).toEqual({ outcome: AutofillOutcome.Absent });
     });
 
     it("abandons an unsafe fill when the target tab navigated since it was captured", async () => {
       const target = createChromeTabMock({ id: 1, url: DEFAULT_URL });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
       jest
         .spyOn(BrowserApi, "getTab")
         .mockResolvedValue(createChromeTabMock({ id: 1, url: "https://navigated.example" }));
@@ -1135,7 +1165,7 @@ describe("DefaultAutofillOrchestrator", () => {
       } as any);
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
-      expect(result).toEqual({ didAutofill: false });
+      expect(result).toEqual({ outcome: AutofillOutcome.Denied });
     });
   });
 
@@ -1146,7 +1176,7 @@ describe("DefaultAutofillOrchestrator", () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
 
-      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
       await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
 
@@ -1159,7 +1189,7 @@ describe("DefaultAutofillOrchestrator", () => {
           autoSubmitLogin: true,
         }),
       );
-      // A submit that filled used a credential, so the url's rotation advances (inside commit).
+      // A submit that filled used a credential, so the url's rotation advances once commit returns.
       expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(pd.tab.url);
     });
 

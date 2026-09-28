@@ -75,6 +75,7 @@ import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
@@ -87,6 +88,7 @@ import {
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
+import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
   areKeyValuesNull,
   generateDomainMatchPatterns,
@@ -1515,23 +1517,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill leaves nothing to copy and no use to record. `didAutofill: false` also carries the
-    // orchestrator's foreground and navigation refusals, and a fill refused because the target could
-    // not be confirmed must not put a credential on the clipboard.
-    //
-    // FIXME: this costs the hidden-TOTP-only page, where the service legitimately fills nothing and
-    // still holds a code worth copying. Recovering it requires TOTP to become a commit effect the
-    // orchestrator owns, so that a refusal and a genuine no-fill stop sharing one result.
-    if (!result.didAutofill) {
+    // A denial terminates the request.
+    if (!didFillOccur(result)) {
       return;
     }
 
-    // A fill with no TOTP target doesn't imply no TOTP: some sites hide the TOTP input so the fill
-    // script can't target it. Still resolve + copy when the user explicitly chose a TOTP-bearing
-    // cipher.
-    const totpCode = result.totp ?? (await this.autofillService.getTotpCopyCode(cipher));
-    if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    if (shouldAutoCopyTotp(result)) {
+      this.platformUtilsService.copyToClipboard(result.totp);
+    }
+
+    // Last-used records a credential the user actually placed, so an attempt that filled nothing
+    // leaves the ordering alone.
+    if (result.outcome !== AutofillOutcome.Filled) {
+      return;
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -2327,7 +2325,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      const { didAutofill } = await this.autofillOrchestrator.fillCipher({
+      const generatedPasswordFill = await this.autofillOrchestrator.fillCipher({
         tab: senderTab,
         cipher,
         pageDetails,
@@ -2339,9 +2337,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       });
 
       // The follow-on modify-login message only makes sense when a password was actually filled;
-      // gate on the outcome so a no-fill does not arm it (a no-fill previously aborted here by throw).
+      // gate on the outcome so an attempt that placed nothing does not arm it.
       const frameId = this.focusedFieldData?.frameId;
-      if (didAutofill && frameId !== null && frameId !== undefined) {
+      if (
+        generatedPasswordFill.outcome === AutofillOutcome.Filled &&
+        frameId !== null &&
+        frameId !== undefined
+      ) {
         globalThis.setTimeout(() => {
           BrowserApi.tabSendMessage(
             senderTab,
