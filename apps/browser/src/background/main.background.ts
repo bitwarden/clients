@@ -297,12 +297,14 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -631,7 +633,11 @@ export default class MainBackground {
     };
 
     const isDev = process.env.ENV === "development";
-    this.logService = new ConsoleLogService(isDev);
+    this.logService = new ConsoleLogService(
+      isDev,
+      null,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
+    );
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
@@ -796,7 +802,6 @@ export default class MainBackground {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
     );
@@ -840,7 +845,6 @@ export default class MainBackground {
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -852,7 +856,6 @@ export default class MainBackground {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 

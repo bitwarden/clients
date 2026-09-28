@@ -4635,6 +4635,10 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
     "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
   },
@@ -4652,6 +4656,40 @@
   },
   "selectImportFile": {
     "message": "Select the import file"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Choose File"
@@ -6379,11 +6417,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."

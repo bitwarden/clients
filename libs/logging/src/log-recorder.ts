@@ -14,4 +14,10 @@ export interface LogRecorder {
    * breaking the log call.
    */
   record(level: LogLevel, message?: any, ...optionalParams: any[]): void;
+
+  /**
+   * Enables or disables recording. Only the first call has an effect. Events are
+   * queued until then, so a recorder that is never enabled records nothing.
+   */
+  setEnabled(enabled: boolean): void;
 }

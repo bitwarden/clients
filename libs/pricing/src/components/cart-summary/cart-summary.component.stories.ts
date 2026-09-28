@@ -61,12 +61,18 @@ export default {
                   return "due on";
                 case "premiumSubscriptionCredit":
                   return "Premium subscription credit";
+                case "accountCredit":
+                  return "Account credit";
                 case "appliedSubscriptionCredits":
                   return "Applied subscription credits";
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
                 case "discount":
                   return "discount";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -413,6 +419,22 @@ export const WithCredit: Story = {
         value: 25.0,
       },
       estimatedTax: 10.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithAppliedBalance: Story = {
+  name: "With Applied Account Balance (Premium Renewal)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: { quantity: 1, translationKey: "premiumMembership", cost: 19.8 },
+      },
+      cadence: "annually",
+      estimatedTax: 1.58,
+      total: 21.38,
+      appliedBalance: 12.96,
+      amountDue: 8.42,
     } satisfies Cart,
   },
 };
