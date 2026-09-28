@@ -14,7 +14,8 @@ platform :mac do
   desc "Prepare release notes from changelog"
   lane :prepare_release_notes do |options|
     # Used as supplied: bitwarden/deploy's format-release-notes action formats it.
-    changelog = options[:changelog] || "Bug fixes and improvements"
+    changelog = options[:changelog]
+    UI.user_error!("❌ changelog is required") if changelog.nil? || changelog.empty?
     
     UI.message("Release notes: ")
     UI.message("#{changelog}")
@@ -56,7 +57,7 @@ platform :mac do
   lane :publish do |options|
     build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
     app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
-    changelog = options[:changelog] || "Bug fixes and improvements"
+    changelog = options[:changelog]
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
     
     if is_dry_run
