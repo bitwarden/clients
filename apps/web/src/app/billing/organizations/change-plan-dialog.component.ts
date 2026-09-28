@@ -252,10 +252,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   /**
    * Signal holding the current plan change request.
    */
-  // Value equality so a rebuilt-but-identical request (e.g. re-focusing the same plan) doesn't refetch.
+  // Field equality so a rebuilt request that's identical doesn't refetch.
   private readonly planChangeRequest = signal<OrganizationPlanChangePreviewRequest | undefined>(
     undefined,
-    { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+    {
+      equal: (a, b) =>
+        a?.tier === b?.tier &&
+        a?.cadence === b?.cadence &&
+        a?.country === b?.country &&
+        a?.postalCode === b?.postalCode,
+    },
   );
 
   /**
