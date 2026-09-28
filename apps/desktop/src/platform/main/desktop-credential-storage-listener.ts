@@ -21,7 +21,7 @@ export class DesktopCredentialStorageListener {
         }
 
         // Biometric is internal to the main process and must not be exposed via IPC
-        if (serviceName === this.serviceName + "_biometric") {
+        if (serviceName.includes("biometric")) {
           return;
         }
 

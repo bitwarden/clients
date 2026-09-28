@@ -36,8 +36,9 @@ describe("DesktopCredentialStorageListener", () => {
 
   describe("biometric IPC gate", () => {
     // The renderer must not be able to reach the biometric slot through the
-    // keytar IPC channel. The gate compares the resolved service name against
-    // `${baseServiceName}_biometric` and short-circuits when they match.
+    // keytar IPC channel. The gate short-circuits when the resolved service
+    // name contains "biometric", so the guarantee holds even if the base
+    // service name derived from `app.getName()` changes.
 
     it("blocks renderer access to the biometric slot on the stable channel", async () => {
       const handler = captureKeytarHandler("Bitwarden");
