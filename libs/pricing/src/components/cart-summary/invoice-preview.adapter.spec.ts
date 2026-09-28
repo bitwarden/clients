@@ -475,7 +475,7 @@ describe("adaptInvoicePreviewToCart", () => {
             prorations: [{ credit: 2, charge: 18, tax: 0, total: 16, months: 6 }],
           },
         }),
-        InvoicePreviewFlowContext.OrganizationPlanChange,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
