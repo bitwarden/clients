@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal, viewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, Type, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,6 +15,21 @@ import { BitTableV2Component } from "./table-v2.component";
 type Row = { name: string; vault: string; folder: string; actions: string };
 
 const mockI18nService = { t: (key: string) => key };
+
+/** No `StateProvider` here, so preferences fall back to the in-memory session store. */
+async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
+  await TestBed.configureTestingModule({
+    imports: [host],
+    providers: [
+      { provide: I18nService, useValue: mockI18nService },
+      { provide: DialogService, useValue: {} },
+    ],
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(host);
+  fixture.detectChanges();
+  return fixture;
+}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,19 +81,9 @@ describe("BitTableV2Component column customization", () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let host: TestHostComponent;
 
-  /** No `StateProvider` here, so preferences fall back to the in-memory session store. */
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
-      providers: [
-        { provide: I18nService, useValue: mockI18nService },
-        { provide: DialogService, useValue: {} },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(TestHostComponent);
+    fixture = await renderHost(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   const table = () => host.tableCmp();
@@ -135,12 +140,13 @@ describe("BitTableV2Component column customization", () => {
   });
 
   it("drops the hidden column's track from the grid", () => {
-    expect(table().gridTemplateColumns()).toBe("100px 100px 100px 100px");
+    // Every column here is fixed, so the first is freed to fill the row — see "row fill fallback".
+    expect(table().gridTemplateColumns()).toBe("minmax(100px, 1fr) 100px 100px 100px");
 
     table().setColumnHidden("vault", true);
     fixture.detectChanges();
 
-    expect(table().gridTemplateColumns()).toBe("100px 100px 100px");
+    expect(table().gridTemplateColumns()).toBe("minmax(100px, 1fr) 100px 100px");
   });
 
   it("toggles a column back on", () => {
@@ -265,5 +271,87 @@ describe("BitTableV2Component column customization", () => {
           .map((r) => r.name),
       ).toEqual(before);
     });
+  });
+});
+
+/** Bounded everywhere except Folder, which the user can hide — stripping the row of its only `fr`. */
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+  ],
+  template: `
+    <bit-table-v2 [tableDef]="table" customizeKey="fill-table">
+      <bit-column width="minmax(240px, 480px)">
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+      <bit-column customizable width="100px">
+        <bit-header-cell>Vault</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.vault; let row">{{ row.vault }}</bit-cell>
+      </bit-column>
+      <bit-column customizable width="minmax(140px, 1fr)">
+        <bit-header-cell>Folder</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.folder; let row">{{ row.folder }}</bit-cell>
+      </bit-column>
+      <bit-column width="160px">
+        <bit-header-cell>Actions</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.actions; let row">{{ row.actions }}</bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class RowFillHostComponent {
+  readonly rows = signal<Row[]>([{ name: "one", vault: "v", folder: "f", actions: "a" }]);
+  readonly table = defineTable<Row>(this.rows);
+  readonly tableCmp = viewChild.required(BitTableV2Component);
+}
+
+describe("BitTableV2Component row fill fallback", () => {
+  let fixture: ComponentFixture<RowFillHostComponent>;
+
+  beforeEach(async () => {
+    fixture = await renderHost(RowFillHostComponent);
+  });
+
+  const table = () => fixture.componentInstance.tableCmp();
+
+  it("leaves the first column bounded while another visible column is flexible", () => {
+    expect(table().gridTemplateColumns()).toBe(
+      "minmax(240px, 480px) 100px minmax(140px, 1fr) 160px",
+    );
+  });
+
+  it("frees the first column's max once the last flexible track is hidden", () => {
+    table().setColumnHidden("folder", true);
+    fixture.detectChanges();
+
+    expect(table().gridTemplateColumns()).toBe("minmax(240px, 1fr) 100px 160px");
+  });
+
+  it("restores the declared width when the flexible column comes back", () => {
+    table().setColumnHidden("folder", true);
+    fixture.detectChanges();
+    table().setColumnHidden("folder", false);
+    fixture.detectChanges();
+
+    expect(table().gridTemplateColumns()).toBe(
+      "minmax(240px, 480px) 100px minmax(140px, 1fr) 160px",
+    );
+  });
+
+  it("keeps a fixed first column's length as the minimum", () => {
+    const name = table()
+      .availableColumns()
+      .find((c) => c.name() === "name")!;
+    jest.spyOn(name, "width").mockReturnValue("100px");
+    table().setColumnHidden("folder", true);
+    fixture.detectChanges();
+
+    expect(table().gridTemplateColumns()).toBe("minmax(100px, 1fr) 100px 160px");
   });
 });

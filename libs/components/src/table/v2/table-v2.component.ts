@@ -63,6 +63,22 @@ const SELECTION_COLUMN_WIDTH = "56px";
 /** Shared empty set, so an uncustomized table's `hiddenColumnNames` keeps a stable identity. */
 const EMPTY_COLUMN_NAMES: ReadonlySet<string> = Object.freeze(new Set<string>());
 
+/** The `min` of a `minmax(min, max)` track. */
+const MINMAX_MIN = /^minmax\(\s*([^,]+?)\s*,/;
+
+/**
+ * Whether a track can absorb the row's leftover width: only an `fr` max grows. `fr` is invalid
+ * as a `minmax` min, so a trailing `fr` can only be the max.
+ */
+function growsToFill(width: string): boolean {
+  return /fr\)?$/.test(width.trim());
+}
+
+/** The same track with its minimum intact and its max freed: `240px` becomes `minmax(240px, 1fr)`. */
+function grown(width: string): string {
+  return `minmax(${MINMAX_MIN.exec(width)?.[1] ?? width.trim()}, 1fr)`;
+}
+
 /**
  * Fixed heights (px) of group headers when virtualized. Must match the header chrome
  * in {@link BitTableV2Component.groupHeaderClass}.
@@ -688,13 +704,13 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (cols.length === 0) {
       return undefined;
     }
-    const parts: string[] = [];
-    if (this.selectionModel()) {
-      parts.push(SELECTION_COLUMN_WIDTH);
+    const widths = cols.map((col) => col.width() ?? "1fr");
+    // Hiding a column can strip the row of its last flexible track. The first column can never
+    // be hidden, so it is the one track always there to absorb the slack.
+    if (!widths.some(growsToFill)) {
+      widths[0] = grown(widths[0]);
     }
-    for (const col of cols) {
-      parts.push(col.width() ?? "1fr");
-    }
+    const parts = this.selectionModel() ? [SELECTION_COLUMN_WIDTH, ...widths] : widths;
     return parts.join(" ");
   });
 

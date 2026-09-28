@@ -143,6 +143,13 @@ at all. Stick to `px` / `fr` / `minmax`.
 
 The selection checkbox column is a fixed `56px` and isn't configurable.
 
+**A row always fills its width.** If every visible column has a bounded max, nothing is left to
+absorb the remainder — the cells would stop short while the row's background, border and hover fill
+span the full width. So when no visible column can grow, the table keeps the first column's minimum
+and frees its max: `minmax(240px, 480px)` becomes `minmax(240px, 1fr)`. The first column is the one
+that can never be hidden, so it is always there to take the slack. Nothing to opt into, and a table
+with a flexible column is unaffected.
+
 ### Columns without a data field
 
 For columns that don't map to a field on your row type — action buttons, expand/collapse, and the
@@ -230,6 +237,8 @@ Rules worth knowing:
   remembered for when it returns.
 - **Not offered in `list` presentation**, which has no header, or below the `md` breakpoint. That is
   what keeps the feature out of the browser extension and narrow viewports.
+- **Hiding the last flexible column is safe.** The table frees the first column's max so the row
+  still fills its width. See [Column sizing](#column-sizing).
 
 ### Reusable columns
 
