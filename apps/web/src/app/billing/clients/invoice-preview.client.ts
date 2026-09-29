@@ -41,8 +41,8 @@ export type OrganizationPlanChangePreviewRequest = {
  * through `InvoicePreviewService`, which owns both.
  *
  * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
- * until the corresponding server ticket lands. 404s deliberately propagate: while the routes do
- * not exist, "route missing" must stay distinguishable from "no subscription".
+ * while the flag is off. 404s deliberately propagate so "route gated" stays distinguishable from
+ * "no subscription".
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewClient {

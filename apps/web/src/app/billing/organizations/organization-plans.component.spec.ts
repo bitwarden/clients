@@ -3069,10 +3069,9 @@ describe("OrganizationPlansComponent", () => {
 
     const scenarioFCart = {
       passwordManager: {
-        seats: { translationKey: "familiesMembership", cost: 40, quantity: 1 },
+        seats: { translationKey: "familiesMembership", cost: 0, quantity: 1 },
       },
       cadence: "annually",
-      discounts: [{ type: DiscountTypes.AmountOff, value: 40, label: "Families sponsorship" }],
       estimatedTax: 0,
       total: 0,
     } as unknown as Cart;
@@ -3232,7 +3231,7 @@ describe("OrganizationPlansComponent", () => {
         expect(purchase.passwordManager.additionalStorage).toBe(2);
       }));
 
-      it("shows the server's sponsorship label rather than the client-side AmountOff", fakeAsync(() => {
+      it("renders the server's sponsored seat line without a client-side sponsorship discount", fakeAsync(() => {
         mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioFCart);
         fixture.componentRef.setInput("acceptingSponsorship", true);
 
@@ -3241,10 +3240,11 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
-        expect(component["cart"]().discounts).toEqual([
-          { type: DiscountTypes.AmountOff, value: 40, label: "Families sponsorship" },
-        ]);
-        expect(component["cart"]().total).toBe(0);
+        const cart = component["cart"]();
+        expect(cart).toBe(scenarioFCart);
+        expect(cart.passwordManager.seats.cost).toBe(0);
+        expect(cart.discounts).toBeUndefined();
+        expect(cart.total).toBe(0);
       }));
     });
 
@@ -3280,6 +3280,22 @@ describe("OrganizationPlansComponent", () => {
         enterValidAddress();
         tick(1500);
 
+        expect(lastPurchase().secretsManager).toBeUndefined();
+      }));
+
+      it("omits Secrets Manager left enabled from a previous plan when switching to Families", fakeAsync(() => {
+        selectTeams();
+        component["secretsManagerSubscription"].patchValue({
+          enabled: true,
+          userSeats: 4,
+          additionalServiceAccounts: 3,
+        });
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        enterValidAddress();
+        tick(1500);
+
+        expect(lastPurchase().tier).toBe("families");
         expect(lastPurchase().secretsManager).toBeUndefined();
       }));
 

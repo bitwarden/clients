@@ -981,13 +981,15 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         additionalStorage,
         sponsored,
       },
-      secretsManager: this.formGroup.value.secretsManager?.enabled
-        ? {
-            seats: this.secretsManagerForm.value.userSeats ?? 0,
-            additionalServiceAccounts: this.secretsManagerForm.value.additionalServiceAccounts ?? 0,
-            standalone: false,
-          }
-        : undefined,
+      secretsManager:
+        this.planOffersSecretsManager() && this.formGroup.value.secretsManager?.enabled
+          ? {
+              seats: this.secretsManagerForm.value.userSeats ?? 0,
+              additionalServiceAccounts:
+                this.secretsManagerForm.value.additionalServiceAccounts ?? 0,
+              standalone: false,
+            }
+          : undefined,
     };
   }
 
