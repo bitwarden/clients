@@ -1237,6 +1237,7 @@ describe("VaultComponent", () => {
 
     beforeEach(() => {
       newExperienceDialogSpy.mockClear();
+      newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Dismissed);
       nudgesSvc.showNudgeSpotlight$.mockImplementation((type: NudgeType) =>
         of(type === NudgeType.Vfo1NewExperience),
       );
@@ -1264,7 +1265,16 @@ describe("VaultComponent", () => {
       );
     }));
 
-    it("dismisses the nudge once the dialog closes, so it does not return", fakeAsync(() => {
+    it("dismisses the nudge when the dialog is shown, so it does not return", fakeAsync(() => {
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, "user-1");
+    }));
+
+    it("dismisses the nudge even when the dialog never closes", fakeAsync(() => {
+      // "Learn more" opens a new tab, which tears the popup down before the dialog can close.
+      newExperienceDialogSpy.mockReturnValue(new Promise(() => {}));
+
       initVault();
 
       expect(nudgesSvc.dismissNudge).toHaveBeenCalledWith(NudgeType.Vfo1NewExperience, "user-1");

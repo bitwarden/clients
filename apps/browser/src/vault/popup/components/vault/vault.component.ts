@@ -493,13 +493,14 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Dismissed as soon as the dialog renders rather than once it closes: the "learn more" link
+    // opens a new tab, which tears down the popup before any close handler can run.
+    await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, userId);
+
     await NewExperienceDialogComponent.open(this.dialogService, {
       lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
     });
-
-    // Dismissed however the dialog closed — exploring and closing both count as having seen it.
-    await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, userId);
   }
 
   ngOnDestroy() {
