@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
-import { CipherListView, UnsignedSharedKey } from "@bitwarden/sdk-internal";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
@@ -304,19 +304,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to the decrypted cipher view.
    */
   abstract decrypt(cipher: Cipher, userId: UserId): Promise<CipherView>;
-  /**
-   * Decrypts a grantor's ciphers shared through emergency access.
-   *
-   * @param grantorKey The grantor's user key, encapsulated to the grantee's public key
-   * @param ciphers The grantor's encrypted ciphers
-   * @param userId The grantee's user ID
-   * @returns A promise that resolves to the decrypted cipher views.
-   */
-  abstract decryptEmergencyAccess(
-    grantorKey: UnsignedSharedKey,
-    ciphers: Cipher[],
-    userId: UserId,
-  ): Promise<CipherView[]>;
   /**
    * Decrypts an attachment's content from a response object.
    *
