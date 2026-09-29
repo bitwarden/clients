@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "இம்போர்ட் கோப்பைத் தேர்ந்தெடுக்கவும்"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "கோப்பைத் தேர்ந்தெடுக்கவும்"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "கணக்கு கடன்",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "கணக்கு இருப்பு",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "பணம் செலுத்தும் முறையைச் சேர்க்க இங்கே கிளிக் செய்யவும்."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "நிறுவனத்தில் சேரவும்"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "தற்போதுள்ள மற்றும் புதிய உறுப்பினர்கள் அனைவருக்கும் உலாவி நீட்டிப்பில் பக்கம் ஏற்றப்படும் போது தானாக நிரப்பும் அமைப்பை இயக்கவும். பாதிக்கப்பட்ட அல்லது நம்பத்தகாத வலைத்தளங்களால் பின்வரும் பாதிப்பு ஏற்படக்கூடும் என்பதை அறிந்து கொள்ளவும்: "
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "பக்கம் ஏற்றப்படும் போது தானாக நிரப்புதலை தவறாகப் பயன்படுத்தலாம்"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "நீங்கள் sponsor செய்ய விரும்பும் நிறுவனத்தைத் தேர்ந்தெடுக்கவும்"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "எந்த இலவச குடும்பங்கள் சலுகையை நீங்கள் ரிடீம் செய்ய விரும்புகிறீர்கள்?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "இருக்கும் ஒரு நிறுவனத்திற்கான சலுகையை ஏற்கவும் அல்லது ஒரு புதிய குடும்பங்கள் நிறுவனத்தை உருவாக்கவும்."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "உங்களுக்கு ஒரு இலவச Bitwarden குடும்பங்கள் திட்ட நிறுவனம் வழங்கப்பட்டுள்ளது. தொடர, சலுகையைப் பெற்ற கணக்கில் நீங்கள் உள்நுழைய வேண்டும்."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "இலவச Bitwarden குடும்பங்களை ஏற்கவும்"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "இலவச Bitwarden குடும்பங்கள் சலுகை வெற்றிகரமாக ரிடீம் செய்யப்பட்டது"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "நிறுவனத்துடன் இணைக்க ஒரு கட்டண முறையை வழங்கவும். கவலைப்பட வேண்டாம், நீங்கள் கூடுதல் அம்சங்களைத் தேர்ந்தெடுத்தாலோ அல்லது உங்கள் sponsorship காலாவதியானாலோ தவிர நாங்கள் உங்களிடம் எதுவும் கட்டணம் வசூலிக்க மாட்டோம். "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Sponsorship சலுகை காலாவதியாகிவிட்டது. உங்கள் 7 நாள் சோதனையின் முடிவில் கட்டணம் வசூலிக்கப்படுவதைத் தவிர்க்க நீங்கள் உருவாக்கிய நிறுவனத்தை நீக்கலாம். இல்லையெனில், நிறுவனத்தை வைத்துக்கொண்டு பில்லிங் பொறுப்பை ஏற்க இந்த அறிவுறுத்தலை மூடலாம்."
   },
   "newFamiliesOrganization": {
     "message": "புதிய குடும்பங்கள் நிறுவனம்"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "சலுகையை ஏற்கவும்"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Sponsor செய்யும் நிறுவனம்"
