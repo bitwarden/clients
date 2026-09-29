@@ -21,14 +21,20 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import { FillAssistPolicy, FillAssistPolicyComponent } from "./fill-assist.component";
+import { FillAssistPolicy, FillAssistPolicyComponent, RuleSource } from "./fill-assist.component";
 
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
 const DEFAULT_URL = "https://fillassist.bitwarden.com";
-// Host+path form of the default, matching what appears in the form input
-// (the `https://` is rendered as an uneditable `bitPrefix` in the template).
-const DEFAULT_URL_HOST_PATH = "fillassist.bitwarden.com";
+// A historical value of DEFAULT_FILL_ASSIST_RULES_URL that must still be
+// recognized as "Default" by the UI so legacy policies don't silently flip
+// to Custom. Kept in sync with LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS in
+// libs/common/src/autofill/constants/index.ts.
+const LEGACY_GITHUB_URL = "https://github.com/bitwarden/map-the-web/releases/latest/download";
+const CUSTOM_URL = "https://custom.example.com/rules";
+// Host+path form of a custom URL (the `https://` is rendered as an uneditable
+// `bitPrefix` in the template).
+const CUSTOM_URL_HOST_PATH = "custom.example.com/rules";
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -117,84 +123,190 @@ describe("FillAssistPolicyComponent", () => {
     component = fixture.componentInstance;
   });
 
-  it("defaults rulesUrl to the host+path of the Bitwarden default", () => {
-    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
-  });
-
-  it("strips the https:// prefix when loading rulesUrl from policy data on init", () => {
-    // Stored data is a canonical full URL; the form shows just the host+path
-    // because the template renders `https://` as an uneditable `bitPrefix`.
-    const customUrl = "https://fillassist.bitwarden.com";
-    fixture.componentRef.setInput(
-      "policyResponse",
-      makePolicyResponse(true, { rulesUrl: customUrl }),
-    );
-
-    component.ngOnInit();
-
-    expect(component.data?.value?.rulesUrl).toBe("fillassist.bitwarden.com");
-  });
-
-  it("keeps the default rulesUrl when policy data is null", () => {
-    fixture.componentRef.setInput("policyResponse", makePolicyResponse(false, null));
-
-    component.ngOnInit();
-
-    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
-  });
-
-  it("keeps the default rulesUrl when policy data has no rulesUrl field", () => {
-    // The server returns `{}` (not `null`) for a policy that has never been
-    // configured, so the base class DOES call loadData. The override must not
-    // clear the form's constructor default when there's nothing to strip.
-    fixture.componentRef.setInput("policyResponse", makePolicyResponse(false, {}));
-
-    component.ngOnInit();
-
-    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
-  });
-
-  it("marks the form invalid when rulesUrl is empty", () => {
-    component.data?.patchValue({ rulesUrl: "" });
-
-    expect(component.data?.invalid).toBe(true);
-  });
-
-  it("marks the form invalid when rulesUrl is not a valid URL", () => {
-    component.data?.patchValue({ rulesUrl: "not a url" });
-
-    expect(component.data?.invalid).toBe(true);
-  });
-
-  it("accepts a valid host+path value", () => {
-    component.data?.patchValue({ rulesUrl: "example.com/rules" });
-
-    expect(component.data?.valid).toBe(true);
-  });
-
-  describe("rulesUrl enabled state mirrors the policy toggle", () => {
-    it("disables the rulesUrl field when the policy is disabled", () => {
-      component.enabled.setValue(false);
-
-      expect(component.data?.controls.rulesUrl.disabled).toBe(true);
+  describe("initial state", () => {
+    it("defaults ruleSource to Default", () => {
+      expect(component.data?.value?.ruleSource).toBe(RuleSource.Default);
     });
 
-    it("enables the rulesUrl field when the policy is enabled", () => {
-      component.enabled.setValue(true);
+    it("starts with rulesUrl empty (no user input yet)", () => {
+      expect(component.data?.controls.rulesUrl.value).toBe("");
+    });
+
+    it("disables the rulesUrl control on init (Default is selected)", () => {
+      // Default source doesn't need a URL, so the URL control is disabled to
+      // exclude it from form validation. Enabled only when Custom is selected.
+      expect(component.data?.controls.rulesUrl.disabled).toBe(true);
+    });
+  });
+
+  describe("loadData", () => {
+    it("selects Default and clears rulesUrl when policy data has no rulesUrl field", () => {
+      // The server returns `{}` (not `null`) for a policy that has never been
+      // configured; base class calls loadData with that empty object.
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false, {}));
+
+      component.ngOnInit();
+
+      expect(component.data?.value?.ruleSource).toBe(RuleSource.Default);
+      expect(component.data?.controls.rulesUrl.value).toBe("");
+    });
+
+    it("leaves initial state when policy data is null (no loadData call)", () => {
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false, null));
+
+      component.ngOnInit();
+
+      expect(component.data?.value?.ruleSource).toBe(RuleSource.Default);
+      expect(component.data?.controls.rulesUrl.value).toBe("");
+    });
+
+    it("selects Default when stored rulesUrl matches the current default constant", () => {
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { rulesUrl: DEFAULT_URL }),
+      );
+
+      component.ngOnInit();
+
+      expect(component.data?.value?.ruleSource).toBe(RuleSource.Default);
+      expect(component.data?.controls.rulesUrl.value).toBe("");
+    });
+
+    it("selects Default when stored rulesUrl is a legacy default value", () => {
+      // Locks in the legacy-URL recognition: policies saved before the
+      // current default constant was adopted must not silently flip to
+      // Custom pointing at the old URL. Keeps legacy policies from surprising
+      // admins in the UI.
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { rulesUrl: LEGACY_GITHUB_URL }),
+      );
+
+      component.ngOnInit();
+
+      expect(component.data?.value?.ruleSource).toBe(RuleSource.Default);
+      expect(component.data?.controls.rulesUrl.value).toBe("");
+    });
+
+    it("selects Custom and populates rulesUrl (host+path) when stored URL is not a default", () => {
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { rulesUrl: CUSTOM_URL }),
+      );
+
+      component.ngOnInit();
+
+      expect(component.data?.value?.ruleSource).toBe(RuleSource.Custom);
+      expect(component.data?.value?.rulesUrl).toBe(CUSTOM_URL_HOST_PATH);
+    });
+  });
+
+  describe("radio switching", () => {
+    it("enables the rulesUrl control when the admin switches to Custom", () => {
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
 
       expect(component.data?.controls.rulesUrl.enabled).toBe(true);
     });
 
-    it("preserves the rulesUrl value across disable/enable transitions", () => {
+    it("disables the rulesUrl control when the admin switches back to Default", () => {
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
+      component.data?.patchValue({ ruleSource: RuleSource.Default });
+
+      expect(component.data?.controls.rulesUrl.disabled).toBe(true);
+    });
+
+    it("preserves the rulesUrl value across radio toggles within the session", () => {
+      // Within-session URL preservation: an admin who enters a URL, briefly
+      // switches to Default, then switches back should not lose their input.
+      // Lets them cancel a change without re-typing.
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
       component.data?.patchValue({ rulesUrl: "example.com/rules" });
-      component.enabled.setValue(false);
-      component.enabled.setValue(true);
+      component.data?.patchValue({ ruleSource: RuleSource.Default });
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
 
       expect(component.data?.controls.rulesUrl.value).toBe("example.com/rules");
     });
   });
 
-  describe("protocol handling on user input", () => {
+  describe("URL validation (Custom source, policy enabled)", () => {
+    beforeEach(() => {
+      // URL validators fire only when the policy is enabled AND Custom is
+      // selected. Policy-off skips URL validation entirely so an admin can
+      // save-and-disable without also fixing a URL that's about to become
+      // inert.
+      component.enabled.setValue(true);
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
+    });
+
+    it("marks the form invalid when rulesUrl is empty", () => {
+      component.data?.patchValue({ rulesUrl: "" });
+
+      expect(component.data?.invalid).toBe(true);
+    });
+
+    it("reports the custom error message when rulesUrl is empty", () => {
+      // Empty and invalid URL share the same error shape so the form field
+      // renders the caller's message rather than the framework's default
+      // "required" text.
+      component.data?.patchValue({ rulesUrl: "" });
+
+      expect(component.data?.get("rulesUrl")?.errors).toEqual({
+        url: { message: "invalidFillAssistRulesUrl" },
+      });
+    });
+
+    it("marks the form invalid when rulesUrl is not a valid URL", () => {
+      component.data?.patchValue({ rulesUrl: "not a url" });
+
+      expect(component.data?.invalid).toBe(true);
+    });
+
+    it("accepts a valid host+path value", () => {
+      component.data?.patchValue({ rulesUrl: "example.com/rules" });
+
+      expect(component.data?.valid).toBe(true);
+    });
+  });
+
+  describe("form validity with Default selected", () => {
+    it("is valid even when rulesUrl is empty", () => {
+      // Default doesn't require a URL, so the URL control is disabled and
+      // its validators don't affect form validity.
+      component.data?.patchValue({ ruleSource: RuleSource.Default, rulesUrl: "" });
+
+      expect(component.data?.valid).toBe(true);
+    });
+  });
+
+  describe("form validity when the policy is disabled", () => {
+    it("is valid when Custom + empty URL if the policy toggle is off", () => {
+      // The URL is inert when the policy is off (never fetched, never used),
+      // so it shouldn't block Save. This is the fix for the case where an
+      // admin toggles the policy off after seeing a URL validation error and
+      // finds the Save button still disabled.
+      component.enabled.setValue(false);
+      component.data?.patchValue({ ruleSource: RuleSource.Custom, rulesUrl: "" });
+
+      expect(component.data?.valid).toBe(true);
+    });
+
+    it("is valid when Custom + invalid URL if the policy toggle is off", () => {
+      component.enabled.setValue(false);
+      component.data?.patchValue({ ruleSource: RuleSource.Custom, rulesUrl: "not a url" });
+
+      expect(component.data?.valid).toBe(true);
+    });
+  });
+
+  describe("protocol handling on user input (Custom source, policy enabled)", () => {
+    beforeEach(() => {
+      // URL validators only fire when the policy is enabled AND Custom is
+      // selected. These tests exercise the URL validator branches, so both
+      // conditions must hold.
+      component.enabled.setValue(true);
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
+    });
+
     it("strips https:// prefix on blur", () => {
       component.data?.patchValue({ rulesUrl: "https://example.com/rules" });
       (component as any).onRulesUrlBlur();
@@ -257,77 +369,109 @@ describe("FillAssistPolicyComponent", () => {
     });
   });
 
-  it("prepends https:// when building the save request", async () => {
-    fixture.componentRef.setInput("policy", new FillAssistPolicy());
-    component.data?.patchValue({ rulesUrl: "acme.example.com/rules" });
-
-    const request = await component.buildRequest();
-
-    expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
-  });
-
-  it("does not double-prefix https:// when the form value already has it", async () => {
-    // Enter-key submission skips the blur handler, so a pasted `https://…`
-    // can still be in the raw form value at save time. buildRequestData must
-    // be idempotent — strip any existing prefix before prepending.
-    fixture.componentRef.setInput("policy", new FillAssistPolicy());
-    component.data?.patchValue({ rulesUrl: "https://acme.example.com/rules" });
-
-    const request = await component.buildRequest();
-
-    expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
-  });
-
-  it("trims surrounding whitespace before saving", async () => {
-    // `new URL()` tolerates surrounding whitespace, so this string passes the
-    // validator; without trimming it silently 404s downstream.
-    fixture.componentRef.setInput("policy", new FillAssistPolicy());
-    component.data?.patchValue({ rulesUrl: "  acme.example.com/rules  " });
-
-    const request = await component.buildRequest();
-
-    expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
-  });
-
-  it.each([["acme.example.com/rules/"], ["acme.example.com/rules//"]])(
-    "strips trailing slash(es) before saving: %s",
-    async (input) => {
-      // Stored value must be canonical; downstream URL composition adds its own
-      // separator when joining with the manifest filename.
+  describe("buildRequest — Default source", () => {
+    it("submits DEFAULT_FILL_ASSIST_RULES_URL when Default is selected", async () => {
+      // This test locks in the sentinel behavior: the client stores the
+      // default constant as a signal meaning "use the current default,"
+      // and the resolver falls through to server config on read. Changing
+      // this behavior would silently break existing "Default" policies —
+      // see comments on DEFAULT_FILL_ASSIST_RULES_URL and the design intent
+      // note in fill-assist.component.ts buildRequestData.
       fixture.componentRef.setInput("policy", new FillAssistPolicy());
-      component.data?.patchValue({ rulesUrl: input });
+
+      const request = await component.buildRequest();
+
+      expect(request.policy.data?.rulesUrl).toBe(DEFAULT_URL);
+    });
+
+    it("submits DEFAULT_FILL_ASSIST_RULES_URL regardless of any URL value in the form", async () => {
+      // If the admin typed a URL under Custom, then switched to Default and
+      // saved, we submit the default sentinel (not the stale URL). The form
+      // preserves the URL locally for within-session UX, but doesn't leak
+      // it into the request.
+      fixture.componentRef.setInput("policy", new FillAssistPolicy());
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
+      component.data?.patchValue({ rulesUrl: "example.com/rules" });
+      component.data?.patchValue({ ruleSource: RuleSource.Default });
+
+      const request = await component.buildRequest();
+
+      expect(request.policy.data?.rulesUrl).toBe(DEFAULT_URL);
+    });
+
+    it("does not throw when saving an enabled policy without a rulesUrl (Default)", async () => {
+      fixture.componentRef.setInput("policy", new FillAssistPolicy());
+      component.enabled.setValue(true);
+
+      await expect(component.buildRequest()).resolves.toBeDefined();
+    });
+  });
+
+  describe("buildRequest — Custom source", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("policy", new FillAssistPolicy());
+      component.data?.patchValue({ ruleSource: RuleSource.Custom });
+    });
+
+    it("prepends https:// when building the save request", async () => {
+      component.data?.patchValue({ rulesUrl: "acme.example.com/rules" });
 
       const request = await component.buildRequest();
 
       expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
-    },
-  );
+    });
 
-  it("saves the default URL as a canonical full URL when unchanged", async () => {
-    fixture.componentRef.setInput("policy", new FillAssistPolicy());
+    it("does not double-prefix https:// when the form value already has it", async () => {
+      // Enter-key submission skips the blur handler, so a pasted `https://…`
+      // can still be in the raw form value at save time. buildRequestData must
+      // be idempotent — strip any existing prefix before prepending.
+      component.data?.patchValue({ rulesUrl: "https://acme.example.com/rules" });
 
-    const request = await component.buildRequest();
+      const request = await component.buildRequest();
 
-    expect(request.policy.data?.rulesUrl).toBe(DEFAULT_URL);
-  });
+      expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+    });
 
-  it("throws when saving an enabled policy without a rulesUrl", async () => {
-    fixture.componentRef.setInput("policy", new FillAssistPolicy());
-    component.enabled.setValue(true);
-    component.data?.patchValue({ rulesUrl: "" });
+    it("trims surrounding whitespace before saving", async () => {
+      // `new URL()` tolerates surrounding whitespace, so this string passes the
+      // validator; without trimming it silently 404s downstream.
+      component.data?.patchValue({ rulesUrl: "  acme.example.com/rules  " });
 
-    await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrl");
-  });
+      const request = await component.buildRequest();
 
-  it("does not throw when saving a disabled policy without a rulesUrl", async () => {
-    // The URL is meaningful only while the policy is enabled. If the admin
-    // clears the URL and then toggles the policy off, the save must succeed —
-    // the input is greyed out at that point so there is no way to fix it.
-    fixture.componentRef.setInput("policy", new FillAssistPolicy());
-    component.enabled.setValue(false);
-    component.data?.patchValue({ rulesUrl: "" });
+      expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+    });
 
-    await expect(component.buildRequest()).resolves.toBeDefined();
+    it.each([["acme.example.com/rules/"], ["acme.example.com/rules//"]])(
+      "strips trailing slash(es) before saving: %s",
+      async (input) => {
+        // Stored value must be canonical; downstream URL composition adds its own
+        // separator when joining with the manifest filename.
+        component.data?.patchValue({ rulesUrl: input });
+
+        const request = await component.buildRequest();
+
+        expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+      },
+    );
+
+    it("throws when saving an enabled policy without a rulesUrl", async () => {
+      component.enabled.setValue(true);
+      component.data?.patchValue({ rulesUrl: "" });
+
+      await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrl");
+    });
+
+    it("does not throw when saving a disabled policy without a rulesUrl", async () => {
+      // The URL is only meaningful while the policy is enabled. If the admin
+      // has cleared the URL and the policy is off, the save must succeed —
+      // the input's blank state is not something the user can fix at that
+      // point (the toggle would need to come back on first).
+      component.enabled.setValue(false);
+      component.data?.patchValue({ rulesUrl: "" });
+
+      await expect(component.buildRequest()).resolves.toBeDefined();
+    });
   });
 
   describe("isCloud$", () => {

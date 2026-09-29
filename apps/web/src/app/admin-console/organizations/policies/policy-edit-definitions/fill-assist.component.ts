@@ -8,14 +8,16 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators,
 } from "@angular/forms";
-import { Observable, map } from "rxjs";
+import { Observable, map, startWith } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
-import { DEFAULT_FILL_ASSIST_RULES_URL } from "@bitwarden/common/autofill/constants";
+import {
+  DEFAULT_FILL_ASSIST_RULES_URL,
+  LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS,
+} from "@bitwarden/common/autofill/constants";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -24,6 +26,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import {
   FormFieldModule,
   LinkModule,
+  RadioButtonModule,
   SwitchComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -62,19 +65,24 @@ function stripHttpsPrefix(value: string): string {
 const SCHEME_ATTEMPT = /^[a-z][a-z0-9+-]*:/i;
 
 /**
- * Validates the input's host/path portion. Any leading `https://` (or in-progress
- * forms `https:`, `https:/`) is stripped here first so the validator's view matches
- * what the blur handler will leave in the input.
+ * Validates a required host/path portion. Empty input, a bare partial `https://`
+ * prefix, an unsupported protocol attempt, or anything the WHATWG URL parser
+ * rejects all fail with the same `{ url: { message } }` shape — so the
+ * form-field renders a single consistent error message from the caller instead
+ * of the framework's default "required" text.
  *
- * Any remaining scheme attempt after that strip is an unsupported protocol (`http`,
- * `ftp`, etc.) — including the single-slash `http:/foo` form that the WHATWG URL
- * parser would otherwise accept as an empty-port hostname.
+ * Any leading `https://` (or in-progress forms `https:`, `https:/`) is stripped
+ * first so the validator's view matches what the blur handler will leave in
+ * the input. A scheme attempt after that strip is an unsupported protocol
+ * (`http`, `ftp`, etc.), including the single-slash `http:/foo` form that the
+ * WHATWG URL parser would otherwise accept as an empty-port hostname.
  */
-function hostPathValidator(errorMessage: string): ValidatorFn {
+function requiredHostPathValidator(errorMessage: string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const raw: string = control.value;
     if (!raw) {
-      return null;
+      // Required check surfaces the caller's message rather than the default.
+      return { url: { message: errorMessage } };
     }
     const value = stripHttpsPrefix(raw);
     if (!value) {
@@ -91,6 +99,27 @@ function hostPathValidator(errorMessage: string): ValidatorFn {
       return { url: { message: errorMessage } };
     }
   };
+}
+
+/** Options for the rule-source radio group. */
+export const RuleSource = Object.freeze({
+  Default: "default",
+  Custom: "custom",
+} as const);
+export type RuleSource = (typeof RuleSource)[keyof typeof RuleSource];
+
+/**
+ * True if the stored URL should be interpreted as "use the default rules."
+ * Empty/absent URL, the current default constant, or any historical default
+ * value all count as Default. Legacy policies saved before the current
+ * constant value was adopted are recognized via the historical set — see
+ * `libs/common/src/autofill/constants/index.ts`.
+ */
+function isDefaultRulesUrl(url: string | null | undefined): boolean {
+  if (!url) {
+    return true;
+  }
+  return url === DEFAULT_FILL_ASSIST_RULES_URL || LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS.has(url);
 }
 
 export class FillAssistPolicy extends BasePolicyEditDefinition {
@@ -120,6 +149,7 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
     ReactiveFormsModule,
     FormFieldModule,
     LinkModule,
+    RadioButtonModule,
     SwitchComponent,
     TypographyModule,
     I18nPipe,
@@ -129,6 +159,8 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
   private readonly environmentService = inject(EnvironmentService);
+
+  protected readonly RuleSource = RuleSource;
 
   // Self-hosted deployments configure the rules feed via their server config,
   // not per-org — so the URL field is hidden and only the enable toggle is shown.
@@ -140,30 +172,48 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     super();
 
     this.data = this.formBuilder.group({
-      rulesUrl: new FormControl<string>(stripHttpsPrefix(DEFAULT_FILL_ASSIST_RULES_URL), {
-        validators: [
-          Validators.required,
-          hostPathValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
-        ],
-        nonNullable: true,
-      }),
+      ruleSource: new FormControl<RuleSource>(RuleSource.Default, { nonNullable: true }),
+      rulesUrl: new FormControl<string>("", { nonNullable: true }),
     });
 
-    // Mirror the policy's enabled/disabled state to the URL field. Let enable/disable
-    // emit their events so the parent form's `statusChanges` re-publishes — otherwise
-    // a cached `INVALID` from an earlier bad URL would leave Save stuck disabled after
-    // toggling the policy off.
-    this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((isEnabled) => {
-      const control = this.data?.controls.rulesUrl;
-      if (!control) {
-        return;
-      }
-      if (isEnabled) {
-        control.enable();
+    const ruleSourceControl = this.data.controls.ruleSource;
+    const rulesUrlControl = this.data.controls.rulesUrl;
+
+    // Default source doesn't need a URL; disable the field so its validators
+    // don't block the form. Enable when the admin switches to Custom. The
+    // field's value is preserved across toggles (disable/enable doesn't clear
+    // the value), so a URL entered under Custom, momentarily switched to
+    // Default, and switched back reappears — the admin can cancel without
+    // losing their in-progress entry.
+    rulesUrlControl.disable();
+
+    ruleSourceControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((source) => {
+      if (source === RuleSource.Custom) {
+        rulesUrlControl.enable();
       } else {
-        control.disable();
+        rulesUrlControl.disable();
       }
     });
+
+    // Apply URL validators only when the policy is enabled. The URL is inert
+    // when the policy is off (never fetched, never used), so a missing or
+    // invalid URL shouldn't block Save in that state — otherwise an admin who
+    // toggles the policy off can't save until they also fix the URL, which is
+    // meaningless work. `updateValueAndValidity` must emit (default) so the
+    // drawer's `saveDisabled` subscription — which reads `data.statusChanges`
+    // — sees the form become valid again when we clear the validators.
+    this.enabled.valueChanges
+      .pipe(startWith(this.enabled.value), takeUntilDestroyed())
+      .subscribe((policyEnabled) => {
+        if (policyEnabled) {
+          rulesUrlControl.setValidators([
+            requiredHostPathValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
+          ]);
+        } else {
+          rulesUrlControl.clearValidators();
+        }
+        rulesUrlControl.updateValueAndValidity();
+      });
   }
 
   /**
@@ -184,45 +234,51 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     if (!data) {
       return;
     }
-    // Only override rulesUrl in the patch if we have a string to strip.
-    // Otherwise `patchValue({ rulesUrl: undefined })` would blank out the
-    // constructor default for policies stored with no rulesUrl.
-    const patch: { [key: string]: unknown } = { ...data };
-    if (typeof data.rulesUrl === "string") {
-      patch.rulesUrl = stripHttpsPrefix(data.rulesUrl);
-    } else {
-      delete patch.rulesUrl;
-    }
-    this.data?.patchValue(patch);
+    const storedUrl = typeof data.rulesUrl === "string" ? data.rulesUrl : undefined;
+    const isDefault = isDefaultRulesUrl(storedUrl);
+    this.data?.patchValue({
+      ruleSource: isDefault ? RuleSource.Default : RuleSource.Custom,
+      rulesUrl: isDefault ? "" : stripHttpsPrefix(storedUrl!),
+    });
   }
 
-  // Prepend `https://` back so the stored policy data is a canonical full URL.
-  // Strip first to stay idempotent — submitting with Enter skips the blur
-  // handler, so the form value may still carry a pasted `https://` prefix.
-  // Trim before that: the URL constructor tolerates surrounding whitespace,
-  // so `"example.com/rules "` slips past the validator; without trimming here
-  // the space percent-encodes when the client joins the URL with the manifest
-  // filename and silently 404s. Also strip trailing slashes so the stored
-  // value is canonical and downstream URL composition stays consistent.
   protected override buildRequestData() {
     const data = this.data?.getRawValue();
     if (data == null) {
       return null;
     }
+    // When "Default" is selected, submit DEFAULT_FILL_ASSIST_RULES_URL as-is.
+    // This value acts as a stable sentinel meaning "use the current default":
+    // the client's `effectiveFillAssistRulesUrl$` resolver treats "stored URL
+    // matches DEFAULT_FILL_ASSIST_RULES_URL" as "fall through to server config"
+    // (see `domain-settings.service.ts`). See the comment on the constant in
+    // `libs/common/src/autofill/constants/index.ts` for migration constraints
+    // on changing that value.
+    if (data.ruleSource === RuleSource.Default) {
+      return { rulesUrl: DEFAULT_FILL_ASSIST_RULES_URL };
+    }
+    // Prepend `https://` back so the stored policy data is a canonical full URL.
+    // Strip first to stay idempotent — submitting with Enter skips the blur
+    // handler, so the form value may still carry a pasted `https://` prefix.
+    // Trim before that: the URL constructor tolerates surrounding whitespace,
+    // so `"example.com/rules "` slips past the validator; without trimming here
+    // the space percent-encodes when the client joins the URL with the manifest
+    // filename and silently 404s. Also strip trailing slashes so the stored
+    // value is canonical and downstream URL composition stays consistent.
     const rulesUrl =
       typeof data.rulesUrl === "string" ? data.rulesUrl.trim().replace(/\/+$/, "") : data.rulesUrl;
     return {
-      ...data,
       rulesUrl: rulesUrl ? HTTPS_PREFIX + stripHttpsPrefix(rulesUrl) : rulesUrl,
     };
   }
 
   override async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
     const request = await super.buildRequest(orgKey);
-    // Only require a URL when the policy is being enabled — a policy that's off
-    // is allowed to persist without one (the client-side reader falls through
-    // to server config or the hardcoded default in that case).
-    if (request.policy.enabled && !request.policy.data?.rulesUrl) {
+    // Only require a URL when the policy is being enabled AND the admin has
+    // chosen a Custom rule source. Default source has no URL to validate; a
+    // disabled policy is allowed to persist without one.
+    const isCustom = this.data?.value?.ruleSource === RuleSource.Custom;
+    if (request.policy.enabled && isCustom && !request.policy.data?.rulesUrl) {
       throw new Error(this.i18nService.t("invalidFillAssistRulesUrl"));
     }
 

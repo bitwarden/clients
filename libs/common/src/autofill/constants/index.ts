@@ -181,10 +181,34 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 );
 
 /**
- * The default rules feed base URL. Composed with resource paths
- * (e.g. `manifest.json`) at fetch time.
+ * Client-side sentinel meaning "use the default fill assist rules." Not
+ * necessarily the URL that gets fetched — the `effectiveFillAssistRulesUrl$`
+ * resolver in `DomainSettingsService` treats this stored value as "fall
+ * through to server config," which points to the appropriate regional CDN
+ * for the user's environment (`.com`, `.eu`, `.qa`, `.gov`, etc.).
+ * Per-region URL selection is driven by server config (each environment's
+ * `appsettings.fillAssistRules` points to that region's CDN); the client
+ * resolver reads server config and falls through to it when a policy URL
+ * matches this constant.
+ *
+ * The fill assist policy edit UI stores this value when the admin selects
+ * "Default" (see `fill-assist.component.ts`). Changing this constant would
+ * silently convert existing "Default" policies into "Custom" policies
+ * pointing at the old value — do not change without either running a
+ * migration or adding the old value to LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS
+ * below.
  */
 export const DEFAULT_FILL_ASSIST_RULES_URL = "https://fillassist.bitwarden.com";
+
+/**
+ * Historical values of DEFAULT_FILL_ASSIST_RULES_URL. Kept so that policies
+ * saved before the current constant value was adopted are still recognized
+ * as "Default" by the fill assist policy edit UI. Add previous values here
+ * whenever DEFAULT_FILL_ASSIST_RULES_URL changes.
+ */
+export const LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS = Object.freeze(
+  new Set<string>(["https://github.com/bitwarden/map-the-web/releases/latest/download"]),
+);
 
 /**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in
