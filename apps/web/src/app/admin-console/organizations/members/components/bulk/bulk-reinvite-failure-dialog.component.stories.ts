@@ -59,7 +59,6 @@ export default {
   component: BulkReinviteFailureDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [BulkReinviteFailureDialogComponent],
       imports: [SharedModule],
       providers: [
         { provide: DialogRef, useValue: mockDialogRef },
