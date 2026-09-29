@@ -275,25 +275,34 @@
             </form>
           } @else {
             <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
-              <bit-form-field>
-                <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="date"
-                  formControlName="date"
-                  [min]="minRequestDate()"
-                  id="pam-cipher-view-banner_input_date"
-                />
-              </bit-form-field>
-
               <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalStartDate" | i18n }}</bit-label>
+                  <input
+                    bitInput
+                    type="date"
+                    formControlName="startDate"
+                    [min]="minRequestDate()"
+                    id="pam-cipher-view-banner_input_start-date"
+                  />
+                </bit-form-field>
                 <bit-form-field>
                   <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
                   <input
                     bitInput
                     type="time"
-                    formControlName="start"
+                    formControlName="startTime"
                     id="pam-cipher-view-banner_input_start"
+                  />
+                </bit-form-field>
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalEndDate" | i18n }}</bit-label>
+                  <input
+                    bitInput
+                    type="date"
+                    formControlName="endDate"
+                    [min]="minEndDate()"
+                    id="pam-cipher-view-banner_input_end-date"
                   />
                 </bit-form-field>
                 <bit-form-field>
@@ -301,14 +310,9 @@
                   <input
                     bitInput
                     type="time"
-                    formControlName="end"
+                    formControlName="endTime"
                     id="pam-cipher-view-banner_input_end"
                   />
-                  @if (nextDayEnd(); as nextDay) {
-                    <bit-hint data-testid="request-window-next-day">
-                      {{ "requestAccessModalEndsNextDay" | i18n: (nextDay | date: "short") }}
-                    </bit-hint>
-                  }
                 </bit-form-field>
               </div>
 
