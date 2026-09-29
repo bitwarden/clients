@@ -1,12 +1,10 @@
-import { Injectable, WritableSignal } from "@angular/core";
+import { inject, Injectable, WritableSignal } from "@angular/core";
 import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
@@ -29,7 +27,6 @@ import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dia
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
-import { openUserAddEditDialog } from "../../components/member-dialog";
 import {
   MemberDialogResult,
   MemberDialogTab,
@@ -37,47 +34,28 @@ import {
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
 import { BulkActionResult } from "../member-actions/member-actions.types";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class MemberDialogManagerService {
-  constructor(
-    private configService: ConfigService,
-    private dialogService: DialogService,
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private userNamePipe: UserNamePipe,
-    private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
-    private vfo1TerminologyService: Vfo1TerminologyService,
-  ) {}
+  private dialogService = inject(DialogService);
+  private i18nService = inject(I18nService);
+  private toastService = inject(ToastService);
+  private userNamePipe = inject(UserNamePipe);
+  private deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   async openInviteDialog(
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
     allUsers: OrganizationUserView[],
+    showCoachMarks: boolean = false,
   ): Promise<MemberDialogResult> {
-    const generateInviteLink = await this.configService.getFeatureFlag(
-      FeatureFlag.GenerateInviteLink,
-    );
-
-    if (generateInviteLink) {
-      const dialog = InviteMembersDialogComponent.open(this.dialogService, {
-        data: {
-          organizationId: organization.id,
-          allOrganizationUsers: allUsers,
-          occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
-          isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        },
-      });
-      const result = await lastValueFrom(dialog.closed);
-      return result ?? MemberDialogResult.Canceled;
-    }
-
-    const dialog = openUserAddEditDialog(this.dialogService, {
+    const dialog = InviteMembersDialogComponent.open(this.dialogService, {
       data: {
-        kind: "Add",
         organizationId: organization.id,
         allOrganizationUsers: allUsers,
         occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
+        showCoachMarks,
       },
     });
 
@@ -89,16 +67,8 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
-    initialTab: MemberDialogTab = MemberDialogTab.Role,
+    initialTab: MemberDialogTab = MemberDialogTab.Details,
   ): Promise<MemberDialogResult> {
-    const detailsTabEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM28365_ChangeMemberEmail,
-    );
-    const resolvedTab =
-      detailsTabEnabled && initialTab === MemberDialogTab.Role
-        ? MemberDialogTab.Details
-        : initialTab;
-
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
@@ -109,7 +79,7 @@ export class MemberDialogManagerService {
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: resolvedTab,
+        initialTab: initialTab,
         claimedByOrganization: user.claimedByOrganization,
         hasMasterPassword: user.hasMasterPassword,
       },

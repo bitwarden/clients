@@ -37,6 +37,7 @@
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
       "@bitwarden/core-test-utils": ["./libs/core-test-utils/src/index.ts"],
+      "@bitwarden/desktop/*": ["./apps/desktop/src/*"],
       "@bitwarden/dirt-card": ["./libs/dirt/card/src"],
       "@bitwarden/generator-components": ["./libs/tools/generator/components/src"],
       "@bitwarden/generator-core": ["./libs/tools/generator/core/src"],
@@ -80,7 +81,8 @@
       "@bitwarden/web-vault/*": ["./apps/web/src/*"],
       "@bitwarden/pam": ["./libs/pam/src/index.ts"],
       "@bitwarden/storybook": ["./libs/storybook/src/index.ts"],
-      "@bitwarden/managed-settings": ["./libs/managed-settings/src/index.ts"]
+      "@bitwarden/managed-settings": ["./libs/managed-settings/src/index.ts"],
+      "@bitwarden/tools-share": ["./libs/tools/share/src/index.ts"]
     },
     "plugins": [
       {

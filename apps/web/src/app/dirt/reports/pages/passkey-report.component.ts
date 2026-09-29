@@ -8,6 +8,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -17,6 +19,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
+  ButtonModule,
   CalloutModule,
   ChipFilterComponent,
   ContainerComponent,
@@ -26,12 +29,13 @@ import {
   TableDataSource,
   TableModule,
   ToggleGroupModule,
+  BreadcrumbsModule,
+  BerryComponent,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
   GetOrgNameFromIdPipe,
-  OrganizationNameBadgeComponent,
   PasswordRepromptService,
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -67,8 +71,10 @@ import {
     TableModule,
     ToggleGroupModule,
     GetOrgNameFromIdPipe,
-    OrganizationNameBadgeComponent,
     Vfo1IconPipe,
+    BreadcrumbsModule,
+    ButtonModule,
+    BerryComponent,
   ],
   providers: [PasskeyReportService],
 })
@@ -83,6 +89,7 @@ export class PasskeyReportComponent implements OnInit {
   private readonly passkeyReportService = inject(PasskeyReportService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly syncService = inject(SyncService);
+  private readonly configService = inject(ConfigService);
 
   // Reactive state
   protected readonly loading = signal(false);
@@ -94,7 +101,7 @@ export class PasskeyReportComponent implements OnInit {
   // Filter state
   protected readonly filterStatus = signal<(number | string)[]>([0]);
   protected readonly showFilterToggle = signal(false);
-  protected readonly reportDescriptionKey = signal("passkeyLoginFoundReportDesc");
+  protected readonly infoBannerSuffixKey = signal("passkeyLoginFoundInfoSuffixSingular");
   protected readonly chipSelectOptions = signal<{ label: string; value: string | number }[]>([]);
   protected readonly selectedFilterChip = "0";
   private readonly maxItemsToSwitchToChipSelect = 5;
@@ -110,6 +117,14 @@ export class PasskeyReportComponent implements OnInit {
   private readonly userId = toSignal(this.accountService.activeAccount$.pipe(getUserId), {
     requireSync: true,
   });
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+  protected readonly reportTitleKey = "passkeyLoginReport";
 
   protected readonly currentFilterStatus = signal<number | string>(0);
   private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());
@@ -180,10 +195,13 @@ export class PasskeyReportComponent implements OnInit {
       return this.i18nService.t("all");
     }
     if (filterId === 1) {
-      return this.i18nService.t("me");
+      return this.i18nService.t("myVault");
     }
 
-    return this.organizations()?.find((org) => org.id === filterId)?.name ?? "";
+    return this.i18nService.t(
+      "orgNameVault",
+      this.organizations()?.find((org) => org.id === filterId)?.name ?? "",
+    );
   }
 
   protected getCount(filterId: string | number): number {
@@ -287,10 +305,10 @@ export class PasskeyReportComponent implements OnInit {
 
     if (statuses.length > 2) {
       this.showFilterToggle.set(true);
-      this.reportDescriptionKey.set("passkeyLoginFoundReportDescPlural");
+      this.infoBannerSuffixKey.set("passkeyLoginFoundInfoSuffixPlural");
     } else {
       this.showFilterToggle.set(false);
-      this.reportDescriptionKey.set("passkeyLoginFoundReportDesc");
+      this.infoBannerSuffixKey.set("passkeyLoginFoundInfoSuffixSingular");
     }
 
     this.chipSelectOptions.set(this.setupChipSelectOptions(statuses));

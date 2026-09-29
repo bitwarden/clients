@@ -30,6 +30,8 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -43,6 +45,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
+import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -58,6 +61,7 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
@@ -106,6 +110,7 @@ export class Main {
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
+  mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
 
@@ -141,26 +146,29 @@ export class Main {
       });
     }
 
-    this.logService = new ElectronLogMainService(null, app.getPath("userData"));
+    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
 
-    const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
-    const cachedBackend = new CachedBackend(electronStoreBackend);
-
-    // Main doesn't have access to ConfigService or the feature flags easily at this
-    // early stage, so instead we try to read the raw feature flag value directly
-    // from the storage to determine whether to use the cached backend or not.
-    let isCacheEnabled = false;
+    // Main has no ConfigService, so it reads the cached server configs straight from the store.
+    let flightRecorderEnabled = false;
     try {
-      isCacheEnabled = Object.values(
-        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
-      ).some((s: any) => s?.featureStates?.[FeatureFlag.ElectronStorageCache] === true);
+      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+        string,
+        { featureStates?: Record<string, unknown> }
+      >;
+      flightRecorderEnabled = Object.values(configs).some(
+        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
+      );
     } catch {
       // Ignore errors
     }
-    this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
-    this.storageService = new ElectronStorageService(
-      isCacheEnabled ? cachedBackend : electronStoreBackend,
+    const flightRecorder = new FlightRecorderLogRecorder(
+      SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
+    flightRecorder.setEnabled(flightRecorderEnabled);
+
+    this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
+
+    this.storageService = new ElectronStorageService(storageBackend);
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
@@ -304,7 +312,7 @@ export class Main {
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
-      "Bitwarden",
+      app.getName(),
       this.logService,
     );
     this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
@@ -355,8 +363,14 @@ export class Main {
       this.windowMain,
     );
 
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+      this.logService,
+      this.windowMain,
+    );
+
     app.on("will-quit", () => {
       this.mainDesktopAutotypeMvpService.dispose();
+      this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
     });
   }
@@ -384,7 +398,10 @@ export class Main {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
-        await this.trayMain.init("Bitwarden", [
+        const trayName = this.i18nService.t(
+          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
+        );
+        await this.trayMain.init(trayName, [
           {
             label: this.i18nService.t("lockVault"),
             enabled: false,

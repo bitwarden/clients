@@ -14,13 +14,21 @@ import {
   cipherInScope,
   collectionInScope,
   defaultUserCollectionId,
+  hasMultipleVaults,
+  isMyVaultScope,
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   MY_VAULT_ROUTE,
   organizationInScope,
+  organizationNameForScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   parseVaultScope,
   resolveVaultScope,
   scopedSharedFolderId,
+  scopeKey,
+  SHARED_FOLDERS_ROUTE,
+  sharedFolderNameForScope,
   TRASH_ROUTE,
   VaultScope,
   vaultScopeCommands,
@@ -79,6 +87,7 @@ const buildNavItem = (
   icon: "bwi-user",
   type,
   defaultUserCollectionId: navDefaultUserCollectionId,
+  enabled: true,
 });
 
 const buildNav = (
@@ -246,6 +255,40 @@ describe("resolveVaultScope", () => {
   });
 });
 
+describe("organizationVaultPage", () => {
+  const resolvedMyItemsScope: VaultScope = {
+    type: VaultScopeType.Organization,
+    organizationId,
+    collectionId: myItemsCollectionId,
+  };
+
+  it("classifies a non-organization scope as no organization page", () => {
+    expect(organizationVaultPage(myVaultScope, dataOwnershipNav)).toBeUndefined();
+  });
+
+  it("classifies a whole organization vault as All vault items", () => {
+    expect(organizationVaultPage(organizationScope, dataOwnershipNav)).toBe(
+      OrganizationVaultPage.AllVaultItems,
+    );
+  });
+
+  it("classifies the my-items sentinel as My items, before the nav resolves it", () => {
+    expect(organizationVaultPage(myItemsScope, undefined)).toBe(OrganizationVaultPage.MyItems);
+  });
+
+  it("classifies the resolved My items collection as My items", () => {
+    expect(organizationVaultPage(resolvedMyItemsScope, dataOwnershipNav)).toBe(
+      OrganizationVaultPage.MyItems,
+    );
+  });
+
+  it("classifies any other collection as a shared folder", () => {
+    expect(organizationVaultPage(sharedFolderScope, dataOwnershipNav)).toBe(
+      OrganizationVaultPage.SharedFolder,
+    );
+  });
+});
+
 describe("defaultUserCollectionId", () => {
   it("names the organization's My items collection", () => {
     expect(defaultUserCollectionId(organizationId, dataOwnershipNav)).toBe(myItemsCollectionId);
@@ -283,11 +326,26 @@ describe("vaultScopeCommands", () => {
     [organizationScope, ["/vault", organizationId]],
     [trashScope, ["/vault", TRASH_ROUTE]],
     [archiveScope, ["/vault", ARCHIVE_ROUTE]],
-    [sharedFolderScope, ["/vault", organizationId, collectionId]],
+    [sharedFolderScope, ["/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId]],
     [myItemsScope, ["/vault", organizationId, MY_ITEMS_ROUTE]],
   ])("builds the route for %p", (scope: VaultScope, expected: string[]) => {
     expect(vaultScopeCommands(scope)).toEqual(expected);
   });
+
+  it.each([
+    [ALL_ITEMS_SCOPE, ["/tabs/vault"]],
+    [myVaultScope, ["/tabs/vault", MY_VAULT_ROUTE]],
+    [organizationScope, ["/tabs/vault", organizationId]],
+    [trashScope, ["/tabs/vault", TRASH_ROUTE]],
+    [archiveScope, ["/tabs/vault", ARCHIVE_ROUTE]],
+    [sharedFolderScope, ["/tabs/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId]],
+    [myItemsScope, ["/tabs/vault", organizationId, MY_ITEMS_ROUTE]],
+  ])(
+    "rebases the route onto a client's own base path for %p",
+    (scope: VaultScope, expected: string[]) => {
+      expect(vaultScopeCommands(scope, "/tabs/vault")).toEqual(expected);
+    },
+  );
 
   it("round-trips through parseVaultScope", () => {
     for (const scope of [
@@ -299,9 +357,33 @@ describe("vaultScopeCommands", () => {
       sharedFolderScope,
       myItemsScope,
     ]) {
-      const [, segment, collectionSegment] = vaultScopeCommands(scope);
-      expect(parseVaultScope(segment, collectionSegment)).toEqual(scope);
+      // The collection is always the last segment, whether it followed the vault directly ("My
+      // items") or the shared folders list a drill-in was reached from.
+      const [, segment, ...rest] = vaultScopeCommands(scope);
+      expect(parseVaultScope(segment, rest.at(-1))).toEqual(scope);
     }
+  });
+});
+
+describe("scopeKey", () => {
+  it("keys the aggregate scopes by their type", () => {
+    expect(scopeKey(ALL_ITEMS_SCOPE)).toBe(VaultScopeType.AllItems);
+    expect(scopeKey(myVaultScope)).toBe(VaultScopeType.MyVault);
+    expect(scopeKey(trashScope)).toBe(VaultScopeType.Trash);
+    expect(scopeKey(archiveScope)).toBe(VaultScopeType.Archive);
+  });
+
+  it("keys an organization vault by its id", () => {
+    expect(scopeKey(organizationScope)).toBe(organizationId);
+  });
+
+  it("keys a shared folder drill-in apart from the vault it was reached from", () => {
+    expect(scopeKey(sharedFolderScope)).toBe(`${organizationId}/${collectionId}`);
+    expect(scopeKey(sharedFolderScope)).not.toBe(scopeKey(organizationScope));
+  });
+
+  it("keys the My items collection by its sentinel", () => {
+    expect(scopeKey(myItemsScope)).toBe(`${organizationId}/${MY_ITEMS_ROUTE}`);
   });
 });
 
@@ -450,6 +532,106 @@ describe("collectionInScope", () => {
   it("keeps every collection for trash and archive, which span every vault", () => {
     expect(collectionInScope(buildCollection(organizationId), trashScope)).toBe(true);
     expect(collectionInScope(buildCollection(otherOrganizationId), archiveScope)).toBe(true);
+  });
+});
+
+describe("isMyVaultScope", () => {
+  it("is true only for the personal vault", () => {
+    expect(isMyVaultScope(myVaultScope)).toBe(true);
+    expect(isMyVaultScope(ALL_ITEMS_SCOPE)).toBe(false);
+    expect(isMyVaultScope(organizationScope)).toBe(false);
+    expect(isMyVaultScope(trashScope)).toBe(false);
+    expect(isMyVaultScope(archiveScope)).toBe(false);
+  });
+});
+
+describe("hasMultipleVaults", () => {
+  it("is false until the account's vaults load", () => {
+    expect(hasMultipleVaults(undefined)).toBe(false);
+  });
+
+  it("is false for a single vault", () => {
+    expect(hasMultipleVaults(personalNav)).toBe(false);
+  });
+
+  it("is true once the account has a second vault", () => {
+    const nav = buildNav([
+      buildNavItem("user-1", VaultNavItemType.Personal),
+      buildNavItem(organizationId, VaultNavItemType.Organization),
+    ]);
+
+    expect(hasMultipleVaults(nav)).toBe(true);
+  });
+});
+
+describe("organizationNameForScope", () => {
+  it("names none until the account's vaults load", () => {
+    expect(organizationNameForScope(organizationScope, undefined)).toBeUndefined();
+  });
+
+  it("names the organization an organization vault is scoped to", () => {
+    const nav = buildNav([
+      buildNavItem("user-1", VaultNavItemType.Personal),
+      buildNavItem(organizationId, VaultNavItemType.Organization),
+    ]);
+
+    expect(organizationNameForScope(organizationScope, nav)).toBe(organizationId);
+  });
+
+  it("names none for a scope the nav has no matching vault for", () => {
+    expect(organizationNameForScope(organizationScope, personalNav)).toBeUndefined();
+  });
+
+  it("names none for a non-organization scope with more than one vault", () => {
+    const nav = buildNav([
+      buildNavItem("user-1", VaultNavItemType.Personal),
+      buildNavItem(organizationId, VaultNavItemType.Organization),
+    ]);
+
+    expect(organizationNameForScope(ALL_ITEMS_SCOPE, nav)).toBeUndefined();
+    expect(organizationNameForScope(myVaultScope, nav)).toBeUndefined();
+  });
+
+  // An organization-only account landing on the unscoped route never resolves to an
+  // Organization scope (see resolveVaultScope), so this is the only way that page reaches the
+  // org's name.
+  it("names the account's one organization for All items, when it has no personal vault", () => {
+    expect(organizationNameForScope(ALL_ITEMS_SCOPE, dataOwnershipNav)).toBe(organizationId);
+  });
+
+  // Same single-vault case, but for a Free/Families-tier org rather than a paid one — the nav
+  // still holds exactly one non-personal vault, so it names it the same way.
+  it("names the account's one organization for All items, when that vault is a Family vault", () => {
+    const nav = buildNav([buildNavItem(organizationId, VaultNavItemType.Family)], true);
+
+    expect(organizationNameForScope(ALL_ITEMS_SCOPE, nav)).toBe(organizationId);
+  });
+});
+
+describe("sharedFolderNameForScope", () => {
+  const collection = buildCollection(organizationId);
+
+  it("names the shared folder a scope has drilled into", () => {
+    const scope: VaultScope = {
+      type: VaultScopeType.Organization,
+      organizationId,
+      collectionId: collection.id as CollectionId,
+    };
+
+    expect(sharedFolderNameForScope(scope, [collection])).toBe(collection.name);
+  });
+
+  it("names none for a scope naming no collection the list can resolve", () => {
+    expect(sharedFolderNameForScope(sharedFolderScope, [])).toBeUndefined();
+    expect(sharedFolderNameForScope(sharedFolderScope, [collection])).toBeUndefined();
+  });
+
+  it.each([
+    ["All items", ALL_ITEMS_SCOPE],
+    ["the personal vault", myVaultScope],
+    ["a whole organization vault", organizationScope],
+  ])("names none for %s, which drills into no collection", (_name, scope: VaultScope) => {
+    expect(sharedFolderNameForScope(scope, [collection])).toBeUndefined();
   });
 });
 

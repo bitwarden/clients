@@ -35,6 +35,12 @@ import {
   LoginEmailService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
+import {
+  AutomationCapability,
+  BiometricsCapability,
+  DesktopNavigationCapability,
+  ProcessReloadCapability,
+} from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -143,7 +149,13 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import {
+  SHARE_ITEM_PRESENTER,
+  SHARE_PASSWORD_REPROMPT,
+  ShareButtonComponent,
+} from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
@@ -158,6 +170,7 @@ import {
   VAULT_FILTER_BASE_ROUTE,
   Vfo1TerminologyService,
   PasswordRepromptService,
+  SHARE_ITEM_ENTRY_POINT,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -167,6 +180,7 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2MacOsUserVerificationService } from "../../autofill/services/desktop-fido2-macos-user-verification.service";
 import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
@@ -203,6 +217,7 @@ import { DesktopDeviceManagementComponentService } from "../../services/desktop-
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+import { DesktopShareItemPresenter } from "../tools/share-item/desktop-share-item.presenter";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
@@ -236,6 +251,36 @@ const safeProviders: SafeProvider[] = [
     useClass: DesktopDeviceManagementComponentService,
     deps: [],
   }),
+  // Desktop-only automation capabilities.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () => new ProcessReloadCapability(() => ipc.platform.reloadProcess()),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (toastService: ToastService) =>
+      new BiometricsCapability(
+        {
+          setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+          listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+          approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+          deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+          onRequest: (callback) => ipc.keyManagement.automation.biometrics.onRequest(callback),
+        },
+        toastService,
+      ),
+    deps: [ToastService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (messagingService: MessagingServiceAbstraction) =>
+      new DesktopNavigationCapability(messagingService),
+    deps: [MessagingServiceAbstraction],
+    multi: true,
+  }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
   safeProvider(DialogService),
@@ -247,8 +292,9 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogServiceAbstraction,
-    useClass: ElectronLogRendererService,
-    deps: [],
+    useFactory: (recorder: FlightRecorderLogRecorderService) =>
+      new ElectronLogRendererService(null, recorder),
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,
@@ -615,6 +661,21 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: DesktopAutotypeService,
+    useClass: DesktopAutotypeService,
+    deps: [
+      AccountService,
+      AuthService,
+      CipherServiceAbstraction,
+      ConfigService,
+      GlobalStateProvider,
+      PlatformUtilsServiceAbstraction,
+      BillingAccountProfileStateService,
+      DesktopAutotypeDefaultSettingPolicy,
+      LogService,
+    ],
+  }),
+  safeProvider({
     provide: DesktopAutotypeDefaultSettingPolicy,
     useClass: DesktopAutotypeDefaultSettingPolicy,
     deps: [AccountServiceAbstraction, AuthServiceAbstraction, InternalPolicyService, ConfigService],
@@ -713,6 +774,25 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: IpcService,
     useClass: IpcRendererService,
+    deps: [],
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_ITEM_ENTRY_POINT,
+    useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider(DesktopShareItemPresenter),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: DesktopShareItemPresenter,
     deps: [],
   }),
 ];

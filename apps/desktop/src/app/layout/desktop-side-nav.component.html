@@ -3,4 +3,10 @@
   through to its wildcard slot, which v2 renders in the nav body rather than the header row. -->
   <ng-content select="bit-nav-logo" ngProjectAs="bit-nav-logo"></ng-content>
   <ng-content></ng-content>
+
+  @if (vfo1FoundationEnabled()) {
+    <ng-container slot="account">
+      <app-account-switcher-v2 [expanded]="sideNavService.open()" menuPosition="above-start" />
+    </ng-container>
+  }
 </bit-side-nav>

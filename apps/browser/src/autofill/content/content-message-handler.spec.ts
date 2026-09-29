@@ -110,11 +110,7 @@ describe("ContentMessageHandler", () => {
     });
 
     it("forwards the message to the extension background if it is present in the forwardCommands list", () => {
-      const forwardCommands = [
-        "addToLockedVaultPendingNotifications",
-        "unlockCompleted",
-        "addedCipher",
-      ];
+      const forwardCommands = ["bgUnlockPopoutOpened", "addedCipher"];
 
       forwardCommands.forEach((command) => {
         sendMockExtensionMessage({ command });
@@ -123,6 +119,17 @@ describe("ContentMessageHandler", () => {
       });
 
       expect(sendMessageSpy).toHaveBeenCalledTimes(forwardCommands.length);
+    });
+
+    it("does not relay the locked vault retry commands", () => {
+      // Both carry a `commandToRetry` that names the tab receiving the retried autofill.
+      // Relaying them makes that payload authorable by anything that can reach this script,
+      // so the background publishes and consumes them intraprocess instead.
+      ["addToLockedVaultPendingNotifications", "unlockCompleted"].forEach((command) => {
+        sendMockExtensionMessage({ command });
+      });
+
+      expect(sendMessageSpy).not.toHaveBeenCalled();
     });
   });
 

@@ -123,8 +123,7 @@ export class HealthComponent {
   });
 
   constructor() {
-    // Runs the scan and then keeps the report current for as long as this tab is
-    // open. Reading happens through scanState above.
+    // Subscribed for the side effect; the report is read through scanState above.
     toObservable(this.userId)
       .pipe(
         filterOutNullish(),
@@ -134,7 +133,7 @@ export class HealthComponent {
             // already true. take(1) keeps it to one automatic trigger per load.
             filter(Boolean),
             take(1),
-            switchMap(() => this.healthScanService.runScan$(userId)),
+            switchMap(() => this.healthScanService.keepReportCurrent$(userId)),
           ),
         ),
         takeUntilDestroyed(),

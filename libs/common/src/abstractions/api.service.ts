@@ -49,7 +49,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -159,7 +158,6 @@ export abstract class ApiService {
     id: string,
     request: SecretVerificationRequest,
   ): Promise<ApiKeyResponse>;
-  abstract postConvertToKeyConnector(): Promise<void>;
   //passwordless
   abstract getAuthRequest(id: string): Promise<AuthRequestResponse>;
   abstract putAuthRequest(
@@ -484,9 +482,6 @@ export abstract class ApiService {
     request: OrganizationSponsorshipRedeemRequest,
   ): Promise<void>;
 
-  abstract getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse>;
   abstract postUserKeyToKeyConnector(
     keyConnectorUrl: string,
     request: KeyConnectorUserKeyRequest,

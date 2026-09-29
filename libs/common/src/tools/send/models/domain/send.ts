@@ -22,27 +22,28 @@ import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
 
 import { SendFile } from "./send-file";
+import { SendItem } from "./send-item";
 import { SendText } from "./send-text";
 
-const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
+export const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
   [SendType.Text]: SdkSendType.Text,
   [SendType.File]: SdkSendType.File,
   [SendType.Item]: SdkSendType.Item,
 };
 
-const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
+export const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
   [SdkSendType.Item]: SendType.Item,
 };
 
-const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
+export const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
   [AuthType.Email]: SdkAuthType.Email,
   [AuthType.Password]: SdkAuthType.Password,
   [AuthType.None]: SdkAuthType.None,
 };
 
-const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
+export const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
   [SdkAuthType.Email]: AuthType.Email,
   [SdkAuthType.Password]: AuthType.Password,
   [SdkAuthType.None]: AuthType.None,
@@ -56,6 +57,7 @@ export class Send extends Domain {
   notes: EncString;
   file: SendFile;
   text: SendText;
+  data: SendItem;
   key: EncString;
   maxAccessCount?: number;
   accessCount: number;
@@ -107,6 +109,9 @@ export class Send extends Domain {
       case SendType.File:
         this.file = new SendFile(obj.file);
         break;
+      case SendType.Item:
+        this.data = new SendItem(obj.data);
+        break;
       default:
         break;
     }
@@ -115,6 +120,10 @@ export class Send extends Domain {
   async decrypt(userId: UserId): Promise<SendView> {
     if (!userId) {
       throw new Error("User ID must not be null or undefined");
+    }
+
+    if (this.type === SendType.Item) {
+      throw new Error("Item type Sends require the SDK to decrypt");
     }
 
     const model = new SendView(this);
@@ -166,6 +175,7 @@ export class Send extends Domain {
       emails: obj.emails,
       text: SendText.fromJSON(obj.text),
       file: SendFile.fromJSON(obj.file),
+      data: SendItem.fromJSON(obj.data),
       revisionDate,
       expirationDate,
       deletionDate,
@@ -187,7 +197,7 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
-      data: undefined,
+      data: this.data ? this.data.toSdk() : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
@@ -225,6 +235,7 @@ export class Send extends Domain {
     send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
     send.text = obj.text != null ? SendText.fromSdk(obj.text) : null;
     send.file = obj.file != null ? SendFile.fromSdk(obj.file) : null;
+    send.data = obj.data != null ? SendItem.fromSdk(obj.data) : null;
     return send;
   }
 
@@ -257,6 +268,9 @@ export class Send extends Domain {
         break;
       case SendType.File:
         data.file = this.file?.toSendData();
+        break;
+      case SendType.Item:
+        data.data = this.data?.toSendData();
         break;
       default:
         break;

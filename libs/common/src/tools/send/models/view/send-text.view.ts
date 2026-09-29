@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { SendTextView as SdkSendTextView } from "@bitwarden/sdk-internal";
+
 import { View } from "../../../../models/view/view";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { SendText } from "../domain/send-text";
@@ -26,5 +28,12 @@ export class SendTextView implements View {
     }
 
     return Object.assign(new SendTextView(), json);
+  }
+
+  static fromSdk(obj?: SdkSendTextView): SendTextView {
+    const view = new SendTextView();
+    view.text = obj?.text;
+    view.hidden = obj?.hidden;
+    return view;
   }
 }

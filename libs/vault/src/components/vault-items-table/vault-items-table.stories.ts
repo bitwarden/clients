@@ -1,19 +1,24 @@
+import { PortalModule } from "@angular/cdk/portal";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 import { action } from "storybook/actions";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -22,11 +27,26 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SearchService as DefaultSearchService } from "@bitwarden/common/vault/services/search.service";
-import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  I18nMockService,
+  LayoutFooterService,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
 
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { PasswordRepromptService } from "../../services/password-reprompt.service";
+import { RoutedVaultFilterBridgeService } from "../../services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
+import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { ASSIGN_COLLECTIONS_DIALOG } from "../../tokens/assign-collections-dialog.token";
+import { BULK_DELETE_DIALOG } from "../../tokens/bulk-delete-dialog.token";
+import { VaultBatchActionComponent } from "../vault-batch-bar/vault-batch-action.component";
 
 import {
   DEFAULT_COPY_PRESENTATION,
@@ -35,9 +55,65 @@ import {
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
 
+/**
+ * Renders whatever `LayoutFooterService` is holding. `<bit-vault-batch-action>` hands its bar to
+ * that service as a portal, and these stories skip the `bit-layout` that normally hosts the outlet.
+ */
+@Component({
+  selector: "story-layout-footer",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class StoryLayoutFooterComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
+
+/**
+ * The real service with only its action bodies replaced — each real one ends in a dialog or server
+ * call a story has neither of. Overrides log through `action()`, then clear so the bar dismisses.
+ */
+class StoryVaultBatchBarService extends VaultBatchBarService<CipherView> {
+  /** Reports the action with the items it would have applied to, then ends the "action". */
+  private record(name: string): void {
+    action(name)(this.selected().map((item) => item.cipher?.name ?? item.collection?.name));
+    // Through the base class, so it clears the table's registered selection rather than the unused
+    // default CDK model — otherwise the rows stay checked and the bar never dismisses.
+    this.clearSelection();
+  }
+
+  override async bulkArchive(): Promise<void> {
+    this.record("bulkArchive");
+  }
+
+  override async bulkUnarchive(): Promise<void> {
+    this.record("bulkUnarchive");
+  }
+
+  override async bulkRestore(): Promise<void> {
+    this.record("bulkRestore");
+  }
+
+  override async bulkDelete(): Promise<void> {
+    this.record("bulkDelete");
+  }
+
+  override async bulkMoveToFolder(): Promise<void> {
+    this.record("bulkMoveToFolder");
+  }
+
+  override async bulkAssignToCollections(): Promise<void> {
+    this.record("bulkAssignToCollections");
+  }
+
+  override async bulkEditCollectionAccess(): Promise<void> {
+    this.record("bulkEditCollectionAccess");
+  }
+}
+
 const organizations = [
-  { id: "org-1", name: "Acme corporation" },
-  { id: "org-2", name: "Contoso" },
+  { id: "org-1", name: "Acme corporation", enabled: true },
+  { id: "org-2", name: "Contoso", enabled: true },
 ] as Organization[];
 
 /**
@@ -380,12 +456,21 @@ type StoryProps = {
   initialFilterValues?: Partial<VaultItemsTableFilters>;
   heading?: string;
   itemAction: (item: CipherView) => void;
+  /** Relayed to the empty state untouched — see {@link Empty} and its siblings. */
+  scope?: VaultScope;
+  organizationName?: string;
+  hasMultipleVaults: boolean;
+  sharedFolderName?: string;
+  defaultCollectionId?: string;
 };
 
 /**
  * One template for every story: it binds all of the table's optional inputs unconditionally and
  * leaves the defaults to {@link baseProps}, so a story only ever overrides `args`. The heading is
  * how a host titles the page when its side nav has scoped the vault — see {@link ScopedToMyVault}.
+ *
+ * `empty-add-item` stands in for whatever "Add item" control a real host projects there (`vault-
+ * new-cipher-menu` in the apps) — a plain button is enough to show the slot is filled.
  */
 const template = `
   @if (heading) {
@@ -404,7 +489,15 @@ const template = `
       [copyPresentation]="copyPresentation"
       [initialFilterValues]="initialFilterValues"
       [itemAction]="itemAction"
+      [scope]="scope"
+      [organizationName]="organizationName"
+      [hasMultipleVaults]="hasMultipleVaults"
+      [sharedFolderName]="sharedFolderName"
+      [defaultCollectionId]="defaultCollectionId"
     >
+      <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+        Add item
+      </button>
       <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
         Import
       </button>
@@ -413,6 +506,8 @@ const template = `
       </button>
     </vault-items-table>
   </div>
+  <bit-vault-batch-action />
+  <story-layout-footer />
 `;
 
 const baseProps: StoryProps = {
@@ -425,6 +520,7 @@ const baseProps: StoryProps = {
   organizations,
   copyPresentation: DEFAULT_COPY_PRESENTATION,
   itemAction: () => {},
+  hasMultipleVaults: false,
 };
 
 export default {
@@ -434,7 +530,12 @@ export default {
   args: baseProps,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule, TypographyModule],
+      imports: [
+        ButtonModule,
+        TypographyModule,
+        VaultBatchActionComponent,
+        StoryLayoutFooterComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -449,12 +550,16 @@ export default {
               favoritesFilterTooltip: "Mark items as favorites to filter them here.",
               vault: "Vault",
               myVault: "My vault",
+              myItemsV2: "My items",
+              myItemsFilterTooltip: "Add items to My items to filter them here.",
               sharedFolders: "Shared folders",
               myFolders: "My folders",
               foldersFilterTooltip: "Add folders to items to filter them here.",
               noneFolder: "No folder",
               noSharedFolder: "No shared folder",
-              filterByName: (name) => `Filter by ${name}`,
+              // Chip group overflow, for the membership columns
+              showMore: "Show more",
+              showMoreCount: (count) => `Show ${count} more`,
               itemCount: (count) => `${count} items`,
               filter: "Filter",
               filters: "Filters",
@@ -485,14 +590,44 @@ export default {
               // Premium-gated row actions
               upgrade: "Upgrade",
               upgradeToPremium: "Upgrade to premium",
-              // Empty states
+              // Bulk-action bar chrome
+              bulkActionsBar: "Bulk actions",
+              bulkActionsBarAnnouncement: (count, shortcut) =>
+                `${count} item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press ${shortcut} to toggle focus to the bulk action bar.`,
+              selectedLowercase: "selected",
+              selectionCleared: "Selection cleared",
+              additionalActions: "Additional actions",
+              close: "Close",
+              loading: "Loading",
+              // Bulk-action bar actions
+              addToFolder: "Add to folder",
+              assignToCollections: "Assign to collections",
+              editAccess: "Edit access",
+              archiveVerb: "Archive",
+              unArchive: "Unarchive",
+              restore: "Restore",
+              delete: "Delete",
+              permanentlyDelete: "Permanently delete",
+              // Empty states — bit-table-v2's own built-in fallback, unused while the table always
+              // projects vault-empty-vault into the "empty" slot, but harmless to keep around.
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
-              clearFiltersOrTryAnother: "Clear filters or try another search term",
-              noItemsInVault: "No items in the vault",
-              clear: "Clear",
-              emptyVaultDescription:
-                "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.",
+              clearSearch: "Clear search",
+              noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+              noItemsMatchSelectedFilters: "No items match selected filters",
+              noItemsInMyVault: "No items in My vault",
+              noItemsInVaults: "Your vaults are empty",
+              noItemsInOrganizationVault: (name) => `No items in ${name}`,
+              noItemsInSharedFolder: (name) => `No items in ${name}`,
+              emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+              emptySharedFolderDescription: (name) =>
+                `Add items to this shared folder, then give access to other ${name} members.`,
+              noItemsInTrash: "No items in trash",
+              noItemsInTrashDescription:
+                "Items you delete will appear here and be permanently deleted after 30 days.",
+              noItemsInArchive: "No items in archive",
+              noItemsInArchiveDesc:
+                "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
               // Copy quick actions
               copyUsername: "Copy username",
               copyPassword: "Copy password",
@@ -509,8 +644,22 @@ export default {
               copyAddress: "Copy address",
               copyInfoTitle: (name) => `Copy info - ${name}`,
               copyFieldCipherName: (field, name) => `Copy ${field}, ${name}`,
+              // The disabled-state labels the copy menu falls back to when a row has no such value.
+              copy: "Copy",
+              noDetailsToCopy: "No details to copy",
+              noUsername: "No username",
+              noPassword: "No password",
+              noVerificationCode: "No verification code",
+              noNumber: "No number",
+              noSecurityCode: "No security code",
               noValuesToCopy: "No values to copy",
               valueCopied: (value) => `${value} copied`,
+              sharedFolderFilterTooltip: "Add items to a shared folder to filter here.",
+              clear: "clear",
+              importItems: "Import items",
+              emptyMyItems: "No items in My items",
+              emptyMyItemsDescription:
+                "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
         {
@@ -539,7 +688,14 @@ export default {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        // The batch bar gates itself on its own flag, so it has to read as enabled here for the
+        // bulk-action bar to appear at all.
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.PM37785_VaultBatchBar),
+          },
+        },
         { provide: CipherService, useValue: { updateLastLaunchedDate: () => Promise.resolve() } },
         { provide: PlatformUtilsService, useValue: { launchUri: (): void => undefined } },
         {
@@ -555,6 +711,32 @@ export default {
           provide: PremiumUpgradePromptService,
           useValue: { promptForPremium: () => action("PremiumUpgradePrompt") },
         },
+        // The batch bar service, so checking rows drives the same `can*` permission signals and
+        // bulk-action bar a client gets. Its collaborators below are the ones its permission checks
+        // read; the actions themselves report to the Actions panel — see
+        // {@link StoryVaultBatchBarService}.
+        { provide: VaultBatchBarService, useClass: StoryVaultBatchBarService },
+        { provide: LogService, useFactory: () => new ConsoleLogService(true) },
+        { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(true) } },
+        {
+          provide: CipherAuthorizationService,
+          useValue: { canDeleteCipher$: () => of(true), canRestoreCipher$: () => of(true) },
+        },
+        { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
+        {
+          provide: PasswordRepromptService,
+          useValue: { showPasswordPrompt: () => Promise.resolve(true) },
+        },
+        { provide: ToastService, useValue: { showToast: (): void => undefined } },
+        { provide: RoutedVaultFilterService, useValue: { filter$: of({}) } },
+        { provide: RoutedVaultFilterBridgeService, useValue: { activeFilter$: of({}) } },
+        // Required by the base class's constructor even though the overridden actions never reach
+        // them — both are non-optional `inject()` calls.
+        {
+          provide: ASSIGN_COLLECTIONS_DIALOG,
+          useValue: { open: () => Promise.resolve(undefined) },
+        },
+        { provide: BULK_DELETE_DIALOG, useValue: { open: () => Promise.resolve(undefined) } },
       ],
     }),
   ],
@@ -579,15 +761,60 @@ export const Loading: Story = {
 };
 
 /**
- * An empty `ciphers` array. The copy invites the user to add their first item, which is why this
- * state is worth distinguishing from [Filtered To Zero](#filtered-to-zero) — there, the fix is to
- * clear a filter rather than to add anything.
+ * An empty `ciphers` array, scoped to the personal vault via `scope`. The copy invites the
+ * user to add their first item, which is why this state is worth distinguishing from
+ * [Filtered To Zero](#filtered-to-zero) — there, the fix is to clear a filter rather than to add
+ * anything.
  *
- * `organizations` and `collections` are cleared so the Vault and Shared folders chips don't appear
- * when there is nothing in the vault — a new user has no org context yet.
+ * `scope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`
+ * are what a host relays from its own vault-scope resolution — the table has no notion of scope
+ * itself, so an empty `ciphers` array with none of them set renders no empty state at all. See
+ * [Empty Organization Vault](#empty-organization-vault),
+ * [Empty Multiple Vaults](#empty-multiple-vaults),
+ * [Empty Shared Folder](#empty-shared-folder),
+ * [Empty Trash](#empty-trash), and
+ * [Empty Archive](#empty-archive) for the other variants.
  */
 export const Empty: Story = {
-  args: { ciphers: [], organizations: [], collections: [] },
+  args: { ciphers: [], scope: { type: VaultScopeType.MyVault } },
+};
+
+/** The same empty vault, scoped to a single organization instead of the personal vault. */
+export const EmptyOrganizationVault: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+  },
+};
+
+/** The same empty vault, with none of the account's vaults holding an item. */
+export const EmptyMultipleVaults: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.AllItems }, hasMultipleVaults: true },
+};
+
+/**
+ * A shared folder the current organization scope has drilled into, with nothing in it yet. Takes
+ * priority over [Empty Organization Vault](#empty-organization-vault) when both are set, since it
+ * is the more specific destination.
+ */
+export const EmptySharedFolder: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+    sharedFolderName: "Engineering",
+  },
+};
+
+/** The trash, with no deleted items in it. */
+export const EmptyTrash: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.Trash } },
+};
+
+/** The archive, with no archived items in it. */
+export const EmptyArchive: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.Archive } },
 };
 
 /**
@@ -595,9 +822,9 @@ export const Empty: Story = {
  * `search` key here, the same way the story below seeds a chip — clear the search box to bring the
  * rows back.
  *
- * The empty state offers no Clear all button: clearing the chips wouldn't bring the rows back while
- * the search term still excludes them. Compare
- * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where it does.
+ * The empty state offers Clear search rather than Clear all: clearing the chips wouldn't bring the
+ * rows back while the search term still excludes them. Compare
+ * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where Clear all does.
  */
 export const FilteredToZero: Story = {
   args: { initialFilterValues: { search: "no-such-item" } },
@@ -694,6 +921,18 @@ export const ScopedToOrganizationVault: Story = {
     ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
     organizations: [organizations[0]],
     scopedOrganizationId: "org-1" as OrganizationId,
+  },
+};
+
+export const MyItemsChip: Story = {
+  args: {
+    heading: "Acme corporation's vault",
+    ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
+    organizations: [organizations[0]],
+    scopedOrganizationId: "org-1" as OrganizationId,
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    orgRequiresDataOwnership: true,
+    defaultCollectionId: "col-1",
   },
 };
 

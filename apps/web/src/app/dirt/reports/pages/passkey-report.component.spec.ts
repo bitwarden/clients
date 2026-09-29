@@ -1,12 +1,15 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -16,7 +19,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -24,6 +27,8 @@ import { PasskeyReportComponent } from "./passkey-report.component";
 import { PasskeyReportService } from "./passkey-report.service";
 
 describe("PasskeyReportComponent", () => {
+  const configService = mock<ConfigService>();
+
   let component: PasskeyReportComponent;
   let fixture: ComponentFixture<PasskeyReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
@@ -44,9 +49,17 @@ describe("PasskeyReportComponent", () => {
     passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiService>();
     passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([]);
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [PasskeyReportComponent, I18nPipe],
       providers: [
+        provideRouter([
+          {
+            path: "reports",
+            children: [{ path: "passkey-report", component: PasskeyReportComponent }],
+          },
+        ]),
         {
           provide: CipherService,
           useValue: cipherServiceMock,
@@ -84,21 +97,19 @@ describe("PasskeyReportComponent", () => {
           useValue: mock<I18nService>(),
         },
         {
-          provide: CipherFormConfigService,
-          useValue: mock<CipherFormConfigService>(),
+          provide: ConfigService,
+          useValue: configService,
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({}),
-          },
+          provide: CipherFormConfigService,
+          useValue: mock<CipherFormConfigService>(),
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
       .overrideComponent(PasskeyReportComponent, {
         set: {
-          imports: [I18nPipe],
+          imports: [I18nPipe, BreadcrumbsModule, IconModule],
           schemas: [CUSTOM_ELEMENTS_SCHEMA],
           providers: [PasskeyReportService],
         },
@@ -114,6 +125,20 @@ describe("PasskeyReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl("/reports/passkey-report", PasskeyReportComponent);
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+    expect(links[0].nativeElement.getAttribute("href")).toBe("/reports");
   });
 
   it("should call fullSync on init", () => {
@@ -375,4 +400,20 @@ describe("PasskeyReportComponent", () => {
       viewPassword,
     } as unknown as CipherView;
   }
+
+  it("should render the current page breadcrumb when the VFO1 feature flag is enabled", async () => {
+    configService.getFeatureFlag$.mockReturnValue(of(true));
+    const i18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
+    i18nService.t.mockImplementation((key) => key);
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl("/reports/passkey-report", PasskeyReportComponent);
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
+    expect(crumbs).toHaveLength(2);
+    expect(crumbs[1].nativeElement.textContent.trim()).toBe("passkeyLoginReport");
+  });
 });

@@ -9,6 +9,10 @@
     "message": "Bitwarden – správca hesiel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden – správca hesiel (Beta)",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -447,6 +451,9 @@
   "noFolders": {
     "message": "V zozname sa nenachádzajú žiadne priečinky."
   },
+  "noFoldersFilter": {
+    "message": "Žiadne priečinky"
+  },
   "helpFeedback": {
     "message": "Pomoc a spätná väzba"
   },
@@ -535,6 +542,9 @@
   "foldersFilterTooltip": {
     "message": "Pridajte priečinky k položkám a filtrujte ich tu."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Ak tu chcete filtrovať, pridajte položky do zdieľaného priečinka."
+  },
   "editItemWithName": {
     "message": "Upraviť položku – $NAME$",
     "placeholders": {
@@ -546,6 +556,45 @@
   },
   "noItemsInVault": {
     "message": "V trezore nie sú žiadne položky"
+  },
+  "noItemsInMyVault": {
+    "message": "Môj trezor je prázdny"
+  },
+  "emptyMyItems": {
+    "message": "Moje položky sú prázdne"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Trezor $VAULT_NAME$ je prázdny",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Trezor $VAULT_NAME$ je prázdny",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Vaše trezory sú prázdne"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Žiadne položky nezodpovedajú zvoleným filtrom"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Žiadny filter nezodpovedá výrazu \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Dĺžka"
@@ -750,6 +799,15 @@
   },
   "launchWebsite": {
     "message": "Otvoriť stránku"
+  },
+  "launchWebsiteForName": {
+    "message": "Otvoriť stránku pre $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Webstránka"
@@ -1406,17 +1464,29 @@
   "additionalOptions": {
     "message": "Ďalšie možnosti"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "Automatické vypĺňanie na tejto stránke využíva pomoc pri vypĺňaní."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Zapnúť pomoc pri vypĺňaní"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných stránkach pomocou pravidiel špecifických pre danú stránku. Pri používaní tejto funkcie sa nezhromažďujú ani neukladajú žiadne údaje."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Info o pomoci pri vypĺňaní"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Povoliť webovým stránkam vylúčiť polia z automatického vypĺňania"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Preskočiť polia, ktoré webová stránka označuje atribútom `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Povoliť webovým stránkam pridávať polia na automatické vypĺňanie"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Použiť všetky prvky typu span, ktoré webová stránka označuje atribútom `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
@@ -1469,6 +1539,9 @@
   "importVerb": {
     "message": "Importovať",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Importovať položky"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -2737,6 +2810,42 @@
   "noMatchingItems": {
     "message": "Žiadne zodpovedajúce položky"
   },
+  "noFiltersMatch": {
+    "message": "Žiadny filter nezodpovedá výrazu „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 výsledok",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "Výsledky: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Žiadny filter nezodpovedá výrazu \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Vymazať vyhľadávanie"
+  },
   "selected": {
     "message": "Vybrané"
   },
@@ -3182,12 +3291,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Nenašiel sa žiadny token obnovenia ani kľúče API. Skúste sa odhlásiť a znova prihlásiť."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Overenie synchronizácie desktopu"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Prosím, overte, že desktopová aplikácia zobrazuje tento odtlačok: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Integrácia v prehliadači nie je povolená"
@@ -3959,16 +4062,25 @@
   "errorGettingAutoFillData": {
     "message": "Chyba pri získavaní údajov automatického vypĺňania"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedenú položku v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položky, aby sa zistilo, či je možné ju obnoviť."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznícku podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položiek, aby sa zistilo, či je možné ich obnoviť."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "aby ste predišli ďalším stratám údajov.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položiek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovať ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovať všetky ID"
   },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
@@ -5029,11 +5141,17 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -5721,6 +5839,9 @@
   "switchAccounts": {
     "message": "Prepnúť účty"
   },
+  "switchVault": {
+    "message": "Prepnúť trezor"
+  },
   "switchToAccount": {
     "message": "Prepnúť na účet"
   },
@@ -5938,6 +6059,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Neboli pridané žiadne zdieľané priečinky"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Pridajte zdieľaný priečinok na bezpečné zdieľanie položiek trezoru s ostatnými členmi."
   },
   "moreOptionsLabel": {
     "message": "Ďalšie možnosti, $ITEMNAME$",
@@ -6813,6 +6940,9 @@
   "noItemsInTrashDesc": {
     "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo"
   },
+  "noItemsInTrashDescription": {
+    "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo."
+  },
   "trashWarning": {
     "message": "Položky, ktoré boli v koši viac ako 30 dní budú automaticky odstránené"
   },
@@ -7020,9 +7150,6 @@
   "compactMode": {
     "message": "Kompaktný režim"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Šírka rozšírenia"
   },
@@ -7080,12 +7207,6 @@
       }
     }
   },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Aktualizujte desktopovú aplikáciu"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
-  },
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
   },
@@ -7106,6 +7227,33 @@
   },
   "emptyVaultDescription": {
     "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
+  "emptyVaultsDescription": {
+    "message": "Ak chcete začať, pridajte prihlasovacie údaje, preukazy, karty a ďalšie položky."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Pridajte položky do tohto zdieľaného priečinka a potom poskytnite prístup ďalším členom $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Moje položky je váš súkromný priestor na ukladanie položiek, ktoré zostávajú vo vlastníctve $VAULT_NAME$, ale nie sú viditeľné pre ostatných členov.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nemáte žiadne priečinky."
+  },
+  "emptyFoldersDescription": {
+    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás – nikto iný ich neuvidí ani nepoužije."
   },
   "introCarouselLabel": {
     "message": "Vitajte v Bitwardene"
@@ -7274,6 +7422,15 @@
   },
   "showMore": {
     "message": "Zobraziť viac"
+  },
+  "showMoreCount": {
+    "message": "Zobraziť ďalšie: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Zobraziť menej"
@@ -7889,9 +8046,32 @@
     "message": "Zistené riziká",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgradujte, aby ste videli heslá"
+  },
   "categoryHealthy": {
     "message": "Žiadne položky si nevyžadujú pozornosť",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Skenovanie trezoru",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Kontrola uniknutých, slabých a opakovane používaných hesiel.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Prebieha",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Niečo sa pokazilo",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Kontrola trezoru sa nedokončila pre neočakávanú chybu.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Uniknuté heslá"
@@ -7911,8 +8091,8 @@
   "reusedPasswordsDescription": {
     "message": "Tieto prihlásenia používajú rovnaké heslo. Vytvorte pre každý účet jedinečné heslo, aby ste zabránili tomu, že sa niekto dostane k viacerým účtom pomocou jedného hesla."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Odstránením tohto prihlásenia ho odstránite z trezoru, čím sa však riziko neodstráni. Ak chcete chrániť svoj účet, najprv zmeňte heslo."
+  "deleteAtRiskItemDesc": {
+    "message": "Najprv si nezabudnite zmeniť heslo. Odstránením sa vymaže iba položka z vášho trezora, riziko to však neodstráni."
   },
   "passwordHasAdditionalRisks": {
     "message": "Toto heslo so sebou prináša ďalšie riziká:"
@@ -7942,5 +8122,99 @@
   },
   "youreAllSet": {
     "message": "Všetko je hotové!"
+  },
+  "permissions": {
+    "message": "Povolenia"
+  },
+  "viewItems": {
+    "message": "Zobraziť položky"
+  },
+  "viewItemsHidePass": {
+    "message": "Zobraziť položky, skryté heslá"
+  },
+  "editItems": {
+    "message": "Upraviť položky"
+  },
+  "editItemsHidePass": {
+    "message": "Upraviť položky, skryté heslá"
+  },
+  "shareVerb": {
+    "message": "Zdieľať"
+  },
+  "peopleWhoCanView": {
+    "message": "Ľudia, ktorí môžu zobraziť položky",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po zdieľaní tohto odkazu budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tejto položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz exspiruje po tomto dátume, príjemcovia si však môžu ponechať informácie, ktoré im boli predtým zdieľané. Ak chcete zrušiť prístup, vygenerujte nové prihlasovacie údaje.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkaz exspiruje po",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorazové zdieľanie",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktívne odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz bol skopírovaný do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz bol uložený a skopírovaný do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodarilo sa skopírovať odkaz na zdieľanie do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz na zdieľanie bol odstránený",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodarilo sa odstrániť odkaz na zdieľanie",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Zdieľať cez odkaz",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Zdieľať položku v trezore $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Zdieľať",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Exspiruje",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Exspiruje",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
   }
 }

@@ -5,7 +5,7 @@ import { OrganizationDomainResponse } from "./responses/organization-domain.resp
 export abstract class OrgDomainServiceAbstraction {
   abstract orgDomains$: Observable<OrganizationDomainResponse[]>;
 
-  abstract get(orgDomainId: string): OrganizationDomainResponse;
+  abstract get(orgDomainId: string): OrganizationDomainResponse | undefined;
 
   abstract copyDnsTxt(dnsTxt: string): void;
 }

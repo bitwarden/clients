@@ -1,0 +1,213 @@
+<!-- Slot for the client-specific page header (e.g. web/desktop <app-header>). -->
+<ng-content></ng-content>
+
+<bit-table-v2
+  #sharedFoldersTable="bitTableV2"
+  [tableDef]="table"
+  [filter]="filter"
+  [loading]="loading()"
+  queryParam="sharedFolders"
+  [trackBy]="trackById"
+  [selection]="selection()"
+>
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
+
+    <!-- Hidden rather than removed: projection only matches static top-level nodes, so an `@if`
+         would keep the button out of the toolbar's `end` slot. -->
+    <button
+      id="shared-folders_button_add"
+      slot="end"
+      type="button"
+      bitButton
+      buttonType="primary"
+      startIcon="bwi-plus"
+      [class.tw-hidden]="!canAdd()"
+      (click)="addSharedFolder()"
+    >
+      {{ "add" | i18n }}
+    </button>
+
+    @if (showPermissions()) {
+      <bit-filter-menu key="permissions" [placeholderText]="'permissions' | i18n" multiple>
+        @for (permission of permissionOptions(); track permission) {
+          <bit-filter-option [value]="permission">
+            {{ permissionMessageKey(permission) | i18n }}
+          </bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+  </bit-table-toolbar>
+
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="emptyIcon()"></bit-svg>
+    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
+    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
+    <!-- Hidden rather than removed, for the same reason as the Add button above. -->
+    <button
+      id="shared-folders_button_clear-filters"
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      startIcon="bwi-clear"
+      class="tw-mb-6"
+      [class.tw-hidden]="!hasActiveChipFilters(sharedFoldersTable)"
+      (click)="clearChipFilters(sharedFoldersTable)"
+    >
+      {{ "clearAll" | i18n }}
+    </button>
+  </bit-status-lockup>
+
+  <!-- The bar injects the table it sits inside, so it's declared here rather than projected in by
+       a client, whose template couldn't resolve it. Each action is dropped when the member can
+       perform it on none of the listed folders — see `showBulkEditAccess`. -->
+  @if (showBulkEditAccess() || showBulkDelete()) {
+    <bit-bulk-actions-bar>
+      @if (showBulkEditAccess()) {
+        <bit-bulk-action
+          icon="bwi-users"
+          [label]="'editAccess' | i18n"
+          [action]="editSelectedAccess"
+          [disabled]="bulkEditAccessDisabled()"
+        />
+      }
+      @if (showBulkDelete()) {
+        <bit-bulk-action
+          icon="bwi-trash"
+          [label]="'delete' | i18n"
+          [action]="deleteSelected"
+          [disabled]="bulkDeleteDisabled()"
+        />
+      }
+    </bit-bulk-actions-bar>
+  }
+
+  <!-- Name -->
+  <!-- Capped rather than `1fr`: unbounded, the name track would soak up every pixel the other
+       columns don't claim and strand them at the far right of a wide table. -->
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <!-- Decorative: the folder name beside it already names the row. -->
+      <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
+      <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
+      <a
+        bitLink
+        class="tw-truncate"
+        [attr.id]="'shared-folders_link_name-' + row.id"
+        [routerLink]="
+          vaultScopeCommands({
+            type: VaultScopeType.Organization,
+            organizationId: row.organizationId,
+            collectionId: row.id,
+          })
+        "
+      >
+        {{ row.name }}
+      </a>
+    </bit-cell>
+  </bit-column>
+
+  <!-- Permissions -->
+  <!-- Wider than the label needs: "View items, hidden passwords" is the longest permission. -->
+  <bit-column sortable [sortFn]="sortByPermission" width="minmax(200px, 320px)">
+    <bit-header-cell>{{ "permissions" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.permissions; let row">
+      {{ permissionMessageKey(row.permissions) | i18n }}
+    </bit-cell>
+  </bit-column>
+
+  <!-- Items -->
+  <bit-column sortable [width]="itemsWidth">
+    <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.items; let row">{{ row.items }}</bit-cell>
+  </bit-column>
+
+  <!-- Options -->
+  <!-- Removed rather than left empty, so a client without a collection dialog gets no Options
+       header over blank cells. Unlike the slotted content above, a column is found by injection,
+       so an `@if` is fine here. -->
+  @if (showOptions) {
+    <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger
+         stays pinned to the table's right edge. -->
+    <bit-column width="minmax(80px, 1fr)">
+      <bit-header-cell>
+        <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+      </bit-header-cell>
+
+      <bit-cell *bitCellLoading>
+        <div class="tw-flex tw-justify-end">
+          <bit-skeleton-text class="tw-w-6" />
+        </div>
+      </bit-cell>
+
+      <bit-cell *bitCellDef="table.columns.options; let row">
+        <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
+             anchoring it to the same position on every row. -->
+        @if (row.canEdit || row.canDelete) {
+          <div slot="end">
+            <button
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              [label]="'optionsForItem' | i18n: row.name"
+              [bitMenuTriggerFor]="rowMenu"
+            ></button>
+            <bit-menu #rowMenu>
+              @if (row.canEdit) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'shared-folders_menu-item_edit-' + row.id"
+                  (click)="editSharedFolder(row)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-pencil-square" />
+                  {{ "edit" | i18n }}
+                </button>
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'shared-folders_menu-item_access-' + row.id"
+                  (click)="editSharedFolderAccess(row)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-users" />
+                  {{ "access" | i18n }}
+                </button>
+              }
+              @if (row.canDelete) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  variant="danger"
+                  [attr.id]="'shared-folders_menu-item_delete-' + row.id"
+                  (click)="deleteSharedFolder(row)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-trash" />
+                  {{ "delete" | i18n }}
+                </button>
+              }
+            </bit-menu>
+          </div>
+        }
+      </bit-cell>
+    </bit-column>
+  }
+
+  <!--
+    Sized to the window rather than to a fixed count — see `autoPageSize`.
+
+    Hidden on the *fitted* size rather than the effective one, because the rows-per-page select
+    lives in the footer — hiding on the effective size would take away the control just used to ask
+    for a longer page, with nothing to restore it until the next resize.
+  -->
+  <bit-table-paginator
+    #paginator
+    [pageSize]="autoPageSize()"
+    [pageSizeOptions]="pageSizeOptions()"
+    [class.tw-hidden]="paginator.pageCount() < 2 && paginator.pageSize() === autoPageSize()"
+  ></bit-table-paginator>
+</bit-table-v2>

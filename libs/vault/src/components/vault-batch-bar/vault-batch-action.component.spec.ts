@@ -1,13 +1,25 @@
-import { signal } from "@angular/core";
+import { PortalModule } from "@angular/cdk/portal";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LayoutFooterService } from "@bitwarden/components";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
+
+@Component({
+  selector: "test-footer-outlet",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class FooterOutletComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
 
 // JSDOM does not implement ResizeObserver — stub so BulkActionsBarComponent can construct.
 class ResizeObserverStub {
@@ -69,7 +81,7 @@ describe("VaultBatchActionComponent", () => {
             canRestore,
             canDelete,
             inTrash,
-            selection: { clear: clearSpy },
+            clearSelection: clearSpy,
             bulkMoveToFolder: bulkMoveToFolderSpy,
             bulkAssignToCollections: bulkAssignToCollectionsSpy,
             bulkEditCollectionAccess: bulkEditCollectionAccessSpy,
@@ -220,6 +232,24 @@ describe("VaultBatchActionComponent", () => {
   });
 
   describe("action invocation", () => {
+    it("clears through the service when the bar's Clear button is pressed", () => {
+      selectedCount.set(2);
+
+      const outlet = TestBed.createComponent(FooterOutletComponent);
+      fixture.detectChanges();
+      outlet.detectChanges();
+
+      const clearButton = (outlet.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        "button[icon='bwi-clear']",
+      );
+      expect(clearButton).not.toBeNull();
+
+      clearButton!.click();
+      outlet.detectChanges();
+
+      expect(clearSpy).toHaveBeenCalledTimes(1);
+    });
+
     it("calls service.bulkMoveToFolder when move action is invoked", () => {
       canAddToFolder.set(true);
 

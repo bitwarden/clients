@@ -14,6 +14,7 @@ import { RouterModule, RouterLinkActive } from "@angular/router";
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile";
+import { TooltipDirective } from "../tooltip";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { SideNavService } from "./side-nav.service";
@@ -40,7 +41,7 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent],
+  imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent, TooltipDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(focusin)": "onFocusIn($event.target)",
@@ -124,6 +125,13 @@ export class NavItemComponent extends NavBaseComponent {
    * not be marked `current` while the child page is marked as `current`
    */
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
+
+  /**
+   * Unconditional `aria-current` value applied directly to the interactive element.
+   * Used by composing components (e.g. nav-group in vfo1) when the route is suppressed and
+   * `routerLinkActive` never fires, so active state must be signalled without a router link.
+   */
+  readonly ariaCurrentValue = input<RouterLinkActive["ariaCurrentWhenActive"]>(undefined);
 
   /**
    * `aria-expanded` for the interactive element. Set by a composing component (e.g. a nav group)

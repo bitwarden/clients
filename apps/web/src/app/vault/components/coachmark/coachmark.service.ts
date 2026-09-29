@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { map } from "rxjs/operators";
@@ -8,6 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SideNavService } from "@bitwarden/components";
 import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
@@ -49,6 +50,8 @@ export class CoachmarkService {
   /** The applicable steps for the current user (filtered by organization membership and collection access) */
   private readonly applicableSteps = signal<CoachmarkStep[]>([]);
 
+  private readonly sideNavService = inject(SideNavService);
+
   constructor(
     private accountService: AccountService,
     private organizationService: OrganizationService,
@@ -59,6 +62,11 @@ export class CoachmarkService {
     private vfo1TerminologyService: Vfo1TerminologyService,
     private collectionService: CollectionService,
   ) {}
+
+  /** Whether the named step is the one the tour is on. */
+  isStepActive(stepId: CoachmarkStepId): boolean {
+    return this.activeStepId() === stepId;
+  }
 
   /**
    * Gets the configuration for a specific step.
@@ -170,8 +178,17 @@ export class CoachmarkService {
    * Navigates to the step's route and sets it as active after navigation completes.
    */
   private async navigateToStep(step: CoachmarkStep): Promise<void> {
-    if (step.route) {
-      await this.router.navigate([step.route]);
+    // Before the navigation, so the anchored entry mounts in an earlier change detection cycle
+    // than the one that opens the popover — see `VaultNavSectionComponent.coachmarkTourRunning`.
+    if (step.opensSideNav) {
+      this.sideNavService.open.set(true);
+    }
+
+    const route =
+      this.vfo1TerminologyService.enabled() && step.routeVfo1 ? step.routeVfo1 : step.route;
+
+    if (route) {
+      await this.router.navigate([route]);
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
