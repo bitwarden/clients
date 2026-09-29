@@ -3416,6 +3416,24 @@ describe("OrganizationPlansComponent", () => {
         expect(component["previewFailed"]()).toBe(false);
       }));
 
+      it("keeps the last good server cart while the billing address is being edited", fakeAsync(async () => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+        expect(component["cart"]()).toBe(scenarioACart);
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({ postalCode: "" });
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        expect(component["cart"]()).toBe(scenarioACart);
+        expect(component["previewFailed"]()).toBe(false);
+      }));
+
       it("does not preview for a Free organization", fakeAsync(async () => {
         fixture.detectChanges();
         await fixture.whenStable();
@@ -3458,6 +3476,24 @@ describe("OrganizationPlansComponent", () => {
         const host: HTMLElement = fixture.nativeElement;
         expect(host.querySelector('[data-testid="invoice-preview-error"]')).not.toBeNull();
         expect(host.querySelector("billing-cart-summary")?.classList).toContain("tw-hidden");
+      }));
+
+      it("keeps the failure state while the billing address is being edited", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+          new Error("route not found"),
+        );
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+        expect(component["previewFailed"]()).toBe(true);
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({ postalCode: "" });
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        expect(component["previewFailed"]()).toBe(true);
+        expect(component["previewCart"]()).toBeNull();
       }));
 
       it("clears the failure state once a later preview succeeds", fakeAsync(() => {

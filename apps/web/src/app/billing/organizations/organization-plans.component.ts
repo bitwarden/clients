@@ -996,13 +996,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   private refreshPreviewCart(): Observable<void> {
     const selectedPlan = this.selectedPlan();
     if (
-      this.billingFormGroup.controls.billingAddress.invalid ||
       !selectedPlan ||
       selectedPlan.type === PlanType.Free ||
       selectedPlan.productTier === ProductTierType.TeamsStarter
     ) {
       this.previewCart.set(null);
       this.previewFailed.set(false);
+      return of(undefined);
+    }
+
+    if (this.billingFormGroup.controls.billingAddress.invalid) {
       return of(undefined);
     }
 
