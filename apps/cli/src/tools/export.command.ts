@@ -63,6 +63,13 @@ export class ExportCommand {
       return Response.error("`" + options.organizationid + "` is not a GUID.");
     }
 
+    // Individual vaults only support password protected encrypted exports.
+    if (options.organizationid == null && format === "encrypted_json" && !password) {
+      return Response.badRequest(
+        "Account restricted export is not supported for individual vaults. Use --password to create a password protected export.",
+      );
+    }
+
     let exportContent: ExportedVault = null;
     try {
       if (format === "encrypted_json") {

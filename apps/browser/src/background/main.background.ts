@@ -1412,7 +1412,6 @@ export default class MainBackground {
       this.folderService,
       this.cipherService,
       this.keyGenerationService,
-      this.keyService,
       this.encryptService,
       this.kdfConfigService,
       this.apiService,

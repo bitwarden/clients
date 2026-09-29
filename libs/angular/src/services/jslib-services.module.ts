@@ -1153,7 +1153,6 @@ const safeProviders: SafeProvider[] = [
       FolderServiceAbstraction,
       CipherServiceAbstraction,
       KeyGenerationService,
-      KeyService,
       EncryptService,
       KdfConfigService,
       ApiServiceAbstraction,

@@ -18,6 +18,7 @@ import { Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   merge,
@@ -369,6 +370,20 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+    // Individual vaults only support password protected encrypted exports.
+    // Restores the account restricted default when switching back to an organization.
+    this._organizationId$
+      .pipe(
+        map((organizationId) =>
+          organizationId == null
+            ? EncryptedExportType.FileEncrypted
+            : EncryptedExportType.AccountEncrypted,
+        ),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((type) => this.exportForm.get("fileEncryptionType").setValue(type));
   }
 
   /**

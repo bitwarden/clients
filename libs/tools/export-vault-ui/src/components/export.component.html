@@ -43,16 +43,19 @@
     <bit-radio-group formControlName="fileEncryptionType" aria-label="exportTypeHeading">
       <bit-label>{{ "exportTypeHeading" | i18n }}</bit-label>
 
-      <bit-radio-button
-        id="AccountEncrypted"
-        name="fileEncryptionType"
-        class="tw-block"
-        [value]="encryptedExportType.AccountEncrypted"
-        checked="fileEncryptionType === encryptedExportType.AccountEncrypted"
-      >
-        <bit-label>{{ "accountRestricted" | i18n }}</bit-label>
-        <bit-hint>{{ "accountRestrictedOptionDescription" | i18n }}</bit-hint>
-      </bit-radio-button>
+      <!-- Account restricted exports are only supported for organization vaults -->
+      @if (organizationId) {
+        <bit-radio-button
+          id="AccountEncrypted"
+          name="fileEncryptionType"
+          class="tw-block"
+          [value]="encryptedExportType.AccountEncrypted"
+          checked="fileEncryptionType === encryptedExportType.AccountEncrypted"
+        >
+          <bit-label>{{ "accountRestricted" | i18n }}</bit-label>
+          <bit-hint>{{ "accountRestrictedOptionDescription" | i18n }}</bit-hint>
+        </bit-radio-button>
+      }
 
       <bit-radio-button
         id="FileEncrypted"

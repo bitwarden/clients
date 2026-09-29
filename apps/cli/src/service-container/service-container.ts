@@ -1143,7 +1143,6 @@ export class ServiceContainer {
       this.folderService,
       this.cipherService,
       this.keyGenerationService,
-      this.keyService,
       this.encryptService,
       this.kdfConfigService,
       this.apiService,

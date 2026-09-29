@@ -7,23 +7,19 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 
 import {
   BitwardenCsvIndividualExportType,
-  BitwardenEncryptedIndividualJsonExport,
   BitwardenUnEncryptedIndividualJsonExport,
   ExportedVault,
   ExportedVaultAsBlob,
@@ -35,6 +31,9 @@ import { ExportHelper } from "./export-helper";
 import { IndividualVaultExportServiceAbstraction } from "./individual-vault-export.service.abstraction";
 import { ExportFormat } from "./vault-export.service.abstraction";
 
+const ACCOUNT_RESTRICTED_UNSUPPORTED =
+  "Account restricted export is not supported for individual vaults";
+
 export class IndividualVaultExportService
   extends BaseVaultExportService
   implements IndividualVaultExportServiceAbstraction
@@ -43,7 +42,6 @@ export class IndividualVaultExportService
     private folderService: FolderService,
     private cipherService: CipherService,
     keyGenerationService: KeyGenerationService,
-    private keyService: KeyService,
     encryptService: EncryptService,
     kdfConfigService: KdfConfigService,
     private apiService: ApiService,
@@ -53,14 +51,18 @@ export class IndividualVaultExportService
     super(keyGenerationService, encryptService, kdfConfigService);
   }
 
-  /** Creates an export of an individual vault (My Vault). Based on the provided format it will either be unencrypted, encrypted or password protected and in case zip is selected will include attachments
+  /** Creates an unencrypted export of an individual vault (My Vault). In case zip is selected it will include attachments
    * @param userId The userId of the account requesting the export
    * @param format The format of the export
+   * @throws Error if the format is encrypted_json; use {@link getPasswordProtectedExport} instead
    */
   async getExport(userId: UserId, format: ExportFormat = "csv"): Promise<ExportedVault> {
+    // Account restricted exports copied encrypted fields and dropped blob-encrypted (v2) ciphers.
     if (format === "encrypted_json") {
-      return this.getEncryptedExport(userId);
-    } else if (format === "zip") {
+      throw new Error(ACCOUNT_RESTRICTED_UNSUPPORTED);
+    }
+
+    if (format === "zip") {
       return this.getDecryptedExportZip(userId);
     }
     return this.getDecryptedExport(userId, format);
@@ -231,71 +233,6 @@ export class IndividualVaultExportService
       type: "text/plain",
       data: this.buildJsonExport(decFolders, decCiphers),
       fileName: ExportHelper.getFileName("", "json"),
-    } as ExportedVaultAsString;
-  }
-
-  private async getEncryptedExport(activeUserId: UserId): Promise<ExportedVaultAsString> {
-    if (!activeUserId) {
-      throw new Error("User ID must not be null or undefined");
-    }
-
-    let folders: Folder[] = [];
-    let ciphers: Cipher[] = [];
-    const promises = [];
-
-    promises.push(
-      firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
-        folders = f;
-      }),
-    );
-
-    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
-
-    promises.push(
-      this.cipherService.getAll(activeUserId).then((c) => {
-        ciphers = c.filter(
-          (f) =>
-            f.deletedDate == null &&
-            !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
-        );
-      }),
-    );
-
-    await Promise.all(promises);
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
-    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), userKey);
-
-    const jsonDoc: BitwardenEncryptedIndividualJsonExport = {
-      encrypted: true,
-      encKeyValidation_DO_NOT_EDIT: encKeyValidation.encryptedString,
-      folders: [],
-      items: [],
-    };
-
-    folders.forEach((f) => {
-      if (!f.id) {
-        return;
-      }
-      const folder = new FolderWithIdExport();
-      folder.build(f);
-      jsonDoc.folders.push(folder);
-    });
-
-    ciphers.forEach((c) => {
-      if (c.organizationId != null) {
-        return;
-      }
-      const cipher = new CipherWithIdExport();
-      cipher.build(c);
-      cipher.collectionIds = null;
-      jsonDoc.items.push(cipher);
-    });
-
-    return {
-      type: "text/plain",
-      data: JSON.stringify(jsonDoc, null, "  "),
-      fileName: ExportHelper.getFileName("", "encrypted_json"),
     } as ExportedVaultAsString;
   }
 
