@@ -167,6 +167,8 @@ type EmptyStateItem = {
   title: string;
   description: string;
   icon: BitSvg;
+  descriptionParam?: string;
+  allowAddItem?: boolean;
 };
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
@@ -242,8 +244,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
-  protected showAddCipherBtn: boolean = false;
-
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
@@ -253,17 +253,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => (id ? this.organizationService.organizations$(id) : of([]))));
 
-  emptyState$ = combineLatest([
+  emptyState$: Observable<EmptyStateItem> = combineLatest([
     this.currentSearchText$,
     this.routedVaultFilterService.filter$,
     this.organizations$,
+    this.controlledAccessFilter?.options$ ?? of([]),
   ]).pipe(
-    map(([searchText, filter, organizations]) => {
+    map(([searchText, filter, organizations, controlledAccessOptions]) => {
       const selectedOrg = organizations.find((org) => org.id === filter.organizationId);
       const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
 
       if (isOrgDisabled) {
-        this.showAddCipherBtn = false;
         return {
           title: "organizationIsSuspended",
           description: "organizationIsSuspendedDesc",
@@ -277,6 +277,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           description: "clearFiltersOrTryAnother",
           icon: this.noResultsIcon,
         };
+      }
+
+      const activeControlledAccess = controlledAccessOptions.find(
+        (option) => option.id === filter?.controlledAccess,
+      );
+      if (activeControlledAccess?.emptyState != null) {
+        const emptyState = activeControlledAccess.emptyState;
+        return { ...emptyState, icon: emptyState.icon ?? this.noResultsIcon };
       }
 
       const emptyStateMap: EmptyStateMap = {
@@ -298,15 +306,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       };
 
       if (filter?.type && filter.type in emptyStateMap) {
-        this.showAddCipherBtn = false;
         return emptyStateMap[filter.type as EmptyStateType];
       }
 
-      this.showAddCipherBtn = true;
       return {
         title: "noItemsInVault",
         description: "emptyVaultDescription",
         icon: this.itemTypesIcon,
+        allowAddItem: true,
       };
     }),
   );

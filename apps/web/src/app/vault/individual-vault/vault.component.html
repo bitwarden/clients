@@ -88,16 +88,17 @@
       </div>
     }
     @if (isEmpty && !performingInitialLoad) {
+      @let emptyState = emptyState$ | async;
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start tw-flex-1">
         <bit-status-lockup>
-          <bit-svg slot="graphic" [content]="(emptyState$ | async)?.icon"></bit-svg>
+          <bit-svg slot="graphic" [content]="emptyState?.icon"></bit-svg>
           <div slot="title">
-            {{ (emptyState$ | async)?.title | i18n }}
+            {{ emptyState?.title | i18n }}
           </div>
           <div slot="description" class="tw-max-w-md">
-            {{ (emptyState$ | async)?.description | i18n }}
+            {{ emptyState?.description | i18n: emptyState?.descriptionParam }}
           </div>
-          @if (showAddCipherBtn) {
+          @if (emptyState?.allowAddItem) {
             <button
               type="button"
               [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"

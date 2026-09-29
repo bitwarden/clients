@@ -17955,6 +17955,21 @@
   "pamMyRequestsHistoryEmpty": {
     "message": "No request history"
   },
+  "pamMyRequestsEmptyTitle": {
+    "message": "You have no requests"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "You have no requests for access to sensitive credentials owned by $ORGANIZATION$ at the moment.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "pamMyRequestsEmptyDescriptionGeneric": {
+    "message": "Currently, you have no active requests for access to sensitive credentials."
+  },
   "pamColumnItem": {
     "message": "Item"
   },
