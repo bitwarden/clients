@@ -242,13 +242,13 @@ describe("EmergencyAccessService", () => {
       expect(result[0].decryptionFailure).toBe(true);
     });
 
-    /** Makes the user's SDK client return `result` from `emergency_access().view_ciphers`. */
+    /** Makes the user's SDK client return `result` from `emergency_access().view_vault_items`. */
     function mockSdkViewCiphers(userId: UserId, result: DecryptCipherResult): jest.Mock {
       const viewCiphers = jest.fn().mockResolvedValue(result);
       const sdkClient = sdkService.simulate.userLogin(userId);
       (sdkClient as any).emergency_access = jest
         .fn()
-        .mockReturnValue({ view_ciphers: viewCiphers });
+        .mockReturnValue({ view_vault_items: viewCiphers });
       return viewCiphers;
     }
   });

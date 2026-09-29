@@ -267,7 +267,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       this.sdkService.userClient$(activeUserId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value.emergency_access().view_ciphers(asUuid<EmergencyAccessId>(id));
+          return await ref.value.emergency_access().view_vault_items(asUuid<EmergencyAccessId>(id));
         }),
       ),
     );
