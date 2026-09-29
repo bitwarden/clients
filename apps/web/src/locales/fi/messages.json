@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "Valitse tuotava tiedosto"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Valitse tiedosto"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Tilin saldo",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Tilin saldo",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Klikkaa tästä lisätäksesi maksutavan."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "Liity organisaatioon"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "exploit autofill on page load"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Valitse organisaatio, jota haluat sponsoroida"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Minkä ilmaisen Families-tarjouksen haluaisit lunastaa?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Hyväksy tarjous olemassa olevalla organisaatiolla tai luo uusi Families-organisaatio."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Sinulle on tarjottu ilmaista Bitwarden Families -organisaatiota. Jatka kirjautumalla tarjouksen saaneelle tilille."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Hyväksy ilmainen Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Ilmainen Bitwarden Families -tarjous on lunastettu"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Ilmoita organisaatioon liitettävä maksutapa. Voit olla huoletta, sillä emme veloita sinulta mitään, ellet itse valitse lisäominaisuuksia tai sponsorointisi pääty."
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Sponsorointitarjous on päättynyt. Voit poistaa luomasi organisaation välttääksesi veloituksen 7 päivän kokeilujaksosi päättyessä. Muussa tapauksessa voit sulkea ilmoituksen, jolloin organisaatio säilyy sinulla ja vastaat jatkossa siihen liittyvistä laskuista."
   },
   "newFamiliesOrganization": {
     "message": "Uusi Families-organisaatio"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Hyväksy tarjous"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Sponsoroiva organisaatio"

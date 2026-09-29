@@ -3459,7 +3459,7 @@
     "message": "Collectie selecteren"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Gedeelde map selecteren"
   },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
@@ -3468,7 +3468,7 @@
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Selecteer deze optie als je de inhoud van het geïmporteerde bestand naar een gedeelde map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "Kies het importbestand"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Bestand kiezen"
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Rekeningtegoed",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Toegepast saldo",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Openstaand bedrag",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Rekeningbalans",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Klik hier voor het toevoegen van een betaalmethode."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Neem contact op met je Bitwarden-verkoopvertegenwoordiger voor het instellen van facturatie."
   },
   "joinOrganization": {
     "message": "Lid worden van organisatie"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Schakel automatisch invullen in voor pagina-laadinstellingen in de browserextensie voor alle bestaande en nieuwe leden. Houd er rekening mee dat gecompromitteerde of onbetrouwbare websites "
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "automatisch invullen bij laden van pagina's kunnen exploiteren"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Selecteer de organisatie die je wilt sponsoren"
   },
+  "selectAFamilyVault": {
+    "message": "Selecteer een familiekluis"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Welke gratis Families wil je inwisselen?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accepteer aanbod voor een bestaande organisatie of maak een nieuwe Families-organisatie aan."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ heeft een gratis Bitwarden Families-abonnement voor jou gesponsord! Je kunt je gratis abonnement toepassen op een bestaande familiekluis of een nieuwe aanmaken.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Je bent gesponsord met een gratis Bitwarden Families-abonnement! Je kunt je gratis abonnement toepassen op een bestaande familiekluis of een nieuwe aanmaken.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Je hebt een gratis Bitwarden Families Plan-organisatie aangeboden gekregen. Om door te gaan, moet je inloggen op het account dat de aanbieding heeft ontvangen."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Gratis Bitwarden Families-organisatieaanbod verzilveren"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Gesponsord Familie-abonnement accepteren"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Details gesponsord abonnement"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Gratis Bitwarden Families-aanbod succesvol verzilverd"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Geef een betalingsmethode om aan de organisatie te koppelen. Maak je geen zorgen, we brengen niets in rekening tenzij je aanvullende functies kiest of je sponsoring verloopt. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Geef een betalingsmethode om aan je familiekluis te koppelen. Maak je geen zorgen, we brengen niets in rekening tenzij je aanvullende functionaliteit kiest of je sponsoring verloopt.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "De sponsoring is verlopen. Je kunt de organisatie die je hebt aangemaakt verwijderen om kosten aan het einde van je proefperiode van 7 dagen te voorkomen. Anders kun je deze pop-up sluiten om de organisatie te behouden en factureringsverantwoordelijkheid te nemen."
   },
   "newFamiliesOrganization": {
     "message": "Nieuwe Families-oganisatie"
   },
+  "createVault": {
+    "message": "Kluis aanmaken"
+  },
   "acceptOffer": {
     "message": "Aanbod accepteren"
+  },
+  "applySponsorship": {
+    "message": "Sponsoring toepassen"
   },
   "sponsoringOrg": {
     "message": "Sponsoringorganisatie"

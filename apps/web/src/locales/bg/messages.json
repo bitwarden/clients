@@ -3459,7 +3459,7 @@
     "message": "Изберете колекция"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Изберете споделена папка"
   },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
@@ -3468,7 +3468,7 @@
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в споделена папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "Изберете файла за внасяне"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Изберете източник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Изберете своя източник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Изберете управителя на пароли или браузъра, от който внасяте."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузъри"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Управители на пароли"
+  },
+  "importSourceShowAll": {
+    "message": "Показване на всички"
+  },
+  "importSourceShowLess": {
+    "message": "Показване на по-малко"
+  },
+  "importSourceStepCount": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Изберете файл"
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Кредит по абонамента",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Баланс по абонамента",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Натиснете тук, за да добавите средство за разплащане."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Свържете се с представителите за продажби на Битуорден, за да настроите разплащанията."
   },
   "joinOrganization": {
     "message": "Присъединяване към организация"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Включване на автоматичното попълване при зареждане на страница в добавката за браузъра, за всички текущи и нови членове. Имайте предвид, че злонамерени и други съмнителни уеб сайтове могат"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "да се възползват от автоматичното попълване при зареждане на страницата"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Select the organization you would like sponsored"
   },
+  "selectAFamilyVault": {
+    "message": "Изберете семеен трезор"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "От кое предложение за безплатен семеен план искате да се възползвате?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accept offer for an existing organization or create a new Families organization."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ спонсорира безплатен Семеен план за Битуорден за Вас! Може да приложите този план към вече съществуващ семеен трезор или да създадете нов.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Получихте спонсориран безплатен Семеен план за Битуорден! Може да приложите този план към вече съществуващ семеен трезор или да създадете нов.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "You've been offered a free Bitwarden Families plan organization. To continue, you need to log in to the account that received the offer."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Accept Free Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Приемане на спонсорирания Семеен план"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Подробности за спонсорирания план"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Free Bitwarden Families offer successfully redeemed"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Посочете метод за плащане, който да бъде свързан с организацията. Не се притеснявайте – от него няма да бъдат изискани никакви суми, докато не изберете допълнителни функционалности или докато не изтече периода на спонсорирането Ви. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Посочете метод за плащане, който да бъде свързан със семейния Ви трезор. Не се притеснявайте – от него няма да бъдат изискани никакви суми, докато не изберете допълнителни функционалности или докато не изтече периода на спонсорирането Ви.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "The sponsorship offer has expired. You may delete the organization you created to avoid a charge at the end of your 7 day trial. Otherwise you may close this prompt to keep the organization and assume billing responsibility."
   },
   "newFamiliesOrganization": {
     "message": "New Families organization"
   },
+  "createVault": {
+    "message": "Създаване на трезор"
+  },
   "acceptOffer": {
     "message": "Приемане на предложението"
+  },
+  "applySponsorship": {
+    "message": "Прилагане на спонсориране"
   },
   "sponsoringOrg": {
     "message": "Sponsoring organization"

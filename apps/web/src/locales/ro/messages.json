@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "Alegeți fișierul de import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Alegere fișier"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Creditul contului",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Balanța contului",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Click here to add a payment method."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "Alăturare la organizație"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "exploit autofill on page load"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Selectați organizația pe care doriți să o sponsorizați"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Ce ofertă Gratuită Familii ați dori să revendicați?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Acceptați oferta pentru o organizație existentă sau creați o nouă organizație Familiile."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Vi s-a oferit o organizare gratuită a planului Bitwarden Familii. Pentru a continua, trebuie să vă conectați la contul care a primit oferta."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Acceptați planul Bitwarden Familii gratuit"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Oferta gratuită Bitwarden Familii a fost revendicată cu succes"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Vă rugăm să furnizați o metodă de plată pentru a asocia cu organizația. Nu vă faceți griji, nu vă vom percepe nimic decât dacă selectați caracteristici suplimentare sau dacă sponsorizarea dvs. expiră. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Oferta de sponsorizare a expirat. Puteți șterge organizația pe care ați creat-o pentru a evita o taxă la sfârșitul perioadei de încercare de 7 zile. În caz contrar, puteți închide această solicitare pentru a păstra organizația și pentru a vă asuma responsabilitatea de facturare."
   },
   "newFamiliesOrganization": {
     "message": "Organizație de familii nouă"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Acceptare ofertă"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Organizație de sponsorizare"

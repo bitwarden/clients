@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "Επιλέξτε το αρχείο εισαγωγής"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Επιλογή αρχείου"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Μονάδες λογαριασμού",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Υπόλοιπο λογαριασμού",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Κάντε κλικ εδώ για να προσθέσετε μια μέθοδο πληρωμής."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
   },
   "joinOrganization": {
     "message": "Εγγραφή στον οργανισμό"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "exploit autofill on page load"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Επιλέξτε τον οργανισμό που θα θέλατε"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Ποια Free Families προσφορά θα θέλατε να εξαργυρώσετε;"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Αποδοχή προσφοράς για έναν υπάρχοντα οργανισμό ή δημιουργία ενός νέου οργανισμού οικογενειών."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Έχετε προσφερθεί έναn δωρεάν οργανισμό πλάνου Bitwarden Families. Για να συνεχίσετε, πρέπει να συνδεθείτε στο λογαριασμό που έλαβε την προσφορά."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Αποδοχή Δωρεάν Bitwarden Families"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "H Δωρεάν προσφορά Bitwarden Families, εξαργυρώθηκε με επιτυχία"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Παρακαλώ δώστε μια μέθοδο πληρωμής για να συσχετίσετε με τον οργανισμό. Μην ανησυχείτε, δεν θα σας χρεώσουμε τίποτα, εκτός αν επιλέξετε πρόσθετες λειτουργίες ή η εγγυοδοσία σας λήξει. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Η προσφορά χορηγίας έχει λήξει. Μπορείτε να διαγράψετε τον οργανισμό που δημιουργήσατε για να αποφύγετε μια χρέωση στο τέλος της δοκιμής 7 ημερών. Διαφορετικά, μπορείτε να κλείσετε αυτή την προτροπή για να κρατήσει την οργάνωση και να αναλάβει την ευθύνη χρέωσης."
   },
   "newFamiliesOrganization": {
     "message": "Νέος Οργανισμός Families"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Αποδοχή προσφοράς"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Χορηγούμενος Οργανισμός"

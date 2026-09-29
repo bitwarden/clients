@@ -3479,6 +3479,40 @@
   "selectImportFile": {
     "message": "Selecione o ficheiro a importar"
   },
+  "importSourceBreadcrumb": {
+    "message": "Selecionar origem"
+  },
+  "importSourceSelectTitle": {
+    "message": "Selecionar a origem"
+  },
+  "importSourceSelectDescription": {
+    "message": "Escolha o gestor de palavras-passe ou navegador do qual está a importar."
+  },
+  "importSourceBrowsers": {
+    "message": "Navegadores"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestores de palavras-passe"
+  },
+  "importSourceShowAll": {
+    "message": "Mostrar tudo"
+  },
+  "importSourceShowLess": {
+    "message": "Mostrar menos"
+  },
+  "importSourceStepCount": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Escolher ficheiro"
   },
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Crédito da conta",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Saldo aplicado",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Valor a pagar",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Saldo da conta",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Clique aqui para adicionar um método de pagamento."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contacte o seu representante comercial do Bitwarden para configurar a faturação."
   },
   "joinOrganization": {
     "message": "Aderir à organização"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Ativar a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros, atuais e novos. Tenha em atenção que sites comprometidos ou não fidedignos podem"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Ativar a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros atuais e novos. Depois de esta política estar ativada, os membros terão de ajustar as suas definições pessoais para ativar o preenchimento automático. Tenha em atenção que sites comprometidos ou não fidedignos podem"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "explorar o preenchimento automático ao carregar a página"
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Selecione a organização que pretende patrocinar"
   },
+  "selectAFamilyVault": {
+    "message": "Selecionar um cofre familiar"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Que oferta do plano Familiar gratuito gostaria de resgatar?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Aceitar a oferta para uma organização existente ou criar uma nova organização Familiar."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ ofereceu-lhe um plano Bitwarden Familiar gratuito! Pode aplicar o seu plano gratuito a um cofre familiar existente ou criar um novo.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Ofereceram-lhe um plano Bitwarden Familiar gratuito! Pode aplicar o seu plano gratuito a um cofre familiar existente ou criar um novo.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Foi-lhe oferecida uma organização do plano Familiar gratuito Bitwarden. Para continuar, é necessário iniciar sessão na conta que recebeu a oferta."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Aceitar o plano Familiar gratuito Bitwarden"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Aceitar plano Bitwarden Familiar oferecido"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Detalhes do plano oferecido"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Oferta do plano Familiar gratuito Bitwarden resgatada com sucesso"
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Indique um método de pagamento para associar à organização. Não se preocupe, não lhe cobraremos nada, a menos que selecione funcionalidades adicionais ou que o seu patrocínio expire. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Forneça um método de pagamento para associar ao seu cofre familiar. Não se preocupe, não lhe cobraremos nada, a menos que selecione funcionalidades adicionais ou que o seu patrocínio expire.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "A oferta de patrocínio expirou. Pode eliminar a organização que criou para evitar uma cobrança no final do período experimental de 7 dias. Caso contrário, pode fechar esta mensagem para manter a organização e assumir a responsabilidade pela faturação."
   },
   "newFamiliesOrganization": {
     "message": "Nova organização Familiar"
   },
+  "createVault": {
+    "message": "Criar cofre"
+  },
   "acceptOffer": {
     "message": "Aceitar a oferta"
+  },
+  "applySponsorship": {
+    "message": "Aplicar patrocínio"
   },
   "sponsoringOrg": {
     "message": "Organização patrocinadora"
