@@ -104,7 +104,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             }
             result = await (sdkCiphersClient as CiphersClientWithGatedEdit).edit_gated(
               sdkUpdateRequest,
-              originalCipherView.toSdkCipherView(sdkCiphersClient),
+              originalCipherView.toSdkCipherView(),
             );
           } else if (cipher.edit) {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
