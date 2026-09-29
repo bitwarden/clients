@@ -102,11 +102,9 @@ import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
 import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
@@ -439,16 +437,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   putMoveCiphers(request: CipherBulkMoveRequest): Promise<any> {
     return this.send("PUT", "/ciphers/move", request, true, false);
-  }
-
-  async putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/share", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/share", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putCipherCollections(

@@ -76,11 +76,9 @@ import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
 import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
@@ -196,8 +194,6 @@ export abstract class ApiService {
   abstract deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
   abstract deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
   abstract putMoveCiphers(request: CipherBulkMoveRequest): Promise<any>;
-  abstract putShareCipher(id: string, request: CipherShareRequest): Promise<CipherResponse>;
-  abstract putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>>;
   abstract putCipherCollections(
     id: string,
     request: CipherCollectionsRequest,
