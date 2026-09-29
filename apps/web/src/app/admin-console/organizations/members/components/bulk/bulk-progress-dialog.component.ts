@@ -8,7 +8,14 @@ import {
   Signal,
 } from "@angular/core";
 
-import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogService,
+  ProgressBarComponent,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface BulkProgressDialogParams {
   progress: Signal<number>;
@@ -19,7 +26,7 @@ export interface BulkProgressDialogParams {
   templateUrl: "bulk-progress-dialog.component.html",
   selector: "member-bulk-progress-dialog",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [DialogModule, I18nPipe, ProgressBarComponent],
 })
 export class BulkProgressDialogComponent {
   protected readonly allCount: string;
