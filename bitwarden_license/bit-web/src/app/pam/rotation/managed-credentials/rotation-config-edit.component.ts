@@ -358,7 +358,7 @@ export class RotationConfigEditComponent {
       targetSystemId: asUuid<TargetSystemId>(value.targetSystemId),
       accountIdentity: value.accountIdentity,
       terminateSessions: value.terminateSessions,
-      scheduleCron: value.scheduleCron,
+      scheduleCron: value.scheduleCron ?? undefined,
       rotateOnAccessEnd: value.rotateOnAccessEnd,
     };
     try {
@@ -392,7 +392,7 @@ export class RotationConfigEditComponent {
     const request: RotationConfigUpdateRequest = {
       accountIdentity: account.accountIdentity,
       terminateSessions: account.terminateSessions,
-      scheduleCron: settings.scheduleCron,
+      scheduleCron: settings.scheduleCron ?? undefined,
       rotateOnAccessEnd: settings.rotateOnAccessEnd,
     };
     try {

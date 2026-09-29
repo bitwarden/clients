@@ -174,7 +174,6 @@ export class VaultNextComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly policyService = inject(PolicyService);
   private readonly webVaultPromptService = inject(WebVaultPromptService);
-  private readonly configService = inject(ConfigService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly coachmarkService = inject(CoachmarkService);
