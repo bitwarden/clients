@@ -49,7 +49,7 @@ describe("FillAssistPolicy", () => {
   it("has correct attributes", () => {
     const policy = new FillAssistPolicy();
 
-    expect(policy.name).toBe("fillAssistPolicy");
+    expect(policy.name).toBe("fillAssistPolicyV2");
     expect(policy.description).toBe("fillAssistPolicyDesc");
     expect(policy.type).toBe(PolicyType.FillAssist);
     expect(policy.component).toBe(FillAssistPolicyComponent);
@@ -251,7 +251,7 @@ describe("FillAssistPolicyComponent", () => {
       component.data?.patchValue({ rulesUrl: "" });
 
       expect(component.data?.get("rulesUrl")?.errors).toEqual({
-        url: { message: "invalidFillAssistRulesUrl" },
+        url: { message: "invalidFillAssistRulesUrlV2" },
       });
     });
 
@@ -351,7 +351,7 @@ describe("FillAssistPolicyComponent", () => {
 
       expect(component.data?.invalid).toBe(true);
       expect(component.data?.get("rulesUrl")?.errors).toEqual({
-        url: { message: "invalidFillAssistRulesUrl" },
+        url: { message: "invalidFillAssistRulesUrlV2" },
       });
     });
 
@@ -459,7 +459,7 @@ describe("FillAssistPolicyComponent", () => {
       component.enabled.setValue(true);
       component.data?.patchValue({ rulesUrl: "" });
 
-      await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrl");
+      await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrlV2");
     });
 
     it("does not throw when saving a disabled policy without a rulesUrl", async () => {

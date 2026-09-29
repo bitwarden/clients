@@ -8965,6 +8965,10 @@
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyV2": {
     "message": "Enable fill assist",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
@@ -8987,12 +8991,19 @@
     "message": "Enter your own custom rule set."
   },
   "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlV2": {
     "message": "Custom rule set"
   },
   "learnMoreAboutCustomRules": {
     "message": "Learn more about custom rules"
   },
   "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
     "message": "Enter a valid URL for a custom rule set.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },

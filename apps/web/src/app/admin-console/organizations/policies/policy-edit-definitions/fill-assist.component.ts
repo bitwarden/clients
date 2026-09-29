@@ -123,7 +123,7 @@ function isDefaultRulesUrl(url: string | null | undefined): boolean {
 }
 
 export class FillAssistPolicy extends BasePolicyEditDefinition {
-  name = "fillAssistPolicy";
+  name = "fillAssistPolicyV2";
   description = "fillAssistPolicyDesc";
   type = PolicyType.FillAssist;
   category = PolicyCategory.VaultManagement;
@@ -199,7 +199,7 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
       .subscribe((policyEnabled) => {
         if (policyEnabled) {
           rulesUrlControl.setValidators([
-            requiredHostPathValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
+            requiredHostPathValidator(this.i18nService.t("invalidFillAssistRulesUrlV2")),
           ]);
         } else {
           rulesUrlControl.clearValidators();
@@ -268,7 +268,7 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     // disabled policy is allowed to persist without one.
     const isCustom = this.data?.value?.ruleSource === RuleSource.Custom;
     if (request.policy.enabled && isCustom && !request.policy.data?.rulesUrl) {
-      throw new Error(this.i18nService.t("invalidFillAssistRulesUrl"));
+      throw new Error(this.i18nService.t("invalidFillAssistRulesUrlV2"));
     }
 
     return request;
