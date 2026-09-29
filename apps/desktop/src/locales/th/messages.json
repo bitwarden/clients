@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "มีโฟลเดอร์ที่แชร์อีก $COUNT$ โฟลเดอร์แสดงอยู่เหนือปุ่มนี้",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "มีโฟลเดอร์ที่แชร์อีก 1 โฟลเดอร์แสดงอยู่เหนือปุ่มนี้",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "โฟลเดอร์ของฉัน"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "เลือกคอลเลกชัน"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "เลือกตัวเลือกนี้หากคุณต้องการย้ายเนื้อหาไฟล์ที่นำเข้าไปยังคอลเลกชัน"
   },
   "importTargetHintFolder": {
     "message": "เลือกตัวเลือกนี้หากคุณต้องการย้ายเนื้อหาไฟล์ที่นำเข้าไปยังโฟลเดอร์"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "ไฟล์มีรายการที่ยังไม่ได้กำหนด"
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "เลือกไฟล์นำเข้า"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "เลือกไฟล์"
