@@ -17,7 +17,8 @@ provides contextual choices relevant to the current workflow.
 ## Composition
 
 A menu is constructed of a `bit-menu` element with child `bitMenuItem` elements. These can be
-anchors or buttons. `bit-menu-divider` can be used to section menu items.
+anchors or buttons. Items placed in `slot="footer"` are sectioned off below a divider rule; use
+`bit-menu-divider` to section the list itself, which also allows more than one break.
 
 Menu triggers use the `bitMenuTriggerFor` directive to specify the menu they open.
 
@@ -30,10 +31,33 @@ Example code:
 
 <bit-menu #myMenu>
   <a href="#" bitMenuItem>Anchor link</a>
-  <button type="button" bitMenuItem>Button</button>
   <bit-menu-divider></bit-menu-divider>
+  <button type="button" bitMenuItem>Button</button>
+  <button type="button" bitMenuItem slot="footer">Footer button</button>
 </bit-menu>
 ```
+
+### Context menus
+
+`bitContextMenuTriggerFor` opens the same `bit-menu` on right-click, anchored at the cursor. Use it
+when the menu belongs to a whole region — a table row, a card — rather than to a single button.
+
+```html
+<div tabindex="0" [bitContextMenuTriggerFor]="myMenu">Right-click me</div>
+```
+
+Usage guidelines:
+
+- Give the host a `tabindex`. Right-click alone is not a keyboard-accessible affordance, so the
+  directive also opens on `Shift+F10` and the `ContextMenu` key — both of which require the host to
+  be focusable. It's also how focus returns to the host when the menu closes.
+- Right-clicking again while the menu is open moves it to the new cursor position.
+- `Shift+Ctrl` and right-click is left alone as an escape hatch to the browser's own menu.
+- A context menu is an addition, not a replacement. Anything reachable only by right-click is
+  undiscoverable, so pair it with a visible trigger — the two directives can point at the same
+  `bit-menu`.
+
+<Canvas of={stories.ContextMenu} />
 
 ### Menu Items
 
@@ -111,3 +135,8 @@ need a differentiating accessible name. `bitMenuItem` also specifies an accessib
 
 Users are able to navigate the opened menu via the up and down arrow keys and close the menu using
 the escape key or clicking out of the menu.
+
+`bitContextMenuTriggerFor` opens on `Shift+F10` or the `ContextMenu` key, so the menu is reachable
+without a pointer. That only works if the host is focusable — see the context menu guidelines above.
+It sets `aria-haspopup` but not `aria-expanded`: its host is an arbitrary region with no role, and
+`aria-expanded` is not a global attribute, so binding it there would be invalid ARIA.

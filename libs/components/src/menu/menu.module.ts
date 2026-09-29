@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { ContextMenuTriggerForDirective } from "./context-menu-trigger-for.directive";
 import { MenuCloseDirective } from "./menu-close.directive";
 import { MenuDividerComponent } from "./menu-divider.component";
 import { MenuItemComponent } from "./menu-item.component";
@@ -10,6 +11,7 @@ import { MenuComponent } from "./menu.component";
   imports: [
     MenuComponent,
     MenuTriggerForDirective,
+    ContextMenuTriggerForDirective,
     MenuItemComponent,
     MenuDividerComponent,
     MenuCloseDirective,
@@ -17,6 +19,7 @@ import { MenuComponent } from "./menu.component";
   exports: [
     MenuComponent,
     MenuTriggerForDirective,
+    ContextMenuTriggerForDirective,
     MenuItemComponent,
     MenuDividerComponent,
     MenuCloseDirective,
