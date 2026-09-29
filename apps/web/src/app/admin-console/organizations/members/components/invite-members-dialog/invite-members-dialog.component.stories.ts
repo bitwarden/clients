@@ -255,7 +255,7 @@ export default {
         { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
           provide: OrganizationDomainsService,
-          useValue: { verifiedDomains: () => Promise.resolve([]) },
+          useValue: { verifiedDomains$: () => of([]) },
         },
       ],
     }),
