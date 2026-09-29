@@ -73,8 +73,8 @@ describe("PolicyService", () => {
 
     await policyService.upsert(newPolicy, userId);
 
-    // upsert writes to the confirmed-only POLICIES state; assert against it directly since
-    // policies$ now reads from the accepted-or-confirmed state.
+    // upsert writes to the legacy POLICIES state; assert against it directly since
+    // policies$ now reads from the new state (`policiesNew`).
     expect(await firstValueFrom(singleUserState.state$)).toEqual(
       arrayToRecord([existingPolicy, newPolicy]),
     );
@@ -90,8 +90,8 @@ describe("PolicyService", () => {
     const replacementPolicy = policyData("2", "test-organization", PolicyType.DisableSend, true);
     await policyService.replace({ "2": replacementPolicy }, userId);
 
-    // replace writes to the confirmed-only POLICIES state; assert against it directly since
-    // policies$ now reads from the accepted-or-confirmed state.
+    // replace writes to the legacy POLICIES state; assert against it directly since
+    // policies$ now reads from the new state (`policiesNew`).
     expect(await firstValueFrom(singleUserState.state$)).toEqual({ "2": replacementPolicy });
   });
 
@@ -342,20 +342,41 @@ describe("PolicyService", () => {
   });
 
   describe("policies$", () => {
-    it("returns policies from the accepted-or-confirmed state", async () => {
-      const policies = [
-        new Policy(policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true)),
-        new Policy(policyData("policy2", "org1", PolicyType.ActivateAutofill, true)),
-      ];
-      newPolicyService.policies$.calledWith(userId).mockReturnValue(of(policies));
+    it("emits policies for confirmed organizations only and ignores accepted organizations", async () => {
+      const confirmedPolicy = new Policy(
+        policyData("policy1", "confirmedOrg", PolicyType.DisablePersonalVaultExport, true),
+      );
+      const acceptedPolicy = new Policy(
+        policyData("policy2", "acceptedOrg", PolicyType.ActivateAutofill, true),
+      );
+      newPolicyService.policies$
+        .calledWith(userId)
+        .mockReturnValue(of([confirmedPolicy, acceptedPolicy]));
+      organizationService.organizations$
+        .calledWith(userId)
+        .mockReturnValue(
+          of([
+            organization("confirmedOrg", true, true, OrganizationUserStatusType.Confirmed, false),
+          ]),
+        );
+      organizationService.acceptedOrganizations$
+        .calledWith(userId)
+        .mockReturnValue(
+          of([organization("acceptedOrg", true, true, OrganizationUserStatusType.Accepted, false)]),
+        );
 
       const result = await firstValueFrom(policyService.policies$(userId));
 
-      expect(result).toEqual(policies);
+      expect(result).toEqual([confirmedPolicy]);
     });
 
     it("returns an empty array when there are no policies", async () => {
       newPolicyService.policies$.calledWith(userId).mockReturnValue(of([]));
+      organizationService.organizations$
+        .calledWith(userId)
+        .mockReturnValue(
+          of([organization("org1", true, true, OrganizationUserStatusType.Confirmed, false)]),
+        );
 
       const result = await firstValueFrom(policyService.policies$(userId));
 

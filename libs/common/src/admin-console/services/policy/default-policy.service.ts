@@ -40,11 +40,17 @@ export class DefaultPolicyService implements PolicyService {
     return this.stateProvider.getUser(userId, POLICIES);
   }
 
-  policies$(userId: UserId) {
-    // Read from the accepted-or-confirmed state (`policiesNew`).
-    // This is a temporary redirect and will be removed once `policiesNew` state is
-    // folded back into the main `policies` state, completing the migration cycle.
-    return this.newPolicyService.policies$(userId);
+  policies$(userId: UserId): Observable<Policy[]> {
+    // Limit to confirmed organizations only to keep existing contract.
+    return combineLatest([
+      this.newPolicyService.policies$(userId),
+      this.organizationService.organizations$(userId),
+    ]).pipe(
+      map(([policies, confirmedOrganizations]) => {
+        const confirmedOrganizationIds = new Set(confirmedOrganizations.map((o) => o.id));
+        return policies.filter((p) => confirmedOrganizationIds.has(p.organizationId));
+      }),
+    );
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId): Observable<Policy[]> {
