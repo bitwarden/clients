@@ -33,13 +33,14 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { KeeperAuthError, KeeperAuthErrorCode, KeeperRegion } from "../../importers/keeper/access";
+import { KeeperRegion } from "../../importers/keeper/access";
 import { ImportResult } from "../../models";
 import { ImportRecordError } from "../../models/import-record-error";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
 import { keeperImportGate, shouldSubmitAfterDialog } from "./keeper-import-gate";
 import { KEEPER_REGION_OPTIONS } from "./keeper-region-options";
+import { keeperValidationErrorI18nKey } from "./keeper-validation-error";
 import {
   PartialImportDialogComponent,
   PartialImportDialogData,
@@ -179,7 +180,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
       this.logService.error(`Keeper importer error: ${error}`);
       email.setErrors({
         errors: {
-          message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+          message: this.i18nService.t(keeperValidationErrorI18nKey(error)),
         },
       });
       email.markAsTouched();
@@ -208,21 +209,5 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     );
     const dialogResult = await lastValueFrom(dialog.closed);
     return shouldSubmitAfterDialog(canImport, dialogResult);
-  }
-
-  private getValidationErrorI18nKey(error: unknown): string {
-    if (error instanceof KeeperAuthError) {
-      switch (error.code) {
-        case KeeperAuthErrorCode.Cancelled:
-          return "multifactorAuthenticationCancelled";
-        case KeeperAuthErrorCode.MfaFailed:
-          return "multifactorAuthenticationFailed";
-        case KeeperAuthErrorCode.UnsupportedTwoFactorMethod:
-          return "keeperUnsupported2faMethod";
-        case KeeperAuthErrorCode.SocketError:
-          return "keeperConnectionError";
-      }
-    }
-    return "errorOccurred";
   }
 }

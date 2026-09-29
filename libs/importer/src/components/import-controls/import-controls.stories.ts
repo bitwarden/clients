@@ -1,20 +1,25 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { map, Observable } from "rxjs";
+import { map, Observable, of } from "rxjs";
 import { action } from "storybook/actions";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { I18nMockService } from "@bitwarden/components";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 
 import { DataLoader, Loader } from "../../metadata";
-import { ImportOption, ImportType } from "../../models";
+import { CredentialKind, ImportOption, ImportType } from "../../models";
 import {
   ImporterCapabilities,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
 } from "../../services";
+import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
+import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
 import { ImportControlsComponent } from "./import-controls.component";
 
@@ -121,6 +126,8 @@ const options: Record<string, ImportOption> = {
     name: "KeePass (kdbx)",
     acceptedFileTypes: ["kdbx"],
     pasteFormats: [],
+    // Matches production; without it KdbxCredentials would exercise the wrong (file) branch.
+    sdk: { fileTypes: ["kdbx"], credentialKind: CredentialKind.passwordWithKeyFile },
     sourceName: "KeePass",
     instructionLink: "https://bitwarden.com/help/import-from-keepass/",
   }),
@@ -128,6 +135,13 @@ const options: Record<string, ImportOption> = {
 
 const importServiceStub: Partial<ImportServiceAbstraction> = {
   getImportOption: (id: ImportType) => options[id],
+  // Without these, Continue throws "not a function", swallowed into a silently-empty dialog.
+  getImporter: () => ({}) as any,
+  import: async () =>
+    ({ success: true, ciphers: [], folders: [], collections: [], errors: [] }) as any,
+  importImportResult: async (result) => result as any,
+  importWithSdk: async () => ({ ciphers: [], folders: 0, collections: 0 }) as any,
+  sdkErrorMessageKey: () => undefined,
 };
 
 function metadataService(
@@ -142,6 +156,7 @@ function metadataService(
         { id: "Default", name: "Default" },
         { id: "Profile 1", name: "Work" },
       ]),
+    getChromiumLogins: () => Promise.resolve([]),
   };
 }
 
@@ -153,6 +168,7 @@ function metadataServiceNoProfiles(): ImportMetadataServiceAbstraction {
         map((type): ImporterCapabilities => ({ type, loaders: [Loader.file, Loader.chromium] })),
       ),
     getAvailableProfiles: () => Promise.resolve([]),
+    getChromiumLogins: () => Promise.resolve([]),
   };
 }
 
@@ -178,6 +194,41 @@ function decoratorsFor(
           useValue: { error: action("LogService.error") } as Partial<LogService>,
         },
         {
+          provide: DialogService,
+          // Resolves immediately so a story reaching Continue doesn't hang on a real dialog.
+          useValue: {
+            open: () => ({ closed: of(undefined) }),
+          } as unknown as Partial<DialogService>,
+        },
+        {
+          provide: ToastService,
+          useValue: { showToast: action("ToastService.showToast") } as Partial<ToastService>,
+        },
+        {
+          provide: PolicyService,
+          useValue: { policyAppliesToUser$: () => of(false) } as Partial<PolicyService>,
+        },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: "storybook-user" }) } as Partial<AccountService>,
+        },
+        {
+          provide: SyncService,
+          useValue: { fullSync: () => Promise.resolve(true) } as Partial<SyncService>,
+        },
+        {
+          provide: KeeperDirectImportService,
+          useValue: {
+            handleImport: () => Promise.reject(new Error("Not wired up in Storybook.")),
+          } as Partial<KeeperDirectImportService>,
+        },
+        {
+          provide: LastPassDirectImportService,
+          useValue: {
+            handleImport: () => Promise.reject(new Error("Not wired up in Storybook.")),
+          } as Partial<LastPassDirectImportService>,
+        },
+        {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
@@ -191,6 +242,14 @@ function decoratorsFor(
               callout: "Callout",
               required: "required",
               error: "Error",
+              // Resolved by real onContinue() paths: kdbx validation, rejected imports, empty
+              // manual-mode submissions.
+              invalidMasterPassword: "Invalid master password",
+              errorOccurred: "An error has occurred.",
+              selectFile: "Select a file.",
+              selectFormat: "Select the format of the import file.",
+              // Chromium's stub always resolves zero logins, so Continue always hits this key.
+              importNothingError: "Nothing was imported.",
               // bit-spinner resolves this as its default aria title — hit by the Chromium story
               // specifically, which briefly shows the spinner while capabilities resolve.
               loading: "Loading",

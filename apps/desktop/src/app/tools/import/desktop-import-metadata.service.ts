@@ -6,12 +6,14 @@ import {
   ImportOptionData,
   DefaultImportMetadataService,
   ImportMetadataServiceAbstraction,
+  ImporterLoginResult,
   ImporterProfile,
   DataLoader,
   Loader,
   chromiumBrowserNameFor,
 } from "@bitwarden/importer-core";
 
+import { loadChromiumLogins } from "./chromium-login-loader";
 import { loadChromiumProfiles } from "./chromium-profile-loader";
 
 export class DesktopImportMetadataService
@@ -68,5 +70,9 @@ export class DesktopImportMetadataService
 
   async getAvailableProfiles(type: ImportType): Promise<ImporterProfile[]> {
     return loadChromiumProfiles(chromiumBrowserNameFor(type), this.i18nService);
+  }
+
+  async getChromiumLogins(type: ImportType, profileId: string): Promise<ImporterLoginResult[]> {
+    return loadChromiumLogins(chromiumBrowserNameFor(type), profileId, this.i18nService);
   }
 }

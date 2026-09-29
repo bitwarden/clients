@@ -38,5 +38,7 @@ export class ImportControlsWebComponent {
     void this.router.navigate(["/tools/import"]);
   }
 
-  protected onContinue(): void {}
+  protected onContinue(): void {
+    void this.router.navigate(["/vault"]);
+  }
 }

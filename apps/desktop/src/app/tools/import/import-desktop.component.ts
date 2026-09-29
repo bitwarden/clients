@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/importer-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
+import { loadChromiumLogins } from "./chromium-login-loader";
 import { loadChromiumProfiles } from "./chromium-profile-loader";
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
 
@@ -79,10 +80,6 @@ export class ImportDesktopComponent {
     browser: string,
     profile: string,
   ): Promise<chromium_importer.LoginImportResult[]> {
-    try {
-      return await ipc.tools.chromiumImporter.importLogins(browser, profile);
-    } catch {
-      throw new Error(this.i18nService.t("errorOccurred"));
-    }
+    return loadChromiumLogins(browser, profile, this.i18nService);
   }
 }

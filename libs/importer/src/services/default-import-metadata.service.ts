@@ -8,6 +8,7 @@ import { availableLoaders } from "../util";
 
 import {
   ImporterCapabilities,
+  ImporterLoginResult,
   ImporterProfile,
   ImportMetadataServiceAbstraction,
 } from "./import-metadata.service.abstraction";
@@ -41,6 +42,10 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
   }
 
   async getAvailableProfiles(type: ImportType): Promise<ImporterProfile[]> {
+    return [];
+  }
+
+  async getChromiumLogins(type: ImportType, profileId: string): Promise<ImporterLoginResult[]> {
     return [];
   }
 }

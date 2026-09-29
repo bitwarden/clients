@@ -156,8 +156,7 @@ export const importOptionsById = deepFreeze({
     name: "LastPass",
     featuredImporter: true,
     isBrowser: false,
-    // LastPass can also export as an HTML file; import.component.ts's getFileContents extracts
-    // the CSV data from a <pre> tag when the uploaded file is text/html.
+    // LastPass can also export HTML; read-import-file-contents.ts extracts the <pre> CSV data.
     acceptedFileTypes: ["csv", "html"],
     pasteFormats: ["csv"],
     hasDirectImporter: true,
@@ -180,10 +179,7 @@ export const importOptionsById = deepFreeze({
     name: "1Password (1pux/json)",
     featuredImporter: true,
     isBrowser: false,
-    // .1pux is a zip container, unzipped to json before parsing — but import.component.ts's
-    // getFileContents only unzips when the file is actually a .1pux; a plain .json export for
-    // this format falls through untouched to parse(), so json is a real accepted/pasteable
-    // input too.
+    // .1pux is a zip, unzipped to json before parsing; a plain .json export is also accepted as-is.
     acceptedFileTypes: ["1pux", "json"],
     pasteFormats: ["json"],
     hasDirectImporter: false,
@@ -311,9 +307,7 @@ export const importOptionsById = deepFreeze({
     name: "ProtonPass (zip/json)",
     featuredImporter: false,
     isBrowser: false,
-    // .zip is unzipped to json before parsing, but import.component.ts's getFileContents only
-    // unzips when the file is actually a zip; a plain .json export falls through untouched to
-    // parse(), so json is a real accepted/pasteable input too.
+    // .zip is unzipped to json before parsing; a plain .json export is also accepted as-is.
     acceptedFileTypes: ["zip", "json"],
     pasteFormats: ["json"],
     hasDirectImporter: false,

@@ -4,18 +4,30 @@ import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { map, of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService, ToastService } from "@bitwarden/components";
 
+import { KeeperAuthError, KeeperAuthErrorCode } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
-import { ImportOption, ImportType } from "../../models";
+import { CredentialKind, ImportOption, ImportResult, ImportType } from "../../models";
 import {
   ImporterCapabilities,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
 } from "../../services";
+import {
+  ImportErrorDialogComponent,
+  ImportSkippedItemsDialogComponent,
+  ImportSuccessDialogComponent,
+} from "../dialog";
+import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
+import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
 import { ImportControlsComponent } from "./import-controls.component";
 
@@ -26,23 +38,39 @@ describe("ImportControlsComponent", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let logService: MockProxy<LogService>;
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
+  let dialogService: MockProxy<DialogService>;
+  let toastService: MockProxy<ToastService>;
+  let policyService: MockProxy<PolicyService>;
+  let accountService: MockProxy<AccountService>;
+  let syncService: MockProxy<SyncService>;
+  let keeperDirectImportService: MockProxy<KeeperDirectImportService>;
+  let lastPassDirectImportService: MockProxy<LastPassDirectImportService>;
 
   const component = () => fixture.componentInstance as any;
   const byId = (id: string) => fixture.debugElement.query(By.css(`#${id}`));
+
+  const baseProviders = () => [
+    { provide: ImportServiceAbstraction, useValue: importService },
+    { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
+    { provide: PlatformUtilsService, useValue: platformUtilsService },
+    { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+    { provide: LogService, useValue: logService },
+    { provide: LiveAnnouncer, useValue: liveAnnouncer },
+    { provide: DialogService, useValue: dialogService },
+    { provide: ToastService, useValue: toastService },
+    { provide: PolicyService, useValue: policyService },
+    { provide: AccountService, useValue: accountService },
+    { provide: SyncService, useValue: syncService },
+    { provide: KeeperDirectImportService, useValue: keeperDirectImportService },
+    { provide: LastPassDirectImportService, useValue: lastPassDirectImportService },
+  ];
 
   const setup = async (importType: ImportType, clientType: ClientType) => {
     platformUtilsService.getClientType.mockReturnValue(clientType);
 
     await TestBed.configureTestingModule({
       imports: [ImportControlsComponent],
-      providers: [
-        { provide: ImportServiceAbstraction, useValue: importService },
-        { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
-        { provide: PlatformUtilsService, useValue: platformUtilsService },
-        { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
-        { provide: LogService, useValue: logService },
-        { provide: LiveAnnouncer, useValue: liveAnnouncer },
-      ],
+      providers: baseProviders(),
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImportControlsComponent);
@@ -65,6 +93,19 @@ describe("ImportControlsComponent", () => {
     // profiles directly through the error branch instead of an empty-success one.
     importMetadataService.getAvailableProfiles.mockResolvedValue([]);
     platformUtilsService = mock<PlatformUtilsService>();
+
+    dialogService = mock<DialogService>();
+    // Defaults dialog.closed to a resolved emission so unrelated tests don't hang.
+    dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+    toastService = mock<ToastService>();
+    policyService = mock<PolicyService>();
+    policyService.policyAppliesToUser$.mockReturnValue(of(false));
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: "test-user-id" } as unknown as Account);
+    syncService = mock<SyncService>();
+    syncService.fullSync.mockResolvedValue(true);
+    keeperDirectImportService = mock<KeeperDirectImportService>();
+    lastPassDirectImportService = mock<LastPassDirectImportService>();
 
     const options: Record<string, ImportOption> = {
       keeper: buildOption({
@@ -148,6 +189,7 @@ describe("ImportControlsComponent", () => {
         name: "KeePass (kdbx)",
         acceptedFileTypes: ["kdbx"],
         pasteFormats: [],
+        sdk: { fileTypes: ["kdbx"], credentialKind: CredentialKind.passwordWithKeyFile },
       }),
       bravecsv: buildOption({
         id: "bravecsv",
@@ -225,14 +267,7 @@ describe("ImportControlsComponent", () => {
 
       await TestBed.configureTestingModule({
         imports: [ImportControlsComponent],
-        providers: [
-          { provide: ImportServiceAbstraction, useValue: importService },
-          { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
-          { provide: PlatformUtilsService, useValue: platformUtilsService },
-          { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
-          { provide: LogService, useValue: logService },
-          { provide: LiveAnnouncer, useValue: liveAnnouncer },
-        ],
+        providers: baseProviders(),
       }).compileComponents();
       fixture = TestBed.createComponent(ImportControlsComponent);
       fixture.componentRef.setInput("importType", "chromecsv");
@@ -417,14 +452,7 @@ describe("ImportControlsComponent", () => {
 
       await TestBed.configureTestingModule({
         imports: [ImportControlsComponent],
-        providers: [
-          { provide: ImportServiceAbstraction, useValue: importService },
-          { provide: ImportMetadataServiceAbstraction, useValue: importMetadataService },
-          { provide: PlatformUtilsService, useValue: platformUtilsService },
-          { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
-          { provide: LogService, useValue: logService },
-          { provide: LiveAnnouncer, useValue: liveAnnouncer },
-        ],
+        providers: baseProviders(),
       }).compileComponents();
       fixture = TestBed.createComponent(ImportControlsComponent);
       fixture.componentRef.setInput("importType", "chromecsv");
@@ -541,6 +569,24 @@ describe("ImportControlsComponent", () => {
 
       expect(component().formGroup.controls.keeperEmail.disabled).toBe(false);
       expect(component().formGroup.controls.lastPassEmail.disabled).toBe(true);
+    });
+
+    it("does not show a stale required error immediately upon re-entering the credentials step", async () => {
+      // touched survives disable/enable, so a stale error would else flash on re-entry.
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      await component().submit();
+      expect(component().formGroup.controls.keeperEmail.touched).toBe(true);
+      expect(component().formGroup.controls.keeperEmail.invalid).toBe(true);
+
+      component().toggleToManual();
+      component().toggleToAlternate();
+      fixture.detectChanges();
+      component().continueFromIntro();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.keeperEmail.touched).toBe(false);
     });
 
     it("enables the LastPass email field, not Keeper's, for lastpasscsv", async () => {
@@ -858,6 +904,21 @@ describe("ImportControlsComponent", () => {
       expect(component().formGroup.controls.keyFile.value).toBeNull();
       expect(component().showKeyFile()).toBe(false);
     });
+
+    it("does not show a stale 'invalid master password' error on a different kdbx file that hasn't been touched yet", async () => {
+      // setValue("") clears the value but not touched, so a stale error would else still show.
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({ name: "personal.kdbx" } as File);
+      fixture.detectChanges();
+      await component().submit();
+      expect(component().formGroup.controls.kdbxPassword.touched).toBe(true);
+      expect(component().formGroup.controls.kdbxPassword.invalid).toBe(true);
+
+      component().formGroup.controls.file.setValue({ name: "work.kdbx" } as File);
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.kdbxPassword.touched).toBe(false);
+    });
   });
 
   describe("changing importType on a live instance", () => {
@@ -929,28 +990,148 @@ describe("ImportControlsComponent", () => {
       expect(backSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("emits continue from a manual mode's Continue button", async () => {
+    it("emits continue once a real import actually completes successfully", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+      expect(logService.warning).not.toHaveBeenCalled();
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
+    it("still emits continue — and logs, rather than throws — when the post-import sync throws", async () => {
+      // The import already succeeded — a sync hiccup shouldn't block navigation or scare the user.
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      syncService.fullSync.mockRejectedValue(new Error("network down"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+      expect(logService.error).toHaveBeenCalledWith(
+        "Post-import sync failed:",
+        expect.objectContaining({ message: "network down" }),
+      );
+    });
+
+    it("still emits continue — and logs — when the post-import sync merely resolves false (the real failure shape: fullSync(true) doesn't set allowThrowOnError, so an ordinary sync failure resolves false rather than throwing)", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+      syncService.fullSync.mockResolvedValue(false);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+      expect(logService.warning).toHaveBeenCalledWith("Post-import sync did not complete");
+    });
+
+    it("does not emit continue — and shows a 'select a file' toast, not 'select a format' — when Continue is clicked with nothing to import", async () => {
+      // resolvedFormat() is undefined here for a different reason than a format collision.
       await setup("dashlanecsv", ClientType.Web);
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
-      component().onContinue();
+      await component().onContinue();
 
-      expect(continueSpy).toHaveBeenCalledTimes(1);
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "selectFile" }),
+      );
+    });
+
+    it("shows a 'select a format' toast, not 'select a file', when a chosen file is genuinely ambiguous", async () => {
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      fixture.detectChanges();
+      expect(component().needsFormatDisambiguation()).toBe(true);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "selectFormat" }),
+      );
+    });
+
+    it("shows the error dialog with errorReadingFile — not a 'select a file' toast — when a chosen file can't be read", async () => {
+      // A real File, not a {name} stand-in, so JSZip genuinely fails to parse it.
+      await setup("1password1pux", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["not a zip"], "export.1pux"));
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "selectFile" }),
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ message: "errorReadingFile" }) }),
+      );
+    });
+
+    it("shows the error dialog with errorReadingFile — not a 'select a file' toast — when a chosen file reads successfully but yields no usable content", async () => {
+      // A successful-but-empty read must not be conflated with "no file chosen at all".
+      await setup("lastpasscsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(
+        new File(["<html><body><pre></pre></body></html>"], "export.html", { type: "text/html" }),
+      );
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(continueSpy).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "selectFile" }),
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ message: "errorReadingFile" }) }),
+      );
     });
 
     it("emits continue when the real Continue button is clicked outside the direct-intro sub-step", async () => {
       await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
       byId("importer-controls_button_continue").nativeElement.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });
 
     it("also submits via the form's native submit event, not just a button click — e.g. pressing Enter in a field", async () => {
       await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
@@ -961,6 +1142,508 @@ describe("ImportControlsComponent", () => {
       await fixture.whenStable();
 
       expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("executing the import", () => {
+    it("blocks the import and shows a toast when the personal ownership policy applies, without calling any import service", async () => {
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "personalOwnershipPolicyInEffectImports" }),
+      );
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("opens the generic error dialog and does not emit continue when the import throws", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockRejectedValue(new Error("server rejected the import"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.any(Error) }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("opens the skipped-items dialog, not the success dialog, when the import partially succeeds", async () => {
+      await setup("dashlanecsv", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      importService.getImporter.mockReturnValue({} as any);
+      const result = new ImportResult();
+      result.errors = [{ id: "row-2", reason: "error" } as any];
+      importService.import.mockResolvedValue(result);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportSkippedItemsDialogComponent,
+        expect.objectContaining({ data: { errors: result.errors } }),
+      );
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not attempt an SDK import when the kdbx master password is empty, but does once it's entered", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      fixture.detectChanges();
+
+      await component().submit();
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
+
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      importService.importWithSdk.mockResolvedValue({} as any);
+
+      await component().submit();
+      expect(importService.importWithSdk).toHaveBeenCalledWith(
+        "keepasskdbx",
+        expect.any(Uint8Array),
+        { kind: "passwordWithKeyFile", password: "hunter2", keyFile: null },
+        undefined,
+        undefined,
+        false,
+      );
+    });
+
+    it("throws instead of silently cancelling when an SDK format declares an unrecognized credential kind", async () => {
+      // A future SDK importer declaring an unhandled credential kind must fail loudly, not no-op.
+      const realGetImportOption = importService.getImportOption.getMockImplementation();
+      importService.getImportOption.mockImplementation((id) =>
+        id === "keepasskdbx"
+          ? buildOption({
+              id: "keepasskdbx",
+              name: "KeePass (kdbx)",
+              acceptedFileTypes: ["kdbx"],
+              pasteFormats: [],
+              sdk: { fileTypes: ["kdbx"], credentialKind: "somethingNew" as CredentialKind },
+            })
+          : realGetImportOption?.(id),
+      );
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("runs a kdbx import through the SDK path, not the generic importer path", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      importService.importWithSdk.mockResolvedValue({} as any);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.importWithSdk).toHaveBeenCalledWith(
+        "keepasskdbx",
+        expect.any(Uint8Array),
+        { kind: "passwordWithKeyFile", password: "hunter2", keyFile: null },
+        undefined,
+        undefined,
+        false,
+      );
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportSuccessDialogComponent,
+        expect.objectContaining({ data: { sdkSummary: {} } }),
+      );
+    });
+
+    it("maps a kdbx SDK error through sdkErrorMessageKey instead of showing the raw SDK message", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("wrong-password");
+      importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
+      importService.sdkErrorMessageKey.mockReturnValue("invalidFilePassword");
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.sdkErrorMessageKey).toHaveBeenCalledWith(
+        "keepasskdbx",
+        expect.any(Error),
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ message: "invalidFilePassword" }),
+        }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows a 'select a file' toast instead of submitting a zero-byte kdbx file to the SDK", async () => {
+      await setup("keepass2xml", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "selectFile" }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("throws instead of silently falling through to a manual import when a direct-eligible vendor has no wired-up handler", async () => {
+      // A direct-eligible vendor with no wired-up handler must fail loudly, not dead-end silently.
+      importService.getImportOption.mockImplementation((id) =>
+        id === "dashlanecsv"
+          ? buildOption({
+              id: "dashlanecsv",
+              name: "Dashlane (csv)",
+              hasDirectImporter: true,
+              isBrowser: false,
+            })
+          : undefined,
+      );
+      await setup("dashlanecsv", ClientType.Desktop);
+      expect(component().primaryMode()).toBe("direct");
+      component().continueFromIntro();
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("runs a real Keeper direct login and import when no records fail", async () => {
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      const result = new ImportResult();
+      keeperDirectImportService.handleImport.mockResolvedValue({ result, errors: [] });
+      importService.importImportResult.mockResolvedValue(result);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(keeperDirectImportService.handleImport).toHaveBeenCalledWith(
+        "user@example.com",
+        expect.anything(),
+        undefined,
+      );
+      expect(importService.importImportResult).toHaveBeenCalledWith(
+        result,
+        undefined,
+        undefined,
+        false,
+      );
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportSuccessDialogComponent,
+        expect.objectContaining({ data: { importResult: result } }),
+      );
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("surfaces a Keeper login failure as an inline email field error, not the generic error dialog", async () => {
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      keeperDirectImportService.handleImport.mockRejectedValue(
+        new KeeperAuthError(KeeperAuthErrorCode.MfaFailed, "mfa failed"),
+      );
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(component().formGroup.controls.keeperEmail.errors).toEqual({
+        errors: { message: "multifactorAuthenticationFailed" },
+      });
+      expect(dialogService.open).not.toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not attempt a Keeper login when the email field is genuinely empty", async () => {
+      // updateValueAndValidity() clears the manual error but still re-runs real validators.
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+
+      expect(keeperDirectImportService.handleImport).not.toHaveBeenCalled();
+      expect(component().formGroup.controls.keeperEmail.touched).toBe(true);
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("recovers on a retry after a Keeper login failure, instead of leaving submit() permanently blocked", async () => {
+      // Without clearing the manual error up front, every later submit() would no-op forever.
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      keeperDirectImportService.handleImport.mockRejectedValueOnce(
+        new KeeperAuthError(KeeperAuthErrorCode.MfaFailed, "mfa failed"),
+      );
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+      expect(continueSpy).not.toHaveBeenCalled();
+
+      const result = new ImportResult();
+      keeperDirectImportService.handleImport.mockResolvedValueOnce({ result, errors: [] });
+      importService.importImportResult.mockResolvedValue(result);
+
+      await component().submit();
+
+      expect(keeperDirectImportService.handleImport).toHaveBeenCalledTimes(2);
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not import when the Keeper partial-import confirmation dialog is dismissed", async () => {
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      const result = new ImportResult();
+      result.ciphers = [{} as any];
+      keeperDirectImportService.handleImport.mockResolvedValue({
+        result,
+        errors: [{ id: "row-1", reason: "error" } as any],
+      });
+      dialogService.open.mockReturnValue({ closed: of(false) } as any);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.importImportResult).not.toHaveBeenCalled();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("imports the confirmed partial result when the Keeper confirmation dialog is accepted", async () => {
+      await setup("keeper", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.keeperEmail.setValue("user@example.com");
+      const result = new ImportResult();
+      result.ciphers = [{} as any];
+      keeperDirectImportService.handleImport.mockResolvedValue({
+        result,
+        errors: [{ id: "row-1", reason: "error" } as any],
+      });
+      dialogService.open.mockReturnValue({ closed: of(true) } as any);
+      importService.importImportResult.mockResolvedValue(result);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importService.importImportResult).toHaveBeenCalledWith(
+        result,
+        undefined,
+        undefined,
+        false,
+      );
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("runs a real LastPass direct login, then imports the resulting csv through the generic path", async () => {
+      await setup("lastpasscsv", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.lastPassEmail.setValue("user@example.com");
+      component().formGroup.controls.includeSharedFolders.setValue(true);
+      lastPassDirectImportService.handleImport.mockResolvedValue("url,username,password\n");
+      importService.getImporter.mockReturnValue({} as any);
+      const result = new ImportResult();
+      importService.import.mockResolvedValue(result);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(lastPassDirectImportService.handleImport).toHaveBeenCalledWith(
+        "user@example.com",
+        true,
+      );
+      expect(importService.getImporter).toHaveBeenCalledWith(
+        "lastpasscsv",
+        expect.any(Function),
+        undefined,
+      );
+      expect(importService.import).toHaveBeenCalledWith(
+        {},
+        "url,username,password\n",
+        undefined,
+        undefined,
+        false,
+      );
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("surfaces a LastPass login failure as an inline email field error, not the generic error dialog", async () => {
+      await setup("lastpasscsv", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.lastPassEmail.setValue("user@example.com");
+      lastPassDirectImportService.handleImport.mockRejectedValue(new Error("Invalid password"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(component().formGroup.controls.lastPassEmail.errors).toEqual({
+        errors: { message: "incorrectUsernameOrPassword" },
+      });
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("recovers on a retry after a LastPass login failure, instead of leaving submit() permanently blocked", async () => {
+      await setup("lastpasscsv", ClientType.Desktop);
+      component().continueFromIntro();
+      fixture.detectChanges();
+      component().formGroup.controls.lastPassEmail.setValue("user@example.com");
+      lastPassDirectImportService.handleImport.mockRejectedValueOnce(new Error("Invalid password"));
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().submit();
+      expect(continueSpy).not.toHaveBeenCalled();
+
+      lastPassDirectImportService.handleImport.mockResolvedValueOnce("url,username,password\n");
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+
+      await component().submit();
+
+      expect(lastPassDirectImportService.handleImport).toHaveBeenCalledTimes(2);
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not fetch Chromium logins when no profile is selected, but does once one is", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      await setup("chromecsv", ClientType.Desktop);
+
+      await component().submit();
+      expect(importMetadataService.getChromiumLogins).not.toHaveBeenCalled();
+
+      component().formGroup.controls.profile.setValue("Default");
+      importMetadataService.getChromiumLogins.mockResolvedValue([
+        { login: { url: "https://example.com", username: "alice", password: "hunter2", note: "" } },
+      ]);
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+
+      await component().submit();
+      expect(importMetadataService.getChromiumLogins).toHaveBeenCalledWith("chromecsv", "Default");
+    });
+
+    it("imports a Chromium profile's real logins through the generic csv path", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      await setup("chromecsv", ClientType.Desktop);
+      component().formGroup.controls.profile.setValue("Default");
+      importMetadataService.getChromiumLogins.mockResolvedValue([
+        { login: { url: "https://example.com", username: "alice", password: "hunter2", note: "" } },
+      ]);
+      importService.getImporter.mockReturnValue({} as any);
+      const result = new ImportResult();
+      importService.import.mockResolvedValue(result);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(importMetadataService.getChromiumLogins).toHaveBeenCalledWith("chromecsv", "Default");
+      expect(importService.getImporter).toHaveBeenCalledWith(
+        "chromecsv",
+        expect.any(Function),
+        undefined,
+      );
+      expect(importService.import).toHaveBeenCalledWith(
+        {},
+        expect.stringContaining("example.com"),
+        undefined,
+        undefined,
+        false,
+      );
+      expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens the generic error dialog when the Chromium import returns no logins at all", async () => {
+      importMetadataService.metadata$.mockReturnValue(
+        of<ImporterCapabilities>({ type: "chromecsv", loaders: [Loader.file, Loader.chromium] }),
+      );
+      await setup("chromecsv", ClientType.Desktop);
+      component().formGroup.controls.profile.setValue("Default");
+      importMetadataService.getChromiumLogins.mockResolvedValue([]);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({ data: expect.any(Error) }),
+      );
+      expect(continueSpy).not.toHaveBeenCalled();
     });
   });
 });

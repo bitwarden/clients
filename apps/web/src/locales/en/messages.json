@@ -1992,6 +1992,9 @@
   "selectFile": {
     "message": "Select a file."
   },
+  "errorReadingFile": {
+    "message": "The selected file could not be read."
+  },
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
   },

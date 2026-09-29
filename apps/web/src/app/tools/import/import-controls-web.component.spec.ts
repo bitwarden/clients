@@ -69,4 +69,14 @@ describe("ImportControlsWebComponent", () => {
 
     expect(router.navigate).toHaveBeenCalledWith(["/tools/import"]);
   });
+
+  it("navigates to the vault when the controls component emits continue", async () => {
+    await setup("keeper");
+
+    fixture.debugElement
+      .query(By.css("importer-controls"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
+  });
 });

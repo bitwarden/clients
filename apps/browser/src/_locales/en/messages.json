@@ -1763,6 +1763,9 @@
   "selectFile": {
     "message": "Select a file"
   },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
+  },
   "itemsTransferred": {
     "message": "Items transferred"
   },

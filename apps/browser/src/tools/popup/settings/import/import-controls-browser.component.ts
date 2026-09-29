@@ -42,5 +42,7 @@ export class ImportControlsBrowserComponent {
     void this.router.navigate(["/import-source-select"]);
   }
 
-  protected onContinue(): void {}
+  protected onContinue(): void {
+    void this.router.navigate(["/tabs/vault"]);
+  }
 }

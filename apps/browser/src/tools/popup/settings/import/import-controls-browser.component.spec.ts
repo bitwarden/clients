@@ -72,4 +72,14 @@ describe("ImportControlsBrowserComponent", () => {
 
     expect(router.navigate).toHaveBeenCalledWith(["/import-source-select"]);
   });
+
+  it("navigates to the vault when the controls component emits continue", async () => {
+    await setup("keeper");
+
+    fixture.debugElement
+      .query(By.css("importer-controls"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+  });
 });

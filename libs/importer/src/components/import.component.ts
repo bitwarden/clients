@@ -19,7 +19,6 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import * as JSZip from "jszip";
 import {
   Observable,
   Subject,
@@ -94,6 +93,7 @@ import {
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
+  readImportFileContents,
 } from "../services";
 
 import { ImportChromeComponent } from "./chrome";
@@ -643,7 +643,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    const importContents = await this.setImportContents();
+    let importContents: string;
+    try {
+      importContents = await this.setImportContents();
+    } catch (e) {
+      this.dialogService.open<unknown, Error>(ImportErrorDialogComponent, { data: e });
+      this.logService.error(e);
+      return;
+    }
 
     if (importContents == null || importContents === "") {
       this.toastService.showToast({
@@ -887,56 +894,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getFileContents(file: File): Promise<string> {
-    if (this.format === "1password1pux" && file.name.endsWith(".1pux")) {
-      return this.extractZipContent(file, "export.data");
-    }
-    if (
-      this.format === "protonpass" &&
-      (file.type === "application/zip" ||
-        file.type == "application/x-zip-compressed" ||
-        file.name.endsWith(".zip"))
-    ) {
-      return this.extractZipContent(file, "Proton Pass/data.json");
-    }
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsText(file, "utf-8");
-      reader.onload = (evt) => {
-        if (this.format === "lastpasscsv" && file.type === "text/html") {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString((evt.target as any).result, "text/html");
-          const pre = doc.querySelector("pre");
-          if (pre != null) {
-            resolve(pre.textContent);
-            return;
-          }
-          reject();
-          return;
-        }
-
-        resolve((evt.target as any).result);
-      };
-      reader.onerror = () => {
-        reject();
-      };
-    });
-  }
-
-  private extractZipContent(zipFile: File, contentFilePath: string): Promise<string> {
-    return new JSZip()
-      .loadAsync(zipFile)
-      .then((zip) => {
-        return zip.file(contentFilePath).async("string");
-      })
-      .then(
-        function success(content) {
-          return content;
-        },
-        function error(e) {
-          return "";
-        },
-      );
+    return readImportFileContents(this.format, file);
   }
 
   async getFilePassword(): Promise<string> {
@@ -981,14 +939,18 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     let fileContents = this.formGroup.controls.fileContents.value;
 
     if (selectedFile != null) {
+      let content: string;
       try {
-        const content = await this.getFileContents(selectedFile);
-        if (content != null) {
-          fileContents = content;
-        }
+        content = await this.getFileContents(selectedFile);
       } catch (e) {
+        // A chosen file that fails to read must error, not silently fall back to the paste box.
         this.logService.error(e);
+        throw new Error(this.i18nService.t("errorReadingFile"));
       }
+      if (content.trim() === "") {
+        throw new Error(this.i18nService.t("errorReadingFile"));
+      }
+      fileContents = content;
     }
 
     return fileContents;

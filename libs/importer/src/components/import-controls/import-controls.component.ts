@@ -5,24 +5,37 @@ import {
   computed,
   effect,
   inject,
+  Injector,
   input,
   output,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { catchError, defer, map, of, startWith, switchMap } from "rxjs";
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
+import { catchError, defer, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
   CardContentComponent,
   CheckboxModule,
+  DialogService,
   FileUploadComponent,
   FormFieldModule,
   IconButtonModule,
@@ -33,20 +46,46 @@ import {
   SegmentedCardComponent,
   SelectModule,
   SpinnerComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { KeeperRegion } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
-import { ImportOption, ImportType } from "../../models";
+import {
+  CredentialKind,
+  ImportOption,
+  ImportRecordError,
+  ImportResult,
+  ImportType,
+  SdkImportCredentials,
+  SdkImportSummary,
+} from "../../models";
 import {
   ImporterProfile,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
+  readImportFileContents,
 } from "../../services";
+import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
+import {
+  FilePasswordPromptComponent,
+  ImportErrorDialogComponent,
+  ImportSkippedItemsDialogComponent,
+  ImportSuccessDialogComponent,
+} from "../dialog";
 import { pickerDisplayNameFor, pickerFormatsFor } from "../import-source-select/picker-vendor-data";
+import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
+import { keeperImportGate, shouldSubmitAfterDialog } from "../keeper/keeper-import-gate";
 import { KEEPER_REGION_OPTIONS } from "../keeper/keeper-region-options";
+import { keeperValidationErrorI18nKey } from "../keeper/keeper-validation-error";
+import {
+  PartialImportDialogComponent,
+  PartialImportDialogData,
+} from "../keeper/partial-import-dialog.component";
+import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
+import { lastPassValidationErrorI18nKey } from "../lastpass/lastpass-validation-error";
 
 /** How import data will be provided: direct uses a vendor-specific direct importer,
  * chromium will use our Chromium importer, manual will use either a file or pasted text. */
@@ -54,6 +93,13 @@ type ImportStrategy = "direct" | "chromium" | "manual";
 
 /** The current phase of a direct importer flow */
 type DirectStep = "intro" | "credentials";
+
+/** Real discriminated union of distinct `kind`s. `cancelled` means feedback was already shown
+ *  (toast, inline error, dismissed dialog) — the caller does nothing further. */
+type ImportOutcome =
+  | { kind: "imported"; result: ImportResult }
+  | { kind: "importedWithSdk"; sdkSummary: SdkImportSummary }
+  | { kind: "cancelled" };
 
 const dedupe = (values: readonly string[]): readonly string[] => Array.from(new Set(values));
 
@@ -96,6 +142,14 @@ export class ImportControlsComponent {
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly policyService = inject(PolicyService);
+  private readonly accountService = inject(AccountService);
+  private readonly syncService = inject(SyncService);
+  // Lazy (see runKeeperDirectImport/runLastPassDirectImport): both are root singletons with
+  // constructor side effects, so eager injection would run those on every mount, incl. Web.
+  private readonly injector = inject(Injector);
   private readonly importService = inject(ImportServiceAbstraction);
   private readonly importMetadataService = inject(ImportMetadataServiceAbstraction);
 
@@ -106,7 +160,8 @@ export class ImportControlsComponent {
   readonly currentStep = input(2);
   readonly totalSteps = input(3);
 
-  /** Fires when Continue is pressed. TODO this does nothing for now.  */
+  /** Fires once the import actually succeeds, not on button click, so the parent navigates only
+   *  when there's something to see. */
   readonly continue = output<void>();
 
   /** Tells the parent component the user clicked back so that it can react.  */
@@ -275,19 +330,25 @@ export class ImportControlsComponent {
 
   protected readonly keeperRegions = KEEPER_REGION_OPTIONS;
 
+  /** Shows `invalidMasterPassword` instead of the generic required message, matching legacy. */
+  private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
+    (control.value ?? "").length > 0
+      ? null
+      : { invalidMasterPassword: { message: this.i18nService.t("invalidMasterPassword") } };
+
   protected readonly formGroup = this.formBuilder.group({
     keeperEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     keeperRegion: this.formBuilder.nonNullable.control<KeeperRegion>(KeeperRegion.Us),
     lastPassEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
     includeSharedFolders: [false],
-    kdbxPassword: [{ value: "", disabled: true }, Validators.required],
+    kdbxPassword: [{ value: "", disabled: true }, this.masterPasswordRequiredValidator],
     keyFile: [{ value: null as File | null, disabled: true }],
 
     profile: [{ value: "", disabled: true }, Validators.required],
 
     method: this.formBuilder.nonNullable.control<"file" | "paste">("file"),
     file: [null as File | null],
-    fileContents: [""],
+    fileContents: this.formBuilder.nonNullable.control(""),
 
     // Only ever active when the resolved candidate set for the current file/paste content has
     // more than one entry — today, only 1Password's Windows vs. Mac legacy CSV export.
@@ -316,7 +377,7 @@ export class ImportControlsComponent {
    *  except 1Password's Windows/Mac csv collision. */
   protected readonly candidateFormats = computed<ImportOption[]>(() => {
     if (this.method() === "paste") {
-      if (!this.pastedContent()?.trim()) {
+      if (!this.pastedContent().trim()) {
         return [];
       }
       return this.formatOptions().filter((option) => option.pasteFormats.length > 0);
@@ -373,7 +434,8 @@ export class ImportControlsComponent {
 
     this.formGroup.controls.file.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.formGroup.controls.formatChoice.reset(null);
-      this.formGroup.controls.kdbxPassword.setValue("");
+      // reset() also clears touched, so a new kdbx file doesn't show the old one's stale error.
+      this.formGroup.controls.kdbxPassword.reset("");
       this.formGroup.controls.keyFile.setValue(null);
       this.showKeyFile.set(false);
     });
@@ -421,7 +483,7 @@ export class ImportControlsComponent {
       setEnabled(this.formGroup.controls.keyFile, active && this.showKeyFile());
       if (!active) {
         this.showKeyFile.set(false);
-        this.formGroup.controls.kdbxPassword.setValue("");
+        this.formGroup.controls.kdbxPassword.reset("");
         this.formGroup.controls.keyFile.setValue(null);
       }
     });
@@ -468,6 +530,9 @@ export class ImportControlsComponent {
   }
 
   protected continueFromIntro(): void {
+    // touched survives disable/enable, so a stale error would otherwise flash on re-entry.
+    this.formGroup.controls.keeperEmail.markAsUntouched();
+    this.formGroup.controls.lastPassEmail.markAsUntouched();
     this.directStep.set("credentials");
   }
 
@@ -475,8 +540,285 @@ export class ImportControlsComponent {
     this.showKeyFile.set(true);
   }
 
-  protected onContinue(): void {
+  protected async onContinue(): Promise<void> {
+    if (await this.blockedByPersonalOwnershipPolicy()) {
+      return;
+    }
+
+    let outcome: ImportOutcome;
+    try {
+      outcome = await this.runImport();
+    } catch (error) {
+      this.logService.error(error);
+      this.dialogService.open(ImportErrorDialogComponent, { data: error as Error });
+      return;
+    }
+
+    if (outcome.kind === "cancelled") {
+      return;
+    }
+
+    // Before the dialog, not after: keeps Continue's spinner (not the dialog) up during the
+    // wait. Failures are only logged — the import already succeeded, so this shouldn't block.
+    try {
+      const synced = await this.syncService.fullSync(true);
+      if (!synced) {
+        // fullSync(true) sets forceSync only, so an ordinary failure resolves false, not throws.
+        this.logService.warning("Post-import sync did not complete");
+      }
+    } catch (error) {
+      this.logService.error("Post-import sync failed:", error);
+    }
+
+    if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
+      this.dialogService.open(ImportSkippedItemsDialogComponent, {
+        data: { errors: outcome.result.errors },
+      });
+    } else {
+      this.dialogService.open(ImportSuccessDialogComponent, {
+        data:
+          outcome.kind === "imported"
+            ? { importResult: outcome.result }
+            : { sdkSummary: outcome.sdkSummary },
+      });
+    }
+
     this.continue.emit();
+  }
+
+  private async blockedByPersonalOwnershipPolicy(): Promise<boolean> {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const policyApplies = await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    );
+    if (!policyApplies) {
+      return false;
+    }
+
+    this.toastService.showToast({
+      variant: "error",
+      title: undefined,
+      message: this.i18nService.t("personalOwnershipPolicyInEffectImports"),
+    });
+    return true;
+  }
+
+  private async runImport(): Promise<ImportOutcome> {
+    if (this.primaryMode() === "direct") {
+      if (this.isKeeper()) {
+        return this.runKeeperDirectImport();
+      }
+      if (this.isLastPass()) {
+        return this.runLastPassDirectImport();
+      }
+      // Reaching here means a direct vendor was added with no handler wired up — fail loudly.
+      throw new Error(`No direct-import handler is wired up for vendor: ${this.importType()}`);
+    }
+    if (this.primaryMode() === "chromium") {
+      return this.runChromiumImport();
+    }
+    return this.runManualImport();
+  }
+
+  private async runKeeperDirectImport(): Promise<ImportOutcome> {
+    let handled: { result: ImportResult; errors: ImportRecordError[] };
+    try {
+      handled = await this.injector
+        .get(KeeperDirectImportService)
+        .handleImport(
+          this.formGroup.controls.keeperEmail.value!,
+          this.formGroup.controls.keeperRegion.value,
+          undefined,
+        );
+    } catch (error) {
+      this.logService.error(`Keeper importer error: ${error}`);
+      this.formGroup.controls.keeperEmail.setErrors({
+        errors: { message: this.i18nService.t(keeperValidationErrorI18nKey(error)) },
+      });
+      this.formGroup.controls.keeperEmail.markAsTouched();
+      return { kind: "cancelled" };
+    }
+
+    const { result, errors } = handled;
+    const { needsConfirmation, canImport } = keeperImportGate(result, errors);
+    if (needsConfirmation) {
+      const dialog = this.dialogService.open<boolean, PartialImportDialogData>(
+        PartialImportDialogComponent,
+        { data: { errors, canImport } },
+      );
+      const confirmed = await firstValueFrom(dialog.closed);
+      if (!shouldSubmitAfterDialog(canImport, confirmed)) {
+        return { kind: "cancelled" };
+      }
+    }
+
+    return {
+      kind: "imported",
+      result: await this.importService.importImportResult(result, undefined, undefined, false),
+    };
+  }
+
+  private async runLastPassDirectImport(): Promise<ImportOutcome> {
+    let csv: string;
+    try {
+      csv = await this.injector
+        .get(LastPassDirectImportService)
+        .handleImport(
+          this.formGroup.controls.lastPassEmail.value!,
+          this.formGroup.controls.includeSharedFolders.value ?? false,
+        );
+    } catch (error) {
+      this.logService.error(`LP importer error: ${error}`);
+      this.formGroup.controls.lastPassEmail.setErrors({
+        errors: { message: this.i18nService.t(lastPassValidationErrorI18nKey(error)) },
+      });
+      this.formGroup.controls.lastPassEmail.markAsTouched();
+      return { kind: "cancelled" };
+    }
+
+    return { kind: "imported", result: await this.runGenericImport("lastpasscsv", csv) };
+  }
+
+  private async runChromiumImport(): Promise<ImportOutcome> {
+    const logins = await this.importMetadataService.getChromiumLogins(
+      this.importType(),
+      this.formGroup.controls.profile.value!,
+    );
+
+    const csvResult = chromiumLoginsToCsv(logins);
+    if ("errorKey" in csvResult) {
+      if (csvResult.errorKey === "errorOccurred") {
+        this.logService.error("Chromium importer failure:", csvResult.failureDetail);
+      }
+      throw new Error(this.i18nService.t(csvResult.errorKey));
+    }
+
+    return {
+      kind: "imported",
+      result: await this.runGenericImport(this.importType(), csvResult.csv),
+    };
+  }
+
+  private async runManualImport(): Promise<ImportOutcome> {
+    const format = this.resolvedFormat();
+    if (format == null) {
+      // Unresolved means no content yet, or an unresolved format collision — only the latter is
+      // genuinely "select a format".
+      const messageKey = this.candidateFormats().length > 1 ? "selectFormat" : "selectFile";
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t(messageKey),
+      });
+      return { kind: "cancelled" };
+    }
+
+    if (this.importService.getImportOption(format)?.sdk != null) {
+      return this.runSdkImport(format);
+    }
+
+    const contents =
+      this.method() === "paste" ? this.pastedContent() : await this.readChosenFileContents(format);
+
+    return { kind: "imported", result: await this.runGenericImport(format, contents) };
+  }
+
+  // Caller guarantees a chosen file exists here; empty/unreadable content throws errorReadingFile.
+  private async readChosenFileContents(format: ImportType): Promise<string> {
+    let contents: string;
+    try {
+      contents = await readImportFileContents(format, this.chosenFile()!);
+    } catch (error) {
+      this.logService.error(error);
+      throw new Error(this.i18nService.t("errorReadingFile"));
+    }
+    if (contents.trim() === "") {
+      throw new Error(this.i18nService.t("errorReadingFile"));
+    }
+    return contents;
+  }
+
+  private async runSdkImport(format: ImportType): Promise<ImportOutcome> {
+    const file = this.chosenFile();
+    const fileBytes = file == null ? null : new Uint8Array(await file.arrayBuffer());
+    if (fileBytes == null || fileBytes.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
+      return { kind: "cancelled" };
+    }
+
+    const credentials = await this.collectSdkCredentials(
+      this.importService.getImportOption(format)?.sdk?.credentialKind,
+    );
+    if (credentials == null) {
+      // Credentials dialog dismissed.
+      return { kind: "cancelled" };
+    }
+
+    try {
+      const sdkSummary = await this.importService.importWithSdk(
+        format,
+        fileBytes,
+        credentials,
+        undefined,
+        undefined,
+        false,
+      );
+      return { kind: "importedWithSdk", sdkSummary };
+    } catch (error) {
+      // Mirrors legacy's SDK error mapping — else a wrong kdbx password shows the raw SDK string.
+      this.logService.error("SDK importer error:", error);
+      const messageKey = this.importService.sdkErrorMessageKey(format, error);
+      throw messageKey != null ? new Error(this.i18nService.t(messageKey)) : error;
+    }
+  }
+
+  /** Dispatches on the format's declared SDK credential kind, matching legacy's own logic. */
+  private async collectSdkCredentials(
+    kind: CredentialKind | undefined,
+  ): Promise<SdkImportCredentials | null> {
+    switch (kind) {
+      case CredentialKind.none:
+        return { kind: "none" };
+      case CredentialKind.password: {
+        const password = await this.promptForPassword();
+        return password === "" ? null : { kind: "password", password };
+      }
+      case CredentialKind.passwordWithKeyFile: {
+        const keyFile = this.formGroup.controls.keyFile.value;
+        return {
+          kind: "passwordWithKeyFile",
+          password: this.formGroup.controls.kdbxPassword.value ?? "",
+          keyFile: keyFile ? new Uint8Array(await keyFile.arrayBuffer()) : null,
+        };
+      }
+      default:
+        // A new SDK credential kind was declared with no collector wired up — fail loudly.
+        throw new Error(`No SDK credential collector is wired up for kind: ${kind}`);
+    }
+  }
+
+  private async promptForPassword(): Promise<string> {
+    const dialog = this.dialogService.open<string>(FilePasswordPromptComponent, {
+      ariaModal: true,
+    });
+    return (await firstValueFrom(dialog.closed)) ?? "";
+  }
+
+  private async runGenericImport(format: ImportType, contents: string): Promise<ImportResult> {
+    const importer = this.importService.getImporter(
+      format,
+      () => this.promptForPassword(),
+      undefined,
+    );
+    if (importer == null) {
+      throw new Error(this.i18nService.t("selectFormat"));
+    }
+
+    return this.importService.import(importer, contents, undefined, undefined, false);
   }
 
   protected readonly submit = async (): Promise<void> => {
@@ -485,8 +827,18 @@ export class ImportControlsComponent {
     }
     if (this.primaryMode() === "direct" && this.directStep() === "intro") {
       this.continueFromIntro();
-    } else {
-      this.onContinue();
+      return;
     }
+
+    // Clears a stale login-failure error before revalidating; updateValueAndValidity() (not
+    // setErrors(null)) re-runs real validators too, so a genuinely invalid email still blocks.
+    this.formGroup.controls.keeperEmail.updateValueAndValidity();
+    this.formGroup.controls.lastPassEmail.updateValueAndValidity();
+
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      return;
+    }
+    await this.onContinue();
   };
 }

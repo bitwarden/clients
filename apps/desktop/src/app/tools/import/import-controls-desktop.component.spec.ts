@@ -69,4 +69,14 @@ describe("ImportControlsDesktopComponent", () => {
 
     expect(router.navigate).toHaveBeenCalledWith(["/import"]);
   });
+
+  it("navigates to the vault when the controls component emits continue", async () => {
+    await setup("keeper");
+
+    fixture.debugElement
+      .query(By.css("importer-controls"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
+  });
 });

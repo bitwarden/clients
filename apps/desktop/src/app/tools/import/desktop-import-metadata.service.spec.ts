@@ -11,6 +11,7 @@ describe("DesktopImportMetadataService", () => {
   let i18nService: MockProxy<I18nService>;
   let requestBrowserAccess: jest.Mock;
   let getAvailableProfiles: jest.Mock;
+  let importLogins: jest.Mock;
   let originalIpc: unknown;
 
   beforeEach(() => {
@@ -22,12 +23,18 @@ describe("DesktopImportMetadataService", () => {
 
     requestBrowserAccess = jest.fn().mockResolvedValue(undefined);
     getAvailableProfiles = jest.fn().mockResolvedValue([{ id: "Default", name: "Default" }]);
+    importLogins = jest
+      .fn()
+      .mockResolvedValue([
+        { login: { url: "https://example.com", username: "alice", password: "hunter2", note: "" } },
+      ]);
     originalIpc = (global as any).ipc;
     (global as any).ipc = {
       tools: {
         chromiumImporter: {
           requestBrowserAccess,
           getAvailableProfiles,
+          importLogins,
         },
       },
     };
@@ -78,6 +85,26 @@ describe("DesktopImportMetadataService", () => {
       getAvailableProfiles.mockRejectedValue(new Error("native crash"));
 
       await expect(sut.getAvailableProfiles("chromecsv")).rejects.toThrow("errorOccurred");
+    });
+  });
+
+  describe("getChromiumLogins", () => {
+    it("resolves the real per-browser display name before calling the native module", async () => {
+      await sut.getChromiumLogins("bravecsv", "Default");
+
+      expect(importLogins).toHaveBeenCalledWith("Brave", "Default");
+    });
+
+    it("returns the native module's login results on success", async () => {
+      await expect(sut.getChromiumLogins("chromecsv", "Default")).resolves.toEqual([
+        { login: { url: "https://example.com", username: "alice", password: "hunter2", note: "" } },
+      ]);
+    });
+
+    it("maps a native failure to a generic error message", async () => {
+      importLogins.mockRejectedValue(new Error("native crash"));
+
+      await expect(sut.getChromiumLogins("chromecsv", "Default")).rejects.toThrow("errorOccurred");
     });
   });
 });

@@ -38,5 +38,7 @@ export class ImportControlsDesktopComponent {
     void this.router.navigate(["/import"]);
   }
 
-  protected onContinue(): void {}
+  protected onContinue(): void {
+    void this.router.navigate(["/vault"]);
+  }
 }
