@@ -44,8 +44,8 @@ describe("SendAuthComponent", () => {
     fixture.componentRef.setInput("id", "send-id");
     fixture.componentRef.setInput("key", "send-key");
     emitted = [];
-    (fixture.componentInstance as any).accessGranted.subscribe(
-      (event: { accessToken: SendAccessToken }) => emitted.push(event.accessToken),
+    fixture.componentInstance["accessGranted"].subscribe((event) =>
+      emitted.push(event.accessToken),
     );
     fixture.detectChanges();
     await fixture.whenStable();
