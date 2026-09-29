@@ -25,6 +25,8 @@ export type ProtonPassItem = {
   createTime: number;
   modifyTime: number;
   pinned: boolean;
+  shareCount?: number;
+  files?: unknown[];
 };
 
 /**
@@ -45,13 +47,14 @@ export type ProtonPassItemData = {
   metadata: ProtonPassItemMetadata;
   extraFields: ProtonPassItemExtraField[];
   platformSpecific?: any;
-  type: "login" | "alias" | "creditCard" | "note" | "identity" | "custom" | "sshKey";
+  type: "login" | "alias" | "creditCard" | "note" | "identity" | "custom" | "sshKey" | "wifi";
   content:
     | ProtonPassLoginItemContent
     | ProtonPassCreditCardItemContent
     | ProtonPassIdentityItemContent
     | ProtonPassCustomItemContent
-    | ProtonPassSshKeyItemContent;
+    | ProtonPassSshKeyItemContent
+    | ProtonPassWifiItemContent;
 };
 
 export type ProtonPassItemMetadata = {
@@ -107,21 +110,38 @@ export type ProtonPassCreditCardItemContent = {
   pin?: string;
 };
 
-export type ProtonPassIdentityItemExtraSection = {
+export type ProtonPassItemDataSection = {
   sectionName?: string;
   sectionFields?: ProtonPassItemExtraField[];
 };
 
 export type ProtonPassCustomItemContent = {
-  sections?: ProtonPassIdentityItemExtraSection[];
+  sections?: ProtonPassItemDataSection[];
 };
 
 export type ProtonPassSshKeyItemContent = {
   privateKey?: string;
   publicKey?: string;
   fingerprint?: string;
-  sections?: ProtonPassIdentityItemExtraSection[];
+  sections?: ProtonPassItemDataSection[];
 };
+
+export type ProtonPassWifiItemContent = {
+  ssid?: string;
+  password?: string;
+  security?: ProtonPassWifiSecurityType;
+  sections?: ProtonPassItemDataSection[];
+};
+
+export const ProtonPassWifiSecurityType = Object.freeze({
+  UNSPECIFIED: 0,
+  WPA: 1,
+  WPA2: 2,
+  WPA3: 3,
+  WEP: 4,
+} as const);
+export type ProtonPassWifiSecurityType =
+  (typeof ProtonPassWifiSecurityType)[keyof typeof ProtonPassWifiSecurityType];
 
 export type ProtonPassIdentityItemContent = {
   fullName?: string;
@@ -160,5 +180,5 @@ export type ProtonPassIdentityItemContent = {
   workPhoneNumber?: string;
   workEmail?: string;
   extraWorkDetails?: ProtonPassItemExtraField[];
-  extraSections?: ProtonPassIdentityItemExtraSection[];
+  extraSections?: ProtonPassItemDataSection[];
 };
