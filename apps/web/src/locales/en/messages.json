@@ -18625,26 +18625,20 @@
   "requestAccessModalDuration1d": {
     "message": "1 day"
   },
-  "requestAccessModalDate": {
-    "message": "Date"
+  "requestAccessModalStartDate": {
+    "message": "Start date"
   },
   "requestAccessModalStart": {
     "message": "Start time"
   },
+  "requestAccessModalEndDate": {
+    "message": "End date"
+  },
   "requestAccessModalEnd": {
     "message": "End time"
   },
-  "requestAccessModalEndEqualsStart": {
-    "message": "End time can't be the same as the start time."
-  },
-  "requestAccessModalEndsNextDay": {
-    "message": "Ends $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "9/2/26, 1:30 AM"
-      }
-    }
+  "requestAccessModalEndNotAfterStart": {
+    "message": "End must be after the start."
   },
   "requestAccessModalWindowInPast": {
     "message": "The requested window has already ended. Pick a later date or time."
