@@ -5116,6 +5116,45 @@
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
+  "incorrectSignInAddressEmailPasswordOrSecretKey": {
+    "message": "Incorrect sign-in address, email, password, or Secret Key"
+  },
+  "invalidSignInAddress": {
+    "message": "That sign-in address is not valid"
+  },
+  "invalidSecretKey": {
+    "message": "That Secret Key is not valid"
+  },
+  "onePasswordUnsupportedAccount": {
+    "message": "This 1Password account uses a sign-in method the importer does not support yet"
+  },
+  "onePasswordImportFailed": {
+    "message": "Could not import from 1Password. Check the details you entered and your connection, then try again"
+  },
+  "onePasswordDecryptionFailed": {
+    "message": "The data 1Password returned could not be read. Try the import again"
+  },
+  "onePasswordVaultSaveFailed": {
+    "message": "Your 1Password account was downloaded, but saving it to your vault failed. Try the import again"
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
+  },
   "secretKey": {
     "message": "Secret key"
   },

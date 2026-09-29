@@ -1,9 +1,10 @@
 import { ImportType } from "../models/import-options";
 
-/** One way to import from a grouped source. */
+/** One way to import from a grouped source. The label is an i18n key when `translate` is set. */
 export interface ImportSourceMethod {
   format: ImportType;
   label: string;
+  translate?: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ export const importSourceGroups: readonly ImportSourceGroup[] = [
     name: "1Password",
     featuredImporter: true,
     methods: [
+      { format: "onepassword", label: "directImporter", translate: true },
       { format: "1password1pux", label: "1pux/json" },
       { format: "1password1pif", label: "1pif" },
     ],
@@ -52,4 +54,16 @@ export function importSourceGroup(id: ImportSourceGroupId): ImportSourceGroup {
 /** The group a format is offered under, or undefined when it is a source of its own. */
 export function importSourceGroupForFormat(format: string): ImportSourceGroup | undefined {
   return importSourceGroups.find((group) => group.methods.some((m) => m.format === format));
+}
+
+/**
+ * The group with only the methods this client offers, or undefined when it offers none. The first
+ * remaining method is the default, which puts direct import first where it is available.
+ */
+export function availableImportSourceGroup(
+  group: ImportSourceGroup,
+  isAvailable: (format: ImportType) => boolean,
+): ImportSourceGroup | undefined {
+  const methods = group.methods.filter((m) => isAvailable(m.format));
+  return methods.length > 0 ? { ...group, methods } : undefined;
 }

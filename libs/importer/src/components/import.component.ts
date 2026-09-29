@@ -87,6 +87,7 @@ import {
   ImportOption,
   ImportResult,
   ImportType,
+  OnePasswordImportSummary,
   SdkImportCredentials,
 } from "../models";
 import {
@@ -108,6 +109,7 @@ import {
 import {
   ImportSourceGroup,
   ImportSourceGroupId,
+  availableImportSourceGroup,
   importSourceGroup,
   importSourceGroupForFormat,
   isImportSourceGroupId,
@@ -115,6 +117,7 @@ import {
 import { ImporterProviders } from "./importer-providers";
 import { ImportKeeperComponent, defaultKeeperImportMethod } from "./keeper";
 import { ImportLastPassComponent } from "./lastpass";
+import { ImportOnePasswordComponent } from "./onepassword";
 
 /** An entry in the source dropdown. */
 interface ImportSource {
@@ -141,6 +144,7 @@ interface ImportSource {
     ImportChromeComponent,
     ImportLastPassComponent,
     ImportKeeperComponent,
+    ImportOnePasswordComponent,
     RadioButtonModule,
     CardComponent,
     SectionHeaderComponent,
@@ -173,7 +177,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   featuredImportSources: ImportSource[];
   importSources: ImportSource[];
   format: ImportType = null;
-  /** The selected source when it is a group. */
+  /** The selected source when it is a group, with only the methods this client offers. */
   protected selectedSourceGroup: ImportSourceGroup | undefined;
   showKeyFile = false;
 
@@ -289,6 +293,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   private importKeeper?: ImportKeeperComponent;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(ImportOnePasswordComponent)
+  private importOnePassword?: ImportOnePasswordComponent;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
@@ -373,6 +382,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.format === "keeper";
   }
 
+  protected get isOnePasswordDirectFormat(): boolean {
+    return this.format === "onepassword";
+  }
+
   protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
     const subgroup = this.formGroup.get("keeperOptions");
     // Default before import-keeper registers keeperOptions, or the @if below throws NG0100.
@@ -436,8 +449,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((source) => {
         if (isImportSourceGroupId(source)) {
-          this.selectedSourceGroup = importSourceGroup(source);
-          const method = this.selectedSourceGroup.methods[0].format;
+          this.selectedSourceGroup = this.availableSourceGroup(importSourceGroup(source));
+          const method = this.selectedSourceGroup?.methods[0].format ?? null;
           this.formGroup.controls.method.setValue(method, { emitEvent: false });
           this.formGroup.controls.format.setValue(method);
         } else {
@@ -643,6 +656,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // 1Password is direct-only, so there is no file path to fall through to.
+    if (this.isOnePasswordDirectFormat) {
+      await this.performOnePasswordImport();
+      return;
+    }
+
     await this.performImport();
   };
 
@@ -705,6 +724,51 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.organization?.canAccessImport && this.isFromAC,
       ),
     );
+  }
+
+  /**
+   * 1Password signs in and submits inside the SDK, so unlike the other importers the destination is
+   * confirmed up front and the component reports back a summary rather than an `ImportResult`.
+   */
+  private async performOnePasswordImport(): Promise<void> {
+    if (!(await this.validateImport())) {
+      return;
+    }
+
+    await this.importOnePassword?.submitDirect(
+      {
+        organizationId: this.organizationId ?? undefined,
+        selectedImportTarget: this.formGroup.controls.targetSelector.value ?? undefined,
+        canAccessImportExport: (this.organization?.canAccessImport && this.isFromAC) ?? false,
+      },
+      (summary) => this.showOnePasswordResult(summary),
+    );
+  }
+
+  private async showOnePasswordResult(summary: OnePasswordImportSummary): Promise<void> {
+    const returnDestination = this.returnTo()
+      ? this.resolveReturnDestination(this.returnTo())
+      : undefined;
+    this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+      data: {
+        sdkSummary: summary.imported,
+        ...returnDestination,
+      },
+    });
+
+    // The SDK reports what it could not read rather than failing the whole import; surface it so a
+    // partial import isn't mistaken for a complete one.
+    const skipped = summary.skipped_vaults.length + summary.skipped_items.length;
+    if (skipped > 0) {
+      this.toastService.showToast({
+        variant: "warning",
+        title: null,
+        message: this.i18nService.t("onePasswordPartialImport", skipped.toString()),
+      });
+    }
+
+    await this.syncService.fullSync(true);
+    this.onSuccessfulImport.emit(this._organizationId);
   }
 
   protected async performDirectImport(result: ImportResult) {
@@ -884,11 +948,15 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     for (const option of this.importService.importOptions) {
       const group = importSourceGroupForFormat(option.id);
       if (group == null) {
-        sources.push({ id: option.id, name: option.name, featured: option.featuredImporter });
+        if (this.isImportOptionAvailable(option)) {
+          sources.push({ id: option.id, name: option.name, featured: option.featuredImporter });
+        }
       } else if (!addedGroups.has(group.id)) {
-        // A group takes the place of its first member.
+        // A group takes the place of its first member, and only if this client offers a method.
         addedGroups.add(group.id);
-        sources.push({ id: group.id, name: group.name, featured: group.featuredImporter });
+        if (this.availableSourceGroup(group)) {
+          sources.push({ id: group.id, name: group.name, featured: group.featuredImporter });
+        }
       }
     }
 
@@ -913,6 +981,25 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         ? this.i18nService.collator.compare(a.name, b.name)
         : a.name.localeCompare(b.name);
     });
+  }
+
+  private availableSourceGroup(group: ImportSourceGroup): ImportSourceGroup | undefined {
+    return availableImportSourceGroup(group, (format) =>
+      this.isImportOptionAvailable(this.importService.getImportOption(format)),
+    );
+  }
+
+  /**
+   * 1Password direct import calls 1Password's API from the app. Its API does not allow cross-origin
+   * requests. The desktop app lets them through for 1Password's hosts, and the browser extension's
+   * host permissions exempt its pages from CORS.
+   */
+  private isImportOptionAvailable(option: ImportOption): boolean {
+    if (option.id !== "onepassword") {
+      return true;
+    }
+    const clientType = this.platformUtilsService.getClientType();
+    return clientType === ClientType.Desktop || clientType === ClientType.Browser;
   }
 
   addKeyFile() {

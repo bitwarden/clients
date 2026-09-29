@@ -6,7 +6,12 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { Importer } from "../importers/importer";
 import { ImportOption, ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
-import { SdkImportCredentials, SdkImportSummary } from "../sdk";
+import {
+  OnePasswordImportRequest,
+  OnePasswordImportSummary,
+  SdkImportCredentials,
+  SdkImportSummary,
+} from "../sdk";
 
 export abstract class ImportServiceAbstraction {
   /** Every supported importer. See `ImportOption.featuredImporter` to split featured/regular. */
@@ -38,6 +43,14 @@ export abstract class ImportServiceAbstraction {
     selectedImportTarget?: FolderView | CollectionView,
     canAccessImportExport?: boolean,
   ) => Promise<SdkImportSummary>;
+
+  /** Signs in to 1Password through the SDK and imports the account; no file is involved. */
+  importOnePassword: (
+    request: OnePasswordImportRequest,
+    organizationId?: string,
+    selectedImportTarget?: FolderView | CollectionView,
+    canAccessImportExport?: boolean,
+  ) => Promise<OnePasswordImportSummary>;
 
   // Import an already-parsed ImportResult directly.
   importImportResult: (

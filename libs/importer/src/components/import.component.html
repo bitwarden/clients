@@ -170,12 +170,15 @@
           <bit-label>{{ "method" | i18n }}</bit-label>
           <bit-select formControlName="method" id="import_bit-select_method">
             @for (m of group.methods; track m.format) {
-              <bit-option [value]="m.format" [label]="m.label" />
+              <bit-option [value]="m.format" [label]="m.translate ? (m.label | i18n) : m.label" />
             }
           </bit-select>
         </bit-form-field>
       }
-      @if (showLastPassOptions) {
+      @if (isOnePasswordDirectFormat) {
+        <!-- 1Password direct import is SDK-driven and has no file fallback, so no file selector. -->
+        <import-onepassword [formGroup]="formGroup"></import-onepassword>
+      } @else if (showLastPassOptions) {
         <import-lastpass
           [formGroup]="formGroup"
           (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"

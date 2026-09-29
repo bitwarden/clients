@@ -58,6 +58,7 @@ import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
+import { allowOnePasswordApiAccess } from "./main/tools/import/onepassword-api-access.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
@@ -393,6 +394,7 @@ export class Main {
         const showWindow = !isAutostart;
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
+        allowOnePasswordApiAccess(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
