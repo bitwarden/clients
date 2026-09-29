@@ -129,9 +129,6 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 25;
   component = FillAssistPolicyComponent;
-  // The component renders its own description paragraph; suppress the
-  // framework's plain-text rendering to avoid duplication.
-  showDescription = false;
   prerequisiteKey = "requireSingleOrganizationPolicy";
   prerequisiteKeyVfo1 = "requireSingleOrganizationPolicyVfo1";
 
