@@ -152,7 +152,11 @@ export class WebVaultItemActionsService {
       return;
     }
 
-    if (stored.login?.fido2Credentials?.length) {
+    // Checked on the decrypted view: a blob-encrypted cipher seals its login in `data`.
+    const userId = await firstValueFrom(this.userId$);
+    const decrypted = await this.cipherService.decrypt(stored, userId);
+
+    if (CipherViewLikeUtils.hasFido2Credentials(decrypted)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
