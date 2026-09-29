@@ -173,7 +173,10 @@ export function buildRotationConfigRow(
   cipherName: string | undefined,
   description: RotationConfigDescription,
 ): RotationConfigRow {
-  const scheduleLabelKeyOrCron = scheduleLabel(description.schedulePreset, config.scheduleCron);
+  const scheduleLabelKeyOrCron = scheduleLabel(
+    description.schedulePreset,
+    config.scheduleCron ?? null,
+  );
 
   const status = resolveRotationStatus(config);
   const statusBadge = rotationStatusBadge(status);
@@ -197,9 +200,9 @@ export function buildRotationConfigRow(
     scheduleLabelKeyOrCron,
     rotateOnAccessEnd: config.rotateOnAccessEnd,
     lastRotationAtMs: Number.isNaN(lastRotationAtMs) ? null : lastRotationAtMs,
-    lastRotationAt: config.lastRotationAt,
+    lastRotationAt: config.lastRotationAt ?? null,
     nextRotationAtMs: Number.isNaN(nextRotationAtMs) ? null : nextRotationAtMs,
-    nextRotationAt: config.nextRotationAt,
+    nextRotationAt: config.nextRotationAt ?? null,
     hasActiveJob: config.hasActiveJob,
     awaitingManualRotation: config.awaitingManualRotation,
     canRotateNow: description.actions.canRotateNow,

@@ -1,3 +1,4 @@
+import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -64,6 +65,7 @@ console.error = (...args) => {
 describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
+  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -118,6 +120,11 @@ describe("VaultCipherRowComponent", () => {
 
     fixture = TestBed.createComponent(VaultCipherRowComponent);
     component = fixture.componentInstance;
+    overlayContainer = TestBed.inject(OverlayContainer);
+  });
+
+  afterEach(() => {
+    overlayContainer?.ngOnDestroy();
   });
 
   afterAll(() => {
@@ -271,7 +278,6 @@ describe("VaultCipherRowComponent", () => {
           MenuModule,
           IconButtonModule,
           JslibModule,
-          CopyCipherFieldDirective,
           OrganizationNameBadgeComponent,
           PremiumBadgeComponent,
           ShareLinkMenuItemDirective,
@@ -308,6 +314,10 @@ describe("VaultCipherRowComponent", () => {
           {
             provide: VaultCopyButtonsService,
             useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
+          },
+          {
+            provide: ShareLinkService,
+            useValue: { cipherCanBeShared$: () => of(false) },
           },
           ...(provideBadge
             ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadgeComponent }]

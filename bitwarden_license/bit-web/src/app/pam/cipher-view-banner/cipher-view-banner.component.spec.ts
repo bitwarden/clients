@@ -656,7 +656,7 @@ describe("CipherViewBannerComponent", () => {
 
     function glyph(name: string): Element | null | undefined {
       return query('bit-card[data-testid="cipher-view-banner-active"]')?.querySelector(
-        `bit-icon-tile i.${name}`,
+        `bit-icon-tile bit-icon.${name}`,
       );
     }
 
@@ -800,7 +800,7 @@ describe("CipherViewBannerComponent", () => {
 
         const card = query(`bit-card[data-testid="cipher-view-banner-${testId}"]`);
         expect(card).not.toBeNull();
-        expect(card?.querySelector(`bit-icon-tile i.${glyph}`)).not.toBeNull();
+        expect(card?.querySelector(`bit-icon-tile bit-icon.${glyph}`)).not.toBeNull();
       },
     );
   });

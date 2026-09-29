@@ -153,6 +153,7 @@ export function provideStoryLogService() {
       warning: noop,
       error: noop,
       write: noop,
+      enableRecorder: noop,
       measure: () => ({}) as PerformanceMeasure,
       mark: () => ({}) as PerformanceMark,
     } satisfies LogService,
