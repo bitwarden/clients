@@ -16,7 +16,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -439,6 +439,14 @@ export class CipherService implements CipherServiceAbstraction {
    */
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
     return await this.cipherEncryptionService.decrypt(cipher, userId);
+  }
+
+  async decryptEmergencyAccess(
+    grantorKey: UnsignedSharedKey,
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<CipherView[]> {
+    return await this.cipherEncryptionService.decryptEmergencyAccess(grantorKey, ciphers, userId);
   }
 
   async getAllDecryptedForGrouping(

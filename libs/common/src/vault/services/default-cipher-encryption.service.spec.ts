@@ -11,6 +11,7 @@ import {
   CipherListView,
   AttachmentView as SdkAttachmentView,
   Fido2CredentialFullView,
+  UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
@@ -101,6 +102,7 @@ describe("DefaultCipherEncryptionService", () => {
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
         decrypt_list_with_failures: jest.fn(),
+        decrypt_emergency_access_list: jest.fn(),
         move_to_organization: jest.fn(),
       }),
       attachments: jest.fn().mockReturnValue({
@@ -561,6 +563,56 @@ describe("DefaultCipherEncryptionService", () => {
         ]),
       );
       expect(Cipher.fromSdkCipher).toHaveBeenCalledWith(failedCipher);
+    });
+  });
+
+  describe("decryptEmergencyAccess", () => {
+    const grantorKey = "grantor-key" as UnsignedSharedKey;
+
+    it("should decrypt ciphers with the grantor key", async () => {
+      const expectedCipherView = { id: cipherId, name: "test-name" } as unknown as CipherView;
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_emergency_access_list.mockResolvedValue({
+          successes: [sdkCipherView],
+          failures: [],
+        });
+      jest.spyOn(CipherView, "fromSdkCipherView").mockReturnValue(expectedCipherView);
+
+      const result = await cipherEncryptionService.decryptEmergencyAccess(
+        grantorKey,
+        [cipherObj],
+        userId,
+      );
+
+      expect(result).toEqual([expectedCipherView]);
+      expect(mockSdkClient.vault().ciphers().decrypt_emergency_access_list).toHaveBeenCalledWith(
+        grantorKey,
+        [{ id: cipherData.id }],
+      );
+    });
+
+    it("should mark ciphers that failed to decrypt", async () => {
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_emergency_access_list.mockResolvedValue({
+          successes: [],
+          failures: [sdkCipher],
+        });
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(cipherObj);
+
+      const result = await cipherEncryptionService.decryptEmergencyAccess(
+        grantorKey,
+        [cipherObj],
+        userId,
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toEqual(cipherObj.id);
+      expect(result[0].name).toEqual("[error: cannot decrypt]");
+      expect(result[0].decryptionFailure).toBe(true);
     });
   });
 

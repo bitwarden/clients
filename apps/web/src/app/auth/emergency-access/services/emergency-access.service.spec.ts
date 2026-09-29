@@ -20,6 +20,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -180,58 +182,36 @@ describe("EmergencyAccessService", () => {
       ).rejects.toThrow("Active user does not have a private key, cannot get view only ciphers.");
     });
 
-    it("should return decrypted and sorted ciphers", async () => {
+    it("should return ciphers decrypted with the grantor key and sorted", async () => {
       const emergencyAccessViewResponse = {
         keyEncrypted: "mockKeyEncrypted",
-        ciphers: [
-          { id: "cipher1", name: "encryptedName1" },
-          { id: "cipher2", name: "encryptedName2" },
-        ],
+        ciphers: [{ id: "cipher2" }, { id: "cipher1" }],
       } as EmergencyAccessViewResponse;
-
-      const mockEncryptedCipher1 = {
-        id: "cipher1",
-        decrypt: jest.fn().mockResolvedValue({ id: "cipher1", decrypted: true }),
-      };
-      const mockEncryptedCipher2 = {
-        id: "cipher2",
-        decrypt: jest.fn().mockResolvedValue({ id: "cipher2", decrypted: true }),
-      };
-      emergencyAccessViewResponse.ciphers.map = jest.fn().mockImplementation(() => {
-        return [mockEncryptedCipher1, mockEncryptedCipher2];
-      });
-      cipherService.getLocaleSortingFunction.mockReturnValue((a: any, b: any) =>
-        a.id.localeCompare(b.id),
-      );
       emergencyAccessApiService.postEmergencyAccessView.mockResolvedValue(
         emergencyAccessViewResponse,
       );
-
-      const mockPrivateKey = new Uint8Array(64) as UserPrivateKey;
-      keyService.userPrivateKey$.mockReturnValue(of(mockPrivateKey));
-
-      const mockDecryptedGrantorUserKey = new SymmetricCryptoKey(new Uint8Array(64));
-      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(mockDecryptedGrantorUserKey);
-      const mockGrantorUserKey = mockDecryptedGrantorUserKey as UserKey;
+      keyService.userPrivateKey$.mockReturnValue(of(new Uint8Array(64) as UserPrivateKey));
+      cipherService.decryptEmergencyAccess.mockResolvedValue([
+        { id: "cipher2" } as CipherView,
+        { id: "cipher1" } as CipherView,
+      ]);
+      cipherService.getLocaleSortingFunction.mockReturnValue((a: any, b: any) =>
+        a.id.localeCompare(b.id),
+      );
 
       const result = await emergencyAccessService.getViewOnlyCiphers(
         params.id,
         params.activeUserId,
       );
 
-      expect(result).toEqual([
-        { id: "cipher1", decrypted: true },
-        { id: "cipher2", decrypted: true },
-      ]);
-      expect(mockEncryptedCipher1.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
-      expect(mockEncryptedCipher2.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
+      expect(result).toEqual([{ id: "cipher1" }, { id: "cipher2" }]);
       expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(params.id);
-      expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
-      expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(emergencyAccessViewResponse.keyEncrypted),
-        mockPrivateKey,
+      expect(cipherService.decryptEmergencyAccess).toHaveBeenCalledWith(
+        emergencyAccessViewResponse.keyEncrypted,
+        [expect.any(Cipher), expect.any(Cipher)],
+        params.activeUserId,
       );
-      expect(cipherService.getLocaleSortingFunction).toHaveBeenCalled();
+      expect(encryptService.decapsulateKeyUnsigned).not.toHaveBeenCalled();
     });
   });
 
