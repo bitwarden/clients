@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
@@ -11,11 +11,11 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-management";
@@ -30,6 +30,7 @@ import {
   LegacyCompatKeyService,
   PBKDF2KdfConfig,
 } from "@bitwarden/legacy-crypto";
+import { EmergencyAccessId } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -64,6 +65,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private cipherService: CipherService,
     private logService: LogService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private sdkService: SdkService,
   ) {}
 
   /**
@@ -252,8 +254,6 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param activeUserId the user id of the active user
    */
   async getViewOnlyCiphers(id: string, activeUserId: UserId): Promise<CipherView[]> {
-    const response = await this.emergencyAccessApiService.postEmergencyAccessView(id);
-
     const activeUserPrivateKey = await firstValueFrom(
       this.keyService.userPrivateKey$(activeUserId),
     );
@@ -262,13 +262,30 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
     }
 
-    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(new CipherData(c)));
-    const ciphers = await this.cipherService.decryptEmergencyAccess(
-      response.keyEncrypted,
-      ciphersEncrypted,
-      activeUserId,
+    // The SDK fetches the view and decrypts it with the grantor key, which never leaves the SDK.
+    const result = await firstValueFrom(
+      this.sdkService.userClient$(activeUserId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.emergency_access().view_ciphers(asUuid<EmergencyAccessId>(id));
+        }),
+      ),
     );
-    return ciphers.sort(this.cipherService.getLocaleSortingFunction());
+
+    const decrypted = result.successes.map((view) => CipherView.fromSdkCipherView(view)!);
+
+    // Keep failed ciphers visible to the grantee, like the legacy TS decryption did.
+    const failed = result.failures
+      .map((cipher) => Cipher.fromSdkCipher(cipher))
+      .filter((cipher): cipher is Cipher => cipher !== undefined)
+      .map((cipher) => {
+        const failedView = new CipherView(cipher);
+        failedView.name = "[error: cannot decrypt]";
+        failedView.decryptionFailure = true;
+        return failedView;
+      });
+
+    return [...decrypted, ...failed].sort(this.cipherService.getLocaleSortingFunction());
   }
 
   /**
