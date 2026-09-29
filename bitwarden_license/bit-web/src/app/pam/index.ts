@@ -93,7 +93,6 @@ export type { RequestDurationOption } from "./helpers/lease-window.utils";
 export {
   composeRequestWindow,
   defaultRequestWindow,
-  midnightCrossingEnd,
   requestWindowProblem,
   startTimeSlots,
   toDateInputValue,
