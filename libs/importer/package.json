@@ -12,6 +12,7 @@
     "url": "https://github.com/bitwarden/clients"
   },
   "license": "GPL-3.0",
+  "sideEffects": false,
   "scripts": {
     "test": "jest",
     "clean": "rimraf dist",

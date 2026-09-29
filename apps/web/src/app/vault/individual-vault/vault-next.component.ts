@@ -8,9 +8,9 @@ import {
   signal,
   untracked,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, RouterLink } from "@angular/router";
-import { combineLatest, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { combineLatest, filter, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -21,9 +21,11 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -51,6 +53,7 @@ import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
   copyPresentation$,
+  DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
@@ -96,6 +99,7 @@ import { AssignCollectionsWebDialogAdapter } from "../components/assign-collecti
 import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
+import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
@@ -107,8 +111,6 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  *
  * Every side-nav destination renders this one component, scoped by the `:vaultId` route segment —
  * see `VaultScope`.
- *
- * Not yet wired: the `?itemId=&action=` deep link that opens an item on load.
  */
 @Component({
   selector: "app-vault-next",
@@ -156,6 +158,7 @@ export class VaultNextComponent implements OnInit {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly configService = inject(ConfigService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
@@ -166,7 +169,7 @@ export class VaultNextComponent implements OnInit {
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly i18nService = inject(I18nService);
   private readonly batchBarService = inject(VaultBatchBarService);
-
+  private readonly router = inject(Router);
   private readonly policyService = inject(PolicyService);
   private readonly webVaultPromptService = inject(WebVaultPromptService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -269,10 +272,42 @@ export class VaultNextComponent implements OnInit {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  /**
+   * The items that could not be decrypted. `cipherListViews$` drops them, so they reach the page
+   * only through here — see {@link ciphers} and {@link showDecryptionFailureDialog}.
+   */
+  private readonly failedCiphers$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherService.failedToDecryptCiphers$(userId)),
+    filterOutNullish(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /** `undefined` until the ciphers stream first emits, which is what drives {@link loading}. */
   private readonly loadedCiphers = toSignal(this.allCiphers$);
 
   private readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
+
+  private readonly failedCiphers = toSignal(this.failedCiphers$, { initialValue: [] });
+
+  /**
+   * Opens once per visit, and names only the failures the page in view can show — the same
+   * `cipherInScope` narrowing {@link ciphers} applies.
+   */
+  private readonly showDecryptionFailureDialog = combineLatest([
+    this.failedCiphers$,
+    toObservable(this.vaultScope),
+  ])
+    .pipe(
+      map(([ciphers, scope]) => ciphers.filter((cipher) => cipherInScope(cipher, scope))),
+      filter((ciphers) => ciphers.length > 0),
+      take(1),
+      takeUntilDestroyed(),
+    )
+    .subscribe((ciphers) =>
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: ciphers.map((cipher) => cipher.id as CipherId),
+      }),
+    );
 
   /**
    * Every item in the account's active vaults. The banners and onboarding speak to the account as
@@ -283,10 +318,18 @@ export class VaultNextComponent implements OnInit {
     this.allCiphers().filter((cipher) => cipherInScope(cipher, ALL_ITEMS_SCOPE)),
   );
 
-  /** The rows for the table: {@link allCiphers} narrowed to the scope. */
+  /**
+   * The rows for the table: {@link allCiphers} plus {@link failedCiphers}, narrowed to the scope.
+   *
+   * A failed item still carries its organization, collections, and deleted date — none of which
+   * needed decrypting — so `cipherInScope` places it without any special case. It is left out of
+   * {@link activeCiphers}, which the banners and onboarding read.
+   */
   protected readonly ciphers = computed<CipherViewLike[]>(() => {
     const scope = this.vaultScope();
-    return this.allCiphers().filter((cipher) => cipherInScope(cipher, scope));
+    return [...this.failedCiphers(), ...this.allCiphers()].filter((cipher) =>
+      cipherInScope(cipher, scope),
+    );
   });
 
   protected readonly loading = computed(() => this.loadedCiphers() === undefined);
@@ -485,6 +528,71 @@ export class VaultNextComponent implements OnInit {
   protected readonly itemAction = (item: CipherViewLike): Promise<void> =>
     this.itemActions.view(item);
 
+  private readonly queryParams = toSignal(this.activatedRoute.queryParamMap);
+
+  /** The item the URL asks the page to open, if any — see {@link itemDeepLinkFrom}. */
+  private readonly itemDeepLink = computed(() => itemDeepLinkFrom(this.queryParams()));
+
+  /** The `<cipherId>:<action>` of the deep link last dispatched, so it is dispatched only once. */
+  private readonly dispatchedDeepLink = signal<string | undefined>(undefined);
+
+  /**
+   * Opens the item named by the deep link on the URL — see {@link itemDeepLinkFrom}.
+   *
+   * The dispatch waits for the items to decrypt: `WebVaultItemActionsService` reads the item from
+   * storage, and an item that has not loaded yet reads the same as one that does not exist.
+   *
+   * It also holds while a dialog is open, because `VaultItemDialogComponent` writes these same
+   * params each time the user toggles view and edit — and it dispatches each link once, because
+   * the params the dialog leaves behind would otherwise reopen it.
+   */
+  private readonly openDeepLinkedItem = effect(() => {
+    const link = this.itemDeepLink();
+    const loading = this.loading();
+    const dialogOpen = this.itemActions.itemDialogOpen();
+
+    untracked(() => {
+      if (link == null) {
+        this.dispatchedDeepLink.set(undefined);
+        return;
+      }
+
+      if (loading || dialogOpen) {
+        return;
+      }
+
+      const dispatched = `${link.cipherId}:${link.action}`;
+      if (this.dispatchedDeepLink() === dispatched) {
+        return;
+      }
+      this.dispatchedDeepLink.set(dispatched);
+
+      void this.dispatchDeepLink(link);
+    });
+  });
+
+  private async dispatchDeepLink(link: ItemDeepLink): Promise<void> {
+    if (this.failedCiphers().some((cipher) => cipher.id === link.cipherId)) {
+      await this.itemActions.showDecryptionFailure(link.cipherId);
+      return;
+    }
+
+    switch (link.action) {
+      case ItemDeepLinkAction.Edit:
+        await this.itemActions.editById(link.cipherId);
+        break;
+      case ItemDeepLinkAction.Clone:
+        await this.itemActions.cloneById(link.cipherId);
+        break;
+      case ItemDeepLinkAction.ShowFailedToDecrypt:
+        await this.itemActions.showDecryptionFailure(link.cipherId);
+        break;
+      case ItemDeepLinkAction.View:
+        await this.itemActions.viewById(link.cipherId);
+        break;
+    }
+  }
+
   /** Handles `vault-new-cipher-menu`'s `cipherAdded`, emitted by its legacy per-type dropdown. */
   protected async addCipher(cipherType: CipherType): Promise<void> {
     await this.itemActions.add(cipherType, {
@@ -573,7 +681,19 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  protected openImportDialog(): void {
-    ImportDialogComponent.open(this.dialogService);
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
+      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
+      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
+      await this.router.navigate(["/tools/import"]);
+      return;
+    }
+
+    ImportDialogComponent.open(
+      this.dialogService,
+      this.scopedOrganizationId(),
+      this.scopedCollectionId(),
+    );
   }
 }
