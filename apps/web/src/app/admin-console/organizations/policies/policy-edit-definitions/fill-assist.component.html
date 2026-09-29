@@ -43,19 +43,19 @@
           required
           (blur)="onRulesUrlBlur()"
         />
+        <bit-hint>
+          <a
+            bitLink
+            class="[&>div]:!tw-gap-1"
+            href="https://bitwarden.com/help/policies/#activate-fill-assist"
+            target="_blank"
+            rel="noreferrer"
+            endIcon="bwi-external-link"
+          >
+            {{ "learnMoreAboutCustomRules" | i18n }}
+          </a>
+        </bit-hint>
       </bit-form-field>
     }
-
-    <p bitTypography="body1">
-      <a
-        bitLink
-        href="https://bitwarden.com/help/policies/#activate-fill-assist"
-        target="_blank"
-        rel="noreferrer"
-        endIcon="bwi-external-link"
-      >
-        {{ "learnMoreAboutCustomRules" | i18n }}
-      </a>
-    </p>
   </div>
 }
