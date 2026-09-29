@@ -181,22 +181,18 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 );
 
 /**
- * Client-side sentinel meaning "use the default fill assist rules." Not
- * necessarily the URL that gets fetched — the `effectiveFillAssistRulesUrl$`
- * resolver in `DomainSettingsService` treats this stored value as "fall
- * through to server config," which points to the appropriate regional CDN
- * for the user's environment (`.com`, `.eu`, `.qa`, `.gov`, etc.).
- * Per-region URL selection is driven by server config (each environment's
- * `appsettings.fillAssistRules` points to that region's CDN); the client
- * resolver reads server config and falls through to it when a policy URL
- * matches this constant.
+ * Client-side sentinel meaning "use the default fill assist rules."
+ *
+ * Not necessarily the URL that gets fetched: the `effectiveFillAssistRulesUrl$`
+ * resolver in `DomainSettingsService` treats "policy URL matches this constant"
+ * as "fall through to server config," which points to the region-specific CDN
+ * from `appsettings.fillAssistRules` (`.com`, `.eu`, `.qa`, `.gov`).
  *
  * The fill assist policy edit UI stores this value when the admin selects
- * "Default" (see `fill-assist.component.ts`). Changing this constant would
- * silently convert existing "Default" policies into "Custom" policies
- * pointing at the old value — do not change without either running a
- * migration or adding the old value to LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS
- * below.
+ * "Default" (see `fill-assist.component.ts`). Do not change this constant
+ * without either a data migration or adding the old value to
+ * LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS below — otherwise existing "Default"
+ * policies silently flip to "Custom" pointing at the old value.
  */
 export const DEFAULT_FILL_ASSIST_RULES_URL = "https://fillassist.bitwarden.com";
 

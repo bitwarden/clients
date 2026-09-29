@@ -129,8 +129,8 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 25;
   component = FillAssistPolicyComponent;
-  // The component renders its own description paragraph so the "Learn more"
-  // link can be inlined; suppress the framework's plain-text rendering.
+  // The component renders its own description paragraph; suppress the
+  // framework's plain-text rendering to avoid duplication.
   showDescription = false;
   prerequisiteKey = "requireSingleOrganizationPolicy";
   prerequisiteKeyVfo1 = "requireSingleOrganizationPolicyVfo1";
@@ -179,12 +179,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     const ruleSourceControl = this.data.controls.ruleSource;
     const rulesUrlControl = this.data.controls.rulesUrl;
 
-    // Default source doesn't need a URL; disable the field so its validators
-    // don't block the form. Enable when the admin switches to Custom. The
-    // field's value is preserved across toggles (disable/enable doesn't clear
-    // the value), so a URL entered under Custom, momentarily switched to
-    // Default, and switched back reappears — the admin can cancel without
-    // losing their in-progress entry.
+    // Default source doesn't need a URL; disable the field so validators don't
+    // block the form. The disable/enable cycle preserves the value, so a URL
+    // entered under Custom survives toggling to Default and back — admin can
+    // cancel a mid-edit change without losing their input.
     rulesUrlControl.disable();
 
     ruleSourceControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((source) => {
@@ -195,13 +193,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
       }
     });
 
-    // Apply URL validators only when the policy is enabled. The URL is inert
-    // when the policy is off (never fetched, never used), so a missing or
-    // invalid URL shouldn't block Save in that state — otherwise an admin who
-    // toggles the policy off can't save until they also fix the URL, which is
-    // meaningless work. `updateValueAndValidity` must emit (default) so the
-    // drawer's `saveDisabled` subscription — which reads `data.statusChanges`
-    // — sees the form become valid again when we clear the validators.
+    // URL validators only apply when the policy is enabled — an inert URL
+    // shouldn't block Save on a policy that's off. `updateValueAndValidity`
+    // must emit (default) so the drawer's `saveDisabled` sees the form become
+    // valid when we clear validators (it reads `data.statusChanges`).
     this.enabled.valueChanges
       .pipe(startWith(this.enabled.value), takeUntilDestroyed())
       .subscribe((policyEnabled) => {
@@ -247,13 +242,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     if (data == null) {
       return null;
     }
-    // When "Default" is selected, submit DEFAULT_FILL_ASSIST_RULES_URL as-is.
-    // This value acts as a stable sentinel meaning "use the current default":
-    // the client's `effectiveFillAssistRulesUrl$` resolver treats "stored URL
-    // matches DEFAULT_FILL_ASSIST_RULES_URL" as "fall through to server config"
-    // (see `domain-settings.service.ts`). See the comment on the constant in
-    // `libs/common/src/autofill/constants/index.ts` for migration constraints
-    // on changing that value.
+    // Submit the default constant as a sentinel: the client resolver
+    // (`effectiveFillAssistRulesUrl$` in `domain-settings.service.ts`) treats
+    // this stored value as "fall through to server config." See the constants
+    // file for migration constraints if this value ever changes.
     if (data.ruleSource === RuleSource.Default) {
       return { rulesUrl: DEFAULT_FILL_ASSIST_RULES_URL };
     }

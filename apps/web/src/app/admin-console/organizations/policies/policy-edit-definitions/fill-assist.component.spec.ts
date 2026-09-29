@@ -463,10 +463,8 @@ describe("FillAssistPolicyComponent", () => {
     });
 
     it("does not throw when saving a disabled policy without a rulesUrl", async () => {
-      // The URL is only meaningful while the policy is enabled. If the admin
-      // has cleared the URL and the policy is off, the save must succeed —
-      // the input's blank state is not something the user can fix at that
-      // point (the toggle would need to come back on first).
+      // URL is only meaningful when the policy is on. An admin who saves with
+      // the policy off should not be blocked by a missing URL.
       component.enabled.setValue(false);
       component.data?.patchValue({ rulesUrl: "" });
 
