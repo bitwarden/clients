@@ -50,8 +50,8 @@
             </td>
             <td bitTypography="body1" class="tw-py-3 tw-px-2">
               <div class="tw-flex tw-items-center tw-gap-2">
-                @if (getIconCipher(app); as iconCipher) {
-                  <app-vault-icon [cipher]="iconCipher"></app-vault-icon>
+                @if (app.iconCipher) {
+                  <app-vault-icon [cipher]="app.iconCipher"></app-vault-icon>
                 } @else {
                   <bit-icon name="bwi-globe" class="tw-text-2xl tw-text-muted"></bit-icon>
                 }
