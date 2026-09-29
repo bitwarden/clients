@@ -56,7 +56,7 @@ export class SendRequest {
         }
         this.data = new SendItemApi();
         this.data.encryptionVersion = send.data.encryptionVersion;
-        this.data.data = JSON.stringify(send.data.data);
+        this.data.data = JSON.stringify(send.data.data.toSdkCipher());
         break;
       default:
         break;

@@ -1,11 +1,51 @@
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
+import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
+import { CipherType } from "../../../../vault/enums";
+import { CipherPermissionsApi } from "../../../../vault/models/api/cipher-permissions.api";
+import { Cipher } from "../../../../vault/models/domain/cipher";
 import { SendType } from "../../types/send-type";
 import { Send } from "../domain/send";
+import { SendItem } from "../domain/send-item";
 import { SendText } from "../domain/send-text";
 
 import { SendRequest } from "./send.request";
+
+/** Top-level fields of the SDK `Cipher`, which rejects unknown fields when parsing. */
+const SDK_CIPHER_KEYS: (keyof SdkCipher)[] = [
+  "id",
+  "organizationId",
+  "folderId",
+  "collectionIds",
+  "key",
+  "name",
+  "notes",
+  "type",
+  "login",
+  "identity",
+  "card",
+  "secureNote",
+  "sshKey",
+  "bankAccount",
+  "driversLicense",
+  "passport",
+  "favorite",
+  "reprompt",
+  "organizationUseTotp",
+  "edit",
+  "permissions",
+  "viewPassword",
+  "localData",
+  "attachments",
+  "fields",
+  "passwordHistory",
+  "creationDate",
+  "deletedDate",
+  "revisionDate",
+  "archivedDate",
+  "data",
+];
 
 describe("SendRequest", () => {
   describe("constructor", () => {
@@ -78,6 +118,27 @@ describe("SendRequest", () => {
       const request = new SendRequest(send, 1024);
 
       expect(request.fileLength).toBe(1024);
+    });
+
+    it("should serialize Item Send data in the SDK cipher format", () => {
+      const cipher = new Cipher();
+      cipher.type = CipherType.Login;
+      cipher.name = new EncString("encryptedCipherName");
+      cipher.permissions = CipherPermissionsApi.fromSdkCipherPermissions({
+        delete: true,
+        restore: true,
+      });
+      const send = new Send();
+      send.type = SendType.Item;
+      send.data = new SendItem();
+      send.data.data = cipher;
+
+      const request = new SendRequest(send);
+
+      const serialized = JSON.parse(request.data.data);
+      expect(SDK_CIPHER_KEYS).toEqual(expect.arrayContaining(Object.keys(serialized)));
+      expect(serialized.permissions).toEqual({ delete: true, restore: true });
+      expect(serialized.name).toBe("encryptedCipherName");
     });
   });
 });

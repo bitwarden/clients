@@ -61,7 +61,7 @@ export class SendItem extends Domain {
   toSendData(): SendItemData {
     return Object.assign(new SendItemData(), {
       encryptionVersion: this.encryptionVersion,
-      data: JSON.stringify(this.data),
+      data: JSON.stringify(this.data.toSdkCipher()),
     });
   }
 }
