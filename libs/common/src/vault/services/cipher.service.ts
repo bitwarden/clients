@@ -51,11 +51,8 @@ import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
 import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
-import { CipherBulkMoveRequest } from "../models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
 import { CipherBulkShareRequest } from "../models/request/cipher-bulk-share.request";
-import { CipherBulkUpdateCollectionsRequest } from "../models/request/cipher-bulk-update-collections.request";
-import { CipherCollectionsRequest } from "../models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherShareRequest } from "../models/request/cipher-share.request";
@@ -101,8 +98,6 @@ export class CipherService implements CipherServiceAbstraction {
     FeatureFlag.PM28190CipherSharingOpsToSdk,
   );
 
-  private readonly sdkCipherAdminOpsEnabled$: Observable<boolean> =
-    this.configService.getFeatureFlag$(FeatureFlag.PM28191CipherAdminOpsToSdk);
   private readonly sdkCipherAttachmentOpsEnabled$: Observable<boolean> =
     this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk);
 
@@ -591,25 +586,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
-    if (useSdk) {
-      return this.getManyFromApiForOrganizationUsingSdk(organizationId);
-    }
-
-    const r = await this.apiService.send(
-      "GET",
-      "/ciphers/organization-details/assigned?organizationId=" + organizationId,
-      null,
-      true,
-      true,
-    );
-    const response = new ListResponse(r, CipherResponse);
-    return this.decryptOrganizationCiphersResponse(response, organizationId);
-  }
-
-  private async getManyFromApiForOrganizationUsingSdk(
-    organizationId: string,
-  ): Promise<CipherView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
       throw new Error("User ID is required");
@@ -1164,55 +1140,26 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
-    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
-        cipher.id,
-        cipher.collectionIds,
-        userId,
-      );
-      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
-      return encryptResult.cipher;
-    }
-
-    const request = new CipherCollectionsRequest(cipher.collectionIds);
-    const response = await this.apiService.putCipherCollections(cipher.id, request);
-    // The response will now check for an unavailable value. This value determines whether
-    // the user still has Can Manage access to the item after updating.
-    if (response.unavailable) {
-      await this.delete(cipher.id, userId);
-      return;
-    }
-    const data = new CipherData(response.cipher);
-    const updated = await this.upsert(data);
-    return new Cipher(updated[cipher.id as CipherId], cipher.localData);
+    await this.clearCache(userId);
+    const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
+      cipher.id,
+      cipher.collectionIds,
+      userId,
+    );
+    const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+    return encryptResult.cipher;
   }
 
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
-    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
-    if (useSdk) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      await this.clearCache(userId);
-      const cipherView = await this.cipherSdkService.saveCollectionsWithServerAdmin(
-        cipher.id,
-        cipher.collectionIds,
-        userId,
-      );
-      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
-      return encryptResult.cipher;
-    }
-
-    const request = new CipherCollectionsRequest(cipher.collectionIds);
-    const response = await this.apiService.putCipherCollectionsAdmin(cipher.id, request);
-    // The response will be incomplete with several properties missing values
-    // We will assign those properties values so the SDK decryption can complete
-    const completedResponse = new CipherResponse(response);
-    completedResponse.edit = true;
-    completedResponse.viewPassword = true;
-    completedResponse.favorite = false;
-    const data = new CipherData(completedResponse);
-    return new Cipher(data);
+    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    await this.clearCache(userId);
+    const cipherView = await this.cipherSdkService.saveCollectionsWithServerAdmin(
+      cipher.id,
+      cipher.collectionIds,
+      userId,
+    );
+    const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+    return encryptResult.cipher;
   }
 
   /**
@@ -1229,47 +1176,14 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: CollectionId[],
     removeCollections: boolean = false,
   ): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.bulkUpdateCollectionsWithServer(
-        orgId,
-        userId,
-        cipherIds,
-        collectionIds,
-        removeCollections,
-      );
-      return;
-    }
-
-    const request = new CipherBulkUpdateCollectionsRequest(
+    await this.clearCache(userId);
+    await this.cipherSdkService.bulkUpdateCollectionsWithServer(
       orgId,
+      userId,
       cipherIds,
       collectionIds,
       removeCollections,
     );
-
-    await this.apiService.send("POST", "/ciphers/bulk-collections", request, true, false);
-
-    // Update the local state
-    const ciphers = await firstValueFrom(this.ciphers$(userId));
-
-    for (const id of cipherIds) {
-      const cipher = ciphers[id];
-      if (cipher) {
-        if (removeCollections) {
-          cipher.collectionIds = cipher.collectionIds?.filter(
-            (cid) => !collectionIds.includes(cid as CollectionId),
-          );
-        } else {
-          // Append to the collectionIds if it's not already there
-          cipher.collectionIds = [...new Set([...(cipher.collectionIds ?? []), ...collectionIds])];
-        }
-      }
-    }
-
-    await this.clearCache();
-    await this.encryptedCiphersState(userId).update(() => ciphers);
   }
 
   async upsert(
@@ -1336,29 +1250,8 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any> {
-    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
-      return;
-    }
-
-    await this.apiService.putMoveCiphers(new CipherBulkMoveRequest(ids, folderId));
-
-    let ciphers = await firstValueFrom(this.ciphers$(userId));
-    if (ciphers == null) {
-      ciphers = {};
-    }
-
-    ids.forEach((id) => {
-      // eslint-disable-next-line
-      if (ciphers.hasOwnProperty(id)) {
-        ciphers[id as CipherId].folderId = folderId;
-      }
-    });
-
-    await this.clearCache();
-    await this.encryptedCiphersState(userId).update(() => ciphers);
+    await this.clearCache(userId);
+    await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
   }
 
   async delete(id: string | string[], userId: UserId): Promise<any> {
