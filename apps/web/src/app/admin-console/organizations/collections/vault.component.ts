@@ -110,7 +110,8 @@ import { DefaultVaultCollectionService } from "./services/default-vault-collecti
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
 import { VaultCollectionActionsService } from "./services/vault-collection-actions.service";
 import { AddAccessStatusType, VaultCollectionService } from "./services/vault-collection.service";
-import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
+import { VaultFilterService as OrganizationVaultFilterService } from "./vault-filter/vault-filter.service";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 const SearchTextDebounceInterval = 200;
@@ -122,7 +123,7 @@ const SearchTextDebounceInterval = 200;
   imports: [
     VaultHeaderComponent,
     CollectionAccessRestrictedComponent,
-    VaultFilterModule,
+    VaultFilterComponent,
     VaultItemsModule,
     SharedModule,
     BannerModule,
@@ -140,6 +141,11 @@ const SearchTextDebounceInterval = 200;
     { provide: VaultCollectionService, useClass: DefaultVaultCollectionService },
     VaultCipherActionsService,
     VaultBatchBarService,
+    safeProvider({
+      provide: VaultFilterService,
+      useClass: OrganizationVaultFilterService,
+      useAngularDecorators: true,
+    }),
     safeProvider({
       provide: ASSIGN_COLLECTIONS_DIALOG,
       useClass: AssignCollectionsWebDialogAdapter,
