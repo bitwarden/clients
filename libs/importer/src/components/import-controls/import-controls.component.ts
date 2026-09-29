@@ -386,9 +386,7 @@ export class ImportControlsComponent {
         return candidates;
       }
       const shape = detectPasteContentShape(content);
-      const narrowed = candidates.filter(
-        (option) => expectedPasteShapeFor(option.id as ImportType) === shape,
-      );
+      const narrowed = candidates.filter((option) => expectedPasteShapeFor(option) === shape);
       return narrowed.length > 0 ? narrowed : candidates;
     }
 

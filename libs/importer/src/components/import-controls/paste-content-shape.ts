@@ -1,6 +1,8 @@
-import { ImportType } from "../../models";
+import { ImportOption, ImportType } from "../../models";
 
 export type PasteContentShape = "json" | "xml" | "csv";
+
+const PASTE_SHAPES: ReadonlySet<string> = new Set<PasteContentShape>(["json", "xml", "csv"]);
 
 // Vendors whose paste formats are distinguishable by shape. Explicit list — excludes 1Password.
 const SHAPE_NARROWABLE_VENDORS: ReadonlySet<ImportType> = new Set([
@@ -12,27 +14,13 @@ const SHAPE_NARROWABLE_VENDORS: ReadonlySet<ImportType> = new Set([
   "delineaxml",
 ]);
 
-const SHAPE_BY_FORMAT: Partial<Record<ImportType, PasteContentShape>> = {
-  bitwardenjson: "json",
-  bitwardencsv: "csv",
-  dashlanejson: "json",
-  dashlanecsv: "csv",
-  keeperjson: "json",
-  keepercsv: "csv",
-  enpassjson: "json",
-  enpasscsv: "csv",
-  avastjson: "json",
-  avastcsv: "csv",
-  delineaxml: "xml",
-  delineacsv: "csv",
-};
-
 export function vendorSupportsPasteShapeNarrowing(vendorId: ImportType): boolean {
   return SHAPE_NARROWABLE_VENDORS.has(vendorId);
 }
 
-export function expectedPasteShapeFor(format: ImportType): PasteContentShape | undefined {
-  return SHAPE_BY_FORMAT[format];
+export function expectedPasteShapeFor(option: ImportOption): PasteContentShape | undefined {
+  const [format, ...rest] = option.pasteFormats;
+  return rest.length === 0 && PASTE_SHAPES.has(format) ? (format as PasteContentShape) : undefined;
 }
 
 /** First-character sniff: json starts with { or [, xml starts with <, anything else is csv. */

@@ -1,8 +1,23 @@
+import { ImportOption } from "../../models";
+import { importOptions } from "../../models/import-options";
+
 import {
   detectPasteContentShape,
   expectedPasteShapeFor,
   vendorSupportsPasteShapeNarrowing,
 } from "./paste-content-shape";
+
+function optionWithPasteFormats(pasteFormats: readonly string[]): ImportOption {
+  return { ...importOptions[0], pasteFormats };
+}
+
+function realOption(id: string): ImportOption {
+  const option = importOptions.find((o) => o.id === id);
+  if (option == null) {
+    throw new Error(`No real ImportOption for id: ${id}`);
+  }
+  return option;
+}
 
 describe("detectPasteContentShape", () => {
   it("detects a json object", () => {
@@ -29,26 +44,39 @@ describe("detectPasteContentShape", () => {
 });
 
 describe("expectedPasteShapeFor", () => {
-  it("classifies every format in the six shape-narrowable vendor groups", () => {
-    expect(expectedPasteShapeFor("bitwardenjson")).toBe("json");
-    expect(expectedPasteShapeFor("bitwardencsv")).toBe("csv");
-    expect(expectedPasteShapeFor("dashlanejson")).toBe("json");
-    expect(expectedPasteShapeFor("dashlanecsv")).toBe("csv");
-    expect(expectedPasteShapeFor("keeperjson")).toBe("json");
-    expect(expectedPasteShapeFor("keepercsv")).toBe("csv");
-    expect(expectedPasteShapeFor("enpassjson")).toBe("json");
-    expect(expectedPasteShapeFor("enpasscsv")).toBe("csv");
-    expect(expectedPasteShapeFor("avastjson")).toBe("json");
-    expect(expectedPasteShapeFor("avastcsv")).toBe("csv");
-    expect(expectedPasteShapeFor("delineaxml")).toBe("xml");
-    expect(expectedPasteShapeFor("delineacsv")).toBe("csv");
+  it("classifies every real format in the six shape-narrowable vendor groups, read off pasteFormats", () => {
+    expect(expectedPasteShapeFor(realOption("bitwardenjson"))).toBe("json");
+    expect(expectedPasteShapeFor(realOption("bitwardencsv"))).toBe("csv");
+    expect(expectedPasteShapeFor(realOption("dashlanejson"))).toBe("json");
+    expect(expectedPasteShapeFor(realOption("dashlanecsv"))).toBe("csv");
+    expect(expectedPasteShapeFor(realOption("keeperjson"))).toBe("json");
+    expect(expectedPasteShapeFor(realOption("keepercsv"))).toBe("csv");
+    expect(expectedPasteShapeFor(realOption("enpassjson"))).toBe("json");
+    expect(expectedPasteShapeFor(realOption("enpasscsv"))).toBe("csv");
+    expect(expectedPasteShapeFor(realOption("avastjson"))).toBe("json");
+    expect(expectedPasteShapeFor(realOption("avastcsv"))).toBe("csv");
+    expect(expectedPasteShapeFor(realOption("delineaxml"))).toBe("xml");
+    expect(expectedPasteShapeFor(realOption("delineacsv"))).toBe("csv");
   });
 
-  it("leaves 1Password's formats unclassified", () => {
-    expect(expectedPasteShapeFor("1password1pux")).toBeUndefined();
-    expect(expectedPasteShapeFor("1password1pif")).toBeUndefined();
-    expect(expectedPasteShapeFor("1passwordwincsv")).toBeUndefined();
-    expect(expectedPasteShapeFor("1passwordmaccsv")).toBeUndefined();
+  it("leaves 1Password's real formats unclassified", () => {
+    expect(expectedPasteShapeFor(realOption("1password1pux"))).toBe("json");
+    expect(expectedPasteShapeFor(realOption("1password1pif"))).toBeUndefined();
+    expect(expectedPasteShapeFor(realOption("1passwordwincsv"))).toBe("csv");
+    expect(expectedPasteShapeFor(realOption("1passwordmaccsv"))).toBe("csv");
+  });
+
+  it("is undefined for a format with no known shape (drift guard)", () => {
+    expect(expectedPasteShapeFor(optionWithPasteFormats(["1pif"]))).toBeUndefined();
+    expect(expectedPasteShapeFor(optionWithPasteFormats(["kdbx"]))).toBeUndefined();
+  });
+
+  it("is undefined for a format pasteable as more than one shape (drift guard)", () => {
+    expect(expectedPasteShapeFor(optionWithPasteFormats(["json", "csv"]))).toBeUndefined();
+  });
+
+  it("is undefined for a format with no paste formats at all", () => {
+    expect(expectedPasteShapeFor(optionWithPasteFormats([]))).toBeUndefined();
   });
 });
 
