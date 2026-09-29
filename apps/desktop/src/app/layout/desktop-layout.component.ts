@@ -1,6 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -40,6 +40,7 @@ export class DesktopLayoutComponent {
   private dialogService = inject(DialogService);
   private sendPolicyService = inject(SendPolicyService);
   private configService = inject(ConfigService);
+  private router = inject(Router);
 
   protected readonly logo = PasswordManagerLogo;
 
@@ -57,7 +58,11 @@ export class DesktopLayoutComponent {
     this.dialogService.open(CredentialGeneratorComponent);
   }
 
-  protected openImport() {
+  protected async openImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/import"]);
+      return;
+    }
     this.dialogService.open(ImportDesktopComponent);
   }
 

@@ -298,12 +298,14 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
   ManagedSettingsService,
 } from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -536,9 +538,12 @@ export default class MainBackground {
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
-  // `#` rather than `private` because `BitwardenMain` is assigned to a worker property,
-  // where an erased annotation would leave the channel ambient
+  // `#` rather than `private` because this instance is assigned to `self.bitwardenMain`, where
+  // an erased annotation would leave the channel ambient
   readonly #intraprocessMessageSender: IntraprocessMessageSender;
+  // Retained because `OverlayBackground` is constructed lazily, outside this constructor's scope.
+  // `private` suffices here: a listener only reads, so reaching it grants no way to publish.
+  private messageListener: MessageListener;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -630,7 +635,11 @@ export default class MainBackground {
     };
 
     const isDev = process.env.ENV === "development";
-    this.logService = new ConsoleLogService(isDev);
+    this.logService = new ConsoleLogService(
+      isDev,
+      null,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready.then(() => new FlightRecorderClient())),
+    );
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
@@ -642,7 +651,7 @@ export default class MainBackground {
       new ChromeMessageSender(this.logService),
     );
 
-    const messageListener = new MessageListener(
+    this.messageListener = new MessageListener(
       this.#intraprocessMessageSender.messages$({ external$: fromChromeRuntimeMessaging() }),
     );
 
@@ -771,7 +780,7 @@ export default class MainBackground {
     );
 
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
-      messageListener,
+      this.messageListener,
       this.globalStateProvider,
       this.taskSchedulerService,
     );
@@ -795,7 +804,6 @@ export default class MainBackground {
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
       this.keyGenerationService,
-      this.logService,
       this.cryptoFunctionService,
       this.accountService,
     );
@@ -839,7 +847,6 @@ export default class MainBackground {
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
-      this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
@@ -851,7 +858,6 @@ export default class MainBackground {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -1042,7 +1048,7 @@ export default class MainBackground {
       this.v2UpgradeTokenStateService,
       this.autoUnlockService,
       this.messagingService,
-      messageListener,
+      this.messageListener,
     );
     // Started here rather than in bootstrap so an unlock the popup performs while the service
     // worker is starting up is not missed.
@@ -1122,7 +1128,7 @@ export default class MainBackground {
       new DefaultLoginStrategyCacheService(this.globalStateProvider),
       this.logService,
       this.messagingService,
-      messageListener,
+      this.messageListener,
     );
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
@@ -1308,7 +1314,7 @@ export default class MainBackground {
 
     this.syncServiceListener = new SyncServiceListener(
       this.syncService,
-      messageListener,
+      this.messageListener,
       this.messagingService,
       this.logService,
     );
@@ -1352,7 +1358,7 @@ export default class MainBackground {
       this.accountService,
       this.authService,
       this.userNotificationSettingsService,
-      messageListener,
+      this.messageListener,
       this.animationControlService,
       this.autofillLifecycleService,
     );
@@ -1592,7 +1598,7 @@ export default class MainBackground {
       this.messagingService,
       this.logService,
       this.configService,
-      messageListener,
+      this.messageListener,
       this.accountService,
       this.lockService,
       this.billingAccountProfileStateService,
@@ -1600,6 +1606,7 @@ export default class MainBackground {
       this.autofillLifecycleService,
       this.defaultPasswordManagerPromptStateAccessor,
       this.autofillOrchestrator,
+      this.#intraprocessMessageSender,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.encryptService,
@@ -1616,6 +1623,8 @@ export default class MainBackground {
       () => this.generatePasswordToClipboard(),
       this.accountService,
       this.lockService,
+      this.#intraprocessMessageSender,
+      this.messageListener,
     );
 
     this.taskService = new DefaultTaskService(
@@ -1624,7 +1633,7 @@ export default class MainBackground {
       this.organizationService,
       this.authService,
       this.serverNotificationsService,
-      messageListener,
+      this.messageListener,
     );
 
     this.changeLoginPasswordService = new DefaultChangeLoginPasswordService(
@@ -1652,6 +1661,8 @@ export default class MainBackground {
       this.changeLoginPasswordService,
       this.messagingService,
       this.fido2Background,
+      this.#intraprocessMessageSender,
+      this.messageListener,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
@@ -1701,9 +1712,14 @@ export default class MainBackground {
       this.accountService,
       this.autofillTriageService,
       new WebmapperDraftService(this.stateProvider),
+      this.#intraprocessMessageSender,
     );
 
-    this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
+    this.contextMenusBackground = new ContextMenusBackground(
+      contextMenuClickedHandler,
+      this.messageListener,
+      this.logService,
+    );
 
     this.idleBackground = new IdleBackground(
       this.vaultTimeoutService,
@@ -1781,7 +1797,7 @@ export default class MainBackground {
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,
-      messageListener,
+      this.messageListener,
       this.eventCollectionService,
       this.organizationService,
       this.accountService,
@@ -2333,6 +2349,8 @@ export default class MainBackground {
       this.generatorHistoryService,
       this.credentialGeneratorService,
       this.configService,
+      this.#intraprocessMessageSender,
+      this.messageListener,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(

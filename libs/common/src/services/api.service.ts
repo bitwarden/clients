@@ -62,7 +62,6 @@ import { IdentityDeviceVerificationResponse } from "../auth/models/response/iden
 import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
-import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
@@ -354,10 +353,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ApiKeyResponse> {
     const r = await this.send("POST", "/accounts/rotate-api-key", request, true, true);
     return new ApiKeyResponse(r);
-  }
-
-  postConvertToKeyConnector(): Promise<void> {
-    return this.send("POST", "/accounts/convert-to-key-connector", null, true, false);
   }
 
   // Account Billing APIs
@@ -1248,34 +1243,6 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Key Connector
-
-  async getMasterKeyFromKeyConnector(
-    keyConnectorUrl: string,
-  ): Promise<KeyConnectorUserKeyResponse> {
-    const activeUser = await this.getActiveUser();
-    if (activeUser == null) {
-      throw new Error("No active user, cannot get master key from key connector.");
-    }
-    const authHeader = await this.getActiveBearerToken(activeUser);
-
-    const response = await this.fetch(
-      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
-        cache: "no-store",
-        method: "GET",
-        headers: new Headers({
-          Accept: "application/json",
-          Authorization: "Bearer " + authHeader,
-        }),
-      }),
-    );
-
-    if (response.status !== HttpStatusCode.Ok) {
-      const error = await this.handleApiRequestError(response, true);
-      return Promise.reject(error);
-    }
-
-    return new KeyConnectorUserKeyResponse(await response.json());
-  }
 
   async postUserKeyToKeyConnector(
     keyConnectorUrl: string,

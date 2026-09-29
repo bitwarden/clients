@@ -30,6 +30,8 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -144,26 +146,29 @@ export class Main {
       });
     }
 
-    this.logService = new ElectronLogMainService(null, app.getPath("userData"));
+    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
 
-    const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
-    const cachedBackend = new CachedBackend(electronStoreBackend);
-
-    // Main doesn't have access to ConfigService or the feature flags easily at this
-    // early stage, so instead we try to read the raw feature flag value directly
-    // from the storage to determine whether to use the cached backend or not.
-    let isCacheEnabled = false;
+    // Main has no ConfigService, so it reads the cached server configs straight from the store.
+    let flightRecorderEnabled = false;
     try {
-      isCacheEnabled = Object.values(
-        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
-      ).some((s: any) => s?.featureStates?.[FeatureFlag.ElectronStorageCache] === true);
+      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+        string,
+        { featureStates?: Record<string, unknown> }
+      >;
+      flightRecorderEnabled = Object.values(configs).some(
+        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
+      );
     } catch {
       // Ignore errors
     }
-    this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
-    this.storageService = new ElectronStorageService(
-      isCacheEnabled ? cachedBackend : electronStoreBackend,
+    const flightRecorder = new FlightRecorderLogRecorder(
+      SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
+    flightRecorder.setEnabled(flightRecorderEnabled);
+
+    this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
+
+    this.storageService = new ElectronStorageService(storageBackend);
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(

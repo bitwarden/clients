@@ -9,6 +9,7 @@ import {
   getCartItemTranslationKey,
   getCreditTranslationKey,
   getProrationChargeTranslationKey,
+  getProratedSeatTranslationKey,
 } from "./translation";
 
 describe("getCartItemTranslationKey", () => {
@@ -241,6 +242,26 @@ describe("getProrationChargeTranslationKey", () => {
     expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "sm-seat")).toBe(
       "secretsManagerProratedCharge",
     );
+  });
+});
+
+describe("getProratedSeatTranslationKey", () => {
+  it("should map premium-org-upgrade to planProratedMembershipInMonths", () => {
+    expect(getProratedSeatTranslationKey(InvoicePreviewFlowContext.PremiumOrgUpgrade)).toBe(
+      "planProratedMembershipInMonths",
+    );
+  });
+
+  const plainSeatContexts = [
+    InvoicePreviewFlowContext.PremiumSubscriptionPage,
+    InvoicePreviewFlowContext.PersonalCheckout,
+    InvoicePreviewFlowContext.OrganizationCheckout,
+    InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+    InvoicePreviewFlowContext.OrganizationPlanChange,
+  ];
+
+  it.each(plainSeatContexts)("should return undefined for %s", (flowContext) => {
+    expect(getProratedSeatTranslationKey(flowContext)).toBeUndefined();
   });
 });
 
