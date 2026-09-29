@@ -389,7 +389,7 @@
         >
         </app-enter-billing-address>
       </ng-container>
-      @if (previewCartEnabled()) {
+      @if (showPreviewCart) {
         @if (planChangeCart.isLoading() || planChangeCart.error() != null) {
           <div class="tw-mt-4 tw-text-center">
             <bit-spinner></bit-spinner>

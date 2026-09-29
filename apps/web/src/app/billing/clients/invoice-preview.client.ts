@@ -43,8 +43,7 @@ export type OrganizationPurchasePreviewRequest = {
 export type OrganizationPlanChangePreviewRequest = {
   tier: PlanTier;
   cadence: string;
-  country: string;
-  postalCode: string;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
 /**
@@ -120,17 +119,10 @@ export class InvoicePreviewClient {
     organizationId: string,
     request: OrganizationPlanChangePreviewRequest,
   ): Promise<InvoicePreviewResponse> => {
-    const query = new URLSearchParams({
-      tier: request.tier,
-      cadence: request.cadence,
-      country: request.country,
-      postalCode: request.postalCode,
-    });
-
     const json = await this.apiService.send(
-      "GET",
-      `/organizations/${organizationId}/billing/subscription/plan-change/preview?${query}`,
-      null,
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/plan-change/preview`,
+      request,
       true,
       true,
     );

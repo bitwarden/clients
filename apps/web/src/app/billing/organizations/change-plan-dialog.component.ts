@@ -254,21 +254,19 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   /**
    * Signal holding the current plan change request.
    */
-  // Field equality so a rebuilt request that's identical doesn't refetch.
   private readonly planChangeRequest = signal<OrganizationPlanChangePreviewRequest | undefined>(
     undefined,
     {
       equal: (a, b) =>
         a?.tier === b?.tier &&
         a?.cadence === b?.cadence &&
-        a?.country === b?.country &&
-        a?.postalCode === b?.postalCode,
+        a?.billingAddress.country === b?.billingAddress.country &&
+        a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
+        a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
+        a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value,
     },
   );
 
-  /**
-   * Resource for the plan change cart preview.
-   */
   protected planChangeCart = resource({
     params: () => (this.previewCartEnabled() ? this.planChangeRequest() : undefined),
     loader: ({ params }) => {
@@ -276,10 +274,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     },
   });
 
+  protected get showPreviewCart(): boolean {
+    return this.previewCartEnabled() && !this.isSubscriptionCanceled;
+  }
+
   // With the preview cart on, block submission until the cost preview has loaded so a plan change
   // can't be committed without its cost shown.
   protected get isSubmitDisabled(): boolean {
-    return this.previewCartEnabled() && !this.planChangeCart.hasValue();
+    return this.showPreviewCart && !this.planChangeCart.hasValue();
   }
 
   constructor(
@@ -1098,7 +1100,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
    */
   // Routes cost-summary refreshes to the preview-driven cart or the legacy tax summary by flag.
   private async refreshCostSummary(): Promise<void> {
-    if (this.previewCartEnabled()) {
+    if (this.showPreviewCart) {
       this.refreshPlanChangePreview();
     } else {
       await this.refreshSalesTax();
@@ -1130,8 +1132,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return {
       tier: plan.tier,
       cadence: plan.cadence,
-      country: billingAddress.country,
-      postalCode: billingAddress.postalCode,
+      billingAddress: {
+        country: billingAddress.country,
+        postalCode: billingAddress.postalCode,
+        taxId: billingAddress.taxId,
+      },
     };
   }
 

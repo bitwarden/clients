@@ -268,7 +268,11 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
   });
 
   describe("preview-driven cart", () => {
-    const address = { country: "US", postalCode: "12345" } as any;
+    const address = {
+      country: "US",
+      postalCode: "12345",
+      taxId: { code: "us_ein", value: "12-3456789" },
+    } as any;
 
     const selectEnterpriseAnnual = () => {
       component.organizationId = "organization-id";
@@ -284,8 +288,11 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect(request).toEqual({
         tier: "enterprise",
         cadence: "annually",
-        country: "US",
-        postalCode: "12345",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
       });
     });
 
@@ -307,8 +314,11 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).planChangeRequest()).toEqual({
         tier: "enterprise",
         cadence: "annually",
-        country: "US",
-        postalCode: "12345",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
       });
       // The legacy tax path is not used when the preview cart is on.
       expect(previewTax).not.toHaveBeenCalled();
@@ -392,6 +402,28 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("leaves submit enabled when the flag is off, regardless of the preview", () => {
       previewCartFlag$.next(false);
+      (component as any).planChangeCart = { hasValue: () => false };
+
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("uses the legacy tax path for a cancelled subscription even when the flag is on", async () => {
+      selectEnterpriseAnnual();
+      previewCartFlag$.next(true);
+      (component as any).isSubscriptionCanceled = true;
+      const previewTax = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+      previewTax.mockResolvedValue({ tax: 0, total: 0 });
+
+      await (component as any).refreshCostSummary();
+
+      expect((component as any).planChangeRequest()).toBeUndefined();
+      expect(previewTax).toHaveBeenCalled();
+    });
+
+    it("leaves submit enabled for a cancelled subscription with the flag on", () => {
+      previewCartFlag$.next(true);
+      (component as any).isSubscriptionCanceled = true;
       (component as any).planChangeCart = { hasValue: () => false };
 
       expect((component as any).isSubmitDisabled).toBe(false);

@@ -171,8 +171,7 @@ describe("InvoicePreviewService", () => {
       const cart = await sut.previewPlanChangeCart("org-id-123", {
         tier: "teams",
         cadence: "annually",
-        country: "US",
-        postalCode: "12345",
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
       });
 
       expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 12.5 });
@@ -185,8 +184,7 @@ describe("InvoicePreviewService", () => {
       const request: OrganizationPlanChangePreviewRequest = {
         tier: "teams",
         cadence: "annually",
-        country: "US",
-        postalCode: "12345",
+        billingAddress: { country: "US", postalCode: "12345", taxId: null },
       };
 
       await sut.previewPlanChangeCart("org-id-123", request);
