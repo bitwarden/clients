@@ -190,6 +190,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
         expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
         expect(await firstValueFrom(service.loading$)).toBe(false);
       });
+
+      it("loads ciphers when an empty report exists (i.e. no login items)", async () => {
+        const emptyReport = createRiskInsights({ reports: [] });
+        reportPersistenceService.loadLastReport$.mockReturnValue(
+          of({ report: emptyReport, hadLegacyBlobs: false }),
+        );
+
+        await firstValueFrom(service.initializeForOrganization$(orgId));
+
+        expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+        expect(await firstValueFrom(service.report$)).toBeNull();
+        expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
+        expect(await firstValueFrom(service.loading$)).toBe(false);
+      });
     });
   });
 
@@ -248,6 +262,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     it("should carry over previous application metadata", async () => {
       const previousReport = createRiskInsights({
+        reports: [createReport("github.com")],
         applications: [
           { applicationName: "github.com", isCritical: true, reviewedDate: new Date() } as any,
         ],
@@ -383,6 +398,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     beforeEach(() => {
       mockReport = createRiskInsights({
+        reports: [createReport("github.com")],
         applications: [
           { applicationName: "github.com", isCritical: false, reviewedDate: undefined } as any,
         ],

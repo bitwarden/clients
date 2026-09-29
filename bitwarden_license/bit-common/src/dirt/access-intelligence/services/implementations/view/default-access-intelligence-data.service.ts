@@ -103,7 +103,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
             this._ciphers.next(ciphers);
           }
 
-          if (!reportResult) {
+          // handle no report found and existing report without any logins
+          if (!reportResult || reportResult.report.reports.length === 0) {
             if (ciphers) {
               return of(null);
             }
