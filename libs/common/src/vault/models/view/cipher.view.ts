@@ -318,10 +318,7 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(
-    obj: SdkCipherViewWithPartial,
-    sdk?: CiphersClient,
-  ): CipherView | undefined {
+  static fromSdkCipherView(obj: SdkCipherViewWithPartial): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }
