@@ -3,7 +3,6 @@
 import * as path from "path";
 
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray } from "electron";
-import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -21,6 +20,8 @@ export class TrayMain {
   private tray: Tray;
   private icon: string | Electron.NativeImage;
   private pressedIcon: Electron.NativeImage;
+  // Cached so the close handler can decide synchronously whether to call preventDefault().
+  private runInBackground = false;
 
   constructor(
     private windowMain: WindowMain,
@@ -77,6 +78,7 @@ export class TrayMain {
     // The tray icon is shown only while "keep running in the background" is enabled.
     // React to the setting so toggling it shows/removes the tray without a restart.
     this.desktopSettingsService.runInBackground$.subscribe((runInBackground) => {
+      this.runInBackground = runInBackground;
       if (runInBackground) {
         this.showTray();
       } else {
@@ -90,12 +92,12 @@ export class TrayMain {
       await this.biometricService.setShouldAutopromptNow(true);
     });
 
-    win.on("close", async (e: Event) => {
+    win.on("close", (e: Event) => {
       if (this.windowMain.isQuitting) {
         return;
       }
 
-      if (await firstValueFrom(this.desktopSettingsService.runInBackground$)) {
+      if (this.runInBackground) {
         // Keep running in the background: closing the window hides it to the tray.
         e.preventDefault();
         this.hideToTray();

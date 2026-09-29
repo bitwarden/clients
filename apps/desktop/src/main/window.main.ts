@@ -172,47 +172,46 @@ export class WindowMain {
     });
 
     ipcMain.on("window-focus", () => {
-      if (this.win != null) {
-        this.win.show();
-        this.win.focus();
-      }
+      this.withWindow((win) => {
+        win.show();
+        win.focus();
+      });
     });
 
     ipcMain.on("window-hide", () => {
-      if (this.win != null) {
+      this.withWindow((win) => {
         if (isWindows()) {
           // On windows, to return focus we need minimize
-          this.win.minimize();
+          win.minimize();
         } else {
-          this.win.hide();
+          win.hide();
         }
-      }
+      });
     });
 
     this.desktopSettingsService.modalMode$
       .pipe(
         pairwise(),
         concatMap(async ([lastValue, newValue]) => {
-          if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
-            // Reset the window state to the main window state
-            applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
-            // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
-            this.win.hide();
-          } else if (newValue.isModalModeActive) {
-            // Apply the popup modal styles
-            this.logService.info("Applying popup modal styles", newValue.modalPosition);
-            applyPopupModalStyles(this.win, newValue.showTrafficButtons, newValue.modalPosition);
-            this.win.show();
-          }
+          this.withWindow((win) => {
+            if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
+              // Reset the window state to the main window state
+              applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
+              // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
+              win.hide();
+            } else if (newValue.isModalModeActive) {
+              // Apply the popup modal styles
+              this.logService.info("Applying popup modal styles", newValue.modalPosition);
+              applyPopupModalStyles(win, newValue.showTrafficButtons, newValue.modalPosition);
+              win.show();
+            }
+          });
         }),
       )
       .subscribe();
 
     this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
-      if (this.win == null) {
-        return;
-      }
-      this.win.setContentProtection(prevent);
+      this.withWindow((win) => win.setContentProtection(prevent));
     });
 
     return new Promise<void>((resolve, reject) => {
@@ -228,11 +227,13 @@ export class WindowMain {
               // icon or terminal while already running). Always bring us to the foreground.
               if (this.focusWindowCallback != null) {
                 void this.focusWindowCallback();
-              } else if (this.win != null) {
-                if (this.win.isMinimized() || !this.win.isVisible()) {
-                  this.win.show();
-                }
-                this.win.focus();
+              } else {
+                this.withWindow((win) => {
+                  if (win.isMinimized() || !win.isVisible()) {
+                    win.show();
+                  }
+                  win.focus();
+                });
               }
               if (isWindows() || isLinux()) {
                 if (this.argvCallback != null) {
@@ -246,9 +247,10 @@ export class WindowMain {
         // This method will be called when Electron is shutting
         // down the application.
         app.on("before-quit", async () => {
+          // Set before awaiting. The tray's close handler reads it synchronously.
+          this.isQuitting = true;
           // Allow biometric to auto-prompt on reload
           await this.biometricStateService.resetAllPromptCancelled();
-          this.isQuitting = true;
         });
 
         // This method will be called when Electron has finished
@@ -326,10 +328,10 @@ export class WindowMain {
 
   /// Show the window with main window styles
   show() {
-    if (this.win != null) {
-      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
-      this.win.show();
-    }
+    this.withWindow((win) => {
+      applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
+      win.show();
+    });
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
@@ -399,7 +401,7 @@ export class WindowMain {
       },
     );
     this.win.once("ready-to-show", () => {
-      this.win.show();
+      this.withWindow((win) => win.show());
     });
   }
 
@@ -487,7 +489,9 @@ export class WindowMain {
     }
 
     this.win.webContents.on("dom-ready", () => {
-      this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+      this.withWindow((win) => {
+        win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+      });
     });
 
     // Persist zoom changes from mouse wheel and programmatic zoom operations
@@ -496,9 +500,10 @@ export class WindowMain {
     // We can't depend on higher level web events (like close) to do this
     // because locking the vault resets window state.
     this.win.webContents.on("zoom-changed", async () => {
-      const newZoom = this.win.webContents.zoomFactor;
-      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
-      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
+      await this.withWindow(async (win) => {
+        this.windowStates[mainWindowSizeKey].zoomFactor = win.webContents.zoomFactor;
+        await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
+      });
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
@@ -518,7 +523,7 @@ export class WindowMain {
         })
         .then(() => {
           if (isDev()) {
-            this.win.webContents.openDevTools();
+            this.withWindow((win) => win.webContents.openDevTools());
           }
         });
     } else {
@@ -537,9 +542,8 @@ export class WindowMain {
     }
 
     // Emitted when the window is closed.
-    this.win.on("closed", async () => {
+    this.win.on("closed", () => {
       this.isClosing = false;
-      await this.updateWindowState(mainWindowSizeKey, this.win);
 
       // Dereference the window object, usually you would store window
       // in an array if your app supports multi windows, this is the time
@@ -568,10 +572,12 @@ export class WindowMain {
       this.windowStateChangeHandler(mainWindowSizeKey, this.win);
     });
     this.win.on("focus", () => {
-      this.win.webContents.send("messagingService", {
-        command: "windowIsFocused",
-        windowIsFocused: true,
-      });
+      this.withWindow((win) =>
+        win.webContents.send("messagingService", {
+          command: "windowIsFocused",
+          windowIsFocused: true,
+        }),
+      );
     });
 
     this.win.webContents.setWindowOpenHandler(({ url }) => {
@@ -604,7 +610,7 @@ export class WindowMain {
 
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)
       .then((preventScreenshots) => {
-        this.win.setContentProtection(preventScreenshots);
+        this.withWindow((win) => win.setContentProtection(preventScreenshots));
       })
       .catch((e) => {
         this.logService.error(e);
@@ -645,6 +651,14 @@ export class WindowMain {
   async saveZoomFactor(zoomFactor: number) {
     this.windowStates[mainWindowSizeKey].zoomFactor = zoomFactor;
     await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
+  }
+
+  /** Runs `fn` with the main window, or skips it if the window is gone. */
+  private withWindow<T>(fn: (win: BrowserWindow) => T): T | undefined {
+    if (this.win == null || this.win.isDestroyed()) {
+      return undefined;
+    }
+    return fn(this.win);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {

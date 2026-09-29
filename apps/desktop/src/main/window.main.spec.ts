@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
+import { BrowserWindow } from "electron";
 import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -106,6 +107,54 @@ describe("WindowMain", () => {
 
     it("returns false for an unparseable string without throwing", () => {
       expect(isLocalBundleUrl("not a url")).toBe(false);
+    });
+  });
+
+  describe("withWindow", () => {
+    let sut: WindowMain;
+    let withWindow: <T>(fn: (win: BrowserWindow) => T) => T | undefined;
+
+    beforeEach(() => {
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        mock<DesktopSettingsService>(),
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+
+      withWindow = (fn) => (sut as any).withWindow(fn);
+    });
+
+    it("runs the callback with the window when it is alive", () => {
+      const win = mock<BrowserWindow>();
+      win.isDestroyed.mockReturnValue(false);
+      sut.win = win;
+
+      const result = withWindow((w) => w);
+
+      expect(result).toBe(win);
+    });
+
+    it("skips the callback after the window reference is cleared", () => {
+      sut.win = null;
+      const fn = jest.fn();
+
+      expect(withWindow(fn)).toBeUndefined();
+      expect(fn).not.toHaveBeenCalled();
+    });
+
+    it("skips the callback when the window is destroyed", () => {
+      const win = mock<BrowserWindow>();
+      win.isDestroyed.mockReturnValue(true);
+      sut.win = win;
+      const fn = jest.fn();
+
+      expect(withWindow(fn)).toBeUndefined();
+      expect(fn).not.toHaveBeenCalled();
     });
   });
 });
