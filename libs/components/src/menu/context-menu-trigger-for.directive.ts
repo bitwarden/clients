@@ -14,9 +14,6 @@ import { MenuComponent } from "./menu.component";
   selector: "[bitContextMenuTriggerFor]",
   exportAs: "contextMenuTrigger",
   host: {
-    // No aria-expanded: the host keeps its implicit `generic` role, and aria-expanded isn't
-    // global, so it would be invalid ARIA. aria-haspopup is global and stays.
-    "[attr.aria-haspopup]": "menu()?.ariaRole() ?? 'menu'",
     "(contextmenu)": "onContextMenu($event)",
     "(keydown)": "onKeydown($event)",
   },
@@ -33,7 +30,7 @@ export class ContextMenuTriggerForDirective extends MenuTriggerBaseDirective {
     event.preventDefault();
 
     // Windows and Linux raise a contextmenu as the default action of Shift+F10 and the ContextMenu
-    // key, which would otherwise fling a keyboard-opened menu to wherever the pointer sits.
+    // key, which would otherwise place a keyboard-opened menu to wherever the pointer sits.
     if (this.isOpen() && !this.cursorAnchored) {
       return;
     }
@@ -42,6 +39,8 @@ export class ContextMenuTriggerForDirective extends MenuTriggerBaseDirective {
   }
 
   protected onKeydown(event: KeyboardEvent) {
+    // Windows and Linux already reach onContextMenu natively; this is what gives macOS, which
+    // maps neither key to a contextmenu event, a keyboard path to the menu.
     const isContextMenuKey = event.key === "ContextMenu" || (event.key === "F10" && event.shiftKey);
     if (!isContextMenuKey || this.isOpen()) {
       return;

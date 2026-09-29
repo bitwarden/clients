@@ -138,5 +138,7 @@ the escape key or clicking out of the menu.
 
 `bitContextMenuTriggerFor` opens on `Shift+F10` or the `ContextMenu` key, so the menu is reachable
 without a pointer. That only works if the host is focusable — see the context menu guidelines above.
-It sets `aria-haspopup` but not `aria-expanded`: its host is an arbitrary region with no role, and
-`aria-expanded` is not a global attribute, so binding it there would be invalid ARIA.
+It sets neither `aria-haspopup` nor `aria-expanded`. Both describe an element whose own activation
+opens the popup, which is not what a context menu is, and ARIA has no attribute for declaring one —
+see [w3c/aria#1971](https://github.com/w3c/aria/issues/1971). Pair the menu with a visible trigger
+so it is discoverable.
