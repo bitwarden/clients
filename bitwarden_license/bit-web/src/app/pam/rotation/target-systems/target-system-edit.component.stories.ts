@@ -12,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import type { TargetSystemId } from "../rotation";
 import { AccessConnectorStatus, TargetSystemMethod } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
@@ -128,7 +129,7 @@ export default {
 
 type Story = StoryObj<TargetSystemEditComponent>;
 
-const at = (targetSystemId: string): ReturnType<typeof atUrl> =>
+const at = (targetSystemId: TargetSystemId): ReturnType<typeof atUrl> =>
   atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems/${targetSystemId}`);
 
 /**
