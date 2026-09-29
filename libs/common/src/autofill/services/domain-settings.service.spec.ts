@@ -889,6 +889,24 @@ describe("DefaultDomainSettingsService", () => {
       expect(url).toBe("https://server.example.com/rules/");
     });
 
+    it("falls back to server config when the policy URL is a legacy default value", async () => {
+      // Legacy policies saved before the current default constant was adopted
+      // must be recognized here so runtime matches the edit UI (which also
+      // treats them as "Default") and they fetch current server config.
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({
+          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download",
+        }),
+      ]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://server.example.com/rules/");
+    });
+
     it("appends a trailing slash when the resolved URL is missing one", async () => {
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({ rulesUrl: "https://policy.example.com/rules" }),
