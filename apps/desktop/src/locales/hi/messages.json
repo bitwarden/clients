@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "इस बटन के ऊपर $COUNT$ और साझा फ़ोल्डर दिखाए गए हैं",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "इस बटन के ऊपर 1 और साझा फ़ोल्डर दिखाया गया है",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "मेरा फ़ोल्डर"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "एक संग्रह चुनें"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "यदि आप चाहते हैं कि आयातित फ़ाइल की सामग्री किसी संग्रह में ले जाई जाए तो यह विकल्प चुनें"
   },
   "importTargetHintFolder": {
     "message": "यदि आप चाहते हैं कि आयातित फ़ाइल की सामग्री किसी फ़ोल्डर में ले जाई जाए तो यह विकल्प चुनें"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "फ़ाइल में अनअसाइन किए गए आइटम हैं।"
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "आयात फ़ाइल चुनें"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "फ़ाइल चुनें"

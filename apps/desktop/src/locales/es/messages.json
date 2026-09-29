@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ carpetas compartidas más mostradas arriba de este botón",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "Hay otra carpeta compartida más, que se muestra encima de este botón",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Mi carpeta"
   },
@@ -184,7 +170,7 @@
     "message": "Añade carpetas a los elementos para filtrarlos aquí."
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "Añade elementos a Mis elementos para filtrarlos aquí."
   },
   "sharedFolderFilterTooltip": {
     "message": "Añade elementos a una carpeta compartida para filtrarlos aquí."
@@ -806,24 +792,24 @@
     "message": "Error de descifrado"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden no ha podido descifrar el elemento de la caja fuerte que se indica a continuación. Ponte en contacto con el servicio de atención al cliente de Bitwarden y facilítales el ID del elemento que aparece a continuación para ver si es posible recuperarlo."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden no ha podido descifrar los elementos de la caja fuerte que se indican a continuación. Ponte en contacto con el servicio de atención al cliente de Bitwarden y facilítales los ID de los elementos que figuran a continuación para ver si es posible recuperarlos."
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "ID del elemento",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "ID de los elementos",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "Copiar ID"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "Copiar todos los ID"
   },
   "january": {
     "message": "Enero"
@@ -2437,11 +2423,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 resultado",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ resultados",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2451,7 +2437,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "Ningún filtro coincide con “$SEARCH$”",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Escoge una colección"
   },
+  "selectImportSharedFolder": {
+    "message": "Seleccionar una carpeta compartida"
+  },
   "importTargetHintCollection": {
     "message": "Seleccione esta opción si desea que al importar el contenido del archivo se mueva a una colección"
   },
   "importTargetHintFolder": {
     "message": "Seleccione esta opción si desea que al importar el contenido del archivo se mueva a una carpeta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecciona esta opción si deseas que el contenido del archivo importado se mueva a una carpeta compartida"
   },
   "importUnassignedItemsError": {
     "message": "El archivo contiene elementos no asignados."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Selecciona el archivo de importación"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Seleccionar origen"
+  },
+  "importSourceSelectTitle": {
+    "message": "Seleccione su origen"
+  },
+  "importSourceSelectDescription": {
+    "message": "Elige el gestor de contraseñas o el navegador desde el que vas a importar los datos."
+  },
+  "importSourceBrowsers": {
+    "message": "Navegadores"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestores de contraseñas"
+  },
+  "importSourceShowAll": {
+    "message": "Mostrar todo"
+  },
+  "importSourceShowLess": {
+    "message": "Mostrar menos"
+  },
+  "importSourceStepCount": {
+    "message": "Paso $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Escoge el archivo"
@@ -5995,7 +6021,7 @@
     "message": "Habilitar el atajo de autocompletar (vista previa de funcionalidad)"
   },
   "enableAutotypeGaShortcut": {
-    "message": "Enable autotype shortcut"
+    "message": "Activar atajo de autoescritura"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Asegúrate de estar en el campo correcto antes de utilizar el atajo para evitar introducir datos en el lugar equivocado."
@@ -6316,16 +6342,16 @@
     "message": "Los elementos que elimines aparecerán aquí y se eliminarán definitivamente al cabo de 30 días"
   },
   "noItemsInTrashDescription": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+    "message": "Los elementos que elimines aparecerán aquí y se eliminarán definitivamente al cabo de 30 días."
   },
   "noItemsInVault": {
     "message": "No hay elementos en la caja fuerte"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "No hay elementos en Mi caja fuerte"
   },
   "noItemsInOrganizationVault": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "No hay elementos en $VAULT_NAME$",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -6334,7 +6360,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "No hay elementos en $VAULT_NAME$",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -6343,16 +6369,16 @@
     }
   },
   "emptyMyItems": {
-    "message": "No items in My items"
+    "message": "No hay elementos en Mis elementos"
   },
   "noItemsInVaults": {
-    "message": "Your vaults are empty"
+    "message": "Tus cajas fuertes están vacías"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "No items match selected filters"
+    "message": "Ningún elemento coincide con los filtros seleccionados"
   },
   "noItemsMatchSearchTerm": {
-    "message": "No items match \"$SEARCH_TERM$\"",
+    "message": "No hay elementos que coincidan con \"$SEARCH_TERM$\"",
     "placeholders": {
       "search_term": {
         "content": "$1",
@@ -6364,7 +6390,7 @@
     "message": "La bóveda protege mucho más que tus contraseñas. Guarda aquí de forma segura tus datos de inicio de sesión, identificaciones, tarjetas y notas."
   },
   "emptySharedFolderDescription": {
-    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "message": "Añade elementos a esta carpeta compartida y, a continuación, concede acceso a otros miembros de $VAULT_NAME$.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -6373,7 +6399,7 @@
     }
   },
   "emptyMyItemsDescription": {
-    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "message": "Mis elementos es tu espacio privado para guardar elementos que siguen siendo propiedad de $VAULT_NAME$, pero que no son visibles para el resto de miembros.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -6382,13 +6408,13 @@
     }
   },
   "youHaveNoFolders": {
-    "message": "You have no folders."
+    "message": "No tienes ninguna carpeta."
   },
   "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+    "message": "Utilice carpetas para organizar los elementos de la caja fuerte. Son solo para usted; nadie más las verá ni las usará."
   },
   "emptyVaultsDescription": {
-    "message": "Add logins, IDs, cards, and other items to get started."
+    "message": "Añade datos de acceso, identificadores, tarjetas y otros elementos para empezar."
   },
   "emptyFavorites": {
     "message": "No has marcado ningún elemento como favorito"
@@ -6865,62 +6891,62 @@
     "message": "Editar elementos, contraseñas ocultas"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "Compartir"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "Personas que pueden ver",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "Tras compartir este enlace, los destinatarios deberán verificar su correo electrónico con un código para poder ver el artículo.",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "Este enlace caduca a partir de esta fecha, pero los destinatarios pueden conservar la información compartida anteriormente. Vuelve a generar la credencial para revocarla. ",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "El enlace caduca después de",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "Compartir una vez",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "Enlaces activos",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "Enlace copiado al portapapeles",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "No se puede crear el enlace para compartir",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "Enlace guardado y copiado al portapapeles",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "Error al copiar el enlace para compartir al portapapeles",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "Enlace para compartir eliminado",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "Error al eliminar el enlace para compartir",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "Compartir mediante enlace",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "Compartir para el elemento de la caja fuerte $ITEM$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -6929,14 +6955,14 @@
     }
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Caduca",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "Caduca",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "Elemento desconocido; es posible que tengas que solicitar permiso para acceder a este elemento."
   }
 }
