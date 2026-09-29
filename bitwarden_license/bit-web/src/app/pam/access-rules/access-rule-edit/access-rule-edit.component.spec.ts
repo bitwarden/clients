@@ -254,7 +254,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     const section = fixture.nativeElement
       .querySelector("#access-rule-edit_checkbox_enabled")
       .closest("bit-section") as HTMLElement;
-    expect(section.querySelector("bit-section-header").textContent.trim()).toBe(
+    expect(section.querySelector("bit-section-header")?.textContent?.trim()).toBe(
       "pamAccessRuleStatusHeading",
     );
     // General info carried nothing further along.

@@ -39,7 +39,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 };
 
 function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
-  return targetSystem({ id: sysId("sys-1"), passwordPolicy: null, ...overrides });
+  return targetSystem({ id: sysId("sys-1"), passwordPolicy: undefined, ...overrides });
 }
 
 function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
@@ -1311,7 +1311,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     id: sysId("3"),
     name: "Mainframe payroll",
     method: TargetSystemMethod.Manual,
-    kind: null,
+    kind: undefined,
     status: TargetSystemStatus.Active,
   });
 
@@ -1367,7 +1367,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   }
 
   function visibleIds(): string[] {
-    return (component.dataSource.filteredData ?? []).map((row) => row.id as string).sort();
+    return (component.dataSource.filteredData ?? []).map((row) => uuidAsString(row.id)).sort();
   }
 
   it("caps the search by making it a flex item, not a block child", () => {
@@ -1462,21 +1462,21 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     setup([entraActive, scriptDisabled, manualActive]);
     chip("method").toggle("pamTargetSystemMethodManual");
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([sysId("3") as string]);
+    expect(visibleIds()).toEqual([uuidAsString(sysId("3"))]);
   });
 
   it("narrows rows to the selected kind", () => {
     setup([entraActive, scriptDisabled, manualActive]);
     chip("kind").toggle(TargetSystemKind.CustomScript);
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([sysId("2") as string]);
+    expect(visibleIds()).toEqual([uuidAsString(sysId("2"))]);
   });
 
   it("narrows rows to the selected status", () => {
     setup([entraActive, scriptDisabled, manualActive]);
     chip("status").toggle("pamTargetSystemStatusInactive");
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([sysId("2") as string]);
+    expect(visibleIds()).toEqual([uuidAsString(sysId("2"))]);
   });
 
   it("ANDs the chips with each other and with the search text", () => {
@@ -1484,7 +1484,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     component.searchControl.setValue("prod");
     chip("status").toggle("pamTargetSystemStatusActive");
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([sysId("1") as string]);
+    expect(visibleIds()).toEqual([uuidAsString(sysId("1"))]);
   });
 
   it("shows the no-results row when the chips alone empty the table", () => {

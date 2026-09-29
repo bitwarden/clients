@@ -267,7 +267,7 @@ describe("TargetSystemEditComponent — create mode", () => {
 
   it("calls createTargetSystem with Manual method", async () => {
     rotationSdk.createTargetSystem.mockResolvedValue(
-      makeSystem({ method: TargetSystemMethod.Manual, kind: null }),
+      makeSystem({ method: TargetSystemMethod.Manual, kind: undefined }),
     );
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
@@ -800,8 +800,8 @@ describe("TargetSystemEditComponent — edit mode", () => {
     const rotationApiManual = mock<RotationSdkService>();
     const manual = makeSystem({
       method: TargetSystemMethod.Manual,
-      kind: null,
-      supportsSessionTermination: null,
+      kind: undefined,
+      supportsSessionTermination: undefined,
     });
     rotationApiManual.listTargetSystems.mockResolvedValue([manual]);
     rotationApiManual.updateTargetSystem.mockResolvedValue(undefined);

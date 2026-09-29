@@ -8,6 +8,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
 import type { AccessConnector, AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
@@ -1048,7 +1049,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
   }
 
   function visibleIds(): string[] {
-    return (component.dataSource.filteredData ?? []).map((row) => row.id as string).sort();
+    return (component.dataSource.filteredData ?? []).map((row) => uuidAsString(row.id)).sort();
   }
 
   it("caps the search by making it a flex item, not a block child", () => {
@@ -1086,7 +1087,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
     chip("status").toggle("pamAccessConnectorStatusInactive");
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([connectorId("c-3") as string]);
+    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-3"))]);
   });
 
   it("narrows rows to the offline side of the connection chip, where the value is false", () => {
@@ -1094,7 +1095,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
     chip("connection").toggle(false);
     fixture.detectChanges();
     expect(visibleIds()).toEqual(
-      [connectorId("c-2") as string, connectorId("c-3") as string].sort(),
+      [uuidAsString(connectorId("c-2")), uuidAsString(connectorId("c-3"))].sort(),
     );
   });
 
@@ -1103,7 +1104,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
     component.searchControl.setValue("prod");
     chip("connection").toggle(false);
     fixture.detectChanges();
-    expect(visibleIds()).toEqual([connectorId("c-2") as string]);
+    expect(visibleIds()).toEqual([uuidAsString(connectorId("c-2"))]);
   });
 
   it("shows the no-results row when the chips alone empty the table", () => {
