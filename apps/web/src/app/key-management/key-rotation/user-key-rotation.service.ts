@@ -63,7 +63,7 @@ import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 
 type MasterPasswordAuthenticationAndUnlockData = {
   masterPassword: string;
-  masterKeySalt: string;
+  masterKeySalt: MasterPasswordSalt;
   masterKeyKdfConfig: KdfConfig;
   masterPasswordHint: string;
 };
@@ -642,11 +642,11 @@ export class UserKeyRotationService {
   protected async makeServerMasterKeyAuthenticationHash(
     masterPassword: string,
     masterKeyKdfConfig: KdfConfig,
-    masterKeySalt: string,
+    masterKeySalt: MasterPasswordSalt,
   ): Promise<string> {
     const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       masterPassword,
-      masterKeySalt as MasterPasswordSalt,
+      masterKeySalt,
       masterKeyKdfConfig,
     );
     return this.legacyCompatKeyService.hashMasterKey(masterPassword, masterKey);
@@ -657,7 +657,7 @@ export class UserKeyRotationService {
    */
   protected async getCryptographicStateForUser(user: Account): Promise<{
     masterKeyKdfConfig: KdfConfig;
-    masterKeySalt: string;
+    masterKeySalt: MasterPasswordSalt;
     cryptographicStateParameters: V1CryptographicStateParameters | V2CryptographicStateParameters;
   }> {
     // Master password unlock

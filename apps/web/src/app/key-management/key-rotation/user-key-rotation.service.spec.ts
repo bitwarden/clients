@@ -191,7 +191,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
     userKey: UserKey,
     newUnlockData: {
       masterPassword: string;
-      masterKeySalt: string;
+      masterKeySalt: MasterPasswordSalt;
       masterKeyKdfConfig: KdfConfig;
       masterPasswordHint: string;
     },
@@ -204,7 +204,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
     newUserKey: UserKey,
     masterPasswordAuthenticationAndUnlockData: {
       masterPassword: string;
-      masterKeySalt: string;
+      masterKeySalt: MasterPasswordSalt;
       masterKeyKdfConfig: KdfConfig;
       masterPasswordHint: string;
     },
@@ -243,7 +243,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
   override makeServerMasterKeyAuthenticationHash(
     masterPassword: string,
     masterKeyKdfConfig: KdfConfig,
-    masterKeySalt: string,
+    masterKeySalt: MasterPasswordSalt,
   ): Promise<string> {
     return super.makeServerMasterKeyAuthenticationHash(
       masterPassword,
@@ -253,7 +253,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
   }
   override getCryptographicStateForUser(user: Account): Promise<{
     masterKeyKdfConfig: KdfConfig;
-    masterKeySalt: string;
+    masterKeySalt: MasterPasswordSalt;
     cryptographicStateParameters: V1CryptographicStateParameters | V2CryptographicStateParameters;
   }> {
     return super.getCryptographicStateForUser(user);
@@ -890,7 +890,7 @@ describe("KeyRotationService", () => {
       const masterPasswordUnlockData =
         await keyRotationService.createMasterPasswordUnlockDataRequest(newKey, {
           masterPassword: "mockMasterPassword",
-          masterKeySalt: userAccount.email,
+          masterKeySalt: userAccount.email as MasterPasswordSalt,
           masterKeyKdfConfig: new PBKDF2KdfConfig(600_000),
           masterPasswordHint: "mockMasterPasswordHint",
         });
@@ -958,7 +958,7 @@ describe("KeyRotationService", () => {
         newKey,
         {
           masterPassword: "mockMasterPassword",
-          masterKeySalt: userAccount.email,
+          masterKeySalt: userAccount.email as MasterPasswordSalt,
           masterKeyKdfConfig: new PBKDF2KdfConfig(600_000),
           masterPasswordHint: "mockMasterPasswordHint",
         },
@@ -1202,7 +1202,7 @@ describe("KeyRotationService", () => {
         await keyRotationService.makeServerMasterKeyAuthenticationHash(
           "mockMasterPassword",
           new PBKDF2KdfConfig(600_000),
-          "mockEmail",
+          "mockEmail" as MasterPasswordSalt,
         );
       expect(masterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
       expect(mockLegacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
