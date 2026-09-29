@@ -323,20 +323,22 @@ describe("RuntimeBackground collection dispatch", () => {
   // content script tagged with the command's sender, is diverted to the orchestrator so that autofill
   // can be exercised independently of any input method.
   describe("collectPageDetailsResponse command routing", () => {
-    const commandTab = createChromeTabMock({ id: 42 });
+    // A tab the message body names but the sender is not. Present in every case below so the
+    // assertions fail if the body is ever read back as the fill target.
+    const bodyTab = createChromeTabMock({ id: 42 });
 
     it("routes the AutofillCommand sender to a tab-wide login fill", async () => {
       await runtimeBackground.processMessageWithSender(
         {
           command: "collectPageDetailsResponse",
           sender: ExtensionCommand.AutofillCommand,
-          tab: commandTab,
+          tab: bodyTab,
           details: {} as any,
         },
         sender,
       );
 
-      expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(commandTab);
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(tab);
       expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
     });
 
@@ -345,14 +347,14 @@ describe("RuntimeBackground collection dispatch", () => {
         {
           command: "collectPageDetailsResponse",
           sender: ExtensionCommand.AutofillCard,
-          tab: commandTab,
+          tab: bodyTab,
           details: {} as any,
         },
         sender,
       );
 
       expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
-        commandTab,
+        tab,
         CipherType.Card,
       );
       expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
@@ -363,17 +365,34 @@ describe("RuntimeBackground collection dispatch", () => {
         {
           command: "collectPageDetailsResponse",
           sender: ExtensionCommand.AutofillIdentity,
-          tab: commandTab,
+          tab: bodyTab,
           details: {} as any,
         },
         sender,
       );
 
       expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
-        commandTab,
+        tab,
         CipherType.Identity,
       );
       expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+    });
+
+    // The fill target is the tab the browser attests the message came from. A sender with no tab
+    // names no target, and the body must not be allowed to supply one in its place.
+    it("security: routes nothing when the sender carries no tab", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillCommand,
+          tab: bodyTab,
+          details: {} as any,
+        },
+        { frameId: 0 } as chrome.runtime.MessageSender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
     });
 
     // The orchestrator sends its own collects (`collectPageDetailsFromTabObservable`) and consumes

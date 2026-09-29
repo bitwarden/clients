@@ -201,23 +201,35 @@ export default class RuntimeBackground {
         // eslint-disable-next-line no-restricted-syntax
         return await this.autofillOrchestrator.unsafeAutofillTabWithCipher(targetTab, cipher);
       }
-      case AutofillMessageCommand.collectPageDetailsResponse:
-        // Testing affordance that exercises autofill decoupled from any input method. Production
+      case AutofillMessageCommand.collectPageDetailsResponse: {
+        // FIXME (PM-44218): remove this case once `browser-interactions-testing` triggers autofill
+        // through the `MainBackground` command seam rather than a synthetic message.
+        //
+        // Every collect lands here: each frame echoes a response tagged with the sender that asked
+        // for it, and those fall through the switch below. Only the command senders route onward, a
+        // testing affordance that exercises autofill decoupled from any input method. Production
         // autofill reaches the orchestrator directly from `commands.background` and the context menu.
+        if (sender.tab == null) {
+          break;
+        }
         switch (msg.sender) {
           case ExtensionCommand.AutofillCommand:
-            this.autofillOrchestrator.autofillActiveTabFromCommand(msg.tab);
+            this.autofillOrchestrator.autofillActiveTabFromCommand(sender.tab);
             break;
           case ExtensionCommand.AutofillCard:
-            this.autofillOrchestrator.autofillActiveTabForCipherType(msg.tab, CipherType.Card);
+            this.autofillOrchestrator.autofillActiveTabForCipherType(sender.tab, CipherType.Card);
             break;
           case ExtensionCommand.AutofillIdentity:
-            this.autofillOrchestrator.autofillActiveTabForCipherType(msg.tab, CipherType.Identity);
+            this.autofillOrchestrator.autofillActiveTabForCipherType(
+              sender.tab,
+              CipherType.Identity,
+            );
             break;
           default:
             break;
         }
         break;
+      }
       case AutofillMessageCommand.pageTransitionDetected:
         // A page-lifecycle monitor reports a transition as a fact. The service
         // buffers it against monitoring state and `AutofillOrchestrator` decides whether
