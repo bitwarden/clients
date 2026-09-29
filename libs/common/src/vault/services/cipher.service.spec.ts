@@ -13,7 +13,7 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { MessageSender } from "@bitwarden/messaging";
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -755,6 +755,27 @@ describe("Cipher Service", () => {
       expect(result).toEqual(new CipherView(encryptionContext.cipher));
       expect(cipherEncryptionService.decrypt).toHaveBeenCalledWith(
         encryptionContext.cipher,
+        userId,
+      );
+    });
+  });
+
+  describe("decryptEmergencyAccess", () => {
+    it("should call decryptEmergencyAccess method of CipherEncryptionService", async () => {
+      const grantorKey = "grantor-key" as UnsignedSharedKey;
+      const cipherView = new CipherView(encryptionContext.cipher);
+      cipherEncryptionService.decryptEmergencyAccess.mockResolvedValue([cipherView]);
+
+      const result = await cipherService.decryptEmergencyAccess(
+        grantorKey,
+        [encryptionContext.cipher],
+        userId,
+      );
+
+      expect(result).toEqual([cipherView]);
+      expect(cipherEncryptionService.decryptEmergencyAccess).toHaveBeenCalledWith(
+        grantorKey,
+        [encryptionContext.cipher],
         userId,
       );
     });

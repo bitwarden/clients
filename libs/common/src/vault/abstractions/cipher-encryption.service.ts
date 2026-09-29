@@ -1,4 +1,4 @@
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { UserId, OrganizationId } from "../../types/guid";
 import { UserKey } from "../../types/key";
@@ -96,6 +96,21 @@ export abstract class CipherEncryptionService {
     ciphers: Cipher[],
     userId: UserId,
   ): Promise<[CipherListView[], Cipher[]]>;
+  /**
+   * Decrypts a grantor's ciphers shared through emergency access.
+   *
+   * @param grantorKey The grantor's user key, encapsulated to the grantee's public key
+   * @param ciphers The grantor's encrypted ciphers
+   * @param userId The grantee's user ID
+   *
+   * @returns A promise that resolves to the decrypted cipher views. Ciphers that failed to
+   * decrypt are included with `decryptionFailure` set.
+   */
+  abstract decryptEmergencyAccess(
+    grantorKey: UnsignedSharedKey,
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<CipherView[]>;
   /**
    * Decrypts an attachment's content from a response object.
    *

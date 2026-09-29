@@ -1,6 +1,10 @@
 import { EMPTY, catchError, concatMap, firstValueFrom, map, throwError } from "rxjs";
 
-import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
+import {
+  CipherListView,
+  DecryptCipherListResult,
+  UnsignedSharedKey,
+} from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
@@ -207,6 +211,43 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             .filter((cipher): cipher is Cipher => cipher !== undefined);
 
           return [decryptedCiphers, failedCiphers] as [CipherListView[], Cipher[]];
+        }),
+      ),
+    );
+  }
+
+  async decryptEmergencyAccess(
+    grantorKey: UnsignedSharedKey,
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<CipherView[]> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .decrypt_emergency_access_list(
+              grantorKey,
+              ciphers.map((cipher) => cipher.toSdkCipher()),
+            );
+
+          const decrypted = result.successes.map((view) => CipherView.fromSdkCipherView(view)!);
+
+          // Keep failed ciphers visible to the grantee, like the legacy TS decryption did
+          const failed = result.failures
+            .map((cipher) => Cipher.fromSdkCipher(cipher))
+            .filter((cipher): cipher is Cipher => cipher !== undefined)
+            .map((cipher) => {
+              const failedView = new CipherView(cipher);
+              failedView.name = "[error: cannot decrypt]";
+              failedView.decryptionFailure = true;
+              return failedView;
+            });
+
+          return [...decrypted, ...failed];
         }),
       ),
     );

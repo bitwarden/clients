@@ -262,14 +262,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
     }
 
-    const grantorUserKey = (await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.keyEncrypted),
-      activeUserPrivateKey,
-    )) as UserKey;
-
-    let ciphers: CipherView[] = [];
     const ciphersEncrypted = response.ciphers.map((c) => new Cipher(new CipherData(c)));
-    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
+    const ciphers = await this.cipherService.decryptEmergencyAccess(
+      response.keyEncrypted,
+      ciphersEncrypted,
+      activeUserId,
+    );
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 
