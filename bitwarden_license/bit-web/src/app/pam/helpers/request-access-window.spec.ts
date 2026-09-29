@@ -2,7 +2,6 @@ import {
   type RequestWindowFormValue,
   composeRequestWindow,
   defaultRequestWindow,
-  midnightCrossingEnd,
   requestWindowProblem,
   toDateInputValue,
   toTimeInputValue,
@@ -15,182 +14,148 @@ import {
  */
 const NOW = new Date("2026-08-17T08:00");
 
-/**
- * The longest window a single date plus two times can express. Stands in for "no narrower rule
- * cap" below: the cases that care about a cap pass their own.
- */
-const FORM_MAX_WINDOW_SECONDS = 24 * 60 * 60;
+const WEEK_SECONDS = 7 * 24 * 60 * 60;
 
-/** {@link requestWindowProblem} against {@link NOW}, so every case reads as one line. */
-const problemAt = (
-  value: RequestWindowFormValue,
-  maxWindowSeconds: number = FORM_MAX_WINDOW_SECONDS,
-) => requestWindowProblem(value, maxWindowSeconds, NOW);
+const problemAt = (value: RequestWindowFormValue, maxWindowSeconds: number = WEEK_SECONDS) =>
+  requestWindowProblem(value, maxWindowSeconds, NOW);
+
+const sameDay = (date: string, startTime: string, endTime: string): RequestWindowFormValue => ({
+  startDate: date,
+  startTime,
+  endDate: date,
+  endTime,
+});
 
 describe("composeRequestWindow", () => {
-  it("composes the date and times into a local-time window", () => {
-    const window = composeRequestWindow({ date: "2026-08-17", start: "09:30", end: "11:00" });
+  it("composes the dates and times into a local-time window", () => {
+    const window = composeRequestWindow(sameDay("2026-08-17", "09:30", "11:00"));
 
-    expect(window).not.toBeNull();
-    expect(window!.start).toEqual(new Date("2026-08-17T09:30"));
-    expect(window!.end).toEqual(new Date("2026-08-17T11:00"));
+    expect(window).toEqual({
+      start: new Date("2026-08-17T09:30"),
+      end: new Date("2026-08-17T11:00"),
+    });
   });
 
-  // The form carries one date, so an earlier end than start spells midnight-crossing.
-  it("resolves an end earlier than the start onto the following day", () => {
-    const window = composeRequestWindow({ date: "2026-08-17", start: "23:00", end: "01:00" });
+  it("composes a window spanning several days", () => {
+    const window = composeRequestWindow({
+      startDate: "2026-08-17",
+      startTime: "09:30",
+      endDate: "2026-08-20",
+      endTime: "17:00",
+    });
 
-    expect(window!.start).toEqual(new Date("2026-08-17T23:00"));
-    expect(window!.end).toEqual(new Date("2026-08-18T01:00"));
+    expect(window).toEqual({
+      start: new Date("2026-08-17T09:30"),
+      end: new Date("2026-08-20T17:00"),
+    });
   });
 
-  it("leaves an end equal to the start alone, for the validator to refuse", () => {
-    // The one shape a single date cannot disambiguate: a zero-length window or a full 24h one.
-    const window = composeRequestWindow({ date: "2026-08-17", start: "09:30", end: "09:30" });
+  it("leaves an end earlier than the start alone, for the validator to refuse", () => {
+    const window = composeRequestWindow(sameDay("2026-08-17", "23:00", "01:00"));
 
-    expect(window!.end).toEqual(window!.start);
-  });
-
-  it("rolls the end onto the next calendar day across a month boundary", () => {
-    const window = composeRequestWindow({ date: "2026-08-31", start: "22:00", end: "02:00" });
-
-    expect(window!.end).toEqual(new Date("2026-09-01T02:00"));
+    expect(window!.end).toEqual(new Date("2026-08-17T01:00"));
   });
 
   it.each([
-    ["a blank date", { date: "", start: "09:30", end: "11:00" }],
-    ["a blank start", { date: "2026-08-17", start: "", end: "11:00" }],
-    ["a blank end", { date: "2026-08-17", start: "09:30", end: "" }],
-    ["null fields", { date: null, start: null, end: null }],
+    ["a blank start date", { ...sameDay("2026-08-17", "09:30", "11:00"), startDate: "" }],
+    ["a blank start time", sameDay("2026-08-17", "", "11:00")],
+    ["a blank end date", { ...sameDay("2026-08-17", "09:30", "11:00"), endDate: "" }],
+    ["a blank end time", sameDay("2026-08-17", "09:30", "")],
+    ["null fields", { startDate: null, startTime: null, endDate: null, endTime: null }],
     ["absent fields", {}],
   ])("returns null for %s", (_label, value) => {
     expect(composeRequestWindow(value)).toBeNull();
   });
 
   it("returns null for an unparseable date", () => {
-    expect(composeRequestWindow({ date: "not-a-date", start: "09:30", end: "11:00" })).toBeNull();
-  });
-});
-
-describe("midnightCrossingEnd", () => {
-  it("reports the resolved end of a window that crosses midnight", () => {
-    expect(midnightCrossingEnd({ date: "2026-08-17", start: "23:00", end: "01:00" })).toEqual(
-      new Date("2026-08-18T01:00"),
-    );
-  });
-
-  it("reports nothing for a window that stays on its own date", () => {
-    expect(midnightCrossingEnd({ date: "2026-08-17", start: "09:00", end: "10:00" })).toBeNull();
-  });
-
-  it("reports nothing while the window is incomplete", () => {
-    expect(midnightCrossingEnd({ date: "2026-08-17", start: "23:00", end: "" })).toBeNull();
+    expect(composeRequestWindow(sameDay("not-a-date", "09:30", "11:00"))).toBeNull();
   });
 });
 
 describe("requestWindowProblem", () => {
   it("accepts a window whose end is after its start", () => {
-    expect(problemAt({ date: "2026-08-17", start: "09:00", end: "10:00" })).toBeNull();
+    expect(problemAt(sameDay("2026-08-17", "09:00", "10:00"))).toBeNull();
   });
 
   it("stays quiet while the window is incomplete", () => {
-    expect(problemAt({ date: "2026-08-17", start: "09:00", end: "" })).toBeNull();
+    expect(problemAt(sameDay("2026-08-17", "09:00", ""))).toBeNull();
   });
 
-  // An end before the start is a window crossing midnight, not an inverted one.
-  it("accepts an end before the start — it runs to the following day", () => {
-    expect(problemAt({ date: "2026-08-17", start: "23:00", end: "01:00" })).toBeNull();
+  it("accepts a window crossing midnight onto the next date", () => {
+    expect(
+      problemAt({
+        startDate: "2026-08-17",
+        startTime: "23:00",
+        endDate: "2026-08-18",
+        endTime: "01:00",
+      }),
+    ).toBeNull();
   });
 
-  it("rejects an end equal to the start — a zero-length window grants nothing", () => {
-    expect(problemAt({ date: "2026-08-17", start: "10:00", end: "10:00" })).toBe(
-      "zeroLengthWindow",
-    );
+  it("rejects an end equal to the start", () => {
+    expect(problemAt(sameDay("2026-08-17", "10:00", "10:00"))).toBe("endNotAfterStart");
   });
 
-  it("accepts the longest window the form can express", () => {
-    // A single date tops out at 24h, expressed as 00:00 to 24:00 — well inside the server's own
-    // ceiling, which no window this form composes can reach.
-    expect(problemAt({ date: "2026-08-17", start: "00:00", end: "24:00" })).toBeNull();
+  it("rejects an end before the start", () => {
+    expect(problemAt(sameDay("2026-08-17", "23:00", "01:00"))).toBe("endNotAfterStart");
+    expect(
+      problemAt({
+        startDate: "2026-08-18",
+        startTime: "09:00",
+        endDate: "2026-08-17",
+        endTime: "10:00",
+      }),
+    ).toBe("endNotAfterStart");
   });
 
-  // The global ceiling alone let a window past the rule's own maximum look valid.
-  it("rejects a window past an explicit per-rule maximum", () => {
-    const window = { date: "2026-08-17", start: "09:00", end: "11:00" };
+  it("measures a multi-day window against the per-rule maximum", () => {
+    const window = {
+      startDate: "2026-08-17",
+      startTime: "09:00",
+      endDate: "2026-08-19",
+      endTime: "09:00",
+    };
 
-    // Two hours: inside the global ceiling, outside a 30-minute rule cap.
-    expect(problemAt(window)).toBeNull();
-    expect(problemAt(window, 30 * 60)).toBe("exceedsMaxWindow");
+    expect(problemAt(window, 2 * 24 * 60 * 60)).toBeNull();
+    expect(problemAt(window, 24 * 60 * 60)).toBe("exceedsMaxWindow");
   });
 
   it("accepts a window exactly at an explicit per-rule maximum", () => {
-    expect(problemAt({ date: "2026-08-17", start: "09:00", end: "09:30" }, 30 * 60)).toBeNull();
+    expect(problemAt(sameDay("2026-08-17", "09:00", "09:30"), 30 * 60)).toBeNull();
   });
 
-  it("measures a midnight-crossing window against the per-rule maximum", () => {
-    // 23:00-01:00 resolves to two hours on the next day.
-    expect(problemAt({ date: "2026-08-17", start: "23:00", end: "01:00" }, 30 * 60)).toBe(
-      "exceedsMaxWindow",
-    );
-    expect(problemAt({ date: "2026-08-17", start: "23:00", end: "01:00" }, 4 * 3600)).toBeNull();
-  });
-
-  it("reports a zero-length window before checking the per-rule maximum", () => {
-    // The zero-length message wins over the maximum-length one, since it is the more useful of the
-    // two.
-    expect(problemAt({ date: "2026-08-17", start: "11:00", end: "11:00" }, 30 * 60)).toBe(
-      "zeroLengthWindow",
-    );
+  it("reports an inverted window before checking the per-rule maximum", () => {
+    expect(problemAt(sameDay("2026-08-17", "11:00", "11:00"), 30 * 60)).toBe("endNotAfterStart");
   });
 
   it("rejects a window that has already ended", () => {
-    expect(problemAt({ date: "2026-08-09", start: "07:00", end: "08:00" })).toBe("endInPast");
+    expect(problemAt(sameDay("2026-08-09", "07:00", "08:00"))).toBe("endInPast");
   });
 
   it("rejects a past window on today's date too — the date alone is not the test", () => {
-    // NOW is 08:00, so 06:00-07:00 is over even on today's date; only the composed window can
-    // catch it.
-    expect(problemAt({ date: "2026-08-17", start: "06:00", end: "07:00" })).toBe("endInPast");
+    expect(problemAt(sameDay("2026-08-17", "06:00", "07:00"))).toBe("endInPast");
   });
 
   it("rejects a window ending exactly now", () => {
-    // Matches activation's own refusal: a window with no time left is not a window.
-    expect(problemAt({ date: "2026-08-17", start: "07:00", end: "08:00" })).toBe("endInPast");
+    expect(problemAt(sameDay("2026-08-17", "07:00", "08:00"))).toBe("endInPast");
   });
 
   it("accepts a window already under way", () => {
-    // Only the end is checked; `start` seeds at now and submit lands fractionally after.
-    expect(problemAt({ date: "2026-08-17", start: "07:00", end: "09:00" })).toBeNull();
+    expect(problemAt(sameDay("2026-08-17", "07:00", "09:00"))).toBeNull();
   });
 
-  it("reports a zero-length window before a past one", () => {
-    // Both problems fire on a zero-length window in the past.
-    expect(problemAt({ date: "2026-08-09", start: "08:00", end: "08:00" })).toBe(
-      "zeroLengthWindow",
-    );
-  });
-
-  it("judges a midnight-crossing window on the day its end lands", () => {
-    // NOW is 08:00 on the 17th: the 16th's 23:00-01:00 window ended hours ago, but tonight's is
-    // still to come.
-    expect(problemAt({ date: "2026-08-16", start: "23:00", end: "01:00" })).toBe("endInPast");
-    expect(problemAt({ date: "2026-08-17", start: "23:00", end: "01:00" })).toBeNull();
+  it("reports an inverted window before a past one", () => {
+    expect(problemAt(sameDay("2026-08-09", "08:00", "08:00"))).toBe("endNotAfterStart");
   });
 
   it("reports a past window before an over-long one", () => {
-    expect(problemAt({ date: "2026-08-09", start: "06:00", end: "08:00" }, 30 * 60)).toBe(
-      "endInPast",
-    );
+    expect(problemAt(sameDay("2026-08-09", "06:00", "08:00"), 30 * 60)).toBe("endInPast");
   });
 
   it("measures against the real clock when no instant is given", () => {
-    // The validator calls through without an explicit `now`, so the default has to be live.
-    expect(
-      requestWindowProblem(
-        { date: "2020-01-01", start: "09:00", end: "10:00" },
-        FORM_MAX_WINDOW_SECONDS,
-      ),
-    ).toBe("endInPast");
+    expect(requestWindowProblem(sameDay("2020-01-01", "09:00", "10:00"), WEEK_SECONDS)).toBe(
+      "endInPast",
+    );
   });
 });
 
@@ -198,66 +163,45 @@ describe("defaultRequestWindow", () => {
   it("seeds a window starting now and running the requested duration", () => {
     const now = new Date(2026, 7, 17, 9, 15, 0);
 
-    expect(defaultRequestWindow(now, 3600)).toEqual({
-      date: "2026-08-17",
-      start: "09:15",
-      end: "10:15",
-    });
+    expect(defaultRequestWindow(now, 3600)).toEqual(sameDay("2026-08-17", "09:15", "10:15"));
   });
 
-  // This used to clamp to 23:59, offering only 29 minutes of an hour-long default from a 23:30
-  // open.
-  it("seeds the whole duration past midnight rather than clamping to 23:59", () => {
+  it("seeds the end on the next date when the duration crosses midnight", () => {
     const now = new Date(2026, 7, 17, 23, 30, 0);
 
     expect(defaultRequestWindow(now, 3600)).toEqual({
-      date: "2026-08-17",
-      start: "23:30",
-      end: "00:30",
-    });
-    expect(composeRequestWindow(defaultRequestWindow(now, 3600))).toEqual({
-      start: now,
-      end: new Date(2026, 7, 18, 0, 30, 0),
+      startDate: "2026-08-17",
+      startTime: "23:30",
+      endDate: "2026-08-18",
+      endTime: "00:30",
     });
   });
 
-  it.each([
-    ["a full 24h duration", 24 * 60 * 60],
-    ["a multi-day rule default", 7 * 24 * 60 * 60],
-  ])("clamps %s to a minute short of a day", (_label, durationSeconds) => {
-    // A full 24h would put the same wall-clock time in both fields, which reads as zero-length,
-    // and one date plus two times cannot express more than that — however long a lease the
-    // server now permits.
+  it("seeds a multi-day rule default in full", () => {
     const now = new Date(2026, 7, 17, 9, 15, 0);
 
-    expect(defaultRequestWindow(now, durationSeconds)).toEqual({
-      date: "2026-08-17",
-      start: "09:15",
-      end: "09:14",
+    expect(defaultRequestWindow(now, 3 * 24 * 60 * 60)).toEqual({
+      startDate: "2026-08-17",
+      startTime: "09:15",
+      endDate: "2026-08-20",
+      endTime: "09:15",
     });
   });
 
   it("seeds at least a minute for a sub-minute duration", () => {
-    // Below the time inputs' step, both fields would land on the same minute.
     const now = new Date(2026, 7, 17, 9, 15, 0);
 
-    expect(defaultRequestWindow(now, 10)).toEqual({
-      date: "2026-08-17",
-      start: "09:15",
-      end: "09:16",
-    });
+    expect(defaultRequestWindow(now, 10)).toEqual(sameDay("2026-08-17", "09:15", "09:16"));
   });
 
   it.each([
     ["a mid-morning open", new Date(2026, 7, 17, 9, 15, 0), 3600],
     ["an open close to midnight", new Date(2026, 7, 17, 23, 30, 0), 3600],
     ["a rule defaulting to a full day", new Date(2026, 7, 17, 9, 15, 0), 86400],
-    ["a rule defaulting to seconds", new Date(2026, 7, 17, 9, 15, 0), 10],
+    ["a rule defaulting to several days", new Date(2026, 7, 17, 9, 15, 0), 3 * 86400],
+    ["a rule defaulting to seconds", new Date(2026, 7, 17, 9, 15, 59), 10],
   ])("seeds a window the validator accepts on %s", (_label, now, duration) => {
-    // The seeded end is always after the seeded start.
-    expect(
-      requestWindowProblem(defaultRequestWindow(now, duration), FORM_MAX_WINDOW_SECONDS, now),
-    ).toBeNull();
+    expect(requestWindowProblem(defaultRequestWindow(now, duration), WEEK_SECONDS, now)).toBeNull();
   });
 });
 

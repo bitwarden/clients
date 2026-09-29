@@ -68,7 +68,6 @@ import {
   composeRequestWindow,
   defaultRequestWindow,
   liveActiveLease,
-  midnightCrossingEnd,
   requestDurationOptions,
   requestedWindowSeconds,
   toDateInputValue,
@@ -385,7 +384,7 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly maxWindowSeconds = computed(() => this.requestBounds()?.maxSeconds ?? null);
 
   /**
-   * Floor for the human path's date picker, pinned when the fold-out opened.
+   * Floor for the human path's start date picker, pinned when the fold-out opened.
    *
    * An affordance only — reactive forms don't read `min`, so `requestWindowEndValidator` is the
    * real check.
@@ -404,9 +403,10 @@ export class CipherViewBannerComponent implements OnInit {
   });
 
   protected readonly humanForm = this.formBuilder.nonNullable.group({
-    date: ["", Validators.required],
-    start: ["", Validators.required],
-    end: [
+    startDate: ["", Validators.required],
+    startTime: ["", Validators.required],
+    endDate: ["", Validators.required],
+    endTime: [
       "",
       [
         Validators.required,
@@ -420,17 +420,14 @@ export class CipherViewBannerComponent implements OnInit {
     reason: ["", [Validators.required, nonBlank]],
   });
 
-  /**
-   * The human form's live values. Read through a signal rather than off the controls so the
-   * next-day hint below recomputes as the requester types; the form's own validity is not enough,
-   * since the hint has to move on edits that leave the window perfectly valid.
-   */
   private readonly humanFormValue = toSignal(this.humanForm.valueChanges, {
     initialValue: this.humanForm.value,
   });
 
-  /** The end instant when the requested window crosses midnight, `null` otherwise. */
-  protected readonly nextDayEnd = computed(() => midnightCrossingEnd(this.humanFormValue()));
+  /** Floor for the end date picker: the chosen start date, else the start picker's own floor. */
+  protected readonly minEndDate = computed(
+    () => this.humanFormValue().startDate || this.minRequestDate(),
+  );
 
   constructor() {
     // Closes the fold-out with the card, or it reopens stale, seeded from an old rule, on remount.
@@ -443,15 +440,15 @@ export class CipherViewBannerComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribed to the sibling controls, not the group, to avoid re-entrant validation.
-    const { date, start, end } = this.humanForm.controls;
-    merge(date.valueChanges, start.valueChanges)
+    const { startDate, startTime, endDate, endTime } = this.humanForm.controls;
+    merge(startDate.valueChanges, startTime.valueChanges, endDate.valueChanges)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        end.updateValueAndValidity();
+        endTime.updateValueAndValidity();
         // Narrow on purpose: only a fresh window error from a sibling edit, so this never nags a blank
         // End or races `BitInputDirective.onInput`'s own `markAsUntouched`.
-        if (end.errors?.[REQUEST_WINDOW_ERROR_KEY] != null) {
-          end.markAsTouched();
+        if (endTime.errors?.[REQUEST_WINDOW_ERROR_KEY] != null) {
+          endTime.markAsTouched();
         }
       });
 
@@ -493,7 +490,7 @@ export class CipherViewBannerComponent implements OnInit {
       durationSeconds: DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
       reason: "",
     });
-    this.humanForm.reset({ date: "", start: "", end: "", reason: "" });
+    this.humanForm.reset({ startDate: "", startTime: "", endDate: "", endTime: "", reason: "" });
     this.loadingRequestForm.set(true);
     try {
       const cipherId = this.cipher().id;
@@ -518,9 +515,8 @@ export class CipherViewBannerComponent implements OnInit {
       if (preCheck.approvalMode === "human") {
         // One clock reading for both, so the picker's floor is exactly the day it pre-fills.
         const openedAt = new Date();
-        const { date, start, end } = defaultRequestWindow(openedAt, bounds.defaultSeconds);
         this.minRequestDate.set(toDateInputValue(openedAt));
-        this.humanForm.patchValue({ date: date ?? "", start: start ?? "", end: end ?? "" });
+        this.humanForm.patchValue(defaultRequestWindow(openedAt, bounds.defaultSeconds));
         // `canStartLease` answers about now, and this window is in the future, so a slot taken right
         // now does not warrant a contention warning.
       } else {
@@ -545,8 +541,8 @@ export class CipherViewBannerComponent implements OnInit {
 
   private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
     switch (problem) {
-      case "zeroLengthWindow":
-        return this.i18nService.t("requestAccessModalEndEqualsStart");
+      case "endNotAfterStart":
+        return this.i18nService.t("requestAccessModalEndNotAfterStart");
       case "endInPast":
         return this.i18nService.t("requestAccessModalWindowInPast");
       case "exceedsMaxWindow":
@@ -569,7 +565,7 @@ export class CipherViewBannerComponent implements OnInit {
     // `markAllAsTouched` does not re-run validators, so a fold-out left open past its own seeded
     // window still carries a stale verdict; re-validate before trusting `form.invalid`.
     if (mode === "human") {
-      this.humanForm.controls.end.updateValueAndValidity();
+      this.humanForm.controls.endTime.updateValueAndValidity();
     }
     form.markAllAsTouched();
     if (form.invalid) {
@@ -735,8 +731,8 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   private buildHumanRequest(): AccessRequestCreateRequest | null {
-    const { date, start, end, reason } = this.humanForm.getRawValue();
-    const window = composeRequestWindow({ date, start, end });
+    const { reason, ...requested } = this.humanForm.getRawValue();
+    const window = composeRequestWindow(requested);
     if (window == null) {
       return null;
     }
