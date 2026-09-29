@@ -310,6 +310,7 @@ describe("RuntimeBackground logout dispatch", () => {
       undefined as any,
       undefined as any,
       mock<AutofillOrchestrator>(),
+      mock<IntraprocessMessageSender>(),
     );
   });
 
