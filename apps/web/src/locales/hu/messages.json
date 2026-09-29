@@ -3459,7 +3459,7 @@
     "message": "Gyűjtemény kiválasztása"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Megosztott mappa kiválasztása"
   },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
@@ -3468,7 +3468,7 @@
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy megosztott mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -3478,6 +3478,40 @@
   },
   "selectImportFile": {
     "message": "Válasszuk ki az import fájlt"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Forrás kiválasztása"
+  },
+  "importSourceSelectTitle": {
+    "message": "Válasszuk ki a forrást."
+  },
+  "importSourceSelectDescription": {
+    "message": "Válasszuk ki azt a jelszókezelőt vagy böngészőt, amelyből importálunk."
+  },
+  "importSourceBrowsers": {
+    "message": "Böngészők"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Jelszókezelők"
+  },
+  "importSourceShowAll": {
+    "message": "Összes megjelenítése"
+  },
+  "importSourceShowLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "importSourceStepCount": {
+    "message": "$CURRENT$ / $TOTAL$ lépés",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Fájl kiválasztása"
@@ -4471,6 +4505,14 @@
   "accountCredit": {
     "message": "Fiók  hitelkeret",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Fiók egyenleg",
@@ -6893,6 +6935,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Kattintás ide egy fizetési mód hozzáadásához."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "A számlázás beállításához lépjünk kapcsolatba Bitwarden értékesítési képviselőjével."
   },
   "joinOrganization": {
     "message": "Csatlakozás szervezethez"
@@ -9888,6 +9933,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Az automatikus kitöltés engedélyezése az oldalbetöltés beállításánál a böngésző bővítményben az összes meglévő és új tag esetében. Legyünk tudatában annak, hogy a veszélyeztetett vagy megbízhatatlan webhelyek képesek"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Engedélyezzük az automatikus kitöltést az oldal betöltés beállításánál a böngésző bővítményben az összes meglévő és új tag esetében. Miután ez a házirend be van kapcsolva, a tagoknak módosítaniuk kell személyes beállításaikat az automatikus kitöltés bekapcsolásához. Legyünk tudatában annak, hogy a veszélyeztetett vagy megbízhatatlan webhelyek képesek:"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "kihasználni automatikus kitöltést az oldal betöltéskor."
   },
@@ -10104,6 +10152,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Válasszuk ki a szponzorálni kívánt szervezetet."
   },
+  "selectAFamilyVault": {
+    "message": "Családi széf kiválasztása"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Melyik ingyenes családi ajánlatot szeretnénk beváltani?"
   },
@@ -10115,6 +10166,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Meglévő szervezet ajánlatának elfogadása vagy új Családi szervezet létrehozása."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ szponzorált egy ingyenes Bitwarden Families csomagot! Alkalmazhatjuk a kiegészítő csomagot egy meglévő családi széfre vagy létrehozhatunk egy újat.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Szponzorálásra került egy ingyenes Bitwarden Families csomag! Alkalmazhatjuk a kiegészítő csomagot egy meglévő családi széfre vagy létrehozhatunk egy újat.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Ingyenes Bitwarden Családi csomag szervezetet ajánlottak fel. A folytatáshoz be kell jelentkezni az ajánlatot fogadó fiókba."
@@ -10133,6 +10198,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Az ingyenes Bitwarden Családi csomag elfogadása"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Szponzorált Families csomag elfogadása"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Szponzorált csomag részletek"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Az ingyenes Bitwarden családi szervezet ajánlat beváltásra került."
@@ -10302,14 +10373,24 @@
   "paymentSponsored": {
     "message": "Adjunk meg egy, a szervezethez társítandó fizetési módot. Nem kell aggódni, nem kerül semmi felszámításra, hacsak nem választunk további funkciókat vagy ha szponzorálás lejár. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Adjunk meg egy fizetési módot a családi széfhez társításhoz. Ne aggódjunk, nem lesz felszámítva semmi, hacsak nem választunk kiegészítő funkciókat vagy ha a szponzoráció lejár.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "A szponzorálási ajánlat lejárt, törölhető a létrehozott szervezet a 7 napos próbaidőszak végén jelentkező díj elkerüléséért. Ellenkező esetben bezárhatjuk ezt az üzenetet a szervezet megtartásához és a számlázási felelősség vállalásához."
   },
   "newFamiliesOrganization": {
     "message": "Új családi szervezet"
   },
+  "createVault": {
+    "message": "Széf létrehozása"
+  },
   "acceptOffer": {
     "message": "Ajánlat elfogadása"
+  },
+  "applySponsorship": {
+    "message": "Szponzorálás alkalmazása"
   },
   "sponsoringOrg": {
     "message": "Szponzoráló szervezet"

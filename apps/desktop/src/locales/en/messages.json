@@ -4635,6 +4635,10 @@
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
   },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
     "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
   },
