@@ -472,9 +472,12 @@ export class VaultComponent implements OnInit, OnDestroy {
   /**
    * Opens {@link NewExperienceDialogComponent} once, for accounts that predate the GA release.
    *
-   * Gated on the intro carousel — the extension's onboarding welcome — so a user who has not yet
-   * been introduced to the product is not told what changed about it. This is the only onboarding
-   * message that opens without a click, so `suppressOnboardingInterstitials` applies to it alone.
+   * `Vfo1OnboardingNudgeService` decides which accounts qualify, auto-dismissing the nudge for
+   * profiles created on or after GA. The intro carousel check below backs up that same intent;
+   * it rarely fires, since the carousel is marked dismissed on every vault load.
+   *
+   * This is the only onboarding message that opens without a click, so
+   * `suppressOnboardingInterstitials` applies to it alone.
    */
   private async openNewExperienceDialog(userId: UserId, onboardingWelcomeDismissed: boolean) {
     if (!onboardingWelcomeDismissed || !this.vfo1Enabled()) {
