@@ -35,12 +35,16 @@
       <bit-form-field class="tw-flex-auto">
         <bit-label>{{ "fillAssistRulesUrlV2" | i18n }}</bit-label>
         <span bitPrefix>https://</span>
+        <!--
+          Bind `[required]` — a bare attribute attaches Angular's RequiredValidator
+          directive and blocks Save on a disabled policy with an emptied URL.
+        -->
         <input
           bitInput
           type="text"
           formControlName="rulesUrl"
           id="fill-assist-policy_input_rules-url"
-          required
+          [required]="enabled.value"
           (blur)="onRulesUrlBlur()"
         />
         <bit-hint>

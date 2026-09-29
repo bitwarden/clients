@@ -472,6 +472,46 @@ describe("FillAssistPolicyComponent", () => {
     });
   });
 
+  describe("template-attached required validator", () => {
+    // These tests must call `fixture.detectChanges()` — without it the `@if` never
+    // mounts the input and the template's `RequiredValidator` never attaches.
+
+    it("does not block Save when the policy is disabled and the admin clears a stored custom URL", () => {
+      // Regression: a bare `required` attribute attached RequiredValidator
+      // unconditionally, invalidating a disabled policy with an emptied URL.
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(false, { rulesUrl: CUSTOM_URL }),
+      );
+      fixture.detectChanges();
+
+      component.data?.patchValue({ rulesUrl: "" });
+
+      expect(component.data?.valid).toBe(true);
+      expect(component.data?.get("rulesUrl")?.errors).toBeNull();
+    });
+
+    it("surfaces the custom URL error first when the policy is enabled and the URL is empty", () => {
+      // Both the custom validator and Angular's RequiredValidator fire on empty;
+      // the errors object contains `url` and `required`. `bit-form-field` reads
+      // `Object.keys(errors)[0]` to decide what to render, so the ORDER matters:
+      // our validator must be composed first so its custom message wins over the
+      // framework's default "Input is required" text.
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { rulesUrl: CUSTOM_URL }),
+      );
+      fixture.detectChanges();
+
+      component.data?.patchValue({ rulesUrl: "" });
+
+      const errors = component.data?.get("rulesUrl")?.errors ?? {};
+      expect(component.data?.invalid).toBe(true);
+      expect(Object.keys(errors)[0]).toBe("url");
+      expect(errors["url"]).toEqual({ message: "invalidFillAssistRulesUrlV2" });
+    });
+  });
+
   describe("isCloud$", () => {
     it("emits true for cloud environments", async () => {
       // Default in beforeEach is cloud
