@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ дополнительных общих папок отображаются над этой кнопкой",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "Над этой кнопкой отображается еще 1 общая папка",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Моя папка"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
+  "selectImportSharedFolder": {
+    "message": "Выберите общую папку"
+  },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
   },
   "importTargetHintFolder": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в общую папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Выберите импортируемый файл"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Выберите менеджер паролей или браузер, из которого вы выполняете импорт."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузеры"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менеджеры паролей"
+  },
+  "importSourceShowAll": {
+    "message": "Показать все"
+  },
+  "importSourceShowLess": {
+    "message": "Меньше"
+  },
+  "importSourceStepCount": {
+    "message": "Шаг $CURRENT$ из $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Выбрать файл"
