@@ -872,7 +872,7 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.preCheck).toHaveBeenCalledWith("cipher-1");
       expect(component["requestMode"]()).toBe("automatic");
       expect(query("#pam-cipher-view-banner_select_duration")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_input_date")).toBeNull();
+      expect(query("#pam-cipher-view-banner_input_start-date")).toBeNull();
     });
 
     it("moves Cancel down beside Request access once the form is open", async () => {
@@ -1040,9 +1040,9 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(component["requestMode"]()).toBe("human");
-      expect(query("#pam-cipher-view-banner_input_date")).not.toBeNull();
-      expect(component["humanForm"].getRawValue().date).not.toBe("");
-      expect(component["humanForm"].getRawValue().start).not.toBe("");
+      expect(query("#pam-cipher-view-banner_input_start-date")).not.toBeNull();
+      expect(component["humanForm"].getRawValue().startDate).not.toBe("");
+      expect(component["humanForm"].getRawValue().startTime).not.toBe("");
     });
 
     it("renders the automatic path's Reason field as a multi-line textarea", async () => {
@@ -1155,8 +1155,13 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
 
       // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
-      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "11:00" });
-      component["humanForm"].controls.end.markAsTouched();
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: futureDate,
+        endTime: "11:00",
+      });
+      component["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1176,8 +1181,13 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
 
       const pastDate = toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
-      component["humanForm"].patchValue({ date: pastDate, start: "09:00", end: "10:00" });
-      component["humanForm"].controls.end.markAsTouched();
+      component["humanForm"].patchValue({
+        startDate: pastDate,
+        startTime: "09:00",
+        endDate: pastDate,
+        endTime: "10:00",
+      });
+      component["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1188,43 +1198,29 @@ describe("CipherViewBannerComponent", () => {
       expect(error?.textContent).toContain("requestAccessModalWindowInPast");
     });
 
-    // Inferred from an end earlier than the start.
-    it("names the day a midnight-crossing window ends on", async () => {
+    it("rejects an end date before the start date", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
       fixture.detectChanges();
       await fixture.whenStable();
-
-      component["humanForm"].patchValue({ date: futureDate, start: "23:00", end: "01:00" });
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
 
       const [year, month, day] = futureDate.split("-").map(Number);
-      const endsAt = new Date(year, month - 1, day + 1, 1, 0, 0);
-      const hint = query("[data-testid='request-window-next-day']");
-      expect(hint).not.toBeNull();
-      expect(hint?.textContent).toContain(formatDate(endsAt, "short", "en-US"));
-      expect(endFieldError()).toBeNull();
-    });
-
-    it("says nothing about the next day for a window that stays on its date", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
-      await create(gatedCipher());
-      await component["toggleRequestForm"]();
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "10:00" });
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: toDateInputValue(new Date(year, month - 1, day - 1)),
+        endTime: "10:00",
+      });
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(query("[data-testid='request-window-next-day']")).toBeNull();
+      expect(component["humanForm"].controls.endTime.touched).toBe(true);
+      expect(endFieldError()?.textContent).toContain("requestAccessModalEndNotAfterStart");
     });
 
-    it("floors the date picker at the day the fold-out opened", async () => {
+    it("floors the start date picker at the day the fold-out opened", async () => {
       // `min` is only an affordance; reactive forms never read ValidityState.rangeUnderflow.
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
@@ -1232,10 +1228,24 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const date = query("#pam-cipher-view-banner_input_date") as HTMLInputElement | null;
+      const date = query("#pam-cipher-view-banner_input_start-date") as HTMLInputElement | null;
       expect(date?.getAttribute("min")).toBe(toDateInputValue(new Date()));
       // The seeded date is the floor itself, so the form opens valid rather than pre-erroring.
-      expect(component["humanForm"].controls.date.value).toBe(date?.getAttribute("min"));
+      expect(component["humanForm"].controls.startDate.value).toBe(date?.getAttribute("min"));
+    });
+
+    it("floors the end date picker at the chosen start date", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component["humanForm"].controls.startDate.setValue(futureDate);
+      fixture.detectChanges();
+
+      const endDate = query("#pam-cipher-view-banner_input_end-date") as HTMLInputElement | null;
+      expect(endDate?.getAttribute("min")).toBe(futureDate);
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -1409,9 +1419,10 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "09:00",
-        end: "10:00",
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: futureDate,
+        endTime: "10:00",
         reason: " prod incident ",
       });
       await component["submitRequest"]();
@@ -1424,10 +1435,10 @@ describe("CipherViewBannerComponent", () => {
       });
     });
 
-    // An end earlier than the start was refused as inverted, blocking any window that crosses
-    // midnight.
-    it("sends a window that crosses midnight, ending on the following day", async () => {
-      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+    it("sends a window spanning several days", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", maxDurationSeconds: 7 * 24 * 60 * 60 }),
+      );
       requestsApi.submitAccessRequest.mockResolvedValue({
         approvalMode: "human",
         request: requestView(),
@@ -1435,22 +1446,21 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await component["toggleRequestForm"]();
 
+      const [year, month, day] = futureDate.split("-").map(Number);
+      const endDate = toDateInputValue(new Date(year, month - 1, day + 2));
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "23:00",
-        end: "01:00",
+        startDate: futureDate,
+        startTime: "23:00",
+        endDate,
+        endTime: "01:00",
         reason: "overnight cutover",
       });
       await component["submitRequest"]();
 
-      // 01:00 the day after `futureDate`, computed from its parts rather than restating the
-      // helper's own arithmetic.
-      const [year, month, day] = futureDate.split("-").map(Number);
-      const endsAt = new Date(year, month - 1, day + 1, 1, 0, 0);
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: undefined,
         start: new Date(`${futureDate}T23:00`).toISOString(),
-        end: endsAt.toISOString(),
+        end: new Date(`${endDate}T01:00`).toISOString(),
         reason: "overnight cutover",
       });
     });
@@ -1460,11 +1470,12 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await component["toggleRequestForm"]();
 
-      const end = component["humanForm"].controls.end;
+      const end = component["humanForm"].controls.endTime;
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "09:00",
-        end: "10:00",
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: futureDate,
+        endTime: "10:00",
         reason: "prod incident",
       });
       expect(end.errors).toBeNull();
@@ -1491,9 +1502,10 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "10:00",
-        end: "10:00",
+        startDate: futureDate,
+        startTime: "10:00",
+        endDate: futureDate,
+        endTime: "10:00",
         reason: "",
       });
       await component["submitRequest"]();
@@ -1508,15 +1520,20 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "10:00", end: "10:00" });
-      component["humanForm"].controls.end.markAsTouched();
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "10:00",
+        endDate: futureDate,
+        endTime: "10:00",
+      });
+      component["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
       const error = endFieldError();
       expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
+      expect(error?.textContent).toContain("requestAccessModalEndNotAfterStart");
       expect(error?.getAttribute("aria-live")).toBe("assertive");
       const endInput = query("#pam-cipher-view-banner_input_end");
       expect(endInput?.getAttribute("aria-invalid")).toBe("true");
@@ -1529,16 +1546,21 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "10:00" });
-      component["humanForm"].controls.start.setValue("10:00");
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "09:00",
+        endDate: futureDate,
+        endTime: "10:00",
+      });
+      component["humanForm"].controls.startTime.setValue("10:00");
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].controls.end.touched).toBe(true);
+      expect(component["humanForm"].controls.endTime.touched).toBe(true);
       const error = endFieldError();
       expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
+      expect(error?.textContent).toContain("requestAccessModalEndNotAfterStart");
     });
 
     it("clears the window error once the window is valid again", async () => {
@@ -1548,17 +1570,22 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: futureDate, start: "10:00", end: "10:00" });
-      component["humanForm"].controls.end.markAsTouched();
+      component["humanForm"].patchValue({
+        startDate: futureDate,
+        startTime: "10:00",
+        endDate: futureDate,
+        endTime: "10:00",
+      });
+      component["humanForm"].controls.endTime.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].controls.start.setValue("09:00");
+      component["humanForm"].controls.startTime.setValue("09:00");
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["humanForm"].controls.end.errors).toBeNull();
+      expect(component["humanForm"].controls.endTime.errors).toBeNull();
       expect(endFieldError()).toBeNull();
     });
 
@@ -1570,9 +1597,10 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
 
       component["humanForm"].patchValue({
-        date: futureDate,
-        start: "10:00",
-        end: "10:00",
+        startDate: futureDate,
+        startTime: "10:00",
+        endDate: futureDate,
+        endTime: "10:00",
         reason: "prod incident",
       });
       await component["submitRequest"]();
@@ -1583,7 +1611,7 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
       const error = endFieldError();
       expect(error).not.toBeNull();
-      expect(error?.textContent).toContain("requestAccessModalEndEqualsStart");
+      expect(error?.textContent).toContain("requestAccessModalEndNotAfterStart");
     });
   });
 
