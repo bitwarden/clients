@@ -44,7 +44,6 @@ import { Cipher } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
-import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -122,7 +121,6 @@ describe("Cipher Service", () => {
   let encryptionContext: EncryptionContext;
   // BehaviorSubjects for SDK feature flags - allows tests to change the value after service instantiation
   let sdkCrudFeatureFlag$: BehaviorSubject<boolean>;
-  let sdkShareFeatureFlag$: BehaviorSubject<boolean>;
   let sdkAdminOpsFeatureFlag$: BehaviorSubject<boolean>;
   let sdkAttachmentOpsFeatureFlag$: BehaviorSubject<boolean>;
 
@@ -146,14 +144,10 @@ describe("Cipher Service", () => {
 
     // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
-    sdkShareFeatureFlag$ = new BehaviorSubject<boolean>(false);
     sdkAdminOpsFeatureFlag$ = new BehaviorSubject<boolean>(false);
     sdkAttachmentOpsFeatureFlag$ = new BehaviorSubject<boolean>(false);
     configService.getFeatureFlag$.mockImplementation(
       <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
-        if (flag === FeatureFlag.PM28190CipherSharingOpsToSdk) {
-          return sdkShareFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
-        }
         if (flag === FeatureFlag.PM28191CipherAdminOpsToSdk) {
           return sdkAdminOpsFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
         }
@@ -838,42 +832,7 @@ describe("Cipher Service", () => {
   });
 
   describe("shareWithServer()", () => {
-    it("should use cipherEncryptionService to move the cipher", async () => {
-      apiService.putShareCipher.mockResolvedValue(new CipherResponse(cipherData));
-
-      const expectedCipher = new Cipher(cipherData);
-      expectedCipher.organizationId = orgId;
-      const cipherView = new CipherView(expectedCipher);
-      const collectionIds = ["collection1", "collection2"] as CollectionId[];
-
-      cipherView.organizationId = undefined; // Ensure organizationId is undefined for this test
-
-      cipherEncryptionService.moveToOrganization.mockResolvedValue({
-        cipher: expectedCipher,
-        encryptedFor: userId,
-      });
-
-      await cipherService.shareWithServer(cipherView, orgId, collectionIds, userId);
-
-      // Expect SDK usage
-      expect(cipherEncryptionService.moveToOrganization).toHaveBeenCalledWith(
-        cipherView,
-        orgId,
-        userId,
-      );
-      // Expect collectionIds to be assigned
-      expect(apiService.putShareCipher).toHaveBeenCalledWith(
-        cipherView.id,
-        expect.objectContaining({
-          cipher: expect.objectContaining({ organizationId: orgId }),
-          collectionIds: collectionIds,
-        }),
-      );
-    });
-
-    it("should delegate to cipherSdkService when SDK share feature flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should delegate to cipherSdkService", async () => {
       const expectedCipher = new Cipher(cipherData);
       expectedCipher.organizationId = orgId;
       const cipherView = new CipherView(expectedCipher);
@@ -903,9 +862,7 @@ describe("Cipher Service", () => {
       expect(result).toEqual(expectedCipher);
     });
 
-    it("should pass originalCipherView to cipherSdkService when SDK share feature flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should pass originalCipherView to cipherSdkService", async () => {
       const expectedCipher = new Cipher(cipherData);
       const cipherView = new CipherView(expectedCipher);
       cipherView.organizationId = null;
@@ -939,9 +896,7 @@ describe("Cipher Service", () => {
       );
     });
 
-    it("should throw when cipher already has organization and SDK share flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should throw when cipher already has organization", async () => {
       const expectedCipher = new Cipher(cipherData);
       expectedCipher.organizationId = orgId;
       const cipherView = new CipherView(expectedCipher);
@@ -955,9 +910,7 @@ describe("Cipher Service", () => {
   });
 
   describe("shareManyWithServer()", () => {
-    it("should delegate to cipherSdkService when SDK share feature flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should delegate to cipherSdkService", async () => {
       const cipherView1 = new CipherView(new Cipher(cipherData));
       cipherView1.organizationId = null;
       const cipherView2 = new CipherView(new Cipher(cipherData));
@@ -985,9 +938,7 @@ describe("Cipher Service", () => {
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
     });
 
-    it("should throw when any cipher already has organization and SDK share flag is enabled", async () => {
-      sdkShareFeatureFlag$.next(true);
-
+    it("should throw when any cipher already has organization", async () => {
       const cipherView1 = new CipherView(new Cipher(cipherData));
       cipherView1.organizationId = null;
       const cipherView2 = new CipherView(new Cipher(cipherData));
