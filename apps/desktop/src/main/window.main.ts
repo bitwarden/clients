@@ -147,21 +147,37 @@ export class WindowMain {
       try {
         this.logService.info("Reloading render process");
         // User might have changed theme, ensure the window is updated.
-        this.win.setBackgroundColor(await this.getBackgroundColor());
+        const backgroundColor = await this.getBackgroundColor();
+        await this.withWindow(async (win) => {
+          win.setBackgroundColor(backgroundColor);
 
-        // By default some linux distro collect core dumps on crashes which gets written to disk.
-        if (this.enableRendererProcessForceCrashReload) {
-          const crashEvent = once(this.win.webContents, "render-process-gone");
-          this.win.webContents.forcefullyCrashRenderer();
-          await crashEvent;
+          // By default some linux distro collect core dumps on crashes which gets written to disk.
+          if (this.enableRendererProcessForceCrashReload) {
+            // A window closed mid-crash never emits render-process-gone, so also stop on destroyed.
+            const crashWait = new AbortController();
+            const crashEvent = Promise.race([
+              once(win.webContents, "render-process-gone", { signal: crashWait.signal }),
+              once(win.webContents, "destroyed", { signal: crashWait.signal }),
+            ]);
+            win.webContents.forcefullyCrashRenderer();
 
-          // Workaround for electron/electron#48661: yielding one event-loop tick
-          // before reloading lets the crashed renderer fully tear down so the
-          // subsequent reloadIgnoringCache() reliably spawns a new renderer.
-          await new Promise((resolve) => setImmediate(resolve));
-        }
+            // Ensure we abort the listeners that didn't fire to avoid leaving them hanging.
+            try {
+              await crashEvent;
+            } finally {
+              crashWait.abort();
+            }
 
-        this.win.webContents.reloadIgnoringCache();
+            // Workaround for electron/electron#48661: yielding one event-loop tick
+            // before reloading lets the crashed renderer fully tear down so the
+            // subsequent reloadIgnoringCache() reliably spawns a new renderer.
+            await new Promise((resolve) => setImmediate(resolve));
+          }
+
+          if (!win.isDestroyed()) {
+            win.webContents.reloadIgnoringCache();
+          }
+        });
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.session.clearCache();
@@ -172,47 +188,46 @@ export class WindowMain {
     });
 
     ipcMain.on("window-focus", () => {
-      if (this.win != null) {
-        this.win.show();
-        this.win.focus();
-      }
+      this.withWindow((win) => {
+        win.show();
+        win.focus();
+      });
     });
 
     ipcMain.on("window-hide", () => {
-      if (this.win != null) {
+      this.withWindow((win) => {
         if (isWindows()) {
           // On windows, to return focus we need minimize
-          this.win.minimize();
+          win.minimize();
         } else {
-          this.win.hide();
+          win.hide();
         }
-      }
+      });
     });
 
     this.desktopSettingsService.modalMode$
       .pipe(
         pairwise(),
         concatMap(async ([lastValue, newValue]) => {
-          if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
-            // Reset the window state to the main window state
-            applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
-            // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
-            this.win.hide();
-          } else if (newValue.isModalModeActive) {
-            // Apply the popup modal styles
-            this.logService.info("Applying popup modal styles", newValue.modalPosition);
-            applyPopupModalStyles(this.win, newValue.showTrafficButtons, newValue.modalPosition);
-            this.win.show();
-          }
+          this.withWindow((win) => {
+            if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
+              // Reset the window state to the main window state
+              applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
+              // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
+              win.hide();
+            } else if (newValue.isModalModeActive) {
+              // Apply the popup modal styles
+              this.logService.info("Applying popup modal styles", newValue.modalPosition);
+              applyPopupModalStyles(win, newValue.showTrafficButtons, newValue.modalPosition);
+              win.show();
+            }
+          });
         }),
       )
       .subscribe();
 
     this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
-      if (this.win == null) {
-        return;
-      }
-      this.win.setContentProtection(prevent);
+      this.withWindow((win) => win.setContentProtection(prevent));
     });
 
     return new Promise<void>((resolve, reject) => {
@@ -228,11 +243,13 @@ export class WindowMain {
               // icon or terminal while already running). Always bring us to the foreground.
               if (this.focusWindowCallback != null) {
                 void this.focusWindowCallback();
-              } else if (this.win != null) {
-                if (this.win.isMinimized() || !this.win.isVisible()) {
-                  this.win.show();
-                }
-                this.win.focus();
+              } else {
+                this.withWindow((win) => {
+                  if (win.isMinimized() || !win.isVisible()) {
+                    win.show();
+                  }
+                  win.focus();
+                });
               }
               if (isWindows() || isLinux()) {
                 if (this.argvCallback != null) {
@@ -246,9 +263,10 @@ export class WindowMain {
         // This method will be called when Electron is shutting
         // down the application.
         app.on("before-quit", async () => {
+          // Set before awaiting. The tray's close handler reads it synchronously.
+          this.isQuitting = true;
           // Allow biometric to auto-prompt on reload
           await this.biometricStateService.resetAllPromptCancelled();
-          this.isQuitting = true;
         });
 
         // This method will be called when Electron has finished
@@ -327,10 +345,10 @@ export class WindowMain {
 
   /// Show the window with main window styles
   show() {
-    if (this.win != null) {
-      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
-      this.win.show();
-    }
+    this.withWindow((win) => {
+      applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
+      win.show();
+    });
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
@@ -392,15 +410,13 @@ export class WindowMain {
       return;
     }
 
+    const win = this.win;
     await this.desktopSettingsService.setModalMode(modal);
-    await this.win.loadURL(
-      this.getWindowUrl({ hash: targetPath, query: { redirectUrl: targetPath } }),
-      {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      },
-    );
-    this.win.once("ready-to-show", () => {
-      this.win.show();
+    await win.loadURL(this.getWindowUrl({ hash: targetPath, query: { redirectUrl: targetPath } }), {
+      userAgent: cleanUserAgent(win.webContents.userAgent),
+    });
+    win.once("ready-to-show", () => {
+      win.show();
     });
   }
 
@@ -457,7 +473,7 @@ export class WindowMain {
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
     // Create the browser window.
-    this.win = new BrowserWindow({
+    const win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
       minWidth: 600,
@@ -480,15 +496,16 @@ export class WindowMain {
         devTools: isDev(),
       },
     });
+    this.win = win;
 
     if (template === "modal-app") {
-      applyPopupModalStyles(this.win);
+      applyPopupModalStyles(win);
     } else {
-      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
     }
 
-    this.win.webContents.on("dom-ready", () => {
-      this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+    win.webContents.on("dom-ready", () => {
+      win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
     });
 
     // Persist zoom changes from mouse wheel and programmatic zoom operations
@@ -496,35 +513,34 @@ export class WindowMain {
     // which are handled by custom menu click handlers in ViewMenu
     // We can't depend on higher level web events (like close) to do this
     // because locking the vault resets window state.
-    this.win.webContents.on("zoom-changed", async () => {
-      const newZoom = this.win.webContents.zoomFactor;
-      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+    win.webContents.on("zoom-changed", async () => {
+      this.windowStates[mainWindowSizeKey].zoomFactor = win.webContents.zoomFactor;
       await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
-      this.win.maximize();
+      win.maximize();
     }
 
     if (show) {
-      this.win.show();
+      win.show();
     }
 
     if (template === "full-app") {
       // and load the index.html of the app.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win
+      void win
         .loadURL(this.getWindowUrl(), {
-          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+          userAgent: cleanUserAgent(win.webContents.userAgent),
         })
         .then(() => {
-          if (isDev()) {
-            this.win.webContents.openDevTools();
+          if (isDev() && !win.isDestroyed()) {
+            win.webContents.openDevTools();
           }
         });
     } else {
       // we're in modal mode - load the passkeys page
-      await this.win.loadURL(
+      await win.loadURL(
         this.getWindowUrl({
           hash: "/passkeys",
           query: {
@@ -532,50 +548,52 @@ export class WindowMain {
           },
         }),
         {
-          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+          userAgent: cleanUserAgent(win.webContents.userAgent),
         },
       );
     }
 
     // Emitted when the window is closed.
-    this.win.on("closed", async () => {
+    win.on("closed", () => {
       this.isClosing = false;
-      await this.updateWindowState(mainWindowSizeKey, this.win);
 
       // Dereference the window object, usually you would store window
       // in an array if your app supports multi windows, this is the time
       // when you should delete the corresponding element.
-      this.win = null;
+      // Another window may have replaced this one in the meantime.
+      if (this.win === win) {
+        this.win = null;
+      }
     });
 
-    this.win.on("close", async () => {
+    win.on("close", async () => {
       this.isClosing = true;
-      await this.updateWindowState(mainWindowSizeKey, this.win);
+      await this.updateWindowState(mainWindowSizeKey, win);
     });
 
-    this.win.on("maximize", async () => {
-      await this.updateWindowState(mainWindowSizeKey, this.win);
+    win.on("maximize", async () => {
+      await this.updateWindowState(mainWindowSizeKey, win);
     });
 
-    this.win.on("unmaximize", async () => {
-      await this.updateWindowState(mainWindowSizeKey, this.win);
+    win.on("unmaximize", async () => {
+      await this.updateWindowState(mainWindowSizeKey, win);
     });
 
-    this.win.on("resize", () => {
-      this.windowStateChangeHandler(mainWindowSizeKey, this.win);
+    win.on("resize", () => {
+      this.windowStateChangeHandler(mainWindowSizeKey, win);
     });
 
-    this.win.on("move", () => {
-      this.windowStateChangeHandler(mainWindowSizeKey, this.win);
+    win.on("move", () => {
+      this.windowStateChangeHandler(mainWindowSizeKey, win);
     });
-    this.win.on("focus", () => {
-      this.win.webContents.send("messagingService", {
+    win.on("focus", () => {
+      win.webContents.send("messagingService", {
         command: "windowIsFocused",
         windowIsFocused: true,
       });
     });
 
-    this.win.webContents.setWindowOpenHandler(({ url }) => {
+    win.webContents.setWindowOpenHandler(({ url }) => {
       // For security reasons, we redirect all requests to open new windows from the renderer process to the system browser.
       // SafeShell will check the URL against our allowlist and log if an attempt is made to open a URL that isn't considered safe.
 
@@ -588,7 +606,7 @@ export class WindowMain {
     // The main window must only ever show the local bundle. Cancelling a
     // foreign navigation stops the preload re-running and re-exposing
     // main functions, like window.ipc, on the attacker's page.
-    this.win.webContents.on("will-navigate", (event, url) => {
+    win.webContents.on("will-navigate", (event, url) => {
       if (!this.isLocalBundleUrl(url)) {
         event.preventDefault();
         void this.shell.openExternal(url, UrlType.WebUrl);
@@ -596,7 +614,7 @@ export class WindowMain {
     });
 
     // Same purpose as above, but for server-issued redirects
-    this.win.webContents.on("will-redirect", (event, url) => {
+    win.webContents.on("will-redirect", (event, url) => {
       if (!this.isLocalBundleUrl(url)) {
         event.preventDefault();
         void this.shell.openExternal(url, UrlType.WebUrl);
@@ -605,14 +623,16 @@ export class WindowMain {
 
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)
       .then((preventScreenshots) => {
-        this.win.setContentProtection(preventScreenshots);
+        if (!win.isDestroyed()) {
+          win.setContentProtection(preventScreenshots);
+        }
       })
       .catch((e) => {
         this.logService.error(e);
       });
 
     if (this.createWindowCallback) {
-      this.createWindowCallback(this.win);
+      this.createWindowCallback(win);
     }
   }
 
@@ -638,14 +658,24 @@ export class WindowMain {
   }
 
   async toggleAlwaysOnTop() {
-    this.enableAlwaysOnTop = !this.win.isAlwaysOnTop();
-    this.win.setAlwaysOnTop(this.enableAlwaysOnTop);
-    await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
+    await this.withWindow(async (win) => {
+      this.enableAlwaysOnTop = !win.isAlwaysOnTop();
+      win.setAlwaysOnTop(this.enableAlwaysOnTop);
+      await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
+    });
   }
 
   async saveZoomFactor(zoomFactor: number) {
     this.windowStates[mainWindowSizeKey].zoomFactor = zoomFactor;
     await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
+  }
+
+  /** Runs `fn` with the main window, or skips it if the window is gone. */
+  withWindow<T>(fn: (win: BrowserWindow) => T): T | undefined {
+    if (this.win == null || this.win.isDestroyed()) {
+      return undefined;
+    }
+    return fn(this.win);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {
