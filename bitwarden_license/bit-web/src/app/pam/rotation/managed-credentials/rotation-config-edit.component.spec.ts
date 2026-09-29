@@ -8,6 +8,7 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, TabsModule, ToastService } from "@bitwarden/components";
 
@@ -326,7 +327,7 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     const manual = targetSystem({
       id: sysId("sys-manual"),
       method: "manual",
-      kind: null,
+      kind: undefined,
       supportsSessionTermination: false,
     } as Partial<TargetSystem>);
     const { component, rotationSdk, fixture } = setup({ targetSystems: [targetSystem(), manual] });
@@ -354,7 +355,7 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     const manual = targetSystem({
       id: sysId("sys-manual"),
       method: "manual",
-      kind: null,
+      kind: undefined,
       supportsSessionTermination: false,
     } as Partial<TargetSystem>);
     const { component, fixture } = setup({ targetSystems: [targetSystem(), manual] });
@@ -370,7 +371,7 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
 describe("RotationConfigEditComponent — target-system handoff", () => {
   it("preselects the target named by ?targetSystemId", async () => {
     const { component, fixture } = setup({
-      queryParams: { targetSystemId: TARGET_SYSTEM_ID },
+      queryParams: { targetSystemId: uuidAsString(TARGET_SYSTEM_ID) },
     });
     await fixture.whenStable();
 
@@ -379,7 +380,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
 
   it("leaves the picker unset when ?targetSystemId names no loaded target", async () => {
     const { component, fixture } = setup({
-      queryParams: { targetSystemId: sysId("sys-gone") },
+      queryParams: { targetSystemId: uuidAsString(sysId("sys-gone")) },
     });
     await fixture.whenStable();
 
@@ -388,7 +389,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
 
   it("leaves the picker unset when the named target is disabled", async () => {
     const { component, fixture } = setup({
-      queryParams: { targetSystemId: TARGET_SYSTEM_ID },
+      queryParams: { targetSystemId: uuidAsString(TARGET_SYSTEM_ID) },
       targetSystems: [targetSystem({ status: "disabled" } as Partial<TargetSystem>)],
     });
     await fixture.whenStable();
@@ -414,7 +415,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
 
   it("does not treat a preselected target as unsaved input", async () => {
     const { component, fixture, dialogService } = setup({
-      queryParams: { targetSystemId: TARGET_SYSTEM_ID },
+      queryParams: { targetSystemId: uuidAsString(TARGET_SYSTEM_ID) },
     });
     await fixture.whenStable();
 
