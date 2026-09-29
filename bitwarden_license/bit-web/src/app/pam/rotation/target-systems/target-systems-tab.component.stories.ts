@@ -39,7 +39,7 @@ const SYSTEMS: TargetSystem[] = [
     id: sysId("5"),
     name: "Legacy mainframe",
     method: "manual",
-    kind: null,
+    kind: undefined,
     supportsSessionTermination: false,
   }),
 ];
