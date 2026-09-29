@@ -1,61 +1,41 @@
 /**
- * The three control values the human-path request form collects: a local calendar date plus a
- * start and end time, kept as raw strings so this module is unit-testable without a TestBed.
- *
- * The single date also carries a window crossing midnight — see {@link composeRequestWindow}.
+ * The control values the human-path request form collects: a local start date and time plus an end
+ * date and time, kept as raw strings so this module is unit-testable without a TestBed.
  */
 export type RequestWindowFormValue = {
-  date?: string | null;
-  start?: string | null;
-  end?: string | null;
+  startDate?: string | null;
+  startTime?: string | null;
+  endDate?: string | null;
+  endTime?: string | null;
 };
 
 /** The ways a fully-populated requested window can be invalid. */
-export type RequestWindowProblem = "zeroLengthWindow" | "endInPast" | "exceedsMaxWindow";
+export type RequestWindowProblem = "endNotAfterStart" | "endInPast" | "exceedsMaxWindow";
 
 /**
- * Composes the form's local date + times into an absolute window; `null` while any field is
+ * Composes the form's local dates and times into an absolute window; `null` while any field is
  * blank or unparseable.
- *
- * An end earlier than the start rolls to the next local calendar day, so a DST boundary can't
- * shift the wall-clock end typed — left for {@link requestWindowProblem} to refuse if equal
- * instead.
  *
  * `new Date("YYYY-MM-DDTHH:mm")` parses as local time; the SDK serializes to UTC on the way out.
  */
 export function composeRequestWindow(
   value: RequestWindowFormValue,
 ): { start: Date; end: Date } | null {
-  const { date, start, end } = value;
-  if (!date || !start || !end) {
+  const { startDate, startTime, endDate, endTime } = value;
+  if (!startDate || !startTime || !endDate || !endTime) {
     return null;
   }
-  const startAt = new Date(`${date}T${start}`);
-  const endAt = new Date(`${date}T${end}`);
-  if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
+  const start = new Date(`${startDate}T${startTime}`);
+  const end = new Date(`${endDate}T${endTime}`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
     return null;
   }
-  if (endAt.getTime() < startAt.getTime()) {
-    endAt.setDate(endAt.getDate() + 1);
-  }
-  return { start: startAt, end: endAt };
-}
-
-/** The composed end when the window crosses midnight; `null` otherwise or incomplete. Spelled out under the field, not left to assume. */
-export function midnightCrossingEnd(value: RequestWindowFormValue): Date | null {
-  const window = composeRequestWindow(value);
-  if (window == null) {
-    return null;
-  }
-  return toDateInputValue(window.end) === toDateInputValue(window.start) ? null : window.end;
+  return { start, end };
 }
 
 /**
  * Validates a requested window, mirroring the three server checks: end strictly after start, not
  * already elapsed, and within `maxWindowSeconds`. `null` for a valid or incomplete window.
- *
- * The zero-length check is measured on the composed window, after an inverted end has rolled to
- * the next day; `maxWindowSeconds` is checked on the END since the form seeds `start` at `now`.
  *
  * `maxWindowSeconds` has no default on purpose: it is the governing rule's cap, which only the
  * pre-check knows.
@@ -71,7 +51,7 @@ export function requestWindowProblem(
   }
   const spanMs = window.end.getTime() - window.start.getTime();
   if (spanMs <= 0) {
-    return "zeroLengthWindow";
+    return "endNotAfterStart";
   }
   // Elapsed-window check comes first: it's wrong wherever it sits, and moving it into the future
   // is the fix the requester must make before length matters.
@@ -96,33 +76,21 @@ export function toTimeInputValue(date: Date): string {
   return `${hours}:${minutes}`;
 }
 
-/**
- * Bounds on the window {@link defaultRequestWindow} may seed, imposed by the form's shape, not
- * any rule or the server's ceiling: below a minute the two time inputs can't hold distinct
- * values, and at a full 24h the end lands back on the start's wall-clock time, which
- * {@link composeRequestWindow} reads as ambiguous.
- *
- * A rule defaulting past a day seeds this instead of a window the form would misread.
- */
+/** Below a minute the time inputs, which step in minutes, can't hold distinct values. */
 const MIN_SEEDABLE_WINDOW_SECONDS = 60;
-const MAX_SEEDABLE_WINDOW_SECONDS = 24 * 60 * 60 - 60;
 
-/**
- * Seed values for a window starting at `now` and running `durationSeconds`. An end past midnight
- * is seeded as the plain wall-clock time it falls on — {@link composeRequestWindow} reads it
- * back onto the next day — so a late fold-out still offers the rule's whole default duration.
- */
-export function defaultRequestWindow(now: Date, durationSeconds: number): RequestWindowFormValue {
-  const seconds = Math.min(
-    Math.max(durationSeconds, MIN_SEEDABLE_WINDOW_SECONDS),
-    MAX_SEEDABLE_WINDOW_SECONDS,
+/** Seed values for a window starting at `now` and running `durationSeconds`. */
+export function defaultRequestWindow(
+  now: Date,
+  durationSeconds: number,
+): Record<keyof RequestWindowFormValue, string> {
+  const end = new Date(
+    now.getTime() + Math.max(durationSeconds, MIN_SEEDABLE_WINDOW_SECONDS) * 1000,
   );
-  // Both bounds are whole minutes, so truncating the end to `HH:mm` can't collapse or stretch
-  // it onto the start's minute.
-  const end = new Date(now.getTime() + seconds * 1000);
   return {
-    date: toDateInputValue(now),
-    start: toTimeInputValue(now),
-    end: toTimeInputValue(end),
+    startDate: toDateInputValue(now),
+    startTime: toTimeInputValue(now),
+    endDate: toDateInputValue(end),
+    endTime: toTimeInputValue(end),
   };
 }
