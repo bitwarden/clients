@@ -199,6 +199,16 @@ describe("ImportControlsComponent", () => {
         instructionKey: "importChromiumAliasPreamble",
         instructionLink: "https://bitwarden.com/help/import-from-chrome/",
       }),
+      delineaxml: buildOption({
+        id: "delineaxml",
+        name: "Delinea (xml)",
+        acceptedFileTypes: ["xml"],
+        pasteFormats: ["xml"],
+      }),
+      delineacsv: buildOption({
+        id: "delineacsv",
+        name: "Delinea (csv)",
+      }),
     };
     importService = mock<ImportServiceAbstraction>();
     importService.getImportOption.mockImplementation((id) => options[id]);
@@ -749,8 +759,8 @@ describe("ImportControlsComponent", () => {
     });
 
     describe("paste method", () => {
-      it("offers every paste-capable format once content is present, for a vendor with no collision", async () => {
-        await setup("dashlanecsv", ClientType.Web);
+      it("offers every paste-capable format once content is present, for a vendor whose siblings aren't shape-narrowable (1Password)", async () => {
+        await setup("1password1pux", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
         component().formGroup.controls.fileContents.setValue('{"some": "json"}');
         fixture.detectChanges();
@@ -759,22 +769,24 @@ describe("ImportControlsComponent", () => {
           component()
             .candidateFormats()
             .map((o: ImportOption) => o.id),
-        ).toEqual(["dashlanecsv", "dashlanejson"]);
+        ).toEqual(["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"]);
         expect(component().needsFormatDisambiguation()).toBe(true);
       });
 
       it("does not default to the first label in the list — requires an explicit choice", async () => {
-        await setup("dashlanecsv", ClientType.Web);
+        await setup("1password1pux", ClientType.Web);
         component().formGroup.controls.method.setValue("paste");
-        component().formGroup.controls.fileContents.setValue('{"some": "json"}');
+        component().formGroup.controls.fileContents.setValue(
+          "url,username,password\nhttps://example.com,me,hunter2",
+        );
         fixture.detectChanges();
 
         expect(component().resolvedFormat()).toBeUndefined();
 
-        component().formGroup.controls.formatChoice.setValue("dashlanejson");
+        component().formGroup.controls.formatChoice.setValue("1passwordmaccsv");
         fixture.detectChanges();
 
-        expect(component().resolvedFormat()).toBe("dashlanejson");
+        expect(component().resolvedFormat()).toBe("1passwordmaccsv");
       });
 
       it("shows no candidates until content is actually present", async () => {
@@ -783,6 +795,54 @@ describe("ImportControlsComponent", () => {
         fixture.detectChanges();
 
         expect(component().candidateFormats()).toEqual([]);
+      });
+
+      it("narrows to the single matching format by content shape for a shape-narrowable vendor, needing no explicit choice", async () => {
+        await setup("dashlanecsv", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue('{"some": "json"}');
+        fixture.detectChanges();
+
+        expect(component().needsFormatDisambiguation()).toBe(false);
+        expect(component().resolvedFormat()).toBe("dashlanejson");
+      });
+
+      it("narrows to the csv sibling for a shape-narrowable vendor when the content doesn't look like json/xml", async () => {
+        await setup("dashlanecsv", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue(
+          "url,username,password\nhttps://example.com,me,hunter2",
+        );
+        fixture.detectChanges();
+
+        expect(component().needsFormatDisambiguation()).toBe(false);
+        expect(component().resolvedFormat()).toBe("dashlanecsv");
+      });
+
+      it("narrows to the xml sibling for a shape-narrowable vendor with an xml/csv pair (Delinea)", async () => {
+        await setup("delineaxml", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue('<?xml version="1.0"?><root></root>');
+        fixture.detectChanges();
+
+        expect(component().needsFormatDisambiguation()).toBe(false);
+        expect(component().resolvedFormat()).toBe("delineaxml");
+      });
+
+      it("still requires an explicit choice for 1Password's Windows/Mac csv pair, since content shape can't tell them apart", async () => {
+        await setup("1password1pux", ClientType.Web);
+        component().formGroup.controls.method.setValue("paste");
+        component().formGroup.controls.fileContents.setValue(
+          "url,username,password\nhttps://example.com,me,hunter2",
+        );
+        fixture.detectChanges();
+
+        expect(
+          component()
+            .candidateFormats()
+            .map((o: ImportOption) => o.id),
+        ).toEqual(["1password1pux", "1password1pif", "1passwordwincsv", "1passwordmaccsv"]);
+        expect(component().needsFormatDisambiguation()).toBe(true);
       });
     });
   });

@@ -87,6 +87,12 @@ import {
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 import { lastPassValidationErrorI18nKey } from "../lastpass/lastpass-validation-error";
 
+import {
+  detectPasteContentShape,
+  expectedPasteShapeFor,
+  vendorSupportsPasteShapeNarrowing,
+} from "./paste-content-shape";
+
 /** How import data will be provided: direct uses a vendor-specific direct importer,
  * chromium will use our Chromium importer, manual will use either a file or pasted text. */
 type ImportStrategy = "direct" | "chromium" | "manual";
@@ -368,19 +374,22 @@ export class ImportControlsComponent {
     initialValue: this.formGroup.controls.fileContents.value,
   });
 
-  /** The formats the current input could belong to. In `file` method this narrows precisely, by
-   *  the chosen file's extension. In `paste` method there's no filename to read an extension
-   *  from, so — rather than guessing from content shape — every paste-capable sibling format is
-   *  offered once any content is present; the disambiguation control (below) then always appears
-   *  for a vendor with more than one paste-capable format, not just the ones whose labels happen
-   *  to collide. Length 0 before anything is provided; length 1 for every vendor in `file` method
-   *  except 1Password's Windows/Mac csv collision. */
+  /** Candidate formats: by extension (file mode) or content shape/sibling list (paste mode). */
   protected readonly candidateFormats = computed<ImportOption[]>(() => {
     if (this.method() === "paste") {
-      if (!this.pastedContent().trim()) {
+      const content = this.pastedContent();
+      if (!content.trim()) {
         return [];
       }
-      return this.formatOptions().filter((option) => option.pasteFormats.length > 0);
+      const candidates = this.formatOptions().filter((option) => option.pasteFormats.length > 0);
+      if (!vendorSupportsPasteShapeNarrowing(this.importType())) {
+        return candidates;
+      }
+      const shape = detectPasteContentShape(content);
+      const narrowed = candidates.filter(
+        (option) => expectedPasteShapeFor(option.id as ImportType) === shape,
+      );
+      return narrowed.length > 0 ? narrowed : candidates;
     }
 
     const extension = this.chosenFileName()?.split(".").pop()?.toLowerCase();
@@ -406,9 +415,6 @@ export class ImportControlsComponent {
     return undefined;
   });
 
-  // Falls back to vendor() when the resolved sibling has no instructions of its own (e.g.
-  // Keeper's keepercsv/keeperjson) — otherwise resolving to one would blank a callout that was
-  // just showing.
   protected readonly activeInstructions = computed<ImportOption>(() => {
     const resolved = this.resolvedFormat();
     if (!resolved) {
