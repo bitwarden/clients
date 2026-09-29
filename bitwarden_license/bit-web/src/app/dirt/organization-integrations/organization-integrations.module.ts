@@ -6,6 +6,7 @@ import { OrganizationIntegrationConfigurationApiService } from "@bitwarden/bit-c
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { LogService } from "@bitwarden/logging";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { EventManagementComponent } from "./event-management/event-management.component";
@@ -30,7 +31,11 @@ import { UserProvisioningComponent } from "./user-provisioning/user-provisioning
     safeProvider({
       provide: OrganizationIntegrationService,
       useClass: OrganizationIntegrationService,
-      deps: [OrganizationIntegrationApiService, OrganizationIntegrationConfigurationApiService],
+      deps: [
+        OrganizationIntegrationApiService,
+        OrganizationIntegrationConfigurationApiService,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: OrganizationIntegrationApiService,

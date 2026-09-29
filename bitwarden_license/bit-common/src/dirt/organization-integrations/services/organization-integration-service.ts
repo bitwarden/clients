@@ -6,6 +6,7 @@ import {
   OrganizationIntegrationId,
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/logging";
 
 import {
   OrgIntegrationBuilder,
@@ -45,6 +46,7 @@ export class OrganizationIntegrationService {
   constructor(
     protected integrationApiService: OrganizationIntegrationApiService,
     protected integrationConfigurationApiService: OrganizationIntegrationConfigurationApiService,
+    protected logService: LogService,
   ) {}
 
   /**
@@ -315,6 +317,11 @@ export class OrganizationIntegrationService {
               // Integration will only have one OrganizationIntegrationConfiguration
               const config = response[0];
 
+              // An integration can exist without a configuration, e.g. while an OAuth flow is in progress
+              if (config == null) {
+                return;
+              }
+
               const orgIntegration = this.mapResponsesToOrganizationIntegration(
                 integration,
                 config,
@@ -323,6 +330,13 @@ export class OrganizationIntegrationService {
               if (orgIntegration !== null) {
                 integrations.push(orgIntegration);
               }
+            })
+            .catch((error: unknown) => {
+              // Skip integrations that cannot be loaded so they don't prevent the rest from loading
+              this.logService.warning(
+                `Unable to load organization integration ${integration.id} of type ${integration.type}`,
+                error,
+              );
             });
           promises.push(promise);
         });

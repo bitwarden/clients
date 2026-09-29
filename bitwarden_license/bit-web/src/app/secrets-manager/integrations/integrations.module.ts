@@ -5,6 +5,7 @@ import { OrganizationIntegrationConfigurationApiService } from "@bitwarden/bit-c
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { LogService } from "@bitwarden/logging";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
@@ -20,7 +21,11 @@ import { SmIntegrationsTabComponent } from "./sm-integrations-tab/sm-integration
     safeProvider({
       provide: OrganizationIntegrationService,
       useClass: OrganizationIntegrationService,
-      deps: [OrganizationIntegrationApiService, OrganizationIntegrationConfigurationApiService],
+      deps: [
+        OrganizationIntegrationApiService,
+        OrganizationIntegrationConfigurationApiService,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: OrganizationIntegrationApiService,

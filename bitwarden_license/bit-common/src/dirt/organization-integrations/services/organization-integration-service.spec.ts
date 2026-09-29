@@ -7,6 +7,7 @@ import {
   OrganizationIntegrationId,
   OrganizationIntegrationConfigurationId,
 } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/logging";
 
 import { OrgIntegrationBuilder } from "../models/integration-builder";
 import { OrganizationIntegration } from "../models/organization-integration";
@@ -25,6 +26,7 @@ describe("OrganizationIntegrationService", () => {
   let service: OrganizationIntegrationService;
   let integrationApiService: MockProxy<OrganizationIntegrationApiService>;
   let integrationConfigurationApiService: MockProxy<OrganizationIntegrationConfigurationApiService>;
+  let logService: MockProxy<LogService>;
 
   const orgId = "org-123" as OrganizationId;
   const integrationId = "integration-456" as OrganizationIntegrationId;
@@ -51,10 +53,12 @@ describe("OrganizationIntegrationService", () => {
   beforeEach(() => {
     integrationApiService = mock<OrganizationIntegrationApiService>();
     integrationConfigurationApiService = mock<OrganizationIntegrationConfigurationApiService>();
+    logService = mock<LogService>();
 
     service = new OrganizationIntegrationService(
       integrationApiService,
       integrationConfigurationApiService,
+      logService,
     );
   });
 
@@ -178,6 +182,74 @@ describe("OrganizationIntegrationService", () => {
 
       const integrations = await firstValueFrom(service.integrations$);
       expect(integrations).toHaveLength(2);
+    });
+
+    it("should skip integrations without a configuration and load the rest", async () => {
+      const unconfiguredIntegrationResponse = new OrganizationIntegrationResponse({
+        Id: "integration-2" as OrganizationIntegrationId,
+        Type: OrganizationIntegrationType.Hec,
+        Configuration: null,
+      });
+
+      integrationApiService.getOrganizationIntegrations.mockReturnValue(
+        Promise.resolve([unconfiguredIntegrationResponse, mockIntegrationResponse]),
+      );
+      integrationConfigurationApiService.getOrganizationIntegrationConfigurations
+        .mockReturnValueOnce(Promise.resolve([]))
+        .mockReturnValueOnce(Promise.resolve([mockConfigurationResponse]));
+
+      service.setOrganizationId(orgId).subscribe();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const integrations = await firstValueFrom(service.integrations$);
+      expect(integrations).toHaveLength(1);
+      expect(integrations[0].id).toBe(integrationId);
+    });
+
+    it("should skip integrations of an unsupported type and load the rest", async () => {
+      const unsupportedIntegrationResponse = new OrganizationIntegrationResponse({
+        Id: "integration-2" as OrganizationIntegrationId,
+        Type: 7 as OrganizationIntegrationType,
+        Configuration: JSON.stringify({ TenantId: "tenant-id", Teams: [] }),
+      });
+
+      integrationApiService.getOrganizationIntegrations.mockReturnValue(
+        Promise.resolve([unsupportedIntegrationResponse, mockIntegrationResponse]),
+      );
+      integrationConfigurationApiService.getOrganizationIntegrationConfigurations
+        .mockReturnValueOnce(Promise.resolve([mockConfigurationResponse]))
+        .mockReturnValueOnce(Promise.resolve([mockConfigurationResponse]));
+
+      service.setOrganizationId(orgId).subscribe();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const integrations = await firstValueFrom(service.integrations$);
+      expect(integrations).toHaveLength(1);
+      expect(integrations[0].id).toBe(integrationId);
+      expect(logService.warning).toHaveBeenCalledTimes(1);
+    });
+
+    it("should skip integrations whose configurations fail to load and load the rest", async () => {
+      const integration2Response = new OrganizationIntegrationResponse({
+        Id: "integration-2" as OrganizationIntegrationId,
+        Type: OrganizationIntegrationType.Hec,
+        Configuration: mockIntegrationResponse.configuration,
+      });
+
+      integrationApiService.getOrganizationIntegrations.mockReturnValue(
+        Promise.resolve([integration2Response, mockIntegrationResponse]),
+      );
+      integrationConfigurationApiService.getOrganizationIntegrationConfigurations
+        .mockReturnValueOnce(Promise.reject(new Error("Network error")))
+        .mockReturnValueOnce(Promise.resolve([mockConfigurationResponse]));
+
+      service.setOrganizationId(orgId).subscribe();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const integrations = await firstValueFrom(service.integrations$);
+      expect(integrations).toHaveLength(1);
+      expect(integrations[0].id).toBe(integrationId);
+      expect(logService.warning).toHaveBeenCalledTimes(1);
     });
   });
 
