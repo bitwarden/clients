@@ -6,7 +6,7 @@ export abstract class AuditService {
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
-  abstract passwordLeaked: (password: string) => Promise<number>;
+  abstract passwordLeaked: (password: string, addPadding?: boolean) => Promise<number>;
 
   /**
    * Retrieves accounts that have been breached for a given username.
