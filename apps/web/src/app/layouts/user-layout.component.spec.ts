@@ -29,7 +29,6 @@ import {
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
-import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
 
 import { UserLayoutComponent } from "./user-layout.component";
 import { WebLayoutModule } from "./web-layout.module";
@@ -54,13 +53,6 @@ class MockWebSideNavComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockBillingFreeFamiliesNavItemComponent {}
-
-@Component({
-  selector: "app-pam-user-nav-slot",
-  template: "",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-class MockPamUserNavSlotComponent {}
 
 @Component({
   selector: "vault-coachmark",
@@ -212,12 +204,7 @@ describe("UserLayoutComponent", () => {
     })
       .overrideComponent(UserLayoutComponent, {
         remove: {
-          imports: [
-            WebLayoutModule,
-            BillingFreeFamiliesNavItemComponent,
-            CoachmarkComponent,
-            PamUserNavSlotComponent,
-          ],
+          imports: [WebLayoutModule, BillingFreeFamiliesNavItemComponent, CoachmarkComponent],
         },
         add: {
           imports: [
@@ -226,7 +213,6 @@ describe("UserLayoutComponent", () => {
             MockWebSideNavComponent,
             MockBillingFreeFamiliesNavItemComponent,
             MockCoachmarkComponent,
-            MockPamUserNavSlotComponent,
           ],
         },
       })

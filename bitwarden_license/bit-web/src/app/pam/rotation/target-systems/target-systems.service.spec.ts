@@ -132,7 +132,7 @@ describe("TargetSystemsService", () => {
         id: sysId("manual"),
         status: TargetSystemStatus.Active,
         method: TargetSystemMethod.Manual,
-        kind: null,
+        kind: undefined,
       });
       rotationSdk.listTargetSystems.mockResolvedValue([active, disabled, manual]);
       await service.load(ORG_ID);
