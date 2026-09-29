@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "още $COUNT$ споделени папки над този бутон",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "още 1 споделена папка над този бутон",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Моята папка"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
+  "selectImportSharedFolder": {
+    "message": "Изберете споделена папка"
+  },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
   },
   "importTargetHintFolder": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в споделена папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Изберете файла за внасяне"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Изберете източник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Изберете своя източник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Изберете управителя на пароли или браузъра, от който внасяте."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузъри"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Управители на пароли"
+  },
+  "importSourceShowAll": {
+    "message": "Показване на всички"
+  },
+  "importSourceShowLess": {
+    "message": "Показване на по-малко"
+  },
+  "importSourceStepCount": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Изберете файл"

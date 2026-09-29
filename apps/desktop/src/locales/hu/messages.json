@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ további megosztott mappa ezen gomb felett.",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 további megosztott mappa ezen gomb felett.",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Saját mappa"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
+  "selectImportSharedFolder": {
+    "message": "Megosztott mappa kiválasztása"
+  },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
   },
   "importTargetHintFolder": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy megosztott mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Válasszuk ki az import fájlt"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Forrás kiválasztása"
+  },
+  "importSourceSelectTitle": {
+    "message": "Válasszuk ki a forrást."
+  },
+  "importSourceSelectDescription": {
+    "message": "Válasszuk ki azt a jelszókezelőt vagy böngészőt, amelyből importálunk."
+  },
+  "importSourceBrowsers": {
+    "message": "Böngészők"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Jelszókezelők"
+  },
+  "importSourceShowAll": {
+    "message": "Összes megjelenítése"
+  },
+  "importSourceShowLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "importSourceStepCount": {
+    "message": "$CURRENT$ / $TOTAL$ lépés",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Fájl kiválasztása"

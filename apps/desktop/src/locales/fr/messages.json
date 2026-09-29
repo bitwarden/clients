@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ autres dossiers partagés affichés au-dessus de ce bouton",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 dossier partagé supplémentaire affiché au-dessus de ce bouton",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Mon dossier"
   },
@@ -184,7 +170,7 @@
     "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "Ajoutez des éléments à Mes éléments pour les filtrer ici."
   },
   "sharedFolderFilterTooltip": {
     "message": "Ajouter des éléments à un dossier partagé pour filtrer ici."
@@ -806,24 +792,24 @@
     "message": "Erreur de déchiffrement"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden n'a pas pu déchiffrer l'élément du coffre listé ci-dessous. Contactez l'assistance à la clientèle de Bitwarden et fournissez l'ID de l'élément ci-dessous pour voir s'il peut être récupéré."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden n'a pas pu déchiffrer les éléments du coffre listés ci-dessous. Contactez l'assistance à la clientèle de Bitwarden et fournissez les IDs des éléments ci-dessous pour voir s'ils peuvent être récupérés."
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "ID de l'élément",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "ID des éléments",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "Copier l'ID"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "Copier tous les IDs"
   },
   "january": {
     "message": "Janvier"
@@ -2437,11 +2423,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 résultat",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ résultats",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2451,7 +2437,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "Aucun filtre ne correspond à “$SEARCH$”",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Sélectionnez une collection"
   },
+  "selectImportSharedFolder": {
+    "message": "Sélectionnez un dossier partagé"
+  },
   "importTargetHintCollection": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
   },
   "importTargetHintFolder": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier partagé"
   },
   "importUnassignedItemsError": {
     "message": "Le fichier contient des éléments non assignés."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Sélectionnez le fichier à importer"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Sélectionner la source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Sélectionnez votre source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choisissez le gestionnaire de mots de passe ou le navigateur à partir duquel vous importez."
+  },
+  "importSourceBrowsers": {
+    "message": "Navigateurs"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestionnaires de mots de passe"
+  },
+  "importSourceShowAll": {
+    "message": "Tout afficher"
+  },
+  "importSourceShowLess": {
+    "message": "Afficher moins"
+  },
+  "importSourceStepCount": {
+    "message": "Étape $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Choisir le fichier"
@@ -5995,7 +6021,7 @@
     "message": "Activer le raccourci autotype (aperçu de la fonctionnalité)"
   },
   "enableAutotypeGaShortcut": {
-    "message": "Enable autotype shortcut"
+    "message": "Activer le raccourci de la saisie auto"
   },
   "enableAutotypeShortcutDescription": {
     "message": "Assurez-vous d'être dans le bon champ avant d'utiliser le raccourci pour éviter de remplir les données au mauvais endroit."
@@ -6865,62 +6891,62 @@
     "message": "Modifier les éléments (sauf les mots de passe)"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "Partager"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "Personnes qui peuvent afficher",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "Après avoir partagé ce lien, les destinataires devront vérifier leur courriel avec un code pour afficher l'élément.",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "Ce lien expire après cette date, mais les destinataires peuvent conserver des informations partagées précédemment. Régénérez les identifiants pour révoquer l'accès.",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "Le lien expire après",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "Partage unique",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "Liens actifs",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "Lien copié dans le presse-papiers",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "Incapable de créer le lien de partage",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "Lien enregistré et copié dans le presse-papiers",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "Échec de la copie du lien de partage dans le presse-papiers",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "Lien de partage supprimé",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "Incapable de supprimer le lien de partage",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "Partager via le lien",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "Partage pour l'élément du coffre $ITEM$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -6929,14 +6955,14 @@
     }
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Expire",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "Expire",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   }
 }

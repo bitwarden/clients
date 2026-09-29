@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "Ďalšie zdieľané priečinky ($COUNT$) zobrazené nad týmto tlačidlom",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 ďalší zdieľaný priečinok zobrazený nad týmto tlačidlom",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "Môj priečinok"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
+  "selectImportSharedFolder": {
+    "message": "Vyberte zdieľaný priečinok"
+  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Túto možnosť vyberte, ak chcete obsah importovaného súboru presunúť do zdieľaného priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Vybrať súbor na import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrať zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správcu hesiel alebo prehliadač, z ktorého chcete importovať."
+  },
+  "importSourceBrowsers": {
+    "message": "Prehliadače"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správcovia hesiel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobraziť všetko"
+  },
+  "importSourceShowLess": {
+    "message": "Zobraziť menej"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Vybrať súbor"

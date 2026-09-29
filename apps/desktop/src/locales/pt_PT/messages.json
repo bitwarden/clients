@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "Mais $COUNT$ pastas partilhadas apresentadas acima deste botão",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "Mais uma pasta partilhada apresentada acima deste botão",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
+  "selectImportSharedFolder": {
+    "message": "Selecionar uma pasta partilhada"
+  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta partilhada"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "Selecione o ficheiro a importar"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Selecionar origem"
+  },
+  "importSourceSelectTitle": {
+    "message": "Selecionar a origem"
+  },
+  "importSourceSelectDescription": {
+    "message": "Escolha o gestor de palavras-passe ou navegador do qual está a importar."
+  },
+  "importSourceBrowsers": {
+    "message": "Navegadores"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestores de palavras-passe"
+  },
+  "importSourceShowAll": {
+    "message": "Mostrar tudo"
+  },
+  "importSourceShowLess": {
+    "message": "Mostrar menos"
+  },
+  "importSourceStepCount": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Escolher ficheiro"
