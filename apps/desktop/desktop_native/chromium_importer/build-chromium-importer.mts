@@ -2,7 +2,8 @@ import { copyFileSync, readFileSync, utimesSync, statSync, writeFileSync, append
 import path from "path";
 import { fileURLToPath } from 'url';
 
-import { runCargoBuild, rustTargetsFor } from "../../scripts/build-support-rust.mts";
+import { rustTargetsFor } from "../../scripts/build-support-rust.mts";
+import RustBuildTask, { rustBuildArtifacts } from "../build-rust.mts";
 import { BuildError, type BuildConfig, type BuildTask } from "../../scripts/build-config.mts";
 import { addDepFileEntry, Logger, processDepFile, runCommand, withExt, withStemSuffix } from "../../scripts/build-support.mts";
 
@@ -12,7 +13,7 @@ const CRATE_PACKAGE_NAME = "bitwarden_chromium_import_helper";
 const ChromiumImporterBuildTask: BuildTask = {
   targetName: "ChromiumImporterBuildTask",
   sourceDir: SOURCE_DIR,
-  dependencies: [],
+  dependencies: [RustBuildTask],
 
   async validate(config: BuildConfig): Promise<void> {
     const validationErrors: BuildError[] = [];
@@ -43,16 +44,12 @@ const ChromiumImporterBuildTask: BuildTask = {
       Logger.debug(`${this.targetName} is up to date, skipping build`);
       return;
     }
-    const { platform, profile, toolchains: { cargo: { bin: cargoBin } } } = config;
+    const { platform } = config;
     const rustTargets = rustTargetsFor(config.platform, config.architecture);
     const artifacts = [];
     const artifactBasename = `${CRATE_PACKAGE_NAME}${ platform == "windows" ? ".exe" : ""}`;
     for (const target of rustTargets) {
-      const cargoResult = await runCargoBuild(cargoBin, CRATE_PACKAGE_NAME, [], target, profile);
-
-      if (!cargoResult.filenames) {
-        throw new BuildError("Cargo did not output expected files");
-      }
+      const cargoResult = rustBuildArtifacts(config, CRATE_PACKAGE_NAME, target);
 
       Logger.debug({ filenames: cargoResult.filenames, depFiles: cargoResult.depFiles });
       const artifactPath = cargoResult.filenames.find(l => path.basename(l) == artifactBasename)!;
@@ -66,7 +63,9 @@ const ChromiumImporterBuildTask: BuildTask = {
       // Copy the related dependency file.
       const cargoDepFilePath = cargoResult.depFiles!.find(d => path.basename(d) == withExt(CRATE_PACKAGE_NAME, ".d"))!;
       const cargoDepFile = readFileSync(cargoDepFilePath, { encoding: "utf-8" });
-      const newDepFile = cargoDepFile.replace(artifactPath, destPath)
+      // Cargo's artifact is a dependency too: RustBuild can relink it without any source
+      // changing, e.g. when the features unified across its packages change.
+      const newDepFile = cargoDepFile.replace(`${artifactPath}:`, `${destPath}: ${artifactPath}`)
       const newDepFilePath = path.resolve(privateDir, withStemSuffix(withExt(path.basename(artifactPath), ".d"), `-${target}`));
       writeFileSync(newDepFilePath, newDepFile);
     }

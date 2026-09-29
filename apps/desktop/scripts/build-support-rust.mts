@@ -122,23 +122,44 @@ export async function runCargoBuild(
   target: RustTarget,
   profile: Profile,
 ): Promise<CargoBuildResult> {
+  const results = await runCargoBuildPackages(cargoBin, [packageName], features, target, profile);
+  return results.get(packageName)!;
+}
+
+/**
+ * Compiles several Rust packages in one Cargo invocation, so that Cargo schedules all of their
+ * crates together and compiles shared dependencies once. Note that Cargo unifies features across
+ * the packages, so a package may be compiled with more features than when built on its own.
+ *
+ * @returns The result for each of `packageNames`, as {@link runCargoBuild} returns it.
+ */
+export async function runCargoBuildPackages(
+  cargoBin: string,
+  packageNames: string[],
+  features: string[],
+  target: RustTarget,
+  profile: Profile,
+  env?: Record<string, string>,
+): Promise<Map<string, CargoBuildResult>> {
   const output = (
     await runCommand(
       cargoBin,
       [
         "build",
         "--message-format=json",
-        "--package",
-        packageName,
+        ...packageNames.flatMap((packageName) => ["--package", packageName]),
         "--target",
         target,
         ...(features.length > 0 ? ["--features", features.join(",")] : []),
         ...(profile == "release" ? ["--release"] : []),
       ],
-      { cwd: CARGO_WORKSPACE_DIR, logLevel: "debug" },
+      { cwd: CARGO_WORKSPACE_DIR, env, logLevel: "debug" },
     )
   ).split("\n");
 
+  const results = new Map<string, CargoBuildResult>(
+    packageNames.map((packageName) => [packageName, { output }]),
+  );
   for (let i = output.length - 1; i > 0; i--) {
     const line = output[i];
 
@@ -148,7 +169,12 @@ export async function runCargoBuild(
     } catch {
       continue;
     }
-    if (json.reason !== "compiler-artifact" || json.target?.name !== packageName) {
+    const packageName = json.target?.name;
+    if (
+      json.reason !== "compiler-artifact" ||
+      !results.has(packageName) ||
+      results.get(packageName)!.filenames
+    ) {
       continue;
     }
 
@@ -158,11 +184,23 @@ export async function runCargoBuild(
     for await (const depFile of glob(`${outDir}/*.d`)) {
       depFiles.push(depFile);
     }
-    return {
-      output,
-      filenames,
-      depFiles,
-    };
+    results.set(packageName, { output, filenames, depFiles });
   }
-  return { output };
+  return results;
+}
+
+/// Workspace packages that depend on napi-derive, and so write type definitions when their
+/// macros are expanded.
+export async function napiDerivePackages(cargoBin: string): Promise<string[]> {
+  const metadata = JSON.parse(
+    await runCommand(cargoBin, ["metadata", "--no-deps", "--format-version", "1"], {
+      cwd: CARGO_WORKSPACE_DIR,
+      logLevel: "debug",
+    }),
+  );
+  return metadata.packages
+    .filter((p: { dependencies: { name: string }[] }) =>
+      p.dependencies.some((d) => d.name === "napi-derive"),
+    )
+    .map((p: { name: string }) => p.name);
 }

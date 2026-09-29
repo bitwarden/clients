@@ -10,6 +10,7 @@ import ProcessIsolationBuildTask from "../desktop_native/process_isolation/build
 import DesktopProxyBuildTask from "../desktop_native/proxy/build-desktop-proxy.mts";
 import NapiBuildTask from "../desktop_native/napi/scripts/build-napi.mts";
 import NapiTypesBuildTask from "../desktop_native/napi/scripts/build-napi-types.mts";
+import RustBuildTask from "../desktop_native/build-rust.mts";
 import BitwardenMacosAutofillExtensionBuildTask from "../macos/Scripts/build-autofill-extension.mts";
 import WebpackBuildTask from "../build-app.mts";
 
@@ -468,6 +469,7 @@ async function main() {
     console.log("Product name:", productName);
 
     // Required features
+    tasks.push(RustBuildTask);
     tasks.push(DesktopProxyBuildTask);
     tasks.push(NapiTypesBuildTask);
     tasks.push(NapiBuildTask);

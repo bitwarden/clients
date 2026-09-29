@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 
 import { type BuildTask, type BuildConfig, BuildError } from "../../../scripts/build-config.mts";
 import { Logger, runCommand } from "../../../scripts/build-support.mts";
-import { CARGO_WORKSPACE_DIR } from "../../../scripts/build-support-rust.mts";
+import { CARGO_WORKSPACE_DIR, napiDerivePackages } from "../../../scripts/build-support-rust.mts";
 
 // TODO: @napi-rs/cli resolves here only because npm hoists it; see build-napi.mts.
 import { generateTypeDef, readNapiConfig } from "@napi-rs/cli";
@@ -100,20 +100,5 @@ const NapiTypesBuildTask: BuildTask = {
     writeFileSync(indexDtsPath, dts, "utf-8");
   },
 };
-
-/// Workspace packages that depend on napi-derive, and so write type definitions.
-async function napiDerivePackages(cargoBin: string): Promise<string[]> {
-  const metadata = JSON.parse(
-    await runCommand(cargoBin, ["metadata", "--no-deps", "--format-version", "1"], {
-      cwd: CARGO_WORKSPACE_DIR,
-      logLevel: "debug",
-    }),
-  );
-  return metadata.packages
-    .filter((p: { dependencies: { name: string }[] }) =>
-      p.dependencies.some((d) => d.name === "napi-derive"),
-    )
-    .map((p: { name: string }) => p.name);
-}
 
 export default NapiTypesBuildTask;
