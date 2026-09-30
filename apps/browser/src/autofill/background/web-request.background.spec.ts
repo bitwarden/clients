@@ -16,7 +16,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { flushPromises } from "../spec/testing-utils";
 
-import WebRequestBackground from "./web-request.background";
+import WebRequestBackground, { shouldAnswerAuthChallenge } from "./web-request.background";
 
 type WebRequestEventMock = {
   addListener: jest.Mock;
@@ -249,9 +249,15 @@ describe("WebRequestBackground", () => {
     const createCipher = (username: string | null, password: string | null) =>
       ({ login: { username, password } }) as unknown as CipherView;
 
-    const triggerAuthRequired = async (requestId = "request-1") => {
+    const triggerAuthRequired = async (
+      requestId = "request-1",
+      overrides: Partial<chrome.webRequest.OnAuthRequiredDetails> = {},
+    ) => {
       const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
-      await handleAuthRequired({ url, requestId }, callback);
+      await handleAuthRequired(
+        buildAuthRequiredDetails({ url, requestId, ...overrides }),
+        callback,
+      );
       await flushPromises();
     };
 
@@ -322,7 +328,10 @@ describe("WebRequestBackground", () => {
       ]);
       const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
 
-      const response = await handleAuthRequired({ url, requestId: "request-1" }, callback);
+      const response = await handleAuthRequired(
+        buildAuthRequiredDetails({ url, requestId: "request-1" }),
+        callback,
+      );
 
       expect(response).toEqual({
         authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
@@ -343,6 +352,26 @@ describe("WebRequestBackground", () => {
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
     });
 
+    it("does not look up ciphers for a cross-origin subresource challenge", async () => {
+      await triggerAuthRequired("request-1", {
+        type: "image",
+        initiator: "https://attacker.example",
+      });
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
+    it("does not look up ciphers for a proxy challenge", async () => {
+      await triggerAuthRequired("request-1", {
+        isProxy: true,
+        challenger: { host: "proxy.internal", port: 8080 },
+      });
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(callback).toHaveBeenCalledWith({});
+    });
+
     it("clears pending requests when the listeners are removed", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         createCipher("jane.doe@example.com", "fake-password"),
@@ -360,7 +389,7 @@ describe("WebRequestBackground", () => {
     describe("on Firefox", () => {
       const triggerFirefoxAuthRequired = (requestId = "request-1") => {
         const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
-        return handleAuthRequired({ url, requestId });
+        return handleAuthRequired(buildAuthRequiredDetails({ url, requestId }));
       };
 
       beforeEach(() => {
@@ -396,5 +425,170 @@ describe("WebRequestBackground", () => {
         expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
       });
     });
+  });
+});
+
+function buildAuthRequiredDetails(
+  overrides: Partial<chrome.webRequest.OnAuthRequiredDetails> = {},
+): chrome.webRequest.OnAuthRequiredDetails {
+  return {
+    challenger: { host: "example.com", port: 443 },
+    isProxy: false,
+    realm: "test realm",
+    scheme: "basic",
+    statusCode: 401,
+    frameId: 0,
+    method: "GET",
+    parentFrameId: -1,
+    requestId: "1",
+    tabId: 7,
+    timeStamp: 0,
+    type: "main_frame",
+    url: "https://example.com/protected",
+    ...overrides,
+  } as chrome.webRequest.OnAuthRequiredDetails;
+}
+
+describe("shouldAnswerAuthChallenge", () => {
+  it("answers a top-level navigation challenged by the host being navigated to", () => {
+    expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails())).toBe(true);
+  });
+
+  it("declines when the challenge came from a proxy", () => {
+    const details = buildAuthRequiredDetails({
+      isProxy: true,
+      challenger: { host: "proxy.internal", port: 8080 },
+    });
+
+    expect(shouldAnswerAuthChallenge(details)).toBe(false);
+  });
+
+  describe("authentication schemes", () => {
+    it.each([["basic"], ["digest"], ["Basic"], ["DIGEST"]])("answers %s", (scheme) => {
+      expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails({ scheme }))).toBe(true);
+    });
+
+    it.each([["ntlm"], ["negotiate"], [""]])("declines %s", (scheme) => {
+      expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails({ scheme }))).toBe(false);
+    });
+  });
+
+  describe("challenger identity", () => {
+    it("declines when the challenger host differs from the request host", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "attacker.example", port: 443 },
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it("declines when the challenger port differs from the request port", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "example.com", port: 8443 },
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it("matches an explicit non-default port", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "example.com", port: 8443 },
+        url: "https://example.com:8443/protected",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    it("resolves the default port for http", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "example.com", port: 80 },
+        url: "http://example.com/protected",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    it("compares IPv6 literals without their brackets", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "::1", port: 8080 },
+        url: "http://[::1]:8080/protected",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    it("declines when the challenger is absent", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: undefined as unknown as { host: string; port: number },
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+  });
+
+  describe("request provenance", () => {
+    const subresourceTypes = [
+      ["image"],
+      ["sub_frame"],
+      ["script"],
+      ["stylesheet"],
+      ["xmlhttprequest"],
+    ];
+
+    it.each(subresourceTypes)("declines a cross-origin %s subresource", (type) => {
+      const details = buildAuthRequiredDetails({
+        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+        initiator: "https://attacker.example",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it.each(subresourceTypes)("answers a same-origin %s subresource", (type) => {
+      const details = buildAuthRequiredDetails({
+        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+        initiator: "https://example.com",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    it("declines a subresource whose initiator differs only by port", () => {
+      const details = buildAuthRequiredDetails({
+        type: "image",
+        initiator: "https://example.com:8443",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it("declines a subresource with no initiator", () => {
+      const details = buildAuthRequiredDetails({ type: "image", initiator: undefined });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it("declines a subresource with an opaque initiator", () => {
+      const details = buildAuthRequiredDetails({ type: "image", initiator: "null" });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it("answers a top-level navigation regardless of initiator", () => {
+      const details = buildAuthRequiredDetails({
+        type: "main_frame",
+        initiator: "https://attacker.example",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+  });
+
+  it("declines a request with no owning tab", () => {
+    expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails({ tabId: -1 }))).toBe(false);
+  });
+
+  it("declines an unparsable url", () => {
+    expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails({ url: "not a url" }))).toBe(false);
   });
 });

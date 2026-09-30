@@ -25,6 +25,116 @@ const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
   urls: ["http://*/*", "https://*/*"],
 };
 
+/**
+ * Authentication schemes answered from the vault.
+ *
+ * `ntlm` and `negotiate` are excluded. They negotiate with operating system
+ * credentials over a multi-message handshake rather than submitting a single
+ * username and password, so answering them with a vault item hands the
+ * challenger material the scheme was never meant to carry.
+ */
+const ANSWERABLE_AUTH_SCHEMES = new Set(["basic", "digest"]);
+
+const DEFAULT_PORT_BY_PROTOCOL: Record<string, number> = {
+  "http:": 80,
+  "https:": 443,
+};
+
+function parseUrl(value: string): URL | null {
+  try {
+    return new URL(value);
+  } catch {
+    return null;
+  }
+}
+
+/** `URL.hostname` brackets IPv6 literals while `challenger.host` does not. */
+function normalizeHost(host: string): string {
+  return host.replace(/^\[|\]$/g, "").toLowerCase();
+}
+
+function challengerIsRequestHost(
+  challenger: chrome.webRequest.OnAuthRequiredDetails["challenger"],
+  requestUrl: URL,
+): boolean {
+  if (challenger == null) {
+    return false;
+  }
+
+  if (normalizeHost(challenger.host) !== normalizeHost(requestUrl.hostname)) {
+    return false;
+  }
+
+  const requestPort =
+    requestUrl.port === ""
+      ? DEFAULT_PORT_BY_PROTOCOL[requestUrl.protocol]
+      : Number(requestUrl.port);
+
+  return challenger.port === requestPort;
+}
+
+function isTopLevelNavigationOrSameOriginSubresource(
+  details: chrome.webRequest.OnAuthRequiredDetails,
+  requestUrl: URL,
+): boolean {
+  if (details.type === "main_frame") {
+    return true;
+  }
+
+  // An opaque initiator serializes as the string "null" and cannot be compared.
+  if (details.initiator == null || details.initiator === "null") {
+    return false;
+  }
+
+  const initiatorUrl = parseUrl(details.initiator);
+
+  return initiatorUrl != null && initiatorUrl.origin === requestUrl.origin;
+}
+
+/**
+ * Decides whether a challenge is one the extension answers from the vault.
+ *
+ * Every branch fails closed, so a challenge that cannot be attributed with
+ * confidence is left for the browser to handle.
+ */
+export function shouldAnswerAuthChallenge(
+  details: chrome.webRequest.OnAuthRequiredDetails,
+): boolean {
+  // On a 407 the challenge comes from the proxy while `url` stays the
+  // destination, so a credential matched against the destination would be
+  // delivered to whoever is proxying the connection.
+  if (details.isProxy) {
+    return false;
+  }
+
+  const scheme = details.scheme?.toLowerCase() ?? "";
+  if (!ANSWERABLE_AUTH_SCHEMES.has(scheme)) {
+    return false;
+  }
+
+  // A request with no owning tab is not something the user is looking at.
+  if (details.tabId == null || details.tabId < 0) {
+    return false;
+  }
+
+  const requestUrl = parseUrl(details.url);
+  if (requestUrl == null) {
+    return false;
+  }
+
+  // The credential is matched against the request URL, so the party issuing the
+  // challenge has to be that same host.
+  if (!challengerIsRequestHost(details.challenger, requestUrl)) {
+    return false;
+  }
+
+  // A page can reference any URL as a subresource, and those requests are issued
+  // without the user acting. Answering them releases a credential for a host the
+  // user never navigated to. A page loading its own protected subresources is
+  // the one subresource case that survives.
+  return isTopLevelNavigationOrSameOriginSubresource(details, requestUrl);
+}
+
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
@@ -138,7 +248,11 @@ export default class WebRequestBackground {
   private async getAuthChallengeResponse(
     details: chrome.webRequest.OnAuthRequiredDetails,
   ): Promise<chrome.webRequest.BlockingResponse> {
-    if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
+    if (
+      !details.url ||
+      this.pendingAuthRequests.has(details.requestId) ||
+      !shouldAnswerAuthChallenge(details)
+    ) {
       return {};
     }
 
