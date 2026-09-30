@@ -76,6 +76,34 @@ export function toTimeInputValue(date: Date): string {
   return `${hours}:${minutes}`;
 }
 
+const SLOT_MINUTES = 30;
+
+/** `HH:mm` start times offered for `date`: now and each half hour after it today, every half hour on a later day. */
+export function startTimeSlots(date: string, now: Date): string[] {
+  const today = date === toDateInputValue(now);
+  const slots = today ? [toTimeInputValue(now)] : [];
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const first = today ? (Math.floor(nowMinutes / SLOT_MINUTES) + 1) * SLOT_MINUTES : 0;
+  for (let minutes = first; minutes < 24 * 60; minutes += SLOT_MINUTES) {
+    const hours = String(Math.floor(minutes / 60)).padStart(2, "0");
+    slots.push(`${hours}:${String(minutes % 60).padStart(2, "0")}`);
+  }
+  return slots;
+}
+
+/** The instant `seconds` after the given local start; `null` while the start is blank or unparseable. */
+export function windowEndAt(
+  startDate: string | null | undefined,
+  startTime: string | null | undefined,
+  seconds: number,
+): Date | null {
+  if (!startDate || !startTime) {
+    return null;
+  }
+  const start = new Date(`${startDate}T${startTime}`);
+  return Number.isNaN(start.getTime()) ? null : new Date(start.getTime() + seconds * 1000);
+}
+
 /** Below a minute the time inputs, which step in minutes, can't hold distinct values. */
 const MIN_SEEDABLE_WINDOW_SECONDS = 60;
 
