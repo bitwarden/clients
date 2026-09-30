@@ -338,23 +338,23 @@ describe("BitTableToolbarComponent active filter chips", () => {
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column [customizable]="customizable()">
+      <bit-column [removable]="removable()">
         <bit-header-cell>Other</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
       </bit-column>
     </bit-table-v2>
   `,
 })
-class CustomizableHostComponent {
+class RemovableHostComponent {
   readonly key = signal<string | undefined>("toolbar-test");
-  readonly customizable = signal(true);
+  readonly removable = signal(true);
   readonly rows = signal([{ name: "one", other: "two" }]);
   readonly table = defineTable<{ name: string; other: string }>(this.rows);
 }
 
 describe("BitTableToolbarComponent customize control", () => {
-  let fixture: ComponentFixture<CustomizableHostComponent>;
-  let host: CustomizableHostComponent;
+  let fixture: ComponentFixture<RemovableHostComponent>;
+  let host: RemovableHostComponent;
   let dialogService: MockProxy<DialogService>;
 
   // The control is withheld below `md`, and jsdom has no `matchMedia` at all, so a wide
@@ -380,7 +380,7 @@ describe("BitTableToolbarComponent customize control", () => {
     dialogService = mock<DialogService>();
 
     await TestBed.configureTestingModule({
-      imports: [CustomizableHostComponent],
+      imports: [RemovableHostComponent],
       providers: [
         {
           provide: I18nService,
@@ -397,7 +397,7 @@ describe("BitTableToolbarComponent customize control", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CustomizableHostComponent);
+    fixture = TestBed.createComponent(RemovableHostComponent);
     host = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -407,12 +407,12 @@ describe("BitTableToolbarComponent customize control", () => {
       "#bit-table-toolbar_button_customize",
     ) as HTMLButtonElement | null;
 
-  it("offers the control when the table has a customizable column and a key", () => {
+  it("offers the control when the table has a removable column and a key", () => {
     expect(customizeButton()).not.toBeNull();
   });
 
-  it("withholds the control when no column is customizable", () => {
-    host.customizable.set(false);
+  it("withholds the control when no column is removable", () => {
+    host.removable.set(false);
     fixture.detectChanges();
 
     expect(customizeButton()).toBeNull();

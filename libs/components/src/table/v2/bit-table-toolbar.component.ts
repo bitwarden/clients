@@ -272,7 +272,7 @@ export class BitTableToolbarComponent {
       CustomizeColumnsDialogComponent,
       {
         data: {
-          columns: table.customizableColumnLabels(),
+          columns: table.removableColumnLabels(),
           hidden: table.hiddenColumnNames,
           setHidden: (name, hidden) => table.setColumnHidden(name, hidden),
           reset: () => table.resetColumns(),

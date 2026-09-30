@@ -956,15 +956,15 @@ class DemoLongLabelFiltersTableComponent {
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column customizable sortable width="minmax(176px, 280px)">
+      <bit-column removable sortable width="minmax(176px, 280px)">
         <bit-header-cell>Vault</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
       </bit-column>
-      <bit-column customizable sortable width="minmax(176px, 280px)">
+      <bit-column removable sortable width="minmax(176px, 280px)">
         <bit-header-cell>Type</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
       </bit-column>
-      <bit-column customizable sortable width="minmax(140px, 1fr)">
+      <bit-column removable sortable width="minmax(140px, 1fr)">
         <bit-header-cell>Folders</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.folderId; let row">{{
           folderName(row.folderId)
@@ -1358,11 +1358,11 @@ const customizeColumnsTemplate = `
       <bit-header-cell>Name</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
     </bit-column>
-    <bit-column customizable sortable>
+    <bit-column removable sortable>
       <bit-header-cell>Id</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
     </bit-column>
-    <bit-column customizable sortable>
+    <bit-column removable sortable>
       <bit-header-cell>Other</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
     </bit-column>
@@ -1421,7 +1421,7 @@ export const CustomizeColumnsBoundedWidthsHidden: Story = {
 
 /**
  * The floor of the feature: everything hideable turned off, leaving only Name and the
- * non-customizable Options column. Name takes the whole remainder.
+ * non-removable Options column. Name takes the whole remainder.
  */
 export const CustomizeColumnsBoundedWidthsAllHidden: Story = {
   render: () => ({ template: `<demo-bounded-widths-table />` }),

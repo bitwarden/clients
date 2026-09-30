@@ -48,7 +48,7 @@ import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
-import { ColumnName, CustomizableColumn } from "./column";
+import { ColumnName, RemovableColumn } from "./column";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableColumnPreferencesService } from "./table-column-preferences.service";
@@ -318,7 +318,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /**
    * Namespaces this table's stored column preference, and opts it into customization.
-   * Required once any `<bit-column>` is marked `customizable` — without it there is
+   * Required once any `<bit-column>` is marked `removable` — without it there is
    * nowhere to persist the user's choice, so the Customize control stays hidden.
    *
    * Bind a constant from `table-customize-keys.ts`, which is checked for uniqueness:
@@ -656,10 +656,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * The columns the user may toggle. The first is excluded because it carries the row's
    * identity, which is also what guarantees the table can never be emptied.
    */
-  readonly customizableColumns = computed(() =>
+  readonly removableColumns = computed(() =>
     this.availableColumns()
       .slice(1)
-      .filter((col) => col.customizable()),
+      .filter((col) => col.removable()),
   );
 
   /** Whether the Customize control applies to this table. */
@@ -667,7 +667,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     () =>
       this.customizeKey() != null &&
       this.presentation() === "table" &&
-      this.customizableColumns().length > 0,
+      this.removableColumns().length > 0,
   );
 
   /** The stored hidden names, narrowed to columns that are currently togglable. */
@@ -677,7 +677,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       return EMPTY_COLUMN_NAMES;
     }
     const stored = this.columnPreferences.hidden(key)();
-    const togglable = this.customizableColumns()
+    const togglable = this.removableColumns()
       .map((col) => col.name())
       .filter((name): name is string => name != null && stored.has(name));
     return new Set(togglable);
@@ -766,7 +766,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * The togglable columns paired with their header text. Read on dialog open so labels are
    * current; a column whose header has no text is omitted and stays visible.
    */
-  customizableColumnLabels(): readonly CustomizableColumn[] {
+  removableColumnLabels(): readonly RemovableColumn[] {
     const row = this.headerRowEl()?.nativeElement as HTMLElement | undefined;
     if (!row) {
       return [];
@@ -778,7 +778,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       labels.set(cell.dataset.bitColumn ?? "", cell.textContent?.trim() ?? "");
     }
 
-    return this.customizableColumns().flatMap((col) => {
+    return this.removableColumns().flatMap((col) => {
       const name = col.name();
       if (name == null) {
         return [];
@@ -786,7 +786,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       const label = labels.get(name) ?? "";
       if (!label) {
         this.logService?.warning(
-          `bit-table-v2: column "${name}" is customizable but its header has no text, ` +
+          `bit-table-v2: column "${name}" is removable but its header has no text, ` +
             "so it has no label to show in the Customize dialog. It will stay visible.",
         );
         return [];

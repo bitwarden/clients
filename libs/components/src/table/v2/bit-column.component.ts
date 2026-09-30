@@ -40,11 +40,10 @@ export class BitColumnComponent {
   readonly sortable = input(false, { transform: booleanAttribute });
 
   /**
-   * Let the user hide this column from the Customize dialog. Opt-in — a column always
-   * renders unless it sets this, so leave it off for row-action columns. Requires
-   * `customizeKey` on the surrounding `<bit-table-v2>`.
+   * Let the user hide this column. Opt-in, so leave it off for row-action columns.
+   * Requires `customizeKey` on the surrounding `<bit-table-v2>`.
    */
-  readonly customizable = input(false, { transform: booleanAttribute });
+  readonly removable = input(false, { transform: booleanAttribute });
 
   /**
    * Apply this sort direction as the initial sort. Only one column should set

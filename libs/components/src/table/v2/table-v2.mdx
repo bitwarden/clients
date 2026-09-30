@@ -196,7 +196,7 @@ show every column in declaration order.**
 
 ### Letting the user choose columns
 
-Set `customizeKey` on the table and mark each column the user may hide with `customizable`. A
+Set `customizeKey` on the table and mark each column the user may hide with `removable`. A
 **Customize** button then appears in the toolbar beside the search input, opening a dialog with one
 switch per marked column. Each switch applies immediately — the table re-lays out behind the scrim —
 and the choice is stored per user, so it survives a reload and a re-login. **Reset to default**
@@ -214,7 +214,7 @@ turns every column back on, and is offered only once the user has actually chang
     <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
   </bit-column>
 
-  <bit-column customizable sortable>
+  <bit-column removable sortable>
     <bit-header-cell>{{ "email" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
   </bit-column>
@@ -223,9 +223,9 @@ turns every column back on, and is offered only once the user has actually chang
 
 Rules worth knowing:
 
-- **`customizable` is opt-in.** An unmarked column always renders, so leave row-action columns
-  alone. A table with no column marked gets no Customize button at all, which is why an existing
-  table is unaffected until it opts in.
+- **`removable` is opt-in.** An unmarked column always renders, so leave row-action columns alone. A
+  table with no column marked gets no Customize button at all, which is why an existing table is
+  unaffected until it opts in.
 - **The first column is never offered**, which is what guarantees the table can't be emptied.
   Marking it has no effect.
 - **`customizeKey` is required.** Without somewhere to persist the choice the button stays hidden;

@@ -21,12 +21,12 @@ import { FormControlModule } from "../../form-control";
 import { SwitchComponent } from "../../switch";
 import { focusAfterRender } from "../../utils/focus-after-render";
 
-import { CustomizableColumn } from "./column";
+import { RemovableColumn } from "./column";
 
 /** Data passed to {@link CustomizeColumnsDialogComponent} when the toolbar opens it. */
 export interface CustomizeColumnsDialogParams {
   /** The togglable columns, in display order. Excludes the primary column. */
-  readonly columns: readonly CustomizableColumn[];
+  readonly columns: readonly RemovableColumn[];
   /** The currently hidden names — live, so the switches track the table. */
   readonly hidden: Signal<ReadonlySet<string>>;
   /** Shows or hides one column. Idempotent. */

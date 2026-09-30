@@ -51,11 +51,11 @@ async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column customizable width="100px" [sortFn]="sortByVault">
+      <bit-column removable width="100px" [sortFn]="sortByVault">
         <bit-header-cell>Vault</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.vault; let row">{{ row.vault }}</bit-cell>
       </bit-column>
-      <bit-column customizable width="100px">
+      <bit-column removable width="100px">
         <bit-header-cell>Folder</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.folder; let row">{{ row.folder }}</bit-cell>
       </bit-column>
@@ -94,16 +94,16 @@ describe("BitTableV2Component column customization", () => {
   const headerCell = (name: string) =>
     fixture.nativeElement.querySelector(`[data-bit-column="${name}"]`) as HTMLElement | null;
 
-  it("offers only the columns marked customizable, never the first", () => {
+  it("offers only the columns marked removable, never the first", () => {
     expect(
       table()
-        .customizableColumns()
+        .removableColumns()
         .map((c) => c.name()),
     ).toEqual(["vault", "folder"]);
   });
 
-  it("reads each customizable column's label from its rendered header", () => {
-    expect(table().customizableColumnLabels()).toEqual([
+  it("reads each removable column's label from its rendered header", () => {
+    expect(table().removableColumnLabels()).toEqual([
       { name: "vault", label: "Vault" },
       { name: "folder", label: "Folder" },
     ]);
@@ -134,7 +134,7 @@ describe("BitTableV2Component column customization", () => {
 
     expect(
       table()
-        .customizableColumnLabels()
+        .removableColumnLabels()
         .map((c) => c.label),
     ).toEqual(["Vault", "Folder"]);
   });
@@ -158,7 +158,7 @@ describe("BitTableV2Component column customization", () => {
     expect(names()).toEqual(["name", "vault", "folder", "actions"]);
   });
 
-  it("leaves only the primary and non-customizable columns when everything is hidden", () => {
+  it("leaves only the primary and non-removable columns when everything is hidden", () => {
     table().setColumnHidden("vault", true);
     table().setColumnHidden("folder", true);
     fixture.detectChanges();
@@ -177,24 +177,24 @@ describe("BitTableV2Component column customization", () => {
     expect(names()).toEqual(["name", "vault", "folder", "actions"]);
   });
 
-  it("omits a customizable column whose header has no text", () => {
-    // The actions column is icon-only; mark it customizable to prove the label check,
-    // not the `customizable` flag, is what keeps it out of the dialog.
+  it("omits a removable column whose header has no text", () => {
+    // The actions column is icon-only; mark it removable to prove the label check,
+    // not the `removable` flag, is what keeps it out of the dialog.
     const actions = table()
       .availableColumns()
       .find((c) => c.name() === "actions")!;
-    jest.spyOn(actions, "customizable").mockReturnValue(true);
+    jest.spyOn(actions, "removable").mockReturnValue(true);
     fixture.detectChanges();
 
     expect(
       table()
-        .customizableColumnLabels()
+        .removableColumnLabels()
         .map((c) => c.name),
     ).toEqual(["vault", "folder"]);
   });
 
   describe("canCustomizeColumns", () => {
-    it("is true for a table presentation with a key and a customizable column", () => {
+    it("is true for a table presentation with a key and a removable column", () => {
       expect(table().canCustomizeColumns()).toBe(true);
     });
 
@@ -212,7 +212,7 @@ describe("BitTableV2Component column customization", () => {
       expect(table().canCustomizeColumns()).toBe(false);
     });
 
-    it("is false when no column is customizable", () => {
+    it("is false when no column is removable", () => {
       host.displayed.set(["name", "actions"]);
       fixture.detectChanges();
 
@@ -227,7 +227,7 @@ describe("BitTableV2Component column customization", () => {
 
       expect(
         table()
-          .customizableColumns()
+          .removableColumns()
           .map((c) => c.name()),
       ).toEqual(["folder"]);
     });
@@ -290,11 +290,11 @@ describe("BitTableV2Component column customization", () => {
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
       </bit-column>
-      <bit-column customizable width="100px">
+      <bit-column removable width="100px">
         <bit-header-cell>Vault</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.vault; let row">{{ row.vault }}</bit-cell>
       </bit-column>
-      <bit-column customizable width="minmax(140px, 1fr)">
+      <bit-column removable width="minmax(140px, 1fr)">
         <bit-header-cell>Folder</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.folder; let row">{{ row.folder }}</bit-cell>
       </bit-column>
