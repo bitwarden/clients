@@ -1,18 +1,35 @@
-import { firstValueFrom } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
+  urls: ["http://*/*", "https://*/*"],
+};
+
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
+  private listenersRegistered = false;
+  private basicAuthResponseEnabledSubscription?: Subscription;
 
   constructor(
     platformUtilsService: PlatformUtilsService,
@@ -21,56 +38,101 @@ export default class WebRequestBackground {
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
     private configService: ConfigService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
   }
 
   /**
-   * Registers the handler that answers HTTP auth challenges with a matching vault credential.
+   * Keeps the handler that answers HTTP auth challenges with a matching vault credential
+   * registered only while both the feature flag and the active user's setting allow it.
    *
    * While registered, `webRequest.onAuthRequired` fires for any request that receives a 401.
    */
-  async startListening() {
-    const basicAuthResponseIsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.EnableBasicAuthResponse,
+  startListening() {
+    this.basicAuthResponseEnabledSubscription?.unsubscribe();
+    this.basicAuthResponseEnabledSubscription = this.basicAuthResponseEnabled$().subscribe(
+      (basicAuthResponseEnabled) => {
+        if (basicAuthResponseEnabled) {
+          this.registerListeners();
+        } else {
+          this.unregisterListeners();
+        }
+      },
+    );
+  }
+
+  /**
+   * Emits `true` only when the feature flag is on and the active user has opted in.
+   * Fails closed: no active user, or an error from either source, emits `false`.
+   */
+  private basicAuthResponseEnabled$(): Observable<boolean> {
+    const userSettingEnabled$ = this.accountService.activeAccount$.pipe(
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null ? of(false) : this.autofillSettingsService.enableBasicAuthResponse$,
+      ),
     );
 
-    if (!basicAuthResponseIsEnabled) {
+    return combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse),
+      userSettingEnabled$,
+    ]).pipe(
+      map(([featureFlagEnabled, userSettingEnabled]) => featureFlagEnabled && userSettingEnabled),
+      catchError(() => of(false)),
+      distinctUntilChanged(),
+    );
+  }
+
+  private registerListeners() {
+    if (this.listenersRegistered) {
       return;
     }
 
     this.webRequest.onAuthRequired.addListener(
-      (async (
-        details: chrome.webRequest.OnAuthRequiredDetails,
-        callback: (response: chrome.webRequest.BlockingResponse | null) => void,
-      ) => {
-        if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
-          if (callback) {
-            callback(null);
-          }
-          return;
-        }
-        this.pendingAuthRequests.add(details.requestId);
-        if (this.isFirefox) {
-          // eslint-disable-next-line
-          return new Promise(async (resolve, reject) => {
-            await this.resolveAuthCredentials(details.url, resolve, reject);
-          });
-        } else {
-          await this.resolveAuthCredentials(details.url, callback, callback);
-        }
-      }) as any,
-      { urls: ["http://*/*", "https://*/*"] },
+      this.handleAuthRequired as any,
+      webRequestUrlFilter,
       [this.isFirefox ? "blocking" : "asyncBlocking"],
     );
+    this.webRequest.onCompleted.addListener(this.completeAuthRequest, webRequestUrlFilter);
+    this.webRequest.onErrorOccurred.addListener(this.completeAuthRequest, webRequestUrlFilter);
 
-    this.webRequest.onCompleted.addListener((details) => this.completeAuthRequest(details), {
-      urls: ["http://*/*", "https://*/*"],
-    });
-    this.webRequest.onErrorOccurred.addListener((details) => this.completeAuthRequest(details), {
-      urls: ["http://*/*", "https://*/*"],
-    });
+    this.listenersRegistered = true;
   }
+
+  private unregisterListeners() {
+    if (!this.listenersRegistered) {
+      return;
+    }
+
+    this.webRequest.onAuthRequired.removeListener(this.handleAuthRequired as any);
+    this.webRequest.onCompleted.removeListener(this.completeAuthRequest);
+    this.webRequest.onErrorOccurred.removeListener(this.completeAuthRequest);
+    this.pendingAuthRequests.clear();
+
+    this.listenersRegistered = false;
+  }
+
+  private handleAuthRequired = async (
+    details: chrome.webRequest.OnAuthRequiredDetails,
+    callback: (response: chrome.webRequest.BlockingResponse | null) => void,
+  ) => {
+    if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
+      if (callback) {
+        callback(null);
+      }
+      return;
+    }
+    this.pendingAuthRequests.add(details.requestId);
+    if (this.isFirefox) {
+      // eslint-disable-next-line
+      return new Promise(async (resolve, reject) => {
+        await this.resolveAuthCredentials(details.url, resolve, reject);
+      });
+    } else {
+      await this.resolveAuthCredentials(details.url, callback, callback);
+    }
+  };
 
   private async resolveAuthCredentials(
     domain: string,
@@ -122,7 +184,7 @@ export default class WebRequestBackground {
     }
   }
 
-  private completeAuthRequest(details: chrome.webRequest.WebRequestDetails) {
+  private completeAuthRequest = (details: chrome.webRequest.WebRequestDetails) => {
     this.pendingAuthRequests.delete(details.requestId);
-  }
+  };
 }
