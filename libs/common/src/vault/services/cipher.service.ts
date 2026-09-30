@@ -15,13 +15,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncArrayBuffer,
-  EncryptService,
-  EncString,
-  LegacyCompatKeyService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -32,7 +26,6 @@ import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
-import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -40,7 +33,6 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { MessageSender } from "../../platform/messaging";
-import Domain from "../../platform/models/domain/domain-base";
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
@@ -247,6 +239,25 @@ export class CipherService implements CipherServiceAbstraction {
 
   async setFailedDecryptedCiphers(cipherViews: CipherView[], userId: UserId) {
     await this.stateProvider.setUserState(FAILED_DECRYPTED_CIPHERS, cipherViews, userId);
+  }
+
+  /**
+   * Drops ciphers for which we no longer have an organization key. Prevents decryption errors
+   * before the encrypted cache updates, immediately after a user leaves an organization.
+   */
+  private async excludeCiphersMissingOrgKey<T extends { organizationId?: string }>(
+    ciphers: T[],
+    userId: UserId,
+  ): Promise<T[]> {
+    const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId));
+    const orgKeys = keys?.orgKeys;
+    if (orgKeys == null) {
+      return ciphers;
+    }
+
+    return ciphers.filter(
+      (c) => c.organizationId == null || orgKeys[c.organizationId as OrganizationId] != null,
+    );
   }
 
   private async setDecryptedCiphers(value: CipherView[], userId: UserId) {
@@ -2029,40 +2040,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  private async encryptObjProperty<V extends View, D extends Domain>(
-    model: V,
-    obj: D,
-    map: any,
-    key: SymmetricCryptoKey,
-  ): Promise<void> {
-    const promises = [];
-    const self = this;
-
-    for (const prop in map) {
-      // eslint-disable-next-line
-      if (!map.hasOwnProperty(prop)) {
-        continue;
-      }
-
-      (function (theProp, theObj) {
-        const p = Promise.resolve()
-          .then(() => {
-            const modelProp = (model as any)[map[theProp] || theProp];
-            if (modelProp && modelProp !== "") {
-              return self.encryptService.encryptString(modelProp, key);
-            }
-            return null;
-          })
-          .then((val: EncString) => {
-            (theObj as any)[theProp] = val;
-          });
-        promises.push(p);
-      })(prop, obj);
-    }
-
-    await Promise.all(promises);
-  }
-
   private async getAutofillOnPageLoadDefault() {
     return await firstValueFrom(this.autofillSettingsService.autofillOnPageLoadDefault$);
   }
@@ -2167,22 +2144,25 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    // Fixes a bug causing decryption failures immediately after a user leaves an organization.
+    const decryptableCiphers = await this.excludeCiphersMissingOrgKey(ciphers, userId);
+
     // Short-circuit if there are no ciphers to decrypt
     // Observables reacting to key changes may attempt to decrypt with a stale SDK reference.
-    if (ciphers.length === 0) {
+    if (decryptableCiphers.length === 0) {
       return [[], []];
     }
 
     if (fullDecryption) {
       const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
-        ciphers,
+        decryptableCiphers,
         userId,
       );
       return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
     }
 
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
-      ciphers,
+      decryptableCiphers,
       userId,
     );
 
