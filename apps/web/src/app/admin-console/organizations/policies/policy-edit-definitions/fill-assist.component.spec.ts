@@ -228,13 +228,10 @@ describe("FillAssistPolicyComponent", () => {
     });
   });
 
-  describe("URL validation (Custom source, policy enabled)", () => {
+  describe("URL validation (Custom source)", () => {
     beforeEach(() => {
-      // URL validators fire only when the policy is enabled AND Custom is
-      // selected. Policy-off skips URL validation entirely so an admin can
-      // save-and-disable without also fixing a URL that's about to become
-      // inert.
-      component.enabled.setValue(true);
+      // URL validators fire whenever Custom is selected — the policy's
+      // enabled state does not affect URL validation.
       component.data?.patchValue({ ruleSource: RuleSource.Custom });
     });
 
@@ -278,32 +275,27 @@ describe("FillAssistPolicyComponent", () => {
     });
   });
 
-  describe("form validity when the policy is disabled", () => {
-    it("is valid when Custom + empty URL if the policy toggle is off", () => {
-      // The URL is inert when the policy is off (never fetched, never used),
-      // so it shouldn't block Save. This is the fix for the case where an
-      // admin toggles the policy off after seeing a URL validation error and
-      // finds the Save button still disabled.
+  describe("URL validation is independent of policy enabled state", () => {
+    // Matches other policies (e.g. Session timeout): a required field is
+    // required whenever it is visible, regardless of the policy toggle.
+
+    it("marks the form invalid when Custom + empty URL, even if the policy is disabled", () => {
       component.enabled.setValue(false);
       component.data?.patchValue({ ruleSource: RuleSource.Custom, rulesUrl: "" });
 
-      expect(component.data?.valid).toBe(true);
+      expect(component.data?.invalid).toBe(true);
     });
 
-    it("is valid when Custom + invalid URL if the policy toggle is off", () => {
+    it("marks the form invalid when Custom + invalid URL, even if the policy is disabled", () => {
       component.enabled.setValue(false);
       component.data?.patchValue({ ruleSource: RuleSource.Custom, rulesUrl: "not a url" });
 
-      expect(component.data?.valid).toBe(true);
+      expect(component.data?.invalid).toBe(true);
     });
   });
 
-  describe("protocol handling on user input (Custom source, policy enabled)", () => {
+  describe("protocol handling on user input (Custom source)", () => {
     beforeEach(() => {
-      // URL validators only fire when the policy is enabled AND Custom is
-      // selected. These tests exercise the URL validator branches, so both
-      // conditions must hold.
-      component.enabled.setValue(true);
       component.data?.patchValue({ ruleSource: RuleSource.Custom });
     });
 
@@ -455,48 +447,32 @@ describe("FillAssistPolicyComponent", () => {
       },
     );
 
-    it("throws when saving an enabled policy without a rulesUrl", async () => {
+    it("throws when saving without a rulesUrl (policy enabled)", async () => {
       component.enabled.setValue(true);
       component.data?.patchValue({ rulesUrl: "" });
 
       await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrlV2");
     });
 
-    it("does not throw when saving a disabled policy without a rulesUrl", async () => {
-      // URL is only meaningful when the policy is on. An admin who saves with
-      // the policy off should not be blocked by a missing URL.
+    it("throws when saving without a rulesUrl (policy disabled)", async () => {
+      // Custom source requires a URL regardless of enabled state — matches
+      // other policies (e.g. Session timeout).
       component.enabled.setValue(false);
       component.data?.patchValue({ rulesUrl: "" });
 
-      await expect(component.buildRequest()).resolves.toBeDefined();
+      await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrlV2");
     });
   });
 
-  describe("template-attached required validator", () => {
-    // These tests must call `fixture.detectChanges()` — without it the `@if` never
-    // mounts the input and the template's `RequiredValidator` never attaches.
-
-    it("does not block Save when the policy is disabled and the admin clears a stored custom URL", () => {
-      // Regression: a bare `required` attribute attached RequiredValidator
-      // unconditionally, invalidating a disabled policy with an emptied URL.
-      fixture.componentRef.setInput(
-        "policyResponse",
-        makePolicyResponse(false, { rulesUrl: CUSTOM_URL }),
-      );
-      fixture.detectChanges();
-
-      component.data?.patchValue({ rulesUrl: "" });
-
-      expect(component.data?.valid).toBe(true);
-      expect(component.data?.get("rulesUrl")?.errors).toBeNull();
-    });
-
-    it("surfaces the custom URL error first when the policy is enabled and the URL is empty", () => {
-      // Both the custom validator and Angular's RequiredValidator fire on empty;
-      // the errors object contains `url` and `required`. `bit-form-field` reads
-      // `Object.keys(errors)[0]` to decide what to render, so the ORDER matters:
-      // our validator must be composed first so its custom message wins over the
-      // framework's default "Input is required" text.
+  describe("error message priority when the URL input is mounted", () => {
+    it("surfaces the custom URL error first when Custom is selected and the URL is empty", () => {
+      // The template's `required` attribute attaches Angular's RequiredValidator
+      // in addition to our own validator. Both fire on empty and both errors land
+      // in the errors object. `bit-form-field` reads `Object.keys(errors)[0]` to
+      // decide what to render — so the ORDER matters: our validator must be
+      // composed first for the custom message to win over "Input is required".
+      // `fixture.detectChanges()` is required to mount the input and attach the
+      // template validator.
       fixture.componentRef.setInput(
         "policyResponse",
         makePolicyResponse(true, { rulesUrl: CUSTOM_URL }),

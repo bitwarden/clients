@@ -9,7 +9,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
-import { Observable, map, startWith } from "rxjs";
+import { Observable, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -170,7 +170,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
 
     this.data = this.formBuilder.group({
       ruleSource: new FormControl<RuleSource>(RuleSource.Default, { nonNullable: true }),
-      rulesUrl: new FormControl<string>("", { nonNullable: true }),
+      rulesUrl: new FormControl<string>("", {
+        nonNullable: true,
+        validators: [requiredHostPathValidator(this.i18nService.t("invalidFillAssistRulesUrlV2"))],
+      }),
     });
 
     const ruleSourceControl = this.data.controls.ruleSource;
@@ -189,23 +192,6 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
         rulesUrlControl.disable();
       }
     });
-
-    // URL validators only apply when the policy is enabled — an inert URL
-    // shouldn't block Save on a policy that's off. `updateValueAndValidity`
-    // must emit (default) so the drawer's `saveDisabled` sees the form become
-    // valid when we clear validators (it reads `data.statusChanges`).
-    this.enabled.valueChanges
-      .pipe(startWith(this.enabled.value), takeUntilDestroyed())
-      .subscribe((policyEnabled) => {
-        if (policyEnabled) {
-          rulesUrlControl.setValidators([
-            requiredHostPathValidator(this.i18nService.t("invalidFillAssistRulesUrlV2")),
-          ]);
-        } else {
-          rulesUrlControl.clearValidators();
-        }
-        rulesUrlControl.updateValueAndValidity();
-      });
   }
 
   /**
@@ -263,11 +249,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
 
   override async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
     const request = await super.buildRequest(orgKey);
-    // Only require a URL when the policy is being enabled AND the admin has
-    // chosen a Custom rule source. Default source has no URL to validate; a
-    // disabled policy is allowed to persist without one.
+    // Custom source requires a URL. The form validator gates Save via the drawer;
+    // this is a safety net if buildRequest is reached with an empty value.
     const isCustom = this.data?.value?.ruleSource === RuleSource.Custom;
-    if (request.policy.enabled && isCustom && !request.policy.data?.rulesUrl) {
+    if (isCustom && !request.policy.data?.rulesUrl) {
       throw new Error(this.i18nService.t("invalidFillAssistRulesUrlV2"));
     }
 
