@@ -36,9 +36,9 @@ dependencies = [
 
 [[package]]
 name = "aes"
-version = "0.9.1"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1fc76eaeac4c9164506c466d4ffdd8ec9d0c5bf57ee97177c4d8eceb3a0e138"
+checksum = "35f0f96ce78e38c3dc6d8948aa8163d06385be74000f3c7a95bf1eef35d3ea32"
 dependencies = [
  "cipher 0.5.2",
  "cpubits",
@@ -67,7 +67,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fdf011db2e21ce0d575593d749db5554b47fed37aff429e4dc50bc91ac93a028"
 dependencies = [
  "aead 0.6.1",
- "aes 0.9.1",
+ "aes 0.9.3",
  "cipher 0.5.2",
  "ctr 0.10.1",
  "ghash 0.6.0",
@@ -555,7 +555,7 @@ name = "bitwarden-crypto"
 version = "3.0.0"
 source = "git+https://github.com/bitwarden/sdk-internal?rev=f76b51450582cff9be767c9d9f454c42a84a56c1#f76b51450582cff9be767c9d9f454c42a84a56c1"
 dependencies = [
- "aes 0.9.1",
+ "aes 0.9.3",
  "aes-gcm 0.11.0",
  "argon2",
  "bitwarden-api-key-connector",
@@ -925,7 +925,7 @@ dependencies = [
 name = "chromium_importer"
 version = "0.0.0"
 dependencies = [
- "aes 0.8.4",
+ "aes 0.9.3",
  "aes-gcm 0.11.0",
  "anyhow",
  "async-trait",
