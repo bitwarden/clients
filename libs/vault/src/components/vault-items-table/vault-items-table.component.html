@@ -2,7 +2,7 @@
   #vaultTable="bitTableV2"
   [tableDef]="table"
   [displayedColumns]="visibleColumns()"
-  [customizeKey]="customizeKey"
+  stateKey="vault-items"
   [filter]="filter"
   [filters]="initialFilterValues()"
   [loading]="loading()"
@@ -174,7 +174,7 @@
   </bit-column>
 
   <!-- Vault -->
-  <bit-column customizable sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
+  <bit-column removable sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
     <bit-cell
       *bitCellDef="table.columns.vault; let row"
@@ -195,7 +195,7 @@
   </bit-column>
 
   <!-- Shared folders -->
-  <bit-column customizable sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
+  <bit-column removable sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
     <bit-cell
       *bitCellDef="table.columns.sharedFolders; let row"
@@ -218,7 +218,7 @@
   </bit-column>
 
   <!-- My folders -->
-  <bit-column customizable sortable [sortFn]="sortByFolders" width="minmax(140px, 1fr)">
+  <bit-column removable sortable [sortFn]="sortByFolders" width="minmax(140px, 1fr)">
     <bit-header-cell>{{ "myFolders" | i18n }}</bit-header-cell>
     <bit-cell
       *bitCellDef="table.columns.myFolders; let row"
