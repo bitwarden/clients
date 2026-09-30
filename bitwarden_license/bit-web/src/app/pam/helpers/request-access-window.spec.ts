@@ -3,8 +3,10 @@ import {
   composeRequestWindow,
   defaultRequestWindow,
   requestWindowProblem,
+  startTimeSlots,
   toDateInputValue,
   toTimeInputValue,
+  windowEndAt,
 } from "./request-access-window";
 
 /**
@@ -211,5 +213,42 @@ describe("toDateInputValue / toTimeInputValue", () => {
 
     expect(toDateInputValue(date)).toBe("2026-01-05");
     expect(toTimeInputValue(date)).toBe("07:08");
+  });
+});
+
+describe("startTimeSlots", () => {
+  it("offers now and each half hour after it today", () => {
+    const slots = startTimeSlots("2026-08-17", new Date(2026, 7, 17, 22, 14, 0));
+
+    expect(slots).toEqual(["22:14", "22:30", "23:00", "23:30"]);
+  });
+
+  it("does not repeat now when it falls on a half hour", () => {
+    expect(startTimeSlots("2026-08-17", new Date(2026, 7, 17, 23, 0, 0))).toEqual([
+      "23:00",
+      "23:30",
+    ]);
+  });
+
+  it("offers the whole day on a later date", () => {
+    const slots = startTimeSlots("2026-08-18", new Date(2026, 7, 17, 22, 14, 0));
+
+    expect(slots).toHaveLength(48);
+    expect(slots[0]).toBe("00:00");
+    expect(slots[47]).toBe("23:30");
+  });
+});
+
+describe("windowEndAt", () => {
+  it("adds the duration to the local start", () => {
+    expect(windowEndAt("2026-08-17", "23:30", 3 * 3600)).toEqual(new Date(2026, 7, 18, 2, 30));
+  });
+
+  it.each([
+    ["a blank date", "", "09:00"],
+    ["a blank time", "2026-08-17", ""],
+    ["an unparseable date", "not-a-date", "09:00"],
+  ])("returns null for %s", (_label, date, time) => {
+    expect(windowEndAt(date, time, 3600)).toBeNull();
   });
 });
