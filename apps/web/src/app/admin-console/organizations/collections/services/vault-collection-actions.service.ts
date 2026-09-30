@@ -7,10 +7,7 @@ import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  CollectionAdminView,
-  CollectionView,
-} from "@bitwarden/common/admin-console/models/collections";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -29,10 +26,6 @@ import {
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../shared/components/collection-dialog";
-import {
-  BulkCollectionsDialogComponent,
-  BulkCollectionsDialogResult,
-} from "../bulk-collections-dialog";
 import { ACRoutedVaultFilterModel, toACFilter } from "../models/ac-routed-vault-filter.model";
 
 import { VaultCollectionService } from "./vault-collection.service";
@@ -208,41 +201,6 @@ export class VaultCollectionActionsService {
       this.refresh();
     } catch (e) {
       this.logService.error(e);
-    }
-  }
-
-  async bulkEditCollectionAccess(
-    collections: CollectionView[],
-    organization: Organization,
-  ): Promise<void> {
-    if (collections.length === 0) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t(
-          this.vfo1TerminologyService.enabled()
-            ? "noSharedFoldersSelected"
-            : "noCollectionsSelected",
-        ),
-      });
-      return;
-    }
-
-    if (collections.some((c) => !c.canEdit(organization))) {
-      this.showMissingPermissionsError();
-      return;
-    }
-
-    const org = await firstValueFrom(this.organization$);
-    const dialog = BulkCollectionsDialogComponent.open(this.dialogService, {
-      data: {
-        collections,
-        organizationId: org.id,
-      },
-    });
-
-    const result = await lastValueFrom(dialog.closed);
-    if (result === BulkCollectionsDialogResult.Saved) {
-      this.refresh();
     }
   }
 
