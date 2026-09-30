@@ -288,33 +288,105 @@
                 </bit-form-field>
                 <bit-form-field>
                   <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
-                  <input
-                    bitInput
-                    type="time"
-                    formControlName="startTime"
-                    id="pam-cipher-view-banner_input_start"
-                  />
-                </bit-form-field>
-                <bit-form-field>
-                  <bit-label>{{ "requestAccessModalEndDate" | i18n }}</bit-label>
-                  <input
-                    bitInput
-                    type="date"
-                    formControlName="endDate"
-                    [min]="minEndDate()"
-                    id="pam-cipher-view-banner_input_end-date"
-                  />
-                </bit-form-field>
-                <bit-form-field>
-                  <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
-                  <input
-                    bitInput
-                    type="time"
-                    formControlName="endTime"
-                    id="pam-cipher-view-banner_input_end"
-                  />
+                  @if (customStart()) {
+                    <input
+                      bitInput
+                      type="time"
+                      formControlName="startTime"
+                      id="pam-cipher-view-banner_input_start"
+                    />
+                  } @else {
+                    <select
+                      bitInput
+                      [formControl]="startSlot"
+                      id="pam-cipher-view-banner_select_start"
+                    >
+                      @for (slot of startSlots(); track slot.value) {
+                        <option [value]="slot.value">{{ slot.label }}</option>
+                      }
+                      <option [value]="CUSTOM_OPTION">
+                        {{ "requestAccessModalCustomOption" | i18n }}
+                      </option>
+                    </select>
+                  }
+                  @if (customStart()) {
+                    <button
+                      type="button"
+                      bitSuffix
+                      bitIconButton="bwi-list"
+                      [label]="'requestAccessModalShowStartPresets' | i18n"
+                      (click)="showStartPresets()"
+                      id="pam-cipher-view-banner_button_start-presets"
+                    ></button>
+                  }
                 </bit-form-field>
               </div>
+
+              @if (customEnd()) {
+                <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+                  <bit-form-field>
+                    <bit-label>{{ "requestAccessModalEndDate" | i18n }}</bit-label>
+                    <input
+                      bitInput
+                      type="date"
+                      formControlName="endDate"
+                      [min]="minEndDate()"
+                      id="pam-cipher-view-banner_input_end-date"
+                    />
+                  </bit-form-field>
+                  <bit-form-field>
+                    <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
+                    <input
+                      bitInput
+                      type="time"
+                      formControlName="endTime"
+                      id="pam-cipher-view-banner_input_end"
+                    />
+                    <button
+                      type="button"
+                      bitSuffix
+                      bitIconButton="bwi-undo"
+                      [label]="'requestAccessModalShowEndPresets' | i18n"
+                      (click)="showEndPresets()"
+                      id="pam-cipher-view-banner_button_end-presets"
+                    ></button>
+                  </bit-form-field>
+                </div>
+              } @else {
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+                  <select
+                    bitInput
+                    [formControl]="endDuration"
+                    id="pam-cipher-view-banner_select_end"
+                  >
+                    @for (option of endOptions(); track option.seconds) {
+                      <option [value]="option.seconds">{{ option.label }}</option>
+                    }
+                    <option [value]="CUSTOM_OPTION">
+                      {{ "requestAccessModalCustomEndOption" | i18n }}
+                    </option>
+                  </select>
+                </bit-form-field>
+              }
+
+              @if (durationWindowError(); as error) {
+                <p
+                  bitTypography="helper"
+                  class="-tw-mt-2 tw-mb-0 tw-text-danger"
+                  data-testid="request-window-error"
+                >
+                  {{ error }}
+                </p>
+              } @else if (windowSummary(); as summary) {
+                <p
+                  bitTypography="helper"
+                  class="-tw-mt-2 tw-mb-0 tw-text-muted"
+                  data-testid="request-window-summary"
+                >
+                  {{ summary }}
+                </p>
+              }
 
               <bit-form-field>
                 <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
