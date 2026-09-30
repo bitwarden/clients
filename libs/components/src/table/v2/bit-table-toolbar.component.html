@@ -25,20 +25,19 @@
         }
       </div>
     }
-    @if (canCustomizeColumns()) {
-      <button
-        type="button"
-        id="bit-table-toolbar_button_customize"
-        bitButton
-        buttonType="secondary"
-        startIcon="bwi-grid"
-        class="tw-flex-none"
-        (click)="openCustomizeColumns()"
-      >
-        {{ "customize" | i18n }}
-      </button>
-    }
     <div [class]="endSlotClasses()">
+      @if (canCustomizeColumns()) {
+        <button
+          type="button"
+          data-testid="customize-columns"
+          bitButton
+          buttonType="secondary"
+          startIcon="bwi-grid"
+          (click)="openCustomizeColumns()"
+        >
+          {{ "customize" | i18n }}
+        </button>
+      }
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>

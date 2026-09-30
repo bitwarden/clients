@@ -357,25 +357,6 @@ describe("BitTableToolbarComponent customize control", () => {
   let host: RemovableHostComponent;
   let dialogService: MockProxy<DialogService>;
 
-  // The control is withheld below `md`, and jsdom has no `matchMedia` at all, so a wide
-  // viewport has to be stood up explicitly.
-  beforeEach(() => {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      writable: true,
-      value: (query: string) => ({
-        matches: true,
-        media: query,
-        addEventListener: (): void => undefined,
-        removeEventListener: (): void => undefined,
-      }),
-    });
-  });
-
-  afterEach(() => {
-    delete (window as Partial<Window>).matchMedia;
-  });
-
   beforeEach(async () => {
     dialogService = mock<DialogService>();
 
@@ -404,10 +385,12 @@ describe("BitTableToolbarComponent customize control", () => {
 
   const customizeButton = () =>
     fixture.nativeElement.querySelector(
-      "#bit-table-toolbar_button_customize",
+      "[data-testid='customize-columns']",
     ) as HTMLButtonElement | null;
 
-  it("offers the control when the table has a removable column and a key", () => {
+  // jsdom has no `matchMedia`, so these run at a small-screen width — where the control is
+  // still offered. Only `presentation` and `stateKey` decide, never the viewport.
+  it("offers the control at any width when the table has a removable column and a key", () => {
     expect(customizeButton()).not.toBeNull();
   });
 

@@ -253,13 +253,9 @@ export class BitTableToolbarComponent {
     });
   }
 
-  /**
-   * Whether to offer column customization. The viewport test lives here, not on the table:
-   * the table's own gate also drives header stamping and the stored preference, and
-   * narrowing the window must not un-hide the user's columns.
-   */
+  /** Whether to offer column customization — the table's own gate, guarded for a missing table. */
   protected readonly canCustomizeColumns = computed(
-    () => (this.table?.canCustomizeColumns() ?? false) && this.isLargeScreen(),
+    () => this.table?.canCustomizeColumns() ?? false,
   );
 
   /** Opens the column picker. Each switch applies immediately, behind the scrim. */

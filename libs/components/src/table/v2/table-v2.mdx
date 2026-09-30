@@ -236,8 +236,8 @@ Rules worth knowing:
 - **`displayedColumns` still wins.** It decides what is _available_; the user's choice hides a
   subset of that. A column the host drops never reaches the dialog, and a choice made about it is
   remembered for when it returns.
-- **Not offered in `list` presentation**, which has no header, or below the `md` breakpoint. That is
-  what keeps the feature out of the browser extension and narrow viewports.
+- **Not offered in `list` presentation**, which has no header. That is what keeps the feature out of
+  the browser extension. Width plays no part — the control is offered at every viewport size.
 - **Hiding the last flexible column is safe.** The table frees the first column's max so the row
   still fills its width. See [Column sizing](#column-sizing).
 
