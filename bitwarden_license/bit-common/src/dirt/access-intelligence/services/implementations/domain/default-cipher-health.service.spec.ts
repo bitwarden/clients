@@ -3,6 +3,7 @@ import { firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -17,20 +18,20 @@ describe("DefaultCipherHealthService", () => {
   let service: DefaultCipherHealthService;
   let auditService: MockProxy<AuditService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
-  let logService: MockProxy<LogService>;
   let configService: MockProxy<ConfigService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     auditService = mock<AuditService>();
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
-    logService = mock<LogService>();
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(true));
+    logService = mock<LogService>();
     service = new DefaultCipherHealthService(
       auditService,
       passwordStrengthService,
-      logService,
       configService,
+      logService,
     );
   });
 
@@ -149,6 +150,34 @@ describe("DefaultCipherHealthService", () => {
     });
   });
 
+  describe("HIBP padding", () => {
+    beforeEach(() => {
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as ZXCVBNResult);
+      auditService.passwordLeaked.mockResolvedValue(0);
+    });
+
+    it("should request padding when AccessIntelligencePerformanceAtScale is disabled", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      const cipher = createMockCipher({ password: "Password123!" });
+
+      await firstValueFrom(service.checkSingleCipherHealth(cipher));
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.AccessIntelligencePerformanceAtScale,
+      );
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("Password123!", true);
+    });
+
+    it("should not request padding when AccessIntelligencePerformanceAtScale is enabled", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      const cipher = createMockCipher({ password: "Password123!" });
+
+      await firstValueFrom(service.checkSingleCipherHealth(cipher));
+
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("Password123!", false);
+    });
+  });
+
   describe("detectPasswordReuse", () => {
     it("should detect password reuse", (done) => {
       const ciphers = [
@@ -262,8 +291,8 @@ describe("DefaultCipherHealthService", () => {
       await firstValueFrom(service.checkCipherHealth(ciphers));
 
       expect(auditService.passwordLeaked).toHaveBeenCalledTimes(2);
-      expect(auditService.passwordLeaked).toHaveBeenCalledWith("shared");
-      expect(auditService.passwordLeaked).toHaveBeenCalledWith("unique");
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("shared", false);
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("unique", false);
     });
 
     it("should look up each cipher separately when the flag is off", async () => {

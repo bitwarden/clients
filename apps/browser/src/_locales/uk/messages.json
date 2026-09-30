@@ -1540,6 +1540,40 @@
     "message": "Імпортувати",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Вибір джерела"
+  },
+  "importSourceSelectTitle": {
+    "message": "Вибір вашого джерела"
+  },
+  "importSourceSelectDescription": {
+    "message": "Виберіть менеджер паролів або браузер, з якого ви здійснюєте імпорт."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузери"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менеджери паролів"
+  },
+  "importSourceShowAll": {
+    "message": "Показати все"
+  },
+  "importSourceShowLess": {
+    "message": "Згорнути"
+  },
+  "importSourceStepCount": {
+    "message": "Крок $CURRENT$ з $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "Імпортувати записи"
   },
@@ -5142,7 +5176,11 @@
     "message": "Вибрати збірку"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Вибрати спільну теку"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
@@ -5151,7 +5189,7 @@
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Виберіть цей параметр, якщо ви хочете, щоб вміст імпортованого файлу було переміщено до спільної теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -7249,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "У вас немає тек."
+  "youHaveNoFoldersV2": {
+    "message": "У вас немає тек"
   },
-  "emptyFoldersDescription": {
-    "message": "Використовуйте теки для впорядкування записів. Вони доступні тільки вам – ніхто інший їх не побачить і не зможе використати."
+  "emptyFoldersDescriptionV2": {
+    "message": "Використовуйте теки для упорядкування елементів сховища. Вони призначені виключно для вас. Ніхто інший не зможе їх бачити чи використовувати."
   },
   "introCarouselLabel": {
     "message": "Вітаємо в Bitwarden"

@@ -78,11 +78,11 @@
         [position]="coachmarkService.getStepPosition('importData')"
         [closeOnBackdropClick]="false"
         [spotlight]="true"
-        (click)="openImportDialog()"
+        (click)="openImport()"
       >
         {{ "importNoun" | i18n }}
       </button>
-      <app-coachmark #importCoachmark stepId="importData" class="tw-hidden" />
+      <app-coachmark #importCoachmark stepId="importData" />
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
@@ -96,7 +96,7 @@
         (folderAdded)="addFolder()"
         (collectionAdded)="addCollection()"
       />
-      <app-coachmark #addItemCoachmark stepId="addItem" class="tw-hidden" />
+      <app-coachmark #addItemCoachmark stepId="addItem" />
     }
   </div>
 </vault-items-table>

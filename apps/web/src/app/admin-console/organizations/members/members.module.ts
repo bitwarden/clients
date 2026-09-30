@@ -43,13 +43,15 @@ import { MemberExportService } from "./services";
     BulkDeleteDialogComponent,
     BulkEnablePrivilegedControlsDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
+    BulkProgressDialogComponent,
+    BulkReinviteFailureDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
-  declarations: [BulkProgressDialogComponent, BulkReinviteFailureDialogComponent, MembersComponent],
+  declarations: [MembersComponent],
   providers: [MemberExportService, UserStatusPipe],
 })
 export class MembersModule {}

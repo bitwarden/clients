@@ -84,21 +84,13 @@
                   </small>
                 </span>
                 @if (account.value.authenticationStatus === authStatus.Unlocked) {
-                  <bit-badge variant="secondary" class="tw-flex tw-justify-center">
-                    <bit-icon name="bwi-unlock" slot="end" class="text-muted" aria-hidden="true">
-                    </bit-icon>
-                    <span>{{ "unlocked" | i18n }}</span>
-                  </bit-badge>
+                  <bit-badge variant="secondary" startIcon="bwi-unlock">{{
+                    "unlocked" | i18n
+                  }}</bit-badge>
                 } @else {
-                  <bit-badge variant="secondary">
-                    <bit-icon
-                      name="bwi-lock"
-                      slot="end"
-                      class="text-muted"
-                      aria-hidden="true"
-                    ></bit-icon>
-                    <span>{{ "locked" | i18n }}</span>
-                  </bit-badge>
+                  <bit-badge variant="secondary" startIcon="bwi-lock">{{
+                    "locked" | i18n
+                  }}</bit-badge>
                 }
               </span>
             </button>

@@ -8,6 +8,7 @@ import {
   Observable,
   of,
   switchMap,
+  take,
   toArray,
 } from "rxjs";
 
@@ -49,8 +50,8 @@ export class DefaultCipherHealthService extends CipherHealthService {
   constructor(
     private auditService: AuditService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
-    private logService: LogService,
     private configService: ConfigService,
+    private logService: LogService,
   ) {
     super();
   }
@@ -221,7 +222,8 @@ export class DefaultCipherHealthService extends CipherHealthService {
     password: string,
     cipherGroup: CipherView[],
   ): Observable<PasswordGroupHealth> {
-    return from(this.auditService.passwordLeaked(password)).pipe(
+    // Only reached with the performance flag on, which drops padding.
+    return from(this.auditService.passwordLeaked(password, false)).pipe(
       map((exposedCount) => ({ exposedCount, failed: false })),
       catchError(() => of({ exposedCount: 0, failed: true })),
       map(({ exposedCount, failed }) => ({
@@ -329,19 +331,25 @@ export class DefaultCipherHealthService extends CipherHealthService {
     const hasWeakPassword = weakPasswordScore != null && weakPasswordScore <= 2;
 
     // Check HIBP exposure
-    return from(this.auditService.passwordLeaked(password)).pipe(
-      map((exposedCount) => {
-        return new CipherHealthView({
-          cipherId: cipher.id,
-          hasWeakPassword,
-          hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
-          reuseCount: 0, // Will be set by caller if checking multiple ciphers
-          hasExposedPassword: exposedCount > 0,
-          exposedCount,
-          weakPasswordScore,
-        });
-      }),
-    );
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale)
+      .pipe(
+        take(1),
+        switchMap((accessIntelligencePerfEnabled) =>
+          this.auditService.passwordLeaked(password, !accessIntelligencePerfEnabled),
+        ),
+        map((exposedCount) => {
+          return new CipherHealthView({
+            cipherId: cipher.id,
+            hasWeakPassword,
+            hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
+            reuseCount: 0, // Will be set by caller if checking multiple ciphers
+            hasExposedPassword: exposedCount > 0,
+            exposedCount,
+            weakPasswordScore,
+          });
+        }),
+      );
   }
 
   private getPasswordStrength(cipher: CipherView): number | undefined {
