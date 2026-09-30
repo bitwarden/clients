@@ -7,6 +7,7 @@ import {
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
+  isEditCipherError,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
@@ -628,12 +629,20 @@ export class DefaultCipherSdkService implements CipherSdkService {
         switchMap(async (sdk) => {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
-          const result = await sdkCiphersClient.update_collection(
-            asUuid(cipherId),
-            collectionIds.map((id) => asUuid(id)),
-            false,
-          );
-          return CipherView.fromSdkCipherView(result);
+          try {
+            const result = await sdkCiphersClient.update_collection(
+              asUuid(cipherId),
+              collectionIds.map((id) => asUuid(id)),
+              false,
+            );
+            return CipherView.fromSdkCipherView(result);
+          } catch (e) {
+            // the SDK surfaces a lost-access response as MissingField.
+            if (isEditCipherError(e) && e.variant === "MissingField") {
+              return undefined;
+            }
+            throw e;
+          }
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher collections: ${error}`);
