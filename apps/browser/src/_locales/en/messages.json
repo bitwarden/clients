@@ -3207,7 +3207,7 @@
     "message": "Item autofilled and URI saved"
   },
   "autoFillSuccess": {
-    "message": "Item autofilled "
+    "message": "Item autofilled"
   },
   "insecurePageWarning": {
     "message": "Warning: This is an unsecured HTTP page, and any information you submit can potentially be seen and changed by others. This Login was originally saved on a secure (HTTPS) page."
