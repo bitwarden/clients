@@ -2,9 +2,18 @@ import { Injectable } from "@angular/core";
 import { concatMap, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -15,7 +24,16 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  Argon2KdfConfig,
+  EncryptedString,
+  EncryptService,
+  EncString,
+  KdfConfig,
+  KdfType,
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import {
   EmergencyAccessClient,
   EmergencyAccessId,
@@ -29,7 +47,14 @@ import {
   GranteeEmergencyAccessWithPublicKey,
   GrantorEmergencyAccess,
 } from "../models/emergency-access";
-import { EmergencyAccessWithIdRequest } from "../request/emergency-access-update.request";
+import { EmergencyAccessAcceptRequest } from "../request/emergency-access-accept.request";
+import { EmergencyAccessConfirmRequest } from "../request/emergency-access-confirm.request";
+import { EmergencyAccessInviteRequest } from "../request/emergency-access-invite.request";
+import { EmergencyAccessPasswordRequest } from "../request/emergency-access-password.request";
+import {
+  EmergencyAccessUpdateRequest,
+  EmergencyAccessWithIdRequest,
+} from "../request/emergency-access-update.request";
 import { EmergencyAccessGranteeDetailsResponse } from "../response/emergency-access.response";
 
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
@@ -47,8 +72,10 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
     private sdkService: SdkService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -56,24 +83,44 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param id emergency access id
    */
   async getEmergencyAccess(id: string): Promise<GranteeEmergencyAccess> {
-    const access = await this.withSdk((client) => client.get(asUuid<EmergencyAccessId>(id)));
-    return GranteeEmergencyAccess.fromSdk(access);
+    if (await this.useSdk()) {
+      const access = await this.withSdk((client) => client.get(asUuid<EmergencyAccessId>(id)));
+      return GranteeEmergencyAccess.fromSdk(access);
+    }
+
+    return this.emergencyAccessApiService.getEmergencyAccess(id);
   }
 
   /**
    * Gets all emergency access that the user has been granted.
    */
   async getEmergencyAccessTrusted(): Promise<GranteeEmergencyAccess[]> {
-    const accesses = await this.withSdk((client) => client.list_trusted());
-    return accesses.map((access) => GranteeEmergencyAccess.fromSdk(access));
+    if (await this.useSdk()) {
+      const accesses = await this.withSdk((client) => client.list_trusted());
+      return accesses.map((access) => GranteeEmergencyAccess.fromSdk(access));
+    }
+
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessTrusted();
+    if (!listResponse || listResponse.data.length === 0) {
+      return [];
+    }
+    return listResponse.data.map((response) => GranteeEmergencyAccess.fromResponse(response));
   }
 
   /**
    * Gets all emergency access that the user has granted.
    */
   async getEmergencyAccessGranted(): Promise<GrantorEmergencyAccess[]> {
-    const accesses = await this.withSdk((client) => client.list_granted());
-    return accesses.map((access) => GrantorEmergencyAccess.fromSdk(access));
+    if (await this.useSdk()) {
+      const accesses = await this.withSdk((client) => client.list_granted());
+      return accesses.map((access) => GrantorEmergencyAccess.fromSdk(access));
+    }
+
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessGranted();
+    if (!listResponse || listResponse.data.length === 0) {
+      return [];
+    }
+    return listResponse.data.map((response) => GrantorEmergencyAccess.fromResponse(response));
   }
 
   /**
@@ -92,10 +139,19 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
    */
   async getGrantorPolicies(id: string): Promise<Policy[]> {
-    const policies = await this.withSdk((client) =>
-      client.get_grantor_policies(asUuid<EmergencyAccessId>(id)),
-    );
-    return policies.map((policy) => Policy.fromSdkPolicy(policy));
+    if (await this.useSdk()) {
+      const sdkPolicies = await this.withSdk((client) =>
+        client.get_grantor_policies(asUuid<EmergencyAccessId>(id)),
+      );
+      return sdkPolicies.map((policy) => Policy.fromSdkPolicy(policy));
+    }
+
+    const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id);
+    let policies: Policy[] = [];
+    if (response.data != null && response.data.length > 0) {
+      policies = response.data.map((policyResponse) => new Policy(new PolicyData(policyResponse)));
+    }
+    return policies;
   }
 
   /**
@@ -107,7 +163,17 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param waitTimeDays number of days to wait before granting access
    */
   async invite(email: string, type: EmergencyAccessType, waitTimeDays: number): Promise<void> {
-    await this.withSdk((client) => client.invite(email, toSdkType(type), waitTimeDays));
+    if (await this.useSdk()) {
+      await this.withSdk((client) => client.invite(email, toSdkType(type), waitTimeDays));
+      return;
+    }
+
+    const request = new EmergencyAccessInviteRequest();
+    request.email = email.trim();
+    request.type = type;
+    request.waitTimeDays = waitTimeDays;
+
+    await this.emergencyAccessApiService.postEmergencyAccessInvite(request);
   }
 
   /**
@@ -115,8 +181,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantor.
    * @param id emergency access id
    */
-  reinvite(id: string): Promise<void> {
-    return this.withSdk((client) => client.reinvite(asUuid<EmergencyAccessId>(id)));
+  async reinvite(id: string): Promise<void> {
+    if (await this.useSdk()) {
+      return this.withSdk((client) => client.reinvite(asUuid<EmergencyAccessId>(id)));
+    }
+
+    return this.emergencyAccessApiService.postEmergencyAccessReinvite(id);
   }
 
   /**
@@ -127,9 +197,18 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param waitTimeDays number of days to wait before granting access
    */
   async update(id: string, type: EmergencyAccessType, waitTimeDays: number) {
-    await this.withSdk((client) =>
-      client.update(asUuid<EmergencyAccessId>(id), toSdkType(type), waitTimeDays),
-    );
+    if (await this.useSdk()) {
+      await this.withSdk((client) =>
+        client.update(asUuid<EmergencyAccessId>(id), toSdkType(type), waitTimeDays),
+      );
+      return;
+    }
+
+    const request = new EmergencyAccessUpdateRequest();
+    request.type = type;
+    request.waitTimeDays = waitTimeDays;
+
+    await this.emergencyAccessApiService.putEmergencyAccess(id, request);
   }
 
   /**
@@ -140,7 +219,15 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param token secret token provided in email
    */
   async accept(id: string, token: string): Promise<void> {
-    await this.withSdk((client) => client.accept(asUuid<EmergencyAccessId>(id), token));
+    if (await this.useSdk()) {
+      await this.withSdk((client) => client.accept(asUuid<EmergencyAccessId>(id), token));
+      return;
+    }
+
+    const request = new EmergencyAccessAcceptRequest();
+    request.token = token;
+
+    await this.emergencyAccessApiService.postEmergencyAccessAccept(id, request);
   }
 
   /**
@@ -167,11 +254,23 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       // Ignore errors since it's just a debug message
     }
 
-    // Pass the key the user verified by fingerprint; the SDK shares the user key with it.
-    await this.withSdk(
-      (client) => client.confirm(asUuid<EmergencyAccessId>(id), Utils.fromBufferToB64(publicKey)),
-      activeUserId,
-    );
+    if (await this.useSdk()) {
+      // Pass the key the user verified by fingerprint; the SDK shares the user key with it.
+      await this.withSdk(
+        (client) => client.confirm(asUuid<EmergencyAccessId>(id), Utils.fromBufferToB64(publicKey)),
+        activeUserId,
+      );
+      return;
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    if (!userKey) {
+      throw new Error("No user key found");
+    }
+
+    const request = new EmergencyAccessConfirmRequest();
+    request.key = await this.encryptKey(userKey, publicKey);
+    await this.emergencyAccessApiService.postEmergencyAccessConfirm(id, request);
   }
 
   /**
@@ -179,8 +278,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for either grantor or grantee.
    * @param id emergency access id
    */
-  delete(id: string): Promise<void> {
-    return this.withSdk((client) => client.delete(asUuid<EmergencyAccessId>(id)));
+  async delete(id: string): Promise<void> {
+    if (await this.useSdk()) {
+      return this.withSdk((client) => client.delete(asUuid<EmergencyAccessId>(id)));
+    }
+
+    return this.emergencyAccessApiService.deleteEmergencyAccess(id);
   }
 
   /**
@@ -188,8 +291,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantee.
    * @param id emergency access id
    */
-  requestAccess(id: string): Promise<void> {
-    return this.withSdk((client) => client.initiate(asUuid<EmergencyAccessId>(id)));
+  async requestAccess(id: string): Promise<void> {
+    if (await this.useSdk()) {
+      return this.withSdk((client) => client.initiate(asUuid<EmergencyAccessId>(id)));
+    }
+
+    return this.emergencyAccessApiService.postEmergencyAccessInitiate(id);
   }
 
   /**
@@ -197,8 +304,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantor.
    * @param id emergency access id
    */
-  approve(id: string): Promise<void> {
-    return this.withSdk((client) => client.approve(asUuid<EmergencyAccessId>(id)));
+  async approve(id: string): Promise<void> {
+    if (await this.useSdk()) {
+      return this.withSdk((client) => client.approve(asUuid<EmergencyAccessId>(id)));
+    }
+
+    return this.emergencyAccessApiService.postEmergencyAccessApprove(id);
   }
 
   /**
@@ -206,8 +317,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantor.
    * @param id emergency access id
    */
-  reject(id: string): Promise<void> {
-    return this.withSdk((client) => client.reject(asUuid<EmergencyAccessId>(id)));
+  async reject(id: string): Promise<void> {
+    if (await this.useSdk()) {
+      return this.withSdk((client) => client.reject(asUuid<EmergencyAccessId>(id)));
+    }
+
+    return this.emergencyAccessApiService.postEmergencyAccessReject(id);
   }
 
   /**
@@ -256,11 +371,79 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * @param activeUserId the user id of the active user
    */
   async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
-    // The SDK derives the new master password data with the grantor's KDF and salt.
-    await this.withSdk(
-      (client) => client.takeover(asUuid<EmergencyAccessId>(id), masterPassword, email),
-      activeUserId,
+    if (await this.useSdk()) {
+      // The SDK derives the new master password data with the grantor's KDF and salt.
+      await this.withSdk(
+        (client) => client.takeover(asUuid<EmergencyAccessId>(id), masterPassword, email),
+        activeUserId,
+      );
+      return;
+    }
+
+    const takeoverResponse = await this.emergencyAccessApiService.postEmergencyAccessTakeover(id);
+
+    const activeUserPrivateKey = await firstValueFrom(
+      this.keyService.userPrivateKey$(activeUserId),
     );
+
+    if (activeUserPrivateKey == null) {
+      throw new Error("Active user does not have a private key, cannot complete a takeover.");
+    }
+
+    const grantorKey = await this.encryptService.decapsulateKeyUnsigned(
+      new EncString(takeoverResponse.keyEncrypted),
+      activeUserPrivateKey,
+    );
+    if (grantorKey == null) {
+      throw new Error("Failed to decrypt grantor key");
+    }
+
+    const grantorUserKey = grantorKey as UserKey;
+
+    let config: KdfConfig;
+
+    switch (takeoverResponse.kdf) {
+      case KdfType.PBKDF2_SHA256:
+        config = new PBKDF2KdfConfig(takeoverResponse.kdfIterations);
+        break;
+      case KdfType.Argon2id:
+        config = new Argon2KdfConfig(
+          takeoverResponse.kdfIterations,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
+        );
+        break;
+    }
+
+    // Prefer server-provided salt from the takeover response.
+    // Falls back to email-derived salt for backward compatibility with servers
+    // that don't yet include Salt in the response (PM-31636).
+    //
+    // TODO: PM-32059 — When salt is fully disconnected from email (Stage 3),
+    // the email fallback will be removed and server salt becomes mandatory.
+    const salt: MasterPasswordSalt =
+      typeof takeoverResponse.salt === "string"
+        ? (takeoverResponse.salt as MasterPasswordSalt)
+        : this.masterPasswordService.emailToSalt(email);
+
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        masterPassword,
+        config,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        masterPassword,
+        config,
+        salt,
+        grantorUserKey,
+      );
+
+    const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
+
+    await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
 
   private async getEmergencyAccessData(): Promise<EmergencyAccessGranteeDetailsResponse[]> {
@@ -357,6 +540,11 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       requests.push(updateRequest);
     }
     return requests;
+  }
+
+  /** Whether emergency access calls go through the SDK. The view does regardless. */
+  private useSdk(): Promise<boolean> {
+    return this.configService.getFeatureFlag(FeatureFlag.PM44303_EmergencyAccessSdkApi);
   }
 
   /**
