@@ -390,19 +390,33 @@
         </app-enter-billing-address>
       </ng-container>
       @if (showPreviewCart) {
-        @if (planChangeCart.isLoading() || planChangeCart.error() != null) {
+        @if (planChangeCart.isLoading()) {
           <div class="tw-mt-4 tw-text-center">
             <bit-spinner></bit-spinner>
           </div>
+        } @else if (planChangeCart.error() != null) {
+          <bit-callout type="danger" class="tw-mt-4 tw-block">
+            {{ previewErrorMessageKey | i18n }}
+          </bit-callout>
         } @else if (planChangeCart.hasValue()) {
           <div class="tw-mt-4">
             <billing-cart-summary [cart]="planChangeCart.value()" />
             @if (isFreeUpgradeWithTrial) {
-              <bit-callout type="info" class="tw-mt-4">
+              <bit-callout
+                type="info"
+                [title]="null"
+                [accessibleName]="'trial' | i18n"
+                class="tw-mt-4 tw-block"
+              >
                 {{ "planChangeTrialIncluded" | i18n: trialLengthDays }}
               </bit-callout>
             } @else if (isTrialing && remainingTrialDays > 0) {
-              <bit-callout type="info" class="tw-mt-4">
+              <bit-callout
+                type="info"
+                [title]="null"
+                [accessibleName]="'trial' | i18n"
+                class="tw-mt-4 tw-block"
+              >
                 {{
                   "planChangeTrialRemaining"
                     | i18n: remainingTrialDays : (trialEndDate | date: "MMM. d, y")

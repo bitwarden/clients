@@ -14505,7 +14505,7 @@
     "message": "Please check your billing details and try again."
   },
   "planChangeTrialIncluded": {
-    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you'll be charged at the end of the trial.",
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -14514,7 +14514,7 @@
     }
   },
   "planChangeTrialRemaining": {
-    "message": "You have $DAYS$ days left in your trial. You'll be charged the total above on $DATE$.",
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",

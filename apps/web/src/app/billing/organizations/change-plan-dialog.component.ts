@@ -270,19 +270,21 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected planChangeCart = resource({
     params: () => (this.previewCartEnabled() ? this.planChangeRequest() : undefined),
-    loader: async ({ params }) => {
-      try {
-        return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
-      } catch (error) {
-        const messageKey =
-          error instanceof ErrorResponse && error.statusCode === 400
-            ? "billingPreviewInvalidAddressError"
-            : "billingPreviewInvoiceError";
-        this.billingNotificationService.showError(this.i18nService.t(messageKey));
-        throw error;
-      }
-    },
+    loader: ({ params }) =>
+      this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params),
   });
+
+  // Message shown in the error callout: a 400 points the user at their billing details, any other
+  // failure is a generic preview error. The resource wraps a non-Error rejection (ErrorResponse
+  // isn't an Error) and puts the original on `cause`, so unwrap that.
+  protected get previewErrorMessageKey(): string {
+    const error = this.planChangeCart.error();
+    const response =
+      error instanceof ErrorResponse ? error : (error as { cause?: unknown } | undefined)?.cause;
+    return response instanceof ErrorResponse && response.statusCode === 400
+      ? "billingPreviewInvalidAddressError"
+      : "billingPreviewInvoiceError";
+  }
 
   protected get showPreviewCart(): boolean {
     return this.previewCartEnabled() && !this.isSubscriptionCanceled;

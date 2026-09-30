@@ -444,13 +444,10 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).isSubmitDisabled).toBe(true);
     });
 
-    it("surfaces the error state (toast shown, submit disabled) when the preview request fails", async () => {
+    it("surfaces the error state (callout shown, submit disabled) when the preview request fails", async () => {
       selectEnterpriseAnnual();
       previewCartFlag$.next(true);
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("preview failed"));
-      const billingNotificationService = TestBed.inject(BillingNotificationService);
-      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
-      i18nService.t.mockImplementation((key: string) => key);
 
       (component as any).refreshPlanChangePreview();
       TestBed.tick();
@@ -461,9 +458,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).planChangeCart.error()).toBeTruthy();
       expect((component as any).planChangeCart.hasValue()).toBe(false);
       expect((component as any).isSubmitDisabled).toBe(true);
-      expect(billingNotificationService.showError).toHaveBeenCalledWith(
-        "billingPreviewInvoiceError",
-      );
+      expect((component as any).previewErrorMessageKey).toBe("billingPreviewInvoiceError");
     });
 
     it("shows the check-your-billing-details message when the preview fails validation (400)", async () => {
@@ -472,18 +467,13 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       invoicePreviewService.previewPlanChangeCart.mockRejectedValue(
         new ErrorResponse({ Message: "bad request" }, 400),
       );
-      const billingNotificationService = TestBed.inject(BillingNotificationService);
-      const i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
-      i18nService.t.mockImplementation((key: string) => key);
 
       (component as any).refreshPlanChangePreview();
       TestBed.tick();
       await new Promise((resolve) => setTimeout(resolve, 0));
       TestBed.tick();
 
-      expect(billingNotificationService.showError).toHaveBeenCalledWith(
-        "billingPreviewInvalidAddressError",
-      );
+      expect((component as any).previewErrorMessageKey).toBe("billingPreviewInvalidAddressError");
     });
   });
 
@@ -530,6 +520,12 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       component.sub = { subscription: { status: "active", trialEndDate } } as any;
 
       expect((component as any).remainingTrialDays).toBe(0);
+    });
+
+    it("exposes the subscription's trial end date for the callout", () => {
+      component.sub = { subscription: { trialEndDate: "2026-01-15" } } as any;
+
+      expect((component as any).trialEndDate).toBe("2026-01-15");
     });
   });
 
