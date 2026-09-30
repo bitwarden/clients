@@ -1,4 +1,4 @@
-import { Observable, combineLatest, map, shareReplay } from "rxjs";
+import { Observable, combineLatest, map } from "rxjs";
 
 import { ActiveUserState, GlobalState, StateProvider } from "../../../platform/state";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "../../abstractions/vault-settings/vault-settings.service";
@@ -7,7 +7,6 @@ import {
   SHOW_CARDS_CURRENT_TAB,
   SHOW_IDENTITIES_CURRENT_TAB,
   USER_ENABLE_PASSKEYS,
-  CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
   SHOW_AT_RISK_PASSWORD_NOTIFICATIONS,
 } from "../key-state/vault-settings.state";
 import { RestrictedItemTypesService } from "../restricted-item-types.service";
@@ -50,17 +49,6 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   readonly showIdentitiesCurrentTab$: Observable<boolean> =
     this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true));
 
-  private clickItemsToAutofillVaultViewState: ActiveUserState<boolean> =
-    this.stateProvider.getActive(CLICK_ITEMS_AUTOFILL_VAULT_VIEW);
-  /**
-   * {@link VaultSettingsServiceAbstraction.clickItemsToAutofillVaultView$}
-   */
-  readonly clickItemsToAutofillVaultView$: Observable<boolean> =
-    this.clickItemsToAutofillVaultViewState.state$.pipe(
-      map((x) => x ?? false),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
-
   private showAtRiskPasswordNotificationsState: ActiveUserState<boolean> =
     this.stateProvider.getActive(SHOW_AT_RISK_PASSWORD_NOTIFICATIONS);
   /**
@@ -86,13 +74,6 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    */
   async setShowIdentitiesCurrentTab(value: boolean): Promise<void> {
     await this.showIdentitiesCurrentTabState.update(() => value);
-  }
-
-  /**
-   * {@link VaultSettingsServiceAbstraction.setClickItemsToAutofillVaultView}
-   */
-  async setClickItemsToAutofillVaultView(value: boolean): Promise<void> {
-    await this.clickItemsToAutofillVaultViewState.update(() => value);
   }
 
   /**

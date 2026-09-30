@@ -47,22 +47,13 @@
           <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
         </bit-label>
       </bit-form-control>
-      <bit-form-control [disableMargin]="simplifiedItemActionEnabled() && !isPremium">
+      <bit-form-control [disableMargin]="!isPremium">
         <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
         <bit-label>
           {{ "showQuickCopyActionsInVault" | i18n }}
           <show-quick-copy-actions-details-popover></show-quick-copy-actions-details-popover>
         </bit-label>
       </bit-form-control>
-
-      @if (!simplifiedItemActionEnabled()) {
-        <bit-form-control [disableMargin]="!isPremium">
-          <input bitCheckbox formControlName="clickItemsToAutofillVaultView" type="checkbox" />
-          <bit-label>
-            {{ "clickToAutofill" | i18n }}
-          </bit-label>
-        </bit-form-control>
-      }
 
       @if (isPremium) {
         <bit-form-control disableMargin>
