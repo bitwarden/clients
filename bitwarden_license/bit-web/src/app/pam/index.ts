@@ -100,8 +100,10 @@ export {
   composeRequestWindow,
   defaultRequestWindow,
   requestWindowProblem,
+  startTimeSlots,
   toDateInputValue,
   toTimeInputValue,
+  windowEndAt,
 } from "./helpers/request-access-window";
 export type { RequestWindowFormValue, RequestWindowProblem } from "./helpers/request-access-window";
 export {
