@@ -71,7 +71,7 @@ function challengerIsRequestHost(
   challenger: chrome.webRequest.OnAuthRequiredDetails["challenger"],
   requestUrl: URL,
 ): boolean {
-  if (challenger == null) {
+  if (challenger?.host == null) {
     return false;
   }
 
@@ -79,12 +79,48 @@ function challengerIsRequestHost(
     return false;
   }
 
+  // The port is compared only when the browser reports a usable one. Firefox
+  // reports -1 rather than the scheme's default port, so treating an
+  // unreadable value as a mismatch would reject challenges whose host already
+  // matches. Proxy challenges, the case this comparison exists to catch, are
+  // rejected by `isProxy` before reaching here.
+  const challengerPort = Number(challenger.port);
+  if (!Number.isInteger(challengerPort) || challengerPort <= 0) {
+    return true;
+  }
+
   const requestPort =
     requestUrl.port === ""
       ? DEFAULT_PORT_BY_PROTOCOL[requestUrl.protocol]
       : Number(requestUrl.port);
 
-  return challenger.port === requestPort;
+  return challengerPort === requestPort;
+}
+
+/** Fields Firefox supplies on this event that the Chrome typings do not describe. */
+interface FirefoxAuthRequiredDetails {
+  originUrl?: string;
+  documentUrl?: string;
+}
+
+/**
+ * The origin of the context that issued the request, or null when the browser
+ * did not report one.
+ *
+ * Chrome supplies a bare origin in `initiator`. Firefox instead supplies the
+ * full URL of the initiating document in `originUrl`, with `documentUrl` naming
+ * the document the resource loads into.
+ */
+function getInitiatorOrigin(details: chrome.webRequest.OnAuthRequiredDetails): string | null {
+  const firefoxDetails = details as FirefoxAuthRequiredDetails;
+  const initiator = details.initiator ?? firefoxDetails.originUrl ?? firefoxDetails.documentUrl;
+
+  // An opaque initiator serializes as the string "null" and cannot be compared.
+  if (initiator == null || initiator === "null") {
+    return null;
+  }
+
+  return parseUrl(initiator)?.origin ?? null;
 }
 
 function isTopLevelNavigationOrSameOriginSubresource(
@@ -99,14 +135,7 @@ function isTopLevelNavigationOrSameOriginSubresource(
     return false;
   }
 
-  // An opaque initiator serializes as the string "null" and cannot be compared.
-  if (details.initiator == null || details.initiator === "null") {
-    return false;
-  }
-
-  const initiatorUrl = parseUrl(details.initiator);
-
-  return initiatorUrl != null && initiatorUrl.origin === requestUrl.origin;
+  return getInitiatorOrigin(details) === requestUrl.origin;
 }
 
 /**

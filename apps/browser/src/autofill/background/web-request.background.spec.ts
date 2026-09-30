@@ -524,6 +524,41 @@ describe("shouldAnswerAuthChallenge", () => {
 
       expect(shouldAnswerAuthChallenge(details)).toBe(false);
     });
+
+    it("accepts a port reported as a string", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "example.com", port: "443" as unknown as number },
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    it("declines a mismatched port reported as a string", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "example.com", port: "8443" as unknown as number },
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it.each([[0], [-1], [undefined], [NaN]])(
+      "falls back to the host comparison when the port is reported as %s",
+      (port) => {
+        const details = buildAuthRequiredDetails({
+          challenger: { host: "example.com", port: port as unknown as number },
+        });
+
+        expect(shouldAnswerAuthChallenge(details)).toBe(true);
+      },
+    );
+
+    it("still declines a host mismatch when the port is unusable", () => {
+      const details = buildAuthRequiredDetails({
+        challenger: { host: "attacker.example", port: undefined as unknown as number },
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
   });
 
   describe("request provenance", () => {
@@ -573,10 +608,82 @@ describe("shouldAnswerAuthChallenge", () => {
       expect(shouldAnswerAuthChallenge(details)).toBe(false);
     });
 
-    it("declines a subresource with no initiator", () => {
-      const details = buildAuthRequiredDetails({ type: "xmlhttprequest", initiator: undefined });
+    it.each(answerableSubresourceTypes)(
+      "declines a %s when no initiating context is reported",
+      (type) => {
+        const details = buildAuthRequiredDetails({
+          type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+          initiator: undefined,
+        });
 
-      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+        expect(shouldAnswerAuthChallenge(details)).toBe(false);
+      },
+    );
+
+    it("answers a top-level navigation when no initiating context is reported", () => {
+      const details = buildAuthRequiredDetails({ type: "main_frame", initiator: undefined });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    describe("firefox, which reports originUrl rather than initiator", () => {
+      const asFirefoxDetails = (
+        overrides: Partial<chrome.webRequest.OnAuthRequiredDetails> & {
+          originUrl?: string;
+          documentUrl?: string;
+        },
+      ) =>
+        buildAuthRequiredDetails({
+          initiator: undefined,
+          challenger: { host: "example.com", port: -1 },
+          ...overrides,
+        } as Partial<chrome.webRequest.OnAuthRequiredDetails>);
+
+      it.each(answerableSubresourceTypes)("answers a same-origin %s", (type) => {
+        const details = asFirefoxDetails({
+          type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+          originUrl: "https://example.com/app/index.html",
+        });
+
+        expect(shouldAnswerAuthChallenge(details)).toBe(true);
+      });
+
+      it.each(answerableSubresourceTypes)("declines a cross-origin %s", (type) => {
+        const details = asFirefoxDetails({
+          type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+          originUrl: "https://attacker.example/page.html",
+        });
+
+        expect(shouldAnswerAuthChallenge(details)).toBe(false);
+      });
+
+      it("falls back to documentUrl when originUrl is absent", () => {
+        const details = asFirefoxDetails({
+          type: "sub_frame",
+          documentUrl: "https://example.com/app/index.html",
+        });
+
+        expect(shouldAnswerAuthChallenge(details)).toBe(true);
+      });
+
+      it("answers a top-level navigation reached from another origin", () => {
+        const details = asFirefoxDetails({
+          type: "main_frame",
+          originUrl: "https://attacker.example/page.html",
+        });
+
+        expect(shouldAnswerAuthChallenge(details)).toBe(true);
+      });
+
+      it("declines a same-origin subresource when the host does not match", () => {
+        const details = asFirefoxDetails({
+          type: "xmlhttprequest",
+          challenger: { host: "attacker.example", port: -1 },
+          originUrl: "https://example.com/app/index.html",
+        });
+
+        expect(shouldAnswerAuthChallenge(details)).toBe(false);
+      });
     });
 
     it("declines a subresource with an opaque initiator", () => {
