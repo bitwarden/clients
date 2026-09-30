@@ -33,7 +33,7 @@ const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
  * username and password, so answering them with a vault item hands the
  * challenger material the scheme was never meant to carry.
  */
-const ANSWERABLE_AUTH_SCHEMES = new Set(["basic", "digest"]);
+const ANSWERABLE_AUTH_SCHEMES: ReadonlySet<string> = new Set(["basic", "digest"]);
 
 /**
  * Non-navigation request types answered from the vault, and then only when the
@@ -43,11 +43,22 @@ const ANSWERABLE_AUTH_SCHEMES = new Set(["basic", "digest"]);
  * space has been authenticated, so a page's own assets do not raise a second
  * challenge. A passive asset such as an image or a stylesheet therefore only
  * reaches this code when it sits in a realm nothing has authenticated yet,
- * which no ordinary deployment produces. The two kept here do occur: a single
- * page application calling a protected API on its own origin, and a wrapper
- * page embedding an application that carries its own realm.
+ * which no expected deployment produces.
  */
-const ANSWERABLE_SUBRESOURCE_TYPES = new Set(["xmlhttprequest", "sub_frame"]);
+const ANSWERABLE_SUBRESOURCE_TYPES: ReadonlySet<string> = new Set<string>([
+  // Empty, so that a credential is released only for a page the user navigated
+  // to. A subresource request is issued without the user acting, and restricting
+  // it to the same origin bounds who receives the credential without making the
+  // release visible to anyone.
+  //
+  // `xmlhttprequest` and `sub_frame` are the candidates for this list. Both can
+  // raise a genuine first challenge, because Basic auth protection spaces are
+  // path-scoped and a page's own assets are otherwise covered by the credentials
+  // the browser already caches and sends preemptively.
+  // FIXME reconsider the case for these inclusions
+  // "xmlhttprequest",
+  // "sub_frame"
+]);
 
 const DEFAULT_PORT_BY_PROTOCOL: Record<string, number> = {
   "http:": 80,
@@ -111,7 +122,9 @@ interface FirefoxAuthRequiredDetails {
  * full URL of the initiating document in `originUrl`, with `documentUrl` naming
  * the document the resource loads into.
  */
-function getInitiatorOrigin(details: chrome.webRequest.OnAuthRequiredDetails): string | null {
+export function getInitiatorOrigin(
+  details: chrome.webRequest.OnAuthRequiredDetails,
+): string | null {
   const firefoxDetails = details as FirefoxAuthRequiredDetails;
   const initiator = details.initiator ?? firefoxDetails.originUrl ?? firefoxDetails.documentUrl;
 
@@ -123,6 +136,11 @@ function getInitiatorOrigin(details: chrome.webRequest.OnAuthRequiredDetails): s
   return parseUrl(initiator)?.origin ?? null;
 }
 
+/**
+ * A page can reference any URL as a subresource, and those requests are
+ * issued without user action. Only a page the user navigated to or same-origin
+ * `ANSWERABLE_SUBRESOURCE_TYPES` are answered.
+ */
 function isTopLevelNavigationOrSameOriginSubresource(
   details: chrome.webRequest.OnAuthRequiredDetails,
   requestUrl: URL,
@@ -143,10 +161,19 @@ function isTopLevelNavigationOrSameOriginSubresource(
  *
  * Every branch fails closed, so a challenge that cannot be attributed with
  * confidence is left for the browser to handle.
+ *
+ * Note: The narrowness of the response conditions is predicated on the challenge
+ * answer happening silently/automatically; deferring to the native experience
+ * (e.g. credential entry prompt) in ambiguous cases.
  */
 export function shouldAnswerAuthChallenge(
   details: chrome.webRequest.OnAuthRequiredDetails,
 ): boolean {
+  // Note, we do not constrain by the lack of SSL. Responding to insecure
+  // HTTP auth challenges carries inherent risk in the response transport.
+  // However, this is a common usecase for local networks.
+  // FIXME We should consider if this case needs a different UX
+
   // On a 407 the challenge comes from the proxy while `url` stays the
   // destination, so a credential matched against the destination would be
   // delivered to whoever is proxying the connection.
@@ -175,10 +202,6 @@ export function shouldAnswerAuthChallenge(
     return false;
   }
 
-  // A page can reference any URL as a subresource, and those requests are issued
-  // without the user acting. Answering them releases a credential for a host the
-  // user never navigated to. A page loading its own protected subresources is
-  // the one subresource case that survives.
   return isTopLevelNavigationOrSameOriginSubresource(details, requestUrl);
 }
 

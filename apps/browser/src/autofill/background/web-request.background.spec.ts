@@ -16,7 +16,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { flushPromises } from "../spec/testing-utils";
 
-import WebRequestBackground, { shouldAnswerAuthChallenge } from "./web-request.background";
+import WebRequestBackground, {
+  getInitiatorOrigin,
+  shouldAnswerAuthChallenge,
+} from "./web-request.background";
 
 type WebRequestEventMock = {
   addListener: jest.Mock;
@@ -562,8 +565,9 @@ describe("shouldAnswerAuthChallenge", () => {
   });
 
   describe("request provenance", () => {
-    const answerableSubresourceTypes = [["xmlhttprequest"], ["sub_frame"]];
-    const passiveAssetTypes = [
+    const subresourceTypes = [
+      ["xmlhttprequest"],
+      ["sub_frame"],
       ["image"],
       ["script"],
       ["stylesheet"],
@@ -572,127 +576,13 @@ describe("shouldAnswerAuthChallenge", () => {
       ["object"],
     ];
 
-    it.each(answerableSubresourceTypes)("declines a cross-origin %s", (type) => {
-      const details = buildAuthRequiredDetails({
-        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
-        initiator: "https://attacker.example",
-      });
-
-      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    it("answers a top-level navigation", () => {
+      expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails({ type: "main_frame" }))).toBe(
+        true,
+      );
     });
 
-    it.each(answerableSubresourceTypes)("answers a same-origin %s", (type) => {
-      const details = buildAuthRequiredDetails({
-        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
-        initiator: "https://example.com",
-      });
-
-      expect(shouldAnswerAuthChallenge(details)).toBe(true);
-    });
-
-    it.each(passiveAssetTypes)("declines a same-origin %s", (type) => {
-      const details = buildAuthRequiredDetails({
-        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
-        initiator: "https://example.com",
-      });
-
-      expect(shouldAnswerAuthChallenge(details)).toBe(false);
-    });
-
-    it("declines a subresource whose initiator differs only by port", () => {
-      const details = buildAuthRequiredDetails({
-        type: "xmlhttprequest",
-        initiator: "https://example.com:8443",
-      });
-
-      expect(shouldAnswerAuthChallenge(details)).toBe(false);
-    });
-
-    it.each(answerableSubresourceTypes)(
-      "declines a %s when no initiating context is reported",
-      (type) => {
-        const details = buildAuthRequiredDetails({
-          type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
-          initiator: undefined,
-        });
-
-        expect(shouldAnswerAuthChallenge(details)).toBe(false);
-      },
-    );
-
-    it("answers a top-level navigation when no initiating context is reported", () => {
-      const details = buildAuthRequiredDetails({ type: "main_frame", initiator: undefined });
-
-      expect(shouldAnswerAuthChallenge(details)).toBe(true);
-    });
-
-    describe("firefox, which reports originUrl rather than initiator", () => {
-      const asFirefoxDetails = (
-        overrides: Partial<chrome.webRequest.OnAuthRequiredDetails> & {
-          originUrl?: string;
-          documentUrl?: string;
-        },
-      ) =>
-        buildAuthRequiredDetails({
-          initiator: undefined,
-          challenger: { host: "example.com", port: -1 },
-          ...overrides,
-        } as Partial<chrome.webRequest.OnAuthRequiredDetails>);
-
-      it.each(answerableSubresourceTypes)("answers a same-origin %s", (type) => {
-        const details = asFirefoxDetails({
-          type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
-          originUrl: "https://example.com/app/index.html",
-        });
-
-        expect(shouldAnswerAuthChallenge(details)).toBe(true);
-      });
-
-      it.each(answerableSubresourceTypes)("declines a cross-origin %s", (type) => {
-        const details = asFirefoxDetails({
-          type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
-          originUrl: "https://attacker.example/page.html",
-        });
-
-        expect(shouldAnswerAuthChallenge(details)).toBe(false);
-      });
-
-      it("falls back to documentUrl when originUrl is absent", () => {
-        const details = asFirefoxDetails({
-          type: "sub_frame",
-          documentUrl: "https://example.com/app/index.html",
-        });
-
-        expect(shouldAnswerAuthChallenge(details)).toBe(true);
-      });
-
-      it("answers a top-level navigation reached from another origin", () => {
-        const details = asFirefoxDetails({
-          type: "main_frame",
-          originUrl: "https://attacker.example/page.html",
-        });
-
-        expect(shouldAnswerAuthChallenge(details)).toBe(true);
-      });
-
-      it("declines a same-origin subresource when the host does not match", () => {
-        const details = asFirefoxDetails({
-          type: "xmlhttprequest",
-          challenger: { host: "attacker.example", port: -1 },
-          originUrl: "https://example.com/app/index.html",
-        });
-
-        expect(shouldAnswerAuthChallenge(details)).toBe(false);
-      });
-    });
-
-    it("declines a subresource with an opaque initiator", () => {
-      const details = buildAuthRequiredDetails({ type: "xmlhttprequest", initiator: "null" });
-
-      expect(shouldAnswerAuthChallenge(details)).toBe(false);
-    });
-
-    it("answers a top-level navigation regardless of initiator", () => {
+    it("answers a top-level navigation reached from another origin", () => {
       const details = buildAuthRequiredDetails({
         type: "main_frame",
         initiator: "https://attacker.example",
@@ -700,8 +590,98 @@ describe("shouldAnswerAuthChallenge", () => {
 
       expect(shouldAnswerAuthChallenge(details)).toBe(true);
     });
+
+    it("answers a top-level navigation when no initiating context is reported", () => {
+      const details = buildAuthRequiredDetails({ type: "main_frame", initiator: undefined });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(true);
+    });
+
+    it.each(subresourceTypes)("declines a same-origin %s", (type) => {
+      const details = buildAuthRequiredDetails({
+        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+        initiator: "https://example.com",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
+    it.each(subresourceTypes)("declines a cross-origin %s", (type) => {
+      const details = buildAuthRequiredDetails({
+        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+        initiator: "https://attacker.example",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+  });
+});
+
+/*
+ * The same-origin comparison behind `ANSWERABLE_SUBRESOURCE_TYPES` is exercised
+ * directly. The allowlist is empty, so no subresource reaches this code through
+ * `shouldAnswerAuthChallenge`, and these cover it against the day it does.
+ */
+describe("getInitiatorOrigin", () => {
+  it("reads the origin Chrome reports in initiator", () => {
+    const details = buildAuthRequiredDetails({ initiator: "https://example.com" });
+
+    expect(getInitiatorOrigin(details)).toBe("https://example.com");
   });
 
+  it("reduces the document url Firefox reports in originUrl to an origin", () => {
+    const details = buildAuthRequiredDetails({
+      initiator: undefined,
+      originUrl: "https://example.com/app/index.html?query=1",
+    } as Partial<chrome.webRequest.OnAuthRequiredDetails>);
+
+    expect(getInitiatorOrigin(details)).toBe("https://example.com");
+  });
+
+  it("prefers initiator over originUrl when both are present", () => {
+    const details = buildAuthRequiredDetails({
+      initiator: "https://chrome.example",
+      originUrl: "https://firefox.example/page.html",
+    } as Partial<chrome.webRequest.OnAuthRequiredDetails>);
+
+    expect(getInitiatorOrigin(details)).toBe("https://chrome.example");
+  });
+
+  it("falls back to documentUrl", () => {
+    const details = buildAuthRequiredDetails({
+      initiator: undefined,
+      documentUrl: "https://example.com/app/index.html",
+    } as Partial<chrome.webRequest.OnAuthRequiredDetails>);
+
+    expect(getInitiatorOrigin(details)).toBe("https://example.com");
+  });
+
+  it("distinguishes origins that differ only by port", () => {
+    const details = buildAuthRequiredDetails({ initiator: "https://example.com:8443" });
+
+    expect(getInitiatorOrigin(details)).toBe("https://example.com:8443");
+  });
+
+  it("returns null when no initiating context is reported", () => {
+    const details = buildAuthRequiredDetails({ initiator: undefined });
+
+    expect(getInitiatorOrigin(details)).toBeNull();
+  });
+
+  it("returns null for an opaque initiator", () => {
+    const details = buildAuthRequiredDetails({ initiator: "null" });
+
+    expect(getInitiatorOrigin(details)).toBeNull();
+  });
+
+  it("returns null for an unparsable initiator", () => {
+    const details = buildAuthRequiredDetails({ initiator: "not a url" });
+
+    expect(getInitiatorOrigin(details)).toBeNull();
+  });
+});
+
+describe("shouldAnswerAuthChallenge, remaining guards", () => {
   it("declines a request with no owning tab", () => {
     expect(shouldAnswerAuthChallenge(buildAuthRequiredDetails({ tabId: -1 }))).toBe(false);
   });
