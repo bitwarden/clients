@@ -3,6 +3,8 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
+import { parseCommaSeparatedEmails } from "./parse-comma-separated-emails";
+
 export function isDynamicSeatPlan(productTierType: ProductTierType): boolean {
   return !isFixedSeatPlan(productTierType);
 }
@@ -61,10 +63,7 @@ export function isSeatConstrainedEmailBatch(
 }
 
 function getUniqueInputEmails(control: AbstractControl, existingEmails: string[] = []): string[] {
-  const emails: string[] = control.value
-    .split(",")
-    .map((email: string) => email.trim())
-    .filter((email: string) => email !== "");
+  const emails = parseCommaSeparatedEmails(control.value);
   const uniqueEmails: string[] = Array.from(new Set(emails));
 
   if (existingEmails.length === 0) {

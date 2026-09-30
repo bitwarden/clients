@@ -42,6 +42,7 @@ const DEFAULT_PARAMS = {
  *    tsConfig: string;
  *  };
  *  outputPath?: string;
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -61,6 +62,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path.resolve(__dirname, "../../node_modules"),
         path.resolve(process.cwd(), "node_modules"),
       ],
+      alias: params.importAliases,
     },
   };
 
@@ -334,6 +336,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
         fs: false,
       },
+      plugins: [new TsconfigPathsPlugin({ configFile: params.renderer.tsConfig })],
     },
     plugins: [
       new AngularWebpackPlugin({

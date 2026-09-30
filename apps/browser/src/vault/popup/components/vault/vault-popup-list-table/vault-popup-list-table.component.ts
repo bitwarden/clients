@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { distinctUntilChanged, filter, map, skip, Subject, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,6 +26,8 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -68,7 +70,6 @@ import {
   matchesSharedFolder,
   matchesType,
   matchesVault,
-  MY_VAULT,
   NO_FOLDER,
   organizationNameForScope,
   OrgIconDirective,
@@ -79,6 +80,7 @@ import {
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
+import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -125,7 +127,6 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     CommonModule,
     FormsModule,
     JslibModule,
-    RouterLink,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -156,6 +157,9 @@ export class VaultPopupListTableComponent {
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
+  private readonly configService = inject(ConfigService);
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
+  private readonly router = inject(Router);
   protected readonly listTableService = inject(VaultPopupListTableService);
   private readonly vaultPopupItemsService = inject(VaultPopupItemsService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
@@ -606,7 +610,6 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-          this.validateOrgChips(table, values);
         });
 
       // The controls hold their own values. Driven by the switcher, not the scope, which also
@@ -649,6 +652,15 @@ export class VaultPopupListTableComponent {
     }
   }
 
+  async navigateToImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
+    await this.router.navigate(["/import"]);
+  }
+
   /**
    * Primary click action for a row: autofill for autofill-section rows, otherwise navigate to view.
    */
@@ -676,41 +688,5 @@ export class VaultPopupListTableComponent {
       return this.i18nService.t("nSharedFolders", collectionIds.length);
     }
     return collections[0]?.name;
-  }
-
-  /**
-   * Clears collection chip selections that are no longer valid for the newly-selected
-   * organizations. Called whenever the org chip changes.
-   */
-  private validateOrgChips(
-    table: BitTableV2Component<any, any, any>,
-    values: { organization?: string[]; collection?: string[] },
-  ): void {
-    const selectedOrgIds = (values.organization ?? []).filter((id) => id !== MY_VAULT);
-
-    if (!selectedOrgIds.length) {
-      return;
-    }
-
-    const currentCollectionIds = values.collection ?? [];
-    if (!currentCollectionIds.length) {
-      return;
-    }
-
-    const collectionOrgById = new Map<string | undefined, string | undefined>(
-      this.collectionOptions().map((o) => [o.value?.id, o.value?.organizationId]),
-    );
-
-    const validCollectionIds = currentCollectionIds.filter((id) => {
-      const organizationId = collectionOrgById.get(id);
-      return organizationId != null && selectedOrgIds.includes(organizationId);
-    });
-
-    if (validCollectionIds.length !== currentCollectionIds.length) {
-      table
-        .filterControls()
-        .find((c) => c.key() === "collection")
-        ?.setValue(validCollectionIds.length ? validCollectionIds : undefined);
-    }
   }
 }

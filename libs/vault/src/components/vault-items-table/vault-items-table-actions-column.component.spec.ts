@@ -311,6 +311,32 @@ describe("VaultItemsTableActionsColumnComponent", () => {
     });
   });
 
+  describe("a cipher that failed to decrypt", () => {
+    it("offers neither Launch nor Copy", () => {
+      // The healthy row offers both, so a count of one means the failed row offers neither.
+      host.ciphers.set([
+        withUri("https://example.com"),
+        loginCipher({ id: "failed", decryptionFailure: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelectorAll("vault-item-copy-actions")).toHaveLength(1);
+      expect(
+        fixture.nativeElement.querySelectorAll("[bitIconButton='bwi-external-link']"),
+      ).toHaveLength(1);
+    });
+
+    it("still offers the overflow menu", () => {
+      host.ciphers.set([loginCipher({ decryptionFailure: true })]);
+      host.rowActions.set([
+        { id: "delete", label: "Delete", icon: "bwi-trash", run: jest.fn(), variant: "danger" },
+      ]);
+      fixture.detectChanges();
+
+      expect(menuTriggers()).toHaveLength(1);
+    });
+  });
+
   describe("copy presentation", () => {
     /** Copy buttons for the row, excluding Launch and the overflow trigger. */
     function copyButtons(): HTMLButtonElement[] {

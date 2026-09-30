@@ -70,7 +70,7 @@ export class DefaultPolicyService implements PolicyService {
       this.sdkService().client$,
     ]).pipe(
       map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {
-        const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
+        const sdkPolicies = policies.map((p) => p.toSdkPolicy());
         const sdkOrganizationContext = confirmedOrganizations
           .concat(acceptedOrganizations)
           .map((o) => DefaultPolicyService.toSdkOrganizationUserPolicyContext(o));
@@ -78,7 +78,7 @@ export class DefaultPolicyService implements PolicyService {
           .policies()
           .filter_by_type(sdkPolicies, sdkOrganizationContext, policyType);
 
-        return filteredViews.map((v) => Policy.fromSdkPolicyView(v));
+        return filteredViews.map((v) => Policy.fromSdkPolicy(v));
       }),
     );
   }
