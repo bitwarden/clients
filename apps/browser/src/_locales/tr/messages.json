@@ -5178,6 +5178,10 @@
   "selectImportSharedFolder": {
     "message": "Paylaşılan bir klasör seçin"
   },
+  "importTargetMyFolder": {
+    "message": "Klasörüm",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+  },
   "importTargetHintCollection": {
     "message": "İçe aktarılan dosya içeriklerinin bir koleksiyona taşınmasını istiyorsanız bu seçeneği seçin"
   },
@@ -7283,11 +7287,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Hiç klasörünüz yok."
+  "youHaveNoFoldersV2": {
+    "message": "Hiç klasörünüz yok"
   },
-  "emptyFoldersDescription": {
-    "message": "Kasa öğelerini düzenlemek için klasörleri kullanın. Onlar sadece sizin için — başka kimse onları görmez veya kullanmaz."
+  "emptyFoldersDescriptionV2": {
+    "message": "Kasadaki kayıtlarınızı organize etmek için klasörleri kullanabilirsiniz.  Klasörlerinizi sizden başka kimse göremez ve kullanamaz."
   },
   "introCarouselLabel": {
     "message": "Bitwarden’a hoş geldiniz"
