@@ -29,10 +29,7 @@ import { FilterPresenter } from "./filter-tokens";
 
 /** Data passed to {@link FilterDialogComponent} when the toolbar opens it. */
 export interface FilterDialogParams {
-  /**
-   * The toolbar's projected filters, in row order. A signal rather than a snapshot: chips are
-   * gated on async options, so the set can still grow after the dialog opens.
-   */
+  /** The toolbar's projected filters, in row order. */
   readonly filters: Signal<readonly FilterPresenter[]>;
 }
 

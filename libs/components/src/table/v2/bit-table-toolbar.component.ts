@@ -73,10 +73,7 @@ export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /**
-   * Whether the collapsed filter dialog is open. A model so a consumer can persist the state —
-   * the browser popup is torn down on close and reopens the dialog from its view cache.
-   */
+  /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
   readonly filterDialogOpen = model(false);
 
   private readonly dialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
@@ -240,7 +237,8 @@ export class BitTableToolbarComponent {
       this.overflowList()?.remeasure();
     });
 
-    // Reconcile the model against the dialog, in both directions.
+    // Reconcile the model against the dialog, in both directions. Gated on the trigger so the
+    // dialog closes once the chip row is inline and showing the same filters.
     effect(() => {
       const open = this.filterDialogOpen() && this.showFilterTrigger();
       untracked(() => {
@@ -274,15 +272,11 @@ export class BitTableToolbarComponent {
   /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
-  /** The trigger's click: the effect above turns this into an open dialog. */
+  /** The collapsed trigger's click. */
   protected openFilterDialog(): void {
     this.filterDialogOpen.set(true);
   }
 
-  /**
-   * Opens the dialog, handing it the live `filters` signal rather than a snapshot — a consumer
-   * restoring `filterDialogOpen` on load opens ahead of chips whose options arrive async.
-   */
   private showFilterDialog(): void {
     const ref = this.dialogService.open<unknown, FilterDialogParams, FilterDialogComponent>(
       FilterDialogComponent,

@@ -340,6 +340,12 @@ describe("BitTableToolbarComponent filter dialog", () => {
   let host: DialogHostComponent;
   let dialogService: MockProxy<DialogService>;
   let closed: Subject<unknown>;
+  let mediaListeners: ((event: MediaQueryListEvent) => void)[];
+
+  /** Widen past `md`, so the chip row lays out inline and the collapsed trigger goes away. */
+  const widenViewport = () => {
+    mediaListeners.forEach((listener) => listener({ matches: true } as MediaQueryListEvent));
+  };
 
   const trigger = () =>
     fixture.nativeElement.querySelector("button[bitIconButton]") as HTMLButtonElement;
@@ -351,6 +357,22 @@ describe("BitTableToolbarComponent filter dialog", () => {
   };
 
   beforeEach(async () => {
+    // `isAtOrLargerThanBreakpointSignal` reads `matchMedia`, which JSDOM does not implement.
+    // Capture the listener so a test can widen the viewport after the fact.
+    mediaListeners = [];
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: jest.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: (_: string, listener: (event: MediaQueryListEvent) => void) =>
+          mediaListeners.push(listener),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
+
     closed = new Subject<unknown>();
     const ref = mock<DialogRef>();
     // `closed` is declared readonly, and `mock()` auto-stubs it over anything passed in.
@@ -456,5 +478,16 @@ describe("BitTableToolbarComponent filter dialog", () => {
     closed.next(undefined);
 
     expect(host.open()).toBe(true);
+  });
+
+  it("closes the dialog once the filters are shown inline", () => {
+    host.open.set(true);
+    fixture.detectChanges();
+
+    const ref = dialogService.open.mock.results[0].value as DialogRef;
+    widenViewport();
+    fixture.detectChanges();
+
+    expect(ref.close).toHaveBeenCalled();
   });
 });
