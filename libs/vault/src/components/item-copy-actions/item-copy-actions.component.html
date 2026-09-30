@@ -82,6 +82,11 @@
           <button type="button" bitMenuItem appCopyField="totp" [cipher]="_cipher">
             {{ "copyVerificationCode" | i18n }}
           </button>
+          @for (field of copyableCustomFields; track field.index) {
+            <button type="button" bitMenuItem (click)="copyCustomField(field)">
+              {{ "copyCustomField" | i18n: field.name }}
+            </button>
+          }
         </bit-menu>
       }
     </bit-item-action>

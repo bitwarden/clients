@@ -1,15 +1,22 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
+import { IconButtonModule, ItemModule, MenuModule, ToastService } from "@bitwarden/components";
 import { CopyableCipherFields } from "@bitwarden/sdk-internal";
 
-import { CopyFieldAction } from "../../services/copy-cipher-field.service";
+import { CopyCipherFieldService, CopyFieldAction } from "../../services/copy-cipher-field.service";
 import { CopyCipherFieldDirective } from "../copy-cipher-field.directive";
 
 type CipherItem = {
@@ -22,6 +29,14 @@ type CipherItem = {
   /** Property key on `CipherView` to retrieve the copy value */
   field: CopyFieldAction;
 };
+
+type CustomFieldItem = {
+  name: string;
+  value: string | undefined;
+  isHidden: boolean;
+  index: number;
+};
+
 @Component({
   selector: "vault-item-copy-actions",
   templateUrl: "./item-copy-actions.component.html",
@@ -44,8 +59,90 @@ export class VaultItemCopyActionsComponent {
   /** Disables all copy actions, e.g. while the containing list is refreshing. */
   readonly disabled = input(false);
 
+  private readonly accountService = inject(AccountService);
+  private readonly cipherService = inject(CipherService);
+  private readonly copyCipherFieldService = inject(CopyCipherFieldService);
+  private readonly i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly toastService = inject(ToastService);
+
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly CipherType = CipherType;
+
+  /** Returns copyable text and hidden custom fields for the cipher. */
+  get copyableCustomFields(): CustomFieldItem[] {
+    const cipher = this.cipher();
+    const fields = cipher.fields ?? [];
+    return (fields as Array<{ name?: string; value?: string; type: number }>)
+      .map((f, i) => ({ f, i }))
+      .filter(
+        ({ f }) =>
+          (f.type === FieldType.Text || (f.type === FieldType.Hidden && cipher.viewPassword)) &&
+          f.name,
+      )
+      .map(({ f, i }) => ({
+        name: f.name!,
+        value: f.value ?? undefined,
+        isHidden: f.type === FieldType.Hidden,
+        index: i,
+      }));
+  }
+
+  /** Copies a custom field value to the clipboard. Decrypts the cipher first for hidden fields. */
+  async copyCustomField(field: CustomFieldItem): Promise<void> {
+    const cipher = this.cipher();
+    let valueToCopy = field.value;
+
+    // CipherListView omits hidden field values; decrypt the full cipher to retrieve them.
+    // Only decrypt for hidden fields — text fields have their value in the list view already.
+    if (field.isHidden && valueToCopy == null && CipherViewLikeUtils.isCipherListView(cipher)) {
+      try {
+        const activeAccountId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        const encryptedCipher = await this.cipherService.get(
+          uuidAsString((cipher as { id: { toString(): string } }).id!),
+          activeAccountId,
+        );
+        const decryptedCipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
+        const decryptedField = decryptedCipher.fields?.[field.index];
+        // Guard against concurrent edits that changed the field at this index.
+        if (decryptedField?.name !== field.name || decryptedField.type !== FieldType.Hidden) {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("unexpectedError"),
+          });
+          return;
+        }
+        valueToCopy = decryptedField.value;
+      } catch {
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: this.i18nService.t("unexpectedError"),
+        });
+        return;
+      }
+    }
+
+    if (valueToCopy == null || valueToCopy === "") {
+      return;
+    }
+
+    if (field.isHidden) {
+      // Re-use the existing service so reprompt, audit events and toast are handled consistently.
+      await this.copyCipherFieldService.copy(valueToCopy, "hiddenField", cipher);
+      return;
+    }
+
+    this.platformUtilsService.copyToClipboard(valueToCopy);
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("valueCopied", field.name),
+    });
+  }
 
   /*
    * singleCopyableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
@@ -54,6 +151,11 @@ export class VaultItemCopyActionsComponent {
   get singleCopyableLogin(): CipherItem | null {
     const cipher = this.cipher();
     const loginItems = this.getLoginCopyableItems(cipher);
+
+    // When custom fields are present, always show the dropdown menu.
+    if (this.copyableCustomFields.length > 0) {
+      return null;
+    }
 
     return this.findSingleCopyableItem(cipher, loginItems);
   }
@@ -134,7 +236,7 @@ export class VaultItemCopyActionsComponent {
   }
 
   get hasLoginValues() {
-    return this.getNumberOfLoginValues(this.cipher()) > 0;
+    return this.getNumberOfLoginValues(this.cipher()) > 0 || this.copyableCustomFields.length > 0;
   }
 
   get hasCardValues() {

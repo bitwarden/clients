@@ -6,14 +6,16 @@ import { mock } from "jest-mock-extended";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
+import { IconButtonModule, ItemModule, MenuModule, ToastService } from "@bitwarden/components";
 import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -26,6 +28,8 @@ describe("VaultItemCopyActionsComponent", () => {
 
   let i18nService: jest.Mocked<I18nService>;
   let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
+  let platformUtilsService: jest.Mocked<PlatformUtilsService>;
+  let toastService: jest.Mocked<ToastService>;
 
   beforeEach(async () => {
     i18nService = {
@@ -34,6 +38,9 @@ describe("VaultItemCopyActionsComponent", () => {
 
     copyCipherFieldService = mock<CopyCipherFieldService>();
     copyCipherFieldService.totpAllowed.mockResolvedValue(true);
+
+    platformUtilsService = mock<PlatformUtilsService>();
+    toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
       imports: [
@@ -49,6 +56,8 @@ describe("VaultItemCopyActionsComponent", () => {
         { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ToastService, useValue: toastService },
       ],
     }).compileComponents();
 
@@ -856,6 +865,218 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyablePassport;
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("copyableCustomFields", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+    });
+
+    const makeField = (name: string, value: string | undefined, type: FieldType): FieldView => {
+      const f = new FieldView();
+      f.name = name;
+      f.value = value;
+      f.type = type;
+      return f;
+    };
+
+    it("returns text fields that have a name", () => {
+      (component.cipher() as CipherView).fields = [makeField("企業ID", "ACME-001", FieldType.Text)];
+
+      expect(component.copyableCustomFields).toEqual([
+        { name: "企業ID", value: "ACME-001", isHidden: false, index: 0 },
+      ]);
+    });
+
+    it("returns hidden fields when viewPassword is true", () => {
+      (component.cipher() as CipherView).viewPassword = true;
+      (component.cipher() as CipherView).fields = [
+        makeField("シークレット", "s3cr3t", FieldType.Hidden),
+      ];
+
+      expect(component.copyableCustomFields).toEqual([
+        { name: "シークレット", value: "s3cr3t", isHidden: true, index: 0 },
+      ]);
+    });
+
+    it("filters out hidden fields when viewPassword is false", () => {
+      (component.cipher() as CipherView).viewPassword = false;
+      (component.cipher() as CipherView).fields = [
+        makeField("シークレット", "s3cr3t", FieldType.Hidden),
+      ];
+
+      expect(component.copyableCustomFields).toHaveLength(0);
+    });
+
+    it("filters out boolean fields", () => {
+      (component.cipher() as CipherView).fields = [makeField("フラグ", "true", FieldType.Boolean)];
+
+      expect(component.copyableCustomFields).toHaveLength(0);
+    });
+
+    it("filters out linked fields", () => {
+      (component.cipher() as CipherView).fields = [makeField("リンク", "value", FieldType.Linked)];
+
+      expect(component.copyableCustomFields).toHaveLength(0);
+    });
+
+    it("filters out fields with no name", () => {
+      const f = new FieldView();
+      f.name = undefined;
+      f.value = "some-value";
+      f.type = FieldType.Text;
+      (component.cipher() as CipherView).fields = [f];
+
+      expect(component.copyableCustomFields).toHaveLength(0);
+    });
+
+    it("returns empty array when cipher has no fields", () => {
+      (component.cipher() as CipherView).fields = [];
+
+      expect(component.copyableCustomFields).toHaveLength(0);
+    });
+
+    it("preserves original index even when earlier fields are filtered out", () => {
+      (component.cipher() as CipherView).viewPassword = true;
+      (component.cipher() as CipherView).fields = [
+        makeField("有効", "true", FieldType.Boolean), // index 0: filtered
+        makeField("企業ID", "ACME-001", FieldType.Text), // index 1: kept
+        makeField("APIキー", "key", FieldType.Hidden), // index 2: kept
+      ];
+
+      const result = component.copyableCustomFields;
+      expect(result).toHaveLength(2);
+      expect(result[0].index).toBe(1);
+      expect(result[1].index).toBe(2);
+    });
+  });
+
+  describe("singleCopyableLogin with custom fields", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+    });
+
+    it("returns null when custom fields are present, even if only one login field exists", () => {
+      (component.cipher() as any).__copyable = {
+        username: true,
+        password: false,
+        totp: false,
+      };
+      const f = new FieldView();
+      f.name = "企業ID";
+      f.value = "ACME-001";
+      f.type = FieldType.Text;
+      (component.cipher() as CipherView).fields = [f];
+
+      expect(component.singleCopyableLogin).toBeNull();
+    });
+
+    it("still returns single item when no custom fields exist", () => {
+      (component.cipher() as any).__copyable = {
+        username: true,
+        password: false,
+        totp: false,
+      };
+      (component.cipher() as CipherView).fields = [];
+
+      expect(component.singleCopyableLogin).toEqual({
+        key: "copyUsername",
+        field: "username",
+      });
+    });
+  });
+
+  describe("hasLoginValues with custom fields", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+    });
+
+    it("returns true when custom fields exist even if no standard login fields", () => {
+      (component.cipher() as any).__copyable = {
+        username: false,
+        password: false,
+        totp: false,
+      };
+      const f = new FieldView();
+      f.name = "企業ID";
+      f.value = "ACME-001";
+      f.type = FieldType.Text;
+      (component.cipher() as CipherView).fields = [f];
+
+      expect(component.hasLoginValues).toBe(true);
+    });
+  });
+
+  describe("copyCustomField", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+    });
+
+    it("copies text field value and shows toast", async () => {
+      const field = { name: "企業ID", value: "ACME-001", isHidden: false, index: 0 };
+
+      await component.copyCustomField(field);
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("ACME-001");
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("does nothing when text field value is empty string", async () => {
+      const field = { name: "企業ID", value: "", isHidden: false, index: 0 };
+
+      await component.copyCustomField(field);
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when hidden field value is null on a CipherView (field truly has no value)", async () => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      const field = { name: "シークレット", value: undefined, isHidden: true, index: 0 };
+
+      await component.copyCustomField(field);
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+    });
+
+    it("routes hidden field copy through CopyCipherFieldService for reprompt and audit events", async () => {
+      copyCipherFieldService.copy.mockResolvedValue(undefined);
+
+      const field = { name: "シークレット", value: "secret", isHidden: true, index: 0 };
+
+      await component.copyCustomField(field);
+
+      expect(copyCipherFieldService.copy).toHaveBeenCalledWith(
+        "secret",
+        "hiddenField",
+        expect.anything(),
+      );
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+    });
+
+    it("does not call CopyCipherFieldService for text fields", async () => {
+      const field = { name: "企業ID", value: "ACME-001", isHidden: false, index: 0 };
+
+      await component.copyCustomField(field);
+
+      expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("ACME-001");
+    });
+
+    it("does not decrypt when field is text type even if value is null (text has no value)", async () => {
+      // Text fields in CipherListView have their value populated; null means the field is empty.
+      // We should NOT decrypt just because value is null — only hidden fields need decryption.
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
+      const field = { name: "企業ID", value: undefined, isHidden: false, index: 0 };
+
+      await component.copyCustomField(field);
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
     });
   });
 
