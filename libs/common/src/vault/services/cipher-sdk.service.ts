@@ -39,7 +39,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest(sdkCiphersClient);
+          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
 
           let result: SdkCipherView;
           if (orgAdmin) {
@@ -48,7 +48,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             result = await sdkCiphersClient.create(sdkCreateRequest);
           }
 
-          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to create cipher: ${error}`);
@@ -70,7 +70,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest(sdkCiphersClient);
+          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
 
           let result: SdkCipherView;
           if (orgAdmin) {
@@ -78,8 +78,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
               .admin()
               .edit(
                 sdkUpdateRequest,
-                originalCipherView?.toSdkCipherView(sdkCiphersClient) ||
-                  new CipherView().toSdkCipherView(sdkCiphersClient),
+                originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
               );
           } else if (cipher.edit) {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
@@ -88,7 +87,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             result = await sdkCiphersClient.edit_partial(sdkPartialUpdateRequest);
           }
 
-          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher: ${error}`);
@@ -274,16 +273,16 @@ export class DefaultCipherSdkService implements CipherSdkService {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const sdkCipherView = cipherView.toSdkCipherView(sdkCiphersClient);
+          const sdkCipherView = cipherView.toSdkCipherView();
 
           const result = await sdkCiphersClient.share_cipher(
             sdkCipherView,
             asUuid(organizationId),
             collectionIds.map((id) => asUuid(id)),
-            originalCipherView?.toSdkCipherView(sdkCiphersClient),
+            originalCipherView?.toSdkCipherView(),
           );
 
-          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to share cipher: ${error}`);
@@ -305,7 +304,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const sdkCipherViews = cipherViews.map((cv) => cv.toSdkCipherView(sdkCiphersClient));
+          const sdkCipherViews = cipherViews.map((cv) => cv.toSdkCipherView());
 
           const results = await sdkCiphersClient.share_ciphers_bulk(
             sdkCipherViews,
@@ -314,7 +313,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           );
 
           return results
-            .map((c) => CipherView.fromSdkCipherView(c, sdkCiphersClient))
+            .map((c) => CipherView.fromSdkCipherView(c))
             .filter((c): c is CipherView => c !== undefined);
         }),
         catchError((error: unknown) => {
@@ -442,12 +441,11 @@ export class DefaultCipherSdkService implements CipherSdkService {
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          const sdkCiphersClient = ref.value.vault().ciphers();
           const result = await ref.value
             .vault()
             .attachments()
             .upgrade_attachment(asUuid(cipherId), attachmentId);
-          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to upgrade attachment: ${error}`);
@@ -467,9 +465,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           const decryptResult = await sdkCiphersClient.get_all();
 
           const successes = [...(decryptResult.successes ?? [])]
-            .map((sdkCipherView: any) =>
-              CipherView.fromSdkCipherView(sdkCipherView, sdkCiphersClient),
-            )
+            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
             .filter((v): v is CipherView => v !== undefined);
 
           const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {
@@ -612,7 +608,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             asUuid(cipherId),
             collectionIds.map((id) => asUuid(id)),
           );
-          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher collections as admin: ${error}`);
@@ -637,7 +633,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             collectionIds.map((id) => asUuid(id)),
             false,
           );
-          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher collections: ${error}`);

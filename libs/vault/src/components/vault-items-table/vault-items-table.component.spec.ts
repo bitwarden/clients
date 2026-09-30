@@ -1811,6 +1811,19 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBar.source()).toBeDefined();
     });
 
+    it("never selects a cipher that failed to decrypt", () => {
+      const healthy = cipherView({ id: "a", name: "Amazon" });
+      const failed = cipherView({ id: "b", name: "Apple ID", decryptionFailure: true });
+      fixture.componentRef.setInput("ciphers", [healthy, failed]);
+      fixture.detectChanges();
+
+      // Covers select-all too: the model scopes it to the selectable rows.
+      selectionModel().select(healthy, failed);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
     it("wraps a selected cipher as a VaultItem on the batch bar", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
