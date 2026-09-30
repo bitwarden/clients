@@ -210,9 +210,7 @@ export class CollectionView implements View, ITreeNodeObject {
   /**
    * Creates a placeholder CollectionView for a collection the SDK could not decrypt.
    * `name` falls back to {@link DECRYPT_ERROR} and `decryptionFailure` is set so the item is
-   * still shown rather than silently dropped from the list. Surfaces that can offer a remedy
-   * read `decryptionFailure` to prompt the user to re-name the collection, which re-encrypts it
-   * with the current organization key.
+   * still shown rather than silently dropped from the list.
    */
   static fromFailedDecryption(collection: Collection): CollectionView {
     const view = new CollectionView({
