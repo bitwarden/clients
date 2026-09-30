@@ -2378,7 +2378,7 @@ jobs:
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
           && matrix.license_type == 'oss'
-        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           webhook: ${{ steps.retrieve-slack-secret.outputs.slack-webhook-alerts-deploy-qa }}
           webhook-type: incoming-webhook
