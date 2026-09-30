@@ -653,7 +653,7 @@
     "message": "アプリ (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "アプリ (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -907,7 +907,7 @@
     "message": "フォルダーを編集"
   },
   "editFolderNamed": {
-    "message": "Edit $NAME$",
+    "message": "$NAME$ を編集",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -916,7 +916,7 @@
     }
   },
   "deleteFolderNamed": {
-    "message": "Delete $NAME$",
+    "message": "$NAME$ を削除",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1084,13 +1084,13 @@
     "message": "全てのアイテム"
   },
   "allVaultItems": {
-    "message": "All vault items"
+    "message": "すべての保管庫アイテム"
   },
   "favorites": {
     "message": "お気に入り"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "アイテムをお気に入りとしてマークすると、ここで絞り込めます。"
   },
   "taskSummary": {
     "message": "タスク概要"
@@ -1225,7 +1225,7 @@
     "message": "共有フォルダー"
   },
   "sharedFoldersInParent": {
-    "message": "Shared folders in $NAME$",
+    "message": "$NAME$ 内の共有フォルダー",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -1235,7 +1235,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ 個の共有フォルダー",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1244,7 +1244,7 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ shared folder",
+    "message": "$COUNT$ 個の共有フォルダー",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1271,16 +1271,16 @@
     "message": "共有フォルダーを追加"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "新しい共有フォルダー"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "共有フォルダーを検索"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "マイフォルダーを検索"
   },
   "addToMyFolder": {
-    "message": "Add to my folder"
+    "message": "フォルダーに追加"
   },
   "sharedFolderItemSelect": {
     "message": "Select shared folder item"
@@ -1298,10 +1298,10 @@
     "message": "This shared folder is only accessible from the admin console"
   },
   "editSharedFolder": {
-    "message": "Edit shared folder"
+    "message": "共有フォルダーを追加"
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "共有フォルダーを削除"
   },
   "deleteSharedFoldersCount": {
     "message": "Delete $COUNT$ shared folders",
@@ -1461,7 +1461,7 @@
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "パスポートを追加",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -1525,15 +1525,15 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "セキュアメモを編集",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "ログイン情報の編集",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "カードの編集",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
@@ -1601,7 +1601,7 @@
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "パスポートを表示",
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
@@ -1621,7 +1621,7 @@
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "作成",
     "description": "for adding new items"
   },
   "new": {
@@ -1632,7 +1632,7 @@
     "message": "アイテム"
   },
   "itemLower": {
-    "message": "item"
+    "message": "アイテム"
   },
   "itemDetails": {
     "message": "アイテムの詳細"
@@ -2090,7 +2090,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "$NAME$ をダウンロード",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."
@@ -2890,19 +2890,19 @@
     "message": "認証コードのコピー"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "ユーザー名がありません"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "パスワードがありません"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "認証コードがありません"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "数値がありません"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "セキュリティコードがありません"
   },
   "copyUuid": {
     "message": "UUID をコピー"
@@ -3417,31 +3417,31 @@
     "message": "パスポート"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "運転免許証"
   },
   "ssnCard": {
     "message": "Identity card"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "出生証明書"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "データベース資格情報"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "サーバー資格情報"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "ソフトウェアライセンス"
   },
   "healthInsurance": {
     "message": "Health insurance"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi 資格情報"
   },
   "general": {
-    "message": "General"
+    "message": "全般"
   },
   "importEncKeyError": {
     "message": "エクスポートされたファイルの復号でエラーが発生しました。暗号化キーが、データをエクスポートするために使用された暗号化キーと一致しません。"
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Select a shared folder"
+  },
+  "importTargetMyFolder": {
+    "message": "My Folder",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
@@ -3489,13 +3493,13 @@
     "message": "Choose the password manager or browser you are importing from."
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "ブラウザー"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "パスワードマネージャー"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "すべて表示"
   },
   "importSourceShowLess": {
     "message": "Show less"
@@ -8445,7 +8449,7 @@
     "message": "Experiencing an issue? Download then share the diagnostic report with"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwarden サポート",
     "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
@@ -10384,7 +10388,7 @@
     "message": "家族組織を新規作成"
   },
   "createVault": {
-    "message": "Create vault"
+    "message": "保管庫の作成"
   },
   "acceptOffer": {
     "message": "オファーを受け取る"
@@ -11371,7 +11375,7 @@
     "message": "シークレットを完全に削除"
   },
   "currentVersion": {
-    "message": "Current version",
+    "message": "現在のバージョン",
     "description": "Label for the current version section in the secret version history."
   },
   "modifiedBy": {
@@ -11876,7 +11880,7 @@
     "message": "新しいドメイン"
   },
   "addDomain": {
-    "message": "Add domain"
+    "message": "ドメインの追加"
   },
   "noDomains": {
     "message": "ドメインはありません"
@@ -12543,7 +12547,7 @@
     "message": "Organize your secrets into projects"
   },
   "smOnboardingCreateProjectCta": {
-    "message": "Create project"
+    "message": "プロジェクトを作成"
   },
   "smOnboardingImportSecretsSubtitle": {
     "message": "Bring existing secrets in from another tool"
@@ -12823,7 +12827,7 @@
     "message": "Automatically enroll new members in account recovery"
   },
   "resetMasterPassword": {
-    "message": "Reset master password"
+    "message": "マスターパスワードをリセット"
   },
   "resetTwoStepLogin": {
     "message": "Reset two-step login"
@@ -13390,13 +13394,13 @@
     "message": "Save time by importing data from another password manager. You can manually add items to your vault."
   },
   "onboardingImportCta": {
-    "message": "Import passwords"
+    "message": "パスワードをインポート"
   },
   "onboardingInstallExtensionSubtitle": {
     "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
   },
   "onboardingInstallExtensionCta": {
-    "message": "Install extension"
+    "message": "拡張機能をインストール"
   },
   "completed": {
     "message": "Completed"
@@ -14289,7 +14293,7 @@
     "message": "URL"
   },
   "bearerToken": {
-    "message": "Bearer Token"
+    "message": "Bearer トークン"
   },
   "repositoryNameHint": {
     "message": "Name of the repository to ingest into"
@@ -15342,7 +15346,7 @@
     "message": "Trust"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "信頼しない"
   },
   "organizationNotTrusted": {
     "message": "Organization is not trusted"
@@ -15357,7 +15361,7 @@
     "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "ユーザーを信頼"
   },
   "sshKeyWrongPassword": {
     "message": "入力されたパスワードが間違っています。"
@@ -15393,7 +15397,7 @@
     "message": "Opening the Bitwarden browser extension"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "問題が発生しました。"
   },
   "openingExtensionError": {
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
@@ -15861,7 +15865,7 @@
     "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
   },
   "restart": {
-    "message": "Restart"
+    "message": "再起動"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
@@ -16005,13 +16009,13 @@
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
   "showAll": {
-    "message": "Show all"
+    "message": "すべて表示"
   },
   "showMore": {
     "message": "さらに表示"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "$COUNT$ 件をさらに表示",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -16633,7 +16637,7 @@
     "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "すべてのプランを表示"
   },
   "planDescPremium": {
     "message": "Complete online security"
@@ -16776,7 +16780,7 @@
     "message": "Start tour"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "スキップ"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -16786,10 +16790,10 @@
     "message": "per user"
   },
   "upgradeToTeams": {
-    "message": "Upgrade to Teams"
+    "message": "Teams にアップグレード"
   },
   "upgradeToEnterprise": {
-    "message": "Upgrade to Enterprise"
+    "message": "Enterprise にアップグレード"
   },
   "upgradeShareEvenMore": {
     "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
@@ -16820,13 +16824,13 @@
     "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
-    "message": "Enterprise membership"
+    "message": "Enterprise メンバーシップ"
   },
   "teamsMembership": {
-    "message": "Teams membership"
+    "message": "Teams メンバーシップ"
   },
   "plansUpdated": {
-    "message": "You've upgraded to $PLAN$!",
+    "message": "$PLAN$ にアップグレードしました!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -16856,7 +16860,7 @@
     }
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "銀行名"
   },
   "nameOnAccount": {
     "message": "Name on account"
@@ -17084,7 +17088,7 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "SSO 認証が必要です"
   },
   "keeperSsoDesc": {
     "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
@@ -17093,7 +17097,7 @@
     "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "SSO トークン"
   },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
@@ -17114,10 +17118,10 @@
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "2 段階認証"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "メールアドレス認証"
   },
   "approvalEmailDesc": {
     "message": "Please check your email and enter the verification code below"
@@ -17144,16 +17148,16 @@
     "message": "Approve the login request in your authentication app. This dialog will close automatically."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "2 段階認証の方法を選択"
   },
   "selectTwoFactorMethodDesc": {
     "message": "Choose how you want to verify your identity."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "認証アプリ (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "テキストメッセージ（SMS）"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -17162,31 +17166,31 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "バックアップコード"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "セキュリティキー (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "セキュリティキー (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA 認証"
   },
   "keeperDnaPushWaiting": {
     "message": "Approve the Keeper DNA notification on your device"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Keeper DNA メソッドを選択"
   },
   "selectKeeperDnaMethodDesc": {
     "message": "Choose how you want to verify with Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "プッシュ通知"
   },
   "enterCodeManually": {
     "message": "Enter code manually"
@@ -17198,7 +17202,7 @@
     "message": "Unknown method"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Duo メソッドを選択"
   },
   "selectDuoMethodDesc": {
     "message": "Choose how you want to verify with Duo Security."
@@ -17240,7 +17244,7 @@
     "message": "Importing your account..."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "パスコード"
   },
   "multipleInputDomainsInvalid": {
     "message": "One or more domains are invalid"
@@ -17298,7 +17302,7 @@
     "message": "Create banner message"
   },
   "header": {
-    "message": "Header"
+    "message": "ヘッダー"
   },
   "maximumOfXCharacters": {
     "message": "Maximum of $COUNT$ characters",
@@ -17342,7 +17346,7 @@
     "message": "Enter a description."
   },
   "button": {
-    "message": "Button"
+    "message": "ボタン"
   },
   "showAfterEveryLogin": {
     "message": "Show after every login"
@@ -17359,10 +17363,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allow": {
-    "message": "Allow"
+    "message": "許可"
   },
   "block": {
-    "message": "Block"
+    "message": "ブロック"
   },
   "sendControlAccessOptions": {
     "message": "Access options"
@@ -17488,10 +17492,13 @@
     "message": "License class"
   },
   "copy": {
-    "message": "Copy"
+    "message": "コピー"
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
   },
   "pamAccessRules": {
     "message": "Access rules"
@@ -17530,7 +17537,7 @@
     "message": "Edit access rule"
   },
   "pamAccessRuleName": {
-    "message": "Name"
+    "message": "名前"
   },
   "pamAccessRuleNamePlaceholder": {
     "message": "e.g. VPN + business hours"
@@ -17656,7 +17663,7 @@
     "message": "Start from a template"
   },
   "pamAccessRuleUseTemplate": {
-    "message": "Use template"
+    "message": "テンプレートを使用"
   },
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
@@ -17813,7 +17820,7 @@
     }
   },
   "login": {
-    "message": "Login"
+    "message": "ログイン"
   },
   "orgNameVault": {
     "message": "$ORGNAME$ vault",
@@ -17837,7 +17844,7 @@
     "message": "Show me how"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "共有"
   },
   "peopleWhoCanView": {
     "message": "People who can view",
@@ -17920,10 +17927,10 @@
     "message": "additional storage GB"
   },
   "membersLower": {
-    "message": "members"
+    "message": "メンバー"
   },
   "memberLower": {
-    "message": "member"
+    "message": "メンバー"
   },
   "annualLower": {
     "message": "annual"

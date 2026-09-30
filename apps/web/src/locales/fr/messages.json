@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Vous n'avez pas de dossier."
+  "youHaveNoFoldersV2": {
+    "message": "Vous n'avez aucun dossier"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous, personne d'autre ne les verra ou ne les utilisera."
+  "emptyFoldersDescriptionV2": {
+    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous. Personne d'autre ne les verra ou les utilisera."
   },
   "emptyVaultsDescription": {
     "message": "Ajoutez des identifiants, des ID, des cartes et d'autres éléments pour commencer."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Sélectionnez un dossier partagé"
+  },
+  "importTargetMyFolder": {
+    "message": "Mon dossier",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Demandes d'accès"
   },
   "pamAccessRules": {
     "message": "Règles d'accès"

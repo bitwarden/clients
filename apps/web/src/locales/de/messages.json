@@ -2626,11 +2626,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Du hast keine Ordner."
+  "youHaveNoFoldersV2": {
+    "message": "Du hast keine Ordner"
   },
-  "emptyFoldersDescription": {
-    "message": "Verwende Ordner, um Tresor-Einträge zu organisieren. Diese sind nur für dich bestimmt – niemand sonst kann sie sehen oder nutzen."
+  "emptyFoldersDescriptionV2": {
+    "message": "Verwende Ordner, um Tresor-Einträge zu organisieren. Diese sind nur für dich bestimmt. Niemand sonst kann sie sehen oder nutzen."
   },
   "emptyVaultsDescription": {
     "message": "Füge Zugangsdaten, Identitäten, Karten und andere Einträge hinzu, um loszulegen."
@@ -3460,6 +3460,10 @@
   },
   "selectImportSharedFolder": {
     "message": "Wähle einen geteilten Ordner aus"
+  },
+  "importTargetMyFolder": {
+    "message": "Mein Ordner",
+    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn die Inhalte der Import-Datei in eine Sammlung verschoben werden sollen"
@@ -4507,11 +4511,11 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "appliedBalance": {
-    "message": "Applied balance",
+    "message": "Verrechnetes Guthaben",
     "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
   },
   "amountDue": {
-    "message": "Amount due",
+    "message": "Fälliger Betrag",
     "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
@@ -9934,7 +9938,7 @@
     "message": "Aktiviere die Option \"Auto-Ausfüllen beim Laden einer Seite\" in der Browser-Erweiterung für alle bestehenden und neuen Mitglieder. Beachte, dass kompromittierte oder nicht vertrauenswürdige Websites"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+    "message": "Aktiviere in der Browser-Erweiterung die Einstellung „Auto-Ausfüllen beim Laden der Seite“ für alle bestehenden und neuen Mitglieder. Sobald diese Richtlinie aktiviert ist, müssen die Mitglieder ihre persönlichen Einstellungen anpassen, um Auto-Ausfüllen zu aktivieren. Beachte, dass kompromittierte oder nicht vertrauenswürdige Websites folgendes können:"
   },
   "exploitAutofillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden der Seite ausnutzen können"
@@ -10153,7 +10157,7 @@
     "message": "Wähle die Organisation aus, die du gerne sponsern möchtest"
   },
   "selectAFamilyVault": {
-    "message": "Select a family vault"
+    "message": "Wähle einen Familientresor aus"
   },
   "familiesSponsoringOrgSelect": {
     "message": "Welches Free Families-Angebot möchtest du einlösen?"
@@ -10168,7 +10172,7 @@
     "message": "Angebot für eine bestehende Organisation akzeptieren oder eine neue Families-Organisation erstellen."
   },
   "acceptSponsoredFamiliesPlanHelp": {
-    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "message": "$ORGANIZATION$ hat dir einen kostenlosen Bitwarden-Familien-Tarif gesponsert! Du kannst diesen kostenlosen Tarif für einen bestehenden Familien-Tresor anwenden oder einen neuen erstellen.",
     "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
     "placeholders": {
       "organization": {
@@ -10178,7 +10182,7 @@
     }
   },
   "acceptSponsoredFamiliesPlanHelpNoOrg": {
-    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "message": "Dir wurde ein kostenloser Bitwarden-Familien-Tarif gesponsert! Du kannst diesen kostenlosen Tarif für einen bestehenden Familien-Tresor anwenden oder einen neuen erstellen.",
     "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
@@ -10200,10 +10204,10 @@
     "message": "Free Bitwarden Families akzeptieren"
   },
   "acceptSponsoredFamiliesPlan": {
-    "message": "Accept Sponsored Families Plan"
+    "message": "Gesponsorten Families-Tarif annehmen"
   },
   "sponsoredPlanDetails": {
-    "message": "Sponsored plan details"
+    "message": "Details des gesponserten Tarifs"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Free Bitwarden Families-Angebot erfolgreich eingelöst"
@@ -10374,7 +10378,7 @@
     "message": "Bitte gib eine Zahlungsmethode an, die mit der Organisation verbunden wird. Keine Sorge, wir werden dir nichts berechnen, es sei denn, du wählst zusätzliche Funktionen aus oder dein Sponsoring läuft ab. "
   },
   "paymentSponsoredFamilyVault": {
-    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "message": "Bitte gib eine Zahlungsmethode an, die mit deinem Familientresor verbunden wird. Keine Sorge, wir werden dir nichts berechnen, es sei denn, du wählst zusätzliche Funktionen aus oder dein Sponsoring läuft ab. ",
     "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
   },
   "orgCreatedSponsorshipInvalid": {
@@ -10384,13 +10388,13 @@
     "message": "Neue Families-Organisation"
   },
   "createVault": {
-    "message": "Create vault"
+    "message": "Tresor erstellen"
   },
   "acceptOffer": {
     "message": "Angebot annehmen"
   },
   "applySponsorship": {
-    "message": "Apply sponsorship"
+    "message": "Sponsoring beantragen"
   },
   "sponsoringOrg": {
     "message": "Sponsoring-Organisation"
@@ -17492,6 +17496,9 @@
   },
   "pam": {
     "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Zugriffsanforderungen"
   },
   "pamAccessRules": {
     "message": "Zugriffsregeln"
