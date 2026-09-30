@@ -1002,6 +1002,7 @@ export default class MainBackground {
       this.configService,
       this.v2UpgradeTokenStateService,
       this.managedSettingsService,
+      this.appIdService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -1013,6 +1014,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.managedSettingsService,
+      this.appIdService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
