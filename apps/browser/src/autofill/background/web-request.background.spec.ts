@@ -527,15 +527,17 @@ describe("shouldAnswerAuthChallenge", () => {
   });
 
   describe("request provenance", () => {
-    const subresourceTypes = [
+    const answerableSubresourceTypes = [["xmlhttprequest"], ["sub_frame"]];
+    const passiveAssetTypes = [
       ["image"],
-      ["sub_frame"],
       ["script"],
       ["stylesheet"],
-      ["xmlhttprequest"],
+      ["font"],
+      ["media"],
+      ["object"],
     ];
 
-    it.each(subresourceTypes)("declines a cross-origin %s subresource", (type) => {
+    it.each(answerableSubresourceTypes)("declines a cross-origin %s", (type) => {
       const details = buildAuthRequiredDetails({
         type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
         initiator: "https://attacker.example",
@@ -544,7 +546,7 @@ describe("shouldAnswerAuthChallenge", () => {
       expect(shouldAnswerAuthChallenge(details)).toBe(false);
     });
 
-    it.each(subresourceTypes)("answers a same-origin %s subresource", (type) => {
+    it.each(answerableSubresourceTypes)("answers a same-origin %s", (type) => {
       const details = buildAuthRequiredDetails({
         type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
         initiator: "https://example.com",
@@ -553,9 +555,18 @@ describe("shouldAnswerAuthChallenge", () => {
       expect(shouldAnswerAuthChallenge(details)).toBe(true);
     });
 
+    it.each(passiveAssetTypes)("declines a same-origin %s", (type) => {
+      const details = buildAuthRequiredDetails({
+        type: type as chrome.webRequest.OnAuthRequiredDetails["type"],
+        initiator: "https://example.com",
+      });
+
+      expect(shouldAnswerAuthChallenge(details)).toBe(false);
+    });
+
     it("declines a subresource whose initiator differs only by port", () => {
       const details = buildAuthRequiredDetails({
-        type: "image",
+        type: "xmlhttprequest",
         initiator: "https://example.com:8443",
       });
 
@@ -563,13 +574,13 @@ describe("shouldAnswerAuthChallenge", () => {
     });
 
     it("declines a subresource with no initiator", () => {
-      const details = buildAuthRequiredDetails({ type: "image", initiator: undefined });
+      const details = buildAuthRequiredDetails({ type: "xmlhttprequest", initiator: undefined });
 
       expect(shouldAnswerAuthChallenge(details)).toBe(false);
     });
 
     it("declines a subresource with an opaque initiator", () => {
-      const details = buildAuthRequiredDetails({ type: "image", initiator: "null" });
+      const details = buildAuthRequiredDetails({ type: "xmlhttprequest", initiator: "null" });
 
       expect(shouldAnswerAuthChallenge(details)).toBe(false);
     });
