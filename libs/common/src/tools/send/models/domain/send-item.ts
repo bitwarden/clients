@@ -2,13 +2,16 @@ import { Jsonify } from "type-fest";
 
 import { SendEncryptionType, SendItem as SdkSendItem } from "@bitwarden/sdk-internal";
 
+import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import Domain from "../../../../platform/models/domain/domain-base";
+import { SendItemMetadataData } from "../data/send-item-metadata.data";
 import { SendItemData } from "../data/send-item.data";
 
 export class SendItem extends Domain {
   encryptionVersion: SendEncryptionType = SendEncryptionType.V1;
   /** Opaque sealed cipher blob. Only the SDK can create or read it. */
   data?: string;
+  metadata?: SendItemMetadataData;
 
   constructor(obj?: SendItemData) {
     super();
@@ -20,6 +23,7 @@ export class SendItem extends Domain {
       this.encryptionVersion = obj.encryptionVersion;
     }
     this.data = obj.data;
+    this.metadata = obj.metadata;
   }
 
   static fromJSON(json: Jsonify<SendItem>) {
@@ -39,6 +43,7 @@ export class SendItem extends Domain {
     return {
       encryptionVersion: this.encryptionVersion,
       data: this.data,
+      metadata: this.metadata ? { itemId: asUuid(this.metadata.itemId) } : undefined,
     };
   }
 
@@ -47,6 +52,7 @@ export class SendItem extends Domain {
     return Object.assign(new SendItem(), {
       encryptionVersion: obj.encryptionVersion,
       data: obj.data,
+      metadata: obj.metadata ? { itemId: uuidAsString(obj.metadata.itemId) } : undefined,
     });
   }
 
@@ -55,6 +61,7 @@ export class SendItem extends Domain {
     return Object.assign(new SendItemData(), {
       encryptionVersion: this.encryptionVersion,
       data: this.data,
+      metadata: this.metadata,
     });
   }
 }

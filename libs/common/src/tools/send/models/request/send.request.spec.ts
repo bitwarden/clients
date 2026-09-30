@@ -89,10 +89,12 @@ describe("SendRequest", () => {
       send.key = new EncString("encryptedKey");
       send.data = new SendItem();
       send.data.data = sealedData;
+      send.data.metadata = { itemId: "5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71" };
 
       const request = new SendRequest(send);
 
       expect(request.data.data).toBe(sealedData);
+      expect(request.data.metadata?.itemId).toBe("5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71");
     });
   });
 });

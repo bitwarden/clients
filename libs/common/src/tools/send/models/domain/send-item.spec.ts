@@ -7,6 +7,7 @@ import { SendItem } from "./send-item";
 
 /** Opaque sealed cipher blob; clients pass it through unchanged. */
 const SEALED_DATA = '{"format_version":1,"wrapped_cek":"2.a|b|c","envelope":"g1hH"}';
+const ITEM_ID = "5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71";
 
 describe("SendItem", () => {
   let data: SendItemData;
@@ -15,6 +16,7 @@ describe("SendItem", () => {
     data = {
       data: SEALED_DATA,
       encryptionVersion: SendEncryptionType.V1,
+      metadata: { itemId: ITEM_ID },
     };
 
     mockContainerService();
@@ -26,6 +28,7 @@ describe("SendItem", () => {
     expect(sendItem).toEqual({
       encryptionVersion: SendEncryptionType.V1,
       data: SEALED_DATA,
+      metadata: { itemId: ITEM_ID },
     });
   });
 

@@ -3,6 +3,7 @@
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
+import { SendItemMetadataApi } from "../api/send-item-metadata.api";
 import { SendItemApi } from "../api/send-item.api";
 import { SendTextApi } from "../api/send-text.api";
 import { Send } from "../domain/send";
@@ -57,6 +58,10 @@ export class SendRequest {
         this.data = new SendItemApi();
         this.data.encryptionVersion = send.data.encryptionVersion;
         this.data.data = send.data.data;
+        if (send.data.metadata != null) {
+          this.data.metadata = new SendItemMetadataApi();
+          this.data.metadata.itemId = send.data.metadata.itemId;
+        }
         break;
       default:
         break;
