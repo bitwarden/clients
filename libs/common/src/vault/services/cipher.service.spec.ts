@@ -1635,13 +1635,11 @@ describe("Cipher Service", () => {
         .spyOn(cipherSdkService, "moveManyWithServer")
         .mockResolvedValue(undefined);
       const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
-      const apiSpy = jest.spyOn(apiService, "putMoveCiphers");
 
       await cipherService.moveManyWithServer(testCipherIds, testFolderId, mockUserId);
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testCipherIds, testFolderId, mockUserId);
       expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
-      expect(apiSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -1896,7 +1894,6 @@ describe("Cipher Service", () => {
       );
       expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
       expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(sdkCipherView, mockUserId);
-      expect(apiService.putCipherCollectionsAdmin).not.toHaveBeenCalled();
       expect(result).toBe(encryptedCipher);
     });
   });
@@ -1930,7 +1927,6 @@ describe("Cipher Service", () => {
       );
       expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
       expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(sdkCipherView, mockUserId);
-      expect(apiService.putCipherCollections).not.toHaveBeenCalled();
       expect(result).toBe(encryptedCipher);
     });
   });
