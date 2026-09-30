@@ -134,6 +134,7 @@ export default tseslint.config(
       "@bitwarden/platform/no-enums": "error",
       "@bitwarden/platform/no-page-script-url-leakage": "error",
       "@bitwarden/platform/no-unawaited-using-return": "error",
+      "@bitwarden/platform/no-derived-user-api-send": "warn",
       "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
@@ -743,6 +744,17 @@ export default tseslint.config(
     },
     rules: {
       "jest/no-alias-methods": "error",
+    },
+  },
+
+  // ApiService's own spec is the only remaining coverage of the deprecated
+  // derived-user branch of send(). Those call sites must stay until the
+  // branch is deleted, so silence the migration warning here to keep the
+  // warning list focused on production call sites that still need migration.
+  {
+    files: ["libs/common/src/services/api.service.spec.ts"],
+    rules: {
+      "@bitwarden/platform/no-derived-user-api-send": "off",
     },
   },
 

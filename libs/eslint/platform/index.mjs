@@ -3,6 +3,7 @@ import noEnums from "./no-enums.mjs";
 import noPageScriptUrlLeakage from "./no-page-script-url-leakage.mjs";
 import noSelfPackageImport from "./no-self-package-import.mjs";
 import noUnawaitedUsingReturn from "./no-unawaited-using-return.mjs";
+import noDerivedUserApiSend from "./no-derived-user-api-send.mjs";
 
 export default {
   rules: {
@@ -11,5 +12,6 @@ export default {
     "no-page-script-url-leakage": noPageScriptUrlLeakage,
     "no-self-package-import": noSelfPackageImport,
     "no-unawaited-using-return": noUnawaitedUsingReturn,
+    "no-derived-user-api-send": noDerivedUserApiSend,
   },
 };
