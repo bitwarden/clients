@@ -452,9 +452,6 @@ class DemoFilterableTableComponent {
           >
             Import
           </button>
-          <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-sliders">
-            Customize
-          </button>
           <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
             Add
           </button>
@@ -1030,6 +1027,7 @@ export default {
         BulkAdditionalActionComponent,
         IconTileComponent,
         ChipActionComponent,
+        ButtonModule,
         IconButtonModule,
         LayoutComponent,
         PageComponent,
@@ -1353,6 +1351,12 @@ const customizeColumnsTemplate = `
   <bit-table-v2 [tableDef]="table" stateKey="storybook-customize">
     <bit-table-toolbar>
       <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+      <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">
+        Import
+      </button>
+      <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
+        Add
+      </button>
     </bit-table-toolbar>
     <bit-column sortable>
       <bit-header-cell>Name</bit-header-cell>
@@ -1376,6 +1380,9 @@ const customizeColumnsTemplate = `
  *
  * The primary (first) column is never offered, so the user can always hide everything
  * else and still have a table.
+ *
+ * **Import** and **Add** are the host's own page controls, projected through `slot=end` the
+ * way the web vault does it. Customize belongs to the table, so it sits to their left.
  */
 export const CustomizeColumns: Story = {
   render: () => ({
