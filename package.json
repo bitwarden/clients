@@ -27,6 +27,7 @@
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
     "lint:sdk-internal-versions": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/sdk-internal-versions.js",
+    "lint:table-state-keys": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/table-state-keys.js",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d . --disableRoutesGraph",
     "storybook": "ng run components:storybook",
     "storybook:combined": "STORYBOOK_DEV=\"combined\" concurrently \"npm run storybook\" \"npm run storybook:autofill:combined\"",

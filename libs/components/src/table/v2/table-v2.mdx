@@ -229,7 +229,8 @@ Rules worth knowing:
 - **The first column is never offered**, which is what guarantees the table can't be emptied.
   Marking it has no effect.
 - **`stateKey` is required.** Without somewhere to persist the choice the button stays hidden; the
-  key also namespaces the stored preference, so make it unique per table.
+  key also namespaces the stored preference, so make it unique per table —
+  `npm run lint:table-state-keys` fails CI on a duplicate.
 - **The dialog labels each column with its header text**, read from the rendered header. A column
   with an icon-only header has no label to show, so it is skipped and stays visible.
 - **`displayedColumns` still wins.** It decides what is _available_; the user's choice hides a

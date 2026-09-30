@@ -321,8 +321,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Required once any `<bit-column>` is marked `removable` — without it there is
    * nowhere to persist the user's choice, so the Customize control stays hidden.
    *
-   * Bind a constant from `table-customize-keys.ts`, which is checked for uniqueness:
-   * two tables sharing a key would share one stored set of hidden columns.
+   * A key is a persistence identity, not a label: unique across every table (enforced by
+   * `npm run lint:table-state-keys`), and renaming one discards every preference saved under it.
    */
   readonly stateKey = input<string>();
 
