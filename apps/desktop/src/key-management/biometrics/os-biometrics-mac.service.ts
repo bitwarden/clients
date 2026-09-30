@@ -1,4 +1,4 @@
-import { systemPreferences } from "electron";
+import { app, systemPreferences } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -10,7 +10,7 @@ import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { OsBiometricService } from "./os-biometrics.service";
 
-const SERVICE = "Bitwarden_biometric";
+const SERVICE = `${app.getName()}_biometric`;
 function getLookupKeyForUser(userId: UserId): string {
   return `${userId}_user_biometric`;
 }

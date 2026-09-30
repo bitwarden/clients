@@ -374,7 +374,6 @@ const buildProviders = (args: StoryArgs) => {
           collection: [] as string[],
           folder: [] as string[],
         }),
-        selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         organizationNames$: of(ORGANIZATION_NAMES),

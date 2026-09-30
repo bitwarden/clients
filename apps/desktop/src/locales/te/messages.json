@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "ఈ బటన్ పైన $COUNT$ మరిన్ని షేర్ చేయబడిన ఫోల్డర్‌లు చూపబడ్డాయి",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "ఈ బటన్ పైన 1 మరిన్ని షేర్ చేయబడిన ఫోల్డర్ చూపబడింది",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "నా ఫోల్డర్"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "సేకరణను ఎంచుకోండి"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "దిగుమతి చేసిన ఫైల్ విషయాలను సేకరణకు తరలించాలనుకుంటే ఈ ఎంపికను ఎంచుకోండి"
   },
   "importTargetHintFolder": {
     "message": "దిగుమతి చేసిన ఫైల్ విషయాలను ఫోల్డర్‌కు తరలించాలనుకుంటే ఈ ఎంపికను ఎంచుకోండి"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "ఫైల్ కేటాయించని అంశాలను కలిగి ఉంది."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "దిగుమతి ఫైల్‌ను ఎంచుకోండి"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "ఫైల్‌ను ఎంచుకోండి"

@@ -1054,6 +1054,26 @@ describe("Cipher Service", () => {
       expect(successes).toEqual(expectedSuccessCipherViews);
       expect(failures).toEqual(expectedFailedCipherViews);
     });
+
+    it("excludes ciphers with no key for their org before calling into the SDK", async () => {
+      const missingOrgId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as OrganizationId;
+      const orphanedCipher = new Cipher({
+        ...cipherData,
+        id: "33333333-3333-3333-3333-333333333333",
+        organizationId: missingOrgId,
+      });
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [{ id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherView],
+        [],
+      ]);
+
+      await (cipherService as any).decryptCiphers([...mockCiphers, orphanedCipher], userId);
+
+      // The orphaned cipher is dropped before the SDK is ever asked to decrypt it, so it never
+      // has a chance to be logged/counted as a decryption failure.
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(mockCiphers, userId);
+    });
   });
 
   describe("softDelete", () => {

@@ -160,20 +160,6 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "இந்த பொத்தானுக்கு மேலே மேலும் $COUNT$ பகிரப்பட்ட கோப்புறைகள் காட்டப்பட்டுள்ளன",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "இந்த பொத்தானுக்கு மேலே மேலும் 1 பகிரப்பட்ட கோப்புறை காட்டப்பட்டுள்ளது",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
-  },
   "myFolder": {
     "message": "எனது கோப்புறை"
   },
@@ -4640,11 +4626,17 @@
   "selectImportCollection": {
     "message": "ஒரு தொகுப்பைத் தேர்ந்தெடுக்கவும்"
   },
+  "selectImportSharedFolder": {
+    "message": "Select a shared folder"
+  },
   "importTargetHintCollection": {
     "message": "இறக்குமதி செய்யப்பட்ட கோப்பின் உள்ளடக்கங்களை ஒரு தொகுப்பிற்கு நகர்த்த விரும்பினால், இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
   },
   "importTargetHintFolder": {
     "message": "இறக்குமதி செய்யப்பட்ட கோப்பின் உள்ளடக்கங்களை ஒரு கோப்புறையில் நகர்த்த விரும்பினால், இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "கோப்பில் ஒதுக்கப்படாத உருப்படிகள் உள்ளன."
@@ -4654,6 +4646,40 @@
   },
   "selectImportFile": {
     "message": "இறக்குமதி கோப்பைத் தேர்ந்தெடுக்கவும்"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "கோப்பைத் தேர்ந்தெடு"
