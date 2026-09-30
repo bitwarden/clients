@@ -18685,15 +18685,6 @@
   "requestAccessModalDuration": {
     "message": "Duration"
   },
-  "requestAccessModalStartNow": {
-    "message": "$TIME$ (now)",
-    "placeholders": {
-      "time": {
-        "content": "$1",
-        "example": "10:57 AM"
-      }
-    }
-  },
   "requestAccessModalCustomOption": {
     "message": "Custom time…"
   },
@@ -19983,6 +19974,15 @@
   },
   "requestAccessModalEndNotAfterStart": {
     "message": "End must be after the start."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (now)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
   },
   "requestAccessModalWindowInPast": {
     "message": "The requested window has already ended. Pick a later date or time."
