@@ -1540,6 +1540,40 @@
     "message": "Importovať",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Vybrať zdroj"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správcu hesiel alebo prehliadač, z ktorého chcete importovať."
+  },
+  "importSourceBrowsers": {
+    "message": "Prehliadače"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správcovia hesiel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobraziť všetko"
+  },
+  "importSourceShowLess": {
+    "message": "Zobraziť menej"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "Importovať položky"
   },
@@ -5142,7 +5176,7 @@
     "message": "Vyberte zbierku"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Vyberte zdieľaný priečinok"
   },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
@@ -5151,7 +5185,7 @@
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Túto možnosť vyberte, ak chcete obsah importovaného súboru presunúť do zdieľaného priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."

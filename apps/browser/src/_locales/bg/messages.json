@@ -1540,6 +1540,40 @@
     "message": "Внасяне",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Изберете източник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Изберете своя източник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Изберете управителя на пароли или браузъра, от който внасяте."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузъри"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Управители на пароли"
+  },
+  "importSourceShowAll": {
+    "message": "Показване на всички"
+  },
+  "importSourceShowLess": {
+    "message": "Показване на по-малко"
+  },
+  "importSourceStepCount": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "Внасяне на елементи"
   },
@@ -5142,7 +5176,7 @@
     "message": "Изберете колекция"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Изберете споделена папка"
   },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
@@ -5151,7 +5185,7 @@
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в споделена папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."

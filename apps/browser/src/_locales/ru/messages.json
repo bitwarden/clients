@@ -1540,6 +1540,40 @@
     "message": "Импортировать",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectTitle": {
+    "message": "Выберите источник"
+  },
+  "importSourceSelectDescription": {
+    "message": "Выберите менеджер паролей или браузер, из которого вы выполняете импорт."
+  },
+  "importSourceBrowsers": {
+    "message": "Браузеры"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менеджеры паролей"
+  },
+  "importSourceShowAll": {
+    "message": "Показать все"
+  },
+  "importSourceShowLess": {
+    "message": "Меньше"
+  },
+  "importSourceStepCount": {
+    "message": "Шаг $CURRENT$ из $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
     "message": "Импорт элементов"
   },
@@ -5142,7 +5176,7 @@
     "message": "Выберите коллекцию"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Выберите общую папку"
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -5151,7 +5185,7 @@
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в общую папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."

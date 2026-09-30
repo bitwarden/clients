@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Bitwarden 密碼管理員 Beta",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -452,7 +452,7 @@
     "message": "目前沒有可列出的資料夾。"
   },
   "noFoldersFilter": {
-    "message": "No folders"
+    "message": "沒有資料夾"
   },
   "helpFeedback": {
     "message": "說明與意見回饋"
@@ -516,7 +516,7 @@
     "message": "選項"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ 的選項",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -525,10 +525,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "沒有共用資料夾"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "依 $NAME$ 篩選",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -537,16 +537,16 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "將項目標記為最愛，即可在此篩選。"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "將資料夾新增至項目，即可在此篩選。"
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "將項目新增至共用資料夾，即可在此篩選。"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "編輯項目 - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -555,16 +555,16 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "保險庫中沒有項目"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "我的保險庫中沒有項目"
   },
   "emptyMyItems": {
-    "message": "No items in My items"
+    "message": "我的項目中沒有項目"
   },
   "noItemsInOrganizationVault": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "$VAULT_NAME$ 中沒有項目",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -573,7 +573,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "$VAULT_NAME$ 中沒有項目",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -582,13 +582,13 @@
     }
   },
   "noItemsInVaults": {
-    "message": "Your vaults are empty"
+    "message": "您的保險庫是空的"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "No items match selected filters"
+    "message": "沒有項目符合所選篩選條件"
   },
   "noItemsMatchSearchTerm": {
-    "message": "No items match \"$SEARCH_TERM$\"",
+    "message": "沒有項目符合「$SEARCH_TERM$」",
     "placeholders": {
       "search_term": {
         "content": "$1",
@@ -801,7 +801,7 @@
     "message": "開啟網站"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "為 $ITEMNAME$ 啟動網站",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1147,10 +1147,10 @@
     "message": "資料夾已新增"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "資料夾已編輯"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "輸入名稱。"
   },
   "twoStepLoginConfirmation": {
     "message": "兩步驟登入會要求您透過另一個裝置驗證登入，例如安全金鑰、驗證器應用程式、簡訊、電話或電子郵件，藉此提升帳戶安全性。您可以在 bitwarden.com 的網頁密碼庫中設定此功能。是否要現在前往？"
@@ -1465,28 +1465,28 @@
     "message": "其他選項"
   },
   "fillAssistActiveNoticeV2": {
-    "message": "Autofill is using fill assist on this page."
+    "message": "自動填入正在此頁面使用填入輔助。"
   },
   "activateFillAssistV2": {
-    "message": "Turn on fill assist"
+    "message": "開啟填入輔助"
   },
   "activateFillAssistDescriptionV2": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "填入輔助會使用網站專屬規則，提升支援網站的自動填入準確度。使用此功能時，不會收集或儲存任何資料。"
   },
   "aboutFillAssistLabelV2": {
-    "message": "About fill assist"
+    "message": "關於填入輔助"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
-    "message": "Allow websites to exclude fields to autofill"
+    "message": "允許網站排除不自動填入的欄位"
   },
   "honorDataBitwardenIgnoreAttributeHint": {
-    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+    "message": "略過網站以 `data-bwignore` 屬性標記的欄位。"
   },
   "honorDataBitwardenAutofillAttributeLabel": {
-    "message": "Allow websites to add fields to autofill"
+    "message": "允許網站新增要自動填入的欄位"
   },
   "honorDataBitwardenAutofillAttributeHint": {
-    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+    "message": "使用網站以 `data-bwautofill` 屬性標記的任何 span 元素。"
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -1540,8 +1540,42 @@
     "message": "匯入",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "選擇來源"
+  },
+  "importSourceSelectTitle": {
+    "message": "選擇您的來源"
+  },
+  "importSourceSelectDescription": {
+    "message": "選擇您要從哪個密碼管理員或瀏覽器匯入。"
+  },
+  "importSourceBrowsers": {
+    "message": "瀏覽器"
+  },
+  "importSourcePasswordManagers": {
+    "message": "密碼管理員"
+  },
+  "importSourceShowAll": {
+    "message": "顯示全部"
+  },
+  "importSourceShowLess": {
+    "message": "顯示較少"
+  },
+  "importSourceStepCount": {
+    "message": "步驟 $CURRENT$，共 $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
-    "message": "Import items"
+    "message": "匯入項目"
   },
   "fileFormat": {
     "message": "檔案格式"
@@ -2066,7 +2100,7 @@
     "message": "顯示付款卡建議"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "將 SSH 金鑰顯示為建議"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "當選擇圖示時，顯示建議"
@@ -2688,7 +2722,7 @@
     }
   },
   "nSharedFolders": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ 個共用資料夾",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2811,7 +2845,7 @@
     "message": "沒有相符的項目"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "沒有篩選條件符合「$SEARCH$」",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2820,11 +2854,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 個結果",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ 個結果",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2834,7 +2868,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "沒有篩選條件符合「$SEARCH$」",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2844,7 +2878,7 @@
     "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "清除搜尋"
   },
   "selected": {
     "message": "已選擇"
@@ -4063,24 +4097,24 @@
     "message": "取得自動填入資料時發生錯誤"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden 無法解密下列保險庫項目。請聯絡 Bitwarden 客戶支援並提供下方的項目 ID，以查看是否能復原。"
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden 無法解密下列保險庫項目。請聯絡 Bitwarden 客戶支援並提供下方的項目 ID，以查看是否能復原。"
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "項目 ID",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "項目 ID",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "複製 ID"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "複製所有 ID"
   },
   "generateUsername": {
     "message": "產生使用者名稱"
@@ -5142,7 +5176,7 @@
     "message": "選擇一個分類"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "選擇共用資料夾"
   },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
@@ -5151,7 +5185,7 @@
     "message": "若你希望將匯入檔案的內容移至資料夾，請選擇此選項"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "若您要將匯入的檔案內容移至共用資料夾，請選取此選項"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"
@@ -5258,7 +5292,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "請參閱我們 $NAME$ 的詳細操作說明，位於",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5268,195 +5302,195 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "說明中心"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "程序與從 Google Chrome 匯入完全相同。",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "使用 KeePassX 桌面應用程式，前往「資料庫」→「匯出為 CSV 檔案」，然後儲存 CSV 檔案。"
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "在 Avira 網路保險庫中，前往「設定」→「我的資料」→「匯出資料」，然後儲存 CSV 檔案。"
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "在 Blur 網路保險庫中，點選頂端的您的使用者名稱，前往「設定」→「匯出資料」，然後為「帳戶」點選「匯出 CSV」。"
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "使用 SafeInCloud 桌面應用程式，前往「檔案」→「匯出」→「為 XML」，然後儲存 XML 檔案。"
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "使用 Padlock 桌面應用程式，點選左上角的漢堡圖示，前往「設定」→「匯出」按鈕，並將檔案儲存為「CSV」。"
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "使用 KeePass 2 桌面應用程式，前往「檔案」→「匯出」，並選取「KeePass XML (2.x)」選項。"
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "使用 Universal Password Manager 桌面應用程式，前往「資料庫」→「匯出」，然後儲存 CSV 檔案。"
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "使用 SaferPass 瀏覽器擴充功能，點選左上角的漢堡圖示，前往「設定」。點選「匯出帳戶」按鈕以儲存 CSV 檔案。"
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "使用 Meldium 網路保險庫，前往「設定」。找到「匯出資料」功能，點選「顯示我的資料」以儲存 CSV 檔案。"
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "使用 Password Dragon 桌面應用程式，前往「檔案」→「匯出」→「至 XML」。在彈出的對話方塊中選取「所有列」並勾選所有欄位。點選「匯出」按鈕並儲存 XML 檔案。"
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "使用 Enpass 桌面應用程式，前往「檔案」→「匯出」→「為 CSV」。在警告提示中選取「確定」，然後儲存 CSV 檔案。請注意，匯入工具僅支援 Enpass 設定為英文時匯出的檔案，因此請相應調整您的設定。"
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "使用 Enpass 6 桌面應用程式，點選選單按鈕並前往「檔案」→「匯出」。選取「.json」檔案格式選項，然後儲存 JSON 檔案。"
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "使用 Password Safe 桌面應用程式，前往「檔案」→「匯出至」→「XML 格式...」，然後儲存 XML 檔案。"
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "登入 Dashlane，點選「我的帳戶」→「設定」→「匯出檔案」，並選取「匯出為 CSV 檔案」。這會下載包含多個 CSV 檔案的 zip 壓縮檔。解壓縮後，逐一匯入每個 CSV 檔案。"
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane 已不再支援 JSON 格式。僅在您有現有 JSON 可匯入時使用此選項。建立新匯出檔時，請使用 CSV 匯入工具。"
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "使用 mSecure 桌面應用程式，前往「檔案」→「匯出」→「CSV 檔案...」，然後儲存 CSV 檔案。"
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "使用 Sticky Password 桌面應用程式，前往「選單」（右上方）→「匯出」→「全部匯出」。選取未加密的 XML 格式選項，然後儲存 XML 檔案。"
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "使用 True Key 桌面應用程式，點選齒輪圖示（右上方），然後前往「應用程式設定」。點選「匯出」按鈕，輸入您的密碼，然後儲存 CSV 檔案。"
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "登入 Clipperz 網路應用程式 (clipperz.is/app)。點選右上角的漢堡選單圖示以展開導覽列。前往「資料」→「匯出」。點選「下載 HTML+JSON」按鈕以儲存 HTML 檔案。"
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "使用 RoboForm Editor 桌面應用程式，前往「RoboForm」（左上方）→「選項」→「帳戶與資料」，然後點選「匯出」按鈕。選取您的所有資料，將「格式」變更為「CSV 檔案」，然後點選「匯出」按鈕以儲存 CSV 檔案。注意：RoboForm 僅允許匯出登入資訊。其他項目將不會被匯出。"
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "登入 Passbolt 網路保險庫，並前往「密碼」清單。選取您要匯出的所有密碼，然後點選清單頂端的「匯出」按鈕。選擇「csv (lastpass)」匯出格式，然後點選「匯出」按鈕。"
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "使用 Ascendo DataVault 桌面應用程式，前往「工具」→「匯出」。在彈出的對話方塊中，選取「所有項目 (DVX, CSV)」選項。點選「確定」按鈕以儲存 CSV 檔案。"
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "使用 Password Boss 桌面應用程式，前往「檔案」→「匯出資料」→「Password Boss JSON - 未加密」，然後儲存 JSON 檔案。"
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "登入 Zoho 網路保險庫 (vault.zoho.com)。前往「工具」→「匯出機密」。選取「所有機密」，然後點選「Zoho Vault Format CSV」按鈕。反白並複製文字區域中的資料。開啟如 Notepad 的文字編輯器並貼上資料。將文字編輯器中的資料儲存為",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "使用 SplashID Safe 桌面應用程式，點選右上角的 SplashID 藍色鎖頭標誌。前往「匯出」→「匯出為 CSV」，然後儲存 CSV 檔案。"
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "使用 PassKeep 行動應用程式，前往「備份/還原」。找到「CSV 備份/還原」區段，然後點選「備份至 CSV」以儲存 CSV 檔案。"
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "請確認您已安裝 python-keyring 和 python-gnomekeyring。將",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME Keyring 匯入/匯出"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "python 指令碼儲存到您的桌面，檔名為",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": "。開啟終端機並執行",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "然後",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": "。然後上傳產生的",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "檔案到 Bitwarden。",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "使用 Password Agent 桌面應用程式，前往「檔案」→「匯出」，選取「要匯出的欄位」按鈕並勾選所有欄位，將「輸出格式」變更為「CSV」，然後點選「開始」按鈕以儲存 CSV 檔案。"
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "登入 Passpack 網站保險庫，前往「設定」→「匯出」，然後點選「下載」按鈕以儲存 CSV 檔案。"
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "開啟您的 Passman 保險庫，並點選左下角的「設定」。在「設定」視窗中切換至「匯出認證」索引標籤，並選擇「JSON」作為匯出類型。輸入您的保險庫密碼片語，然後點選「匯出」按鈕以儲存 JSON 檔案。"
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "開啟 Avast Passwords 桌面應用程式，前往「設定」→「匯入/匯出資料」。為「匯出至 CSV 檔案」選項選取「匯出」按鈕，以儲存 CSV 檔案。"
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "開啟 Avast Passwords 桌面應用程式，前往「設定」→「匯入/匯出資料」。為「匯出至 JSON 檔案」選項選取「匯出」按鈕，以儲存 JSON 檔案。"
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "開啟 F-Secure KEY 桌面應用程式，前往「設定」→「匯出密碼」。選取「匯出」按鈕，輸入您的主密碼，然後儲存 FSK 檔案。"
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "開啟 Kaspersky Password Manager 桌面應用程式，前往「設定」→「匯入/匯出」。找到「匯出至文字檔」區段，並選取「匯出」按鈕以儲存 TXT 檔案。"
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "開啟 RememBear 桌面應用程式，前往「設定」→「帳戶」→「匯出」。輸入您的主密碼，然後選取「仍要匯出」按鈕以儲存 CSV 檔案。"
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "開啟 PasswordWallet 桌面應用程式，前往「檔案」→「匯出」→「可見項目至文字檔」。輸入您的密碼，然後選取「確定」按鈕以儲存 TXT 檔案。"
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "開啟 Myki 桌面瀏覽器擴充功能，前往「進階」→「匯出帳戶」，然後用您的行動裝置掃描 QR 碼。接著多個 CSV 檔案會儲存到您電腦的下載資料夾。"
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "將您的 SecureSafe 密碼安全資料匯出為以逗號分隔的 CSV 檔案。"
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "開啟 LogMeOnce 瀏覽器擴充功能，然後前往「開啟選單」→「匯出至」，並選取「CSV 檔案」以儲存 CSV 檔案。"
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "開啟 BlackBerry Password Keeper 應用程式，然後前往「設定」→「匯入/匯出」。選取「匯出密碼」，並依照畫面上的指示儲存未加密的 CSV 檔案。"
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "開啟 Buttercup 桌面應用程式並解鎖您的保險庫。以滑鼠右鍵點選您的保險庫圖示，然後選取「匯出」以儲存 CSV 檔案。"
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "開啟 Codebook 桌面應用程式並登入。前往「檔案」→「全部匯出」，然後在對話方塊中點選「是」，並儲存 CSV 檔案。"
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "開啟最新版本的 Encryptr 桌面應用程式，並讓您的所有資料完成同步。資料同步完成後，右上角的下載圖示會變成粉紅色。點選下載圖示並儲存 CSV 檔案。"
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "在 Yoti 瀏覽器擴充功能中，點選「設定」，然後點選「匯出已儲存的登入資訊」，並儲存 CSV 檔案。"
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "登入 Psono 網路保險庫，點選「登入身分」下拉式選單，選取「其他」。前往「匯出」索引標籤，選取 json 類型匯出，然後點選「匯出」。"
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "登入「https://vault.passky.org」→ 在 Passky 區段中選擇「匯入與匯出」→「匯出」。（不支援「備份」，因為其已加密）。"
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "在 ProtonPass 瀏覽器擴充功能中，前往「設定」>「匯出」。不使用 PGP 加密進行匯出，並儲存 zip 檔案。"
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "選取「資料庫」→「匯出至檔案...」選單。→ 在匯出選項中，確認已勾選「資料夾名稱」和「欄標題」。→ 按下「瀏覽...」按鈕，選擇目標檔案並將其類型設為 CSV 檔案。"
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "開啟 FullClient，前往主選單並選取「匯出」。啟動匯出密碼精靈，並依照指示匯出 CSV 檔案。"
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "登入 NordPass 並開啟「設定」→ 向下捲動至「匯入與匯出」區段，然後選取「匯出項目」→ 輸入您的主密碼並選取「繼續」。→ 將 CSV 檔案儲存到您的裝置。"
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "在桌面應用程式中，前往「工具」→「匯出」→ 輸入您的主密碼 → 選取「XML 格式 (*.xml)」作為匯出格式 → 點選「下一步」→ 選擇匯出中應包含的項目 → 點選「下一步」以匯出至先前選擇的位置。"
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "登入 Delinea，搜尋「匯入/匯出」-> 選取「匯出」-> 選取「XML」作為匯出格式 -> 選取「QuantumLock」作為驗證器類型 -> 輸入您的密碼並選取「匯出」以儲存 XML 檔案。"
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "登入 Delinea，搜尋「匯入/匯出」-> 選取「匯出」-> 選取「CSV」作為匯出格式 -> 選取「QuantumLock」作為驗證器類型 -> 輸入您的密碼並選取「匯出」以儲存 CSV 檔案。"
   },
   "confirmVaultImport": {
     "message": "確認密碼庫匯入"
@@ -5840,7 +5874,7 @@
     "message": "切換帳號"
   },
   "switchVault": {
-    "message": "Switch vault"
+    "message": "切換保險庫"
   },
   "switchToAccount": {
     "message": "切換帳戶"
@@ -6061,10 +6095,10 @@
     "message": "清除過濾器或更換另一個搜尋條件"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "尚未新增共用資料夾"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "新增共用資料夾，以安全地與其他成員共用保險庫項目。"
   },
   "moreOptionsLabel": {
     "message": "更多選項, $ITEMNAME$",
@@ -6941,7 +6975,7 @@
     "message": "您刪除的項目會在此顯示，並會在 30 天之後永久刪除"
   },
   "noItemsInTrashDescription": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+    "message": "您刪除的項目會顯示在這裡，並在 30 天後永久刪除。"
   },
   "trashWarning": {
     "message": "垃圾桶中超過 30 天的項目將會被自動刪除。"
@@ -7229,10 +7263,10 @@
     "message": "除了密碼之外，您也可以儲存安全的登入資訊、身分資訊、信用卡及筆記在您的密碼庫。"
   },
   "emptyVaultsDescription": {
-    "message": "Add logins, IDs, cards, and other items to get started."
+    "message": "新增登入資訊、身分證件、卡片和其他項目以開始使用。"
   },
   "emptySharedFolderDescription": {
-    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "message": "將項目新增至此共用資料夾，然後授予其他 $VAULT_NAME$ 成員存取權。",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -7241,7 +7275,7 @@
     }
   },
   "emptyMyItemsDescription": {
-    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "message": "「我的項目」是您的私人空間，可儲存仍由 $VAULT_NAME$ 擁有但其他成員看不見的項目。",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -7250,10 +7284,10 @@
     }
   },
   "youHaveNoFolders": {
-    "message": "You have no folders."
+    "message": "您沒有資料夾。"
   },
   "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+    "message": "使用資料夾整理保險庫項目。它們只屬於您 — 其他人不會看到或使用它們。"
   },
   "introCarouselLabel": {
     "message": "歡迎使用 Bitwarden"
@@ -7424,7 +7458,7 @@
     "message": "顯示更多"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "再顯示 $COUNT$ 個",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7943,15 +7977,15 @@
     "message": "修正已外洩、強度不足及重複使用的密碼，以監控並改善密碼庫的健康狀態。"
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "您的保險庫狀態良好",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "您的保險庫風險很高",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$TOTAL$ 個密碼中有 $AT_RISK$ 個需要修正",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7965,15 +7999,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "沒有外洩的密碼",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 個外洩的密碼",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ 個外洩的密碼",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7983,23 +8017,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "在資料外洩事件中外洩",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "您的密碼皆未在資料外洩事件中發現",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "沒有弱密碼",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 個弱密碼",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ 個弱密碼",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -8009,23 +8043,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "太短或太簡單",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "您的所有密碼都很強",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "沒有重複使用的密碼",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 個重複使用的密碼",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ 個重複使用的密碼",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -8035,74 +8069,74 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "在多個登入資訊中重複使用",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "您的所有密碼都是唯一的",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "已識別的風險",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "upgradeToViewPasswords": {
-    "message": "Upgrade to view passwords"
+    "message": "升級以查看密碼"
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "沒有項目需要處理",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   },
   "scanningYourVault": {
-    "message": "Scanning your vault",
+    "message": "正在掃描您的保險庫",
     "description": "Heading shown while the vault health scan is running."
   },
   "scanningYourVaultDescription": {
-    "message": "Checking for exposed, weak, and reused passwords.",
+    "message": "正在檢查外洩、弱密碼和重複使用的密碼。",
     "description": "Explains what the vault health scan is doing while it runs."
   },
   "scanInProgress": {
-    "message": "In progress",
+    "message": "進行中",
     "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
   },
   "healthScanFailed": {
-    "message": "Something went wrong",
+    "message": "發生錯誤",
     "description": "Heading shown when the vault health scan did not complete."
   },
   "healthScanFailedDescription": {
-    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "message": "您的保險庫掃描因未預期的錯誤而未能完成。",
     "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
-    "message": "Exposed passwords"
+    "message": "外洩的密碼"
   },
   "exposedPasswordsDescription": {
-    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+    "message": "這些登入資訊的密碼已在資料外洩事件中外洩。請立即變更它們以保護您的帳戶。"
   },
   "weakPasswordsTitle": {
-    "message": "Weak passwords"
+    "message": "弱密碼"
   },
   "weakPasswordsDescription": {
-    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+    "message": "這些密碼因為太短或太簡單，很容易被猜到。請讓它們更複雜以增強強度。"
   },
   "reusedPasswordsTitle": {
-    "message": "Reused passwords"
+    "message": "重複使用的密碼"
   },
   "reusedPasswordsDescription": {
-    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+    "message": "這些登入資訊使用了重複的密碼。請為每個帳戶建立唯一的密碼，以防止有人用一個密碼存取多個帳戶。"
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "請務必先變更您的密碼。刪除只會從您的保險庫移除項目，並不會解決風險。"
   },
   "passwordHasAdditionalRisks": {
-    "message": "This password has additional risks:"
+    "message": "此密碼有其他風險："
   },
   "reused": {
-    "message": "Reused",
+    "message": "重複使用",
     "description": "ex. A password that is reused across multiple logins."
   },
   "xTimes": {
-    "message": "$COUNT$ times",
+    "message": "$COUNT$ 次",
     "description": "The number of times a password is reused. ex. 6 times",
     "placeholders": {
       "count": {
@@ -8112,89 +8146,89 @@
     }
   },
   "exposedPasswordsEmpty": {
-    "message": "None of your passwords were found in data breaches."
+    "message": "您的密碼皆未在資料外洩事件中發現。"
   },
   "weakPasswordEmpty": {
-    "message": "All your passwords are strong."
+    "message": "您的所有密碼都很強。"
   },
   "reusedPasswordEmpty": {
-    "message": "All your passwords are unique."
+    "message": "您的所有密碼都是唯一的。"
   },
   "youreAllSet": {
-    "message": "You're all set!"
+    "message": "您已完成設定！"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "權限"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "檢視項目"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "檢視項目、隱藏密碼"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "編輯項目"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "編輯項目、隱藏密碼"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "共用"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "可檢視的人員",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "共用此連結後，收件者需要透過代碼驗證電子郵件，才能檢視項目。",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "此連結會在此日期後過期，但收件者可能保留先前共用的資訊。請重新產生認證以撤銷存取權。",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "連結過期時間",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "一次性共用",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "作用中的連結",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "連結已複製到剪貼簿",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "無法建立共用連結",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "連結已儲存並複製到剪貼簿",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "無法將共用連結複製到剪貼簿",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "共用連結已刪除",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "無法刪除共用連結",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "透過連結共用",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "保險庫項目 $ITEM$ 的共用",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -8203,18 +8237,18 @@
     }
   },
   "share": {
-    "message": "Share",
+    "message": "共用",
     "description": "Page title for the share vault item panel"
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "到期",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "到期",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "未知項目，您可能需要要求權限才能存取此項目。"
   }
 }
