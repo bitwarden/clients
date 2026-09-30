@@ -341,9 +341,12 @@ describe("BitTableToolbarComponent filter dialog", () => {
   let dialogService: MockProxy<DialogService>;
   let closed: Subject<unknown>;
   let mediaListeners: ((event: MediaQueryListEvent) => void)[];
+  /** The starting viewport for any fixture created after it's set. */
+  let wide: boolean;
 
   /** Widen past `md`, so the chip row lays out inline and the collapsed trigger goes away. */
   const widenViewport = () => {
+    wide = true;
     mediaListeners.forEach((listener) => listener({ matches: true } as MediaQueryListEvent));
   };
 
@@ -360,10 +363,13 @@ describe("BitTableToolbarComponent filter dialog", () => {
     // `isAtOrLargerThanBreakpointSignal` reads `matchMedia`, which JSDOM does not implement.
     // Capture the listener so a test can widen the viewport after the fact.
     mediaListeners = [];
+    wide = false;
     Object.defineProperty(window, "matchMedia", {
       writable: true,
       value: jest.fn().mockImplementation((query: string) => ({
-        matches: false,
+        get matches() {
+          return wide;
+        },
         media: query,
         onchange: null,
         addEventListener: (_: string, listener: (event: MediaQueryListEvent) => void) =>
@@ -480,7 +486,7 @@ describe("BitTableToolbarComponent filter dialog", () => {
     expect(host.open()).toBe(true);
   });
 
-  it("closes the dialog once the filters are shown inline", () => {
+  it("keeps the dialog open once the filters are shown inline", () => {
     host.open.set(true);
     fixture.detectChanges();
 
@@ -488,6 +494,40 @@ describe("BitTableToolbarComponent filter dialog", () => {
     widenViewport();
     fixture.detectChanges();
 
-    expect(ref.close).toHaveBeenCalled();
+    // Closing here would drop whatever page the user drilled into, and the focus with it: CDK
+    // returns focus to the trigger, which is the element that just went away.
+    expect(ref.close).not.toHaveBeenCalled();
+  });
+
+  it("drops a model raised while the filters are already inline", async () => {
+    widenViewport();
+    // The toolbar only knows no trigger is coming once the row is measured, which lands in a
+    // `document.fonts.ready` continuation.
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    host.open.set(true);
+    fixture.detectChanges();
+
+    expect(dialogService.open).not.toHaveBeenCalled();
+    expect(host.open()).toBe(false);
+  });
+
+  it("holds a raised model until the chip row has been measured", async () => {
+    // A fresh fixture, wide from its first frame: the one from `beforeEach` has already measured.
+    wide = true;
+    const restored = TestBed.createComponent(DialogHostComponent);
+    restored.componentInstance.open.set(true);
+    restored.detectChanges();
+
+    // Unmeasured, the row reports no overflow and so no trigger. Clearing on that would throw
+    // away state the measurement is about to justify.
+    expect(restored.componentInstance.open()).toBe(true);
+    expect(dialogService.open).not.toHaveBeenCalled();
+
+    await restored.whenStable();
+    restored.detectChanges();
+
+    expect(restored.componentInstance.open()).toBe(false);
   });
 });

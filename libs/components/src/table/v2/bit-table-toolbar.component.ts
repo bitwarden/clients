@@ -133,6 +133,11 @@ export class BitTableToolbarComponent {
   /** Whether the collapsed trigger renders: the single button that stands in for the chip row. */
   protected readonly showFilterTrigger = computed(() => this.collapsed() && this.hasFilters());
 
+  /** Above `md` the collapse decision isn't known until the chip row has been measured. */
+  private readonly collapseSettled = computed(
+    () => !this.isLargeScreen() || (this.overflowList()?.ready() ?? false),
+  );
+
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
     this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
@@ -237,14 +242,21 @@ export class BitTableToolbarComponent {
       this.overflowList()?.remeasure();
     });
 
-    // Reconcile the model against the dialog, in both directions. Gated on the trigger so the
-    // dialog closes once the chip row is inline and showing the same filters.
+    // Reconcile the model against the dialog. The trigger gates opening only: a dialog already up
+    // stays up when the chip row goes inline, so a resize can't drop a drill-in page or its focus.
     effect(() => {
-      const open = this.filterDialogOpen() && this.showFilterTrigger();
+      const open = this.filterDialogOpen();
+      const canOpen = this.showFilterTrigger();
+      const settled = this.collapseSettled();
       untracked(() => {
         const ref = this.dialogRef();
         if (open && !ref) {
-          this.showFilterDialog();
+          if (canOpen) {
+            this.showFilterDialog();
+          } else if (settled) {
+            // No trigger could have opened it, so drop the state rather than let it open later.
+            this.filterDialogOpen.set(false);
+          }
         } else if (!open && ref) {
           void ref.close();
         }
