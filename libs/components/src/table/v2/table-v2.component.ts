@@ -324,7 +324,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Bind a constant from `table-customize-keys.ts`, which is checked for uniqueness:
    * two tables sharing a key would share one stored set of hidden columns.
    */
-  readonly customizeKey = input<string>();
+  readonly stateKey = input<string>();
 
   /**
    * The table's combined URL state, mirrored to the `queryParam` namespace. Seeds from
@@ -665,14 +665,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** Whether the Customize control applies to this table. */
   readonly canCustomizeColumns = computed(
     () =>
-      this.customizeKey() != null &&
+      this.stateKey() != null &&
       this.presentation() === "table" &&
       this.removableColumns().length > 0,
   );
 
   /** The stored hidden names, narrowed to columns that are currently togglable. */
   readonly hiddenColumnNames = computed<ReadonlySet<string>>(() => {
-    const key = this.customizeKey();
+    const key = this.stateKey();
     if (key == null || !this.canCustomizeColumns()) {
       return EMPTY_COLUMN_NAMES;
     }
@@ -797,7 +797,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** Shows or hides one column. Idempotent, so callers needn't know the current state. */
   setColumnHidden(name: string, hidden: boolean): void {
-    const key = this.customizeKey();
+    const key = this.stateKey();
     if (key != null) {
       this.columnPreferences.setColumnHidden(key, name, hidden);
     }
@@ -805,7 +805,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** Clears this table's stored preference, restoring the declared column set. */
   resetColumns(): void {
-    const key = this.customizeKey();
+    const key = this.stateKey();
     if (key != null) {
       this.columnPreferences.reset(key);
     }

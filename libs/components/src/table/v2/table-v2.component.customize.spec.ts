@@ -43,7 +43,7 @@ async function renderHost<H>(host: Type<H>): Promise<ComponentFixture<H>> {
   template: `
     <bit-table-v2
       [tableDef]="table"
-      [customizeKey]="key()"
+      [stateKey]="key()"
       [displayedColumns]="displayed()"
       [presentation]="presentation()"
     >
@@ -198,7 +198,7 @@ describe("BitTableV2Component column customization", () => {
       expect(table().canCustomizeColumns()).toBe(true);
     });
 
-    it("is false without a customizeKey", () => {
+    it("is false without a stateKey", () => {
       host.key.set(undefined);
       fixture.detectChanges();
 
@@ -285,7 +285,7 @@ describe("BitTableV2Component column customization", () => {
     BitCellComponent,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" customizeKey="fill-table">
+    <bit-table-v2 [tableDef]="table" stateKey="fill-table">
       <bit-column width="minmax(240px, 480px)">
         <bit-header-cell>Name</bit-header-cell>
         <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>

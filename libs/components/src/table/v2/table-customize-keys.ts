@@ -1,5 +1,5 @@
 /**
- * Every `bit-table-v2` `customizeKey`, collected here — as `state-definitions.ts` does for
+ * Every `bit-table-v2` `stateKey`, collected here — as `state-definitions.ts` does for
  * state names — so `table-customize-keys.spec.ts` can hold them to being unique. Two tables
  * sharing a key would silently share one stored set of hidden columns.
  *

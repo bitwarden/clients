@@ -196,14 +196,14 @@ show every column in declaration order.**
 
 ### Letting the user choose columns
 
-Set `customizeKey` on the table and mark each column the user may hide with `removable`. A
-**Customize** button then appears in the toolbar beside the search input, opening a dialog with one
-switch per marked column. Each switch applies immediately — the table re-lays out behind the scrim —
-and the choice is stored per user, so it survives a reload and a re-login. **Reset to default**
-turns every column back on, and is offered only once the user has actually changed something.
+Set `stateKey` on the table and mark each column the user may hide with `removable`. A **Customize**
+button then appears in the toolbar beside the search input, opening a dialog with one switch per
+marked column. Each switch applies immediately — the table re-lays out behind the scrim — and the
+choice is stored per user, so it survives a reload and a re-login. **Reset to default** turns every
+column back on, and is offered only once the user has actually changed something.
 
 ```html
-<bit-table-v2 [tableDef]="table" customizeKey="members">
+<bit-table-v2 [tableDef]="table" stateKey="members">
   <bit-table-toolbar>
     <bit-search [placeholder]="'search' | i18n"></bit-search>
   </bit-table-toolbar>
@@ -228,8 +228,8 @@ Rules worth knowing:
   unaffected until it opts in.
 - **The first column is never offered**, which is what guarantees the table can't be emptied.
   Marking it has no effect.
-- **`customizeKey` is required.** Without somewhere to persist the choice the button stays hidden;
-  the key also namespaces the stored preference, so make it unique per table.
+- **`stateKey` is required.** Without somewhere to persist the choice the button stays hidden; the
+  key also namespaces the stored preference, so make it unique per table.
 - **The dialog labels each column with its header text**, read from the rendered header. A column
   with an icon-only header has no label to show, so it is skipped and stays visible.
 - **`displayedColumns` still wins.** It decides what is _available_; the user's choice hides a

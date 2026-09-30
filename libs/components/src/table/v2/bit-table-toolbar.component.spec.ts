@@ -330,7 +330,7 @@ describe("BitTableToolbarComponent active filter chips", () => {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <bit-table-v2 [tableDef]="table" [customizeKey]="key()">
+    <bit-table-v2 [tableDef]="table" [stateKey]="key()">
       <bit-table-toolbar>
         <bit-search placeholder="Search"></bit-search>
       </bit-table-toolbar>
@@ -418,7 +418,7 @@ describe("BitTableToolbarComponent customize control", () => {
     expect(customizeButton()).toBeNull();
   });
 
-  it("withholds the control when the table has no customizeKey", () => {
+  it("withholds the control when the table has no stateKey", () => {
     host.key.set(undefined);
     fixture.detectChanges();
 

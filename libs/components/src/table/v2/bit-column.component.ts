@@ -41,7 +41,7 @@ export class BitColumnComponent {
 
   /**
    * Let the user hide this column. Opt-in, so leave it off for row-action columns.
-   * Requires `customizeKey` on the surrounding `<bit-table-v2>`.
+   * Requires `stateKey` on the surrounding `<bit-table-v2>`.
    */
   readonly removable = input(false, { transform: booleanAttribute });
 

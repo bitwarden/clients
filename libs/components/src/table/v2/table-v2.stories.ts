@@ -947,7 +947,7 @@ class DemoLongLabelFiltersTableComponent {
     IconButtonModule,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" customizeKey="storybook-bounded-widths">
+    <bit-table-v2 [tableDef]="table" stateKey="storybook-bounded-widths">
       <bit-table-toolbar>
         <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
       </bit-table-toolbar>
@@ -1350,7 +1350,7 @@ export const ReorderedAndHidden: Story = {
 
 /** A table that opts two of its three columns into the Customize dialog. */
 const customizeColumnsTemplate = `
-  <bit-table-v2 [tableDef]="table" customizeKey="storybook-customize">
+  <bit-table-v2 [tableDef]="table" stateKey="storybook-customize">
     <bit-table-toolbar>
       <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
     </bit-table-toolbar>
@@ -1370,7 +1370,7 @@ const customizeColumnsTemplate = `
 `;
 
 /**
- * A table opts into the column picker by setting `customizeKey` and marking the columns
+ * A table opts into the column picker by setting `stateKey` and marking the columns
  * the user may hide. The **Customize** button then appears beside the search input, and
  * each switch in the dialog applies immediately — the table re-lays out behind the scrim.
  *

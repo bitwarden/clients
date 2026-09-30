@@ -1,4 +1,4 @@
-import * as customizeKeys from "./table-customize-keys";
+import * as stateKeys from "./table-customize-keys";
 
 /**
  * Mirrors `state-definitions.spec.ts`. A test rather than a lint rule because ESLint runs
@@ -7,7 +7,7 @@ import * as customizeKeys from "./table-customize-keys";
 describe("table customize keys", () => {
   const tracked: [exportName: string, key: string][] = [];
 
-  test.each(Object.entries(customizeKeys))("that export %s follows all rules", (name, key) => {
+  test.each(Object.entries(stateKeys))("that export %s follows all rules", (name, key) => {
     if (typeof key !== "string") {
       throw new Error(`export ${name} is expected to be a customize key string`);
     }

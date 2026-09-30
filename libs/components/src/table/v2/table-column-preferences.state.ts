@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import { TABLE_COLUMN_PREFERENCES_DISK, UserKeyDefinition } from "@bitwarden/state";
 
 /**
- * Hidden column names per table, keyed by the table's `customizeKey`.
+ * Hidden column names per table, keyed by the table's `stateKey`.
  *
  * Hidden rather than visible names is deliberate: a column added in a later release is in
  * nobody's stored record, so it defaults to visible. A stored name whose column no longer
