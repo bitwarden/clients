@@ -156,7 +156,7 @@ describe("FidoAuthenticatorService", () => {
         params = await createParams({
           excludeCredentialDescriptorList: [
             {
-              id: parseCredentialId(excludedCipher.login.fido2Credentials[0].credentialId),
+              id: parseCredentialId(excludedCipher.login.fido2Credentials[0].credentialId)!,
               type: "public-key",
             },
           ],
@@ -507,7 +507,7 @@ describe("FidoAuthenticatorService", () => {
         credentialId = Utils.newGuid();
         params = await createParams({
           allowCredentialDescriptorList: [
-            { id: parseCredentialId(credentialId), type: "public-key" },
+            { id: parseCredentialId(credentialId)!, type: "public-key" },
           ],
           rpId: RpId,
         });
@@ -584,7 +584,7 @@ describe("FidoAuthenticatorService", () => {
         ];
         params = await createParams({
           allowCredentialDescriptorList: credentialIds.map((credentialId) => ({
-            id: parseCredentialId(credentialId),
+            id: parseCredentialId(credentialId)!,
             type: "public-key",
           })),
           rpId: RpId,
@@ -692,7 +692,7 @@ describe("FidoAuthenticatorService", () => {
         selectedCredentialId = credentialIds[0];
         params = await createParams({
           allowCredentialDescriptorList: credentialIds.map((credentialId) => ({
-            id: parseCredentialId(credentialId),
+            id: parseCredentialId(credentialId)!,
             type: "public-key",
           })),
           rpId: RpId,

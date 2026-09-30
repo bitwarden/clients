@@ -186,8 +186,11 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
+import { Fido2AuthenticatorServiceSelector } from "@bitwarden/common/platform/services/fido2/fido2-authenticator-service.selector";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
+import { SdkFido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/sdk-fido2-authenticator.service";
+import { SdkFido2CredentialStore } from "@bitwarden/common/platform/services/fido2/sdk-fido2-credential-store";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -1505,11 +1508,31 @@ export default class MainBackground {
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
-    this.fido2AuthenticatorService = new Fido2AuthenticatorService(
+    const legacyFido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
       this.fido2UserInterfaceService,
       this.syncService,
       this.accountService,
+      this.logService,
+    );
+    const sdkFido2CredentialStore = new SdkFido2CredentialStore(
+      this.cipherService,
+      this.accountService,
+      this.sdkService,
+    );
+    const sdkFido2AuthenticatorService = new SdkFido2AuthenticatorService(
+      sdkFido2CredentialStore,
+      this.cipherService,
+      this.fido2UserInterfaceService,
+      this.syncService,
+      this.accountService,
+      this.sdkService,
+      this.logService,
+    );
+    this.fido2AuthenticatorService = new Fido2AuthenticatorServiceSelector(
+      this.configService,
+      legacyFido2AuthenticatorService,
+      sdkFido2AuthenticatorService,
       this.logService,
     );
     this.fido2ActiveRequestManager = new Fido2ActiveRequestManager();
