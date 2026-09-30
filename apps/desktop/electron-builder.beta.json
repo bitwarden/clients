@@ -34,6 +34,7 @@
     "category": "public.app-category.productivity",
     "darkModeSupport": true,
     "gatekeeperAssess": false,
+    "sign": "./scripts/sign-macos.js",
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
@@ -87,8 +88,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
-      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+      "Contents/Plugins/autofill-extension.appex"
     ],
     "target": ["dmg", "zip"],
     "artifactName": "Bitwarden-${version}-${arch}-mac.${ext}"
