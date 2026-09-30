@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Bitwarden менаџер лозинки бета",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -42,7 +42,7 @@
     "message": "Ваша организација захтева јединствену пријаву."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Пријавите се"
   },
   "setAStrongPassword": {
     "message": "Поставите јаку лозинку"
@@ -124,7 +124,7 @@
     "message": "Сеф"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "Сефови"
   },
   "myVault": {
     "message": "Мој Сеф"
@@ -175,16 +175,16 @@
     "message": "Копирај број пасоша"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Копирај национални идентификациони број"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Копирај име"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Копирај средње име"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Копирај презиме"
   },
   "copyLicenseNumber": {
     "message": "Копирај број лиценце"
@@ -222,11 +222,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Аутоматско попуњавање",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Аутоматски попуни",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -297,7 +297,7 @@
     "message": "Унесите имејл свог налога и биће вам послат савет за лозинку"
   },
   "hint": {
-    "message": "Hint"
+    "message": "Напомена"
   },
   "continue": {
     "message": "Настави"
@@ -401,7 +401,7 @@
     "message": "Сачувај"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Сачувај и попуни"
   },
   "move": {
     "message": "Премести"
@@ -452,7 +452,7 @@
     "message": "Нема фасцикле за приказивање."
   },
   "noFoldersFilter": {
-    "message": "No folders"
+    "message": "Нема фасцикли"
   },
   "helpFeedback": {
     "message": "Помоћ и подршка"
@@ -516,7 +516,7 @@
     "message": "Опције"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Опције за $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -525,10 +525,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Нема дељене фасцикле"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Филтрирај по $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -537,16 +537,16 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Означите ставке као омиљене да бисте их овде филтрирали."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Додајте фасцикле ставкама да бисте их овде филтрирали."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Додајте ставке у дељену фасциклу да бисте овде филтрирали."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Уреди ставку - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -555,16 +555,16 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Нема ставки у сефу"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "Нема ставки у мом сефу"
   },
   "emptyMyItems": {
-    "message": "No items in My items"
+    "message": "Нема ставки у мојим ставкама"
   },
   "noItemsInOrganizationVault": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "Нема ставки у $VAULT_NAME$",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -573,7 +573,7 @@
     }
   },
   "noItemsInSharedFolder": {
-    "message": "No items in $VAULT_NAME$",
+    "message": "Нема ставки у $VAULT_NAME$",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -582,13 +582,13 @@
     }
   },
   "noItemsInVaults": {
-    "message": "Your vaults are empty"
+    "message": "Ваши сефови су празни"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "No items match selected filters"
+    "message": "Ниједна ставка не одговара изабраним филтерима"
   },
   "noItemsMatchSearchTerm": {
-    "message": "No items match \"$SEARCH_TERM$\"",
+    "message": "Ниједна ставка не одговара \"$SEARCH_TERM$\"",
     "placeholders": {
       "search_term": {
         "content": "$1",
@@ -706,7 +706,7 @@
     "message": "Премијум чланство је неопходно за употребу Архиве."
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "Архивирај $NUM$ ставки",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -716,11 +716,11 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Архивирај ставку",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "Када се архивирају, ове ставке ће бити искључене из резултата претраге и предлога за аутоматско попуњавање."
   },
   "itemRestored": {
     "message": "Ставка је враћена"
@@ -801,7 +801,7 @@
     "message": "Покрените веб локацију"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Отвори веб-сајт за $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -837,20 +837,20 @@
     "message": "Оцени овај додатак"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Решавање проблема"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "Имате проблем?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "Преузмите, а затим поделите дијагностички извештај са"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwarden подршка",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Преузми"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш прегледач не подржава једноставно копирање у клипборду. Уместо тога копирајте га ручно."
@@ -1087,7 +1087,7 @@
     "message": "Пријави се"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Пријавите се"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Унесите кôд послат на ваш имејл"
@@ -1147,10 +1147,10 @@
     "message": "Фасцикла додата"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Фасцикла измењена"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Унесите назив."
   },
   "twoStepLoginConfirmation": {
     "message": "Пријава у два корака чини ваш налог сигурнијим захтевом да верификујете своје податке помоћу другог уређаја, као што су безбедносни кључ, апликација, СМС-а, телефонски позив или имејл. Пријављивање у два корака може се омогућити на веб сефу. Да ли желите да посетите веб страницу сада?"
@@ -1186,7 +1186,7 @@
     "message": "Лозинка копирана"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "размак",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1303,13 +1303,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "Подешавање привремене меморије је ажурирано"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "Ваше време истека привремене меморије је подешено на подразумевано, које је ажурирано на 5 минута ради додатне безбедности."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Иди на подешавање"
   },
   "notificationAddDesc": {
     "message": "Да ли Bitwarden треба да запамти ову лозинку?"
@@ -1465,28 +1465,28 @@
     "message": "Додатне опције"
   },
   "fillAssistActiveNoticeV2": {
-    "message": "Autofill is using fill assist on this page."
+    "message": "Аутоматско попуњавање користи помоћ за попуњавање на овој страници."
   },
   "activateFillAssistV2": {
-    "message": "Turn on fill assist"
+    "message": "Укључи помоћ за попуњавање"
   },
   "activateFillAssistDescriptionV2": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "Помоћ за попуњавање побољшава тачност аутоматског попуњавања на подржаним сајтовима користећи правила специфична за сајт. Никакви подаци се не прикупљају нити чувају када користите ову функцију."
   },
   "aboutFillAssistLabelV2": {
-    "message": "About fill assist"
+    "message": "О помоћи за попуњавање"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
-    "message": "Allow websites to exclude fields to autofill"
+    "message": "Дозволи веб-сајтовима да искључе поља за аутоматско попуњавање"
   },
   "honorDataBitwardenIgnoreAttributeHint": {
-    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+    "message": "Прескочи поља која веб-сајт означи атрибутом `data-bwignore`."
   },
   "honorDataBitwardenAutofillAttributeLabel": {
-    "message": "Allow websites to add fields to autofill"
+    "message": "Дозволи веб-сајтовима да додају поља за аутоматско попуњавање"
   },
   "honorDataBitwardenAutofillAttributeHint": {
-    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+    "message": "Користи све span елементе које веб-сајт означи атрибутом `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Прикажи контекстни мени"
@@ -1540,8 +1540,42 @@
     "message": "Увези",
     "description": "The verb form of the word Import"
   },
+  "importSourceBreadcrumb": {
+    "message": "Изабери извор"
+  },
+  "importSourceSelectTitle": {
+    "message": "Изаберите свој извор"
+  },
+  "importSourceSelectDescription": {
+    "message": "Изаберите менаџер лозинки или прегледач из којег увозите."
+  },
+  "importSourceBrowsers": {
+    "message": "Прегледачи"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Менаџери лозинки"
+  },
+  "importSourceShowAll": {
+    "message": "Прикажи све"
+  },
+  "importSourceShowLess": {
+    "message": "Прикажи мање"
+  },
+  "importSourceStepCount": {
+    "message": "Корак $CURRENT$ од $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "importItems": {
-    "message": "Import items"
+    "message": "Увези ставке"
   },
   "fileFormat": {
     "message": "Формат датотеке"
@@ -1568,7 +1602,7 @@
     "message": "Налог је ограничен"
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "„Лозинка датотеке” и „Потврди лозинку датотеке” се не поклапају."
   },
   "warning": {
     "message": "УПОЗОРЕЊЕ",
@@ -1582,7 +1616,7 @@
     "message": "Потврдите извоз сефа"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Овај извоз садржи податке вашег сефа у нешифрованом формату. Не треба да чувате или шаљете извезену датотеку несигурним каналима (као што је имејл). Избришите је одмах након употребе."
   },
   "encExportKeyWarningDesc": {
     "message": "Овај извоз шифрује податке користећи кључ за шифровање вашег налога. Ако икада промените кључ за шифровање свог налога, требало би да поново извезете, јер нећете моћи да дешифрујете овај извоз."
@@ -1597,22 +1631,22 @@
     "message": "Дељено"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Дељена фасцикла"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Дељене фасцикле"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Моја фасцикла"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Моје фасцикле"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Додај дељену фасциклу"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Нова дељена фасцикла"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business вам омогућава да делите ставке сефа са другима користећи организацију. Сазнајте више на веб локацију bitwarden.com."
@@ -1670,19 +1704,19 @@
     "message": "Копирај верификациони код"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Нема корисничког имена"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Нема лозинке"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Нема верификационог кода"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Нема броја"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Нема безбедносног кода"
   },
   "attachments": {
     "message": "Прилози"
@@ -1718,10 +1752,10 @@
     "message": "Датотека"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Фотографија"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "Непознато"
   },
   "fileToShare": {
     "message": "Датотека за дељење"
@@ -1754,7 +1788,7 @@
     "message": "Освежите чланство"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."
+    "message": "1 GB шифровани простор за прилоге датотека."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ шифровано складиште за прилоге.",
@@ -1781,16 +1815,16 @@
     "message": "Обнови Премијум"
   },
   "premiumSignUpReports": {
-    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
+    "message": "Извештаји о хигијени лозинки, здрављу налога и цурењу података ради безбедности вашег сефа."
   },
   "premiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "Генератор TOTP верификационих кодова (2FA) за пријаве у вашем сефу."
   },
   "premiumSignUpSupport": {
-    "message": "Priority customer support."
+    "message": "Приоритетна корисничка подршка."
   },
   "premiumSignUpFuture": {
-    "message": "All future Premium features. More coming soon!"
+    "message": "Све будуће Premium функције. Још долази ускоро!"
   },
   "premiumPurchase": {
     "message": "Купити премијум"
@@ -1875,7 +1909,7 @@
     "message": "Потврда приступачног кључа"
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "Користи други начин пријаве"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
@@ -1972,7 +2006,7 @@
     "message": "УРЛ сервера иконица"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL сервера за Send"
   },
   "environmentSaved": {
     "message": "УРЛ адресе окружења су сачуване."
@@ -2003,43 +2037,43 @@
     "message": "Угасити ауто-пуњење"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Потврди аутоматско попуњавање"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Овај сајт се не поклапа са сачуваним подацима за пријаву. Пре него што унесете своје податке за пријаву, уверите се да је сајт поуздан."
   },
   "loginNeverMatchTitle": {
-    "message": "Login doesn't match"
+    "message": "Пријава се не поклапа"
   },
   "loginNeverMatchDesc": {
-    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+    "message": "Овај сајт се не поклапа са сачуваним подацима за пријаву. Проверите да ли сте на поузданом сајту пре аутоматског попуњавања."
   },
   "uriMatchRule": {
-    "message": "URI match rule"
+    "message": "Правило поклапања URI-ја"
   },
   "neverMatch": {
-    "message": "Never match"
+    "message": "Никад не поклапај"
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "Пријава нема сачуван сајт"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "Сајт се не поклапа"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "Ова пријава још нема сачуван веб-сајт. Проверите да ли сте на поузданом сајту пре аутоматског попуњавања."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Овај сајт се не поклапа са оним који сте сачували за ову пријаву. Проверите да ли сте на поузданом сајту пре аутоматског попуњавања."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Овај сајт се не поклапа са онима које сте сачували за ову пријаву. Проверите да ли сте на поузданом сајту пре аутоматског попуњавања."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Аутоматски попуни и сачувај овај сајт"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Само аутоматско попуњавање"
   },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
@@ -2066,7 +2100,7 @@
     "message": "Приказати картице као предлоге"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "Прикажи SSH кључеве као предлоге"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Приказати предлоге када је изабрана икона"
@@ -2200,16 +2234,16 @@
     "message": "Произвођач"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "Дан рођења"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "Месец рођења"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "Година рођења"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "Дан истека"
   },
   "expirationMonth": {
     "message": "Месец истека"
@@ -2218,13 +2252,13 @@
     "message": "Година истека"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "Дан издавања"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "Месец издавања"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "Година издавања"
   },
   "monthly": {
     "message": "месец"
@@ -2317,49 +2351,49 @@
     "message": "Број пасоша"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Датум рођења"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Пол"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Копирај пол"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Место рођења"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Копирај место рођења"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Националност"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Копирај националност"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Држава издавања"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "Копирај државу издавања"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Тип пасоша"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Копирај тип пасоша"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Национални идентификациони број"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Орган издавања"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "Копирај орган издавања / канцеларију"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Датум издавања"
   },
   "licenseNumber": {
     "message": "Број возачке дозволе"
@@ -2419,102 +2453,102 @@
     "message": "SSH кључ"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "Банковни рачун"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "Детаљи банковног рачуна"
   },
   "typeNote": {
     "message": "Белешка"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Банковни рачун"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Веб-сајт или апликација"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Кредитна или дебитна картица"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Лични подаци"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Важан текст"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Токен за пријаву на сервер"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Организујте своје ставке"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Организујте дељене ставке"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Детаљи банкарства"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Пасош"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Детаљи пасоша"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Пасош додат"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Путна исправа"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Дозвола"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Возачка дозвола или лична карта"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Детаљи дозволе"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Држава / покрајина издавања"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Класа дозволе"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Додај пријаву",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Додај картицу",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Додај идентитет",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Додај белешку",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Додај безбедну белешку",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Додај SSH кључ",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Додај банковни рачун",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Додај дозволу",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Додај пасош",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -2534,7 +2568,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Нова безбедна белешка",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -2542,23 +2576,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Нови банковни рачун",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Нова дозвола",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Нови пасош",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Нови текст",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Нова датотека",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2578,23 +2612,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Уреди безбедну белешку",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Уреди пријаву",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Уреди картицу",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Уреди идентитет",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Уреди белешку",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -2602,23 +2636,23 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Уреди банковни рачун",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Уреди дозволу",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Уреди пасош",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Уреди текст",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Уреди датотеку",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2638,7 +2672,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Прикажи безбедну белешку",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -2646,19 +2680,19 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Прикажи банковни рачун",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Прикажи дозволу",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Прикажи пасош",
     "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Изаберите ставку за додавање"
   },
   "passwordHistory": {
     "message": "Историја Лозинке"
@@ -2670,7 +2704,7 @@
     "message": "Испразнити генератор историје"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Ако наставите, сви уноси ће бити трајно избрисани из историје генератора. Да ли сте сигурни да желите да наставите?"
   },
   "back": {
     "message": "Назад"
@@ -2688,7 +2722,7 @@
     }
   },
   "nSharedFolders": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ дељених фасцикли",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2725,13 +2759,13 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Изабери све редове"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Изабери ред"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Приказ $START$ - $END$ од $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2748,10 +2782,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Редова по страници"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ редова по страници",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2760,7 +2794,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ ставки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2769,19 +2803,19 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "Све"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Обриши све"
   },
   "done": {
-    "message": "Done"
+    "message": "Готово"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Филтер"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ изабрано",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2790,16 +2824,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Претходна страница"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Следећа страница"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Иди на страницу"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "од $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2808,10 +2842,10 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Нема ставки које се поклапају"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Ниједан филтер се не поклапа са \"$SEARCH$\"",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2820,11 +2854,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 резултат",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ резултата",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2834,7 +2868,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "Ниједан филтер се не поклапа са „$SEARCH$”",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2844,20 +2878,20 @@
     "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Обриши претрагу"
   },
   "selected": {
-    "message": "Selected"
+    "message": "Изабрано"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "изабрано",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Масовне радње"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ ставки изабрано. Трака за масовне радње је сада доступна на дну екрана. Притисните $SHORTCUTBINDING$ да пребаците фокус на траку за масовне радње.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2870,10 +2904,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Избор обрисан"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Додатне радње"
   },
   "checkPassword": {
     "message": "Проверите да ли је лозинка изложена."
@@ -3251,7 +3285,7 @@
     "message": "Ваша нова главна лозинка не испуњава захтеве смерница."
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "Примајте новости од Bitwarden-а у свом пријемном сандучету."
   },
   "unsubscribe": {
     "message": "Одјави се"
@@ -3320,10 +3354,10 @@
     "message": "Desktop апликација је пријављена на други налог. Проверите да су обе апликације са истим налогом."
   },
   "nativeMessagingAccountMismatchTitle": {
-    "message": "Account mismatch"
+    "message": "Неподударање налога"
   },
   "nativeMessagingBiometricKeyMismatchTitle": {
-    "message": "Biometric key mismatch"
+    "message": "Неподударање биометријског кључа"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Биометријско откључавање није успело. Биометријски тајни кључ није успео да откључа сеф. Покушајте поново да подесите биометрију."
@@ -3359,16 +3393,16 @@
     "message": "Биометрија се не може завршити, размислите о коришћењу главне лозинке или одјавите се. Ако се ово настави, контактирајте подршку Bitwarden-а."
   },
   "nativeMessagingPermissionErrorTitle": {
-    "message": "Permission not provided"
+    "message": "Дозвола није дата"
   },
   "nativeMessagingPermissionErrorDesc": {
-    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
+    "message": "Без дозволе за комуникацију са Bitwarden десктоп апликацијом не можемо да пружимо биометрију у продужетку прегледача. Покушајте поново."
   },
   "nativeMessagingPermissionSidebarTitle": {
-    "message": "Permission request error"
+    "message": "Грешка при захтеву за дозволу"
   },
   "nativeMessagingPermissionSidebarDesc": {
-    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
+    "message": "Ова радња се не може извршити у бочној траци. Покушајте поново у искачућем прозору или издвојеном прозору."
   },
   "personalOwnershipSubmitError": {
     "message": "Због смерница за предузећа, ограничено вам је чување предмета у вашем личном трезору. Промените опцију власништва у организацију и изаберите из доступних колекција."
@@ -3433,7 +3467,7 @@
     "message": "Лозинке под ризиком"
   },
   "atRisk": {
-    "message": "at risk",
+    "message": "у ризику",
     "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
@@ -3478,7 +3512,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "Ваша лозинка за овај сајт је у ризику. $ORGANIZATION$ је затражио да одете у подешавања налога и промените је.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3500,10 +3534,10 @@
     }
   },
   "reviewXAtRiskPassword": {
-    "message": "Review 1 at-risk password"
+    "message": "Прегледај 1 лозинку у ризику"
   },
   "reviewXAtRiskPasswordsPlural": {
-    "message": "Review $COUNT$ at-risk passwords",
+    "message": "Прегледај $COUNT$ лозинки у ризику",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3710,7 +3744,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Направи Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -4018,10 +4052,10 @@
     "message": "Извоз сефа организације"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "Извешће се само ставке из вашег личног сефа."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "Извешће се само ставке повезане са сефом $ORGANIZATION$. Ставке у личним сефовима неће.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4063,24 +4097,24 @@
     "message": "Грешка при преузимању података за ауто-попуњавање"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden није могао да дешифрује ставку сефа наведену испод. Контактирајте Bitwarden корисничку подршку и наведите ID ставке испод да видите да ли се може опоравити."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden није могао да дешифрује ставке сефа наведене испод. Контактирајте Bitwarden корисничку подршку и наведите ID-ове ставки испод да видите да ли могу да се опораве."
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "ID ставке",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "ID-ови ставки",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "Копирај ID"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "Копирај све ID-ове"
   },
   "generateUsername": {
     "message": "Генериши име"
@@ -4190,7 +4224,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Неважећи $SERVICENAME$ API токен",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -4200,7 +4234,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Неважећи $SERVICENAME$ API токен: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4214,7 +4248,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ је одбио ваш захтев. Контактирајте свог пружаоца услуга за помоћ.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -4224,7 +4258,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ је одбио ваш захтев: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4288,11 +4322,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Додај префикс веб-сајта",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Када је омогућено, домен тренутног веб-сајта ће се користити као префикс за генерисану имејл адресу",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4309,7 +4343,7 @@
     "message": "Key Connector грешка: будите сигурни да је Key Connector доступан и да ради."
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Потребна је Premium претплата"
   },
   "organizationIsDisabled": {
     "message": "Организација је онемогућена."
@@ -4424,22 +4458,22 @@
     "message": "Статус пријаве"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Недавно активни"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Данас"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Протеклих 7 дана"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Протеклих 14 дана"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Протеклих 30 дана"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Пре више од 30 дана"
   },
   "masterPasswordChanged": {
     "message": "Главна лозинка сачувана"
@@ -4800,7 +4834,7 @@
     "message": "1 или више имејлова су неважећи"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "Листа прималаца имејла не може прећи 2.500 знакова. Уклоните једног или више прималаца да наставите."
   },
   "inputTrimValidator": {
     "message": "Унос не сме да садржи само размак.",
@@ -5058,7 +5092,7 @@
     "message": "Ништа није увежено."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ ставки ће бити прескочено",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5067,7 +5101,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ ставка ће бити прескочена",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5076,52 +5110,52 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Следеће ставке није било могуће прочитати и неће бити укључене у ваш увоз:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Овај SSH кључ није могао бити увезен"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Неподржана врста ставке"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Ова ставка није могла бити увезена"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "Идентификатор"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Контакт"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Чланство"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Пасош"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Возачка дозвола"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Лична карта"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Извод из матичне књиге рођених"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Акредитиви базе података"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Акредитиви сервера"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Лиценца софтвера"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Здравствено осигурање"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi акредитиви"
   },
   "importEncKeyError": {
     "message": "Грешка у дешифрирању извозне датотеке. Ваш кључ за шифровање не одговара кључу који се користио за извоз података."
@@ -5142,7 +5176,7 @@
     "message": "Изабери колекцију"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
+    "message": "Изаберите дељену фасциклу"
   },
   "importTargetHintCollection": {
     "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
@@ -5151,7 +5185,7 @@
     "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у фасцикли"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Изаберите ову опцију ако желите да садржај увезене датотеке буде премештен у дељену фасциклу"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -5166,16 +5200,16 @@
     "message": "Изабери датотеку"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "Изабери датотеку"
   },
   "noFileChosen": {
     "message": "Није изабрана ниједна датотека"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "Ниједна датотека није изабрана"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "Изабрана датотека: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5184,7 +5218,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "Додата датотека: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5193,7 +5227,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$ датотека додато: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5206,7 +5240,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "Уклоњена датотека: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5215,10 +5249,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 датотека отпремљена"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ датотека отпремљено",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5227,16 +5261,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Отпремљене датотеке"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "Кликните за отпремање или превуците и пустите"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Изабери датотеке"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "Макс. величина датотеке: $SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5258,7 +5292,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Погледајте детаљна $NAME$ упутства у нашем",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5268,195 +5302,195 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Центар за помоћ"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "Процес је потпуно исти као увоз из Google Chrome-а.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "Користећи KeePassX десктоп апликацију, идите на \"Database\" → \"Export to CSV file\" и сачувајте CSV датотеку."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "У Avira веб сефу идите на \"Settings\" → \"My Data\" → \"Export data\" и сачувајте CSV датотеку."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "У Blur веб сефу кликните на своје корисничко име при врху и идите на \"Settings\" → \"Export Data\", затим кликните \"Export CSV\" за своје \"Accounts\"."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "Користећи SafeInCloud десктоп апликацију, идите на \"File\" → \"Export\" → \"As XML\" и сачувајте XML датотеку."
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Користећи Padlock десктоп апликацију, кликните на икону менија у горњем левом углу и идите на \"Settings\" → дугме \"Export\" и сачувајте датотеку \"As CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "Користећи KeePass 2 десктоп апликацију, идите на \"File\" → \"Export\" и изаберите опцију \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "Користећи Universal Password Manager десктоп апликацију, идите на \"Database\" → \"Export\" и сачувајте CSV датотеку."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "Користећи SaferPass продужетак прегледача, кликните на икону менија у горњем левом углу и идите на \"Settings\". Кликните на дугме \"Export accounts\" да сачувате CSV датотеку."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "Користећи Meldium веб сеф, идите на \"Settings\". Пронађите функцију \"Export data\" и кликните \"Show me my data\" да сачувате CSV датотеку."
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "Користећи Password Dragon десктоп апликацију, идите на \"File\" → \"Export\" → \"To XML\". У дијалогу који се појави изаберите \"All Rows\" и означите сва поља. Кликните на дугме \"Export\" и сачувајте XML датотеку."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "Користећи Enpass десктоп апликацију, идите на \"File\" → \"Export\" → \"As CSV\". Изаберите \"OK\" на упозорењу и сачувајте CSV датотеку. Напомена: увозник подржава само датотеке извезене док је Enpass подешен на енглески језик, па прилагодите подешавања."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "Користећи Enpass 6 десктоп апликацију, кликните на дугме менија и идите на \"File\" → \"Export\". Изаберите опцију формата \".json\" и сачувајте JSON датотеку."
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "Користећи Password Safe десктоп апликацију, идите на \"File\" → \"Export To\" → \"XML format...\" и сачувајте XML датотеку."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Пријавите се на Dashlane, кликните на \"My Account\" → \"Settings\" → \"Export file\" и изаберите \"Export as a CSV file\". То ће преузети zip архиву која садржи разне CSV датотеке. Распакујте архиву и увезите сваку CSV датотеку појединачно."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane више не подржава JSON формат. Користите ово само ако имате постојећи JSON за увоз. Користите CSV увозник када правите нове извозе."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "Користећи mSecure десктоп апликацију, идите на \"File\" → \"Export\" → \"CSV File...\" и сачувајте CSV датотеку."
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "Користећи Sticky Password десктоп апликацију, идите на \"Menu\" (горњи десни угао) → \"Export\" → \"Export all\". Изаберите нешифровани XML формат и сачувајте XML датотеку."
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "Користећи True Key десктоп апликацију, кликните на икону зупчаника (горњи десни угао) и затим идите на \"App Settings\". Кликните на дугме \"Export\", унесите лозинку и сачувајте CSV датотеку."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Пријавите се на Clipperz веб апликацију (clipperz.is/app). Кликните на икону менија у горњем десном углу да отворите траку за навигацију. Идите на \"Data\" → \"Export\". Кликните на дугме \"download HTML+JSON\" да сачувате HTML датотеку."
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "Користећи RoboForm Editor десктоп апликацију, идите на \"RoboForm\" (горњи леви угао) → \"Options\" → \"Account & Data\" и кликните на дугме \"Export\". Изаберите све своје податке, промените \"Format\" у \"CSV file\" и затим кликните на дугме \"Export\" да сачувате CSV датотеку. Напомена: RoboForm дозвољава извоз само пријава. Остале ставке неће бити извезене."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "Пријавите се на Passbolt веб сеф и идите на листу \"Passwords\". Изаберите све лозинке које желите да извезете и кликните на дугме \"Export\" на врху листе. Изаберите формат извоза \"csv (lastpass)\" и кликните на дугме \"Export\"."
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "Користећи Ascendo DataVault десктоп апликацију, идите на \"Tools\" → \"Export\". У дијалогу који се појави изаберите опцију \"All Items (DVX, CSV)\". Кликните на дугме \"Ok\" да сачувате CSV датотеку."
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "Користећи Password Boss десктоп апликацију, идите на \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" и сачувајте JSON датотеку."
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "Пријавите се на Zoho веб сеф (vault.zoho.com). Идите на \"Tools\" → \"Export Secrets\". Изаберите \"All Secrets\" и кликните на дугме \"Zoho Vault Format CSV\". Означите и копирајте податке из текстуалног поља. Отворите уређивач текста као што је Notepad и налепите податке. Сачувајте податке из уређивача текста као",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "Користећи SplashID Safe десктоп апликацију, кликните на SplashID лого плаве браве у горњем десном углу. Идите на \"Export\" → \"Export as CSV\" и сачувајте CSV датотеку."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "Користећи PassKeep мобилну апликацију, идите на \"Backup/Restore\". Пронађите одељак \"CSV Backup/Restore\" и кликните \"Backup to CSV\" да сачувате CSV датотеку."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Уверите се да имате инсталиране python-keyring и python-gnomekeyring. Сачувајте",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME Keyring увоз/извоз"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "python скрипту на своју радну површ као",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Отворите терминал и покрените",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "а затим",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". Затим отпремите добијену",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "датотеку овде у Bitwarden.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Користећи Password Agent десктоп апликацију идите на \"File\" → \"Export\", изаберите дугме \"Fields to export\" и означите сва поља, промените \"Output format\" у \"CSV\", а затим кликните на дугме \"Start\" да сачувате CSV датотеку."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Пријавите се на Passpack веб сеф и идите на \"Settings\" → \"Export\", затим кликните на дугме \"Download\" да сачувате CSV датотеку."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Отворите свој Passman сеф и кликните на \"Settings\" у доњем левом углу. У прозору \"Settings\" пређите на картицу \"Export credentials\" и изаберите \"JSON\" као тип извоза. Унесите приступну фразу свог сефа и кликните на дугме \"Export\" да сачувате JSON датотеку."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Отворите Avast Passwords десктоп апликацију и идите на \"Settings\" → \"Import/export data\". Изаберите дугме \"Export\" за опцију \"Export to CSV file\" да сачувате CSV датотеку."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Отворите Avast Passwords десктоп апликацију и идите на \"Settings\" → \"Import/export data\". Изаберите дугме \"Export\" за опцију \"Export to JSON file\" да сачувате JSON датотеку."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "Отворите F-Secure KEY десктоп апликацију и идите на \"Settings\" → \"Export Passwords\". Изаберите дугме \"Export\", унесите главну лозинку и сачувајте FSK датотеку."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Отворите Kaspersky Password Manager десктоп апликацију и идите на \"Settings\" → \"Import/Export\". Пронађите одељак \"Export to text file\" и изаберите дугме \"Export\" да сачувате TXT датотеку."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "Отворите RememBear десктоп апликацију и идите на \"Settings\" → \"Account\" → \"Export\". Унесите главну лозинку и изаберите дугме \"Export Anyway\" да сачувате CSV датотеку."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Отворите PasswordWallet десктоп апликацију и идите на \"File\" → \"Export\" → \"Visible entries to text file\". Унесите лозинку и изаберите дугме \"Ok\" да сачувате TXT датотеку."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Отворите Myki десктоп продужетак прегледача и идите на \"Advanced\" → \"Export Accounts\", а затим скенирајте QR код својим мобилним уређајем. Разне CSV датотеке ће затим бити сачуване у фасциклу за преузимања на вашем рачунару."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Извезите свој SecureSafe сеф лозинки у CSV датотеку са зарезом као раздвајачем."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Отворите LogMeOnce продужетак прегледача, затим идите на \"Open Menu\" → \"Export To\" и изаберите \"CSV File\" да сачувате CSV датотеку."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Отворите BlackBerry Password Keeper апликацију, затим идите на \"Settings\" → \"Import/Export\". Изаберите \"Export Passwords\" и пратите упутства на екрану да сачувате нешифровану CSV датотеку."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Отворите Buttercup десктоп апликацију и откључајте свој сеф. Кликните десним тастером на икону свог сефа и изаберите \"Export\" да сачувате CSV датотеку."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Отворите Codebook десктоп апликацију и пријавите се. Идите на \"File\" → \"Export all\", затим кликните \"Yes\" у дијалогу и сачувајте CSV датотеку."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Отворите најновију верзију Encryptr десктоп апликације и дозволите синхронизацију свих података. Када се синхронизација података заврши, икона за преузимање у горњем десном углу постаће розе. Кликните на икону за преузимање и сачувајте CSV датотеку."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "У Yoti продужетку прегледача кликните на \"Settings\", затим \"Export Saved Logins\" и сачувајте CSV датотеку."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Пријавите се на Psono веб сеф, кликните на падајући мени \"Signed in as\", изаберите \"Others\". Идите на картицу \"Export\" и изаберите извоз типа json, а затим кликните на Export."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Пријавите се на \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" у одељку Passky. (\"Backup\" није подржан јер је шифрован)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "У ProtonPass продужетку прегледача идите на Settings > Export. Извезите без PGP шифровања и сачувајте zip датотеку."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Изаберите мени Database → Export to file.... → У опцијама извоза уверите се да су означени Folder names и Column titles. → Притисните дугме Browse... и изаберите циљну датотеку и подесите њен тип на CSV file."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Отворите FullClient, идите на главни мени и изаберите Export. Покрените чаробњак за извоз лозинки и пратите упутства да извезете CSV датотеку."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Пријавите се на NordPass и отворите Settings → Померите се до одељка Import and Export и изаберите Export items → Унесите главну лозинку и изаберите Continue. → Сачувајте CSV датотеку на уређају."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "У десктоп апликацији идите на Tools → Export → Унесите главну лозинку → Изаберите XML Format (*.xml) као формат извоза → Кликните на next → Изаберите које ставке треба да буду укључене у извоз → Кликните на next да извезете на претходно изабрану локацију."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Пријавите се на Delinea, потражите „Import/Export” -> изаберите „Export” -> Изаберите „XML” као формат извоза -> Изаберите „QuantumLock” као тип аутентификатора -> унесите лозинку и изаберите „Export” да сачувате XML датотеку."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Пријавите се на Delinea, потражите „Import/Export” -> изаберите „Export” -> Изаберите „CSV” као формат извоза -> Изаберите „QuantumLock” као тип аутентификатора -> унесите лозинку и изаберите „Export” да сачувате CSV датотеку."
   },
   "confirmVaultImport": {
     "message": "Потврдите увоз сефа"
@@ -5468,28 +5502,28 @@
     "message": "Потврдити лозинку датотеке"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass главна лозинка"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "Додај датотеку кључа"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "Отпремање датотеке кључа"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "Отпремање KDBX датотеке"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "Прихваћени формати: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Подаци нису правилно форматирани. Проверите датотеку за увоз и покушајте поново."
   },
   "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+    "message": "Ова датотека није важећа KeePass база података (.kdbx). Изаберите .kdbx датотеку и покушајте поново."
   },
   "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
+    "message": "Ова KeePass база података је превелика за увоз."
   },
   "exportSuccess": {
     "message": "Подаци из сефа су извезени"
@@ -5498,10 +5532,10 @@
     "message": "Појавила се грешка током извожења података из вашег трезора"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "1 оштећени прилог је прескочен током извоза. Сви остали подаци сефа и прилози су успешно извезени."
   },
   "exportSuccessSkippedAttachments": {
-    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "message": "$COUNT$ оштећених прилога је прескочено током извоза. Сви остали подаци сефа и прилози су успешно извезени.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5594,7 +5628,7 @@
     "message": "Вишефакторска аутентификација је неуспешна"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Дошло је до проблема у комуникацији са Keeper-ом. Покушајте поново увоз."
   },
   "includeSharedFolders": {
     "message": "Укључи дељене фасцикле"
@@ -5645,121 +5679,121 @@
     "message": "Унети YubiKey који је асоциран са LastPass налогом у УСБ порт вашег рачунара, и затим додирните његово дугме."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Keeper имејл"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Унесите имејл који користите за пријаву на Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Локација центра података"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Keeper главна лозинка"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Унесите своју Keeper главну лозинку"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Унесите код из своје двофакторске методе"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Унесите код из своје апликације за аутентификацију"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Унесите код послат текстуалном поруком"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Унесите код из своје Keeper DNA апликације"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Одобрење администратора"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Послали смо захтев за одобрење администратора вашем администратору"
   },
   "method": {
-    "message": "Method"
+    "message": "Метод"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Директни увозник"
   },
   "csv": {
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Потребна је SSO аутентификација"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Ваш Keeper налог захтева SSO аутентификацију. Довршите пријаву у отвореном прозору прегледача, затим налепите токен приказан на страници."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Довршите пријаву на отвореној картици прегледача. Токен ће бити аутоматски забележен."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "SSO токен"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Потребна је Keeper аутентификација"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Потребно је одобрење Keeper уређаја"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Методи одобрења"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Потребно је одобрење уређаја"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Одобрите овај уређај избором методе испод"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Двофакторски метод"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Верификација имејла"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Проверите свој имејл и унесите верификациони код испод"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Keeper Push обавештење послато одобреном уређају"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push послат"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Захтев за одобрење ће бити отказан"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Да ли сте сигурни да желите да изађете? Ваш захтев за одобрење администратора ће бити отказан."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Откажи захтев"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Потребна је Keeper двофакторска аутентификација"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Одобрите захтев за пријаву у својој апликацији за аутентификацију. Овај дијалог ће се аутоматски затворити."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Изаберите двофакторски метод"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Изаберите како желите да верификујете свој идентитет."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Апликација за аутентификацију (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Текстуална порука (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5768,70 +5802,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Резервни кодови"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Безбедносни кључ (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Безбедносни кључ (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA верификација"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Одобрите Keeper DNA обавештење на свом уређају"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Изаберите Keeper DNA метод"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Изаберите како желите да верификујете помоћу Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Push обавештење"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Унесите код ручно"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Двофакторска аутентификација"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Непознат метод"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Изаберите Duo метод"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Изаберите како желите да верификујете помоћу Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Телефонски позив"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo верификација"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Одобрите Duo push обавештење на свом уређају."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "Текстуална порука је послата на ваш телефон. Унесите код у Duo апликацији да наставите."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Одговорите на телефонски позив од Duo и пратите упутства."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Покушајте други метод"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Ваш Keeper налог захтева двофакторски метод аутентификације који тренутно није подржан од стране директног увозника."
   },
   "switchAccount": {
     "message": "Промени налог"
@@ -5840,7 +5874,7 @@
     "message": "Промени налог"
   },
   "switchVault": {
-    "message": "Switch vault"
+    "message": "Пребаци сеф"
   },
   "switchToAccount": {
     "message": "Пребаците се на налог"
@@ -5951,11 +5985,11 @@
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerCalloutTitle": {
-    "message": "Make your autofill experience better",
+    "message": "Побољшајте своје искуство аутоматског попуњавања",
     "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
   },
   "defaultPasswordManagerCalloutDesc": {
-    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "message": "Биће вам затражено да доделите $BROWSER$ дозволу прегледача да Bitwarden постане ваш подразумевани менаџер лозинки.",
     "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
     "placeholders": {
       "browser": {
@@ -5977,35 +6011,35 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Make Bitwarden your browser's default password manager"
+    "message": "Учините Bitwarden подразумеваним менаџером лозинки вашег прегледача"
   },
   "defaultPasswordManagerPromptTitleV2": {
-    "message": "Make Bitwarden your default password manager",
+    "message": "Учините Bitwarden својим подразумеваним менаџером лозинки",
     "description": "Label for the setting to make Bitwarden the default password manager"
   },
   "defaultPasswordManagerSettingHintV2": {
-    "message": "Turn off the browser autofill settings to avoid conflicts.",
+    "message": "Искључите подешавања аутоматског попуњавања прегледача да избегнете конфликте.",
     "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
   "defaultPasswordManagerSettingHintLinkV2": {
-    "message": "Manage browser settings",
+    "message": "Управљајте подешавањима прегледача",
     "description": "Link text to browser autofill settings in the default password manager setting hint."
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
-    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+    "message": "из упитника прегледача да бисте дали Bitwarden-у дозволу да промени ваша подешавања."
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+    "message": "Искључићемо уграђени менаџер лозинки вашег прегледача да бисте уживали у безбедном искуству пријаве."
   },
   "defaultPasswordManagerSuccessToast": {
-    "message": "Made Bitwarden your default browser password manager"
+    "message": "Bitwarden је постављен као подразумевани менаџер лозинки прегледача"
   },
   "allow": {
-    "message": "Allow",
+    "message": "Дозволи",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "Прескочи"
   },
   "saveCipherAttemptSuccess": {
     "message": "Акредитиви су успешно сачувани!",
@@ -6034,10 +6068,10 @@
     "message": "Уклонити приступни кључ"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Избриши приступни кључ"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Овај приступни кључ ће бити трајно избрисан из ваше ставке пријаве. Ово се не може опозвати."
   },
   "passkeyRemoved": {
     "message": "Приступни кључ је уклоњен"
@@ -6061,10 +6095,10 @@
     "message": "Обришите филтере или покушајте са другим термином"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Нема додатих дељених фасцикли"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Додајте дељену фасциклу да безбедно делите ставке сефа са другим члановима."
   },
   "moreOptionsLabel": {
     "message": "Више опција, $ITEMNAME$",
@@ -6138,20 +6172,20 @@
     }
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "Није унета вредност",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Нема детаља за копирање"
   },
   "assignToCollections": {
     "message": "Додели колекцијама"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "Додај у дељену фасциклу"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Преноси и додај"
   },
   "copyEmail": {
     "message": "Копирај имејл"
@@ -6205,13 +6239,13 @@
     "message": "Безбедност налога"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Блокатор фишинга"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Детекција фишинга"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Прикажи упозорење пре приступања сумњивим фишинг сајтовима"
   },
   "notifications": {
     "message": "Обавештења"
@@ -6246,27 +6280,27 @@
     }
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Прикажи пријаву",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Прикажи картицу",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Прикажи идентитет",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Прикажи белешку",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Направи",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "Додај колекцију"
   },
   "new": {
     "message": "Ново"
@@ -6297,7 +6331,7 @@
     "message": "Власник"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Дељена фасцикла $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6306,7 +6340,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Колекција $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6315,7 +6349,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "Моја фасцикла $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6324,7 +6358,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Фасцикла $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6333,7 +6367,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Власник $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6342,7 +6376,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Сеф $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6403,7 +6437,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Преузми прилог"
   },
   "downloadBitwarden": {
     "message": "Преузети Bitwarden"
@@ -6507,10 +6541,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "Апликација (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "Апликација (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -6526,10 +6560,10 @@
     "message": "Додај вебсајт"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Додај веб-сајт или апликацију"
   },
   "app": {
-    "message": "App"
+    "message": "Апликација"
   },
   "deleteWebsite": {
     "message": "Обриши вебсајт"
@@ -6564,10 +6598,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Прикажи детекцију поклапања"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Сакриј детекцију поклапања"
   },
   "autoFillOnPageLoad": {
     "message": "Ауто-попуњавање при учитавању странице?"
@@ -6621,13 +6655,13 @@
     "message": "Само чланови организације са приступом овим збиркама ће моћи да виде ставку."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "Само чланови сефа са приступом овим дељеним фасциклама моћи ће да виде ставку."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Само чланови организације са приступом овим збиркама ће моћи да виде ставке."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "Само чланови сефа са приступом овим дељеним фасциклама моћи ће да виде ставке."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Одабрали сте $TOTAL_COUNT$ ставки. Не можете да ажурирате $READONLY_COUNT$ од ставки јер немате дозволе за уређивање.",
@@ -6666,7 +6700,7 @@
     "message": "Користите повезано поље када имате проблема са аутоматским попуњавањем за одређену веб локацију."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "Унесите HTML id, name, aria-label или placeholder поља."
   },
   "editField": {
     "message": "Уреди поље"
@@ -6734,7 +6768,7 @@
     "message": "1 ставка биће трајно пребачена у изабрану организацију. Више нећете имати ову ставку."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 ставка ће бити трајно пренета у изабрани сеф. Више нећете бити власник ове ставке."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ ставке биће трајно пребачени у изабрану организацију. Више нећете имати ове ставке.",
@@ -6746,7 +6780,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ ставки ће бити трајно пренето у изабрани сеф. Више нећете бити власник ових ставки.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6780,37 +6814,37 @@
     "message": "Успешно додељене колекције"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "Успешно додате дељене фасцикле"
   },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "Ставка премештена у колекцију"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Ставка додата у дељену фасциклу"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "Ставка премештена у колекције"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Ставка додата у дељене фасцикле"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "Ставке премештене у колекцију"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "Ставке додате у дељену фасциклу"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "Ставке премештене у колекције"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "Ставке додате у дељене фасцикле"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Ставка додељена колекцијама"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Ставке додељене колекцијама"
   },
   "nothingSelected": {
     "message": "Нисте ништа изабрали."
@@ -6862,7 +6896,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "itemSends": {
-    "message": "Item Sends",
+    "message": "Send ставке",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
@@ -6884,7 +6918,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Прикажи радње брзог копирања у сефу"
   },
   "systemDefault": {
     "message": "Системски подразумевано"
@@ -6941,7 +6975,7 @@
     "message": "Ставке које избришете ће се појавити овде и биће трајно избрисане након 30 дана"
   },
   "noItemsInTrashDescription": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+    "message": "Ставке које избришете појавиће се овде и бити трајно избрисане након 30 дана."
   },
   "trashWarning": {
     "message": "Ставке које су биле у смећу више од 30 дана биће аутоматски избрисане"
@@ -7160,7 +7194,7 @@
     "message": "Врло широко"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Уско"
   },
   "sshKeyWrongPassword": {
     "message": "Лозинка коју сте унели није тачна."
@@ -7199,7 +7233,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "Не можете уклонити дељене фасцикле са дозволом само за преглед: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -7214,10 +7248,10 @@
     "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Рањива лозинка."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Промени сада"
   },
   "missingWebsite": {
     "message": "Недостаје веб страница"
@@ -7229,10 +7263,10 @@
     "message": "Сеф штити више од само ваших лозинки. Овде безбедно чувајте безбедне пријаве, личне карте, картице и белешке."
   },
   "emptyVaultsDescription": {
-    "message": "Add logins, IDs, cards, and other items to get started."
+    "message": "Додајте пријаве, личне карте, картице и друге ставке да почнете."
   },
   "emptySharedFolderDescription": {
-    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "message": "Додајте ставке у ову дељену фасциклу, затим дајте приступ другим члановима $VAULT_NAME$.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -7241,7 +7275,7 @@
     }
   },
   "emptyMyItemsDescription": {
-    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "message": "Моје ставке су ваш приватни простор за чување ставки које остају у власништву $VAULT_NAME$, али нису видљиве другим члановима.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -7250,10 +7284,10 @@
     }
   },
   "youHaveNoFolders": {
-    "message": "You have no folders."
+    "message": "Немате фасцикли."
   },
   "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+    "message": "Користите фасцикле за организовање ставки сефа. Оне су само за вас — нико други их неће видети нити користити."
   },
   "introCarouselLabel": {
     "message": "Добродошли у Bitwarden"
@@ -7411,7 +7445,7 @@
     "message": "Bitwarden ће користити сачуване URI-јеве за пријаву да би одредио коју икону или URL за промену лозинке треба користити како би побољшао ваше искуство. Никакви подаци нису сакупљени нити сачувани приликом коришћења ове услуге."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Додајте 3 дугмета за брзо копирање поред ставки за копирање корисничког имена, лозинке или верификационог кода у привремену меморију."
   },
   "noPermissionsViewPage": {
     "message": "Немате дозволе за преглед ове странице. Покушајте да се пријавите са другим налогом."
@@ -7424,7 +7458,7 @@
     "message": "Прикажи више"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Прикажи још $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7439,7 +7473,7 @@
     "message": "Следеће"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Мрвице",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -7502,7 +7536,7 @@
     "message": "Број картице"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Грешка: не може се дешифровати"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша организација више не користи главне лозинке за пријаву на Bitwarden. Да бисте наставили, верификујте организацију и домен."
@@ -7591,10 +7625,10 @@
     "message": "Подесите метод откључавања да бисте променили радњу временског ограничења"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "Управља Bitwarden десктоп апликација. Отворите десктоп апликацију за уређивање."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% завршено",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -7636,7 +7670,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "$ORGANIZATION$ захтева да све ставке буду у власништву организације ради безбедности и усаглашености.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7645,10 +7679,10 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "Кликните прихвати да пренесете власништво над својим ставкама."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "Отвори чланак помоћи о преносу ставки"
   },
   "acceptTransfer": {
     "message": "Прихвати трансфер"
@@ -7657,34 +7691,34 @@
     "message": "Одбиј и напусти"
   },
   "items": {
-    "message": "Items"
+    "message": "Ставке"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Резултати претраге"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Поједностављено аутоматско попуњавање"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Када кликнете на предложену ставку за аутоматско попуњавање, она се попуњава уместо да вас води до детаља. Ове ставке и даље можете видети из менија Више."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Отвори искачући прозор поједностављеног аутоматског попуњавања"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Промени величину бочне навигације"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Ко може да види"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Одређене особе"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Након дељења овог Send линка, особе ће морати да верификују свој имејл кодом да би виделе овај Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Унесите више имејлова одвојених зарезом."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -7693,196 +7727,196 @@
     "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Преузмите Bitwarden апликације"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Имејл заштићен"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Особе ће морати да унесу лозинку да би виделе овај Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Верификација корисника није успела."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "Дељено откључавање"
   },
   "sharedUnlockWithDesktop": {
-    "message": "Share unlock with Desktop"
+    "message": "Подели откључавање са десктоп апликацијом"
   },
   "sharedUnlockWithDesktopDescription": {
-    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
+    "message": "Када је омогућено, стање откључаности ће се делити са Bitwarden десктоп апликацијом."
   },
   "sharedUnlockWithWeb": {
-    "message": "Share unlock with web vault"
+    "message": "Подели откључавање са веб сефом"
   },
   "sharedUnlockWithWebDescription": {
-    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+    "message": "Када је омогућено, стање откључаности ће се делити са Bitwarden веб сефовима."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
-    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+    "message": "Дељено откључавање није доступно јер сте изабрали да не памтите овај уређај. Да бисте омогућили ово подешавање, покушајте поново да се пријавите."
   },
   "newPermissionNeeded": {
-    "message": "New permission needed"
+    "message": "Потребна је нова дозвола"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "Да бисте користили дељено откључавање, Bitwarden-у је потребна дозвола за комуникацију са десктоп апликацијом. Када наставите, ваш прегледач ће вас питати да је одобрите."
   },
   "sharedUnlockDesktopPermissionWarning": {
-    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+    "message": "Bitwarden ће се закључати и поново учитати. Након што одобрите, продужетак се поново учитава и закључаће ваш сеф."
   },
   "biometricPermissionDesc": {
-    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "Да бисте користили биометријско откључавање, Bitwarden-у је потребна дозвола за комуникацију са десктоп апликацијом. Када наставите, ваш прегледач ће вас питати да је одобрите."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Унесите месец."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Унесите дан."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Унесите годину."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Унесите важећи дан."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Унесите важећу годину."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Претражи дозволе"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "Назив банке"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "Име на рачуну"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "Тип рачуна"
   },
   "bankAccountTypeCompany": {
-    "message": "Company (business)"
+    "message": "Компанија (пословни)"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual (personal)"
+    "message": "Појединац (лични)"
   },
   "accountNumber": {
-    "message": "Account number"
+    "message": "Број рачуна"
   },
   "bankRoutingNumber": {
-    "message": "Routing number",
+    "message": "Број за пренос",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
-    "message": "Branch/institution number"
+    "message": "Број филијале/институције"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT код"
   },
   "iban": {
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "Телефон за контакт банке"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "Претражи банковни рачун"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "Претражи пасоше"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "Копирај број рачуна"
   },
   "copyRoutingNumber": {
-    "message": "Copy routing number"
+    "message": "Копирај број за пренос"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "Копирај PIN"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "Копирај IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Копирај име на рачуну"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Копирај број филијале"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Копирај SWIFT код"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "Текући"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "Штедни"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "Потврда о депозиту"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "Кредитна линија"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "Инвестициони/брокерски"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "Тржиште новца"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "Остало"
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "Преузимање није успело."
   },
   "more": {
-    "message": "More"
+    "message": "Више"
   },
   "maxAccessCount": {
-    "message": "Maximum access count",
+    "message": "Максималан број приступа",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Сакриј моју имејл адресу од прималаца."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Прикажи текст"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Прикажи датотеку"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send направљен",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "Унос мора бити нумерички"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "Унос мора бити цео број"
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Бочна навигација"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Линк за прескакање"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Истакнута порука",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Трака напретка",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "Ваша организација захтева видљивост имејла. Опозовите избор \"Hide your email from viewers\" да сачувате."
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "Укључите само следеће домене: $DOMAINS$. Прегледајте и покушајте поново",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -7890,39 +7924,39 @@
     }
   },
   "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "Not compliant with your organization's Send policy",
+    "message": "Није у складу са Send политиком ваше организације",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "message": "Да бисте уредили овај Send, направите копију. Ако овај Send може да истекне на подешени датум брисања, није потребна никаква радња",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Направи копију"
   },
   "orgDoesNotAllowTextSends": {
-    "message": "Text Sends are not allowed for your organization",
+    "message": "Текстуални Send-ови нису дозвољени за вашу организацију",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowFileSends": {
-    "message": "File Sends are not allowed for your organization",
+    "message": "Send-ови датотека нису дозвољени за вашу организацију",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendWillAutomaticallyExpire": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "Овај Send ће аутоматски истећи на подешени датум брисања",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "Не можете увести ставке у Моје ставке које су део више колекција"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Није могуће сачувати ставку. Морате бити потврђени у организацији да бисте чували ставке."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "Ставке не могу имати више прилога са истим називом датотеке"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "$ORGNAME$ је подесио овај датум брисања",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -7931,27 +7965,27 @@
     }
   },
   "health": {
-    "message": "Health"
+    "message": "Здравље"
   },
   "scanMyVault": {
-    "message": "Scan my vault"
+    "message": "Скенирај мој сеф"
   },
   "introducingHealth": {
-    "message": "Introducing Health"
+    "message": "Представљамо Здравље"
   },
   "healthIntroDescription": {
-    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+    "message": "Пратите и побољшајте здравље свог сефа исправљањем лозинки које су изложене, слабе и поново коришћене."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "Ваш сеф је здрав",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Ризик вашег сефа је висок",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$AT_RISK$ од $TOTAL$ лозинки треба поправити",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7965,15 +7999,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "Нема изложених лозинки",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 изложена лозинка",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ изложених лозинки",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7983,23 +8017,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Изложене у цурењима података",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Ниједна ваша лозинка није пронађена у цурењима података",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Нема слабих лозинки",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 слаба лозинка",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ слабих лозинки",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -8009,23 +8043,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Превише кратке или једноставне",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Све ваше лозинке су јаке",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Нема поново коришћених лозинки",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 поново коришћена лозинка",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ поново коришћених лозинки",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -8035,74 +8069,74 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Поново коришћене за више пријава",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Све ваше лозинке су јединствене",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Идентификовани ризици",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "upgradeToViewPasswords": {
-    "message": "Upgrade to view passwords"
+    "message": "Надоградите да бисте видели лозинке"
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Ниједна ставка не захтева пажњу",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   },
   "scanningYourVault": {
-    "message": "Scanning your vault",
+    "message": "Скенирање вашег сефа",
     "description": "Heading shown while the vault health scan is running."
   },
   "scanningYourVaultDescription": {
-    "message": "Checking for exposed, weak, and reused passwords.",
+    "message": "Провера изложених, слабих и поново коришћених лозинки.",
     "description": "Explains what the vault health scan is doing while it runs."
   },
   "scanInProgress": {
-    "message": "In progress",
+    "message": "У току",
     "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
   },
   "healthScanFailed": {
-    "message": "Something went wrong",
+    "message": "Нешто је пошло наопако",
     "description": "Heading shown when the vault health scan did not complete."
   },
   "healthScanFailedDescription": {
-    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "message": "Скенирање вашег сефа није завршено због неочекиване грешке.",
     "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
-    "message": "Exposed passwords"
+    "message": "Изложене лозинке"
   },
   "exposedPasswordsDescription": {
-    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+    "message": "Лозинке за ове пријаве су изложене у цурењима података. Промените их одмах да заштитите своје налоге."
   },
   "weakPasswordsTitle": {
-    "message": "Weak passwords"
+    "message": "Слабе лозинке"
   },
   "weakPasswordsDescription": {
-    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+    "message": "Ове лозинке се лако могу погодити јер су превише кратке или једноставне. Ојачајте их тако што ћете их учинити сложенијим."
   },
   "reusedPasswordsTitle": {
-    "message": "Reused passwords"
+    "message": "Поново коришћене лозинке"
   },
   "reusedPasswordsDescription": {
-    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+    "message": "Ове пријаве имају поново коришћену лозинку. Направите јединствену лозинку за сваки налог да спречите да неко приступи више налога са једном лозинком."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Обавезно прво промените лозинку. Брисање само уклања ставку из вашег сефа, не отклања ризик."
   },
   "passwordHasAdditionalRisks": {
-    "message": "This password has additional risks:"
+    "message": "Ова лозинка има додатне ризике:"
   },
   "reused": {
-    "message": "Reused",
+    "message": "Поново коришћена",
     "description": "ex. A password that is reused across multiple logins."
   },
   "xTimes": {
-    "message": "$COUNT$ times",
+    "message": "$COUNT$ пута",
     "description": "The number of times a password is reused. ex. 6 times",
     "placeholders": {
       "count": {
@@ -8112,89 +8146,89 @@
     }
   },
   "exposedPasswordsEmpty": {
-    "message": "None of your passwords were found in data breaches."
+    "message": "Ниједна ваша лозинка није пронађена у цурењима података."
   },
   "weakPasswordEmpty": {
-    "message": "All your passwords are strong."
+    "message": "Све ваше лозинке су јаке."
   },
   "reusedPasswordEmpty": {
-    "message": "All your passwords are unique."
+    "message": "Све ваше лозинке су јединствене."
   },
   "youreAllSet": {
-    "message": "You're all set!"
+    "message": "Све је спремно!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Дозволе"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Прикажи ставке"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Прикажи ставке, сакриј лозинке"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Уреди ставке"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Уреди ставке, сакриј лозинке"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "Подели"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "Особе које могу да виде",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "Након дељења овог линка, примаоци ће морати да верификују свој имејл кодом да би видели ставку.",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "Овај линк истиче након овог датума, али примаоци могу задржати претходно дељене информације. Поново генеришите акредитив да опозовете приступ.",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "Линк истиче након",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "Дељење једном",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "Активни линкови",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "Линк копиран у привремену меморију",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "Није могуће направити линк за дељење",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "Линк сачуван и копиран у привремену меморију",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "Копирање линка за дељење у привремену меморију није успело",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "Линк за дељење избрисан",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "Брисање линка за дељење није успело",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "Подели преко линка",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "Дељење за ставку сефа $ITEM$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -8203,18 +8237,18 @@
     }
   },
   "share": {
-    "message": "Share",
+    "message": "Подели",
     "description": "Page title for the share vault item panel"
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Истиче",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "Истиче",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "Непозната ставка, можда ћете морати да затражите дозволу за приступ овој ставци."
   }
 }
