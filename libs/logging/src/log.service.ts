@@ -8,6 +8,14 @@ export abstract class LogService {
   abstract write(level: LogLevel, message?: any, ...optionalParams: any[]): void;
 
   /**
+   * Enables or disables the attached recorder. Only the first call has an effect.
+   * No-op if no recorder is attached.
+   */
+  enableRecorder(enabled: boolean): void {
+    // Nothing to record into by default.
+  }
+
+  /**
    * Helper wrapper around `performance.measure` to log a measurement. Should also debug-log the data.
    *
    * @param start Start time of the measurement.

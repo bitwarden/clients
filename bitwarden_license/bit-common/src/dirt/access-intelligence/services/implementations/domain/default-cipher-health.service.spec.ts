@@ -1,8 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -16,13 +18,21 @@ describe("DefaultCipherHealthService", () => {
   let service: DefaultCipherHealthService;
   let auditService: MockProxy<AuditService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
+  let configService: MockProxy<ConfigService>;
   let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     auditService = mock<AuditService>();
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
     logService = mock<LogService>();
-    service = new DefaultCipherHealthService(auditService, passwordStrengthService, logService);
+    service = new DefaultCipherHealthService(
+      auditService,
+      passwordStrengthService,
+      configService,
+      logService,
+    );
   });
 
   // Helper to create mock ciphers
@@ -125,6 +135,34 @@ describe("DefaultCipherHealthService", () => {
         expect(health.hasExposedPassword).toBe(false);
         done();
       });
+    });
+  });
+
+  describe("HIBP padding", () => {
+    beforeEach(() => {
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as ZXCVBNResult);
+      auditService.passwordLeaked.mockResolvedValue(0);
+    });
+
+    it("should request padding when AccessIntelligencePerformanceAtScale is disabled", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      const cipher = createMockCipher({ password: "Password123!" });
+
+      await firstValueFrom(service.checkSingleCipherHealth(cipher));
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.AccessIntelligencePerformanceAtScale,
+      );
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("Password123!", true);
+    });
+
+    it("should not request padding when AccessIntelligencePerformanceAtScale is enabled", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      const cipher = createMockCipher({ password: "Password123!" });
+
+      await firstValueFrom(service.checkSingleCipherHealth(cipher));
+
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("Password123!", false);
     });
   });
 

@@ -104,10 +104,7 @@ export enum FeatureFlag {
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM29968_FillAfterSave = "pm-29968-fill-after-save",
   PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
-  PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
-  PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
   PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
   PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
@@ -117,6 +114,7 @@ export enum FeatureFlag {
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
+  PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
@@ -193,10 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM29968_FillAfterSave]: FALSE,
   [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
-  [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
-  [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
   [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
@@ -243,6 +238,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
+  [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,

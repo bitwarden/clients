@@ -1,5 +1,4 @@
-import { OverlayModule } from "@angular/cdk/overlay";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { filter, map, startWith, firstValueFrom, switchMap } from "rxjs";
 
@@ -22,18 +21,12 @@ import {
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-reports-home",
   templateUrl: "reports-home.component.html",
-  imports: [
-    SharedModule,
-    OverlayModule,
-    ReportsSharedModule,
-    HeaderModule,
-    Vfo1I18nPipe,
-    RouterModule,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SharedModule, ReportsSharedModule, HeaderModule, Vfo1I18nPipe, RouterModule],
 })
 export class ReportsHomeComponent {
   private readonly route = inject(ActivatedRoute);
