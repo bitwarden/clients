@@ -1146,6 +1146,11 @@ export class CipherService implements CipherServiceAbstraction {
       cipher.collectionIds,
       userId,
     );
+    // The user no longer has access to the cipher after the collection change
+    if (cipherView == null) {
+      await this.delete(cipher.id, userId);
+      return undefined;
+    }
     const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
     return encryptResult.cipher;
   }
