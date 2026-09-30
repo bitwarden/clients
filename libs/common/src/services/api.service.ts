@@ -682,7 +682,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
     const r = await this.send(
       "GET",
-      "/organizations/" + organizationId + "/collections/organization-details",
+      "/organizations/" + organizationId + "/collections/access",
       null,
       true,
       true,
