@@ -1,6 +1,7 @@
 import {
   BehaviorSubject,
   catchError,
+  combineLatest,
   first,
   forkJoin,
   from,
@@ -481,13 +482,20 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     orgId: OrganizationId,
     trigger: "page open" | "generate",
   ): Observable<CipherView[]> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM27632_SdkCipherCrudOperations).pipe(
+    return combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM27632_SdkCipherCrudOperations),
+      this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligencePerformanceAtScale),
+    ]).pipe(
       first(),
-      switchMap((useSdk) =>
-        from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
+      switchMap(([useSdk, useLoginOnlyEndpoint]) =>
+        from(
+          useLoginOnlyEndpoint
+            ? this.cipherService.getOrganizationLoginCiphersFromApi(orgId)
+            : this.cipherService.getAllFromApiForOrganization(orgId, true),
+        ).pipe(
           measureFlowStep(
             this.logService,
-            `Load: org ciphers fetched (${trigger}, ${useSdk ? "sdk" : "legacy"})`,
+            `Load: org ciphers fetched (${trigger}, ${useLoginOnlyEndpoint ? "logins-only" : useSdk ? "sdk" : "legacy"})`,
             (ciphers) => [["itemCount", ciphers.length]],
           ),
         ),

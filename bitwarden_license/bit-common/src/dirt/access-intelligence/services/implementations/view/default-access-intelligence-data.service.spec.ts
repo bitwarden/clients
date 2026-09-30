@@ -48,6 +48,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     cipherService = {
       getAllFromApiForOrganization: jest.fn().mockResolvedValue([]),
+      getOrganizationLoginCiphersFromApi: jest.fn().mockResolvedValue([]),
     } as any;
 
     organizationUserApiService = {
@@ -164,7 +165,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
         configService.getFeatureFlag$.mockImplementation((flag) =>
           of(flag === FeatureFlag.AccessIntelligencePerformanceAtScale),
         );
-        cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+        cipherService.getOrganizationLoginCiphersFromApi.mockResolvedValue(testCiphers);
       });
 
       it("does not load ciphers when a report exists", async () => {
@@ -174,7 +175,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
         await firstValueFrom(service.initializeForOrganization$(orgId));
 
-        expect(cipherService.getAllFromApiForOrganization).not.toHaveBeenCalled();
+        expect(cipherService.getOrganizationLoginCiphersFromApi).not.toHaveBeenCalled();
         expect(await firstValueFrom(service.report$)).toBe(testReport);
         expect(await firstValueFrom(service.ciphers$)).toEqual([]);
         expect(await firstValueFrom(service.loading$)).toBe(false);
@@ -185,7 +186,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
         await firstValueFrom(service.initializeForOrganization$(orgId));
 
-        expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+        expect(cipherService.getOrganizationLoginCiphersFromApi).toHaveBeenCalledWith(orgId);
         expect(await firstValueFrom(service.report$)).toBeNull();
         expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
         expect(await firstValueFrom(service.loading$)).toBe(false);
@@ -199,7 +200,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
         await firstValueFrom(service.initializeForOrganization$(orgId));
 
-        expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+        expect(cipherService.getOrganizationLoginCiphersFromApi).toHaveBeenCalledWith(orgId);
         expect(await firstValueFrom(service.report$)).toBeNull();
         expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
         expect(await firstValueFrom(service.loading$)).toBe(false);
@@ -595,6 +596,41 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       error = await firstValueFrom(service.error$);
       expect(error).toBeNull();
+    });
+  });
+
+  describe("Cipher Endpoint Feature Flag", () => {
+    beforeEach(() => {
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of({
+          id: "report-id-123" as OrganizationReportId,
+          contentEncryptionKey: new EncString(""),
+        }),
+      );
+    });
+
+    it("should call getAllFromApiForOrganization when flag is off", async () => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+      expect(cipherService.getOrganizationLoginCiphersFromApi).not.toHaveBeenCalled();
+    });
+
+    it("should call getOrganizationLoginCiphersFromApi when flag is on", async () => {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        flag === FeatureFlag.AccessIntelligencePerformanceAtScale ? of(true) : of(false),
+      );
+      cipherService.getOrganizationLoginCiphersFromApi.mockResolvedValue(testCiphers);
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(cipherService.getOrganizationLoginCiphersFromApi).toHaveBeenCalledWith(orgId);
+      expect(cipherService.getAllFromApiForOrganization).not.toHaveBeenCalled();
     });
   });
 
