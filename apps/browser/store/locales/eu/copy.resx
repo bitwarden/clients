@@ -121,55 +121,54 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Etxean, lanean edo bidaian, Bitwarden-ek erraz babesten ditu zure pasahitz, pasagako eta informazio sentikor guztiak.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 eta beste batzuek pasahitz-kudeatzailerik onena bezala aitortua!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+BABESTU ZURE BIZITZA DIGITALA
+Babestu zure bizitza digitala eta saihestu datu-urraketak kontu bakoitzerako pasahitz bakar eta sendoak sortuz eta gordez. Mantendu dena muturretik muturrera zifratutako pasahitz-kutxa batean, zuk soilik atzitu ahal duzuna.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ATZITU ZURE DATUAK, EDONON, EDOZEIN UNETAN, EDOZEIN GAILUTAN
+Erraz kudeatu, gorde, babestu eta partekatu mugarik gabeko pasahitzak mugarik gabeko gailuetan murrizketarik gabe.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+DENOK ZAUDEN SEGURU SAREAN TRESNAK IZAN BEHAR DITU
+Erabili Bitwarden doan iragarkirik gabe edo daturik saldu gabe. Bitwarden-ek uste du denek sarean seguru egoteko gaitasuna izan behar dutela. Premium planek funtzio aurreratuak atzitzeko aukera ematen dute.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+INDARTU ZURE TALDEAK BITWARDEN-EKIN
+Taldeentzako eta Enpresentzako planek negozio-funtzio profesionalak dakartzate. Adibide batzuk: SSO integrazioa, norbere ostalaritza, direktorio-integrazioa eta SCIM hornikuntza, politika globalak, API sarbidea, gertaera-erregistroak eta gehiago.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Erabili Bitwarden zure lan-indarra babesteko eta informazio sentikorra lankideekin partekatzeko.
 
 
-More reasons to choose Bitwarden:
+Bitwarden aukeratzeko arrazoi gehiago:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Mundu-mailako zifratzea
+Pasahitzak muturretik muturrera zifratze aurreratuarekin babesten dira (AES-256 bit, gatzatutako hashinga eta PBKDF2 SHA-256), zure datuak seguru eta pribatu egon daitezen.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Hirugarrenen auditoretzak
+Bitwarden-ek aldian-aldian hirugarrenen segurtasun-auditoretzak egiten ditu segurtasun-enpresa ospetsuekin. Urteko auditoretza hauek iturburu-kodearen ebaluazioak eta penetrazio-probak barne hartzen dituzte Bitwarden IP, zerbitzari eta web aplikazioetan.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA aurreratua
+Babestu zure saio-hasiera hirugarrenen autentifikatzaile batekin, helbide elektronikoz bidalitako kodeekin edo FIDO2 WebAuthn kredentzialekin, hala nola hardware segurtasun-gakoa edo pasagakoa.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Bidali datuak zuzenean beste batzuei muturretik muturrera zifratutako segurtasuna mantenduz eta esposizioa mugatuz.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Sortzaile integratua
+Sortu pasahitz luze, konplexu eta desberdinak eta erabiltzaile-izen bakarrak bisitatzen duzun gune bakoitzerako. Integratu helbide elektroniko alias hornitzaileekin pribatutasun gehiagorako.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Itzulpen globalak
+Bitwarden-en itzulpenak 60 hizkuntza baino gehiagotarako daude, komunitate globalak Crowdin bidez itzulita.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Plataforma anitzeko aplikazioak
+Babestu eta partekatu datu sentikorrak zure Bitwarden Kutxan edozein nabigatzaile, mugikor edo mahaigaineko sistematik, eta gehiago.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden-ek pasahitzak baino gehiago babesten ditu
+Bitwarden-en muturretik muturrera zifratutako kredentzial-kudeaketaren soluzioek erakundeei dena babesteko aukera ematen diete, garatzaileen sekretuak eta pasagako esperientziak barne. Bisitatu Bitwarden.com Bitwarden Secrets Manager eta Bitwarden Passwordless.dev-ri buruz gehiago jakiteko!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Etxean, lanean edo bidaian, Bitwarden-ek erraz babesten ditu zure pasahitz, pasagako eta informazio sentikor guztiak.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sinkronizatu eta sartu zure kutxa gotorrean hainbat gailutatik</value>

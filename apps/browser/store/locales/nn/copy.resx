@@ -121,72 +121,71 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Heime, på jobb eller på farten, sikrar Bitwarden enkelt alle passorda, passnøklane og sensitive opplysningane dine.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Anerkjend som den beste passordhandsamaren av PCMag, WIRED, The Verge, CNET, G2 og fleire!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+SIKRE DITT DIGITALE LIV
+Sikre ditt digitale liv og vern mot datalekkasjar ved å generere og lagre unike, sterke passord for kvar konto. Hald alt i ein ende-til-ende-kryptert passordkvelv som berre du har tilgang til.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+FÅ TILGANG TIL DATAANE DINE, OVERALT, NÅR SOM HELST, PÅ EI KVAR EINING
+Handsam, lagre, sikre og del ubegrensa med passord på tvers av ubegrensa einingar utan restriksjonar.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ALLE BØR HA VERKTØYA FOR Å HALDE SEG TRYGGE PÅ NETT
+Bruk Bitwarden gratis utan annonsar eller sal av data. Bitwarden meiner alle bør ha evna til å halde seg trygge på nett. Premium-planar gir tilgang til avanserte funksjonar.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+STYRK TEAMA DINE MED BITWARDEN
+Planar for Teams og Enterprise kjem med profesjonelle verksemdsfunksjonar. Nokre døme inkluderer SSO-integrering, sjølvdrift, katalogintegrering og SCIM-provisjonering, globale retningslinjer, API-tilgang, hendingsloggar og meir.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Bruk Bitwarden for å sikre arbeidsstyrken din og dele sensitive opplysningar med kollegaer.
 
 
-More reasons to choose Bitwarden:
+Fleire grunnar til å velje Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Verdsklasse-kryptering
+Passord er verna med avansert ende-til-ende-kryptering (AES-256 bit, salta hashing og PBKDF2 SHA-256) slik at dataa dine held seg trygge og private.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Tredjepartsrevisjonar
+Bitwarden gjennomfører jamleg omfattande tredjeparts tryggingsrevisjonar med kjende tryggingsfirma. Desse årlege revisjonane inkluderer kjeldekodevurderingar og penetrasjonstesting på tvers av Bitwarden IP-ar, tenarar og nettapplikasjonar.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Avansert 2FA
+Sikre innlogginga di med ein tredjeparts autentiseringsapp, e-postkodar eller FIDO2 WebAuthn-legitimasjon som ein maskinvare tryggingsnøkkel eller passnøkkel.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Overfør data direkte til andre medan du opprettheld ende-til-ende-kryptert tryggleik og avgrensar eksponering.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Innebygd generator
+Lag lange, komplekse og særeigne passord og unike brukarnamn for kvar nettstad du besøkjer. Integrer med e-postalias-leverandørar for ekstra personvern.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Globale omsetjingar
+Bitwarden-omsetjingar finst for meir enn 60 språk, omsette av det globale samfunnet gjennom Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Plattformuavhengige applikasjonar
+Sikre og del sensitive data i Bitwarden-kvelven din frå ein kvar nettlesar, mobil eining eller skrivebords-OS, og meir.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden sikrar meir enn berre passord
+Ende-til-ende-krypterte påloggingsdetaljhandsamingsløysingar frå Bitwarden gjer organisasjonar i stand til å sikre alt, inkludert utviklarlynndomar og passnøkkelopplevingar. Besøk Bitwarden.com for å lære meir om Bitwarden Secrets Manager og Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Heime, på jobb eller på farten, sikrar Bitwarden enkelt alle passorda, passnøklane og sensitive opplysningane dine.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>Synkroniser og få tilgang til kvelven din frå fleire einingar</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>Handsam alle innloggingane og passorda dine frå ein sikker kvelv</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>Fyll raskt ut påloggingsdetaljane dine automatisk på ein kvar nettstad du besøkjer</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>Kvelven din er også lett tilgjengeleg frå høgreklikkmenyen</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>Generer automatisk sterke, tilfeldige og sikre passord</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>Informasjonen din vert handsama trygt med AES-256 bits kryptering</value>
   </data>
 </root>

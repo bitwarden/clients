@@ -124,49 +124,48 @@
     <value>Di rumah, di kantor, atau di perjalanan, Bitwarden mengamankan semua kata sandi, kunci sandi, dan informasi sensitif Anda dengan mudah.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Dikenal sebagai manajer kata sandi terbaik oleh PCMag, WIRED, The Verge, CNET, G2, dan lainnya!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+AMANKAN KEHIDUPAN DIGITAL ANDA
+Amankan kehidupan digital Anda dan lindungi dari pelanggaran data dengan menghasilkan dan menyimpan kata sandi yang unik dan kuat untuk setiap akun. Kelola semuanya dalam vault kata sandi terenkripsi end-to-end yang hanya dapat Anda akses.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+AKSES DATA ANDA, DI MANA SAJA, KAPAN SAJA, DI PERANGKAT APA PUN
+Kelola, simpan, amankan, dan bagikan kata sandi tanpa batas di perangkat tanpa batas tanpa batasan.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+SEMUA ORANG HARUS MEMILIKI ALAT UNTUK TETAP AMAN ONLINE
+Gunakan Bitwarden secara gratis tanpa iklan atau menjual data. Bitwarden percaya semua orang harus memiliki kemampuan untuk tetap aman online. Paket Premium menawarkan akses ke fitur lanjutan.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+BERDAYAKAN TIM ANDA DENGAN BITWARDEN
+Paket untuk Tim dan Perusahaan dilengkapi dengan fitur bisnis profesional. Beberapa contoh termasuk integrasi SSO, hosting sendiri, integrasi direktori dan provisi SCIM, kebijakan global, akses API, log peristiwa, dan lainnya.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Gunakan Bitwarden untuk mengamankan tenaga kerja Anda dan bagikan informasi sensitif dengan kolega.
 
 
-More reasons to choose Bitwarden:
+Alasan lain untuk memilih Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Enkripsi Kelas Dunia
+Kata sandi dilindungi dengan enkripsi end-to-end canggih (AES-256 bit, salted hashing, dan PBKDF2 SHA-256) sehingga data Anda tetap aman dan pribadi.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Audit Pihak Ketiga
+Bitwarden secara teratur melakukan audit keamanan pihak ketiga yang komprehensif dengan firma keamanan terkemuka. Audit tahunan ini mencakup penilaian kode sumber dan pengujian penetrasi di seluruh IP, server, dan aplikasi web Bitwarden.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA Lanjutan
+Amankan login Anda dengan autentikator pihak ketiga, kode email, atau kredensial FIDO2 WebAuthn seperti kunci keamanan perangkat keras atau passkey.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Kirim data langsung ke orang lain sambil mempertahankan keamanan terenkripsi end-to-end dan membatasi paparan.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Generator Bawaan
+Buat kata sandi yang panjang, kompleks, dan berbeda serta nama pengguna unik untuk setiap situs yang Anda kunjungi. Integrasikan dengan penyedia alias email untuk privasi tambahan.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Terjemahan Global
+Terjemahan Bitwarden tersedia untuk lebih dari 60 bahasa, diterjemahkan oleh komunitas global melalui Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Aplikasi Lintas Platform
+Amankan dan bagikan data sensitif dalam Vault Bitwarden Anda dari browser, perangkat seluler, atau OS desktop apa pun, dan lainnya.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden mengamankan lebih dari sekadar kata sandi
+Solusi manajemen kredensial terenkripsi end-to-end dari Bitwarden memberdayakan organisasi untuk mengamankan semuanya, termasuk rahasia pengembang dan pengalaman passkey. Kunjungi Bitwarden.com untuk mempelajari lebih lanjut tentang Bitwarden Secrets Manager dan Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>Di rumah, di kantor, atau di perjalanan, Bitwarden mengamankan semua kata sandi, kunci sandi, dan informasi sensitif Anda dengan mudah.</value>
