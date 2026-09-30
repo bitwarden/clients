@@ -39,11 +39,14 @@ export class SendItem extends Domain {
     if (this.data == null) {
       throw new Error("Item Send is missing its item data");
     }
+    if (this.metadata == null) {
+      throw new Error("Item Send is missing its item metadata");
+    }
 
     return {
       encryptionVersion: this.encryptionVersion,
       data: this.data,
-      metadata: this.metadata ? { itemId: asUuid(this.metadata.itemId) } : undefined,
+      metadata: { itemId: asUuid(this.metadata.itemId) },
     };
   }
 
@@ -52,7 +55,7 @@ export class SendItem extends Domain {
     return Object.assign(new SendItem(), {
       encryptionVersion: obj.encryptionVersion,
       data: obj.data,
-      metadata: obj.metadata ? { itemId: uuidAsString(obj.metadata.itemId) } : undefined,
+      metadata: { itemId: uuidAsString(obj.metadata.itemId) },
     });
   }
 

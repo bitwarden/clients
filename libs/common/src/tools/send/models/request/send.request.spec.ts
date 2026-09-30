@@ -94,7 +94,18 @@ describe("SendRequest", () => {
       const request = new SendRequest(send);
 
       expect(request.data.data).toBe(sealedData);
-      expect(request.data.metadata?.itemId).toBe("5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71");
+      expect(request.data.metadata.itemId).toBe("5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71");
+    });
+
+    it("should throw for an Item Send without metadata", () => {
+      const send = new Send();
+      send.type = SendType.Item;
+      send.name = new EncString("encryptedName");
+      send.key = new EncString("encryptedKey");
+      send.data = new SendItem();
+      send.data.data = "sealed";
+
+      expect(() => new SendRequest(send)).toThrow("Item Send is missing its item metadata");
     });
   });
 });

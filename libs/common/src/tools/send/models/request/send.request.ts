@@ -55,13 +55,14 @@ export class SendRequest {
         if (send.data?.data == null) {
           throw new Error("Item Send is missing its item data");
         }
+        if (send.data.metadata == null) {
+          throw new Error("Item Send is missing its item metadata");
+        }
         this.data = new SendItemApi();
         this.data.encryptionVersion = send.data.encryptionVersion;
         this.data.data = send.data.data;
-        if (send.data.metadata != null) {
-          this.data.metadata = new SendItemMetadataApi();
-          this.data.metadata.itemId = send.data.metadata.itemId;
-        }
+        this.data.metadata = new SendItemMetadataApi();
+        this.data.metadata.itemId = send.data.metadata.itemId;
         break;
       default:
         break;

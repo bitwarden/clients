@@ -43,4 +43,10 @@ describe("SendItem", () => {
   it("throws when mapping to the SDK without data", () => {
     expect(() => new SendItem().toSdk()).toThrow();
   });
+
+  it("throws when mapping to the SDK without metadata", () => {
+    const sendItem = new SendItem({ ...data, metadata: undefined });
+
+    expect(() => sendItem.toSdk()).toThrow("Item Send is missing its item metadata");
+  });
 });

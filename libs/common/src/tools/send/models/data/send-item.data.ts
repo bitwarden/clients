@@ -13,7 +13,7 @@ export class SendItemData {
     if (data) {
       this.encryptionVersion = data.encryptionVersion;
       this.data = data.data;
-      this.metadata = data.metadata ? new SendItemMetadataData(data.metadata) : undefined;
+      this.metadata = new SendItemMetadataData(data.metadata);
     }
   }
 }

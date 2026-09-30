@@ -76,9 +76,7 @@ export class SendAccessResponse extends BaseResponse {
           ? {
               encryptionVersion: obj.data?.encryptionVersion ?? undefined,
               data: obj.data?.data ?? undefined,
-              metadata: obj.data?.metadata
-                ? { itemId: asUuid(obj.data.metadata.itemId) }
-                : undefined,
+              metadata: { itemId: asUuid(obj.data?.metadata?.itemId) },
             }
           : undefined,
     };
