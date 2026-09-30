@@ -35,6 +35,20 @@ const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
  */
 const ANSWERABLE_AUTH_SCHEMES = new Set(["basic", "digest"]);
 
+/**
+ * Non-navigation request types answered from the vault, and then only when the
+ * requesting page is the same origin as the challenger.
+ *
+ * Credentials are cached per protection space and sent preemptively once a
+ * space has been authenticated, so a page's own assets do not raise a second
+ * challenge. A passive asset such as an image or a stylesheet therefore only
+ * reaches this code when it sits in a realm nothing has authenticated yet,
+ * which no ordinary deployment produces. The two kept here do occur: a single
+ * page application calling a protected API on its own origin, and a wrapper
+ * page embedding an application that carries its own realm.
+ */
+const ANSWERABLE_SUBRESOURCE_TYPES = new Set(["xmlhttprequest", "sub_frame"]);
+
 const DEFAULT_PORT_BY_PROTOCOL: Record<string, number> = {
   "http:": 80,
   "https:": 443,
@@ -79,6 +93,10 @@ function isTopLevelNavigationOrSameOriginSubresource(
 ): boolean {
   if (details.type === "main_frame") {
     return true;
+  }
+
+  if (!ANSWERABLE_SUBRESOURCE_TYPES.has(details.type)) {
+    return false;
   }
 
   // An opaque initiator serializes as the string "null" and cannot be compared.
